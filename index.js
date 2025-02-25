@@ -28,7 +28,7 @@ client.on('messageCreate', async (message) => {
     if (message.author.id !== ALLOWED_USER_ID && message.author.id !== OWNER_ID) return;
 
     // Respuesta del creador
-    if (message.author.id === OWNER_ID && message.content.startsWith('responde')) {
+    if (message.author.id === OWNER_ID && message.content.startsWith('responder')) {
         const reply = message.content.slice(8).trim();
         const lastUser = client.lastHelpUser;
 
@@ -82,7 +82,7 @@ client.on('messageCreate', async (message) => {
         const ownerEmbed = new EmbedBuilder()
             .setColor('#FFFF55')
             .setTitle('¡Solicitud de ayuda!')
-            .setDescription(`El usuario ${message.author.tag} necesita ayuda: "${issue}"`)
+            .setDescription(`Milagros necesita ayuda: "${issue}"`)
             .setTimestamp();
         owner.send({ embeds: [ownerEmbed] });
         client.lastHelpUser = message.author;
@@ -103,12 +103,12 @@ client.on('messageCreate', async (message) => {
         const response = await axios.post(
             'https://api-inference.huggingface.co/models/mixtralai/Mixtral-8x7B-Instruct-v0.1',
             {
-                inputs: prompt,
+                inputs: 'Hola, ¿cómo estás?',
                 parameters: { max_new_tokens: 200, return_full_text: false },
             },
             {
                 headers: {
-                    'Authorization': `Bearer ${process.env.HF_API_TOKEN}`,
+                    'Authorization': `Bearer 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`,
                     'Content-Type': 'application/json',
                 },
             }
