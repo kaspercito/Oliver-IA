@@ -13,8 +13,8 @@ const client = new Client({
 
 // IDs
 const OWNER_ID = '752987736759205960'; // Reemplaza con tu ID
-const ALLOWED_USER_ID = '1023132788632862761'; // Reemplaza con el ID de ella
-const CHANNEL_ID = '1008091220544851970'; // O 'ID_DEL_CANAL_AQUÍ' si elige canal
+const ALLOWED_USER_ID = '1159886734226620538'; // Reemplaza con el ID de ella
+const CHANNEL_ID = '1328170231008464958'; // O 'ID_DEL_CANAL_AQUÍ' si elige canal
 
 client.once('ready', () => {
     console.log('¡Miguel IA está listo para ayudar!');
