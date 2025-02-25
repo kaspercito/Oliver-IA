@@ -147,10 +147,10 @@ client.on('messageCreate', async (message) => {
             .setFooter({ text: 'Creado por Miguel' })
             .setTimestamp();
         return message.reply({ embeds: [embed] });
-    } else if (userMessage.toLowerCase().includes('sugieres') && userMessage.toLowerCase().includes('capa')) {
+    } else if (userMessage.toLowerCase().includes('diseño') && userMessage.toLowerCase().includes('capa')) {
         const embed = new EmbedBuilder()
             .setColor('#55FF55')
-            .setDescription('¡Claro que sí! Tengo una idea genial para tu capa. Mira este diseño que te puede encantar: https://livzmc.net/banner/?=aaFgavikFAaFFt. ¿Qué te parece?')
+            .setDescription('Aqui tienes la capa con un pelaje marrón https://livzmc.net/banner/?=aadgavikdAaFdt ¿Qué te parece?')
             .setFooter({ text: 'Creado por Miguel' })
             .setTimestamp();
         return message.reply({ embeds: [embed] });
