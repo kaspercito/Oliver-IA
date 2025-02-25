@@ -147,13 +147,6 @@ client.on('messageCreate', async (message) => {
             .setFooter({ text: 'Creado por Miguel' })
             .setTimestamp();
         return message.reply({ embeds: [embed] });
-    } else if (userMessage.toLowerCase().includes('diseño') && userMessage.toLowerCase().includes('capa')) {
-        const embed = new EmbedBuilder()
-            .setColor('#55FF55')
-            .setDescription('Aqui tienes la capa con un pelaje marrón https://livzmc.net/banner/?=aadgavikdAaFdt ¿Qué te parece?')
-            .setFooter({ text: 'Creado por Miguel' })
-            .setTimestamp();
-        return message.reply({ embeds: [embed] });
     }
     
     // Respuesta normal de la IA
