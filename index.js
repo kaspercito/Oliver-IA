@@ -12,13 +12,16 @@ const client = new Client({
 });
 
 // IDs
-const OWNER_ID = '752987736759205960'; // Reemplaza con tu ID
-const ALLOWED_USER_ID = '1023132788632862761'; // Reemplaza con el ID de ella
-const CHANNEL_ID = '1343749554905940058'; // O 'ID_DEL_CANAL_AQUÍ' si elige canal
+const OWNER_ID = '752987736759205960'; // Tu ID
+const ALLOWED_USER_ID = '1023132788632862761'; // ID de ella
+const CHANNEL_ID = '1343749554905940058'; // Canal permitido
 
 client.once('ready', () => {
     console.log('¡Miguel IA está listo para ayudar!');
-    client.user.setPresence({ activities: [{ name: "Listo para ayudarte Milagros, si necesitas ayuda adicional usa !ayuda", type: 0 }], status: 'online' });
+    client.user.setPresence({ 
+        activities: [{ name: "Listo para ayudarte Milagros, si necesitas ayuda adicional usa !ayuda", type: 0 }], 
+        status: 'online' 
+    });
 });
 
 client.on('messageCreate', async (message) => {
@@ -48,7 +51,6 @@ client.on('messageCreate', async (message) => {
             .setFooter({ text: 'Con cariño, Miguel IA' })
             .setTimestamp();
 
-        // Verificar si el propietario adjuntó imágenes
         if (message.attachments.size > 0) {
             const attachments = message.attachments.map(attachment => attachment.url);
             userEmbed.addFields({
@@ -56,15 +58,12 @@ client.on('messageCreate', async (message) => {
                 value: attachments.join('\n'),
                 inline: false
             });
-
-            // Mostrar la primera imagen directamente en el embed
             const firstAttachment = message.attachments.first();
             if (firstAttachment && firstAttachment.contentType?.startsWith('image/')) {
                 userEmbed.setImage(firstAttachment.url);
             }
         }
 
-        // Enviar la respuesta al usuario
         lastUser.send({ embeds: [userEmbed] });
 
         const ownerEmbed = new EmbedBuilder()
@@ -74,7 +73,6 @@ client.on('messageCreate', async (message) => {
             .setTimestamp();
         message.reply({ embeds: [ownerEmbed] });
 
-        // Limpiar el usuario almacenado
         client.lastHelpUser = null;
         return;
     }
@@ -107,7 +105,6 @@ client.on('messageCreate', async (message) => {
             .setDescription(`Milagros necesita ayuda: "${issue}"`)
             .setTimestamp();
 
-        // Verificar si hay adjuntos (como imágenes)
         if (message.attachments.size > 0) {
             const attachments = message.attachments.map(attachment => attachment.url);
             ownerEmbed.addFields({
@@ -115,15 +112,12 @@ client.on('messageCreate', async (message) => {
                 value: attachments.join('\n') || 'No se pudieron cargar los enlaces.',
                 inline: false
             });
-
-            // Opcional: Mostrar la primera imagen directamente en el embed para el propietario
             const firstAttachment = message.attachments.first();
             if (firstAttachment && firstAttachment.contentType?.startsWith('image/')) {
                 ownerEmbed.setImage(firstAttachment.url);
             }
         }
 
-        // Enviar el embed al propietario
         owner.send({ embeds: [ownerEmbed] });
         client.lastHelpUser = message.author;
 
@@ -136,7 +130,7 @@ client.on('messageCreate', async (message) => {
         return message.reply({ embeds: [userEmbed] });
     }
 
-    // Respuesta normal de la IA o saludo especial
+    // Respuesta a "hola"
     if (userMessage.toLowerCase() === 'hola') {
         const embed = new EmbedBuilder()
             .setColor('#55FF55')
@@ -148,16 +142,25 @@ client.on('messageCreate', async (message) => {
             .setTimestamp();
         return message.reply({ embeds: [embed] });
     }
-    
-    // Respuesta normal de la IA
-    const prompt = `Eres Miguel IA, creado por Miguel. Responde con amabilidad, apoyo y cariño, como un amigo útil. Responde a: "${userMessage}"`;
+
+    // Respuesta dinámica de la IA con "generando" primero
+    const initialEmbed = new EmbedBuilder()
+        .setColor('#55FF55')
+        .setTitle('¡Hola, soy Miguel IA!')
+        .setDescription('Estoy generando tu respuesta con mucho cariño, ¡dame un momentito! 😊')
+        .setFooter({ text: 'Creado por Miguel' })
+        .setTimestamp();
+
+    const sentMessage = await message.reply({ embeds: [initialEmbed] });
+
+    const prompt = `Eres Miguel IA, creado por Miguel. Responde con amabilidad, apoyo y cariño, como un amigo útil. Si te preguntan cómo hacer algo, da pasos claros y simples. Responde a: "${userMessage}"`;
 
     try {
         const response = await axios.post(
             'https://api-inference.huggingface.co/models/mistralai/Mixtral-8x7B-Instruct-v0.1',
             {
                 inputs: prompt,
-                parameters: { max_new_tokens: 500, return_full_text: false },
+                parameters: { max_new_tokens: 500, return_full_text: false, temperature: 0.7 },
             },
             {
                 headers: {
@@ -167,23 +170,32 @@ client.on('messageCreate', async (message) => {
             }
         );
 
-        const aiReply = response.data[0].generated_text;
-        const embed = new EmbedBuilder()
+        // Verificar respuesta de la API
+        console.log('Respuesta cruda de la API:', response.data);
+
+        const aiReply = response.data[0]?.generated_text || '¡Ups, parece que me quedé pensando! ¿Puedes repetir tu pregunta?';
+
+        if (!aiReply || aiReply.trim().length < 5) {
+            throw new Error('Respuesta vacía o insuficiente');
+        }
+
+        const finalEmbed = new EmbedBuilder()
             .setColor('#55FF55')
             .setTitle('¡Hola, soy Miguel IA!')
             .setDescription(aiReply)
             .setFooter({ text: 'Creado con cariño por Miguel' })
             .setTimestamp();
-        message.reply({ embeds: [embed] });
+
+        return sentMessage.edit({ embeds: [finalEmbed] });
     } catch (error) {
-        console.error('Error:', error);
-        const embed = new EmbedBuilder()
+        console.error('Error al consultar la API:', error.message, error.response?.data || '');
+        const errorEmbed = new EmbedBuilder()
             .setColor('#FF5555')
             .setTitle('¡Ups, algo salió mal!')
-            .setDescription('No pude responder, pero estoy aquí para ayudarte. Usa "!ayuda" si necesitas más apoyo.')
+            .setDescription('No pude generar la respuesta esta vez, pero estoy aquí para ayudarte. Usa "!ayuda" si necesitas que Miguel me dé una mano.')
             .setFooter({ text: 'Con cariño, Miguel IA' })
             .setTimestamp();
-        message.reply({ embeds: [embed] });
+        return sentMessage.edit({ embeds: [errorEmbed] });
     }
 });
 
