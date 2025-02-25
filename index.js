@@ -101,14 +101,14 @@ client.on('messageCreate', async (message) => {
 
     try {
         const response = await axios.post(
-            'https://api-inference.huggingface.co/models/mixtralai/Mixtral-8x7B-Instruct-v0.1',
+            'https://api-inference.huggingface.co/models/mistralai/Mixtral-8x7B-Instruct-v0.1',
             {
-                inputs: 'Hola, ¿cómo estás?',
+                inputs: prompt,
                 parameters: { max_new_tokens: 200, return_full_text: false },
             },
             {
                 headers: {
-                    'Authorization': `Bearer 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`,
+                    'Authorization': `Bearer ${process.env.HF_API_TOKEN}`,
                     'Content-Type': 'application/json',
                 },
             }
