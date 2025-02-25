@@ -30,16 +30,22 @@ client.on('messageCreate', async (message) => {
     // Solo ella o el creador
     if (message.author.id !== ALLOWED_USER_ID && message.author.id !== OWNER_ID) return;
 
-    // Respuesta del creador (funciona desde cualquier canal)
+    // Respuesta del creador (funciona siempre, enviando a ALLOWED_USER_ID)
     if (message.author.id === OWNER_ID && message.content.startsWith('responder')) {
-        const reply = message.content.slice(8).trim();
-        const lastUser = client.lastHelpUser;
+        console.log('Comando "responder" detectado por OWNER_ID:', message.content); // Para depurar
 
-        if (!lastUser) {
+        const reply = message.content.slice(8).trim();
+        
+        // Obtener el usuario ALLOWED_USER_ID directamente
+        let targetUser;
+        try {
+            targetUser = await client.users.fetch(ALLOWED_USER_ID);
+        } catch (error) {
+            console.error('Error al obtener el usuario:', error);
             const embed = new EmbedBuilder()
                 .setColor('#FF5555')
                 .setTitle('¡Ups!')
-                .setDescription('No hay nadie esperando respuesta por ahora.')
+                .setDescription('No pude encontrar a Milagros. ¿Está bien su ID o me bloqueó?')
                 .setTimestamp();
             return message.reply({ embeds: [embed] });
         }
@@ -65,20 +71,19 @@ client.on('messageCreate', async (message) => {
         }
 
         try {
-            await lastUser.send({ embeds: [userEmbed] });
+            await targetUser.send({ embeds: [userEmbed] });
             const ownerEmbed = new EmbedBuilder()
                 .setColor('#55FF55')
                 .setTitle('¡Éxito!')
                 .setDescription('Respuesta enviada a Milagros.')
                 .setTimestamp();
             await message.reply({ embeds: [ownerEmbed] });
-            client.lastHelpUser = null; // Limpiar después de enviar
         } catch (error) {
             console.error('Error al enviar respuesta al usuario:', error);
             const errorEmbed = new EmbedBuilder()
                 .setColor('#FF5555')
                 .setTitle('¡Ups!')
-                .setDescription('No pude enviar la respuesta al usuario. ¿Quizás me bloqueó?')
+                .setDescription('No pude enviar la respuesta a Milagros. ¿Quizás me bloqueó o hay un problema con Discord?')
                 .setTimestamp();
             await message.reply({ embeds: [errorEmbed] });
         }
@@ -94,7 +99,7 @@ client.on('messageCreate', async (message) => {
 
     const userMessage = message.content;
 
-    // Comando !ayuda
+    // Comando !ayuda (opcional, sigue funcionando como antes)
     if (userMessage.startsWith('!ayuda')) {
         const issue = userMessage.slice(6).trim();
         if (!issue) {
@@ -127,7 +132,7 @@ client.on('messageCreate', async (message) => {
         }
 
         await owner.send({ embeds: [ownerEmbed] });
-        client.lastHelpUser = message.author;
+        // Nota: Ya no usamos client.lastHelpUser aquí porque "responder" ya no lo necesita
 
         const userEmbed = new EmbedBuilder()
             .setColor('#55FFFF')
