@@ -104,7 +104,7 @@ client.on('messageCreate', async (message) => {
             'https://api-inference.huggingface.co/models/mistralai/Mixtral-8x7B-Instruct-v0.1',
             {
                 inputs: prompt,
-                parameters: { max_new_tokens: 200, return_full_text: false },
+                parameters: { max_new_tokens: 500, return_full_text: false },
             },
             {
                 headers: {
