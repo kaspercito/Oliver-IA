@@ -30,7 +30,7 @@ client.on('messageCreate', async (message) => {
     // Solo ella o el creador
     if (message.author.id !== ALLOWED_USER_ID && message.author.id !== OWNER_ID) return;
 
-    // Respuesta del creador
+    // Respuesta del creador (funciona desde cualquier canal)
     if (message.author.id === OWNER_ID && message.content.startsWith('responder')) {
         const reply = message.content.slice(8).trim();
         const lastUser = client.lastHelpUser;
@@ -64,16 +64,24 @@ client.on('messageCreate', async (message) => {
             }
         }
 
-        lastUser.send({ embeds: [userEmbed] });
-
-        const ownerEmbed = new EmbedBuilder()
-            .setColor('#55FF55')
-            .setTitle('¡Éxito!')
-            .setDescription('Respuesta enviada al usuario.')
-            .setTimestamp();
-        message.reply({ embeds: [ownerEmbed] });
-
-        client.lastHelpUser = null;
+        try {
+            await lastUser.send({ embeds: [userEmbed] });
+            const ownerEmbed = new EmbedBuilder()
+                .setColor('#55FF55')
+                .setTitle('¡Éxito!')
+                .setDescription('Respuesta enviada a Milagros.')
+                .setTimestamp();
+            await message.reply({ embeds: [ownerEmbed] });
+            client.lastHelpUser = null; // Limpiar después de enviar
+        } catch (error) {
+            console.error('Error al enviar respuesta al usuario:', error);
+            const errorEmbed = new EmbedBuilder()
+                .setColor('#FF5555')
+                .setTitle('¡Ups!')
+                .setDescription('No pude enviar la respuesta al usuario. ¿Quizás me bloqueó?')
+                .setTimestamp();
+            await message.reply({ embeds: [errorEmbed] });
+        }
         return;
     }
 
@@ -118,7 +126,7 @@ client.on('messageCreate', async (message) => {
             }
         }
 
-        owner.send({ embeds: [ownerEmbed] });
+        await owner.send({ embeds: [ownerEmbed] });
         client.lastHelpUser = message.author;
 
         const userEmbed = new EmbedBuilder()
@@ -170,7 +178,6 @@ client.on('messageCreate', async (message) => {
             }
         );
 
-        // Verificar respuesta de la API
         console.log('Respuesta cruda de la API:', response.data);
 
         const aiReply = response.data[0]?.generated_text || '¡Ups, parece que me quedé pensando! ¿Puedes repetir tu pregunta?';
