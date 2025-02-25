@@ -47,6 +47,24 @@ client.on('messageCreate', async (message) => {
             .setDescription(`Aquí tienes: "${reply}"`)
             .setFooter({ text: 'Con cariño, Miguel IA' })
             .setTimestamp();
+
+        // Verificar si el propietario adjuntó imágenes
+        if (message.attachments.size > 0) {
+            const attachments = message.attachments.map(attachment => attachment.url);
+            userEmbed.addFields({
+                name: 'Imágenes de Miguel',
+                value: attachments.join('\n'),
+                inline: false
+            });
+
+            // Mostrar la primera imagen directamente en el embed
+            const firstAttachment = message.attachments.first();
+            if (firstAttachment && firstAttachment.contentType?.startsWith('image/')) {
+                userEmbed.setImage(firstAttachment.url);
+            }
+        }
+
+        // Enviar la respuesta al usuario
         lastUser.send({ embeds: [userEmbed] });
 
         const ownerEmbed = new EmbedBuilder()
@@ -54,7 +72,11 @@ client.on('messageCreate', async (message) => {
             .setTitle('¡Éxito!')
             .setDescription('Respuesta enviada al usuario.')
             .setTimestamp();
-        return message.reply({ embeds: [ownerEmbed] });
+        message.reply({ embeds: [ownerEmbed] });
+
+        // Limpiar el usuario almacenado
+        client.lastHelpUser = null;
+        return;
     }
 
     // Solo ella a partir de aquí
@@ -84,6 +106,24 @@ client.on('messageCreate', async (message) => {
             .setTitle('¡Solicitud de ayuda!')
             .setDescription(`Milagros necesita ayuda: "${issue}"`)
             .setTimestamp();
+
+        // Verificar si hay adjuntos (como imágenes)
+        if (message.attachments.size > 0) {
+            const attachments = message.attachments.map(attachment => attachment.url);
+            ownerEmbed.addFields({
+                name: 'Adjuntos',
+                value: attachments.join('\n') || 'No se pudieron cargar los enlaces.',
+                inline: false
+            });
+
+            // Opcional: Mostrar la primera imagen directamente en el embed para el propietario
+            const firstAttachment = message.attachments.first();
+            if (firstAttachment && firstAttachment.contentType?.startsWith('image/')) {
+                ownerEmbed.setImage(firstAttachment.url);
+            }
+        }
+
+        // Enviar el embed al propietario
         owner.send({ embeds: [ownerEmbed] });
         client.lastHelpUser = message.author;
 
