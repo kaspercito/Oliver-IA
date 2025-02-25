@@ -136,6 +136,19 @@ client.on('messageCreate', async (message) => {
         return message.reply({ embeds: [userEmbed] });
     }
 
+    // Respuesta normal de la IA o saludo especial
+    if (userMessage.toLowerCase() === 'hola') {
+        const embed = new EmbedBuilder()
+            .setColor('#55FF55')
+            .setTitle('¡Hola, soy Miguel IA!')
+            .setDescription(
+                '¡Hola, qué alegría verte! Soy Miguel IA, creado por Miguel para ayudarte con cariño y apoyo. Puedo responder tus preguntas, darte información y hasta charlar como amigo. Si no te puedo ayudar yo, solo di "!ayuda" y le contaré a Miguel. ¿En qué puedo ayudarte hoy?'
+            )
+            .setFooter({ text: 'Creado por Miguel' })
+            .setTimestamp();
+        return message.reply({ embeds: [embed] });
+    }
+    
     // Respuesta normal de la IA
     const prompt = `Eres Miguel IA, creado por Miguel. Responde con amabilidad, apoyo y cariño, como un amigo útil. Responde a: "${userMessage}"`;
 
