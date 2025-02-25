@@ -28,18 +28,30 @@ client.on('messageCreate', async (message) => {
     if (message.author.bot) return;
 
     // Solo ella o el creador
-    if (message.author.id !== ALLOWED_USER_ID && message.author.id !== OWNER_ID) return;
+    if (message.author.id !== ALLOWED_USER_ID && message.author.id !== OWNER_ID) {
+        console.log('Mensaje ignorado - ID no permitido:', message.author.id);
+        return;
+    }
 
     // Respuesta del creador (funciona siempre, enviando a ALLOWED_USER_ID)
     if (message.author.id === OWNER_ID && message.content.startsWith('responder')) {
-        console.log('Comando "responder" detectado por OWNER_ID:', message.content); // Para depurar
+        console.log('Comando "responder" detectado por OWNER_ID:', message.content);
 
         const reply = message.content.slice(8).trim();
-        
+        if (!reply) {
+            const embed = new EmbedBuilder()
+                .setColor('#FF5555')
+                .setTitle('¡Ups!')
+                .setDescription('Por favor, escribe algo después de "responder" para enviar a Milagros.')
+                .setTimestamp();
+            return message.reply({ embeds: [embed] });
+        }
+
         // Obtener el usuario ALLOWED_USER_ID directamente
         let targetUser;
         try {
             targetUser = await client.users.fetch(ALLOWED_USER_ID);
+            console.log('Usuario ALLOWED_USER_ID obtenido:', targetUser.tag);
         } catch (error) {
             console.error('Error al obtener el usuario:', error);
             const embed = new EmbedBuilder()
@@ -72,6 +84,7 @@ client.on('messageCreate', async (message) => {
 
         try {
             await targetUser.send({ embeds: [userEmbed] });
+            console.log('Mensaje enviado a ALLOWED_USER_ID:', reply);
             const ownerEmbed = new EmbedBuilder()
                 .setColor('#55FF55')
                 .setTitle('¡Éxito!')
@@ -95,11 +108,14 @@ client.on('messageCreate', async (message) => {
 
     const isChannelMode = CHANNEL_ID && message.channel.id === CHANNEL_ID;
     const isDMMode = !message.guild;
-    if (!isChannelMode && !isDMMode) return;
+    if (!isChannelMode && !isDMMode) {
+        console.log('Mensaje ignorado - Canal no permitido:', message.channel.id);
+        return;
+    }
 
     const userMessage = message.content;
 
-    // Comando !ayuda (opcional, sigue funcionando como antes)
+    // Comando !ayuda
     if (userMessage.startsWith('!ayuda')) {
         const issue = userMessage.slice(6).trim();
         if (!issue) {
@@ -132,7 +148,6 @@ client.on('messageCreate', async (message) => {
         }
 
         await owner.send({ embeds: [ownerEmbed] });
-        // Nota: Ya no usamos client.lastHelpUser aquí porque "responder" ya no lo necesita
 
         const userEmbed = new EmbedBuilder()
             .setColor('#55FFFF')
