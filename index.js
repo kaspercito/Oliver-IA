@@ -27,15 +27,18 @@ client.once('ready', () => {
 client.on('messageCreate', async (message) => {
     if (message.author.bot) return;
 
+    // Depuración inicial
+    console.log('Mensaje recibido - Autor:', message.author.id, 'Contenido:', message.content, 'Es DM:', !message.guild);
+
     // Solo ella o el creador
     if (message.author.id !== ALLOWED_USER_ID && message.author.id !== OWNER_ID) {
         console.log('Mensaje ignorado - ID no permitido:', message.author.id);
         return;
     }
 
-    // Respuesta del creador (funciona siempre, enviando a ALLOWED_USER_ID)
+    // Respuesta del creador (funciona en canales y DMs)
     if (message.author.id === OWNER_ID && message.content.startsWith('responder')) {
-        console.log('Comando "responder" detectado por OWNER_ID:', message.content);
+        console.log('Comando "responder" detectado por OWNER_ID:', message.content, 'Desde DM:', !message.guild);
 
         const reply = message.content.slice(8).trim();
         if (!reply) {
