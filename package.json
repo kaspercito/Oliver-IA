@@ -1,6 +1,7 @@
 {
   "name": "discord-bot-belen",
   "version": "1.0.0",
+  "type": "module", // Añade esta línea para indicar que usas módulos ES
   "description": "Un bot de Discord para notificaciones y mensajes especiales para Belen",
   "main": "index.js",
   "scripts": {
