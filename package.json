@@ -1,16 +1,17 @@
 {
-  "name": "miguel-ia",
+  "name": "discord-bot-belen",
   "version": "1.0.0",
-  "description": "Un bot de Discord exclusivo para ella",
+  "description": "Un bot de Discord para notificaciones y mensajes especiales para Belen",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "author": "Miguel (PancitoDeMiga)",
+  "license": "MIT",
   "dependencies": {
-    "discord.js": "^14.15.0",
-    "axios": "^1.6.0",
-    "dotenv": "^16.0.0"
-  },
-  "author": "Miguel",
-  "license": "ISC"
+    "discord.js": "^14.15.3",
+    "dotenv": "^16.4.5",
+    "node-fetch": "^3.3.2"
+  }
 }
