@@ -16,6 +16,10 @@ const OWNER_ID = '752987736759205960'; // Tu ID
 const ALLOWED_USER_ID = '1023132788632862761'; // ID de ella
 const CHANNEL_ID = '1343749554905940058'; // Canal permitido
 
+// Historial de conversación en memoria
+const conversationHistory = new Map(); // Usamos Map para asociar usuarios con su historial
+const MAX_MESSAGES = 20; // Límite de mensajes guardados por usuario
+
 client.once('ready', () => {
     console.log('¡Miguel IA está listo para ayudar!');
     client.user.setPresence({ 
@@ -34,6 +38,21 @@ client.on('messageCreate', async (message) => {
     if (message.author.id !== ALLOWED_USER_ID && message.author.id !== OWNER_ID) {
         console.log('Mensaje ignorado - ID no permitido:', message.author.id);
         return;
+    }
+
+    // Guardar mensaje en el historial (solo para ALLOWED_USER_ID)
+    if (message.author.id === ALLOWED_USER_ID) {
+        const userId = message.author.id;
+        let userHistory = conversationHistory.get(userId) || [];
+        userHistory.push({
+            role: 'user',
+            content: message.content,
+            timestamp: new Date().toISOString()
+        });
+        if (userHistory.length > MAX_MESSAGES) {
+            userHistory.shift(); // Elimina el mensaje más antiguo si supera el límite
+        }
+        conversationHistory.set(userId, userHistory);
     }
 
     // Respuesta del creador (funciona en canales y DMs)
@@ -174,7 +193,7 @@ client.on('messageCreate', async (message) => {
         return message.reply({ embeds: [embed] });
     }
 
-    // Respuesta dinámica de la IA con "generando" primero
+    // Respuesta dinámica de la IA con historial
     const initialEmbed = new EmbedBuilder()
         .setColor('#55FF55')
         .setTitle('¡Hola, soy Miguel IA!')
@@ -184,7 +203,11 @@ client.on('messageCreate', async (message) => {
 
     const sentMessage = await message.reply({ embeds: [initialEmbed] });
 
-    const prompt = `Eres Miguel IA, creado por Miguel. Responde con amabilidad, apoyo y cariño, como un amigo útil. Si te preguntan cómo hacer algo, da pasos claros y simples. Responde a: "${userMessage}"`;
+    // Obtener historial del usuario
+    const userHistory = conversationHistory.get(ALLOWED_USER_ID) || [];
+    const historyText = userHistory.map(msg => `${msg.role === 'user' ? 'Milagros' : 'Miguel IA'}: ${msg.content}`).join('\n');
+
+    const prompt = `Eres Miguel IA, creado por Miguel. Responde con amabilidad, apoyo y cariño, como un amigo útil. Si te preguntan cómo hacer algo, da pasos claros y simples. Aquí está el historial de la conversación:\n${historyText}\nResponde a: "${userMessage}"`;
 
     try {
         const response = await axios.post(
@@ -208,6 +231,18 @@ client.on('messageCreate', async (message) => {
         if (!aiReply || aiReply.trim().length < 5) {
             throw new Error('Respuesta vacía o insuficiente');
         }
+
+        // Guardar la respuesta de la IA en el historial
+        let updatedHistory = conversationHistory.get(ALLOWED_USER_ID) || [];
+        updatedHistory.push({
+            role: 'assistant',
+            content: aiReply,
+            timestamp: new Date().toISOString()
+        });
+        if (updatedHistory.length > MAX_MESSAGES) {
+            updatedHistory.shift(); // Elimina el mensaje más antiguo
+        }
+        conversationHistory.set(ALLOWED_USER_ID, updatedHistory);
 
         const finalEmbed = new EmbedBuilder()
             .setColor('#55FF55')
