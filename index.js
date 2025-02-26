@@ -7,17 +7,17 @@ const client = new Client({
   intents: [
     GatewayIntentBits.Guilds,
     GatewayIntentBits.GuildMessages,
-    GatewayIntentBits.MessageContent,
-    GatewayIntentBits.DirectMessages // Necesario para enviar MD
+    GatewayIntentBits.MessageContent
   ]
 });
 
 const DISCORD_TOKEN = process.env.DISCORD_TOKEN;
-const BELEN_USER_ID = process.env.BELEN_USER_ID; // Agrega el ID de Belen en tu archivo .env
+const BELEN_USER_ID = process.env.BELEN_USER_ID; // ID de Belén desde el .env
+const CHANNEL_ID = process.env.CHANNEL_ID; // Agrega el ID del canal en tu archivo .env
 
 async function sendFinalMessageAndShutdown() {
   const finalMessage = `
-🌟 **¡Último mensaje para vos, Belen!** 🌟
+<@${BELEN_USER_ID}> 🌟 **¡Último mensaje para vos, Belen!** 🌟
 
 💌 **Un adiós con amor:**  
 He estado aquí todos los días, notificando cada nuevo mensaje que Miguel dejó para vos en su página especial, porque te extraña con todo su corazón. Pero este será mi último aviso, mi ratita. Miguel decidió apagarme porque prefirió hacer algo que vos ibas a necesitar: esa ayuda que él siempre te brindaba. Siempre fuiste la razón por la que existí, y cada notificación fue un regalo para vos. ❤️🤞🏻🐁  
@@ -27,11 +27,11 @@ He estado aquí todos los días, notificando cada nuevo mensaje que Miguel dejó
   `;
 
   try {
-    console.log('🔗 Enviando el mensaje final por MD a Belen...');
-    const user = await client.users.fetch(BELEN_USER_ID);
-    if (!user) throw new Error('Usuario no encontrado o inaccesible.');
-    await user.send(finalMessage);
-    console.log('📩 Mensaje final enviado por MD con éxito.');
+    console.log('🔗 Enviando el mensaje final al canal...');
+    const channel = await client.channels.fetch(CHANNEL_ID);
+    if (!channel || !channel.isTextBased()) throw new Error('Canal no encontrado o no es un canal de texto.');
+    await channel.send(finalMessage);
+    console.log('📩 Mensaje final enviado al canal con éxito.');
     
     // Esperar 5 segundos antes de apagar el bot
     await new Promise(resolve => setTimeout(resolve, 5000));
@@ -39,17 +39,16 @@ He estado aquí todos los días, notificando cada nuevo mensaje que Miguel dejó
     await client.destroy(); // Apaga el bot
     process.exit(0); // Cierra el proceso
   } catch (error) {
-    console.error('❌ Error al enviar el mensaje por MD:', error);
+    console.error('❌ Error al enviar el mensaje al canal:', error);
     await client.destroy();
     process.exit(1);
   }
 }
 
-// Llama a esta función cuando quieras que el bot envíe el mensaje final y se apague
 client.once('ready', () => {
   console.log('✅ Bot conectado por última vez.');
   client.user.setPresence({ activities: [{ name: "Un último mensaje para Belen", type: 1 }], status: 'online' });
-  sendFinalMessageAndShutdown(); // Envia el mensaje por MD y apaga el bot
+  sendFinalMessageAndShutdown(); // Envía el mensaje al canal y apaga el bot
 });
 
 client.login(DISCORD_TOKEN);
