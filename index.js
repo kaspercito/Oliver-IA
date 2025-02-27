@@ -3,6 +3,8 @@ const { Client, GatewayIntentBits, EmbedBuilder } = require('discord.js');
 const axios = require('axios');
 require('dotenv').config();
 
+console.log('Verificando intents disponibles:', GatewayIntentBits); // Depuración
+
 const client = new Client({
     intents: [
         GatewayIntentBits.DirectMessages,
