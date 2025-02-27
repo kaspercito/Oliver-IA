@@ -117,17 +117,23 @@ function saveConversationHistory(history) {
     }
 }
 
+
 // Cargar y guardar últimas actualizaciones
 function loadLastUpdates() {
     try {
         if (fs.existsSync(LAST_UPDATES_FILE)) {
             const data = fs.readFileSync(LAST_UPDATES_FILE, 'utf8');
+            if (!data.trim()) { // Check if the file is empty
+                console.log('Últimas actualizaciones vacías, inicializando con valores por defecto.');
+                return { timestamp: 0, updates: [] };
+            }
             return JSON.parse(data);
         }
+        console.log('Archivo de últimas actualizaciones no encontrado, inicializando con valores por defecto.');
         return { timestamp: 0, updates: [] };
     } catch (error) {
-        console.error('Error al cargar las últimas actualizaciones:', error);
-        return { timestamp: 0, updates: [] };
+        console.error('Error al cargar las últimas actualizaciones:', error.message);
+        return { timestamp: 0, updates: [] }; // Return default object as fallback
     }
 }
 
@@ -241,7 +247,7 @@ client.once('ready', async () => {
             const updateEmbed = new EmbedBuilder()
                 .setColor('#FFD700')
                 .setTitle('📢 Actualizaciones de Miguel IA')
-                .setDescription('¡Hola, <@${ALLOWED_USER_ID}> Tengo mejoras nuevas para compartir contigo:')
+                .setDescription('¡Hola! Milagros. Tengo mejoras nuevas para compartir contigo.') // Quitamos la mención del embed
                 .addFields(
                     { name: 'Novedades', value: BOT_UPDATES.map(update => `- ${update}`).join('\n'), inline: false },
                     { name: 'Hora de actualización', value: `${argentinaTime}`, inline: false },
@@ -249,9 +255,10 @@ client.once('ready', async () => {
                 )
                 .setFooter({ text: 'Miguel IA' })
                 .setTimestamp();
-
-            await channel.send({ embeds: [updateEmbed] });
-            console.log('Actualizaciones enviadas al canal:', CHANNEL_ID);
+        
+            // Enviamos el mensaje con la mención fuera del embed
+            await channel.send({ content: `<@${ALLOWED_USER_ID}>`, embeds: [updateEmbed] });
+            console.log('Actualizaciones enviadas al canal con mención:', CHANNEL_ID);
             saveLastUpdates(BOT_UPDATES, currentTime);
         } else {
             console.log('No hay cambios en las actualizaciones o no ha pasado suficiente tiempo, no se enviaron.');
