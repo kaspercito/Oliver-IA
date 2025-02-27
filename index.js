@@ -140,8 +140,26 @@ async function saveConversationHistory(history) {
             );
             sha = response.data.sha;
         } catch (error) {
-            if (error.response && error.response.status !== 404) {
+            if (error.response && error.response.status === 404) {
+                console.log('Archivo no encontrado en GitHub, creando uno nuevo.');
+                // Crear un archivo nuevo si no existe
+                await axios.put(
+                    `https://api.github.com/repos/${process.env.GITHUB_REPO}/contents/${process.env.GITHUB_FILE_PATH}`,
+                    {
+                        message: 'Crear historial de conversación inicial',
+                        content: Buffer.from(JSON.stringify(history, null, 2)).toString('base64'),
+                    },
+                    {
+                        headers: {
+                            'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`,
+                            'Accept': 'application/vnd.github+json',
+                        },
+                    }
+                );
+                return; // Salir después de crear el archivo
+            } else {
                 console.error('Error al obtener SHA:', error.message);
+                throw error; // Re-lanzar otros errores
             }
         }
 
@@ -150,7 +168,7 @@ async function saveConversationHistory(history) {
             {
                 message: 'Actualizar historial de conversación',
                 content: Buffer.from(JSON.stringify(history, null, 2)).toString('base64'),
-                sha: sha || undefined,
+                sha: sha,
             },
             {
                 headers: {
@@ -164,7 +182,6 @@ async function saveConversationHistory(history) {
         console.error('Error al guardar el historial en GitHub:', error.message);
     }
 }
-
 // Cargar y guardar últimas actualizaciones
 function loadLastUpdates() {
     try {
@@ -598,14 +615,14 @@ client.on('messageCreate', async (message) => {
     const userHistory = conversationHistory[ALLOWED_USER_ID] || [];
     const historyText = userHistory.map(msg => `${msg.role === 'user' ? 'Tú' : 'Yo'}: ${msg.content}`).join('\n');
 
-    const prompt = `Eres Miguel IA, creado por Miguel. Tu misión es ayudar a Milagros con inteligencia y paciencia. Responde como un amigo cercano: sé claro, útil y proactivo. Si pregunta cómo hacer algo, da pasos prácticos y simples. Si no está claro qué necesita, haz una suposición razonable y ofrece ayuda. No uses prefijos como "con:" o "con"; responde directamente con un mensaje natural. Siempre termina con una nota positiva o una sugerencia para seguir charlando. Aquí está el historial (úsalo para el contexto, no lo cites):\n${historyText}\n\nMilagros dijo: ${userMessage}\nTu respuesta:`;
+    const prompt = `Eres Miguel IA, creado por Miguel. Tu misión es ayudar a Milagros con inteligencia y paciencia. Responde SOLO a lo que Milagros preguntó en este mensaje, de manera clara, útil y proactiva, como un amigo cercano. No inventes preguntas o respuestas adicionales. Si pregunta cómo hacer algo, da pasos prácticos y simples. Si no está claro, pide más detalles. No uses prefijos como "con:" o "con"; responde directamente con un mensaje natural. Siempre termina con una nota positiva o una sugerencia para seguir charlando. Milagros dijo: ${userMessage}\nTu respuesta:`;
 
     try {
         const response = await axios.post(
             'https://api-inference.huggingface.co/models/mistralai/Mixtral-8x7B-Instruct-v0.1',
             {
                 inputs: prompt,
-                parameters: { max_new_tokens: 500, return_full_text: false, temperature: 0.7 },
+                parameters: { max_new_tokens: 500, return_full_text: false, temperature: 0.3 },
             },
             {
                 headers: {
@@ -618,6 +635,8 @@ client.on('messageCreate', async (message) => {
         console.log('Respuesta cruda de la API:', response.data);
 
         let aiReply = response.data[0]?.generated_text || '';
+        // Filtrar cualquier línea que no sea la respuesta directa
+        aiReply = aiReply.split('\n').filter(line => !line.toLowerCase().startsWith('milagros:') && !line.toLowerCase().startsWith('tú:')).join('\n').trim();
         if (!aiReply || aiReply.trim().length < 10) {
             aiReply = 'No estoy seguro de cómo ayudarte con eso, pero quiero hacerlo. ¿Puedes darme más detalles? Mientras tanto, ¿te gustaría jugar una trivia con "!trivia" o compartir una idea con "!sugerencias"?';
         }
