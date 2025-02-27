@@ -678,10 +678,24 @@ client.on('messageReactionAdd', async (reaction, user) => {
     const messageData = sentMessages.get(reaction.message.id);
     const owner = await client.users.fetch(OWNER_ID);
 
+    // En messageReactionAdd
+    const ecuadorTime = new Date(messageData.timestamp).toLocaleString('es-EC', {
+        timeZone: 'America/Guayaquil',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: 'numeric',
+        second: 'numeric',
+        hour12: true
+    });
+
+    sentMessages.set(sentMessage.id, { content: reply, timestamp: ecuadorTime });
+    
     const reactionEmbed = new EmbedBuilder()
         .setColor('#FFD700')
         .setTitle('¡Milagros reaccionó!')
-        .setDescription(`Milagros reaccionó con ${reaction.emoji} al mensaje: "${messageData.content}"\nEnviado el: ${messageData.timestamp}`)
+        .setDescription(`Milagros reaccionó con ${reaction.emoji} al mensaje: "${messageData.content}"\n\nEnviado el: ${ecuadorTime}`);
         .setTimestamp();
 
     try {
