@@ -3,8 +3,6 @@ const { Client, GatewayIntentBits, EmbedBuilder } = require('discord.js');
 const axios = require('axios');
 require('dotenv').config();
 
-console.log('Verificando intents disponibles:', GatewayIntentBits); // Depuración
-
 const client = new Client({
     intents: [
         GatewayIntentBits.Guilds,
@@ -15,17 +13,14 @@ const client = new Client({
     ],
 });
 
-// IDs
+// IDs y constantes
 const OWNER_ID = '752987736759205960';
 const ALLOWED_USER_ID = '1023132788632862761';
 const CHANNEL_ID = '1343749554905940058';
-
-// Configuración del historial y actualizaciones
-const HISTORY_FILE = './conversationHistory.json';
+const HISTORY_FILE = './conversationHistory.json'; // Solo para referencia local
 const LAST_UPDATES_FILE = './lastUpdates.json';
 const MAX_MESSAGES = 20;
 
-// Lista de actualizaciones
 const BOT_UPDATES = [
     '¡Solucionado! Ya no hay problemas con el bot no respondiendo, lo siento por la demora Milagros, por favor revisa si todo funciona bien ahora.',
     'La trivia está mejorada: más estable y ahora puedo incluir preguntas personalizadas. ¡Prueba con !trivia!',
@@ -95,34 +90,77 @@ const preguntasTrivia = [
 const activeTrivia = new Map();
 
 // Cargar y guardar historial
-function loadConversationHistory() {
+async function loadConversationHistory() {
     try {
-        if (fs.existsSync(HISTORY_FILE)) {
-            const data = fs.readFileSync(HISTORY_FILE, 'utf8');
-            // Verificamos si hay contenido antes de parsear
-            if (!data.trim()) {
-                console.log('El archivo de historial está vacío, inicializando con valor por defecto.');
-                return {};
+        const response = await axios.get(
+            `https://api.github.com/repos/${process.env.GITHUB_REPO}/contents/${process.env.GITHUB_FILE_PATH}`,
+            {
+                headers: {
+                    'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`,
+                    'Accept': 'application/vnd.github+json',
+                },
             }
-            return JSON.parse(data);
+        );
+
+        const content = Buffer.from(response.data.content, 'base64').toString('utf8');
+        if (!content.trim()) {
+            console.log('El historial en GitHub está vacío, inicializando con valor por defecto.');
+            return {};
         }
-        console.log('Archivo de historial no encontrado, inicializando con valor por defecto.');
-        return {};
+        return JSON.parse(content);
     } catch (error) {
-        console.error('Error al cargar el historial:', error);
+        if (error.response && error.response.status === 404) {
+            console.log('Archivo de historial no encontrado en GitHub, inicializando con valor por defecto.');
+            return {};
+        }
+        console.error('Error al cargar el historial desde GitHub:', error.message);
         return {};
     }
 }
 
-function saveConversationHistory(history) {
+async function saveConversationHistory(history) {
     try {
-        fs.writeFileSync(HISTORY_FILE, JSON.stringify(history, null, 2), 'utf8');
-        console.log('Historial guardado en', HISTORY_FILE);
+        // Obtener el SHA actual del archivo (si existe)
+        let sha;
+        try {
+            const response = await axios.get(
+                `https://api.github.com/repos/${process.env.GITHUB_REPO}/contents/${process.env.GITHUB_FILE_PATH}`,
+                {
+                    headers: {
+                        'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`,
+                        'Accept': 'application/vnd.github+json',
+                    },
+                }
+            );
+            sha = response.data.sha;
+        } catch (error) {
+            if (error.response && error.response.status !== 404) {
+                console.error('Error al obtener SHA:', error.message);
+            }
+        }
+
+        // Guardar o actualizar el archivo en GitHub
+        await axios.put(
+            `https://api.github.com/repos/${process.env.GITHUB_REPO}/contents/${process.env.GITHUB_FILE_PATH}`,
+            {
+                message: 'Actualizar historial de conversación',
+                content: Buffer.from(JSON.stringify(history, null, 2)).toString('base64'),
+                sha: sha || undefined, // Si no hay SHA, es un archivo nuevo
+            },
+            {
+                headers: {
+                    'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`,
+                    'Accept': 'application/vnd.github+json',
+                },
+            }
+        );
+        console.log('Historial guardado en GitHub');
     } catch (error) {
-        console.error('Error al guardar el historial:', error);
+        console.error('Error al guardar el historial en GitHub:', error.message);
     }
 }
 
+let conversationHistory = await loadConversationHistory(); // Hacemos la carga asíncrona
 
 // Cargar y guardar últimas actualizaciones
 function loadLastUpdates() {
@@ -152,7 +190,6 @@ function saveLastUpdates(updates, timestamp) {
     }
 }
 
-let conversationHistory = loadConversationHistory();
 
 function obtenerPreguntaTrivia() {
     const randomIndex = Math.floor(Math.random() * preguntasTrivia.length);
@@ -245,15 +282,14 @@ client.once('ready', async () => {
         const currentTime = Date.now();
         const lastUpdates = loadLastUpdates();
 
-        // Verificar si las actualizaciones han cambiado o han pasado 24 horas
+        // Verificar si las actualizaciones han cambiado
         const updatesChanged = JSON.stringify(lastUpdates.updates) !== JSON.stringify(BOT_UPDATES);
-        const timeElapsed = currentTime - lastUpdates.timestamp > 24 * 60 * 60 * 1000; // 24 horas en milisegundos
 
-        if (updatesChanged || timeElapsed) {
+        if (updatesChanged) {
             const updateEmbed = new EmbedBuilder()
                 .setColor('#FFD700')
                 .setTitle('📢 Actualizaciones de Miguel IA')
-                .setDescription('¡Hola! Milagros. Tengo mejoras nuevas para compartir contigo.') // Quitamos la mención del embed
+                .setDescription('¡Tengo mejoras nuevas para compartir contigo!')
                 .addFields(
                     { name: 'Novedades', value: BOT_UPDATES.map(update => `- ${update}`).join('\n'), inline: false },
                     { name: 'Hora de actualización', value: `${argentinaTime}`, inline: false },
@@ -261,13 +297,12 @@ client.once('ready', async () => {
                 )
                 .setFooter({ text: 'Miguel IA' })
                 .setTimestamp();
-        
-            // Enviamos el mensaje con la mención fuera del embed
+
             await channel.send({ content: `<@${ALLOWED_USER_ID}>`, embeds: [updateEmbed] });
             console.log('Actualizaciones enviadas al canal con mención:', CHANNEL_ID);
-            saveLastUpdates(BOT_UPDATES, currentTime);
+            saveLastUpdates(BOT_UPDATES, currentTime); // Guardar después de enviar
         } else {
-            console.log('No hay cambios en las actualizaciones o no ha pasado suficiente tiempo, no se enviaron.');
+            console.log('No hay cambios en las actualizaciones, no se enviaron.');
         }
     } catch (error) {
         console.error('Error al enviar actualizaciones:', error);
