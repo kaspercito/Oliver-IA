@@ -526,35 +526,6 @@ client.on('messageCreate', async (message) => {
         return message.reply({ embeds: [embed] });
     }
 
-    if (activeTrivia.has(message.channel.id)) {
-        const triviaData = activeTrivia.get(message.channel.id);
-        const opcionesValidas = ["a", "b", "c", "d"];
-        const respuestaUsuario = userMessage.toLowerCase();
-        const indiceCorrecto = triviaData.opciones.indexOf(triviaData.correcta);
-        const letraCorrecta = opcionesValidas[indiceCorrecto];
-
-        if (opcionesValidas.includes(respuestaUsuario)) {
-            activeTrivia.delete(message.channel.id);
-            if (respuestaUsuario === letraCorrecta) {
-                const embedCorrecto = new EmbedBuilder()
-                    .setColor('#55FF55')
-                    .setTitle('🎉 ¡Correcto!')
-                    .setDescription(`¡Bien hecho, ${message.author.tag}! La respuesta correcta era **${triviaData.correcta}**.`)
-                    .setFooter({ text: '¿Otra ronda? Usa !trivia | Miguel IA' })
-                    .setTimestamp();
-                return message.channel.send({ embeds: [embedCorrecto] });
-            } else {
-                const embedIncorrecto = new EmbedBuilder()
-                    .setColor('#FF5555')
-                    .setTitle('❌ ¡Casi!')
-                    .setDescription(`Lo siento, ${message.author.tag}, la respuesta correcta era **${triviaData.correcta}** (Opción ${letraCorrecta.toUpperCase()}).`)
-                    .setFooter({ text: '¡Intenta otra vez con !trivia! | Miguel IA' })
-                    .setTimestamp();
-                return message.channel.send({ embeds: [embedIncorrecto] });
-            }
-        }
-    }
-
     const initialEmbed = new EmbedBuilder()
         .setColor('#55FF55')
         .setTitle('¡Hola, soy Miguel IA!')
