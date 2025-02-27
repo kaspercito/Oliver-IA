@@ -90,6 +90,8 @@ const preguntasTrivia = [
 const activeTrivia = new Map();
 
 // Cargar y guardar historial
+let conversationHistory;
+
 async function loadConversationHistory() {
     try {
         const response = await axios.get(
@@ -120,7 +122,6 @@ async function loadConversationHistory() {
 
 async function saveConversationHistory(history) {
     try {
-        // Obtener el SHA actual del archivo (si existe)
         let sha;
         try {
             const response = await axios.get(
@@ -139,13 +140,12 @@ async function saveConversationHistory(history) {
             }
         }
 
-        // Guardar o actualizar el archivo en GitHub
         await axios.put(
             `https://api.github.com/repos/${process.env.GITHUB_REPO}/contents/${process.env.GITHUB_FILE_PATH}`,
             {
                 message: 'Actualizar historial de conversación',
                 content: Buffer.from(JSON.stringify(history, null, 2)).toString('base64'),
-                sha: sha || undefined, // Si no hay SHA, es un archivo nuevo
+                sha: sha || undefined,
             },
             {
                 headers: {
@@ -159,8 +159,6 @@ async function saveConversationHistory(history) {
         console.error('Error al guardar el historial en GitHub:', error.message);
     }
 }
-
-let conversationHistory = await loadConversationHistory(); // Hacemos la carga asíncrona
 
 // Cargar y guardar últimas actualizaciones
 function loadLastUpdates() {
@@ -269,6 +267,9 @@ client.once('ready', async () => {
         status: 'online' 
     });
 
+    // Cargamos el historial al iniciar
+    conversationHistory = await loadConversationHistory();
+
     try {
         const channel = await client.channels.fetch(CHANNEL_ID);
         if (!channel) throw new Error('Canal no encontrado');
@@ -282,7 +283,6 @@ client.once('ready', async () => {
         const currentTime = Date.now();
         const lastUpdates = loadLastUpdates();
 
-        // Verificar si las actualizaciones han cambiado
         const updatesChanged = JSON.stringify(lastUpdates.updates) !== JSON.stringify(BOT_UPDATES);
 
         if (updatesChanged) {
@@ -300,7 +300,7 @@ client.once('ready', async () => {
 
             await channel.send({ content: `<@${ALLOWED_USER_ID}>`, embeds: [updateEmbed] });
             console.log('Actualizaciones enviadas al canal con mención:', CHANNEL_ID);
-            saveLastUpdates(BOT_UPDATES, currentTime); // Guardar después de enviar
+            saveLastUpdates(BOT_UPDATES, currentTime);
         } else {
             console.log('No hay cambios en las actualizaciones, no se enviaron.');
         }
