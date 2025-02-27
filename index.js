@@ -695,7 +695,7 @@ client.on('messageReactionAdd', async (reaction, user) => {
     const reactionEmbed = new EmbedBuilder()
         .setColor('#FFD700')
         .setTitle('¡Milagros reaccionó!')
-        .setDescription(`Milagros reaccionó con ${reaction.emoji} al mensaje: "${messageData.content}"\n\nEnviado el: ${ecuadorTime}`);
+        .setDescription(`Milagros reaccionó con ${reaction.emoji} al mensaje: "${messageData.content}"\n\nEnviado el: ${ecuadorTime}`)
         .setTimestamp();
 
     try {
