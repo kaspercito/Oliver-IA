@@ -7,11 +7,11 @@ console.log('Verificando intents disponibles:', GatewayIntentBits); // Depuraci√
 
 const client = new Client({
     intents: [
-        GatewayIntentBits.DirectMessages,
         GatewayIntentBits.Guilds,
         GatewayIntentBits.GuildMessages,
         GatewayIntentBits.MessageContent,
         GatewayIntentBits.MessageReactions,
+        GatewayIntentBits.DirectMessages,
     ],
 });
 
