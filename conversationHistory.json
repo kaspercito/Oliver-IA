@@ -9,6 +9,11 @@
       "role": "assistant",
       "content": "Hola MilAGROS! ¡Qué bueno volver a hablar contigo! La respuesta a tu pregunta es 4. ¿Te gustaría saber cómo llegué a esa respuesta? Podríamos revisar juntos cómo funciona la suma básica. Además, ¿cómo has estado últimamente? ¡Espero que estés muy bien!",
       "timestamp": "2025-02-27T17:29:27.735Z"
+    },
+    {
+      "role": "user",
+      "content": "cómo funciona la suma básica",
+      "timestamp": "2025-02-27T17:29:51.706Z"
     }
   ]
 }
