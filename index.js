@@ -23,7 +23,7 @@ const MAX_MESSAGES = 20;
 
 // Lista de actualizaciones actuales
 const BOT_UPDATES = [
-    'Perdón por mucho tag, puedes revisar que ahora si funcione todo correctamente, ya esta puesto que me llame cuando pongas !ayuda, ya que por eso no pude revisarlo ayer a la hora que enviaste.',
+    'Prueba enviando un !ayuda por favor, también escribe algo, si puedes dime si el bot te dio una respuesta correcta, quiero revisar si funciona correctamente.',
 ];
 
 // Estado anterior de las actualizaciones (fijo en el código)
