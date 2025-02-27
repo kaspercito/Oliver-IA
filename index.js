@@ -21,13 +21,13 @@ const CHANNEL_ID = '1343749554905940058'; // Canal permitido
 const HISTORY_FILE = './conversationHistory.json';
 const MAX_MESSAGES = 20;
 
-// Lista de actualizaciones
+// Lista de actualizaciones actualizada
 const BOT_UPDATES = [
-    'Añadido el comando `!trivia` para jugar preguntas de trivia con categorías como cine, música, historia, etc.',
-    'Implementado el comando `!help` para mostrar una lista de comandos disponibles.',
-    'Mejorada la interacción para ser más amigable y útil con respuestas dinámicas.',
-    'El bot ahora incluye un historial de conversaciones que se muestra al iniciar.',
-    'Añadido el comando `!sugerencias` para que Milagros pueda proponer ideas.',
+    'Se mejoró la Página de guía con un diseño más claro y funcional para que sea más fácil de usar.',
+    'Añadidas explicaciones más detalladas y precisas en la Página de guía para que todo sea más comprensible.',
+    'Optimizada la experiencia de navegación en la Página de guía con nuevas secciones y herramientas mejoradas.',
+    'Mejorado el historial de conversación para darte respuestas más precisas y útiles.',
+    'La nueva contraseña para la Página de guía es "valorarte". ¡Un recordatorio de lo que realmente importa!'
 ];
 
 // Mapa de categorías para trivia
@@ -101,7 +101,7 @@ async function manejarTrivia(message, categoria = null) {
             .setColor('#FF5555')
             .setTitle('¡Ups!')
             .setDescription('No pude obtener una pregunta. ¿Quieres intentarlo de nuevo o prefieres que te ayude con algo más?')
-            .setFooter({ text: 'Con cariño, Miguel IA' })
+            .setFooter({ text: 'Miguel IA' })
             .setTimestamp();
         return message.channel.send({ embeds: [embedError] });
     }
@@ -114,7 +114,7 @@ async function manejarTrivia(message, categoria = null) {
             `**B)** ${trivia.opciones[1]}\n` +
             `**C)** ${trivia.opciones[2]}\n` +
             `**D)** ${trivia.opciones[3]}`)
-        .setFooter({ text: 'Tienes 15 segundos para responder con A, B, C o D | Con cariño, Miguel IA' })
+        .setFooter({ text: 'Tienes 15 segundos para responder con A, B, C o D | Miguel IA' })
         .setTimestamp();
 
     await message.channel.send({ embeds: [embedPregunta] });
@@ -143,7 +143,7 @@ async function manejarTrivia(message, categoria = null) {
                 .setTitle('🎉 ¡Correcto!')
                 .setDescription(`**${ganador.tag} respondió correctamente en ${tiempoFinal.toFixed(2)} segundos.**\n\n` +
                     `✅ La respuesta correcta era: **${trivia.respuesta}** (Opción ${letraCorrecta.toUpperCase()})`)
-                .setFooter({ text: '¡Eres increíble! | Con cariño, Miguel IA' })
+                .setFooter({ text: '¡Eres increíble! | Miguel IA' })
                 .setTimestamp();
             message.channel.send({ embeds: [embedCorrecto] });
         } else {
@@ -152,7 +152,7 @@ async function manejarTrivia(message, categoria = null) {
                 .setTitle('❌ ¡Oh, no!')
                 .setDescription(`**${ganador.tag}**, tu respuesta no fue correcta, pero ¡no te rindas!\n\n` +
                     `✅ La respuesta correcta era: **${trivia.respuesta}** (Opción ${letraCorrecta.toUpperCase()})`)
-                .setFooter({ text: '¡Sigue intentándolo! | Con cariño, Miguel IA' })
+                .setFooter({ text: '¡Sigue intentándolo! | Miguel IA' })
                 .setTimestamp();
             message.channel.send({ embeds: [embedIncorrecto] });
         }
@@ -161,7 +161,7 @@ async function manejarTrivia(message, categoria = null) {
             .setColor('#FF5555')
             .setTitle('⏳ ¡Tiempo agotado!')
             .setDescription(`Nadie respondió a tiempo... La respuesta correcta era: **${trivia.respuesta}** (Opción ${letraCorrecta.toUpperCase()}). ¿Quieres otra ronda? Usa !trivia.`)
-            .setFooter({ text: '¡Estoy aquí para ti! | Con cariño, Miguel IA' })
+            .setFooter({ text: '¡Estoy aquí para ti! | Miguel IA' })
             .setTimestamp();
         message.channel.send({ embeds: [embedTiempo] });
     }
@@ -174,23 +174,11 @@ client.once('ready', async () => {
         status: 'online' 
     });
 
-    // Enviar actualizaciones con historial al canal al iniciar, solo si no se envió antes
+    // Enviar actualizaciones con historial al canal al iniciar
     try {
         const channel = await client.channels.fetch(CHANNEL_ID);
         if (!channel) {
             console.error('No se pudo encontrar el canal para enviar actualizaciones:', CHANNEL_ID);
-            return;
-        }
-
-        const messages = await channel.messages.fetch({ limit: 50 });
-        const updateExists = messages.some(msg => 
-            msg.author.id === client.user.id && 
-            msg.embeds.length > 0 && 
-            msg.embeds[0].title === '📢 Actualizaciones de Miguel IA'
-        );
-
-        if (updateExists) {
-            console.log('Ya existe un mensaje de actualización en el canal, no se enviará de nuevo.');
             return;
         }
 
@@ -199,15 +187,18 @@ client.once('ready', async () => {
             ? userHistory.slice(-3).map(msg => `${msg.role === 'user' ? 'Milagros' : 'Yo'}: ${msg.content}`).join('\n')
             : 'No hay historial reciente.';
 
+        const argentinaTime = new Date().toLocaleTimeString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' });
+
         const updateEmbed = new EmbedBuilder()
             .setColor('#FFD700')
             .setTitle('📢 Actualizaciones de Miguel IA')
-            .setDescription('¡Hola! Estoy aquí con nuevas funciones y un vistazo a nuestras últimas charlas:')
+            .setDescription('¡Hola! Tengo mejoras nuevas para compartir contigo:')
             .addFields(
-                { name: 'Novedades', value: BOT_UPDATES.map(update => `- ${update}`).join('\n') || 'No hay actualizaciones nuevas.' },
-                { name: 'Últimas conversaciones', value: historySummary }
+                { name: 'Novedades', value: BOT_UPDATES.map(update => `- ${update}`).join('\n'), inline: false },
+                { name: 'Hora de actualización', value: `${argentinaTime} ART (27/02/2025)`, inline: false },
+                { name: 'Últimas conversaciones', value: historySummary, inline: false }
             )
-            .setFooter({ text: 'Con cariño, Miguel IA' })
+            .setFooter({ text: 'Miguel IA' })
             .setTimestamp();
 
         await channel.send({ embeds: [updateEmbed] });
@@ -217,6 +208,7 @@ client.once('ready', async () => {
     }
 });
 
+// Resto del código sigue igual hasta el final
 client.on('messageCreate', async (message) => {
     if (message.author.bot) return;
 
@@ -271,7 +263,7 @@ client.on('messageCreate', async (message) => {
             .setColor('#55FF55')
             .setTitle('¡Respuesta de Miguel!')
             .setDescription(`Aquí tienes: "${reply}"`)
-            .setFooter({ text: 'Con cariño, Miguel IA' })
+            .setFooter({ text: 'Miguel IA' })
             .setTimestamp();
 
         if (message.attachments.size > 0) {
@@ -293,7 +285,7 @@ client.on('messageCreate', async (message) => {
             const ownerEmbed = new EmbedBuilder()
                 .setColor('#55FF55')
                 .setTitle('¡Éxito!')
-                .setDescription('Respuesta enviada a Milagros con cariño.')
+                .setDescription('Respuesta enviada a Milagros.')
                 .setTimestamp();
             await message.reply({ embeds: [ownerEmbed] });
         } catch (error) {
@@ -333,7 +325,7 @@ client.on('messageCreate', async (message) => {
             .setColor('#FFD700')
             .setTitle('📢 Actualización de Miguel IA')
             .setDescription(updateText)
-            .setFooter({ text: 'Con cariño, Miguel IA' })
+            .setFooter({ text: 'Miguel IA' })
             .setTimestamp();
 
         try {
@@ -373,7 +365,7 @@ client.on('messageCreate', async (message) => {
             const embed = new EmbedBuilder()
                 .setColor('#FF5555')
                 .setTitle('¡Un momento!')
-                .setDescription('Dime qué necesitas después de "!ayuda" y te ayudaré con todo mi cariño.')
+                .setDescription('Dime qué necesitas después de "!ayuda" y te ayudaré.')
                 .setTimestamp();
             return message.reply({ embeds: [embed] });
         }
@@ -404,7 +396,7 @@ client.on('messageCreate', async (message) => {
             .setColor('#55FFFF')
             .setTitle('¡Mensaje enviado!')
             .setDescription('Ya le conté a Miguel lo que necesitas. Pronto te ayudaré con su respuesta.')
-            .setFooter({ text: 'Con cariño, Miguel IA' })
+            .setFooter({ text: 'Miguel IA' })
             .setTimestamp();
         return message.reply({ embeds: [userEmbed] });
     }
@@ -419,10 +411,10 @@ client.on('messageCreate', async (message) => {
                 { name: '!help', value: 'Te muestro esta lista para que sepas cómo jugar conmigo.' },
                 { name: '!trivia [categoría]', value: 'Juega una trivia divertida. Usa cine, musica, libros, historia, ciencia, general o arte (opcional).' },
                 { name: '!sugerencias <idea>', value: 'Comparte tus ideas para mejorar el bot, ¡las enviaré a Miguel!' },
-                { name: 'hola', value: 'Salúdame y te daré una bienvenida muy especial.' },
+                { name: 'hola', value: 'Salúdame y te daré una bienvenida especial.' },
                 { name: 'Cualquier mensaje', value: 'Chatea conmigo como amigo, ¡siempre tendré algo útil o divertido para decirte!' }
             )
-            .setFooter({ text: 'Con cariño, Miguel IA' })
+            .setFooter({ text: 'Miguel IA' })
             .setTimestamp();
         return message.reply({ embeds: [helpEmbed] });
     }
@@ -451,7 +443,7 @@ client.on('messageCreate', async (message) => {
                 .setColor('#55FF55')
                 .setTitle('¡Sugerencia enviada!')
                 .setDescription('Tu idea ya está con Miguel. ¡Gracias por ayudarme a mejorar!')
-                .setFooter({ text: 'Con cariño, Miguel IA' })
+                .setFooter({ text: 'Miguel IA' })
                 .setTimestamp();
             return message.reply({ embeds: [userEmbed] });
         } catch (error) {
@@ -476,7 +468,7 @@ client.on('messageCreate', async (message) => {
                 .setColor('#FF5555')
                 .setTitle('¡Ups!')
                 .setDescription(`No conozco la categoría "${categoria}". Prueba con: ${Object.keys(categoriasTrivia).join(', ')}`)
-                .setFooter({ text: 'O usa "!trivia" para algo random | Con cariño, Miguel IA' })
+                .setFooter({ text: 'O usa "!trivia" para algo random | Miguel IA' })
                 .setTimestamp();
             return message.channel.send({ embeds: [embedError] });
         }
@@ -484,7 +476,7 @@ client.on('messageCreate', async (message) => {
         await manejarTrivia(message, categoria);
         return;
     }
-
+    
     if (userMessage.toLowerCase() === 'hola') {
         const embed = new EmbedBuilder()
             .setColor('#55FF55')
@@ -492,7 +484,7 @@ client.on('messageCreate', async (message) => {
             .setDescription(
                 'Soy Miguel IA, creado por Miguel para estar siempre contigo. Puedo ayudarte con cualquier duda, charlar como amigo o incluso jugar una trivia. Si necesitas algo especial, usa "!ayuda" o comparte tus ideas con "!sugerencias". ¿Qué tienes en mente hoy?'
             )
-            .setFooter({ text: 'Con cariño, Miguel IA' })
+            .setFooter({ text: 'Miguel IA' })
             .setTimestamp();
         return message.reply({ embeds: [embed] });
     }
@@ -501,7 +493,7 @@ client.on('messageCreate', async (message) => {
         .setColor('#55FF55')
         .setTitle('¡Hola, soy Miguel IA!')
         .setDescription('Estoy pensando en la mejor forma de ayudarte, ¡un segundo! 😊')
-        .setFooter({ text: 'Con cariño, Miguel IA' })
+        .setFooter({ text: 'Miguel IA' })
         .setTimestamp();
 
     const sentMessage = await message.reply({ embeds: [initialEmbed] });
@@ -509,7 +501,7 @@ client.on('messageCreate', async (message) => {
     const userHistory = conversationHistory[ALLOWED_USER_ID] || [];
     const historyText = userHistory.map(msg => `${msg.role === 'user' ? 'Tú' : 'Yo'}: ${msg.content}`).join('\n');
 
-    const prompt = `Eres Miguel IA, creado por Miguel. Tu misión es ayudar a Milagros con cariño, inteligencia y paciencia. Responde como un amigo cercano: sé claro, útil y proactivo. Si pregunta cómo hacer algo, da pasos prácticos y simples. Si no está claro qué necesita, haz una suposición razonable y ofrece ayuda. No uses prefijos como "con:" o "con"; responde directamente con un mensaje natural. Siempre termina con una nota positiva o una sugerencia para seguir charlando. Aquí está el historial (úsalo para el contexto, no lo cites):\n${historyText}\n\nMilagros dijo: ${userMessage}\nTu respuesta:`;
+    const prompt = `Eres Miguel IA, creado por Miguel. Tu misión es ayudar a Milagros con inteligencia y paciencia. Responde como un amigo cercano: sé claro, útil y proactivo. Si pregunta cómo hacer algo, da pasos prácticos y simples. Si no está claro qué necesita, haz una suposición razonable y ofrece ayuda. No uses prefijos como "con:" o "con"; responde directamente con un mensaje natural. Siempre termina con una nota positiva o una sugerencia para seguir charlando. Aquí está el historial (úsalo para el contexto, no lo cites):\n${historyText}\n\nMilagros dijo: ${userMessage}\nTu respuesta:`;
 
     try {
         const response = await axios.post(
@@ -549,17 +541,17 @@ client.on('messageCreate', async (message) => {
             .setColor('#55FF55')
             .setTitle('¡Aquí estoy para ti!')
             .setDescription(aiReply)
-            .setFooter({ text: 'Con cariño, Miguel IA' })
+            .setFooter({ text: 'Miguel IA' })
             .setTimestamp();
 
-        return sentMessage.edit({ embeds: [finalEmbed] });
+        return sentMessae.edit({ embeds: [finalEmbed] });
     } catch (error) {
         console.error('Error al consultar la API:', error.message, error.response?.data || '');
         const errorEmbed = new EmbedBuilder()
             .setColor('#FF5555')
             .setTitle('¡Ay, algo no salió bien!')
             .setDescription('No pude encontrar la respuesta perfecta esta vez, pero no te preocupes, estoy aquí para ti. ¿Quieres usar "!ayuda" para que Miguel me eche una mano, o prefieres intentar con otra pregunta?')
-            .setFooter({ text: 'Con cariño, Miguel IA' })
+            .setFooter({ text: 'Miguel IA' })
             .setTimestamp();
         return sentMessage.edit({ embeds: [errorEmbed] });
     }
