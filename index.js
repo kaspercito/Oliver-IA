@@ -9,7 +9,7 @@ const client = new Client({
         GatewayIntentBits.Guilds,
         GatewayIntentBits.GuildMessages,
         GatewayIntentBits.MessageContent,
-        GatewayIntentBits.MessageReactions, // Añadido para detectar reacciones
+        GatewayIntentBits.MessageReactions,
     ],
 });
 
@@ -18,13 +18,14 @@ const OWNER_ID = '752987736759205960';
 const ALLOWED_USER_ID = '1023132788632862761';
 const CHANNEL_ID = '1343749554905940058';
 
-// Configuración del historial
+// Configuración del historial y actualizaciones
 const HISTORY_FILE = './conversationHistory.json';
+const LAST_UPDATES_FILE = './lastUpdates.json';
 const MAX_MESSAGES = 20;
 
 // Lista de actualizaciones
 const BOT_UPDATES = [
-    '¡Solucionado! Ya no hay problemas con el bot no respondiendo, Milagros, por favor revisa si todo funciona bien ahora, lo siento por la demora!.',
+    '¡Solucionado! Ya no hay problemas con el bot no respondiendo, lo siento por la demora Milagros, por favor revisa si todo funciona bien ahora.',
     'La trivia está mejorada: más estable y ahora puedo incluir preguntas personalizadas. ¡Prueba con !trivia!',
 ];
 
@@ -111,6 +112,29 @@ function saveConversationHistory(history) {
         console.log('Historial guardado en', HISTORY_FILE);
     } catch (error) {
         console.error('Error al guardar el historial:', error);
+    }
+}
+
+// Cargar y guardar últimas actualizaciones
+function loadLastUpdates() {
+    try {
+        if (fs.existsSync(LAST_UPDATES_FILE)) {
+            const data = fs.readFileSync(LAST_UPDATES_FILE, 'utf8');
+            return JSON.parse(data);
+        }
+        return { timestamp: 0, updates: [] };
+    } catch (error) {
+        console.error('Error al cargar las últimas actualizaciones:', error);
+        return { timestamp: 0, updates: [] };
+    }
+}
+
+function saveLastUpdates(updates, timestamp) {
+    try {
+        fs.writeFileSync(LAST_UPDATES_FILE, JSON.stringify({ timestamp, updates }, null, 2), 'utf8');
+        console.log('Últimas actualizaciones guardadas en', LAST_UPDATES_FILE);
+    } catch (error) {
+        console.error('Error al guardar las últimas actualizaciones:', error);
     }
 }
 
@@ -204,21 +228,32 @@ client.once('ready', async () => {
             : 'No hay historial reciente.';
 
         const argentinaTime = new Date().toLocaleTimeString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' });
+        const currentTime = Date.now();
+        const lastUpdates = loadLastUpdates();
 
-        const updateEmbed = new EmbedBuilder()
-            .setColor('#FFD700')
-            .setTitle('📢 Actualizaciones de Miguel IA')
-            .setDescription('¡Hola, Milagros! Tengo mejoras nuevas para compartir contigo:')
-            .addFields(
-                { name: 'Novedades', value: BOT_UPDATES.map(update => `- ${update}`).join('\n'), inline: false },
-                { name: 'Hora de actualización', value: `${argentinaTime} ART (27/02/2025)`, inline: false },
-                { name: 'Últimas conversaciones', value: historySummary, inline: false }
-            )
-            .setFooter({ text: 'Miguel IA' })
-            .setTimestamp();
+        // Verificar si las actualizaciones han cambiado o han pasado 24 horas
+        const updatesChanged = JSON.stringify(lastUpdates.updates) !== JSON.stringify(BOT_UPDATES);
+        const timeElapsed = currentTime - lastUpdates.timestamp > 24 * 60 * 60 * 1000; // 24 horas en milisegundos
 
-        await channel.send({ embeds: [updateEmbed] });
-        console.log('Actualizaciones enviadas al canal:', CHANNEL_ID);
+        if (updatesChanged || timeElapsed) {
+            const updateEmbed = new EmbedBuilder()
+                .setColor('#FFD700')
+                .setTitle('📢 Actualizaciones de Miguel IA')
+                .setDescription('¡Hola, <@${ALLOWED_USER_ID}> Tengo mejoras nuevas para compartir contigo:')
+                .addFields(
+                    { name: 'Novedades', value: BOT_UPDATES.map(update => `- ${update}`).join('\n'), inline: false },
+                    { name: 'Hora de actualización', value: `${argentinaTime}`, inline: false },
+                    { name: 'Últimas conversaciones', value: historySummary, inline: false }
+                )
+                .setFooter({ text: 'Miguel IA' })
+                .setTimestamp();
+
+            await channel.send({ embeds: [updateEmbed] });
+            console.log('Actualizaciones enviadas al canal:', CHANNEL_ID);
+            saveLastUpdates(BOT_UPDATES, currentTime);
+        } else {
+            console.log('No hay cambios en las actualizaciones o no ha pasado suficiente tiempo, no se enviaron.');
+        }
     } catch (error) {
         console.error('Error al enviar actualizaciones:', error);
     }
@@ -482,7 +517,6 @@ client.on('messageCreate', async (message) => {
         return message.reply({ embeds: [embed] });
     }
 
-    // Verificar si es una respuesta a trivia activa
     if (activeTrivia.has(message.channel.id)) {
         const triviaData = activeTrivia.get(message.channel.id);
         const opcionesValidas = ["a", "b", "c", "d"];
@@ -578,10 +612,9 @@ client.on('messageCreate', async (message) => {
     }
 });
 
-// Detectar reacciones de Milagros a mensajes enviados con "responder"
 client.on('messageReactionAdd', async (reaction, user) => {
-    if (user.id !== ALLOWED_USER_ID) return; // Solo reacciones de Milagros
-    if (!sentMessages.has(reaction.message.id)) return; // Solo mensajes enviados con "responder"
+    if (user.id !== ALLOWED_USER_ID) return;
+    if (!sentMessages.has(reaction.message.id)) return;
 
     const messageData = sentMessages.get(reaction.message.id);
     const owner = await client.users.fetch(OWNER_ID);
