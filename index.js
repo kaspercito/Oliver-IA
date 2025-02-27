@@ -99,8 +99,14 @@ function loadConversationHistory() {
     try {
         if (fs.existsSync(HISTORY_FILE)) {
             const data = fs.readFileSync(HISTORY_FILE, 'utf8');
+            // Verificamos si hay contenido antes de parsear
+            if (!data.trim()) {
+                console.log('El archivo de historial está vacío, inicializando con valor por defecto.');
+                return {};
+            }
             return JSON.parse(data);
         }
+        console.log('Archivo de historial no encontrado, inicializando con valor por defecto.');
         return {};
     } catch (error) {
         console.error('Error al cargar el historial:', error);
