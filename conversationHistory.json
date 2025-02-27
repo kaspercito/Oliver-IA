@@ -14,6 +14,11 @@
       "role": "user",
       "content": "cómo funciona la suma básica",
       "timestamp": "2025-02-27T17:29:51.706Z"
+    },
+    {
+      "role": "assistant",
+      "content": "¡HOLA MILAGROS! La suma básica es una operación matemática que combina dos números o más para obtener un resultado total. Por ejemplo, si sumas 2 + 2, el resultado es 4. Puedes sumar números de cualquier tamaño, pero recuerda que si los números son muy grandes o muy pequeños, es posible que necesites usar una calculadora para obtener el resultado correcto. ¿Tienes algún número en particular en mente que quieras sumar? ¡Estoy aquí para ayudarte en lo que necesites! Además, ¿sabías que también puedes sumar fracciones o decimales? ¡Es un poco más complicado, pero una vez que lo dominas, es muy útil! Cuéntame si quieres saber más sobre eso. ¡Que tengas un buen día!",
+      "timestamp": "2025-02-27T17:29:57.463Z"
     }
   ]
 }
