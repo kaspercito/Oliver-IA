@@ -28,8 +28,7 @@ const BOT_UPDATES = [
 
 // Estado anterior de las actualizaciones (fijo en el código)
 const PREVIOUS_BOT_UPDATES = [
-    '¡Solucionado! Ya no hay problemas con el bot no respondiendo, lo siento por la demora Milagros, por favor revisa si todo funciona bien ahora.',
-    'La trivia está mejorada: más estable y ahora puedo incluir preguntas personalizadas. ¡Prueba con !trivia!',
+    'Prueba enviando un !ayuda por favor, también escribe algo, si puedes dime si el bot te dio una respuesta correcta, quiero revisar si funciona correctamente.',
 ];
 
 // Preguntas predefinidas con 4 opciones
