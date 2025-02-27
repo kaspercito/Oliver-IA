@@ -544,7 +544,7 @@ client.on('messageCreate', async (message) => {
             .setFooter({ text: 'Miguel IA' })
             .setTimestamp();
 
-        return sentMessae.edit({ embeds: [finalEmbed] });
+        return sentMessage.edit({ embeds: [finalEmbed] });
     } catch (error) {
         console.error('Error al consultar la API:', error.message, error.response?.data || '');
         const errorEmbed = new EmbedBuilder()
