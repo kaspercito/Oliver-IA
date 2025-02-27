@@ -147,7 +147,7 @@ client.once('ready', async () => {
         status: 'online' 
     });
 
-    // Enviar actualizaciones con historial al canal al iniciar
+    // Enviar actualizaciones con historial al canal al iniciar, solo si no se envió antes
     try {
         const channel = await client.channels.fetch(CHANNEL_ID);
         if (!channel) {
@@ -155,6 +155,20 @@ client.once('ready', async () => {
             return;
         }
 
+        // Verificar si ya hay un mensaje de actualización reciente
+        const messages = await channel.messages.fetch({ limit: 50 }); // Revisa los últimos 50 mensajes
+        const updateExists = messages.some(msg => 
+            msg.author.id === client.user.id && 
+            msg.embeds.length > 0 && 
+            msg.embeds[0].title === '📢 Actualizaciones de Miguel IA'
+        );
+
+        if (updateExists) {
+            console.log('Ya existe un mensaje de actualización en el canal, no se enviará de nuevo.');
+            return;
+        }
+
+        // Si no existe, enviar las actualizaciones
         const userHistory = conversationHistory.get(ALLOWED_USER_ID) || [];
         const historySummary = userHistory.length > 0
             ? userHistory.slice(-3).map(msg => `${msg.role === 'user' ? 'Milagros' : 'Yo'}: ${msg.content}`).join('\n')
@@ -203,7 +217,7 @@ client.on('messageCreate', async (message) => {
     }
 
     if (message.author.id === OWNER_ID && message.content.startsWith('responder')) {
-        const reply = message.content.slice(8).trim();
+        const reply = message.content.slice(9).trim();
         if (!reply) {
             const embed = new EmbedBuilder()
                 .setColor('#FF5555')
@@ -460,17 +474,17 @@ client.on('messageCreate', async (message) => {
     const initialEmbed = new EmbedBuilder()
         .setColor('#55FF55')
         .setTitle('¡Hola, soy Miguel IA!')
-        .setDescription('Estoy pensando en la mejor forma de ayudarte, ¡un segundito! 😊')
+        .setDescription('Estoy pensando en la mejor forma de ayudarte, ¡un segundo! 😊')
         .setFooter({ text: 'Con cariño, Miguel IA' })
         .setTimestamp();
-
+    
     const sentMessage = await message.reply({ embeds: [initialEmbed] });
-
+    
     const userHistory = conversationHistory.get(ALLOWED_USER_ID) || [];
     const historyText = userHistory.map(msg => `${msg.role === 'user' ? 'Tú' : 'Yo'}: ${msg.content}`).join('\n');
-
-    const prompt = `Eres Miguel IA, creado por Miguel. Tu misión es ayudar a Milagros con cariño, inteligencia y paciencia. Responde como un amigo cercano: sé claro, útil y proactivo. Si pregunta cómo hacer algo, da pasos prácticos y simples. Si no está claro qué necesita, haz una suposición razonable y ofrece ayuda. Siempre termina con una nota positiva o una sugerencia para seguir charlando. Aquí está el historial:\n${historyText}\nResponde a: "${userMessage}"`;
-
+    
+    const prompt = `Eres Miguel IA, creado por Miguel. Tu misión es ayudar a Milagros con cariño, inteligencia y paciencia. Responde como un amigo cercano: sé claro, útil y proactivo. Si pregunta cómo hacer algo, da pasos prácticos y simples. Si no está claro qué necesita, haz una suposición razonable y ofrece ayuda. No uses prefijos como "con:" o "con"; responde directamente con un mensaje natural. Siempre termina con una nota positiva o una sugerencia para seguir charlando. Aquí está el historial (úsalo para el contexto, no lo cites):\n${historyText}\n\nMilagros dijo: ${userMessage}\nTu respuesta:`;
+    
     try {
         const response = await axios.post(
             'https://api-inference.huggingface.co/models/mistralai/Mixtral-8x7B-Instruct-v0.1',
@@ -485,14 +499,14 @@ client.on('messageCreate', async (message) => {
                 },
             }
         );
-
+    
         console.log('Respuesta cruda de la API:', response.data);
-
+    
         let aiReply = response.data[0]?.generated_text || '';
         if (!aiReply || aiReply.trim().length < 10) {
             aiReply = 'No estoy seguro de cómo ayudarte con eso, pero quiero hacerlo. ¿Puedes darme más detalles? Mientras tanto, ¿te gustaría jugar una trivia con "!trivia" o compartir una idea con "!sugerencias"?';
         }
-
+    
         let updatedHistory = conversationHistory.get(ALLOWED_USER_ID) || [];
         updatedHistory.push({
             role: 'assistant',
@@ -503,14 +517,14 @@ client.on('messageCreate', async (message) => {
             updatedHistory.shift();
         }
         conversationHistory.set(ALLOWED_USER_ID, updatedHistory);
-
+    
         const finalEmbed = new EmbedBuilder()
             .setColor('#55FF55')
             .setTitle('¡Aquí estoy para ti!')
             .setDescription(aiReply)
             .setFooter({ text: 'Con cariño, Miguel IA' })
             .setTimestamp();
-
+    
         return sentMessage.edit({ embeds: [finalEmbed] });
     } catch (error) {
         console.error('Error al consultar la API:', error.message, error.response?.data || '');
