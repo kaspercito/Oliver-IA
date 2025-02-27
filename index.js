@@ -1,3 +1,4 @@
+const fs = require('fs');
 const { Client, GatewayIntentBits, EmbedBuilder } = require('discord.js');
 const axios = require('axios');
 require('dotenv').config();
@@ -16,11 +17,11 @@ const OWNER_ID = '752987736759205960'; // Tu ID
 const ALLOWED_USER_ID = '1023132788632862761'; // ID de ella
 const CHANNEL_ID = '1343749554905940058'; // Canal permitido
 
-// Historial de conversación en memoria
-const conversationHistory = new Map();
+// Configuración del historial
+const HISTORY_FILE = './conversationHistory.json';
 const MAX_MESSAGES = 20;
 
-// Lista de actualizaciones (con las nuevas adiciones)
+// Lista de actualizaciones
 const BOT_UPDATES = [
     'Añadido el comando `!trivia` para jugar preguntas de trivia con categorías como cine, música, historia, etc.',
     'Implementado el comando `!help` para mostrar una lista de comandos disponibles.',
@@ -39,6 +40,32 @@ const categoriasTrivia = {
     general: 9,    // General Knowledge
     arte: 25,      // Art
 };
+
+// Cargar historial desde JSON
+function loadConversationHistory() {
+    try {
+        if (fs.existsSync(HISTORY_FILE)) {
+            const data = fs.readFileSync(HISTORY_FILE, 'utf8');
+            return JSON.parse(data);
+        }
+        return {};
+    } catch (error) {
+        console.error('Error al cargar el historial:', error);
+        return {};
+    }
+}
+
+// Guardar historial en JSON
+function saveConversationHistory(history) {
+    try {
+        fs.writeFileSync(HISTORY_FILE, JSON.stringify(history, null, 2), 'utf8');
+        console.log('Historial guardado en', HISTORY_FILE);
+    } catch (error) {
+        console.error('Error al guardar el historial:', error);
+    }
+}
+
+let conversationHistory = loadConversationHistory();
 
 // Función para obtener una pregunta de trivia
 async function obtenerPreguntaTrivia(categoria = null) {
@@ -155,8 +182,7 @@ client.once('ready', async () => {
             return;
         }
 
-        // Verificar si ya hay un mensaje de actualización reciente
-        const messages = await channel.messages.fetch({ limit: 50 }); // Revisa los últimos 50 mensajes
+        const messages = await channel.messages.fetch({ limit: 50 });
         const updateExists = messages.some(msg => 
             msg.author.id === client.user.id && 
             msg.embeds.length > 0 && 
@@ -168,8 +194,7 @@ client.once('ready', async () => {
             return;
         }
 
-        // Si no existe, enviar las actualizaciones
-        const userHistory = conversationHistory.get(ALLOWED_USER_ID) || [];
+        const userHistory = conversationHistory[ALLOWED_USER_ID] || [];
         const historySummary = userHistory.length > 0
             ? userHistory.slice(-3).map(msg => `${msg.role === 'user' ? 'Milagros' : 'Yo'}: ${msg.content}`).join('\n')
             : 'No hay historial reciente.';
@@ -204,7 +229,7 @@ client.on('messageCreate', async (message) => {
 
     if (message.author.id === ALLOWED_USER_ID) {
         const userId = message.author.id;
-        let userHistory = conversationHistory.get(userId) || [];
+        let userHistory = conversationHistory[userId] || [];
         userHistory.push({
             role: 'user',
             content: message.content,
@@ -213,7 +238,8 @@ client.on('messageCreate', async (message) => {
         if (userHistory.length > MAX_MESSAGES) {
             userHistory.shift();
         }
-        conversationHistory.set(userId, userHistory);
+        conversationHistory[userId] = userHistory;
+        saveConversationHistory(conversationHistory);
     }
 
     if (message.author.id === OWNER_ID && message.content.startsWith('responder')) {
@@ -477,14 +503,14 @@ client.on('messageCreate', async (message) => {
         .setDescription('Estoy pensando en la mejor forma de ayudarte, ¡un segundo! 😊')
         .setFooter({ text: 'Con cariño, Miguel IA' })
         .setTimestamp();
-    
+
     const sentMessage = await message.reply({ embeds: [initialEmbed] });
-    
-    const userHistory = conversationHistory.get(ALLOWED_USER_ID) || [];
+
+    const userHistory = conversationHistory[ALLOWED_USER_ID] || [];
     const historyText = userHistory.map(msg => `${msg.role === 'user' ? 'Tú' : 'Yo'}: ${msg.content}`).join('\n');
-    
+
     const prompt = `Eres Miguel IA, creado por Miguel. Tu misión es ayudar a Milagros con cariño, inteligencia y paciencia. Responde como un amigo cercano: sé claro, útil y proactivo. Si pregunta cómo hacer algo, da pasos prácticos y simples. Si no está claro qué necesita, haz una suposición razonable y ofrece ayuda. No uses prefijos como "con:" o "con"; responde directamente con un mensaje natural. Siempre termina con una nota positiva o una sugerencia para seguir charlando. Aquí está el historial (úsalo para el contexto, no lo cites):\n${historyText}\n\nMilagros dijo: ${userMessage}\nTu respuesta:`;
-    
+
     try {
         const response = await axios.post(
             'https://api-inference.huggingface.co/models/mistralai/Mixtral-8x7B-Instruct-v0.1',
@@ -499,15 +525,15 @@ client.on('messageCreate', async (message) => {
                 },
             }
         );
-    
+
         console.log('Respuesta cruda de la API:', response.data);
-    
+
         let aiReply = response.data[0]?.generated_text || '';
         if (!aiReply || aiReply.trim().length < 10) {
             aiReply = 'No estoy seguro de cómo ayudarte con eso, pero quiero hacerlo. ¿Puedes darme más detalles? Mientras tanto, ¿te gustaría jugar una trivia con "!trivia" o compartir una idea con "!sugerencias"?';
         }
-    
-        let updatedHistory = conversationHistory.get(ALLOWED_USER_ID) || [];
+
+        let updatedHistory = conversationHistory[ALLOWED_USER_ID] || [];
         updatedHistory.push({
             role: 'assistant',
             content: aiReply,
@@ -516,15 +542,16 @@ client.on('messageCreate', async (message) => {
         if (updatedHistory.length > MAX_MESSAGES) {
             updatedHistory.shift();
         }
-        conversationHistory.set(ALLOWED_USER_ID, updatedHistory);
-    
+        conversationHistory[ALLOWED_USER_ID] = updatedHistory;
+        saveConversationHistory(conversationHistory);
+
         const finalEmbed = new EmbedBuilder()
             .setColor('#55FF55')
             .setTitle('¡Aquí estoy para ti!')
             .setDescription(aiReply)
             .setFooter({ text: 'Con cariño, Miguel IA' })
             .setTimestamp();
-    
+
         return sentMessage.edit({ embeds: [finalEmbed] });
     } catch (error) {
         console.error('Error al consultar la API:', error.message, error.response?.data || '');
