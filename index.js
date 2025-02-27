@@ -9,39 +9,89 @@ const client = new Client({
         GatewayIntentBits.Guilds,
         GatewayIntentBits.GuildMessages,
         GatewayIntentBits.MessageContent,
+        GatewayIntentBits.MessageReactions, // Añadido para detectar reacciones
     ],
 });
 
 // IDs
-const OWNER_ID = '752987736759205960'; // Tu ID
-const ALLOWED_USER_ID = '1023132788632862761'; // ID de ella
-const CHANNEL_ID = '1343749554905940058'; // Canal permitido
+const OWNER_ID = '752987736759205960';
+const ALLOWED_USER_ID = '1023132788632862761';
+const CHANNEL_ID = '1343749554905940058';
 
 // Configuración del historial
 const HISTORY_FILE = './conversationHistory.json';
 const MAX_MESSAGES = 20;
 
-// Lista de actualizaciones actualizada
+// Lista de actualizaciones
 const BOT_UPDATES = [
-    'Se mejoró la Página de guía con un diseño más claro y funcional para que sea más fácil de usar.',
-    'Añadidas explicaciones más detalladas y precisas en la Página de guía para que todo sea más comprensible.',
-    'Optimizada la experiencia de navegación en la Página de guía con nuevas secciones y herramientas mejoradas.',
-    'Mejorado el historial de conversación para darte respuestas más precisas y útiles.',
-    'La nueva contraseña para la Página de guía es "valorarte". ¡Un recordatorio de lo que realmente importa!'
+    '¡Solucionado! Ya no hay problemas con el bot no respondiendo, Milagros, por favor revisa si todo funciona bien ahora, lo siento por la demora!.',
+    'La trivia está mejorada: más estable y ahora puedo incluir preguntas personalizadas. ¡Prueba con !trivia!',
 ];
 
-// Mapa de categorías para trivia
-const categoriasTrivia = {
-    cine: 11,      // Film
-    musica: 12,    // Music
-    libros: 10,    // Books
-    historia: 23,  // History
-    ciencia: 17,   // Science & Nature
-    general: 9,    // General Knowledge
-    arte: 25,      // Art
-};
+// Preguntas predefinidas con 4 opciones
+const preguntasTrivia = [
+    { pregunta: "¿Cuál es el mineral más raro en Minecraft 1.8?", respuesta: "esmeralda", incorrectas: ["diamante", "oro", "hierro"] },
+    { pregunta: "¿Cuántos bloques de altura tiene un Enderman?", respuesta: "3", incorrectas: ["2", "4", "5"] },
+    { pregunta: "¿Qué mob se domesticó primero en Minecraft?", respuesta: "lobo", incorrectas: ["gato", "caballo", "cerdo"] },
+    { pregunta: "¿Cuántos ojos de Ender necesitas para activar un portal al End?", respuesta: "12", incorrectas: ["10", "14", "16"] },
+    { pregunta: "¿Cómo se llama el creador original de Minecraft?", respuesta: "Notch", incorrectas: ["Herobrine", "Jeb", "Dinnerbone"] },
+    { pregunta: "¿Qué animal se puede montar en Minecraft 1.8?", respuesta: "caballo", incorrectas: ["cerdo", "vaca", "oveja"] },
+    { pregunta: "¿Qué estructura contiene un portal al End?", respuesta: "fortaleza", incorrectas: ["templo", "aldea", "mina"] },
+    { pregunta: "¿Qué item revive al jugador en Minecraft?", respuesta: "tótem de la inmortalidad", incorrectas: ["poción", "manzana dorada", "estrella del Nether"] },
+    { pregunta: "¿Cuál es la mejor armadura en Minecraft 1.8?", respuesta: "diamante", incorrectas: ["hierro", "oro", "cuero"] },
+    { pregunta: "¿Qué item se usa para obtener lana?", respuesta: "tijeras", incorrectas: ["pala", "hacha", "pico"] },
+    { pregunta: "¿Qué bioma puedes encontrar en Minecraft 1.8?", respuesta: "bosque", incorrectas: ["desierto", "montaña", "pantano"] },
+    { pregunta: "¿Cuántos tipos de aldeanos hay en Minecraft?", respuesta: "5", incorrectas: ["3", "7", "9"] },
+    { pregunta: "¿Cuál es el animal más rápido de Minecraft?", respuesta: "caballo", incorrectas: ["lobo", "ocelote", "cerdo"] },
+    { pregunta: "¿Cuántas piezas de obsidiana se necesitan para hacer un portal al Nether?", respuesta: "10", incorrectas: ["8", "12", "14"] },
+    { pregunta: "¿Qué mob se añadió en la versión 1.8 de Minecraft?", respuesta: "conejos", incorrectas: ["gallinas", "vacas", "ovejas"] },
+    { pregunta: "¿Cuál es la comida que te da más saturación en Minecraft?", respuesta: "estofado de conejo", incorrectas: ["pan", "carne", "manzana"] },
+    { pregunta: "¿Cuántos fragmentos de Netherite se necesitan para un lingote?", respuesta: "4", incorrectas: ["2", "3", "5"] },
+    { pregunta: "¿Cuál es el único mob que puede flotar en el agua?", respuesta: "pez", incorrectas: ["calamar", "araña", "vaca"] },
+    { pregunta: "¿Qué bloque explota al ser golpeado por un rayo?", respuesta: "creeper cargado", incorrectas: ["tierra", "piedra", "madera"] },
+    { pregunta: "¿Cuántos corazones tiene el Wither?", respuesta: "150", incorrectas: ["100", "200", "50"] },
+    { pregunta: "¿Qué arma dispara flechas en Minecraft?", respuesta: "arco", incorrectas: ["espada", "pico", "hacha"] },
+    { pregunta: "¿Qué bloque se usa para hacer un faro?", respuesta: "vidrio", incorrectas: ["madera", "piedra", "arcilla"] },
+    { pregunta: "¿Cuál es la capital de Francia?", respuesta: "París", incorrectas: ["Londres", "Madrid", "Berlín"] },
+    { pregunta: "¿En qué continente está Brasil?", respuesta: "América del Sur", incorrectas: ["África", "Asia", "Europa"] },
+    { pregunta: "¿Quién escribió 'Harry Potter'?", respuesta: "J.K. Rowling", incorrectas: ["Tolkien", "Stephen King", "George R.R. Martin"] },
+    { pregunta: "¿Cuál es el océano más grande del mundo?", respuesta: "Pacífico", incorrectas: ["Atlántico", "Índico", "Ártico"] },
+    { pregunta: "¿Cuántos planetas hay en el sistema solar?", respuesta: "8", incorrectas: ["7", "9", "10"] },
+    { pregunta: "¿Cuál es el animal más grande del planeta?", respuesta: "ballena azul", incorrectas: ["elefante", "tiburón", "jirafa"] },
+    { pregunta: "¿Qué planeta es el más cercano al Sol?", respuesta: "Mercurio", incorrectas: ["Venus", "Marte", "Júpiter"] },
+    { pregunta: "¿En qué año llegó el hombre a la Luna?", respuesta: "1969", incorrectas: ["1965", "1972", "1960"] },
+    { pregunta: "¿Qué gas compone la mayor parte de la atmósfera terrestre?", respuesta: "nitrógeno", incorrectas: ["oxígeno", "dióxido de carbono", "argón"] },
+    { pregunta: "¿Cuál es el río más largo del mundo?", respuesta: "Amazonas", incorrectas: ["Nilo", "Misisipi", "Yangtsé"] },
+    { pregunta: "¿Qué animal es conocido por su cuello largo?", respuesta: "jirafa", incorrectas: ["elefante", "rinoceronte", "hipopótamo"] },
+    { pregunta: "¿Cuántos continentes habitados hay?", respuesta: "6", incorrectas: ["5", "7", "4"] },
+    { pregunta: "¿Qué elemento tiene el símbolo 'H'?", respuesta: "hidrógeno", incorrectas: ["helio", "hierro", "oro"] },
+    { pregunta: "¿Qué país es conocido como la tierra del sol naciente?", respuesta: "Japón", incorrectas: ["China", "Corea", "Tailandia"] },
+    { pregunta: "¿Cuál es el desierto más grande del mundo?", respuesta: "Antártida", incorrectas: ["Sahara", "Gobi", "Atacama"] },
+    { pregunta: "¿Qué instrumento mide el tiempo?", respuesta: "reloj", incorrectas: ["termómetro", "barómetro", "compás"] },
+    { pregunta: "¿Qué color tiene el cielo en un día despejado?", respuesta: "azul", incorrectas: ["verde", "rojo", "amarillo"] },
+    { pregunta: "¿Cuántos días tiene un año bisiesto?", respuesta: "366", incorrectas: ["365", "364", "367"] },
+    { pregunta: "¿Qué mamífero vuela?", respuesta: "murciélago", incorrectas: ["ardilla", "ratón", "gato"] },
+    { pregunta: "¿Qué fruta es conocida por caer sobre Newton?", respuesta: "manzana", incorrectas: ["pera", "naranja", "plátano"] },
+    { pregunta: "¿Cuál es el metal más abundante en la corteza terrestre?", respuesta: "aluminio", incorrectas: ["hierro", "cobre", "oro"] },
+    { pregunta: "¿Qué ave no puede volar pero corre rápido?", respuesta: "avestruz", incorrectas: ["pingüino", "ganso", "pavo"] },
+    { pregunta: "¿Qué país tiene más población del mundo?", respuesta: "China", incorrectas: ["India", "EE.UU.", "Rusia"] },
+    { pregunta: "¿Qué estación sigue al verano?", respuesta: "otoño", incorrectas: ["invierno", "primavera", "verano"] },
+    { pregunta: "¿Cuántos lados tiene un triángulo?", respuesta: "3", incorrectas: ["4", "5", "6"] },
+    { pregunta: "¿Qué bebida es conocida como H2O?", respuesta: "agua", incorrectas: ["leche", "jugo", "café"] },
+    { pregunta: "¿Qué animal es el rey de la selva?", respuesta: "león", incorrectas: ["tigre", "elefante", "jirafa"] },
+    { pregunta: "¿Qué idioma se habla en Brasil?", respuesta: "portugués", incorrectas: ["español", "inglés", "francés"] },
+    { pregunta: "¿Qué planeta tiene anillos visibles?", respuesta: "Saturno", incorrectas: ["Júpiter", "Marte", "Urano"] },
+    { pregunta: "¿Qué inventó Thomas Edison?", respuesta: "bombilla", incorrectas: ["teléfono", "radio", "televisión"] },
+    { pregunta: "¿Qué deporte se juega con una raqueta y una pelota pequeña?", respuesta: "tenis", incorrectas: ["fútbol", "básquet", "voleibol"] },
+    { pregunta: "¿Qué parte del cuerpo usas para escuchar?", respuesta: "oído", incorrectas: ["ojo", "nariz", "boca"] },
+    { pregunta: "¿Qué país es famoso por los tulipanes?", respuesta: "Países Bajos", incorrectas: ["Francia", "Italia", "Alemania"] },
+    { pregunta: "¿Cuántos minutos tiene una hora?", respuesta: "60", incorrectas: ["50", "70", "80"] },
+];
 
-// Cargar historial desde JSON
+// Estado de trivia activa
+const activeTrivia = new Map();
+
+// Cargar y guardar historial
 function loadConversationHistory() {
     try {
         if (fs.existsSync(HISTORY_FILE)) {
@@ -55,7 +105,6 @@ function loadConversationHistory() {
     }
 }
 
-// Guardar historial en JSON
 function saveConversationHistory(history) {
     try {
         fs.writeFileSync(HISTORY_FILE, JSON.stringify(history, null, 2), 'utf8');
@@ -67,103 +116,74 @@ function saveConversationHistory(history) {
 
 let conversationHistory = loadConversationHistory();
 
-// Función para obtener una pregunta de trivia
-async function obtenerPreguntaTrivia(categoria = null) {
-    const categoriaId = categoria && categoriasTrivia[categoria.toLowerCase()]
-        ? categoriasTrivia[categoria.toLowerCase()]
-        : Object.values(categoriasTrivia)[Math.floor(Math.random() * Object.values(categoriasTrivia).length)];
-    const url = `https://opentdb.com/api.php?amount=1&category=${categoriaId}&type=multiple`;
-
-    try {
-        const response = await axios.get(url);
-        const pregunta = response.data.results[0];
-        const opciones = [...pregunta.incorrect_answers, pregunta.correct_answer];
-        for (let i = opciones.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [opciones[i], opciones[j]] = [opciones[j], opciones[i]];
-        }
-        return {
-            pregunta: pregunta.question,
-            opciones: opciones,
-            respuesta: pregunta.correct_answer
-        };
-    } catch (error) {
-        console.error("Error al obtener pregunta de trivia:", error);
-        return null;
-    }
+function obtenerPreguntaTrivia() {
+    const randomIndex = Math.floor(Math.random() * preguntasTrivia.length);
+    const trivia = preguntasTrivia[randomIndex];
+    const opciones = [...trivia.incorrectas, trivia.respuesta].sort(() => Math.random() - 0.5);
+    return { pregunta: trivia.pregunta, opciones, respuesta: trivia.respuesta };
 }
 
-// Función para manejar el juego de trivia
-async function manejarTrivia(message, categoria = null) {
-    const trivia = await obtenerPreguntaTrivia(categoria);
-    if (!trivia) {
-        const embedError = new EmbedBuilder()
-            .setColor('#FF5555')
-            .setTitle('¡Ups!')
-            .setDescription('No pude obtener una pregunta. ¿Quieres intentarlo de nuevo o prefieres que te ayude con algo más?')
-            .setFooter({ text: 'Miguel IA' })
-            .setTimestamp();
-        return message.channel.send({ embeds: [embedError] });
-    }
+async function manejarTrivia(message) {
+    const trivia = obtenerPreguntaTrivia();
 
     const embedPregunta = new EmbedBuilder()
         .setColor('#55FFFF')
         .setTitle('🎲 ¡Pregunta de Trivia!')
         .setDescription(`${trivia.pregunta}\n\n` +
-            `**A)** ${trivia.opciones[0]}\n` +
-            `**B)** ${trivia.opciones[1]}\n` +
-            `**C)** ${trivia.opciones[2]}\n` +
-            `**D)** ${trivia.opciones[3]}`)
+            trivia.opciones.map((opcion, i) => `**${String.fromCharCode(65 + i)})** ${opcion}`).join('\n'))
         .setFooter({ text: 'Tienes 15 segundos para responder con A, B, C o D | Miguel IA' })
         .setTimestamp();
 
-    await message.channel.send({ embeds: [embedPregunta] });
+    const sentMessage = await message.channel.send({ embeds: [embedPregunta] });
+    const triviaId = sentMessage.id;
+
+    activeTrivia.set(message.channel.id, {
+        id: triviaId,
+        correcta: trivia.respuesta,
+        opciones: trivia.opciones
+    });
 
     const opcionesValidas = ["a", "b", "c", "d"];
     const indiceCorrecto = trivia.opciones.indexOf(trivia.respuesta);
     const letraCorrecta = opcionesValidas[indiceCorrecto];
-    const filtro = (respuesta) => opcionesValidas.includes(respuesta.content.toLowerCase());
-    const tiempoInicio = Date.now();
 
     try {
         const respuestas = await message.channel.awaitMessages({
-            filter: filtro,
+            filter: (res) => res.author.id === message.author.id && opcionesValidas.includes(res.content.toLowerCase()),
             max: 1,
             time: 15000,
-            errors: ["time"]
+            errors: ['time']
         });
 
         const respuestaUsuario = respuestas.first().content.toLowerCase();
-        const ganador = respuestas.first().author;
-        const tiempoFinal = (Date.now() - tiempoInicio) / 1000;
+        activeTrivia.delete(message.channel.id);
 
         if (respuestaUsuario === letraCorrecta) {
             const embedCorrecto = new EmbedBuilder()
                 .setColor('#55FF55')
                 .setTitle('🎉 ¡Correcto!')
-                .setDescription(`**${ganador.tag} respondió correctamente en ${tiempoFinal.toFixed(2)} segundos.**\n\n` +
-                    `✅ La respuesta correcta era: **${trivia.respuesta}** (Opción ${letraCorrecta.toUpperCase()})`)
-                .setFooter({ text: '¡Eres increíble! | Miguel IA' })
+                .setDescription(`¡Bien hecho, ${message.author.tag}! La respuesta correcta era **${trivia.respuesta}**.`)
+                .setFooter({ text: '¿Otra ronda? Usa !trivia | Miguel IA' })
                 .setTimestamp();
-            message.channel.send({ embeds: [embedCorrecto] });
+            return message.channel.send({ embeds: [embedCorrecto] });
         } else {
             const embedIncorrecto = new EmbedBuilder()
                 .setColor('#FF5555')
-                .setTitle('❌ ¡Oh, no!')
-                .setDescription(`**${ganador.tag}**, tu respuesta no fue correcta, pero ¡no te rindas!\n\n` +
-                    `✅ La respuesta correcta era: **${trivia.respuesta}** (Opción ${letraCorrecta.toUpperCase()})`)
-                .setFooter({ text: '¡Sigue intentándolo! | Miguel IA' })
+                .setTitle('❌ ¡Casi!')
+                .setDescription(`Lo siento, ${message.author.tag}, la respuesta correcta era **${trivia.respuesta}** (Opción ${letraCorrecta.toUpperCase()}).`)
+                .setFooter({ text: '¡Intenta otra vez con !trivia! | Miguel IA' })
                 .setTimestamp();
-            message.channel.send({ embeds: [embedIncorrecto] });
+            return message.channel.send({ embeds: [embedIncorrecto] });
         }
     } catch (error) {
+        activeTrivia.delete(message.channel.id);
         const embedTiempo = new EmbedBuilder()
             .setColor('#FF5555')
             .setTitle('⏳ ¡Tiempo agotado!')
-            .setDescription(`Nadie respondió a tiempo... La respuesta correcta era: **${trivia.respuesta}** (Opción ${letraCorrecta.toUpperCase()}). ¿Quieres otra ronda? Usa !trivia.`)
-            .setFooter({ text: '¡Estoy aquí para ti! | Miguel IA' })
+            .setDescription(`Se acabó el tiempo. La respuesta correcta era **${trivia.respuesta}** (Opción ${letraCorrecta.toUpperCase()}). ¿Otra ronda? Usa !trivia.`)
+            .setFooter({ text: 'Miguel IA' })
             .setTimestamp();
-        message.channel.send({ embeds: [embedTiempo] });
+        return message.channel.send({ embeds: [embedTiempo] });
     }
 }
 
@@ -174,13 +194,9 @@ client.once('ready', async () => {
         status: 'online' 
     });
 
-    // Enviar actualizaciones con historial al canal al iniciar
     try {
         const channel = await client.channels.fetch(CHANNEL_ID);
-        if (!channel) {
-            console.error('No se pudo encontrar el canal para enviar actualizaciones:', CHANNEL_ID);
-            return;
-        }
+        if (!channel) throw new Error('Canal no encontrado');
 
         const userHistory = conversationHistory[ALLOWED_USER_ID] || [];
         const historySummary = userHistory.length > 0
@@ -192,7 +208,7 @@ client.once('ready', async () => {
         const updateEmbed = new EmbedBuilder()
             .setColor('#FFD700')
             .setTitle('📢 Actualizaciones de Miguel IA')
-            .setDescription('¡Hola! Tengo mejoras nuevas para compartir contigo:')
+            .setDescription('¡Hola, Milagros! Tengo mejoras nuevas para compartir contigo:')
             .addFields(
                 { name: 'Novedades', value: BOT_UPDATES.map(update => `- ${update}`).join('\n'), inline: false },
                 { name: 'Hora de actualización', value: `${argentinaTime} ART (27/02/2025)`, inline: false },
@@ -202,13 +218,15 @@ client.once('ready', async () => {
             .setTimestamp();
 
         await channel.send({ embeds: [updateEmbed] });
-        console.log('Actualizaciones con historial enviadas al canal:', CHANNEL_ID);
+        console.log('Actualizaciones enviadas al canal:', CHANNEL_ID);
     } catch (error) {
-        console.error('Error al enviar actualizaciones al canal:', error);
+        console.error('Error al enviar actualizaciones:', error);
     }
 });
 
-// Resto del código sigue igual hasta el final
+// Mapa para rastrear mensajes enviados con "responder"
+const sentMessages = new Map();
+
 client.on('messageCreate', async (message) => {
     if (message.author.bot) return;
 
@@ -227,9 +245,7 @@ client.on('messageCreate', async (message) => {
             content: message.content,
             timestamp: new Date().toISOString()
         });
-        if (userHistory.length > MAX_MESSAGES) {
-            userHistory.shift();
-        }
+        if (userHistory.length > MAX_MESSAGES) userHistory.shift();
         conversationHistory[userId] = userHistory;
         saveConversationHistory(conversationHistory);
     }
@@ -268,11 +284,7 @@ client.on('messageCreate', async (message) => {
 
         if (message.attachments.size > 0) {
             const attachments = message.attachments.map(attachment => attachment.url);
-            userEmbed.addFields({
-                name: 'Imágenes de Miguel',
-                value: attachments.join('\n'),
-                inline: false
-            });
+            userEmbed.addFields({ name: 'Imágenes de Miguel', value: attachments.join('\n'), inline: false });
             const firstAttachment = message.attachments.first();
             if (firstAttachment && firstAttachment.contentType?.startsWith('image/')) {
                 userEmbed.setImage(firstAttachment.url);
@@ -280,7 +292,8 @@ client.on('messageCreate', async (message) => {
         }
 
         try {
-            await targetUser.send({ embeds: [userEmbed] });
+            const sentMessage = await targetUser.send({ embeds: [userEmbed] });
+            sentMessages.set(sentMessage.id, { content: reply, timestamp: new Date().toISOString() });
             console.log('Mensaje enviado a ALLOWED_USER_ID:', reply);
             const ownerEmbed = new EmbedBuilder()
                 .setColor('#55FF55')
@@ -289,7 +302,7 @@ client.on('messageCreate', async (message) => {
                 .setTimestamp();
             await message.reply({ embeds: [ownerEmbed] });
         } catch (error) {
-            console.error('Error al enviar respuesta al usuario:', error);
+            console.error('Error al enviar respuesta:', error);
             const errorEmbed = new EmbedBuilder()
                 .setColor('#FF5555')
                 .setTitle('¡Ups!')
@@ -379,11 +392,7 @@ client.on('messageCreate', async (message) => {
 
         if (message.attachments.size > 0) {
             const attachments = message.attachments.map(attachment => attachment.url);
-            ownerEmbed.addFields({
-                name: 'Adjuntos',
-                value: attachments.join('\n') || 'No se pudieron cargar los enlaces.',
-                inline: false
-            });
+            ownerEmbed.addFields({ name: 'Adjuntos', value: attachments.join('\n') || 'Sin enlaces.', inline: false });
             const firstAttachment = message.attachments.first();
             if (firstAttachment && firstAttachment.contentType?.startsWith('image/')) {
                 ownerEmbed.setImage(firstAttachment.url);
@@ -407,12 +416,12 @@ client.on('messageCreate', async (message) => {
             .setTitle('¡Aquí tienes mis comandos!')
             .setDescription('Estoy listo para ayudarte con estas opciones:')
             .addFields(
-                { name: '!ayuda <problema>', value: 'Pídele ayuda a Miguel con un mensaje o imagen si necesitas algo especial.' },
-                { name: '!help', value: 'Te muestro esta lista para que sepas cómo jugar conmigo.' },
-                { name: '!trivia [categoría]', value: 'Juega una trivia divertida. Usa cine, musica, libros, historia, ciencia, general o arte (opcional).' },
-                { name: '!sugerencias <idea>', value: 'Comparte tus ideas para mejorar el bot, ¡las enviaré a Miguel!' },
-                { name: 'hola', value: 'Salúdame y te daré una bienvenida especial.' },
-                { name: 'Cualquier mensaje', value: 'Chatea conmigo como amigo, ¡siempre tendré algo útil o divertido para decirte!' }
+                { name: '!ayuda <problema>', value: 'Pídele ayuda a Miguel con un mensaje o imagen.' },
+                { name: '!help', value: 'Muestra esta lista de comandos.' },
+                { name: '!trivia', value: 'Juega trivia con preguntas variadas de Minecraft y más.' },
+                { name: '!sugerencias <idea>', value: 'Envía ideas para mejorar el bot a Miguel.' },
+                { name: 'hola', value: 'Te doy una bienvenida especial.' },
+                { name: 'Cualquier mensaje', value: 'Chatea conmigo, ¡siempre tengo algo útil o divertido que decir!' }
             )
             .setFooter({ text: 'Miguel IA' })
             .setTimestamp();
@@ -425,7 +434,7 @@ client.on('messageCreate', async (message) => {
             const embed = new EmbedBuilder()
                 .setColor('#FF5555')
                 .setTitle('¡Un momento!')
-                .setDescription('Por favor, escribe tu sugerencia después de "!sugerencias". ¡Quiero escuchar tus ideas!')
+                .setDescription('Escribe tu sugerencia después de "!sugerencias". ¡Quiero escuchar tus ideas!')
                 .setTimestamp();
             return message.reply({ embeds: [embed] });
         }
@@ -447,11 +456,11 @@ client.on('messageCreate', async (message) => {
                 .setTimestamp();
             return message.reply({ embeds: [userEmbed] });
         } catch (error) {
-            console.error('Error al enviar sugerencia al propietario:', error);
+            console.error('Error al enviar sugerencia:', error);
             const errorEmbed = new EmbedBuilder()
                 .setColor('#FF5555')
                 .setTitle('¡Ups!')
-                .setDescription('No pude enviar tu sugerencia a Miguel. ¿Quieres intentarlo de nuevo o usar "!ayuda"?')
+                .setDescription('No pude enviar tu sugerencia. ¿Intentamos de nuevo o usas "!ayuda"?')
                 .setTimestamp();
             return message.reply({ embeds: [errorEmbed] });
         }
@@ -459,40 +468,54 @@ client.on('messageCreate', async (message) => {
 
     if (userMessage.startsWith('!trivia')) {
         console.log('Trivia activada por:', message.author.tag);
-
-        const args = userMessage.split(' ').slice(1);
-        const categoria = args.length > 0 ? args[0] : null;
-
-        if (categoria && !categoriasTrivia[categoria.toLowerCase()]) {
-            const embedError = new EmbedBuilder()
-                .setColor('#FF5555')
-                .setTitle('¡Ups!')
-                .setDescription(`No conozco la categoría "${categoria}". Prueba con: ${Object.keys(categoriasTrivia).join(', ')}`)
-                .setFooter({ text: 'O usa "!trivia" para algo random | Miguel IA' })
-                .setTimestamp();
-            return message.channel.send({ embeds: [embedError] });
-        }
-
-        await manejarTrivia(message, categoria);
+        await manejarTrivia(message);
         return;
     }
-    
+
     if (userMessage.toLowerCase() === 'hola') {
         const embed = new EmbedBuilder()
             .setColor('#55FF55')
             .setTitle('¡Hola, qué alegría verte!')
-            .setDescription(
-                'Soy Miguel IA, creado por Miguel para estar siempre contigo. Puedo ayudarte con cualquier duda, charlar como amigo o incluso jugar una trivia. Si necesitas algo especial, usa "!ayuda" o comparte tus ideas con "!sugerencias". ¿Qué tienes en mente hoy?'
-            )
+            .setDescription('Soy Miguel IA, creado por Miguel para estar contigo. Puedo ayudarte, charlar o jugar trivia con preguntas de Minecraft y más. Usa "!ayuda" o "!sugerencias" si quieres. ¿Qué tienes en mente?')
             .setFooter({ text: 'Miguel IA' })
             .setTimestamp();
         return message.reply({ embeds: [embed] });
     }
 
+    // Verificar si es una respuesta a trivia activa
+    if (activeTrivia.has(message.channel.id)) {
+        const triviaData = activeTrivia.get(message.channel.id);
+        const opcionesValidas = ["a", "b", "c", "d"];
+        const respuestaUsuario = userMessage.toLowerCase();
+        const indiceCorrecto = triviaData.opciones.indexOf(triviaData.correcta);
+        const letraCorrecta = opcionesValidas[indiceCorrecto];
+
+        if (opcionesValidas.includes(respuestaUsuario)) {
+            activeTrivia.delete(message.channel.id);
+            if (respuestaUsuario === letraCorrecta) {
+                const embedCorrecto = new EmbedBuilder()
+                    .setColor('#55FF55')
+                    .setTitle('🎉 ¡Correcto!')
+                    .setDescription(`¡Bien hecho, ${message.author.tag}! La respuesta correcta era **${triviaData.correcta}**.`)
+                    .setFooter({ text: '¿Otra ronda? Usa !trivia | Miguel IA' })
+                    .setTimestamp();
+                return message.channel.send({ embeds: [embedCorrecto] });
+            } else {
+                const embedIncorrecto = new EmbedBuilder()
+                    .setColor('#FF5555')
+                    .setTitle('❌ ¡Casi!')
+                    .setDescription(`Lo siento, ${message.author.tag}, la respuesta correcta era **${triviaData.correcta}** (Opción ${letraCorrecta.toUpperCase()}).`)
+                    .setFooter({ text: '¡Intenta otra vez con !trivia! | Miguel IA' })
+                    .setTimestamp();
+                return message.channel.send({ embeds: [embedIncorrecto] });
+            }
+        }
+    }
+
     const initialEmbed = new EmbedBuilder()
         .setColor('#55FF55')
         .setTitle('¡Hola, soy Miguel IA!')
-        .setDescription('Estoy pensando en la mejor forma de ayudarte, ¡un segundo! 😊')
+        .setDescription('Estoy pensando en cómo ayudarte, ¡un segundo! 😊')
         .setFooter({ text: 'Miguel IA' })
         .setTimestamp();
 
@@ -531,9 +554,7 @@ client.on('messageCreate', async (message) => {
             content: aiReply,
             timestamp: new Date().toISOString()
         });
-        if (updatedHistory.length > MAX_MESSAGES) {
-            updatedHistory.shift();
-        }
+        if (updatedHistory.length > MAX_MESSAGES) updatedHistory.shift();
         conversationHistory[ALLOWED_USER_ID] = updatedHistory;
         saveConversationHistory(conversationHistory);
 
@@ -554,6 +575,28 @@ client.on('messageCreate', async (message) => {
             .setFooter({ text: 'Miguel IA' })
             .setTimestamp();
         return sentMessage.edit({ embeds: [errorEmbed] });
+    }
+});
+
+// Detectar reacciones de Milagros a mensajes enviados con "responder"
+client.on('messageReactionAdd', async (reaction, user) => {
+    if (user.id !== ALLOWED_USER_ID) return; // Solo reacciones de Milagros
+    if (!sentMessages.has(reaction.message.id)) return; // Solo mensajes enviados con "responder"
+
+    const messageData = sentMessages.get(reaction.message.id);
+    const owner = await client.users.fetch(OWNER_ID);
+
+    const reactionEmbed = new EmbedBuilder()
+        .setColor('#FFD700')
+        .setTitle('¡Milagros reaccionó!')
+        .setDescription(`Milagros reaccionó con ${reaction.emoji} al mensaje: "${messageData.content}"\nEnviado el: ${messageData.timestamp}`)
+        .setTimestamp();
+
+    try {
+        await owner.send({ embeds: [reactionEmbed] });
+        console.log(`Notificación de reacción enviada a ${OWNER_ID}: ${reaction.emoji} en mensaje "${messageData.content}"`);
+    } catch (error) {
+        console.error('Error al notificar reacción al dueño:', error);
     }
 });
 
