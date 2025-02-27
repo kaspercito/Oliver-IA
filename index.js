@@ -21,7 +21,13 @@ const HISTORY_FILE = './conversationHistory.json'; // Solo para referencia local
 const LAST_UPDATES_FILE = './lastUpdates.json';
 const MAX_MESSAGES = 20;
 
+// Lista de actualizaciones actuales
 const BOT_UPDATES = [
+    'Perdón por mucho tag, puedes revisar que ahora si funcione todo correctamente, ya esta puesto que me llame cuando pongas !ayuda, ya que por eso no pude revisarlo ayer a la hora que enviaste.',
+];
+
+// Estado anterior de las actualizaciones (fijo en el código)
+const PREVIOUS_BOT_UPDATES = [
     '¡Solucionado! Ya no hay problemas con el bot no respondiendo, lo siento por la demora Milagros, por favor revisa si todo funciona bien ahora.',
     'La trivia está mejorada: más estable y ahora puedo incluir preguntas personalizadas. ¡Prueba con !trivia!',
 ];
@@ -267,7 +273,7 @@ client.once('ready', async () => {
         status: 'online' 
     });
 
-    // Cargamos el historial al iniciar
+    // Cargamos el historial para la IA al iniciar
     conversationHistory = await loadConversationHistory();
 
     try {
@@ -280,10 +286,9 @@ client.once('ready', async () => {
             : 'No hay historial reciente.';
 
         const argentinaTime = new Date().toLocaleTimeString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' });
-        const currentTime = Date.now();
-        const lastUpdates = loadLastUpdates();
 
-        const updatesChanged = JSON.stringify(lastUpdates.updates) !== JSON.stringify(BOT_UPDATES);
+        // Verificación manual de cambios en las actualizaciones
+        const updatesChanged = JSON.stringify(BOT_UPDATES) !== JSON.stringify(PREVIOUS_BOT_UPDATES);
 
         if (updatesChanged) {
             const updateEmbed = new EmbedBuilder()
@@ -300,7 +305,6 @@ client.once('ready', async () => {
 
             await channel.send({ content: `<@${ALLOWED_USER_ID}>`, embeds: [updateEmbed] });
             console.log('Actualizaciones enviadas al canal con mención:', CHANNEL_ID);
-            saveLastUpdates(BOT_UPDATES, currentTime);
         } else {
             console.log('No hay cambios en las actualizaciones, no se enviaron.');
         }
