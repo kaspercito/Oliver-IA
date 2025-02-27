@@ -461,6 +461,9 @@ client.on('messageCreate', async (message) => {
 
     const userMessage = message.content;
 
+    const twilio = require('twilio');
+    const clientTwilio = new twilio(process.env.TWILIO_SID, process.env.TWILIO_AUTH_TOKEN);
+    
     if (userMessage.startsWith('!ayuda')) {
         const issue = userMessage.slice(6).trim();
         if (!issue) {
@@ -471,14 +474,14 @@ client.on('messageCreate', async (message) => {
                 .setTimestamp();
             return message.reply({ embeds: [embed] });
         }
-
+    
         const owner = await client.users.fetch(OWNER_ID);
         const ownerEmbed = new EmbedBuilder()
             .setColor('#FFD700')
             .setTitle('¡Solicitud de ayuda!')
             .setDescription(`Milagros necesita ayuda: "${issue}"`)
             .setTimestamp();
-
+    
         if (message.attachments.size > 0) {
             const attachments = message.attachments.map(attachment => attachment.url);
             ownerEmbed.addFields({ name: 'Adjuntos', value: attachments.join('\n') || 'Sin enlaces.', inline: false });
@@ -487,13 +490,26 @@ client.on('messageCreate', async (message) => {
                 ownerEmbed.setImage(firstAttachment.url);
             }
         }
-
+    
         await owner.send({ embeds: [ownerEmbed] });
-
+    
+        // Hacer una llamada con Twilio para despertarte
+        try {
+            await clientTwilio.calls.create({
+                twiml: `<Response><Say voice="alice">¡Despierta Miguel! Milagros necesita ayuda con ${issue}. ¡Vamos, contesta!</Say><Pause length="2"/><Say voice="alice">Repito, Milagros necesita ayuda con ${issue}.</Say></Response>`,
+                to: process.env.MY_PHONE_NUMBER, // Tu número de móvil
+                from: process.env.TWILIO_PHONE_NUMBER, // El número de Twilio
+            });
+            console.log('Llamada iniciada para despertar a Miguel');
+        } catch (error) {
+            console.error('Error al hacer la llamada:', error.message);
+            await owner.send('No pude hacer la llamada para despertarme. Error: ' + error.message);
+        }
+    
         const userEmbed = new EmbedBuilder()
             .setColor('#55FFFF')
             .setTitle('¡Mensaje enviado!')
-            .setDescription('Ya le conté a Miguel lo que necesitas. Pronto te ayudaré con su respuesta.')
+            .setDescription('Ya le avisé a Miguel, ¡estoy llamándolo para que te ayude!')
             .setFooter({ text: 'Miguel IA' })
             .setTimestamp();
         return message.reply({ embeds: [userEmbed] });
