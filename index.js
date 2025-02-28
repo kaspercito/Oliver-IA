@@ -17,13 +17,14 @@ const client = new Client({
 const OWNER_ID = '752987736759205960';
 const ALLOWED_USER_ID = '1023132788632862761';
 const CHANNEL_ID = '1343749554905940058';
-const HISTORY_FILE = './conversationHistory.json'; // Solo para referencia local
+const HISTORY_FILE = './conversationHistory.json';
 const LAST_UPDATES_FILE = './lastUpdates.json';
 const MAX_MESSAGES = 20;
 
 // Lista de actualizaciones actuales
 const BOT_UPDATES = [
-    'Prueba enviando un !ayuda por favor, también escribe algo, si puedes dime si el bot te dio una respuesta correcta, quiero revisar si funciona correctamente.',
+    '¡Arreglé el error sentMessage y ahora puedo mostrar varias imágenes en responder y !ayuda, Todo listo para que funcione perfecto mientras estoy en el quinto sueño.',
+    'Espero ahora si este todo bien hecho, he mejorado las respuestas en las que el bot te responderá, espero te pueda servir, estoy pensando en mas mejoras.'
 ];
 
 // Estado anterior de las actualizaciones (fijo en el código)
@@ -142,7 +143,6 @@ async function saveConversationHistory(history) {
         } catch (error) {
             if (error.response && error.response.status === 404) {
                 console.log('Archivo no encontrado en GitHub, creando uno nuevo.');
-                // Crear un archivo nuevo si no existe
                 await axios.put(
                     `https://api.github.com/repos/${process.env.GITHUB_REPO}/contents/${process.env.GITHUB_FILE_PATH}`,
                     {
@@ -156,10 +156,10 @@ async function saveConversationHistory(history) {
                         },
                     }
                 );
-                return; // Salir después de crear el archivo
+                return;
             } else {
                 console.error('Error al obtener SHA:', error.message);
-                throw error; // Re-lanzar otros errores
+                throw error;
             }
         }
 
@@ -182,12 +182,13 @@ async function saveConversationHistory(history) {
         console.error('Error al guardar el historial en GitHub:', error.message);
     }
 }
+
 // Cargar y guardar últimas actualizaciones
 function loadLastUpdates() {
     try {
         if (fs.existsSync(LAST_UPDATES_FILE)) {
             const data = fs.readFileSync(LAST_UPDATES_FILE, 'utf8');
-            if (!data.trim()) { // Check if the file is empty
+            if (!data.trim()) {
                 console.log('Últimas actualizaciones vacías, inicializando con valores por defecto.');
                 return { timestamp: 0, updates: [] };
             }
@@ -197,7 +198,7 @@ function loadLastUpdates() {
         return { timestamp: 0, updates: [] };
     } catch (error) {
         console.error('Error al cargar las últimas actualizaciones:', error.message);
-        return { timestamp: 0, updates: [] }; // Return default object as fallback
+        return { timestamp: 0, updates: [] };
     }
 }
 
@@ -209,7 +210,6 @@ function saveLastUpdates(updates, timestamp) {
         console.error('Error al guardar las últimas actualizaciones:', error);
     }
 }
-
 
 function obtenerPreguntaTrivia() {
     const randomIndex = Math.floor(Math.random() * preguntasTrivia.length);
@@ -285,11 +285,10 @@ async function manejarTrivia(message) {
 client.once('ready', async () => {
     console.log('¡Miguel IA está listo para ayudar!');
     client.user.setPresence({ 
-        activities: [{ name: "Listo para ayudarte Milagros, usa !ayuda o !help si necesitas algo", type: 0 }], 
+        activities: [{ name: "Listo para ayudarte, usa !ayuda o !help si necesitas algo", type: 0 }], 
         status: 'online' 
     });
 
-    // Cargamos el historial para la IA al iniciar
     conversationHistory = await loadConversationHistory();
 
     try {
@@ -298,19 +297,18 @@ client.once('ready', async () => {
 
         const userHistory = conversationHistory[ALLOWED_USER_ID] || [];
         const historySummary = userHistory.length > 0
-            ? userHistory.slice(-3).map(msg => `${msg.role === 'user' ? 'Milagros' : 'Yo'}: ${msg.content}`).join('\n')
+            ? userHistory.slice(-3).map(msg => `${msg.role === 'user' ? 'Usuario' : 'Yo'}: ${msg.content}`).join('\n')
             : 'No hay historial reciente.';
 
         const argentinaTime = new Date().toLocaleTimeString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' });
 
-        // Verificación manual de cambios en las actualizaciones
         const updatesChanged = JSON.stringify(BOT_UPDATES) !== JSON.stringify(PREVIOUS_BOT_UPDATES);
 
         if (updatesChanged) {
             const updateEmbed = new EmbedBuilder()
                 .setColor('#FFD700')
                 .setTitle('📢 Actualizaciones de Miguel IA')
-                .setDescription('¡Tengo mejoras nuevas para compartir contigo!')
+                .setDescription('¡Tengo mejoras nuevas para compartir!')
                 .addFields(
                     { name: 'Novedades', value: BOT_UPDATES.map(update => `- ${update}`).join('\n'), inline: false },
                     { name: 'Hora de actualización', value: `${argentinaTime}`, inline: false },
@@ -319,8 +317,8 @@ client.once('ready', async () => {
                 .setFooter({ text: 'Miguel IA' })
                 .setTimestamp();
 
-            await channel.send({ content: `<@${ALLOWED_USER_ID}>`, embeds: [updateEmbed] });
-            console.log('Actualizaciones enviadas al canal con mención:', CHANNEL_ID);
+            await channel.send({ embeds: [updateEmbed] });
+            console.log('Actualizaciones enviadas al canal:', CHANNEL_ID);
         } else {
             console.log('No hay cambios en las actualizaciones, no se enviaron.');
         }
@@ -361,7 +359,7 @@ client.on('messageCreate', async (message) => {
             const embed = new EmbedBuilder()
                 .setColor('#FF5555')
                 .setTitle('¡Ups!')
-                .setDescription('Por favor, escribe algo después de "responder" para enviar a Milagros.')
+                .setDescription('Por favor, escribe algo después de "responder" para enviar.')
                 .setTimestamp();
             return message.reply({ embeds: [embed] });
         }
@@ -375,12 +373,13 @@ client.on('messageCreate', async (message) => {
             const embed = new EmbedBuilder()
                 .setColor('#FF5555')
                 .setTitle('¡Ups!')
-                .setDescription('No pude encontrar a Milagros. ¿Está bien su ID o me bloqueó?')
+                .setDescription('No pude encontrar al usuario. ¿Está bien el ID o me bloqueó?')
                 .setTimestamp();
             return message.reply({ embeds: [embed] });
         }
 
-        const userEmbed = new EmbedBuilder()
+        const embeds = [];
+        const baseEmbed = new EmbedBuilder()
             .setColor('#55FF55')
             .setTitle('¡Respuesta de Miguel!')
             .setDescription(`Aquí tienes: "${reply}"`)
@@ -389,21 +388,33 @@ client.on('messageCreate', async (message) => {
 
         if (message.attachments.size > 0) {
             const attachments = message.attachments.map(attachment => attachment.url);
-            userEmbed.addFields({ name: 'Imágenes de Miguel', value: attachments.join('\n'), inline: false });
-            const firstAttachment = message.attachments.first();
-            if (firstAttachment && firstAttachment.contentType?.startsWith('image/')) {
-                userEmbed.setImage(firstAttachment.url);
+            let attachmentText = '';
+
+            message.attachments.forEach((attachment, index) => {
+                if (attachment.contentType?.startsWith('image/')) {
+                    const imageEmbed = new EmbedBuilder(baseEmbed.data);
+                    imageEmbed.setImage(attachment.url);
+                    embeds.push(imageEmbed);
+                }
+                attachmentText += `Archivo ${index + 1}: ${attachment.url}\n`;
+            });
+
+            if (embeds.length === 0) {
+                baseEmbed.addFields({ name: 'Archivos de Miguel', value: attachmentText || 'Sin enlaces.', inline: false });
+                embeds.push(baseEmbed);
             }
+        } else {
+            embeds.push(baseEmbed);
         }
 
         try {
-            const sentMessage = await targetUser.send({ embeds: [userEmbed] });
+            const sentMessage = await targetUser.send({ embeds: embeds });
             sentMessages.set(sentMessage.id, { content: reply, timestamp: new Date().toISOString() });
             console.log('Mensaje enviado a ALLOWED_USER_ID:', reply);
             const ownerEmbed = new EmbedBuilder()
                 .setColor('#55FF55')
                 .setTitle('¡Éxito!')
-                .setDescription('Respuesta enviada a Milagros.')
+                .setDescription('Respuesta enviada con éxito.')
                 .setTimestamp();
             await message.reply({ embeds: [ownerEmbed] });
         } catch (error) {
@@ -411,7 +422,7 @@ client.on('messageCreate', async (message) => {
             const errorEmbed = new EmbedBuilder()
                 .setColor('#FF5555')
                 .setTitle('¡Ups!')
-                .setDescription('No pude enviarle esto a Milagros. ¿Me bloqueó o hay un problema con Discord?')
+                .setDescription('No pude enviar el mensaje. ¿Hay un problema con Discord?')
                 .setTimestamp();
             await message.reply({ embeds: [errorEmbed] });
         }
@@ -459,7 +470,7 @@ client.on('messageCreate', async (message) => {
             const errorEmbed = new EmbedBuilder()
                 .setColor('#FF5555')
                 .setTitle('¡Ups!')
-                .setDescription('No pude enviar la actualización al canal. ¡Lo siento!')
+                .setDescription('No pude enviar la actualización al canal.')
                 .setTimestamp();
             await message.reply({ embeds: [errorEmbed] });
         }
@@ -479,7 +490,7 @@ client.on('messageCreate', async (message) => {
 
     const twilio = require('twilio');
     const clientTwilio = new twilio(process.env.TWILIO_SID, process.env.TWILIO_AUTH_TOKEN);
-    
+
     if (userMessage.startsWith('!ayuda')) {
         const issue = userMessage.slice(6).trim();
         if (!issue) {
@@ -490,38 +501,50 @@ client.on('messageCreate', async (message) => {
                 .setTimestamp();
             return message.reply({ embeds: [embed] });
         }
-    
+
         const owner = await client.users.fetch(OWNER_ID);
-        const ownerEmbed = new EmbedBuilder()
+        const embeds = [];
+        const baseEmbed = new EmbedBuilder()
             .setColor('#FFD700')
             .setTitle('¡Solicitud de ayuda!')
-            .setDescription(`Milagros necesita ayuda: "${issue}"`)
+            .setDescription(`Se necesita ayuda con: "${issue}"`)
             .setTimestamp();
-    
+
         if (message.attachments.size > 0) {
             const attachments = message.attachments.map(attachment => attachment.url);
-            ownerEmbed.addFields({ name: 'Adjuntos', value: attachments.join('\n') || 'Sin enlaces.', inline: false });
-            const firstAttachment = message.attachments.first();
-            if (firstAttachment && firstAttachment.contentType?.startsWith('image/')) {
-                ownerEmbed.setImage(firstAttachment.url);
+            let attachmentText = '';
+
+            message.attachments.forEach((attachment, index) => {
+                if (attachment.contentType?.startsWith('image/')) {
+                    const imageEmbed = new EmbedBuilder(baseEmbed.data);
+                    imageEmbed.setImage(attachment.url);
+                    embeds.push(imageEmbed);
+                }
+                attachmentText += `Archivo ${index + 1}: ${attachment.url}\n`;
+            });
+
+            if (embeds.length === 0) {
+                baseEmbed.addFields({ name: 'Adjuntos', value: attachmentText || 'Sin enlaces.', inline: false });
+                embeds.push(baseEmbed);
             }
+        } else {
+            embeds.push(baseEmbed);
         }
-    
-        await owner.send({ embeds: [ownerEmbed] });
-    
-        // Hacer una llamada con Twilio para despertarte
+
+        await owner.send({ embeds: embeds });
+
         try {
             await clientTwilio.calls.create({
-                twiml: `<Response><Say voice="alice">¡Despierta Miguel! Milagros necesita ayuda con ${issue}. ¡Vamos, contesta!</Say><Pause length="2"/><Say voice="alice">Repito, Milagros necesita ayuda con ${issue}.</Say></Response>`,
-                to: process.env.MY_PHONE_NUMBER, // Tu número de móvil
-                from: process.env.TWILIO_PHONE_NUMBER, // El número de Twilio
+                twiml: `<Response><Say voice="alice">¡Despierta Miguel! Hay una solicitud de ayuda con ${issue}. ¡Vamos, contesta!</Say><Pause length="2"/><Say voice="alice">Repito, ayuda con ${issue}.</Say></Response>`,
+                to: process.env.MY_PHONE_NUMBER,
+                from: process.env.TWILIO_PHONE_NUMBER,
             });
             console.log('Llamada iniciada para despertar a Miguel');
         } catch (error) {
             console.error('Error al hacer la llamada:', error.message);
             await owner.send('No pude hacer la llamada para despertarme. Error: ' + error.message);
         }
-    
+
         const userEmbed = new EmbedBuilder()
             .setColor('#55FFFF')
             .setTitle('¡Mensaje enviado!')
@@ -563,8 +586,8 @@ client.on('messageCreate', async (message) => {
         const owner = await client.users.fetch(OWNER_ID);
         const ownerEmbed = new EmbedBuilder()
             .setColor('#FFD700')
-            .setTitle('💡 Nueva sugerencia de Milagros')
-            .setDescription(`Milagros propone: "${suggestion}"`)
+            .setTitle('💡 Nueva sugerencia')
+            .setDescription(`Sugerencia: "${suggestion}"`)
             .setTimestamp();
 
         try {
@@ -597,7 +620,7 @@ client.on('messageCreate', async (message) => {
         const embed = new EmbedBuilder()
             .setColor('#55FF55')
             .setTitle('¡Hola, qué alegría verte!')
-            .setDescription('Soy Miguel IA, creado por Miguel para estar contigo. Puedo ayudarte, charlar o jugar trivia con preguntas de Minecraft y más. Usa "!ayuda" o "!sugerencias" si quieres. ¿Qué tienes en mente?')
+            .setDescription('Soy Miguel IA, creado por Miguel para ayudarte. Puedo charlar, ayudarte o jugar trivia. Usa "!ayuda" o "!sugerencias" si quieres. ¿Qué tienes en mente?')
             .setFooter({ text: 'Miguel IA' })
             .setTimestamp();
         return message.reply({ embeds: [embed] });
@@ -615,7 +638,7 @@ client.on('messageCreate', async (message) => {
     const userHistory = conversationHistory[ALLOWED_USER_ID] || [];
     const historyText = userHistory.map(msg => `${msg.role === 'user' ? 'Tú' : 'Yo'}: ${msg.content}`).join('\n');
 
-    const prompt = `Eres Miguel IA, creado por Miguel. Tu misión es ayudar a Milagros con inteligencia y paciencia. Responde SOLO a lo que Milagros preguntó en este mensaje, de manera clara, útil y proactiva, como un amigo cercano. No inventes preguntas o respuestas adicionales. Si pregunta cómo hacer algo, da pasos prácticos y simples. Si no está claro, pide más detalles. No uses prefijos como "con:" o "con"; responde directamente con un mensaje natural. Siempre termina con una nota positiva o una sugerencia para seguir charlando. Milagros dijo: ${userMessage}\nTu respuesta:`;
+    const prompt = `Eres Miguel IA, creado por Miguel. Tu misión es ayudar con inteligencia y paciencia. Responde SOLO a lo que se preguntó en este mensaje, de manera clara, útil y proactiva, como un amigo cercano. No inventes preguntas o respuestas adicionales. Si pregunta cómo hacer algo, da pasos prácticos y simples. Si no está claro, pide más detalles. No uses prefijos como "con:" o "con"; responde directamente con un mensaje natural. Siempre termina con una nota positiva o una sugerencia para seguir charlando. El mensaje fue: ${userMessage}\nTu respuesta:`;
 
     try {
         const response = await axios.post(
@@ -635,7 +658,6 @@ client.on('messageCreate', async (message) => {
         console.log('Respuesta cruda de la API:', response.data);
 
         let aiReply = response.data[0]?.generated_text || '';
-        // Filtrar cualquier línea que no sea la respuesta directa
         aiReply = aiReply.split('\n').filter(line => !line.toLowerCase().startsWith('milagros:') && !line.toLowerCase().startsWith('tú:')).join('\n').trim();
         if (!aiReply || aiReply.trim().length < 10) {
             aiReply = 'No estoy seguro de cómo ayudarte con eso, pero quiero hacerlo. ¿Puedes darme más detalles? Mientras tanto, ¿te gustaría jugar una trivia con "!trivia" o compartir una idea con "!sugerencias"?';
@@ -664,7 +686,7 @@ client.on('messageCreate', async (message) => {
         const errorEmbed = new EmbedBuilder()
             .setColor('#FF5555')
             .setTitle('¡Ay, algo no salió bien!')
-            .setDescription('No pude encontrar la respuesta perfecta esta vez, pero no te preocupes, estoy aquí para ti. ¿Quieres usar "!ayuda" para que Miguel me eche una mano, o prefieres intentar con otra pregunta?')
+            .setDescription('No pude encontrar la respuesta perfecta esta vez, pero no te preocupes, estoy aquí. ¿Quieres usar "!ayuda" para que Miguel me eche una mano, o prefieres intentar con otra pregunta?')
             .setFooter({ text: 'Miguel IA' })
             .setTimestamp();
         return sentMessage.edit({ embeds: [errorEmbed] });
@@ -678,7 +700,6 @@ client.on('messageReactionAdd', async (reaction, user) => {
     const messageData = sentMessages.get(reaction.message.id);
     const owner = await client.users.fetch(OWNER_ID);
 
-    // En messageReactionAdd
     const ecuadorTime = new Date(messageData.timestamp).toLocaleString('es-EC', {
         timeZone: 'America/Guayaquil',
         year: 'numeric',
@@ -690,12 +711,10 @@ client.on('messageReactionAdd', async (reaction, user) => {
         hour12: true
     });
 
-    sentMessages.set(sentMessage.id, { content: reply, timestamp: ecuadorTime });
-    
     const reactionEmbed = new EmbedBuilder()
         .setColor('#FFD700')
-        .setTitle('¡Milagros reaccionó!')
-        .setDescription(`Milagros reaccionó con ${reaction.emoji} al mensaje: "${messageData.content}"\n\nEnviado el: ${ecuadorTime}`)
+        .setTitle('¡Reacción recibida!')
+        .setDescription(`Reacción con ${reaction.emoji} al mensaje: "${messageData.content}"\n\nEnviado el: ${ecuadorTime}`)
         .setTimestamp();
 
     try {
