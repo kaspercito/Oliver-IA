@@ -1,6 +1,7 @@
 const fs = require('fs');
 const { Client, GatewayIntentBits, EmbedBuilder } = require('discord.js');
 const axios = require('axios');
+const { v4: uuidv4 } = require('uuid'); // Añadimos uuid para generar IDs únicos
 require('dotenv').config();
 
 const client = new Client({
@@ -29,7 +30,7 @@ const PREVIOUS_BOT_UPDATES = [
     'Espero ahora si este todo bien hecho, he mejorado las respuestas en las que el bot te responderá, espero te pueda servir, estoy pensando en mas mejoras.'
 ];
 
-// Preguntas predefinidas con 4 opciones (incluye tu lista completa aquí)
+// Preguntas predefinidas con 4 opciones
 const preguntasTrivia = [
     { pregunta: "¿Cuál es el mineral más raro en Minecraft 1.8?", respuesta: "esmeralda", incorrectas: ["diamante", "oro", "hierro"] },
     { pregunta: "¿Cuántos bloques de altura tiene un Enderman?", respuesta: "3", incorrectas: ["2", "4", "5"] },
@@ -90,6 +91,7 @@ const preguntasTrivia = [
 ];
 
 // Estado
+const instanceId = uuidv4(); // ID único para esta instancia del bot
 const activeTrivia = new Map();
 const sentMessages = new Map();
 let dataStore = { conversationHistory: {}, triviaRanking: {} };
@@ -184,6 +186,15 @@ function obtenerPreguntaTrivia() {
 }
 
 async function manejarTrivia(message) {
+    // Evitar doble procesamiento si ya hay una trivia reciente en el canal
+    if (activeTrivia.has(message.channel.id)) {
+        const triviaData = activeTrivia.get(message.channel.id);
+        if (Date.now() - triviaData.timestamp < 1000) {
+            console.log(`Instancia ${instanceId} ignoró !trivia duplicado en canal ${message.channel.id}`);
+            return; // Ignorar si se procesó hace menos de 1 segundo
+        }
+    }
+
     const trivia = obtenerPreguntaTrivia();
     if (!trivia) {
         return sendError(message.channel, 'No hay preguntas de trivia disponibles.');
@@ -193,7 +204,7 @@ async function manejarTrivia(message) {
         'Tienes 15 segundos para responder con A, B, C o D'
     );
     const sentMessage = await message.channel.send({ embeds: [embedPregunta] });
-    activeTrivia.set(message.channel.id, { id: sentMessage.id, correcta: trivia.respuesta, opciones: trivia.opciones });
+    activeTrivia.set(message.channel.id, { id: sentMessage.id, correcta: trivia.respuesta, opciones: trivia.opciones, timestamp: Date.now() });
 
     const opcionesValidas = ["a", "b", "c", "d"];
     const indiceCorrecto = trivia.opciones.indexOf(trivia.respuesta);
@@ -244,7 +255,7 @@ function getRankingEmbed() {
 
 // Evento ready
 client.once('ready', async () => {
-    console.log('¡Miguel IA está listo para ayudar!');
+    console.log(`¡Miguel IA está listo para ayudar! Instancia: ${instanceId}`);
     client.user.setPresence({ activities: [{ name: "Listo para ayudarte, Belén", type: 0 }], status: 'online' });
 
     dataStore = await loadDataStore();
@@ -289,7 +300,7 @@ client.on('messageCreate', async (message) => {
     const isDM = !guild;
     const isTargetChannel = CHANNEL_ID && channel.id === CHANNEL_ID;
 
-    console.log(`Mensaje recibido - Autor: ${author.id}, Contenido: ${content}, Es DM: ${isDM}`);
+    console.log(`Mensaje recibido - Instancia: ${instanceId}, Autor: ${author.id}, Contenido: ${content}, Es DM: ${isDM}`);
 
     if (!isOwner && !isAllowedUser) return;
 
@@ -432,7 +443,6 @@ client.on('messageCreate', async (message) => {
         const chatMessage = content.slice(5).trim();
         if (!chatMessage) return sendError(channel, 'Escribe un mensaje después de "!chat", por ejemplo: !chat hola, Belén.');
 
-        // Enviar mensaje provisional
         const waitingEmbed = createEmbed('#55FFFF', '¡Un momento, Belén!', 'Espera, estoy buscando una respuesta...');
         const waitingMessage = await channel.send({ embeds: [waitingEmbed] });
 
@@ -465,8 +475,6 @@ client.on('messageCreate', async (message) => {
         sendSuccess(channel, '¡Hola, qué alegría verte!', `Soy Miguel IA, aquí para ayudarte, Belén. ¿Qué tienes en mente?`);
         return;
     }
-
-    // Si no coincide ningún comando, no responde nada
 });
 
 // Evento messageReactionAdd
@@ -505,6 +513,13 @@ client.on('messageReactionAdd', async (reaction, user) => {
             sendError(messageData.message.channel, 'No pude encontrar una mejor respuesta ahora, Belén.');
         }
     }
+});
+
+// Graceful Shutdown para cerrar la instancia limpiamente
+process.on('SIGTERM', () => {
+    console.log(`Instancia ${instanceId} recibió SIGTERM, cerrando bot...`);
+    client.destroy();
+    process.exit(0);
 });
 
 client.login(process.env.DISCORD_TOKEN);
