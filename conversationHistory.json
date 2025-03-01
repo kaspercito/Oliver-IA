@@ -2,11 +2,6 @@
   "conversationHistory": {
     "1023132788632862761": [
       {
-        "role": "assistant",
-        "content": "¡Hola Belén!\n\nDeploy es un término que se utiliza en el mundo del desarrollo de software y significa \"desplegar\" o \"implementar\". Básicamente, se refiere al proceso de preparar, probar y poner en marcha una aplicación o un servicio en un entorno en vivo, como un servidor o una plataforma en la nube.\n\nEs una etapa importante en el ciclo de vida de una aplicación, ya que permite que los usuarios finales interactúen con ella y vean los resultados de todo el trabajo de codificación y pruebas. Además, una vez que el software está desplegado, se pueden realizar actualizaciones y mantenimiento continuos para garantizar que funcione de manera óptima y segura.\n\nAsí que, en resumen, deploy es el proceso de llevar una aplicación o servicio desde el entorno de desarrollo hasta el entorno en vivo, donde los usuarios pueden disfrutar de sus beneficios. ¡Espero que esto te haya ayudado a entender un poco mejor el término! ¡Hasta la próxima, querida!",
-        "timestamp": "2025-03-01T19:12:08.173Z"
-      },
-      {
         "role": "user",
         "content": "!chat qué es deploy",
         "timestamp": "2025-03-01T19:14:07.125Z"
@@ -115,6 +110,11 @@
         "role": "user",
         "content": "ese bot ujsan, no sé",
         "timestamp": "2025-03-01T19:49:47.096Z"
+      },
+      {
+        "role": "user",
+        "content": "no no, porque ahí hay varias personas",
+        "timestamp": "2025-03-01T19:49:55.660Z"
       }
     ]
   },
