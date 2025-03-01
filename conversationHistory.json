@@ -2,11 +2,6 @@
   "conversationHistory": {
     "1023132788632862761": [
       {
-        "role": "assistant",
-        "content": "Hola Belén, ¡qué bueno hablar contigo de nuevo! La capital de Argentina es Buenos Aires, una ciudad hermosa y llena de cultura. ¿Has tenido la oportunidad de visitarla alguna vez? ¡Contame si tienes algún otro interrogante sobre este o algún otro tema!",
-        "timestamp": "2025-03-01T19:06:38.841Z"
-      },
-      {
         "role": "user",
         "content": "!chat no vuelvas a decir que buenos aiers es una ciudad hermosa",
         "timestamp": "2025-03-01T19:07:02.723Z"
@@ -115,6 +110,11 @@
         "role": "user",
         "content": "a",
         "timestamp": "2025-03-01T19:43:41.270Z"
+      },
+      {
+        "role": "user",
+        "content": "sin mayúsculas podes poner las frases?",
+        "timestamp": "2025-03-01T19:43:53.898Z"
       }
     ]
   },
