@@ -3,11 +3,6 @@
     "1023132788632862761": [
       {
         "role": "user",
-        "content": "la práctica hace al maestro, no lo olvides",
-        "timestamp": "2025-03-01T20:04:20.513Z"
-      },
-      {
-        "role": "user",
         "content": "el unto",
         "timestamp": "2025-03-01T20:04:22.890Z"
       },
@@ -115,13 +110,18 @@
         "role": "user",
         "content": "c",
         "timestamp": "2025-03-01T20:24:42.825Z"
+      },
+      {
+        "role": "user",
+        "content": "a",
+        "timestamp": "2025-03-01T20:24:47.056Z"
       }
     ]
   },
   "triviaRanking": {
     "1023132788632862761": {
       "username": "dearluz",
-      "score": 6
+      "score": 7
     }
   }
 }
