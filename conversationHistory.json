@@ -2,11 +2,6 @@
   "1023132788632862761": [
     {
       "role": "user",
-      "content": "b",
-      "timestamp": "2025-03-01T18:25:50.555Z"
-    },
-    {
-      "role": "user",
       "content": "!trivia",
       "timestamp": "2025-03-01T18:25:54.707Z"
     },
@@ -99,6 +94,11 @@
       "role": "user",
       "content": "!trivia",
       "timestamp": "2025-03-01T18:26:42.248Z"
+    },
+    {
+      "role": "user",
+      "content": "a",
+      "timestamp": "2025-03-01T18:26:48.862Z"
     }
   ]
 }
