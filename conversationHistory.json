@@ -3,11 +3,6 @@
     "1023132788632862761": [
       {
         "role": "user",
-        "content": "pero es igual como vos lo hiciste solo que coloca la frase más larga",
-        "timestamp": "2025-03-01T19:58:37.177Z"
-      },
-      {
-        "role": "user",
         "content": "no hace falta que sea como eso",
         "timestamp": "2025-03-01T19:58:40.116Z"
       },
@@ -114,7 +109,12 @@
       {
         "role": "user",
         "content": "!ppm",
-        "timestamp": "2025-03-01T20:04:37.629Z"
+        "timestamp": "2025-03-01T20:04:37.617Z"
+      },
+      {
+        "role": "user",
+        "content": "la ida es como una caja de chocolates, nunca sabes qué te va a tocarf.",
+        "timestamp": "2025-03-01T20:04:45.943Z"
       }
     ]
   },
