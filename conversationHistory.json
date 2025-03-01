@@ -2,11 +2,6 @@
   "conversationHistory": {
     "1023132788632862761": [
       {
-        "role": "user",
-        "content": "!ranking",
-        "timestamp": "2025-03-01T18:35:24.998Z"
-      },
-      {
         "role": "assistant",
         "content": "# Miguel IA\n\n¡Hola! Soy Miguel IA, un asistente virtual diseñado para ayudarte en tus tareas y resolver tus dudas. ¿En qué puedo ayudarte hoy?\n\nSi me dices \"bot\", entiendo que quieres saber si soy un bot o no. La respuesta es que sí, soy un bot, pero estoy diseñado para interactuar contigo de manera clara y útil, como un amigo. Así que, ¿en qué puedo ayudarte hoy? 😊",
         "timestamp": "2025-03-01T18:35:25.716Z"
@@ -105,6 +100,11 @@
         "role": "assistant",
         "content": "Hola! ¿Cómo estás? Sí, soy Miguel. ¿Qué hay de nuevo en tu vida últimamente? ¡Cuéntame todo!",
         "timestamp": "2025-03-01T18:45:46.132Z"
+      },
+      {
+        "role": "user",
+        "content": "!chat que",
+        "timestamp": "2025-03-01T18:45:51.446Z"
       }
     ]
   },
