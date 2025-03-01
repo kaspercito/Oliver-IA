@@ -117,6 +117,11 @@
         "role": "user",
         "content": "chau",
         "timestamp": "2025-03-01T23:38:36.409Z"
+      },
+      {
+        "role": "assistant",
+        "content": "```\n— Belén: chau\n— Miguel IA: ¡Hola Belén! Espero que estés teniendo un buen día. Me alegra haber podido conversar contigo. Si tienes alguna otra duda o pregunta, no dudes en preguntarme. De lo contrario, ¡hasta la próxima! ¿Te sirvió mi respuesta? 🤔 Puedes reaccionar con ✅ si fue útil o con ❌ si no lo fue. ¡Gracias! 😊",
+        "timestamp": "2025-03-01T23:38:41.746Z"
       }
     ]
   },
