@@ -298,6 +298,10 @@ async function manejarTrivia(message, isLoop = false) {
         numQuestions = parseInt(args[0]);
     }
 
+    if (!isLoop) {
+        triviaLoops.set(message.author.id, true);
+    }
+
     for (let i = 0; i < numQuestions; i++) {
         const trivia = obtenerPreguntaTrivia();
         if (!trivia) {
@@ -341,9 +345,9 @@ async function manejarTrivia(message, isLoop = false) {
                 `Se acabó el tiempo. La respuesta correcta era **${trivia.respuesta}** (Opción ${letraCorrecta.toUpperCase()}).`);
         }
     }
-    if (triviaLoops.has(message.author.id) && triviaLoops.get(message.author.id)) {
-        await manejarTrivia(message, true);
-    }
+
+    triviaLoops.set(message.author.id, false);
+    await sendSuccess(message.channel, '🏁 ¡Trivia Terminada!', `¡Completaste las ${numQuestions} preguntas, ${message.author.tag}! Usa !ranking para ver tu puntaje o !trivia para otra ronda.`);
 }
 
 function obtenerPreguntaTrivia() {
@@ -393,16 +397,18 @@ async function manejarPPM(message) {
 
     async function startNewTest() {
         for (let i = 3; i > 0; i--) {
-            await message.channel.send(createEmbed('#FFAA00', '⏳ Cuenta Regresiva', `¡Preparada, Belén! Empieza en ${i}...`));
+            const countdownEmbed = createEmbed('#FFAA00', '⏳ Cuenta Regresiva', `¡Preparada, Belén! Empieza en ${i}...`);
+            await message.channel.send({ embeds: [countdownEmbed] });
             await new Promise(resolve => setTimeout(resolve, 1000));
         }
-        await message.channel.send(createEmbed('#00FF00', '🚀 ¡Ya!', '¡Adelante, Belén!'));
+        await message.channel.send({ embeds: [createEmbed('#00FF00', '🚀 ¡Ya!', '¡Adelante, Belén!')] });
 
         const frase = frasesPPM[Math.floor(Math.random() * frasesPPM.length)];
         const startTime = Date.now();
         const embed = createEmbed('#55FFFF', '📝 Prueba de Mecanografía',
             `Escribe esta frase lo más rápido que puedas:\n\n**${frase}**\n\nTienes 60 segundos para responder.`);
-        
+
+        console.log('Embed preparado:', JSON.stringify(embed.toJSON(), null, 2));
         try {
             await message.channel.send({ embeds: [embed] });
         } catch (error) {
@@ -512,13 +518,11 @@ client.on('messageCreate', async (message) => {
     processedMessages.set(message.id, Date.now());
     setTimeout(() => processedMessages.delete(message.id), 10000);
 
-    // Rechazar si no es ni el dueño ni Belén
     if (!isOwner && !isAllowedUser) {
         console.log(`Instancia ${instanceId} - Usuario ${author.id} no permitido`);
         return;
     }
 
-    // Guardar en el historial solo para !chat de Belén
     if (isAllowedUser && content.startsWith('!chat')) {
         const chatMessage = content.slice(5).trim();
         let userHistory = dataStore.conversationHistory[author.id] || [];
@@ -528,7 +532,6 @@ client.on('messageCreate', async (message) => {
         saveDataStore(dataStore);
     }
 
-    // Comandos exclusivos del dueño
     if (isOwner) {
         if (content.startsWith('responder')) {
             const reply = content.slice(9).trim();
@@ -573,7 +576,6 @@ client.on('messageCreate', async (message) => {
         }
     }
 
-    // Rechazar si no está en el canal permitido ni en DMs
     if (!isTargetChannel && !isDM) {
         console.log(`Instancia ${instanceId} - Canal ${channel.id} no permitido`);
         return;
@@ -653,7 +655,6 @@ client.on('messageCreate', async (message) => {
 
     if (content.startsWith('!trivia')) {
         console.log(`Instancia ${instanceId} - Iniciando trivia para ${message.author.id}`);
-        triviaLoops.set(message.author.id, true);
         await manejarTrivia(message);
         return;
     }
