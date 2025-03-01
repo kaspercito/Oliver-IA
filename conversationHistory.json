@@ -2,11 +2,6 @@
   "conversationHistory": {
     "1023132788632862761": [
       {
-        "role": "user",
-        "content": "!chat hola",
-        "timestamp": "2025-03-01T18:58:32.389Z"
-      },
-      {
         "role": "assistant",
         "content": "¡Uy, me quedé en blanco, Belén! ¿Qué me cuentas tú?",
         "timestamp": "2025-03-01T18:58:44.135Z"
@@ -107,9 +102,9 @@
         "timestamp": "2025-03-01T19:07:02.723Z"
       },
       {
-        "role": "assistant",
-        "content": "Hola Belén, ¡qué bueno volver a hablar contigo! No te preocupes por lo que dije antes, cada quien tiene sus gustos y preferencias. ¿Cómo estás? ¿Qué has estado haciendo últimamente?",
-        "timestamp": "2025-03-01T19:07:04.241Z"
+        "role": "user",
+        "content": "!trivia",
+        "timestamp": "2025-03-01T19:07:10.449Z"
       }
     ]
   },
