@@ -105,6 +105,11 @@
         "role": "user",
         "content": "!chat que",
         "timestamp": "2025-03-01T18:45:51.446Z"
+      },
+      {
+        "role": "assistant",
+        "content": "¡Hola! ¿En qué puedo ayudarte hoy? ¿Cómo estás?",
+        "timestamp": "2025-03-01T18:45:52.441Z"
       }
     ]
   },
