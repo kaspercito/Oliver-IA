@@ -3,11 +3,6 @@
     "1023132788632862761": [
       {
         "role": "user",
-        "content": "la vida es como una caja de chocolats, unca sabes qué te av a toca,.",
-        "timestamp": "2025-03-01T20:06:40.885Z"
-      },
-      {
-        "role": "user",
         "content": "ea es horrible dios",
         "timestamp": "2025-03-01T20:06:44.706Z"
       },
@@ -115,13 +110,18 @@
         "role": "user",
         "content": "d",
         "timestamp": "2025-03-01T20:25:54.209Z"
+      },
+      {
+        "role": "user",
+        "content": "d",
+        "timestamp": "2025-03-01T20:25:59.034Z"
       }
     ]
   },
   "triviaRanking": {
     "1023132788632862761": {
       "username": "dearluz",
-      "score": 18
+      "score": 19
     }
   }
 }
