@@ -3,11 +3,6 @@
     "1023132788632862761": [
       {
         "role": "user",
-        "content": "en ignlés me cuesta mucho",
-        "timestamp": "2025-03-01T19:52:34.344Z"
-      },
-      {
-        "role": "user",
         "content": "esas frases cortas están bien",
         "timestamp": "2025-03-01T19:52:58.265Z"
       },
@@ -115,6 +110,11 @@
         "role": "user",
         "content": "la put",
         "timestamp": "2025-03-01T20:03:55.428Z"
+      },
+      {
+        "role": "user",
+        "content": "!ppm",
+        "timestamp": "2025-03-01T20:04:10.328Z"
       }
     ]
   },
