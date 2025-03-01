@@ -67,6 +67,11 @@
         "role": "assistant",
         "content": "¡Hola Belén! No te preocupes, es una pregunta completamente válida y no es raro que la gente se haga esta pregunta.\n\nEn realidad, en casi todos los países se comen ratas, ya que estos animales están presentes en casi todos los ecosistemas del mundo. Sin embargo, existen algunas culturas en las que comer ratas es más común o aceptado que en otras.\n\nPor ejemplo, en algunas regiones de China, como en la provincia de Guangdong, se considera una delicia local comer ratas de arroz, que se crían específicamente para el consumo humano. También en Vietnam, Camboya, y algunas partes de África y América Latina, se consumen ratas como alimento.\n\nEn cu",
         "timestamp": "2025-03-01T23:31:41.265Z"
+      },
+      {
+        "role": "user",
+        "content": "a que saben las ratas",
+        "timestamp": "2025-03-01T23:32:48.619Z"
       }
     ]
   },
