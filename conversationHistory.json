@@ -3,11 +3,6 @@
     "1023132788632862761": [
       {
         "role": "user",
-        "content": "!ppm",
-        "timestamp": "2025-03-01T20:04:10.321Z"
-      },
-      {
-        "role": "user",
         "content": "la r´´acrica",
         "timestamp": "2025-03-01T20:04:13.071Z"
       },
@@ -115,6 +110,11 @@
         "role": "user",
         "content": "porque ya no volveré a escribir la misma, me da toc",
         "timestamp": "2025-03-01T20:10:05.067Z"
+      },
+      {
+        "role": "user",
+        "content": "perdón, me estoy preparando para viajar",
+        "timestamp": "2025-03-01T20:24:17.754Z"
       }
     ]
   },
