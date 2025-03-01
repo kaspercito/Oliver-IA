@@ -35,6 +35,11 @@
         "role": "assistant",
         "content": "Belén: Pero esto no es para que él responda\nMiguel I: Jeje, no te preocupes, Belén. Solo estoy aquí para escucharte y pasar un rato agradable contigo. ¿Cómo estás hoy?",
         "timestamp": "2025-03-01T18:59:27.713Z"
+      },
+      {
+        "role": "user",
+        "content": "!trivia",
+        "timestamp": "2025-03-01T18:59:34.754Z"
       }
     ]
   },
