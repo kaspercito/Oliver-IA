@@ -3,11 +3,6 @@
     "1023132788632862761": [
       {
         "role": "user",
-        "content": "d",
-        "timestamp": "2025-03-01T19:07:28.448Z"
-      },
-      {
-        "role": "user",
         "content": "booom,",
         "timestamp": "2025-03-01T19:07:34.569Z"
       },
@@ -115,6 +110,11 @@
         "role": "user",
         "content": "la práctica hace al maestro, no lo olvides.",
         "timestamp": "2025-03-01T19:46:45.299Z"
+      },
+      {
+        "role": "user",
+        "content": "no la toma",
+        "timestamp": "2025-03-01T19:46:51.957Z"
       }
     ]
   },
