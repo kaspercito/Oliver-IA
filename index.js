@@ -92,16 +92,16 @@ const preguntasTrivia = [
 
 // Frases para la prueba de mecanografía (máximo 20 palabras)
 const frasesPPM = [
-    "El rápido zorro marrón salta sobre el perro perezoso.", // 7 palabras
-    "La vida es como una caja de chocolates, nunca sabes qué te va a tocar.", // 11 palabras
-    "Un pequeño paso para el hombre, un gran salto para la humanidad.", // 9 palabras
-    "El sol brilla más fuerte cuando estás feliz y rodeado de amigos.", // 10 palabras
-    "La práctica hace al maestro, no lo olvides nunca en tu camino.", // 10 palabras
-    "El viento sopla suavemente entre los árboles altos del bosque verde.", // 10 palabras
-    "La perseverancia y el esfuerzo siempre llevan a grandes logros personales.", // 9 palabras
-    "Un día claro con un cielo azul inspira a todos a soñar.", // 10 palabras
-    "El río fluye tranquilo mientras las aves cantan al amanecer cada día.", // 10 palabras
-    "La amistad verdadera se construye con confianza y apoyo mutuo siempre.", // 9 palabras
+    "El rápido zorro marrón salta sobre el perro perezoso", // 7 palabras
+    "La vida es como una caja de chocolates, nunca sabes qué te va a tocar", // 11 palabras
+    "Un pequeño paso para el hombre, un gran salto para la humanidad", // 9 palabras
+    "El sol brilla más fuerte cuando estás feliz y rodeado de amigos", // 10 palabras
+    "La práctica hace al maestro, no lo olvides nunca en tu camino", // 10 palabras
+    "El viento sopla suavemente entre los árboles altos del bosque verde", // 10 palabras
+    "La perseverancia y el esfuerzo siempre llevan a grandes logros personales", // 9 palabras
+    "Un día claro con un cielo azul inspira a todos a soñar", // 10 palabras
+    "El río fluye tranquilo mientras las aves cantan al amanecer cada día", // 10 palabras
+    "La amistad verdadera se construye con confianza y apoyo mutuo siempre", // 9 palabras
 ].filter(frase => frase.split(' ').length <= 20);
 
 // Estado
