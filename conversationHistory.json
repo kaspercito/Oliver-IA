@@ -2,11 +2,6 @@
   "conversationHistory": {
     "1023132788632862761": [
       {
-        "role": "assistant",
-        "content": "Belén: Pero esto no es para que él responda\nMiguel I: Jeje, no te preocupes, Belén. Solo estoy aquí para escucharte y pasar un rato agradable contigo. ¿Cómo estás hoy?",
-        "timestamp": "2025-03-01T18:59:27.713Z"
-      },
-      {
         "role": "user",
         "content": "!trivia",
         "timestamp": "2025-03-01T18:59:34.754Z"
@@ -92,24 +87,24 @@
         "timestamp": "2025-03-01T19:07:02.723Z"
       },
       {
-        "role": "assistant",
-        "content": "Hola Belén, ¡qué bueno volver a hablar contigo! No te preocupes por lo que dije antes, cada quien tiene sus gustos y preferencias. ¿Cómo estás? ¿Qué has estado haciendo últimamente?",
-        "timestamp": "2025-03-01T19:07:04.241Z"
-      },
-      {
         "role": "user",
         "content": "!trivia",
-        "timestamp": "2025-03-01T19:07:10.458Z"
+        "timestamp": "2025-03-01T19:07:10.449Z"
       },
       {
         "role": "user",
         "content": "d",
-        "timestamp": "2025-03-01T19:07:16.055Z"
+        "timestamp": "2025-03-01T19:07:16.061Z"
       },
       {
         "role": "user",
         "content": "!trivia",
-        "timestamp": "2025-03-01T19:07:23.312Z"
+        "timestamp": "2025-03-01T19:07:23.308Z"
+      },
+      {
+        "role": "user",
+        "content": "d",
+        "timestamp": "2025-03-01T19:07:28.448Z"
       }
     ]
   },
