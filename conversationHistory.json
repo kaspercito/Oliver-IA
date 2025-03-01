@@ -5,6 +5,11 @@
         "role": "user",
         "content": "bot",
         "timestamp": "2025-03-01T18:35:23.347Z"
+      },
+      {
+        "role": "user",
+        "content": "!ranking",
+        "timestamp": "2025-03-01T18:35:24.998Z"
       }
     ]
   },
