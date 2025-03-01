@@ -94,6 +94,11 @@
       "role": "user",
       "content": "!ayuda cómo es la contraseña de la página web de SS",
       "timestamp": "2025-03-01T08:55:15.033Z"
+    },
+    {
+      "role": "user",
+      "content": "!help",
+      "timestamp": "2025-03-01T15:10:55.487Z"
     }
   ]
 }
