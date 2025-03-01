@@ -16,7 +16,7 @@ const client = new Client({
 
 // IDs y constantes
 const OWNER_ID = '752987736759205960';
-const ALLOWED_USER_ID = '1023132788632862761'; // ID de Belén
+const ALLOWED_USER_ID = '752987736759205960'; // ID de Belén
 const CHANNEL_ID = '1343749554905940058';
 const MAX_MESSAGES = 20;
 
