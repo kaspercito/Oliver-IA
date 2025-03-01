@@ -25,6 +25,11 @@
         "role": "assistant",
         "content": "> Belén: Que comen en camboya\n\n¡Hola Belén! En Camboya, la comida es muy variada y se basa en el arroz, los fideos y una gran cantidad de pescado y frutas. Algunos de los platos típicos más populares son:\n\n1. **Amok**: Es un plato a base de pescado o pollo cocinado con leche de coco y una mezcla de especias conocida como \"kroeung\". Se sirve en una hoja de plátano y acompañado de arroz.\n\n2. **Nom Banh Chok**: Es una sopa de fideos servida en un cuenco y hecha con arroz verde fermentado, leche de coco y una variedad de verduras y hierbas frescas.",
         "timestamp": "2025-03-01T23:32:31.786Z"
+      },
+      {
+        "role": "user",
+        "content": "podrias mostrarme como es una rata blanca?",
+        "timestamp": "2025-03-01T23:37:56.727Z"
       }
     ],
     "1023132788632862761": [
