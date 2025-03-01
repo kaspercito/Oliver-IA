@@ -1,0 +1,12 @@
+{
+  "conversationHistory": {
+    "1023132788632862761": [
+      {
+        "role": "user",
+        "content": "bot",
+        "timestamp": "2025-03-01T18:35:23.347Z"
+      }
+    ]
+  },
+  "triviaRanking": {}
+}
