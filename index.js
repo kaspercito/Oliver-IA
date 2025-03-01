@@ -89,7 +89,6 @@ const preguntasTrivia = [
     { pregunta: "¿Cuántos minutos tiene una hora?", respuesta: "60", incorrectas: ["50", "70", "80"] },
 ];
 
-
 // Estado
 const activeTrivia = new Map();
 const sentMessages = new Map();
@@ -105,8 +104,8 @@ const createEmbed = (color, title, description, footer = 'Con cariño, Miguel IA
         .setTimestamp();
 };
 
-const sendError = async (channel, message, suggestion = '¿Intentamos de nuevo?') => {
-    const embed = createEmbed('#FF5555', '¡Ups!', `${message}\n${suggestion}`);
+const sendError = async (channel, message, suggestion = '¿Intentamos de nuevo, Belén?') => {
+    const embed = createEmbed('#FF5555', '¡Ups, Belén!', `${message}\n${suggestion}`);
     await channel.send({ embeds: [embed] });
 };
 
@@ -239,7 +238,7 @@ function getRankingEmbed() {
         .slice(0, 5);
     const description = sortedRanking.length > 0
         ? sortedRanking.map(([id, { username, score }], i) => `${i + 1}. **${username}**: ${score} puntos`).join('\n')
-        : '¡Aún no hay puntajes! Juega con !trivia para empezar.';
+        : '¡Aún no hay puntajes! Juega con !trivia para empezar, Belén.';
     return createEmbed('#FFD700', '🏆 Ranking de Trivia', description);
 }
 
@@ -439,18 +438,23 @@ client.on('messageCreate', async (message) => {
 
         try {
             const prompt = `Eres Miguel IA, un amigo cercano creado por Miguel para Belén. Responde a "${chatMessage}" de Belén de forma natural y amigable, solo charlando, sin sugerir comandos ni ayuda técnica.`;
+            console.log('Enviando solicitud a Hugging Face con prompt:', prompt);
             const response = await axios.post(
                 'https://api-inference.huggingface.co/models/mistralai/Mixtral-8x7B-Instruct-v0.1',
                 { inputs: prompt, parameters: { max_new_tokens: 500, return_full_text: false, temperature: 0.7 } },
                 { headers: { 'Authorization': `Bearer ${process.env.HF_API_TOKEN}`, 'Content-Type': 'application/json' } }
             );
-            let aiReply = response.data[0]?.generated_text?.trim() || '¡Uy, me quedé en blanco, Belén! ¿Qué me cuentas tú?';
+            console.log('Respuesta de Hugging Face:', response.data);
+            let aiReply = response.data[0]?.generated_text?.trim();
+            if (!aiReply || aiReply.length < 5) {
+                aiReply = '¡Uy, me quedé en blanco, Belén! ¿Qué me cuentas tú?';
+            }
             dataStore.conversationHistory[author.id].push({ role: 'assistant', content: aiReply, timestamp: new Date().toISOString() });
             saveDataStore(dataStore);
             const finalEmbed = createEmbed('#55FFFF', '¡Charlando contigo, Belén!', aiReply);
             await waitingMessage.edit({ embeds: [finalEmbed] });
         } catch (error) {
-            console.error('Error en !chat:', error);
+            console.error('Error en !chat:', error.message, error.response?.data || '');
             const errorEmbed = createEmbed('#FF5555', '¡Ups, Belén!', 'Algo falló al buscar la respuesta, pero sigo aquí.');
             await waitingMessage.edit({ embeds: [errorEmbed] });
         }
