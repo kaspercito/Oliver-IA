@@ -3,11 +3,6 @@
     "1023132788632862761": [
       {
         "role": "user",
-        "content": "mira ese que hace 190",
-        "timestamp": "2025-03-01T19:50:07.877Z"
-      },
-      {
-        "role": "user",
         "content": "qué barbaridad",
         "timestamp": "2025-03-01T19:50:09.777Z"
       },
@@ -115,6 +110,11 @@
         "role": "user",
         "content": "de 20 palabras como mucho",
         "timestamp": "2025-03-01T19:59:09.491Z"
+      },
+      {
+        "role": "user",
+        "content": "mr ponelo abreviado",
+        "timestamp": "2025-03-01T20:01:42.092Z"
       }
     ]
   },
