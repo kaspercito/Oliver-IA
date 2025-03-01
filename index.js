@@ -512,11 +512,13 @@ client.on('messageCreate', async (message) => {
     processedMessages.set(message.id, Date.now());
     setTimeout(() => processedMessages.delete(message.id), 10000);
 
+    // Rechazar si no es ni el dueño ni Belén
     if (!isOwner && !isAllowedUser) {
         console.log(`Instancia ${instanceId} - Usuario ${author.id} no permitido`);
         return;
     }
 
+    // Guardar en el historial solo para !chat de Belén
     if (isAllowedUser && content.startsWith('!chat')) {
         const chatMessage = content.slice(5).trim();
         let userHistory = dataStore.conversationHistory[author.id] || [];
@@ -526,6 +528,7 @@ client.on('messageCreate', async (message) => {
         saveDataStore(dataStore);
     }
 
+    // Comandos exclusivos del dueño
     if (isOwner) {
         if (content.startsWith('responder')) {
             const reply = content.slice(9).trim();
@@ -570,7 +573,8 @@ client.on('messageCreate', async (message) => {
         }
     }
 
-    if (!isAllowedUser || (!isTargetChannel && !isDM)) {
+    // Rechazar si no está en el canal permitido ni en DMs
+    if (!isTargetChannel && !isDM) {
         console.log(`Instancia ${instanceId} - Canal ${channel.id} no permitido`);
         return;
     }
@@ -691,8 +695,10 @@ client.on('messageCreate', async (message) => {
             if (!aiReply || aiReply.length < 5) {
                 aiReply = '¡Uy, me quedé en blanco, Belén! ¿Qué me cuentas tú?';
             }
-            dataStore.conversationHistory[author.id].push({ role: 'assistant', content: aiReply, timestamp: new Date().toISOString() });
-            saveDataStore(dataStore);
+            if (isAllowedUser) {
+                dataStore.conversationHistory[author.id].push({ role: 'assistant', content: aiReply, timestamp: new Date().toISOString() });
+                saveDataStore(dataStore);
+            }
             const finalEmbed = createEmbed('#55FFFF', '¡Charlando contigo, Belén!', aiReply);
             await waitingMessage.edit({ embeds: [finalEmbed] });
         } catch (error) {
