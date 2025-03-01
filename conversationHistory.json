@@ -59,6 +59,11 @@
       "role": "assistant",
       "content": "¡Hola! Sí, existen varios tipos de software para la mejora de la calidad de datos. Algunos de los más populares son:\n\n1. OpenRefine: Es una herramienta de código abierto que permite limpiar y transformar datos de diversos formatos.\n\n2. Trifacta: Es una plataforma de preparación de datos que permite a los usuarios limpiar, transformar y enriquecer datos de forma interactiva y colaborativa.\n\n3. Talend: Es una plataforma de integración de datos que incluye herramientas para la limpieza y mejora de la calidad de datos.\n\n4. Informatica: Otra plataforma de integración de datos que ofrece funcionalidades para la mejora de la calidad de datos.\n\n5. Data Ladder: Es una herramienta de limpieza de datos que utiliza algoritmos avanzados para identificar y corregir errores en los datos.\n\nRecuerda que cada software tiene sus propias características y ventajas, así que te recomiendo evaluar cuidadosamente tus necesidades y preferencias antes de elegir uno. ¿Tienes alguna pregunta específica sobre alguno de estos software? ¡Estoy aquí para ayudarte!",
       "timestamp": "2025-03-01T08:47:37.684Z"
+    },
+    {
+      "role": "user",
+      "content": "entre todas esas cuál es más sencilla de usar?",
+      "timestamp": "2025-03-01T08:48:05.427Z"
     }
   ]
 }
