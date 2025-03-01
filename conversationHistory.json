@@ -2,11 +2,6 @@
   "1023132788632862761": [
     {
       "role": "user",
-      "content": "!trivia",
-      "timestamp": "2025-03-01T18:11:53.433Z"
-    },
-    {
-      "role": "user",
       "content": "c",
       "timestamp": "2025-03-01T18:11:59.399Z"
     },
@@ -99,6 +94,11 @@
       "role": "assistant",
       "content": "Claro Miguel, puedo crear un ranking de diferentes elementos, pero necesito saber sobre qué quieres crear el ranking. ¿Podrías darme más detalles sobre qué categoría o tema te gustaría que fuera el ranking? Por ejemplo, podríamos hacer un ranking de películas, libros, comidas, países, o cualquier otra cosa que se te ocurra. ¡Estoy aquí para ayudarte y facilitarte las cosas! ¿Hay algún tema en particular que te interese?",
       "timestamp": "2025-03-01T18:13:11.301Z"
+    },
+    {
+      "role": "user",
+      "content": "!sugererencia agregar un ranking para la trivia",
+      "timestamp": "2025-03-01T18:15:29.311Z"
     }
   ]
 }
