@@ -3,11 +3,6 @@
     "1023132788632862761": [
       {
         "role": "user",
-        "content": "no hace falta que sea como eso",
-        "timestamp": "2025-03-01T19:58:40.116Z"
-      },
-      {
-        "role": "user",
         "content": "ellos hacen algo largo porque hacen 200 ppm",
         "timestamp": "2025-03-01T19:58:47.441Z"
       },
@@ -115,6 +110,11 @@
         "role": "user",
         "content": "la ida es como una caja de chocolates, nunca sabes qué te va a tocarf.",
         "timestamp": "2025-03-01T20:04:45.943Z"
+      },
+      {
+        "role": "user",
+        "content": "!ppm",
+        "timestamp": "2025-03-01T20:04:52.153Z"
       }
     ]
   },
