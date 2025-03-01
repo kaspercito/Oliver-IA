@@ -116,6 +116,10 @@ async function saveDataStore(data) {
 
 // Funciones de trivia y ranking
 function obtenerPreguntaTrivia() {
+    if (preguntasTrivia.length === 0) {
+        console.error('No hay preguntas de trivia definidas.');
+        return null;
+    }
     const randomIndex = Math.floor(Math.random() * preguntasTrivia.length);
     const trivia = preguntasTrivia[randomIndex];
     const opciones = [...trivia.incorrectas, trivia.respuesta].sort(() => Math.random() - 0.5);
@@ -124,6 +128,9 @@ function obtenerPreguntaTrivia() {
 
 async function manejarTrivia(message) {
     const trivia = obtenerPreguntaTrivia();
+    if (!trivia) {
+        return sendError(message.channel, 'No hay preguntas de trivia disponibles.');
+    }
     const embedPregunta = createEmbed('#55FFFF', '🎲 ¡Pregunta de Trivia!',
         `${trivia.pregunta}\n\n${trivia.opciones.map((op, i) => `**${String.fromCharCode(65 + i)})** ${op}`).join('\n')}`,
         'Tienes 15 segundos para responder con A, B, C o D | Miguel IA'
@@ -332,8 +339,7 @@ client.on('messageCreate', async (message) => {
             '- **!ranking**: Muestra el ranking de trivia.\n' +
             '- **!sugerencias <idea>**: Envía ideas.\n' +
             '- **!chat [mensaje]**: Charla conmigo usando IA.\n' +
-            '- **hola**: Saludo especial.\n' +
-            '- **Cualquier mensaje**: ¡Chatea conmigo!'
+            '- **hola**: Saludo especial.'
         );
         await channel.send({ embeds: [embed] });
         return;
@@ -369,7 +375,7 @@ client.on('messageCreate', async (message) => {
         const chatMessage = content.slice(5).trim();
         if (!chatMessage) return sendError(channel, 'Escribe un mensaje después de "!chat", por ejemplo: !chat hola');
         try {
-            const prompt = `Eres Miguel IA, un amigo cercano. Responde a "${chatMessage}" de forma natural y amigable, solo charlando, sin sugerir comandos ni ayuda técnica.`;
+            const prompt = `Eres Miguel IA, un amigo cercano. Responde a "${chatMessage}" de ${author.username} de forma natural y amigable, solo charlando, sin sugerir comandos ni ayuda técnica.`;
             const response = await axios.post(
                 'https://api-inference.huggingface.co/models/mistralai/Mixtral-8x7B-Instruct-v0.1',
                 { inputs: prompt, parameters: { max_new_tokens: 500, return_full_text: false, temperature: 0.7 } },
@@ -388,29 +394,11 @@ client.on('messageCreate', async (message) => {
     }
 
     if (content.toLowerCase() === 'hola') {
-        sendSuccess(channel, '¡Hola, qué alegría verte!', 'Soy Miguel IA, aquí para ayudarte. ¿Qué tienes en mente?');
+        sendSuccess(channel, '¡Hola, qué alegría verte!', `Soy Miguel IA, aquí para ayudarte, ${author.username}. ¿Qué tienes en mente?`);
         return;
     }
 
-    try {
-        const prompt = `Eres Miguel IA, creado por Miguel. Responde SOLO a "${content}" de manera clara y útil, como amigo. Si no está claro, pide detalles. Termina con nota positiva.`;
-        const response = await axios.post(
-            'https://api-inference.huggingface.co/models/mistralai/Mixtral-8x7B-Instruct-v0.1',
-            { inputs: prompt, parameters: { max_new_tokens: 500, return_full_text: false, temperature: 0.3 } },
-            { headers: { 'Authorization': `Bearer ${process.env.HF_API_TOKEN}`, 'Content-Type': 'application/json' } }
-        );
-        let aiReply = response.data[0]?.generated_text?.trim() || 'No entendí bien, ¿me das más detalles? ¡Quiero ayudarte!';
-        dataStore.conversationHistory[author.id].push({ role: 'assistant', content: aiReply, timestamp: new Date().toISOString() });
-        saveDataStore(dataStore);
-        const embed = createEmbed('#55FF55', '¡Aquí estoy para ti!', aiReply, '¿Te sirvió? Reacciona con ✅ o ❌ • Miguel IA');
-        const sentMessage = await channel.send({ embeds: [embed] });
-        await sentMessage.react('✅');
-        await sentMessage.react('❌');
-        sentMessages.set(sentMessage.id, { content: aiReply, originalQuestion: content, timestamp: new Date().toISOString(), message: sentMessage });
-    } catch (error) {
-        console.error('Error en mensaje genérico:', error);
-        sendError(channel, 'Algo falló, pero estoy aquí. ¿Otra pregunta?');
-    }
+    // Si no coincide ningún comando, no responde nada
 });
 
 // Evento messageReactionAdd
@@ -443,7 +431,7 @@ client.on('messageReactionAdd', async (reaction, user) => {
             const newSentMessage = await messageData.message.channel.send({ embeds: [alternativeEmbed] });
             await newSentMessage.react('✅');
             await newSentMessage.react('❌');
-            sentMessages.set(newSentMessage.id, { content: alternativeReply, originalQuestion: messageData.originalQuestion, timestamp: new Date().toISOString(), message: newSentMessage });
+            sentMessages.set(newSentMessage.id, { content: alternativeReply, originalQuestion: messageData.originalQuestion, timestamp: New Date().toISOString(), message: newSentMessage });
         } catch (error) {
             console.error('Error al generar respuesta alternativa:', error);
             sendError(messageData.message.channel, 'No pude encontrar una mejor respuesta ahora.');
