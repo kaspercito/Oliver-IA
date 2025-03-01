@@ -60,13 +60,18 @@
         "role": "user",
         "content": "!trivia",
         "timestamp": "2025-03-01T18:59:47.699Z"
+      },
+      {
+        "role": "user",
+        "content": "d",
+        "timestamp": "2025-03-01T18:59:57.505Z"
       }
     ]
   },
   "triviaRanking": {
     "1023132788632862761": {
       "username": "dearluz",
-      "score": 2
+      "score": 3
     }
   }
 }
