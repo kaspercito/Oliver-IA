@@ -90,23 +90,28 @@ const preguntasTrivia = [
     { pregunta: "¿Cuántos minutos tiene una hora?", respuesta: "60", incorrectas: ["50", "70", "80"] },
 ];
 
-// Frases para la prueba de mecanografía
+// Frases para la prueba de mecanografía (máximo 20 palabras)
 const frasesPPM = [
-    "El rápido zorro marrón salta sobre el perro perezoso.",
-    "La vida es como una caja de chocolates, nunca sabes qué te va a tocar.",
-    "Un pequeño paso para el hombre, un gran salto para la humanidad.",
-    "El sol brilla más fuerte cuando estás feliz.",
-    "La práctica hace al maestro, no lo olvides.",
-];
+    "El rápido zorro marrón salta sobre el perro perezoso.", // 7 palabras
+    "La vida es como una caja de chocolates, nunca sabes qué te va a tocar.", // 11 palabras
+    "Un pequeño paso para el hombre, un gran salto para la humanidad.", // 9 palabras
+    "El sol brilla más fuerte cuando estás feliz y rodeado de amigos.", // 10 palabras
+    "La práctica hace al maestro, no lo olvides nunca en tu camino.", // 10 palabras
+    "El viento sopla suavemente entre los árboles altos del bosque verde.", // 10 palabras
+    "La perseverancia y el esfuerzo siempre llevan a grandes logros personales.", // 9 palabras
+    "Un día claro con un cielo azul inspira a todos a soñar.", // 10 palabras
+    "El río fluye tranquilo mientras las aves cantan al amanecer cada día.", // 10 palabras
+    "La amistad verdadera se construye con confianza y apoyo mutuo siempre.", // 9 palabras
+].filter(frase => frase.split(' ').length <= 20);
 
 // Estado
 const instanceId = uuidv4();
 const activeTrivia = new Map();
 const sentMessages = new Map();
 const processedMessages = new Map();
-const triviaLoops = new Map(); // Para rastrear bucles de trivia por usuario
-const ppmSessions = new Map(); // Para rastrear sesiones de mecanografía
-let dataStore = { conversationHistory: {}, triviaRanking: {} };
+const triviaLoops = new Map();
+const ppmSessions = new Map();
+let dataStore = { conversationHistory: {}, triviaRanking: {}, personalPPMRecords: {} };
 
 // Utilidades
 const createEmbed = (color, title, description, footer = 'Con cariño, Miguel IA') => {
@@ -136,10 +141,10 @@ async function loadDataStore() {
             { headers: { 'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`, 'Accept': 'application/vnd.github+json' } }
         );
         const content = Buffer.from(response.data.content, 'base64').toString('utf8');
-        return content ? JSON.parse(content) : { conversationHistory: {}, triviaRanking: {} };
+        return content ? JSON.parse(content) : { conversationHistory: {}, triviaRanking: {}, personalPPMRecords: {} };
     } catch (error) {
         console.error('Error al cargar datos desde GitHub:', error.message);
-        return { conversationHistory: {}, triviaRanking: {} };
+        return { conversationHistory: {}, triviaRanking: {}, personalPPMRecords: {} };
     }
 }
 
@@ -159,7 +164,7 @@ async function saveDataStore(data) {
                     `https://api.github.com/repos/${process.env.GITHUB_REPO}/contents/${process.env.GITHUB_FILE_PATH}`,
                     {
                         message: 'Crear archivo inicial para historial y ranking',
-                        content: Buffer.from(JSON.stringify({ conversationHistory: {}, triviaRanking: {} }, null, 2)).toString('base64'),
+                        content: Buffer.from(JSON.stringify({ conversationHistory: {}, triviaRanking: {}, personalPPMRecords: {} }, null, 2)).toString('base64'),
                     },
                     { headers: { 'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`, 'Accept': 'application/vnd.github+json' } }
                 );
@@ -240,7 +245,6 @@ async function manejarTrivia(message, isLoop = false) {
                 `Lo siento, ${message.author.tag}, la respuesta correcta era **${trivia.respuesta}** (Opción ${letraCorrecta.toUpperCase()}).`);
         }
 
-        // Si está en modo bucle y no se ha detenido, enviar otra trivia
         if (triviaLoops.has(message.author.id) && triviaLoops.get(message.author.id)) {
             await manejarTrivia(message, true);
         }
@@ -249,7 +253,6 @@ async function manejarTrivia(message, isLoop = false) {
         await sendError(message.channel, '⏳ ¡Tiempo agotado!',
             `Se acabó el tiempo. La respuesta correcta era **${trivia.respuesta}** (Opción ${letraCorrecta.toUpperCase()}).`);
 
-        // Si está en modo bucle y no se ha detenido, enviar otra trivia
         if (triviaLoops.has(message.author.id) && triviaLoops.get(message.author.id)) {
             await manejarTrivia(message, true);
         }
@@ -264,21 +267,37 @@ function updateRanking(userId, username) {
     saveDataStore(dataStore);
 }
 
-function getRankingEmbed() {
-    const sortedRanking = Object.entries(dataStore.triviaRanking)
+function getCombinedRankingEmbed(userId, username) {
+    const triviaRanking = Object.entries(dataStore.triviaRanking)
         .sort(([, a], [, b]) => b.score - a.score)
-        .slice(0, 5);
-    const description = sortedRanking.length > 0
-        ? sortedRanking.map(([id, { username, score }], i) => `${i + 1}. **${username}**: ${score} puntos`).join('\n')
-        : '¡Aún no hay puntajes! Juega con !trivia para empezar, Belén.';
-    return createEmbed('#FFD700', '🏆 Ranking de Trivia', description);
+        .slice(0, 5)
+        .map(([id, { username: u, score }], i) => `${i + 1}. **${u}**: ${score} puntos (Trivia)`);
+
+    const personalPPMRecords = (dataStore.personalPPMRecords[userId] || [])
+        .sort((a, b) => b.ppm - a.ppm)
+        .slice(0, 5)
+        .map((record, i) => `${i + 1}. **${record.ppm} PPM** - ${new Date(record.timestamp).toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })} (Mecanografía)`);
+
+    const description = [
+        triviaRanking.length > 0 ? '**Ranking de Trivia:**\n' + triviaRanking.join('\n') : '¡Aún no hay puntajes de trivia!',
+        personalPPMRecords.length > 0 ? '\n**Tus Récords de Mecanografía:**\n' + personalPPMRecords.join('\n') : '\n¡Aún no tienes récords de mecanografía, Belén! Usa !ppm pls para empezar.'
+    ].join('\n');
+
+    return createEmbed('#FFD700', '🏆 Ranking Combinado', description);
 }
 
-// Función de mecanografía (PPM)
+// Función de mecanografía (PPM) con cuenta regresiva
 async function manejarPPM(message) {
     if (ppmSessions.has(message.author.id)) {
         return sendError(message.channel, 'Ya tienes una prueba de mecanografía activa, Belén. Termina la actual primero.');
     }
+
+    // Cuenta regresiva de 3 segundos
+    for (let i = 3; i > 0; i--) {
+        await message.channel.send(createEmbed('#FFAA00', '⏳ Cuenta Regresiva', `¡Preparada, Belén! Empieza en ${i}...`));
+        await new Promise(resolve => setTimeout(resolve, 1000));
+    }
+    await message.channel.send(createEmbed('#00FF00', '🚀 ¡Ya!', '¡Adelante, Belén!'));
 
     const frase = frasesPPM[Math.floor(Math.random() * frasesPPM.length)];
     const startTime = Date.now();
@@ -303,9 +322,17 @@ async function manejarPPM(message) {
         const palabras = frase.split(' ').length;
         const ppm = Math.round((palabras / tiempoSegundos) * 60);
 
-        if (respuestaUsuario === frase) {
+        // Actualizar récords personales
+        if (!dataStore.personalPPMRecords[message.author.id]) {
+            dataStore.personalPPMRecords[message.author.id] = [];
+        }
+        const newRecord = { ppm, timestamp: new Date().toISOString() };
+        dataStore.personalPPMRecords[message.author.id].push(newRecord);
+        saveDataStore(dataStore);
+
+        if (respuestaUsuario.toLowerCase() === frase.toLowerCase()) {
             sendSuccess(message.channel, '🎉 ¡Perfecto!',
-                `¡Bien hecho, ${message.author.tag}! Escribiste la frase correctamente en ${tiempoSegundos.toFixed(2)} segundos.\nTu velocidad: **${ppm} PPM** (palabras por minuto).`);
+                `¡Bien hecho, ${message.author.tag}! Escribiste la frase correctamente en ${tiempoSegundos.toFixed(2)} segundos.\nTu velocidad: **${ppm} PPM**. Usa !ranking para ver tus récords.`);
         } else {
             sendError(message.channel, '❌ ¡Casi!',
                 `Lo siento, ${message.author.tag}, no escribiste la frase correctamente.\nFrase original: **${frase}**\nTu respuesta: **${respuestaUsuario}**\nTiempo: ${tiempoSegundos.toFixed(2)} segundos.`);
@@ -313,7 +340,7 @@ async function manejarPPM(message) {
     } catch (error) {
         ppmSessions.delete(message.author.id);
         sendError(message.channel, '⏳ ¡Tiempo agotado!',
-            `Se acabó el tiempo. La frase era: **${frase}**. Usa !ppm para intentarlo de nuevo, Belén.`);
+            `Se acabó el tiempo. La frase era: **${frase}**. Usa !ppm pls para intentarlo de nuevo, Belén.`);
     }
 }
 
@@ -479,10 +506,10 @@ client.on('messageCreate', async (message) => {
             '- **!help**: Lista de comandos.\n' +
             '- **!trivia**: Inicia trivias continuas.\n' +
             '- **!parar**: Detiene las trivias.\n' +
-            '- **!ranking**: Muestra el ranking de trivia.\n' +
+            '- **!ranking**: Muestra el ranking de trivia y tus récords de mecanografía.\n' +
             '- **!sugerencias <idea>**: Envía ideas.\n' +
             '- **!chat [mensaje]**: Charla conmigo.\n' +
-            '- **!ppm**: Prueba de mecanografía.\n' +
+            '- **!ppm pls**: Inicia prueba de mecanografía con cuenta regresiva.\n' +
             '- **hola**: Saludo especial.'
         );
         await channel.send({ embeds: [embed] });
@@ -505,7 +532,7 @@ client.on('messageCreate', async (message) => {
     }
 
     if (content.startsWith('!trivia')) {
-        triviaLoops.set(author.id, true); // Activar modo bucle
+        triviaLoops.set(author.id, true);
         await manejarTrivia(message);
         return;
     }
@@ -513,7 +540,7 @@ client.on('messageCreate', async (message) => {
     if (content.startsWith('!parar')) {
         if (triviaLoops.has(author.id)) {
             triviaLoops.set(author.id, false);
-            activeTrivia.delete(channel.id); // Limpiar trivia activa
+            activeTrivia.delete(channel.id);
             sendSuccess(channel, '🛑 ¡Trivia detenida!', 'He parado las trivias, Belén. Usa !trivia para empezar de nuevo.');
         } else {
             sendError(channel, 'No hay trivias activas', 'No estás jugando ahora, Belén. Usa !trivia para empezar.');
@@ -522,8 +549,8 @@ client.on('messageCreate', async (message) => {
     }
 
     if (content.startsWith('!ranking')) {
-        const rankingEmbed = getRankingEmbed();
-        await channel.send({ embeds: [rankingEmbed] });
+        const embed = getCombinedRankingEmbed(message.author.id, message.author.username);
+        await message.channel.send({ embeds: [embed] });
         return;
     }
 
