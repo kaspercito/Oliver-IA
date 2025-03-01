@@ -28,10 +28,7 @@ const BOT_UPDATES = [
 ];
 
 const PREVIOUS_BOT_UPDATES = [
-    '¡Añadido !ppm.',
-    'Mejorada la trivia, la puedes empezar con limite.',
-    'Sistema de !ranking añadido, guarda total de trivias acertadas y tu record de ppm.',
-    'Nuevos comandos mejorados, guardado optimizado.'
+    '¡Añadido !ppm.'
 ];
 
 // Preguntas predefinidas con 4 opciones
