@@ -3,11 +3,6 @@
     "1023132788632862761": [
       {
         "role": "user",
-        "content": "sin mayúsculas podes poner las frases?",
-        "timestamp": "2025-03-01T19:43:53.898Z"
-      },
-      {
-        "role": "user",
         "content": "!ppm",
         "timestamp": "2025-03-01T19:46:28.067Z"
       },
@@ -115,6 +110,11 @@
         "role": "user",
         "content": "porque la hice en  5 segundos",
         "timestamp": "2025-03-01T19:53:18.289Z"
+      },
+      {
+        "role": "user",
+        "content": "e",
+        "timestamp": "2025-03-01T19:54:08.158Z"
       }
     ]
   },
