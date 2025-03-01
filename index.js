@@ -22,15 +22,15 @@ const MAX_MESSAGES = 20;
 
 const BOT_UPDATES = [
     '¡Añadido !ppm.',
-    'Mejorada la trivia, la puedes empezar con limite.'
-    'Sistema de !ranking añadido, guarda total de trivias acertadas y tu record de ppm.'
+    'Mejorada la trivia, la puedes empezar con limite.',
+    'Sistema de !ranking añadido, guarda total de trivias acertadas y tu record de ppm.',
     'Nuevos comandos mejorados, guardado optimizado.'
 ];
 
 const PREVIOUS_BOT_UPDATES = [
     '¡Añadido !ppm.',
-    'Mejorada la trivia, la puedes empezar con limite.'
-    'Sistema de !ranking añadido, guarda total de trivias acertadas y tu record de ppm.'
+    'Mejorada la trivia, la puedes empezar con limite.',
+    'Sistema de !ranking añadido, guarda total de trivias acertadas y tu record de ppm.',
     'Nuevos comandos mejorados, guardado optimizado.'
 ];
 
