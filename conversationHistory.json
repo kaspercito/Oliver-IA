@@ -1,11 +1,6 @@
 {
   "1023132788632862761": [
     {
-      "role": "assistant",
-      "content": "¡Hola! Estoy aquí para conversar y ayudarte en lo que necesites. ¿Tienes alguna pregunta en particular sobre algún tema o simplemente quieres pasar un rato agradable charlando? Cuéntame un poco más sobre tus intereses para guiar la conversación en una dirección útil y agradable para ti. :smile:",
-      "timestamp": "2025-03-01T18:18:44.879Z"
-    },
-    {
       "role": "user",
       "content": "!sugerencias agregar un ranking para la trivia",
       "timestamp": "2025-03-01T18:18:51.063Z"
@@ -99,6 +94,11 @@
       "role": "user",
       "content": "!trivia",
       "timestamp": "2025-03-01T18:26:32.290Z"
+    },
+    {
+      "role": "user",
+      "content": "que",
+      "timestamp": "2025-03-01T18:26:33.030Z"
     }
   ]
 }
