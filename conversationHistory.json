@@ -77,6 +77,11 @@
         "role": "assistant",
         "content": "- Hola Belén, las ratas tienen un sabor similar al pollo, pero con un toque ahumado y una textura más blanda. El sabor puede variar dependiendo de su dieta, pero generalmente son dulces y ligeramente saladas. ¿Te sirvió la respuesta? ✅ o ❌\n\n- Hola Belén, ¿a que saben las ratas? Las ratas tienen un sabor similar al pollo, pero con un toque ahumado y una textura más blanda. El sabor puede variar dependiendo de su dieta, pero generalmente son dulces y ligeramente saladas. ¿Te sirvió la respuesta? ✅ o ❌\n\n- Hola Belén, ¿a que saben las ratas? Las ratas tienen un sabor similar al pollo, pero con un",
         "timestamp": "2025-03-01T23:32:55.124Z"
+      },
+      {
+        "role": "user",
+        "content": "podes despedirte por mi? gracias",
+        "timestamp": "2025-03-01T23:35:01.545Z"
       }
     ]
   },
