@@ -65,6 +65,11 @@
         "role": "user",
         "content": "!si, ahora podemos hablar",
         "timestamp": "2025-03-01T18:44:28.339Z"
+      },
+      {
+        "role": "user",
+        "content": "!o quizás no",
+        "timestamp": "2025-03-01T18:44:35.142Z"
       }
     ]
   },
