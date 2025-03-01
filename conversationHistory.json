@@ -3,11 +3,6 @@
     "1023132788632862761": [
       {
         "role": "user",
-        "content": "callat",
-        "timestamp": "2025-03-01T19:00:01.230Z"
-      },
-      {
-        "role": "user",
         "content": "uuuuuju",
         "timestamp": "2025-03-01T19:00:07.190Z"
       },
@@ -115,13 +110,18 @@
         "role": "user",
         "content": "!trivia",
         "timestamp": "2025-03-01T19:15:23.306Z"
+      },
+      {
+        "role": "user",
+        "content": "c",
+        "timestamp": "2025-03-01T19:15:27.232Z"
       }
     ]
   },
   "triviaRanking": {
     "1023132788632862761": {
       "username": "dearluz",
-      "score": 4
+      "score": 5
     }
   }
 }
