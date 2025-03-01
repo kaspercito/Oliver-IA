@@ -60,6 +60,11 @@
         "role": "assistant",
         "content": "¡Hola Milagros! Qué bueno que te hayas acercado a mí. ¿Cómo estás hoy? ¿Hay algo que te gustaría platicar o quizás necesitas algún consejo o ayuda con algo? Estoy aquí para ti, así que no dudes en compartirme tus pensamientos y sentimientos. ¡Espero que tengas un gran día!",
         "timestamp": "2025-03-01T18:42:23.976Z"
+      },
+      {
+        "role": "user",
+        "content": "!si, ahora podemos hablar",
+        "timestamp": "2025-03-01T18:44:28.339Z"
       }
     ]
   },
