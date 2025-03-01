@@ -3,11 +3,6 @@
     "1023132788632862761": [
       {
         "role": "user",
-        "content": "la vida es como una caja de chocolats, nnca sabes qué te v a tocar",
-        "timestamp": "2025-03-01T20:03:50.689Z"
-      },
-      {
-        "role": "user",
         "content": "la put",
         "timestamp": "2025-03-01T20:03:55.428Z"
       },
@@ -115,6 +110,11 @@
         "role": "user",
         "content": "ea es horrible dios",
         "timestamp": "2025-03-01T20:06:44.706Z"
+      },
+      {
+        "role": "user",
+        "content": "no no, si me equivoco que me mande otra",
+        "timestamp": "2025-03-01T20:09:56.797Z"
       }
     ]
   },
