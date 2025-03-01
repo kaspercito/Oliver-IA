@@ -523,7 +523,8 @@ client.on('messageCreate', async (message) => {
         return;
     }
 
-    if (isAllowedUser && content.startsWith('!chat')) {
+    // Guardar el mensaje del usuario en el historial para OWNER_ID o ALLOWED_USER_ID
+    if ((isOwner || isAllowedUser) && content.startsWith('!chat')) {
         const chatMessage = content.slice(5).trim();
         let userHistory = dataStore.conversationHistory[author.id] || [];
         userHistory.push({ role: 'user', content: chatMessage, timestamp: new Date().toISOString() });
@@ -696,10 +697,13 @@ client.on('messageCreate', async (message) => {
             if (!aiReply || aiReply.length < 5) {
                 aiReply = '¡Uy, me quedé en blanco, Belén! ¿Qué me cuentas tú? ¡Dime si te sirvió con ✅ o ❌!';
             }
-            if (isAllowedUser) {
-                dataStore.conversationHistory[author.id].push({ role: 'assistant', content: aiReply, timestamp: new Date().toISOString() });
-                saveDataStore(dataStore);
-            }
+            // Guardar la respuesta del bot en el historial para OWNER_ID o ALLOWED_USER_ID
+            let userHistory = dataStore.conversationHistory[author.id] || [];
+            userHistory.push({ role: 'assistant', content: aiReply, timestamp: new Date().toISOString() });
+            if (userHistory.length > MAX_MESSAGES) userHistory.shift();
+            dataStore.conversationHistory[author.id] = userHistory;
+            await saveDataStore(dataStore);
+
             const finalEmbed = createEmbed('#55FFFF', '¡Aquí estoy para ti!', aiReply);
             const sentMessage = await waitingMessage.edit({ embeds: [finalEmbed] });
             await sentMessage.react('✅');
@@ -727,7 +731,16 @@ client.on('messageCreate', async (message) => {
 
 // Evento messageReactionAdd
 client.on('messageReactionAdd', async (reaction, user) => {
-    if (user.id !== ALLOWED_USER_ID || !sentMessages.has(reaction.message.id)) return;
+    console.log(`Reacción recibida - Instancia: ${instanceId}, Usuario: ${user.id}, Mensaje: ${reaction.message.id}, Emoji: ${reaction.emoji.name}`);
+    if (!sentMessages.has(reaction.message.id)) {
+        console.log(`Mensaje ${reaction.message.id} no encontrado en sentMessages`);
+        return;
+    }
+    // Permitir que OWNER_ID y ALLOWED_USER_ID desencadenen respuestas alternativas
+    if (user.id !== ALLOWED_USER_ID && user.id !== OWNER_ID) {
+        console.log(`Usuario ${user.id} no permitido para reaccionar`);
+        return;
+    }
 
     const messageData = sentMessages.get(reaction.message.id);
     const owner = await client.users.fetch(OWNER_ID);
@@ -743,6 +756,7 @@ client.on('messageReactionAdd', async (reaction, user) => {
     }
 
     if (reaction.emoji.name === '❌' && messageData.originalQuestion !== 'Mensaje enviado con "responder"') {
+        console.log(`Procesando reacción ❌ para el mensaje ${reaction.message.id}`);
         try {
             const alternativePrompt = `Eres Miguel IA, creado por Miguel para Belén. Belén no quedó satisfecha con tu respuesta anterior a "${messageData.originalQuestion}": "${messageData.content}". Proporciona una respuesta alternativa, diferente, clara y útil, como un amigo cercano, explicando el tema si es una pregunta, con pasos claros si aplica. No repitas la respuesta anterior. Termina con una pregunta sobre si sirvió y una invitación a reaccionar con ✅ o ❌.`;
             const response = await axios.post(
@@ -756,6 +770,7 @@ client.on('messageReactionAdd', async (reaction, user) => {
             await newSentMessage.react('✅');
             await newSentMessage.react('❌');
             sentMessages.set(newSentMessage.id, { content: alternativeReply, originalQuestion: messageData.originalQuestion, timestamp: new Date().toISOString(), message: newSentMessage });
+            console.log(`Respuesta alternativa enviada para ${messageData.originalQuestion}`);
         } catch (error) {
             console.error('Error al generar respuesta alternativa:', error);
             sendError(messageData.message.channel, 'No pude encontrar una mejor respuesta ahora, Belén.');
