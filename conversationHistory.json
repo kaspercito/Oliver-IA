@@ -96,9 +96,9 @@
       "timestamp": "2025-03-01T18:12:49.646Z"
     },
     {
-      "role": "assistant",
-      "content": "¡Hola! ¿Hay algo más en lo que pueda ayudarte después de tu afirmación \"ah cierto\"? Me alegra que estés de acuerdo o hayas comprendido algo. Siempre estoy aquí para asistirte con más información o aclaraciones si es necesario. ¿Tienes alguna pregunta relacionada o deseas hablar sobre otro tema? ¡Estoy aquí para escucharte y ayudarte en lo que necesites!",
-      "timestamp": "2025-03-01T18:12:53.644Z"
+      "role": "user",
+      "content": "!trivia",
+      "timestamp": "2025-03-01T18:12:55.347Z"
     }
   ]
 }
