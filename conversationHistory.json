@@ -70,6 +70,11 @@
         "role": "user",
         "content": "!o quizás no",
         "timestamp": "2025-03-01T18:44:35.142Z"
+      },
+      {
+        "role": "assistant",
+        "content": "---\n\n¡Hola! Siempre estoy aquí para ayudarte. Así que, ¿quizás no te sientes seguro sobre algo? ¿Podrías darme más detalles? Recuerda, no hay preguntas tontas. Estoy aquí para apoyarte y darte consejos útiles. ¡Vamos a por ello! :thumbsup:",
+        "timestamp": "2025-03-01T18:44:39.209Z"
       }
     ]
   },
