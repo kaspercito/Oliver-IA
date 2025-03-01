@@ -3,11 +3,6 @@
     "1023132788632862761": [
       {
         "role": "user",
-        "content": "!ppm",
-        "timestamp": "2025-03-01T19:43:26.368Z"
-      },
-      {
-        "role": "user",
         "content": "ehh está bueno",
         "timestamp": "2025-03-01T19:43:38.573Z"
       },
@@ -115,6 +110,11 @@
         "role": "user",
         "content": "en ignlés me cuesta mucho",
         "timestamp": "2025-03-01T19:52:34.344Z"
+      },
+      {
+        "role": "user",
+        "content": "esas frases cortas están bien",
+        "timestamp": "2025-03-01T19:52:58.265Z"
       }
     ]
   },
