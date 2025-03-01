@@ -3,11 +3,6 @@
     "1023132788632862761": [
       {
         "role": "user",
-        "content": "b",
-        "timestamp": "2025-03-01T18:59:46.213Z"
-      },
-      {
-        "role": "user",
         "content": "!trivia",
         "timestamp": "2025-03-01T18:59:47.699Z"
       },
@@ -105,6 +100,11 @@
         "role": "user",
         "content": "deploy",
         "timestamp": "2025-03-01T19:07:55.824Z"
+      },
+      {
+        "role": "user",
+        "content": "!chat qué es deploy",
+        "timestamp": "2025-03-01T19:12:00.861Z"
       }
     ]
   },
