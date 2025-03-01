@@ -35,6 +35,11 @@
         "role": "assistant",
         "content": "¡Claro, Belén! Una rata blanca, también conocida como rata de laboratorio, es un roedor que pertenece a la especie Rattus norvegicus, pero que ha sido criada selectivamente durante generaciones en cautiverio para obtener ejemplares con el pelaje blanco.\n\nA continuación, te describo algunas de sus características físicas más relevantes:\n\n1. Tamaño: Las ratas blancas suelen medir entre 23 y 28 centímetros de longitud total, incluyendo la cola, y pesan entre 250 y 350 gramos.\n\n2. Pelaje: Su pelaje es completamente blanco, sin manchas negras o grises. En ocasiones, pueden presentar ojos rojos, pero también pueden tener ojos",
         "timestamp": "2025-03-01T23:37:59.879Z"
+      },
+      {
+        "role": "user",
+        "content": "quien te creo?",
+        "timestamp": "2025-03-01T23:39:12.730Z"
       }
     ],
     "1023132788632862761": [
