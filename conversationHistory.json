@@ -45,6 +45,11 @@
         "role": "user",
         "content": "a",
         "timestamp": "2025-03-01T18:59:39.179Z"
+      },
+      {
+        "role": "user",
+        "content": "!trivia",
+        "timestamp": "2025-03-01T18:59:41.283Z"
       }
     ]
   },
