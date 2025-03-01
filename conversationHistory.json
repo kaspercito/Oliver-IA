@@ -20,6 +20,11 @@
         "role": "user",
         "content": "!chat hola",
         "timestamp": "2025-03-01T18:58:32.389Z"
+      },
+      {
+        "role": "assistant",
+        "content": "¡Uy, me quedé en blanco, Belén! ¿Qué me cuentas tú?",
+        "timestamp": "2025-03-01T18:58:44.135Z"
       }
     ]
   },
