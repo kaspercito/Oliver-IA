@@ -5,6 +5,11 @@
         "role": "user",
         "content": "que me largue 20 preguntas o más en 1 minuto",
         "timestamp": "2025-03-01T20:26:50.882Z"
+      },
+      {
+        "role": "user",
+        "content": "!ppm",
+        "timestamp": "2025-03-01T20:27:01.383Z"
       }
     ]
   },
