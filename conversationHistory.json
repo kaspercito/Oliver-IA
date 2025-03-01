@@ -3,11 +3,6 @@
     "1023132788632862761": [
       {
         "role": "user",
-        "content": "!trivia",
-        "timestamp": "2025-03-01T18:59:34.754Z"
-      },
-      {
-        "role": "user",
         "content": "a",
         "timestamp": "2025-03-01T18:59:39.179Z"
       },
@@ -87,31 +82,41 @@
         "timestamp": "2025-03-01T19:07:02.723Z"
       },
       {
-        "role": "user",
-        "content": "!trivia",
-        "timestamp": "2025-03-01T19:07:10.449Z"
-      },
-      {
-        "role": "user",
-        "content": "d",
-        "timestamp": "2025-03-01T19:07:16.061Z"
+        "role": "assistant",
+        "content": "Hola Belén, ¡qué bueno volver a hablar contigo! No te preocupes por lo que dije antes, cada quien tiene sus gustos y preferencias. ¿Cómo estás? ¿Qué has estado haciendo últimamente?",
+        "timestamp": "2025-03-01T19:07:04.241Z"
       },
       {
         "role": "user",
         "content": "!trivia",
-        "timestamp": "2025-03-01T19:07:23.308Z"
+        "timestamp": "2025-03-01T19:07:10.458Z"
       },
       {
         "role": "user",
         "content": "d",
-        "timestamp": "2025-03-01T19:07:28.448Z"
+        "timestamp": "2025-03-01T19:07:16.055Z"
+      },
+      {
+        "role": "user",
+        "content": "!trivia",
+        "timestamp": "2025-03-01T19:07:23.312Z"
+      },
+      {
+        "role": "user",
+        "content": "d",
+        "timestamp": "2025-03-01T19:07:28.431Z"
+      },
+      {
+        "role": "user",
+        "content": "booom,",
+        "timestamp": "2025-03-01T19:07:34.567Z"
       }
     ]
   },
   "triviaRanking": {
     "1023132788632862761": {
       "username": "dearluz",
-      "score": 4
+      "score": 5
     }
   }
 }
