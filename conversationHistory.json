@@ -1,4 +1,17 @@
 {
-  "conversationHistory": {},
+  "conversationHistory": {
+    "1023132788632862761": [
+      {
+        "role": "user",
+        "content": "!jeñ",
+        "timestamp": "2025-03-01T18:53:28.139Z"
+      },
+      {
+        "role": "user",
+        "content": "!help",
+        "timestamp": "2025-03-01T18:53:30.801Z"
+      }
+    ]
+  },
   "triviaRanking": {}
 }
