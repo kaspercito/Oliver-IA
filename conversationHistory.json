@@ -3,11 +3,6 @@
     "1023132788632862761": [
       {
         "role": "user",
-        "content": "ah, eso para el bot?",
-        "timestamp": "2025-03-01T19:06:27.796Z"
-      },
-      {
-        "role": "user",
         "content": "!chat hola, me gustaría saber cuál es la capital de argentina",
         "timestamp": "2025-03-01T19:06:33.919Z"
       },
@@ -115,6 +110,11 @@
         "role": "user",
         "content": "!ppm",
         "timestamp": "2025-03-01T19:43:26.368Z"
+      },
+      {
+        "role": "user",
+        "content": "ehh está bueno",
+        "timestamp": "2025-03-01T19:43:38.573Z"
       }
     ]
   },
