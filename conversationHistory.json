@@ -2,11 +2,6 @@
   "1023132788632862761": [
     {
       "role": "user",
-      "content": "!trivia",
-      "timestamp": "2025-03-01T18:12:10.704Z"
-    },
-    {
-      "role": "user",
       "content": "d",
       "timestamp": "2025-03-01T18:12:15.301Z"
     },
@@ -99,6 +94,11 @@
       "role": "assistant",
       "content": "¡Claro! Trataré de hablar a un volumen normal y cómodo. Recuerda que siempre estoy aquí para ayudarte y responder cualquier pregunta que tengas. ¿Hay algo más en lo que pueda asistirte en este momento?",
       "timestamp": "2025-03-01T18:16:39.805Z"
+    },
+    {
+      "role": "user",
+      "content": "tiene ganas de conversar",
+      "timestamp": "2025-03-01T18:18:41.800Z"
     }
   ]
 }
