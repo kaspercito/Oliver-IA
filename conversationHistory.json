@@ -3,11 +3,6 @@
     "1023132788632862761": [
       {
         "role": "user",
-        "content": "deploy",
-        "timestamp": "2025-03-01T19:07:55.824Z"
-      },
-      {
-        "role": "user",
         "content": "!chat qué es deploy",
         "timestamp": "2025-03-01T19:12:00.861Z"
       },
@@ -115,6 +110,11 @@
         "role": "user",
         "content": "",
         "timestamp": "2025-03-01T19:49:40.166Z"
+      },
+      {
+        "role": "user",
+        "content": "claro, no la toma por la mayúsculas como te dije",
+        "timestamp": "2025-03-01T19:49:44.296Z"
       }
     ]
   },
