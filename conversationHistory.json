@@ -3,11 +3,6 @@
     "1023132788632862761": [
       {
         "role": "user",
-        "content": "bot",
-        "timestamp": "2025-03-01T18:35:23.347Z"
-      },
-      {
-        "role": "user",
         "content": "!ranking",
         "timestamp": "2025-03-01T18:35:24.998Z"
       },
@@ -100,6 +95,11 @@
         "role": "assistant",
         "content": "Hola Miguel, ¿qué tal el día? Espero que estés disfrutando del clima y que todo vaya bien en tu vida. ¿En qué puedo ayudarte hoy?",
         "timestamp": "2025-03-01T18:45:39.663Z"
+      },
+      {
+        "role": "user",
+        "content": "!chat n ome digas miguel",
+        "timestamp": "2025-03-01T18:45:44.609Z"
       }
     ]
   },
