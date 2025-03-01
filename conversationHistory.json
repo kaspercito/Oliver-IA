@@ -3,11 +3,6 @@
     "1023132788632862761": [
       {
         "role": "user",
-        "content": "]!rank",
-        "timestamp": "2025-03-01T20:03:31.010Z"
-      },
-      {
-        "role": "user",
         "content": "!rankings",
         "timestamp": "2025-03-01T20:03:33.447Z"
       },
@@ -115,6 +110,11 @@
         "role": "user",
         "content": "el sol brila más fuerte cuando estás feliz",
         "timestamp": "2025-03-01T20:06:24.023Z"
+      },
+      {
+        "role": "user",
+        "content": "!ppm",
+        "timestamp": "2025-03-01T20:06:32.730Z"
       }
     ]
   },
