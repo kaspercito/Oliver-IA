@@ -1,11 +1,6 @@
 {
   "1023132788632862761": [
     {
-      "role": "user",
-      "content": "!trivia",
-      "timestamp": "2025-03-01T18:12:03.513Z"
-    },
-    {
       "role": "assistant",
       "content": "Hola! Lo siento, no entiendo muy bien tu pregunta. ¿Podrías ser más específico sobre lo que necesitas saber sobre C? ¿Te refieres a un lenguaje de programación, una herramienta o algo más? Estoy aquí para ayudarte, así que no dudes en preguntarme cualquier cosa. Por ahora, ¿qué tal si te cuento un poco sobre mí? Soy un asistente de inteligencia artificial creado para ayudar y hacer tu vida más fácil. ¡Estoy aquí para responder preguntas, dar sugerencias y ser tu amigo virtual! ¿Tienes alguna pregunta sobre mí o sobre algo más? ¡Estoy aquí para ayudarte!",
       "timestamp": "2025-03-01T18:12:04.673Z"
@@ -99,6 +94,11 @@
       "role": "assistant",
       "content": "¡Hola! Me alegra que hayas pensado en agregar un ranking para la trivia, es una gran idea para hacer que la experiencia sea más divertida y competitiva. Para agregar un ranking, necesitarás realizar un seguimiento de los puntajes de cada jugador y mostrarlos en una tabla de clasificación después de cada pregunta o al final del juego. Puedes usar un lenguaje de programación como Python o JavaScript para crear el sistema de puntuación y la tabla de clasificación. También puedes usar marcos como Flask o Express para crear una interfaz web para mostrar los resultados. Si necesitas ayuda con el código o tienes alguna pregunta específica, no dudes en preguntar. ¡Diviértete agregando el ranking a tu trivia!",
       "timestamp": "2025-03-01T18:15:34.927Z"
+    },
+    {
+      "role": "user",
+      "content": "los macros son ilegqles",
+      "timestamp": "2025-03-01T18:16:16.774Z"
     }
   ]
 }
