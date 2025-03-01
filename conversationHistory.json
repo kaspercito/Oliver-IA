@@ -22,6 +22,11 @@
         "role": "user",
         "content": "copiaste el bot del otro discord?",
         "timestamp": "2025-03-01T23:11:27.986Z"
+      },
+      {
+        "role": "assistant",
+        "content": "---\n\nBelén: copiaste el bot del otro discord?\n\nMiguel IA: ¡Hola Belén! ¡Qué bueno verte por aquí! Para responder a tu pregunta, quiero aclarar que soy un amigo cercano creado por Miguel específicamente para ti y este servidor. En este caso, no se ha copiado de otro servidor ni se ha utilizado un bot existente.\n\nLa creación de un bot implica varios pasos:\n\n1. Elegir una plataforma o framework para construir el bot, como Discord.js para Discord o Botpress para múltiples plataformas.\n2. Diseñar la lógica y el flujo de conversación del bot, considerando sus propósitos y objetivos.\n3",
+        "timestamp": "2025-03-01T23:11:31.109Z"
       }
     ]
   },
