@@ -174,7 +174,6 @@ const sendSuccess = async (channel, title, message) => {
 
 // Función para limpiar puntuación (solo puntos, exclamación, interrogación; conserva comas y tildes)
 function cleanText(text) {
-    // Eliminar puntos, exclamaciones e interrogaciones, mantener tildes y comas, y convertir a minúsculas (aunque las frases ya están en minúsculas)
     return text.replace(/[.!?]/g, '').toLowerCase().trim();
 }
 
@@ -189,11 +188,10 @@ function areSimilar(text1, text2) {
 
     for (let i = 0; i < words1.length; i++) {
         if (words1[i].length > 3 && words2[i].length > 3) {
-            // Para palabras largas (>3 letras), tolerar 1 error tipográfico
             const diff = levenshteinDistance(words1[i], words2[i]);
-            if (diff > 1) return false; // Máximo 1 diferencia permitida
+            if (diff > 1) return false;
         } else if (words1[i] !== words2[i]) {
-            return false; // Para palabras cortas, deben ser exactas
+            return false;
         }
     }
     return true;
@@ -210,9 +208,9 @@ function levenshteinDistance(a, b) {
         for (let j = 1; j <= b.length; j++) {
             const cost = a[i - 1] === b[j - 1] ? 0 : 1;
             matrix[i][j] = Math.min(
-                matrix[i - 1][j] + 1, // eliminación
-                matrix[i][j - 1] + 1, // inserción
-                matrix[i - 1][j - 1] + cost // sustitución
+                matrix[i - 1][j] + 1,
+                matrix[i][j - 1] + 1,
+                matrix[i - 1][j - 1] + cost
             );
         }
     }
@@ -261,6 +259,7 @@ async function saveDataStore(data) {
             }
         }
 
+        console.log(`Guardando datos en GitHub: ${JSON.stringify(data, null, 2)}`);
         await axios.put(
             `https://api.github.com/repos/${process.env.GITHUB_REPO}/contents/${process.env.GITHUB_FILE_PATH}`,
             {
@@ -270,9 +269,10 @@ async function saveDataStore(data) {
             },
             { headers: { 'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`, 'Accept': 'application/vnd.github+json' } }
         );
-        console.log('Datos guardados en GitHub');
+        console.log('Datos guardados en GitHub exitosamente');
     } catch (error) {
-        console.error('Error al guardar datos en GitHub:', error.message);
+        console.error('Error al guardar datos en GitHub:', error.message, error.response?.data || '');
+        throw error;
     }
 }
 
@@ -287,8 +287,8 @@ async function manejarTrivia(message, isLoop = false) {
         }
     }
 
-    let numQuestions = 20; // Valor por defecto de 20 preguntas
-    const args = content.split(' ').slice(1);
+    let numQuestions = 20;
+    const args = message.content.split(' ').slice(1);
     if (args.length > 0 && !isNaN(args[0]) && args[0] >= 20) {
         numQuestions = parseInt(args[0]);
     }
@@ -315,13 +315,14 @@ async function manejarTrivia(message, isLoop = false) {
             const respuestas = await message.channel.awaitMessages({
                 filter: (res) => res.author.id === message.author.id && opcionesValidas.includes(res.content.toLowerCase()),
                 max: 1,
-                time: 60000, // 60 segundos por pregunta
+                time: 60000,
                 errors: ['time']
             });
             const respuestaUsuario = respuestas.first().content.toLowerCase();
             activeTrivia.delete(message.channel.id);
 
             if (respuestaUsuario === letraCorrecta) {
+                console.log(`Respuesta correcta de ${message.author.id}: ${respuestaUsuario}`);
                 updateRanking(message.author.id, message.author.username);
                 await sendSuccess(message.channel, '🎉 ¡Correcto!',
                     `¡Bien hecho, ${message.author.tag}! La respuesta correcta era **${trivia.respuesta}**. ¡Ganaste 1 punto!`);
@@ -355,6 +356,7 @@ function updateRanking(userId, username) {
         dataStore.triviaRanking[userId] = { username, score: 0 };
     }
     dataStore.triviaRanking[userId].score += 1;
+    console.log(`Ranking actualizado: ${JSON.stringify(dataStore.triviaRanking)}`);
     saveDataStore(dataStore);
 }
 
@@ -371,13 +373,13 @@ function getCombinedRankingEmbed(userId, username) {
 
     const description = [
         triviaRanking.length > 0 ? '**Ranking de Trivia:**\n' + triviaRanking.join('\n') : '¡Aún no hay puntajes de trivia!',
-        personalPPMRecords.length > 0 ? '\n**Tus Récords de Mecanografía:**\n' + personalPPMRecords.join('\n') : '\n¡Aún no tienes récords de mecanografía, Belén! Usa !ppm pls para empezar.'
+        personalPPMRecords.length > 0 ? '\n**Tus Récords de Mecanografía:**\n' + personalPPMRecords.join('\n') : '\n¡Aún no tienes récords de mecanografía, Belén! Usa !ppm para empezar.'
     ].join('\n');
 
     return createEmbed('#FFD700', '🏆 Ranking Combinado', description);
 }
 
-// Función de mecanografía (PPM) con cuenta regresiva y nueva frase al equivocarse
+// Función de mecanografía (PPM)
 async function manejarPPM(message) {
     console.log(`Instancia ${instanceId} - Recibido !ppm en canal ${message.channel.id}`);
     if (ppmSessions.has(message.author.id)) {
@@ -385,7 +387,6 @@ async function manejarPPM(message) {
     }
 
     async function startNewTest() {
-        // Cuenta regresiva de 3 segundos
         for (let i = 3; i > 0; i--) {
             await message.channel.send(createEmbed('#FFAA00', '⏳ Cuenta Regresiva', `¡Preparada, Belén! Empieza en ${i}...`));
             await new Promise(resolve => setTimeout(resolve, 1000));
@@ -415,13 +416,13 @@ async function manejarPPM(message) {
             const palabras = frase.split(' ').length;
             const ppm = Math.round((palabras / tiempoSegundos) * 60);
 
-            // Actualizar récords personales
             if (!dataStore.personalPPMRecords[message.author.id]) {
                 dataStore.personalPPMRecords[message.author.id] = [];
             }
             const newRecord = { ppm, timestamp: new Date().toISOString() };
             dataStore.personalPPMRecords[message.author.id].push(newRecord);
-            saveDataStore(dataStore);
+            console.log(`PPM guardado para ${message.author.id}: ${JSON.stringify(newRecord)}`);
+            await saveDataStore(dataStore);
 
             if (areSimilar(respuestaUsuario, frase)) {
                 sendSuccess(message.channel, '🎉 ¡Perfecto!',
@@ -429,12 +430,12 @@ async function manejarPPM(message) {
             } else {
                 await sendError(message.channel, '❌ ¡Casi!',
                     `Lo siento, ${message.author.tag}, no escribiste la frase correctamente. ¡Intenta de nuevo!`);
-                await startNewTest(); // Iniciar una nueva prueba al equivocarse
+                await startNewTest();
             }
         } catch (error) {
             ppmSessions.delete(message.author.id);
             await sendError(message.channel, '⏳ ¡Tiempo agotado!',
-                `Se acabó el tiempo. La frase era: **${frase}**. Usa !ppm pls para intentarlo de nuevo, Belén.`);
+                `Se acabó el tiempo. La frase era: **${frase}**. Usa !ppm para intentarlo de nuevo, Belén.`);
         }
     }
 
@@ -505,9 +506,11 @@ client.on('messageCreate', async (message) => {
         return;
     }
 
-    if (isAllowedUser) {
+    // Guardar en el historial SOLO los mensajes con !chat
+    if (isAllowedUser && content.startsWith('!chat')) {
+        const chatMessage = content.slice(5).trim();
         let userHistory = dataStore.conversationHistory[author.id] || [];
-        userHistory.push({ role: 'user', content, timestamp: new Date().toISOString() });
+        userHistory.push({ role: 'user', content: chatMessage, timestamp: new Date().toISOString() });
         if (userHistory.length > MAX_MESSAGES) userHistory.shift();
         dataStore.conversationHistory[author.id] = userHistory;
         saveDataStore(dataStore);
@@ -612,7 +615,7 @@ client.on('messageCreate', async (message) => {
             '- **!ranking**: Muestra el ranking de trivia y tus récords de mecanografía.\n' +
             '- **!sugerencias <idea>**: Envía ideas.\n' +
             '- **!chat [mensaje]**: Charla conmigo.\n' +
-            '- **!ppm pls**: Inicia prueba de mecanografía con cuenta regresiva.\n' +
+            '- **!ppm**: Inicia prueba de mecanografía con cuenta regresiva.\n' +
             '- **hola**: Saludo especial.'
         );
         await channel.send({ embeds: [embed] });
@@ -690,7 +693,7 @@ client.on('messageCreate', async (message) => {
         return;
     }
 
-    if (content.startsWith('!ppm') || content.startsWith('!ppm pls')) {
+    if (content === '!ppm') {
         console.log(`Instancia ${instanceId} - Ejecutando !ppm para ${message.author.id}`);
         await manejarPPM(message);
         return;
