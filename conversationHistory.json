@@ -3,11 +3,6 @@
     "1023132788632862761": [
       {
         "role": "user",
-        "content": "e",
-        "timestamp": "2025-03-01T19:54:08.158Z"
-      },
-      {
-        "role": "user",
         "content": "esprea que intento hacerlo",
         "timestamp": "2025-03-01T19:54:12.342Z"
       },
@@ -114,7 +109,12 @@
       {
         "role": "user",
         "content": "la práctica hace al maestro, no lo olvides",
-        "timestamp": "2025-03-01T20:04:20.513Z"
+        "timestamp": "2025-03-01T20:04:20.534Z"
+      },
+      {
+        "role": "user",
+        "content": "el unto",
+        "timestamp": "2025-03-01T20:04:22.886Z"
       }
     ]
   },
