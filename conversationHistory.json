@@ -65,6 +65,11 @@
         "role": "user",
         "content": "d",
         "timestamp": "2025-03-01T18:59:57.505Z"
+      },
+      {
+        "role": "user",
+        "content": "!ranking",
+        "timestamp": "2025-03-01T18:59:59.909Z"
       }
     ]
   },
