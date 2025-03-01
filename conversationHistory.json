@@ -15,6 +15,11 @@
         "role": "user",
         "content": "a",
         "timestamp": "2025-03-01T20:27:05.047Z"
+      },
+      {
+        "role": "user",
+        "content": "sin comas ni puntos ni mayúsculas",
+        "timestamp": "2025-03-01T20:29:14.678Z"
       }
     ]
   },
