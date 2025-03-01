@@ -1,11 +1,6 @@
 {
   "1023132788632862761": [
     {
-      "role": "user",
-      "content": "cuanto es 2+2",
-      "timestamp": "2025-03-01T18:09:15.742Z"
-    },
-    {
       "role": "assistant",
       "content": "El resultado de 2 + 2 es 4. Espero que esto haya sido útil. ¿Tienes alguna otra pregunta sobre matemáticas o algún otro tema? ¡Estoy aquí para ayudarte!",
       "timestamp": "2025-03-01T18:09:18.353Z"
@@ -99,6 +94,11 @@
       "role": "user",
       "content": "!trivia",
       "timestamp": "2025-03-01T18:12:10.704Z"
+    },
+    {
+      "role": "user",
+      "content": "d",
+      "timestamp": "2025-03-01T18:12:15.301Z"
     }
   ]
 }
