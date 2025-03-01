@@ -19,6 +19,11 @@
       "role": "assistant",
       "content": "El resultado de 2 + 2 es 4. Espero que esto haya sido útil. ¿Tienes alguna otra pregunta sobre matemáticas o algún otro tema? ¡Estoy aquí para ayudarte!",
       "timestamp": "2025-03-01T18:09:18.353Z"
+    },
+    {
+      "role": "user",
+      "content": "pero si etaba bien",
+      "timestamp": "2025-03-01T18:09:33.259Z"
     }
   ]
 }
