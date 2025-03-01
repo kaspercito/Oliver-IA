@@ -92,6 +92,11 @@
         "role": "user",
         "content": "come ratas chuy",
         "timestamp": "2025-03-01T23:35:36.035Z"
+      },
+      {
+        "role": "user",
+        "content": "podrías mostrarme cómo es una rata negra?",
+        "timestamp": "2025-03-01T23:36:51.470Z"
       }
     ]
   },
