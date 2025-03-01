@@ -16,7 +16,7 @@ const client = new Client({
 
 // IDs y constantes
 const OWNER_ID = '752987736759205960';
-const ALLOWED_USER_ID = '752987736759205960'; // ID de Belén
+const ALLOWED_USER_ID = '1023132788632862761'; // ID de Belén
 const CHANNEL_ID = '1343749554905940058';
 const MAX_MESSAGES = 20;
 
@@ -225,7 +225,12 @@ async function loadDataStore() {
             { headers: { 'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`, 'Accept': 'application/vnd.github+json' } }
         );
         const content = Buffer.from(response.data.content, 'base64').toString('utf8');
-        return content ? JSON.parse(content) : { conversationHistory: {}, triviaRanking: {}, personalPPMRecords: {} };
+        const loadedData = content ? JSON.parse(content) : { conversationHistory: {}, triviaRanking: {}, personalPPMRecords: {} };
+        return {
+            conversationHistory: loadedData.conversationHistory || {},
+            triviaRanking: loadedData.triviaRanking || {},
+            personalPPMRecords: loadedData.personalPPMRecords || {}
+        };
     } catch (error) {
         console.error('Error al cargar datos desde GitHub:', error.message);
         return { conversationHistory: {}, triviaRanking: {}, personalPPMRecords: {} };
@@ -397,7 +402,13 @@ async function manejarPPM(message) {
         const startTime = Date.now();
         const embed = createEmbed('#55FFFF', '📝 Prueba de Mecanografía',
             `Escribe esta frase lo más rápido que puedas:\n\n**${frase}**\n\nTienes 60 segundos para responder.`);
-        await message.channel.send({ embeds: [embed] });
+        
+        try {
+            await message.channel.send({ embeds: [embed] });
+        } catch (error) {
+            console.error('Error al enviar el embed de PPM:', error);
+            return sendError(message.channel, 'No pude enviar la frase de mecanografía. ¡Intenta de nuevo con !ppm!');
+        }
 
         ppmSessions.set(message.author.id, { frase, startTime });
 
@@ -506,7 +517,6 @@ client.on('messageCreate', async (message) => {
         return;
     }
 
-    // Guardar en el historial SOLO los mensajes con !chat
     if (isAllowedUser && content.startsWith('!chat')) {
         const chatMessage = content.slice(5).trim();
         let userHistory = dataStore.conversationHistory[author.id] || [];
