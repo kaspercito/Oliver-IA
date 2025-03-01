@@ -3,11 +3,6 @@
     "1023132788632862761": [
       {
         "role": "user",
-        "content": "!ppm",
-        "timestamp": "2025-03-01T19:46:39.678Z"
-      },
-      {
-        "role": "user",
         "content": "la práctica hace al maestro, no lo olvides.",
         "timestamp": "2025-03-01T19:46:45.299Z"
       },
@@ -115,6 +110,11 @@
         "role": "user",
         "content": "es que me da vergüenza porque todos te ven",
         "timestamp": "2025-03-01T19:54:16.771Z"
+      },
+      {
+        "role": "user",
+        "content": "no tnego permisos",
+        "timestamp": "2025-03-01T19:54:33.631Z"
       }
     ]
   },
