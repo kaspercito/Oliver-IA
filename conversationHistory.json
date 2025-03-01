@@ -3,11 +3,6 @@
     "1023132788632862761": [
       {
         "role": "user",
-        "content": "la put",
-        "timestamp": "2025-03-01T20:03:55.428Z"
-      },
-      {
-        "role": "user",
         "content": "!ppm",
         "timestamp": "2025-03-01T20:04:10.321Z"
       },
@@ -115,6 +110,11 @@
         "role": "user",
         "content": "no no, si me equivoco que me mande otra",
         "timestamp": "2025-03-01T20:09:56.797Z"
+      },
+      {
+        "role": "user",
+        "content": "porque ya no volveré a escribir la misma, me da toc",
+        "timestamp": "2025-03-01T20:10:05.067Z"
       }
     ]
   },
