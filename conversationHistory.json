@@ -3,11 +3,6 @@
     "1023132788632862761": [
       {
         "role": "user",
-        "content": "!rankings",
-        "timestamp": "2025-03-01T20:03:33.447Z"
-      },
-      {
-        "role": "user",
         "content": "!ppm",
         "timestamp": "2025-03-01T20:03:42.842Z"
       },
@@ -115,6 +110,11 @@
         "role": "user",
         "content": "!ppm",
         "timestamp": "2025-03-01T20:06:32.730Z"
+      },
+      {
+        "role": "user",
+        "content": "la vida es como una caja de chocolats, unca sabes qué te av a toca,.",
+        "timestamp": "2025-03-01T20:06:40.888Z"
       }
     ]
   },
