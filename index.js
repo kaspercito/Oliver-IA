@@ -21,8 +21,10 @@ const CHANNEL_ID = '1343749554905940058';
 const MAX_MESSAGES = 20;
 
 const BOT_UPDATES = [
-    '¡Arreglé el error sentMessage y ahora puedo mostrar varias imágenes en responder y !ayuda, Todo listo para que funcione perfecto mientras estoy en el quinto sueño.',
-    'Espero ahora si este todo bien hecho, he mejorado las respuestas en las que el bot te responderá, espero te pueda servir, estoy pensando en mas mejoras.'
+    '¡Añadido !ppm.',
+    'Mejorada la trivia, la puedes empezar con limite.'
+    'Sistema de !ranking añadido, guarda total de trivias acertadas y tu record de ppm.'
+    'Nuevos comandos mejorados, guardado optimizado.'
 ];
 
 const PREVIOUS_BOT_UPDATES = [
@@ -396,18 +398,27 @@ async function manejarPPM(message) {
     }
 
     async function startNewTest() {
-        for (let i = 3; i > 0; i--) {
-            const countdownEmbed = createEmbed('#FFAA00', '⏳ Cuenta Regresiva', `¡Preparada, Belén! Empieza en ${i}...`);
-            await message.channel.send({ embeds: [countdownEmbed] });
-            await new Promise(resolve => setTimeout(resolve, 1000));
-        }
-        await message.channel.send({ embeds: [createEmbed('#00FF00', '🚀 ¡Ya!', '¡Adelante, Belén!')] });
+        // Crear el mensaje inicial para la cuenta regresiva
+        const countdownEmbed = createEmbed('#FFAA00', '⏳ Cuenta Regresiva', '¡Preparada, Belén! Empieza en 3...');
+        const countdownMessage = await message.channel.send({ embeds: [countdownEmbed] });
 
+        // Cuenta regresiva editando el mismo mensaje
+        for (let i = 2; i > 0; i--) {
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            const updatedEmbed = createEmbed('#FFAA00', '⏳ Cuenta Regresiva', `¡Preparada, Belén! Empieza en ${i}...`);
+            await countdownMessage.edit({ embeds: [updatedEmbed] });
+        }
+
+        // Cambiar a "¡Ya!" editando el mismo mensaje
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        const goEmbed = createEmbed('#00FF00', '🚀 ¡Ya!', '¡Adelante, Belén!');
+        await countdownMessage.edit({ embeds: [goEmbed] });
+
+        // Enviar la frase en un mensaje separado
         const frase = frasesPPM[Math.floor(Math.random() * frasesPPM.length)];
         const startTime = Date.now();
         const embed = createEmbed('#55FFFF', '📝 Prueba de Mecanografía',
             `Escribe esta frase lo más rápido que puedas:\n\n**${frase}**\n\nTienes 60 segundos para responder.`);
-
         console.log('Embed preparado:', JSON.stringify(embed.toJSON(), null, 2));
         try {
             await message.channel.send({ embeds: [embed] });
