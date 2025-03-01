@@ -3,11 +3,6 @@
     "1023132788632862761": [
       {
         "role": "user",
-        "content": "a ver si puedo superar las 130",
-        "timestamp": "2025-03-01T19:50:39.311Z"
-      },
-      {
-        "role": "user",
         "content": "ese comando es para poner español, ingles, etc",
         "timestamp": "2025-03-01T19:51:20.582Z"
       },
@@ -114,7 +109,12 @@
       {
         "role": "user",
         "content": "]!rank",
-        "timestamp": "2025-03-01T20:03:31.006Z"
+        "timestamp": "2025-03-01T20:03:31.010Z"
+      },
+      {
+        "role": "user",
+        "content": "!rankings",
+        "timestamp": "2025-03-01T20:03:33.447Z"
       }
     ]
   },
