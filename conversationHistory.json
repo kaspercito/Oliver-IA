@@ -3,11 +3,6 @@
     "1023132788632862761": [
       {
         "role": "user",
-        "content": "porque ya no volveré a escribir la misma, me da toc",
-        "timestamp": "2025-03-01T20:10:05.067Z"
-      },
-      {
-        "role": "user",
         "content": "perdón, me estoy preparando para viajar",
         "timestamp": "2025-03-01T20:24:17.754Z"
       },
@@ -115,13 +110,18 @@
         "role": "user",
         "content": "a",
         "timestamp": "2025-03-01T20:26:08.563Z"
+      },
+      {
+        "role": "user",
+        "content": "d",
+        "timestamp": "2025-03-01T20:26:12.578Z"
       }
     ]
   },
   "triviaRanking": {
     "1023132788632862761": {
       "username": "dearluz",
-      "score": 20
+      "score": 21
     }
   }
 }
