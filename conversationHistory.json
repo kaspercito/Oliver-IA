@@ -47,6 +47,11 @@
         "role": "assistant",
         "content": "¡Hola, Belén! No te preocupes, la alimentación en China es muy variada y no se limita a las ratas. Aunque en algunas zonas rurales pueden comerlas por necesidad, no es una práctica generalizada en todo el país. En realidad, la dieta china está compuesta por arroz, fideos, verduras, carnes (como cerdo, pollo y pescado) y soja, entre otros alimentos. ¡Espero haberte ayudado! ¿Fue útil esta información? ✅ o ❌",
         "timestamp": "2025-03-01T23:31:10.059Z"
+      },
+      {
+        "role": "user",
+        "content": "en qué país se comen a las ratas?",
+        "timestamp": "2025-03-01T23:31:36.706Z"
       }
     ]
   },
