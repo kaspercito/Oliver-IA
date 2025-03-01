@@ -3,11 +3,6 @@
     "1023132788632862761": [
       {
         "role": "user",
-        "content": "!ppm",
-        "timestamp": "2025-03-01T20:04:52.153Z"
-      },
-      {
-        "role": "user",
         "content": "el sol brilla más fuerte cuando estás feliz",
         "timestamp": "2025-03-01T20:04:57.634Z"
       },
@@ -115,13 +110,18 @@
         "role": "user",
         "content": "me cagó",
         "timestamp": "2025-03-01T20:25:18.817Z"
+      },
+      {
+        "role": "user",
+        "content": "d",
+        "timestamp": "2025-03-01T20:25:19.736Z"
       }
     ]
   },
   "triviaRanking": {
     "1023132788632862761": {
       "username": "dearluz",
-      "score": 12
+      "score": 13
     }
   }
 }
