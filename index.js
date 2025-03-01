@@ -497,69 +497,88 @@ client.on('messageCreate', async (message) => {
     const twilio = require('twilio');
     const clientTwilio = new twilio(process.env.TWILIO_SID, process.env.TWILIO_AUTH_TOKEN);
 
-    if (userMessage.startsWith('!ayuda')) {
-        const issue = userMessage.slice(6).trim();
-        if (!issue) {
-            const embed = new EmbedBuilder()
-                .setColor('#FF5555')
-                .setTitle('¡Un momento!')
-                .setDescription('Dime qué necesitas después de "!ayuda" y te ayudaré.')
-                .setTimestamp();
-            return message.reply({ embeds: [embed] });
-        }
-
-        const owner = await client.users.fetch(OWNER_ID);
-        const embeds = [];
-        const baseEmbed = new EmbedBuilder()
-            .setColor('#FFD700')
-            .setTitle('¡Solicitud de ayuda!')
-            .setDescription(`Se necesita ayuda con: "${issue}"`)
+if (userMessage.startsWith('!ayuda')) {
+    const issue = userMessage.slice(6).trim();
+    if (!issue) {
+        const embed = new EmbedBuilder()
+            .setColor('#FF5555')
+            .setTitle('¡Un momento!')
+            .setDescription('Dime qué necesitas después de "!ayuda" y te ayudaré.')
             .setTimestamp();
-
-        if (message.attachments.size > 0) {
-            const attachments = message.attachments.map(attachment => attachment.url);
-            let attachmentText = '';
-
-            message.attachments.forEach((attachment, index) => {
-                if (attachment.contentType?.startsWith('image/')) {
-                    const imageEmbed = new EmbedBuilder(baseEmbed.data);
-                    imageEmbed.setImage(attachment.url);
-                    embeds.push(imageEmbed);
-                }
-                attachmentText += `Archivo ${index + 1}: ${attachment.url}\n`;
-            });
-
-            if (embeds.length === 0) {
-                baseEmbed.addFields({ name: 'Adjuntos', value: attachmentText || 'Sin enlaces.', inline: false });
-                embeds.push(baseEmbed);
-            }
-        } else {
-            embeds.push(baseEmbed);
-        }
-
-        await owner.send({ embeds: [embeds] });
-
-        try {
-            await clientTwilio.calls.create({
-                twiml: `<Response><Say voice="alice">¡Despierta Miguel! Hay una solicitud de ayuda con ${issue}. ¡Vamos, contesta!</Say><Pause length="2"/><Say voice="alice">Repito, ayuda con ${issue}.</Say></Response>`,
-                to: process.env.MY_PHONE_NUMBER,
-                from: process.env.TWILIO_PHONE_NUMBER,
-            });
-            console.log('Llamada iniciada para despertar a Miguel');
-        } catch (error) {
-            console.error('Error al hacer la llamada:', error.message);
-            await owner.send('No pude hacer la llamada para despertarme. Error: ' + error.message);
-        }
-
-        const userEmbed = new EmbedBuilder()
-            .setColor('#55FFFF')
-            .setTitle('¡Mensaje enviado!')
-            .setDescription('Ya le avisé a Miguel, ¡estoy llamándolo para que te ayude!')
-            .setFooter({ text: 'Miguel IA' })
-            .setTimestamp();
-        return message.reply({ embeds: [userEmbed] });
+        return message.reply({ embeds: [embed] });
     }
 
+    console.log(`[AYUDA] Procesando solicitud de ayuda con problema: "${issue}" desde ${message.author.id}`);
+
+    const owner = await client.users.fetch(OWNER_ID);
+    const embeds = [];
+    const baseEmbed = new EmbedBuilder()
+        .setColor('#FFD700')
+        .setTitle('¡Solicitud de ayuda!')
+        .setDescription(`Se necesita ayuda con: "${issue}"`)
+        .setTimestamp();
+
+    if (message.attachments.size > 0) {
+        const attachments = message.attachments.map(attachment => attachment.url);
+        let attachmentText = '';
+        message.attachments.forEach((attachment, index) => {
+            if (attachment.contentType?.startsWith('image/')) {
+                const imageEmbed = new EmbedBuilder(baseEmbed.data);
+                imageEmbed.setImage(attachment.url);
+                embeds.push(imageEmbed);
+            }
+            attachmentText += `Archivo ${index + 1}: ${attachment.url}\n`;
+        });
+        if (embeds.length === 0) {
+            baseEmbed.addFields({ name: 'Adjuntos', value: attachmentText || 'Sin enlaces.', inline: false });
+            embeds.push(baseEmbed);
+        }
+    } else {
+        embeds.push(baseEmbed);
+    }
+
+    let ownerSuccess = false;
+    try {
+        await owner.send({ embeds: embeds }); // Corrección: embeds sin array extra
+        console.log(`[AYUDA] Mensaje de ayuda enviado exitosamente a OWNER_ID: ${OWNER_ID}`);
+        ownerSuccess = true;
+    } catch (error) {
+        console.error(`[AYUDA] Error al enviar mensaje a OWNER_ID (${OWNER_ID}):`, error.message);
+    }
+
+    let twilioSuccess = false;
+    try {
+        const twilio = require('twilio');
+        const clientTwilio = new twilio(process.env.TWILIO_SID, process.env.TWILIO_AUTH_TOKEN);
+        await clientTwilio.calls.create({
+            twiml: `<Response><Say voice="alice">¡Despierta Miguel! Hay una solicitud de ayuda con ${issue}. ¡Vamos, contesta!</Say><Pause length="2"/><Say voice="alice">Repito, ayuda con ${issue}.</Say></Response>`,
+            to: process.env.MY_PHONE_NUMBER,
+            from: process.env.TWILIO_PHONE_NUMBER,
+        });
+        console.log('[AYUDA] Llamada Twilio iniciada con éxito');
+        twilioSuccess = true;
+    } catch (error) {
+        console.error('[AYUDA] Error al hacer la llamada Twilio:', error.message);
+    }
+
+    const userEmbed = new EmbedBuilder()
+        .setColor('#55FFFF')
+        .setTitle('¡Mensaje enviado!')
+        .setDescription(
+            ownerSuccess 
+                ? 'Ya le avisé a Miguel' + (twilioSuccess ? ', ¡y estoy llamándolo para que te ayude!' : ', pero no pude llamarlo.')
+                : 'No pude avisarle a Miguel directamente, pero estoy trabajando en ello.' + (twilioSuccess ? ' ¡Lo estoy llamando!' : '')
+        )
+        .setFooter({ text: 'Miguel IA' })
+        .setTimestamp();
+    
+    try {
+        await message.reply({ embeds: [userEmbed] });
+        console.log(`[AYUDA] Respuesta enviada al usuario ${message.author.id}`);
+    } catch (error) {
+        console.error('[AYUDA] Error al responder al usuario:', error.message);
+    }
+}
     if (userMessage.startsWith('!help')) {
         const helpEmbed = new EmbedBuilder()
             .setColor('#55FF55')
