@@ -79,6 +79,11 @@
       "role": "assistant",
       "content": "¡Hola! Sí, existen varios software para mejorar la calidad de datos. Uno de los más sencillos de usar es OpenRefine, anteriormente conocido como Google Refine. Es una herramienta de código abierto que puede limpiar, transformar y cargar estructurados y semiestructurados datos. OpenRefine trabaja con varios tipos de datos y proporciona funciones como filtrado, agrupación, reconciliación y enriquecimiento de datos. Además, tiene una interfaz fácil de usar y una comunidad activa que puede ayudarte en caso de dudas. ¡Espero que esto te sea útil! ¿Tienes alguna pregunta adicional sobre cómo usar OpenRefine o cómo mejorar la calidad de tus datos?",
       "timestamp": "2025-03-01T08:48:42.429Z"
+    },
+    {
+      "role": "user",
+      "content": "cómo usar openrefine?",
+      "timestamp": "2025-03-01T08:49:23.981Z"
     }
   ]
 }
