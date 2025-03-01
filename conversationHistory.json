@@ -89,6 +89,11 @@
       "role": "user",
       "content": "cómo usar openrefine?",
       "timestamp": "2025-03-01T08:52:41.005Z"
+    },
+    {
+      "role": "user",
+      "content": "!ayuda cómo es la contraseña de la página web de SS",
+      "timestamp": "2025-03-01T08:55:15.033Z"
     }
   ]
 }
