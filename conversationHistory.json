@@ -112,6 +112,11 @@
         "role": "assistant",
         "content": "¡Hola Belén! Claro que podría mostrarte cómo es una rata negra.\n\nLas ratas negras, también conocidas como Rattus rattus, son roedores de tamaño medio que pueden alcanzar una longitud de cabeza y cuerpo de hasta 25 cm y una cola de hasta 22 cm. Su pelaje es negro o marrón oscuro y su cuerpo es delgado y alargado.\n\nLas ratas negras tienen orejas grandes y una cola larga y escamosa que es más larga que su cuerpo. Sus ojos son pequeños y de color negro.\n\nEn cuanto a su comportamiento, las ratas negras son excelentes escaladoras y nadadoras. Son omnívoras y se alimentan de una",
         "timestamp": "2025-03-01T23:36:55.308Z"
+      },
+      {
+        "role": "user",
+        "content": "chau",
+        "timestamp": "2025-03-01T23:38:36.409Z"
       }
     ]
   },
