@@ -10,6 +10,11 @@
         "role": "user",
         "content": "!help",
         "timestamp": "2025-03-01T18:53:30.801Z"
+      },
+      {
+        "role": "user",
+        "content": "!trivia",
+        "timestamp": "2025-03-01T18:57:17.022Z"
       }
     ]
   },
