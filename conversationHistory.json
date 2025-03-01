@@ -2,11 +2,6 @@
   "conversationHistory": {
     "1023132788632862761": [
       {
-        "role": "user",
-        "content": "!chat hola, me gustaría saber cuál es la capital de argentina",
-        "timestamp": "2025-03-01T19:06:33.919Z"
-      },
-      {
         "role": "assistant",
         "content": "Hola Belén, ¡qué bueno hablar contigo de nuevo! La capital de Argentina es Buenos Aires, una ciudad hermosa y llena de cultura. ¿Has tenido la oportunidad de visitarla alguna vez? ¡Contame si tienes algún otro interrogante sobre este o algún otro tema!",
         "timestamp": "2025-03-01T19:06:38.841Z"
@@ -115,6 +110,11 @@
         "role": "user",
         "content": "ehh está bueno",
         "timestamp": "2025-03-01T19:43:38.573Z"
+      },
+      {
+        "role": "user",
+        "content": "a",
+        "timestamp": "2025-03-01T19:43:41.270Z"
       }
     ]
   },
