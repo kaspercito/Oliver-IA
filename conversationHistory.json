@@ -2,11 +2,6 @@
   "1023132788632862761": [
     {
       "role": "user",
-      "content": "!trivia",
-      "timestamp": "2025-03-01T18:12:17.278Z"
-    },
-    {
-      "role": "user",
       "content": "a",
       "timestamp": "2025-03-01T18:12:32.146Z"
     },
@@ -99,6 +94,11 @@
       "role": "user",
       "content": "!sugerencias agregar un ranking para la trivia",
       "timestamp": "2025-03-01T18:18:51.063Z"
+    },
+    {
+      "role": "user",
+      "content": "sirve",
+      "timestamp": "2025-03-01T18:24:10.237Z"
     }
   ]
 }
