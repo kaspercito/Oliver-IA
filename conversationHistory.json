@@ -3,11 +3,6 @@
     "1023132788632862761": [
       {
         "role": "user",
-        "content": "!trivia",
-        "timestamp": "2025-03-01T18:57:17.022Z"
-      },
-      {
-        "role": "user",
         "content": "!chat hola",
         "timestamp": "2025-03-01T18:58:32.389Z"
       },
@@ -105,6 +100,11 @@
         "role": "assistant",
         "content": "Hola Belén, ¡qué bueno hablar contigo de nuevo! La capital de Argentina es Buenos Aires, una ciudad hermosa y llena de cultura. ¿Has tenido la oportunidad de visitarla alguna vez? ¡Contame si tienes algún otro interrogante sobre este o algún otro tema!",
         "timestamp": "2025-03-01T19:06:38.841Z"
+      },
+      {
+        "role": "user",
+        "content": "!chat no vuelvas a decir que buenos aiers es una ciudad hermosa",
+        "timestamp": "2025-03-01T19:07:02.723Z"
       }
     ]
   },
