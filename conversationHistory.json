@@ -40,6 +40,11 @@
         "role": "user",
         "content": "hola",
         "timestamp": "2025-03-01T18:41:02.550Z"
+      },
+      {
+        "role": "user",
+        "content": "!chat hola",
+        "timestamp": "2025-03-01T18:41:58.009Z"
       }
     ]
   },
