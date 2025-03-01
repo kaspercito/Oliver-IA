@@ -3,11 +3,6 @@
     "1023132788632862761": [
       {
         "role": "user",
-        "content": "esas frases cortas están bien",
-        "timestamp": "2025-03-01T19:52:58.265Z"
-      },
-      {
-        "role": "user",
         "content": "pero si agregas un minutio podrías poner alguna más larga",
         "timestamp": "2025-03-01T19:53:12.811Z"
       },
@@ -114,7 +109,12 @@
       {
         "role": "user",
         "content": "!ppm",
-        "timestamp": "2025-03-01T20:04:10.328Z"
+        "timestamp": "2025-03-01T20:04:10.321Z"
+      },
+      {
+        "role": "user",
+        "content": "la r´´acrica",
+        "timestamp": "2025-03-01T20:04:13.071Z"
       }
     ]
   },
