@@ -4,11 +4,6 @@
       {
         "role": "user",
         "content": "a",
-        "timestamp": "2025-03-01T20:24:47.056Z"
-      },
-      {
-        "role": "user",
-        "content": "a",
         "timestamp": "2025-03-01T20:24:51.302Z"
       },
       {
@@ -115,6 +110,11 @@
         "role": "user",
         "content": "d",
         "timestamp": "2025-03-01T20:26:27.691Z"
+      },
+      {
+        "role": "user",
+        "content": "podrías agregar que haya un límite por ejempo",
+        "timestamp": "2025-03-01T20:26:42.283Z"
       }
     ]
   },
