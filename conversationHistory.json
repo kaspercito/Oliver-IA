@@ -3,11 +3,6 @@
     "1023132788632862761": [
       {
         "role": "user",
-        "content": "ese bot ujsan, no sé",
-        "timestamp": "2025-03-01T19:49:47.096Z"
-      },
-      {
-        "role": "user",
         "content": "no no, porque ahí hay varias personas",
         "timestamp": "2025-03-01T19:49:55.660Z"
       },
@@ -115,6 +110,11 @@
         "role": "user",
         "content": "ellos hacen algo largo porque hacen 200 ppm",
         "timestamp": "2025-03-01T19:58:47.441Z"
+      },
+      {
+        "role": "user",
+        "content": "no pueden medirlo en una frase de 10 palabras",
+        "timestamp": "2025-03-01T19:58:56.330Z"
       }
     ]
   },
