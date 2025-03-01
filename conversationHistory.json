@@ -3,11 +3,6 @@
     "1023132788632862761": [
       {
         "role": "user",
-        "content": "uuuuuju",
-        "timestamp": "2025-03-01T19:00:07.190Z"
-      },
-      {
-        "role": "user",
         "content": "para saber cuánto he acertado",
         "timestamp": "2025-03-01T19:01:12.570Z"
       },
@@ -115,6 +110,11 @@
         "role": "user",
         "content": "c",
         "timestamp": "2025-03-01T19:15:27.232Z"
+      },
+      {
+        "role": "user",
+        "content": "!trivia",
+        "timestamp": "2025-03-01T19:15:28.675Z"
       }
     ]
   },
