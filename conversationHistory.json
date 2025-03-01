@@ -45,6 +45,11 @@
         "role": "user",
         "content": "!chat hola",
         "timestamp": "2025-03-01T18:41:58.009Z"
+      },
+      {
+        "role": "assistant",
+        "content": "Hola Miguel, ¿qué tal el día? Espero que estés disfrutando del clima y que todo vaya bien en tu vida. ¿En qué puedo ayudarte hoy?",
+        "timestamp": "2025-03-01T18:41:59.472Z"
       }
     ]
   },
