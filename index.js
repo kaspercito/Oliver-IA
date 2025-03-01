@@ -17,13 +17,28 @@ const client = new Client({
 const OWNER_ID = '752987736759205960';
 const ALLOWED_USER_ID = '1023132788632862761';
 const CHANNEL_ID = '1343749554905940058';
-const HISTORY_FILE = './conversationHistory.json'; // Local como respaldo, pero usaremos GitHub
 const MAX_MESSAGES = 20;
+
+// Lista de actualizaciones actuales
+const BOT_UPDATES = [
+    '¡Arreglé el error sentMessage y ahora puedo mostrar varias imágenes en responder y !ayuda, Todo listo para que funcione perfecto mientras estoy en el quinto sueño.',
+    'Espero ahora si este todo bien hecho, he mejorado las respuestas en las que el bot te responderá, espero te pueda servir, estoy pensando en mas mejoras.'
+];
+
+// Estado anterior de las actualizaciones
+const PREVIOUS_BOT_UPDATES = [
+    '¡Arreglé el error sentMessage y ahora puedo mostrar varias imágenes en responder y !ayuda, Todo listo para que funcione perfecto mientras estoy en el quinto sueño.',
+    'Espero ahora si este todo bien hecho, he mejorado las respuestas en las que el bot te responderá, espero te pueda servir, estoy pensando en mas mejoras.'
+];
+
+// Preguntas predefinidas con 4 opciones (sin cambios)
+const preguntasTrivia = [/* Tu lista de preguntasTrivia aquí, sin cambios */];
 
 // Estado
 const activeTrivia = new Map();
 const activeChat = new Map();
-let dataStore = { conversationHistory: {}, triviaRanking: {} }; // Estructura combinada
+const sentMessages = new Map();
+let dataStore = { conversationHistory: {}, triviaRanking: {} };
 
 // Utilidades
 const createEmbed = (color, title, description, footer = 'Miguel IA') => {
@@ -92,25 +107,14 @@ async function saveDataStore(data) {
     }
 }
 
-function updateRanking(userId, username) {
-    if (!dataStore.triviaRanking[userId]) {
-        dataStore.triviaRanking[userId] = { username, score: 0 };
-    }
-    dataStore.triviaRanking[userId].score += 1;
-    saveDataStore(dataStore);
+// Funciones de trivia y ranking
+function obtenerPreguntaTrivia() {
+    const randomIndex = Math.floor(Math.random() * preguntasTrivia.length);
+    const trivia = preguntasTrivia[randomIndex];
+    const opciones = [...trivia.incorrectas, trivia.respuesta].sort(() => Math.random() - 0.5);
+    return { pregunta: trivia.pregunta, opciones, respuesta: trivia.respuesta };
 }
 
-function getRankingEmbed() {
-    const sortedRanking = Object.entries(dataStore.triviaRanking)
-        .sort(([, a], [, b]) => b.score - a.score)
-        .slice(0, 5);
-    const description = sortedRanking.length > 0
-        ? sortedRanking.map(([id, { username, score }], i) => `${i + 1}. **${username}**: ${score} puntos`).join('\n')
-        : '¡Aún no hay puntajes! Juega con !trivia para empezar.';
-    return createEmbed('#FFD700', '🏆 Ranking de Trivia', description);
-}
-
-// Trivia
 async function manejarTrivia(message) {
     const trivia = obtenerPreguntaTrivia();
     const embedPregunta = createEmbed('#55FFFF', '🎲 ¡Pregunta de Trivia!',
@@ -149,7 +153,62 @@ async function manejarTrivia(message) {
     }
 }
 
-// Evento principal
+function updateRanking(userId, username) {
+    if (!dataStore.triviaRanking[userId]) {
+        dataStore.triviaRanking[userId] = { username, score: 0 };
+    }
+    dataStore.triviaRanking[userId].score += 1;
+    saveDataStore(dataStore);
+}
+
+function getRankingEmbed() {
+    const sortedRanking = Object.entries(dataStore.triviaRanking)
+        .sort(([, a], [, b]) => b.score - a.score)
+        .slice(0, 5);
+    const description = sortedRanking.length > 0
+        ? sortedRanking.map(([id, { username, score }], i) => `${i + 1}. **${username}**: ${score} puntos`).join('\n')
+        : '¡Aún no hay puntajes! Juega con !trivia para empezar.';
+    return createEmbed('#FFD700', '🏆 Ranking de Trivia', description);
+}
+
+// Evento ready
+client.once('ready', async () => {
+    console.log('¡Miguel IA está listo para ayudar!');
+    client.user.setPresence({ activities: [{ name: "Listo para ayudarte, usa !ayuda o !help si necesitas algo", type: 0 }], status: 'online' });
+
+    dataStore = await loadDataStore();
+
+    try {
+        const channel = await client.channels.fetch(CHANNEL_ID);
+        if (!channel) throw new Error('Canal no encontrado');
+
+        const userHistory = dataStore.conversationHistory[ALLOWED_USER_ID] || [];
+        const historySummary = userHistory.length > 0
+            ? userHistory.slice(-3).map(msg => `${msg.role === 'user' ? 'Usuario' : 'Yo'}: ${msg.content}`).join('\n')
+            : 'No hay historial reciente.';
+
+        const argentinaTime = new Date().toLocaleTimeString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' });
+        const updatesChanged = JSON.stringify(BOT_UPDATES) !== JSON.stringify(PREVIOUS_BOT_UPDATES);
+
+        if (updatesChanged) {
+            const updateEmbed = createEmbed('#FFD700', '📢 Actualizaciones de Miguel IA',
+                '¡Tengo mejoras nuevas para compartir!')
+                .addFields(
+                    { name: 'Novedades', value: BOT_UPDATES.map(update => `- ${update}`).join('\n'), inline: false },
+                    { name: 'Hora de actualización', value: `${argentinaTime}`, inline: false },
+                    { name: 'Últimas conversaciones', value: historySummary, inline: false }
+                );
+            await channel.send({ embeds: [updateEmbed] });
+            console.log('Actualizaciones enviadas al canal:', CHANNEL_ID);
+        } else {
+            console.log('No hay cambios en las actualizaciones, no se enviaron.');
+        }
+    } catch (error) {
+        console.error('Error al enviar actualizaciones:', error);
+    }
+});
+
+// Evento messageCreate
 client.on('messageCreate', async (message) => {
     if (message.author.bot) return;
 
@@ -177,8 +236,21 @@ client.on('messageCreate', async (message) => {
             if (!reply) return sendError(channel, 'Escribe algo después de "responder".');
             try {
                 const targetUser = await client.users.fetch(ALLOWED_USER_ID);
-                const embed = createEmbed('#55FF55', '¡Respuesta de Miguel!', `${reply}\nSi necesitas más, usa !ayuda.`);
-                await targetUser.send({ embeds: [embed] });
+                const embeds = [];
+                const baseEmbed = createEmbed('#55FF55', '¡Respuesta de Miguel!', `${reply}\nSi necesitas más, usa !ayuda.`);
+                if (message.attachments.size > 0) {
+                    const attachmentText = message.attachments.map((a, i) => `Archivo ${i + 1}: ${a.url}`).join('\n');
+                    message.attachments.forEach(a => {
+                        if (a.contentType?.startsWith('image/')) {
+                            const imageEmbed = new EmbedBuilder(baseEmbed.data).setImage(a.url);
+                            embeds.push(imageEmbed);
+                        }
+                    });
+                    if (embeds.length === 0) baseEmbed.addFields({ name: 'Archivos', value: attachmentText });
+                }
+                embeds.push(baseEmbed);
+                const sentMessage = await targetUser.send({ embeds });
+                sentMessages.set(sentMessage.id, { content: reply, originalQuestion: 'Mensaje enviado con "responder"', timestamp: new Date().toISOString(), message: sentMessage });
                 sendSuccess(channel, '¡Éxito!', 'Respuesta enviada con éxito.');
             } catch (error) {
                 console.error('Error al enviar respuesta:', error);
@@ -235,8 +307,20 @@ client.on('messageCreate', async (message) => {
         if (!issue) return sendError(channel, 'Dime qué necesitas después de "!ayuda".');
         try {
             const owner = await client.users.fetch(OWNER_ID);
-            const embed = createEmbed('#FFD700', '¡Solicitud de ayuda!', `Se necesita ayuda con: "${issue}"`);
-            await owner.send({ embeds: [embed] });
+            const embeds = [];
+            const baseEmbed = createEmbed('#FFD700', '¡Solicitud de ayuda!', `Se necesita ayuda con: "${issue}"`);
+            if (message.attachments.size > 0) {
+                const attachmentText = message.attachments.map((a, i) => `Archivo ${i + 1}: ${a.url}`).join('\n');
+                message.attachments.forEach(a => {
+                    if (a.contentType?.startsWith('image/')) {
+                        const imageEmbed = new EmbedBuilder(baseEmbed.data).setImage(a.url);
+                        embeds.push(imageEmbed);
+                    }
+                });
+                if (embeds.length === 0) baseEmbed.addFields({ name: 'Adjuntos', value: attachmentText });
+            }
+            embeds.push(baseEmbed);
+            await owner.send({ embeds });
             const twilio = require('twilio');
             const clientTwilio = new twilio(process.env.TWILIO_SID, process.env.TWILIO_AUTH_TOKEN);
             await clientTwilio.calls.create({
@@ -319,16 +403,49 @@ client.on('messageCreate', async (message) => {
         const sentMessage = await channel.send({ embeds: [embed] });
         await sentMessage.react('✅');
         await sentMessage.react('❌');
+        sentMessages.set(sentMessage.id, { content: aiReply, originalQuestion: content, timestamp: new Date().toISOString(), message: sentMessage });
     } catch (error) {
         console.error('Error en mensaje genérico:', error);
         sendError(channel, 'Algo falló, pero estoy aquí. ¿Otra pregunta?');
     }
 });
 
-client.once('ready', async () => {
-    console.log('¡Miguel IA está listo!');
-    client.user.setPresence({ activities: [{ name: "Listo para ayudarte", type: 0 }], status: 'online' });
-    dataStore = await loadDataStore();
+// Evento messageReactionAdd
+client.on('messageReactionAdd', async (reaction, user) => {
+    if (user.id !== ALLOWED_USER_ID || !sentMessages.has(reaction.message.id)) return;
+
+    const messageData = sentMessages.get(reaction.message.id);
+    const owner = await client.users.fetch(OWNER_ID);
+    const ecuadorTime = new Date(messageData.timestamp).toLocaleString('es-EC', { timeZone: 'America/Guayaquil', year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: true });
+    const reactionEmbed = createEmbed('#FFD700', '¡Reacción recibida!',
+        `Pregunta original: "${messageData.originalQuestion}"\nRespuesta enviada: "${messageData.content}"\nReacción: ${reaction.emoji}\nEnviado el: ${ecuadorTime}`);
+
+    try {
+        await owner.send({ embeds: [reactionEmbed] });
+        console.log(`Notificación enviada a ${OWNER_ID}: ${reaction.emoji} en mensaje "${messageData.content}"`);
+    } catch (error) {
+        console.error('Error al notificar reacción:', error);
+    }
+
+    if (reaction.emoji.name === '❌' && messageData.originalQuestion !== 'Mensaje enviado con "responder"') {
+        try {
+            const alternativePrompt = `Eres Miguel IA, creado por Miguel. La usuaria no quedó satisfecha con tu respuesta anterior a "${messageData.originalQuestion}": "${messageData.content}". Proporciona una respuesta alternativa, diferente, clara y útil, como un amigo cercano. No repitas la respuesta anterior. Termina con una nota positiva o una sugerencia para seguir charlando.`;
+            const response = await axios.post(
+                'https://api-inference.huggingface.co/models/mistralai/Mixtral-8x7B-Instruct-v0.1',
+                { inputs: alternativePrompt, parameters: { max_new_tokens: 500, return_full_text: false, temperature: 0.3 } },
+                { headers: { 'Authorization': `Bearer ${process.env.HF_API_TOKEN}`, 'Content-Type': 'application/json' } }
+            );
+            let alternativeReply = response.data[0]?.generated_text?.trim() || 'No se me ocurre algo mejor ahora, pero no me rindo. ¿Qué tal si me das más detalles? ¡Quiero ayudarte bien!';
+            const alternativeEmbed = createEmbed('#55FFFF', '¡Probemos otra vez!', alternativeReply, '¿Mejor ahora? Reacciona con ✅ o ❌ • Miguel IA');
+            const newSentMessage = await messageData.message.channel.send({ embeds: [alternativeEmbed] });
+            await newSentMessage.react('✅');
+            await newSentMessage.react('❌');
+            sentMessages.set(newSentMessage.id, { content: alternativeReply, originalQuestion: messageData.originalQuestion, timestamp: new Date().toISOString(), message: newSentMessage });
+        } catch (error) {
+            console.error('Error al generar respuesta alternativa:', error);
+            sendError(messageData.message.channel, 'No pude encontrar una mejor respuesta ahora.');
+        }
+    }
 });
 
 client.login(process.env.DISCORD_TOKEN);
