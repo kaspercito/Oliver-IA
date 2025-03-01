@@ -9,6 +9,11 @@
       "role": "assistant",
       "content": "Hola! ¿En qué puedo ayudarte hoy? Estoy aquí para responder preguntas, dar consejos o simplemente conversar. Cuéntame, ¿qué te interesa? 😊",
       "timestamp": "2025-03-01T18:07:53.411Z"
+    },
+    {
+      "role": "user",
+      "content": "cuanto es 2+2",
+      "timestamp": "2025-03-01T18:09:15.742Z"
     }
   ]
 }
