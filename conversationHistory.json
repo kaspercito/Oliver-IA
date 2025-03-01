@@ -1,11 +1,6 @@
 {
   "1023132788632862761": [
     {
-      "role": "assistant",
-      "content": "Hola! ¿Qué tal está Miguel IA? ¿En qué puedo ayudarte hoy? Sobre la letra 'a', es la primera del alfabeto y una vocal. Se utiliza en muchas palabras y frases en español. Por ejemplo, en la palabra \"hola\", la primera letra es 'h', pero en la segunda letra es 'o', la cual se representa con la vocal 'a'. Si tienes alguna otra pregunta o duda, no dudes en preguntarme. ¡Estoy aquí para ayudarte!",
-      "timestamp": "2025-03-01T18:12:44.651Z"
-    },
-    {
       "role": "user",
       "content": "ah cierto",
       "timestamp": "2025-03-01T18:12:49.646Z"
@@ -99,6 +94,11 @@
       "role": "user",
       "content": "b",
       "timestamp": "2025-03-01T18:25:50.555Z"
+    },
+    {
+      "role": "user",
+      "content": "!trivia",
+      "timestamp": "2025-03-01T18:25:54.707Z"
     }
   ]
 }
