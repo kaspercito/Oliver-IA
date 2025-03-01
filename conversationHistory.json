@@ -3,11 +3,6 @@
     "1023132788632862761": [
       {
         "role": "user",
-        "content": "claro, no la toma por la mayúsculas como te dije",
-        "timestamp": "2025-03-01T19:49:44.296Z"
-      },
-      {
-        "role": "user",
         "content": "ese bot ujsan, no sé",
         "timestamp": "2025-03-01T19:49:47.096Z"
       },
@@ -115,6 +110,11 @@
         "role": "user",
         "content": "no hace falta que sea como eso",
         "timestamp": "2025-03-01T19:58:40.116Z"
+      },
+      {
+        "role": "user",
+        "content": "ellos hacen algo largo porque hacen 200 ppm",
+        "timestamp": "2025-03-01T19:58:47.441Z"
       }
     ]
   },
