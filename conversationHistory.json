@@ -85,6 +85,11 @@
         "role": "user",
         "content": "para saber cuánto he acertado",
         "timestamp": "2025-03-01T19:01:12.570Z"
+      },
+      {
+        "role": "user",
+        "content": "me gusta ver si he fallado o no",
+        "timestamp": "2025-03-01T19:01:36.222Z"
       }
     ]
   },
