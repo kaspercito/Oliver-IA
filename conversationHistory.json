@@ -32,6 +32,11 @@
         "role": "user",
         "content": "en china se comen a los perros?",
         "timestamp": "2025-03-01T23:30:32.318Z"
+      },
+      {
+        "role": "assistant",
+        "content": "¡Hola Belén! En China, como en muchos países, la cultura gastronómica es muy diversa y puede variar mucho de una región a otra. En algunas partes de China, especialmente en las zonas rurales y en algunas comunidades étnicas, se ha consumido carne de perro como parte de la tradición culinaria durante cientos de años. Sin embargo, en las grandes ciudades chinas, la carne de perro es menos común y se consume mucho menos que en el pasado.\n\nEs importante señalar que la práctica de comer carne de perro ha sido objeto de controversia y debate en todo el mundo, y cada vez hay más personas y organizaciones que abogan por su prohibición debido a la creciente conciencia sobre los derechos de los animales y el bienest",
+        "timestamp": "2025-03-01T23:30:36.052Z"
       }
     ]
   },
