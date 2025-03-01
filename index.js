@@ -28,8 +28,10 @@ const BOT_UPDATES = [
 ];
 
 const PREVIOUS_BOT_UPDATES = [
-    '¡Arreglé el error sentMessage y ahora puedo mostrar varias imágenes en responder y !ayuda, Todo listo para que funcione perfecto mientras estoy en el quinto sueño.',
-    'Espero ahora si este todo bien hecho, he mejorado las respuestas en las que el bot te responderá, espero te pueda servir, estoy pensando en mas mejoras.'
+    '¡Añadido !ppm.',
+    'Mejorada la trivia, la puedes empezar con limite.'
+    'Sistema de !ranking añadido, guarda total de trivias acertadas y tu record de ppm.'
+    'Nuevos comandos mejorados, guardado optimizado.'
 ];
 
 // Preguntas predefinidas con 4 opciones
