@@ -20,6 +20,11 @@
         "role": "user",
         "content": "sin comas ni puntos ni mayúsculas",
         "timestamp": "2025-03-01T20:29:14.678Z"
+      },
+      {
+        "role": "user",
+        "content": "solo deja lsa tildes",
+        "timestamp": "2025-03-01T20:29:23.406Z"
       }
     ]
   },
