@@ -3,11 +3,6 @@
     "1023132788632862761": [
       {
         "role": "user",
-        "content": "c",
-        "timestamp": "2025-03-01T19:15:27.232Z"
-      },
-      {
-        "role": "user",
         "content": "!trivia",
         "timestamp": "2025-03-01T19:15:28.675Z"
       },
@@ -115,6 +110,11 @@
         "role": "user",
         "content": "de mis oropios récords",
         "timestamp": "2025-03-01T19:50:31.478Z"
+      },
+      {
+        "role": "user",
+        "content": "a ver si puedo superar las 130",
+        "timestamp": "2025-03-01T19:50:39.311Z"
       }
     ]
   },
