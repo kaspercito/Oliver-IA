@@ -3,11 +3,6 @@
     "1023132788632862761": [
       {
         "role": "user",
-        "content": "gracias por contestar",
-        "timestamp": "2025-03-01T19:05:39.319Z"
-      },
-      {
-        "role": "user",
         "content": "ah, eso para el bot?",
         "timestamp": "2025-03-01T19:06:27.796Z"
       },
@@ -115,6 +110,11 @@
         "role": "user",
         "content": "a q pelota",
         "timestamp": "2025-03-01T19:15:40.271Z"
+      },
+      {
+        "role": "user",
+        "content": "!ppm",
+        "timestamp": "2025-03-01T19:43:26.368Z"
       }
     ]
   },
