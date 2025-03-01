@@ -80,6 +80,11 @@
         "role": "user",
         "content": "uuuuuju",
         "timestamp": "2025-03-01T19:00:07.190Z"
+      },
+      {
+        "role": "user",
+        "content": "para saber cuánto he acertado",
+        "timestamp": "2025-03-01T19:01:12.570Z"
       }
     ]
   },
