@@ -92,16 +92,55 @@ const preguntasTrivia = [
 
 // Frases para la prueba de mecanografía (máximo 20 palabras)
 const frasesPPM = [
-    "El rápido zorro marrón salta sobre el perro perezoso", // 7 palabras
-    "La vida es como una caja de chocolates, nunca sabes qué te va a tocar", // 11 palabras
-    "Un pequeño paso para el hombre, un gran salto para la humanidad", // 9 palabras
-    "El sol brilla más fuerte cuando estás feliz y rodeado de amigos", // 10 palabras
-    "La práctica hace al maestro, no lo olvides nunca en tu camino", // 10 palabras
-    "El viento sopla suavemente entre los árboles altos del bosque verde", // 10 palabras
-    "La perseverancia y el esfuerzo siempre llevan a grandes logros personales", // 9 palabras
-    "Un día claro con un cielo azul inspira a todos a soñar", // 10 palabras
-    "El río fluye tranquilo mientras las aves cantan al amanecer cada día", // 10 palabras
-    "La amistad verdadera se construye con confianza y apoyo mutuo siempre", // 9 palabras
+    "El rápido zorro marrón salta sobre el perro perezoso",
+    "La vida es como una caja de chocolates nunca sabes qué te va a tocar",
+    "Un pequeño paso para el hombre un gran salto para la humanidad",
+    "El sol brilla más fuerte cuando estás feliz y rodeado de amigos",
+    "La práctica hace al maestro no lo olvides nunca en tu camino",
+    "El viento sopla suavemente entre los árboles altos del bosque verde",
+    "La perseverancia y el esfuerzo siempre llevan a grandes logros personales",
+    "Un día claro con un cielo azul inspira a todos a soñar",
+    "El río fluye tranquilo mientras las aves cantan al amanecer cada día",
+    "La amistad verdadera se construye con confianza y apoyo mutuo siempre",
+    "La lluvia cae suavemente sobre las flores del jardín en primavera",
+    "El camino hacia el éxito requiere paciencia y trabajo constante",
+    "Las estrellas brillan con intensidad en una noche sin luna",
+    "Un libro abierto revela historias de aventura y misterio por descubrir",
+    "El mar susurra secretos mientras las olas chocan contra la orilla",
+    "La música llena el aire con melodías que alegran el corazón",
+    "Un viaje largo comienza con un pequeño paso decidido y firme",
+    "Las montañas se alzan majestuosas bajo un cielo despejado y brillante",
+    "El fuego crepita cálido en la chimenea durante una noche fría",
+    "La esperanza florece en el corazón de quien nunca se rinde",
+    "Los niños ríen mientras juegan en el parque bajo el sol",
+    "Un sueño puede convertirse en realidad con esfuerzo y dedicación",
+    "El bosque guarda secretos antiguos entre sus árboles centenarios",
+    "La luz de la luna ilumina el camino en la oscuridad",
+    "Un amigo verdadero está siempre listo para brindar apoyo en todo",
+    "El tiempo pasa rápido cuando estás disfrutando de la vida",
+    "Las flores silvestres crecen libres en los campos abiertos y verdes",
+    "Un héroe surge de la adversidad con valentía y honor",
+    "El viento lleva consigo los sonidos de la naturaleza al amanecer",
+    "La paz se encuentra en los momentos de silencio y reflexión",
+    "Un río serpenteante corta a través de las tierras salvajes",
+    "Las aves regresan al nido al final del día",
+    "La fuerza interior ayuda a superar los desafíos más difíciles",
+    "Un amanecer dorado anuncia un nuevo comienzo lleno de esperanza",
+    "El arte captura la belleza del mundo en cada pincelada",
+    "La nieve cubre el paisaje como un manto blanco y suave",
+    "Un viaje en tren ofrece vistas increíbles de la naturaleza",
+    "La risa de los niños llena el aire con alegría pura",
+    "El desierto guarda tesoros ocultos bajo su arena dorada",
+    "Un corazón valiente nunca se rinde ante la adversidad",
+    "Las olas del mar traen consigo el sonido de la libertad",
+    "Un bosque antiguo susurra historias de tiempos olvidados",
+    "La curiosidad lleva a descubrir maravillas escondidas en el mundo",
+    "El sol se pone pintando el cielo con colores vibrantes",
+    "Un amigo leal permanece a tu lado en los peores momentos",
+    "La danza de las hojas cae suavemente en otoño",
+    "Un río cristalino refleja las montañas en su superficie",
+    "La sabiduría se gana con la experiencia de los años",
+    "El canto de los pájaros despierta la mañana con energía",
 ].filter(frase => frase.split(' ').length <= 20);
 
 // Estado
@@ -132,6 +171,53 @@ const sendSuccess = async (channel, title, message) => {
     const embed = createEmbed('#55FF55', title, message);
     await channel.send({ embeds: [embed] });
 };
+
+// Función para limpiar puntuación y normalizar texto
+function cleanText(text) {
+    // Eliminar puntuación y convertir a minúsculas
+    return text.replace(/[.,!?]/g, '').toLowerCase().trim();
+}
+
+// Función para comparar texto con tolerancia a errores tipográficos simples
+function areSimilar(text1, text2) {
+    const cleanText1 = cleanText(text1);
+    const cleanText2 = cleanText(text2);
+    const words1 = cleanText1.split(' ');
+    const words2 = cleanText2.split(' ');
+
+    if (words1.length !== words2.length) return false;
+
+    for (let i = 0; i < words1.length; i++) {
+        if (words1[i].length > 3 && words2[i].length > 3) {
+            // Para palabras largas (>3 letras), tolerar 1 error tipográfico
+            const diff = levenshteinDistance(words1[i], words2[i]);
+            if (diff > 1) return false; // Máximo 1 diferencia permitida
+        } else if (words1[i] !== words2[i]) {
+            return false; // Para palabras cortas, deben ser exactas
+        }
+    }
+    return true;
+}
+
+// Algoritmo básico de Levenshtein (distancia de edición)
+function levenshteinDistance(a, b) {
+    const matrix = Array(a.length + 1).fill(null).map(() => Array(b.length + 1).fill(null));
+
+    for (let i = 0; i <= a.length; i++) matrix[i][0] = i;
+    for (let j = 0; j <= b.length; j++) matrix[0][j] = j;
+
+    for (let i = 1; i <= a.length; i++) {
+        for (let j = 1; j <= b.length; j++) {
+            const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+            matrix[i][j] = Math.min(
+                matrix[i - 1][j] + 1, // eliminación
+                matrix[i][j - 1] + 1, // inserción
+                matrix[i - 1][j - 1] + cost // sustitución
+            );
+        }
+    }
+    return matrix[a.length][b.length];
+}
 
 // Funciones de persistencia en GitHub
 async function loadDataStore() {
@@ -286,68 +372,73 @@ function getCombinedRankingEmbed(userId, username) {
     return createEmbed('#FFD700', '🏆 Ranking Combinado', description);
 }
 
-// Función de mecanografía (PPM) con cuenta regresiva
+// Función de mecanografía (PPM) con cuenta regresiva y nueva frase al equivocarse
 async function manejarPPM(message) {
     if (ppmSessions.has(message.author.id)) {
         return sendError(message.channel, 'Ya tienes una prueba de mecanografía activa, Belén. Termina la actual primero.');
     }
 
-    // Cuenta regresiva de 3 segundos
-    for (let i = 3; i > 0; i--) {
-        await message.channel.send(createEmbed('#FFAA00', '⏳ Cuenta Regresiva', `¡Preparada, Belén! Empieza en ${i}...`));
-        await new Promise(resolve => setTimeout(resolve, 1000));
-    }
-    await message.channel.send(createEmbed('#00FF00', '🚀 ¡Ya!', '¡Adelante, Belén!'));
-
-    const frase = frasesPPM[Math.floor(Math.random() * frasesPPM.length)];
-    const startTime = Date.now();
-    const embed = createEmbed('#55FFFF', '📝 Prueba de Mecanografía',
-        `Escribe esta frase lo más rápido que puedas:\n\n**${frase}**\n\nTienes 60 segundos para responder.`);
-    await message.channel.send({ embeds: [embed] });
-
-    ppmSessions.set(message.author.id, { frase, startTime });
-
-    try {
-        const respuestas = await message.channel.awaitMessages({
-            filter: (res) => res.author.id === message.author.id,
-            max: 1,
-            time: 60000,
-            errors: ['time']
-        });
-        const respuestaUsuario = respuestas.first().content;
-        const endTime = Date.now();
-        ppmSessions.delete(message.author.id);
-
-        const tiempoSegundos = (endTime - startTime) / 1000;
-        const palabras = frase.split(' ').length;
-        const ppm = Math.round((palabras / tiempoSegundos) * 60);
-
-        // Actualizar récords personales
-        if (!dataStore.personalPPMRecords[message.author.id]) {
-            dataStore.personalPPMRecords[message.author.id] = [];
+    async function startNewTest() {
+        // Cuenta regresiva de 3 segundos
+        for (let i = 3; i > 0; i--) {
+            await message.channel.send(createEmbed('#FFAA00', '⏳ Cuenta Regresiva', `¡Preparada, Belén! Empieza en ${i}...`));
+            await new Promise(resolve => setTimeout(resolve, 1000));
         }
-        const newRecord = { ppm, timestamp: new Date().toISOString() };
-        dataStore.personalPPMRecords[message.author.id].push(newRecord);
-        saveDataStore(dataStore);
+        await message.channel.send(createEmbed('#00FF00', '🚀 ¡Ya!', '¡Adelante, Belén!'));
 
-        if (respuestaUsuario.toLowerCase() === frase.toLowerCase()) {
-            sendSuccess(message.channel, '🎉 ¡Perfecto!',
-                `¡Bien hecho, ${message.author.tag}! Escribiste la frase correctamente en ${tiempoSegundos.toFixed(2)} segundos.\nTu velocidad: **${ppm} PPM**. Usa !ranking para ver tus récords.`);
-        } else {
-            sendError(message.channel, '❌ ¡Casi!',
-                `Lo siento, ${message.author.tag}, no escribiste la frase correctamente.\nFrase original: **${frase}**\nTu respuesta: **${respuestaUsuario}**\nTiempo: ${tiempoSegundos.toFixed(2)} segundos.`);
+        const frase = frasesPPM[Math.floor(Math.random() * frasesPPM.length)];
+        const startTime = Date.now();
+        const embed = createEmbed('#55FFFF', '📝 Prueba de Mecanografía',
+            `Escribe esta frase lo más rápido que puedas:\n\n**${frase}**\n\nTienes 60 segundos para responder.`);
+        await message.channel.send({ embeds: [embed] });
+
+        ppmSessions.set(message.author.id, { frase, startTime });
+
+        try {
+            const respuestas = await message.channel.awaitMessages({
+                filter: (res) => res.author.id === message.author.id,
+                max: 1,
+                time: 60000,
+                errors: ['time']
+            });
+            const respuestaUsuario = respuestas.first().content;
+            const endTime = Date.now();
+            ppmSessions.delete(message.author.id);
+
+            const tiempoSegundos = (endTime - startTime) / 1000;
+            const palabras = frase.split(' ').length;
+            const ppm = Math.round((palabras / tiempoSegundos) * 60);
+
+            // Actualizar récords personales
+            if (!dataStore.personalPPMRecords[message.author.id]) {
+                dataStore.personalPPMRecords[message.author.id] = [];
+            }
+            const newRecord = { ppm, timestamp: new Date().toISOString() };
+            dataStore.personalPPMRecords[message.author.id].push(newRecord);
+            saveDataStore(dataStore);
+
+            if (areSimilar(respuestaUsuario, frase)) {
+                sendSuccess(message.channel, '🎉 ¡Perfecto!',
+                    `¡Bien hecho, ${message.author.tag}! Escribiste la frase correctamente en ${tiempoSegundos.toFixed(2)} segundos.\nTu velocidad: **${ppm} PPM**. Usa !ranking para ver tus récords.`);
+            } else {
+                await sendError(message.channel, '❌ ¡Casi!',
+                    `Lo siento, ${message.author.tag}, no escribiste la frase correctamente. ¡Intenta de nuevo!`);
+                await startNewTest(); // Iniciar una nueva prueba al equivocarse
+            }
+        } catch (error) {
+            ppmSessions.delete(message.author.id);
+            await sendError(message.channel, '⏳ ¡Tiempo agotado!',
+                `Se acabó el tiempo. La frase era: **${frase}**. Usa !ppm pls para intentarlo de nuevo, Belén.`);
         }
-    } catch (error) {
-        ppmSessions.delete(message.author.id);
-        sendError(message.channel, '⏳ ¡Tiempo agotado!',
-            `Se acabó el tiempo. La frase era: **${frase}**. Usa !ppm pls para intentarlo de nuevo, Belén.`);
     }
+
+    await startNewTest();
 }
 
 // Evento ready
 client.once('ready', async () => {
     console.log(`¡Miguel IA está listo para ayudar! Instancia: ${instanceId}`);
-    client.user.setPresence({ activities: [{ name: "Listo para ayudarte, Belén", type: 0 }], status: 'online' });
+    client.user.setPresence({ activities: [{ name: "Listo para ayudarte, Milagros", type: 0 }], status: 'online' });
 
     dataStore = await loadDataStore();
 
@@ -509,7 +600,7 @@ client.on('messageCreate', async (message) => {
             '- **!ranking**: Muestra el ranking de trivia y tus récords de mecanografía.\n' +
             '- **!sugerencias <idea>**: Envía ideas.\n' +
             '- **!chat [mensaje]**: Charla conmigo.\n' +
-            '- **!ppm pls**: Inicia prueba de mecanografía con cuenta regresiva.\n' +
+            '- **!ppm**: Inicia prueba de mecanografía con cuenta regresiva.\n' +
             '- **hola**: Saludo especial.'
         );
         await channel.send({ embeds: [embed] });
@@ -586,7 +677,7 @@ client.on('messageCreate', async (message) => {
         return;
     }
 
-    if (content.startsWith('!ppm')) {
+    if (content.startsWith('!ppm') || content.startsWith('!ppm pls')) {
         await manejarPPM(message);
         return;
     }
