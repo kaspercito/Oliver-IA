@@ -690,46 +690,61 @@ client.on('messageCreate', async (message) => {
         return;
     }
 
-    if (content.startsWith('!chat')) {
-        const chatMessage = content.slice(5).trim();
-        if (!chatMessage) return sendError(channel, 'Escribe un mensaje después de "!chat", por ejemplo: !chat hola, Belén.');
+if (content.startsWith('!chat')) {
+    const chatMessage = content.slice(5).trim();
+    if (!chatMessage) return sendError(channel, 'Escribe un mensaje después de "!chat", por ejemplo: !chat hola, Belén.');
 
-        const waitingEmbed = createEmbed('#55FFFF', '¡Un momento, Belén!', 'Espera, estoy buscando una respuesta...');
-        const waitingMessage = await channel.send({ embeds: [waitingEmbed] });
+    const waitingEmbed = createEmbed('#55FFFF', '¡Un momento, Belén!', 'Espera, estoy buscando una respuesta...');
+    const waitingMessage = await channel.send({ embeds: [waitingEmbed] });
 
-        try {
-            const prompt = `Eres Miguel IA, un amigo cercano creado por Miguel para Belén. Responde a "${chatMessage}" de Belén de forma natural, amigable y detallada, explicando el tema si es una pregunta, con pasos claros si aplica, y siempre termina preguntando si sirvió la respuesta con una invitación a reaccionar con ✅ o ❌ para indicar si fue útil.`;
-            console.log('Enviando solicitud a Hugging Face con prompt:', prompt);
-            const response = await axios.post(
-                'https://api-inference.huggingface.co/models/mistralai/Mixtral-8x7B-Instruct-v0.1',
-                { inputs: prompt, parameters: { max_new_tokens: 500, return_full_text: false, temperature: 0.7 } },
-                { headers: { 'Authorization': `Bearer ${process.env.HF_API_TOKEN}`, 'Content-Type': 'application/json' } }
-            );
-            console.log('Respuesta de Hugging Face:', response.data);
-            let aiReply = response.data[0]?.generated_text?.trim();
-            if (!aiReply || aiReply.length < 5) {
-                aiReply = '¡Uy, me quedé en blanco, Belén! ¿Qué me cuentas tú? ¡Dime si te sirvió con ✅ o ❌!';
+    try {
+        const prompt = `Eres Miguel IA, un amigo cercano creado por Miguel para Belén. Responde a "${chatMessage}" de Belén de forma natural, amigable y detallada, explicando el tema si es una pregunta, con pasos claros si aplica, y siempre termina preguntando si sirvió la respuesta con una invitación a reaccionar con ✅ o ❌ para indicar si fue útil.`;
+        console.log('Enviando solicitud a Hugging Face con prompt:', prompt);
+
+        // Agregar timeout de 10 segundos a la solicitud
+        const response = await axios.post(
+            'https://api-inference.huggingface.co/models/mistralai/Mixtral-8x7B-Instruct-v0.1',
+            { inputs: prompt, parameters: { max_new_tokens: 200, return_full_text: false, temperature: 0.7 } }, // Reducimos max_new_tokens de 500 a 200
+            { 
+                headers: { 'Authorization': `Bearer ${process.env.HF_API_TOKEN}`, 'Content-Type': 'application/json' },
+                timeout: 10000 // 10 segundos de timeout
             }
-            // Guardar la respuesta del bot en el historial para OWNER_ID o ALLOWED_USER_ID
-            let userHistory = dataStore.conversationHistory[author.id] || [];
-            userHistory.push({ role: 'assistant', content: aiReply, timestamp: new Date().toISOString() });
-            if (userHistory.length > MAX_MESSAGES) userHistory.shift();
-            dataStore.conversationHistory[author.id] = userHistory;
-            await saveDataStore(dataStore);
+        );
 
-            const finalEmbed = createEmbed('#55FFFF', '¡Aquí estoy para ti!', aiReply);
-            const sentMessage = await waitingMessage.edit({ embeds: [finalEmbed] });
-            await sentMessage.react('✅');
-            await sentMessage.react('❌');
-            sentMessages.set(sentMessage.id, { content: aiReply, originalQuestion: chatMessage, timestamp: new Date().toISOString(), message: sentMessage });
-        } catch (error) {
-            console.error('Error en !chat:', error.message, error.response?.data || '');
-            const errorEmbed = createEmbed('#FF5555', '¡Ups, Belén!', 'Algo falló al buscar la respuesta, pero sigo aquí.');
-            await waitingMessage.edit({ embeds: [errorEmbed] });
+        console.log('Respuesta de Hugging Face:', response.data);
+        let aiReply = response.data[0]?.generated_text?.trim();
+        if (!aiReply || aiReply.length < 5) {
+            aiReply = '¡Uy, me quedé en blanco, Belén! ¿Qué me cuentas tú? ¿Te sirvió? Reacciona con ✅ o ❌';
         }
-        return;
-    }
 
+        // Guardar la respuesta en el historial
+        let userHistory = dataStore.conversationHistory[author.id] || [];
+        userHistory.push({ role: 'assistant', content: aiReply, timestamp: new Date().toISOString() });
+        if (userHistory.length > MAX_MESSAGES) userHistory.shift();
+        dataStore.conversationHistory[author.id] = userHistory;
+        await saveDataStore(dataStore);
+
+        // Enviar respuesta en un mensaje nuevo y eliminar el de espera
+        const finalEmbed = createEmbed('#55FFFF', '¡Aquí estoy para ti!', aiReply);
+        const sentMessage = await channel.send({ embeds: [finalEmbed] });
+        await waitingMessage.delete(); // Eliminar el mensaje de espera
+        await sentMessage.react('✅');
+        await sentMessage.react('❌');
+        sentMessages.set(sentMessage.id, { content: aiReply, originalQuestion: chatMessage, timestamp: new Date().toISOString(), message: sentMessage });
+    } catch (error) {
+        console.error('Error en !chat:', error.message, error.response?.data || '');
+        let errorMessage = 'Algo falló al buscar la respuesta, Belén. ';
+        if (error.code === 'ECONNABORTED') {
+            errorMessage += 'Tardé demasiado en pensar. ¡Intenta otra vez!';
+        } else {
+            errorMessage += 'No sé qué pasó, pero sigo aquí para ti.';
+        }
+        const errorEmbed = createEmbed('#FF5555', '¡Ups, Belén!', errorMessage);
+        await channel.send({ embeds: [errorEmbed] }); // Enviar error en mensaje nuevo
+        await waitingMessage.delete(); // Eliminar el mensaje de espera
+    }
+    return;
+}
     if (content === '!ppm') {
         console.log(`Instancia ${instanceId} - Ejecutando !ppm para ${message.author.id}`);
         await manejarPPM(message);
