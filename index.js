@@ -19,24 +19,21 @@ const ALLOWED_USER_ID = '1023132788632862761';
 const CHANNEL_ID = '1343749554905940058';
 const MAX_MESSAGES = 20;
 
-// Lista de actualizaciones actuales
 const BOT_UPDATES = [
     '¡Arreglé el error sentMessage y ahora puedo mostrar varias imágenes en responder y !ayuda, Todo listo para que funcione perfecto mientras estoy en el quinto sueño.',
     'Espero ahora si este todo bien hecho, he mejorado las respuestas en las que el bot te responderá, espero te pueda servir, estoy pensando en mas mejoras.'
 ];
 
-// Estado anterior de las actualizaciones
 const PREVIOUS_BOT_UPDATES = [
     '¡Arreglé el error sentMessage y ahora puedo mostrar varias imágenes en responder y !ayuda, Todo listo para que funcione perfecto mientras estoy en el quinto sueño.',
     'Espero ahora si este todo bien hecho, he mejorado las respuestas en las que el bot te responderá, espero te pueda servir, estoy pensando en mas mejoras.'
 ];
 
-// Preguntas predefinidas con 4 opciones (sin cambios)
-const preguntasTrivia = [/* Tu lista de preguntasTrivia aquí, sin cambios */];
+// Preguntas predefinidas con 4 opciones (incluye tu lista completa aquí)
+const preguntasTrivia = [/* Tu lista de preguntasTrivia */];
 
 // Estado
 const activeTrivia = new Map();
-const activeChat = new Map();
 const sentMessages = new Map();
 let dataStore = { conversationHistory: {}, triviaRanking: {} };
 
@@ -87,6 +84,16 @@ async function saveDataStore(data) {
         } catch (error) {
             if (error.response && error.response.status === 404) {
                 console.log('Archivo no encontrado en GitHub, creando uno nuevo.');
+                await axios.put(
+                    `https://api.github.com/repos/${process.env.GITHUB_REPO}/contents/${process.env.GITHUB_FILE_PATH}`,
+                    {
+                        message: 'Crear archivo inicial para historial y ranking',
+                        content: Buffer.from(JSON.stringify({ conversationHistory: {}, triviaRanking: {} }, null, 2)).toString('base64'),
+                    },
+                    { headers: { 'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`, 'Accept': 'application/vnd.github+json' } }
+                );
+                console.log('Archivo creado en GitHub');
+                return;
             } else {
                 throw error;
             }
@@ -97,7 +104,7 @@ async function saveDataStore(data) {
             {
                 message: 'Actualizar historial y ranking',
                 content: Buffer.from(JSON.stringify(data, null, 2)).toString('base64'),
-                sha: sha || undefined,
+                sha: sha,
             },
             { headers: { 'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`, 'Accept': 'application/vnd.github+json' } }
         );
@@ -282,26 +289,6 @@ client.on('messageCreate', async (message) => {
         if (opcionesValidas.includes(content.toLowerCase())) return;
     }
 
-    if (activeChat.has(channel.id)) {
-        try {
-            const prompt = `Eres Miguel IA, un amigo cercano. Responde a "${content}" de forma natural y amigable, solo charlando, sin sugerir comandos ni ayuda técnica.`;
-            const response = await axios.post(
-                'https://api-inference.huggingface.co/models/mistralai/Mixtral-8x7B-Instruct-v0.1',
-                { inputs: prompt, parameters: { max_new_tokens: 500, return_full_text: false, temperature: 0.7 } },
-                { headers: { 'Authorization': `Bearer ${process.env.HF_API_TOKEN}`, 'Content-Type': 'application/json' } }
-            );
-            let aiReply = response.data[0]?.generated_text?.trim() || '¡Uy, me quedé en blanco! ¿Qué me cuentas tú?';
-            dataStore.conversationHistory[author.id].push({ role: 'assistant', content: aiReply, timestamp: new Date().toISOString() });
-            saveDataStore(dataStore);
-            const embed = createEmbed('#55FFFF', '¡Charlando contigo!', aiReply);
-            await channel.send({ embeds: [embed] });
-        } catch (error) {
-            console.error('Error en chat:', error);
-            sendError(channel, 'Algo falló en el chat, pero sigo aquí.');
-        }
-        return;
-    }
-
     if (content.startsWith('!ayuda')) {
         const issue = content.slice(6).trim();
         if (!issue) return sendError(channel, 'Dime qué necesitas después de "!ayuda".');
@@ -344,7 +331,7 @@ client.on('messageCreate', async (message) => {
             '- **!trivia**: Juega trivia.\n' +
             '- **!ranking**: Muestra el ranking de trivia.\n' +
             '- **!sugerencias <idea>**: Envía ideas.\n' +
-            '- **!chat**: Inicia modo charla.\n' +
+            '- **!chat [mensaje]**: Charla conmigo usando IA.\n' +
             '- **hola**: Saludo especial.\n' +
             '- **Cualquier mensaje**: ¡Chatea conmigo!'
         );
@@ -379,8 +366,24 @@ client.on('messageCreate', async (message) => {
     }
 
     if (content.startsWith('!chat')) {
-        activeChat.set(channel.id, true);
-        sendSuccess(channel, '¡Modo chat activado!', 'Ahora solo vamos a charlar. ¿Qué me cuentas?');
+        const chatMessage = content.slice(5).trim();
+        if (!chatMessage) return sendError(channel, 'Escribe un mensaje después de "!chat", por ejemplo: !chat hola');
+        try {
+            const prompt = `Eres Miguel IA, un amigo cercano. Responde a "${chatMessage}" de forma natural y amigable, solo charlando, sin sugerir comandos ni ayuda técnica.`;
+            const response = await axios.post(
+                'https://api-inference.huggingface.co/models/mistralai/Mixtral-8x7B-Instruct-v0.1',
+                { inputs: prompt, parameters: { max_new_tokens: 500, return_full_text: false, temperature: 0.7 } },
+                { headers: { 'Authorization': `Bearer ${process.env.HF_API_TOKEN}`, 'Content-Type': 'application/json' } }
+            );
+            let aiReply = response.data[0]?.generated_text?.trim() || '¡Uy, me quedé en blanco! ¿Qué me cuentas tú?';
+            dataStore.conversationHistory[author.id].push({ role: 'assistant', content: aiReply, timestamp: new Date().toISOString() });
+            saveDataStore(dataStore);
+            const embed = createEmbed('#55FFFF', '¡Charlando contigo!', aiReply);
+            await channel.send({ embeds: [embed] });
+        } catch (error) {
+            console.error('Error en !chat:', error);
+            sendError(channel, 'Algo falló en el chat, pero sigo aquí.');
+        }
         return;
     }
 
