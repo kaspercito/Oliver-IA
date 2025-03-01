@@ -684,7 +684,7 @@ client.on('messageCreate', async (message) => {
         const waitingMessage = await channel.send({ embeds: [waitingEmbed] });
 
         try {
-            const prompt = `Eres Miguel IA, un amigo cercano creado por Miguel para Belén. Responde a "${chatMessage}" de Belén de forma natural y amigable, solo charlando, sin sugerir comandos ni ayuda técnica.`;
+            const prompt = `Eres Miguel IA, un amigo cercano creado por Miguel para Belén. Responde a "${chatMessage}" de Belén de forma natural, amigable y detallada, explicando el tema si es una pregunta, con pasos claros si aplica, y siempre termina preguntando si sirvió la respuesta con una invitación a reaccionar con ✅ o ❌ para indicar si fue útil.`;
             console.log('Enviando solicitud a Hugging Face con prompt:', prompt);
             const response = await axios.post(
                 'https://api-inference.huggingface.co/models/mistralai/Mixtral-8x7B-Instruct-v0.1',
@@ -694,14 +694,17 @@ client.on('messageCreate', async (message) => {
             console.log('Respuesta de Hugging Face:', response.data);
             let aiReply = response.data[0]?.generated_text?.trim();
             if (!aiReply || aiReply.length < 5) {
-                aiReply = '¡Uy, me quedé en blanco, Belén! ¿Qué me cuentas tú?';
+                aiReply = '¡Uy, me quedé en blanco, Belén! ¿Qué me cuentas tú? ¡Dime si te sirvió con ✅ o ❌!';
             }
             if (isAllowedUser) {
                 dataStore.conversationHistory[author.id].push({ role: 'assistant', content: aiReply, timestamp: new Date().toISOString() });
                 saveDataStore(dataStore);
             }
-            const finalEmbed = createEmbed('#55FFFF', '¡Charlando contigo, Belén!', aiReply);
-            await waitingMessage.edit({ embeds: [finalEmbed] });
+            const finalEmbed = createEmbed('#55FFFF', '¡Aquí estoy para ti!', aiReply);
+            const sentMessage = await waitingMessage.edit({ embeds: [finalEmbed] });
+            await sentMessage.react('✅');
+            await sentMessage.react('❌');
+            sentMessages.set(sentMessage.id, { content: aiReply, originalQuestion: chatMessage, timestamp: new Date().toISOString(), message: sentMessage });
         } catch (error) {
             console.error('Error en !chat:', error.message, error.response?.data || '');
             const errorEmbed = createEmbed('#FF5555', '¡Ups, Belén!', 'Algo falló al buscar la respuesta, pero sigo aquí.');
@@ -741,14 +744,14 @@ client.on('messageReactionAdd', async (reaction, user) => {
 
     if (reaction.emoji.name === '❌' && messageData.originalQuestion !== 'Mensaje enviado con "responder"') {
         try {
-            const alternativePrompt = `Eres Miguel IA, creado por Miguel para Belén. Belén no quedó satisfecha con tu respuesta anterior a "${messageData.originalQuestion}": "${messageData.content}". Proporciona una respuesta alternativa, diferente, clara y útil, como un amigo cercano. No repitas la respuesta anterior. Termina con una nota positiva o una sugerencia para seguir charlando.`;
+            const alternativePrompt = `Eres Miguel IA, creado por Miguel para Belén. Belén no quedó satisfecha con tu respuesta anterior a "${messageData.originalQuestion}": "${messageData.content}". Proporciona una respuesta alternativa, diferente, clara y útil, como un amigo cercano, explicando el tema si es una pregunta, con pasos claros si aplica. No repitas la respuesta anterior. Termina con una pregunta sobre si sirvió y una invitación a reaccionar con ✅ o ❌.`;
             const response = await axios.post(
                 'https://api-inference.huggingface.co/models/mistralai/Mixtral-8x7B-Instruct-v0.1',
                 { inputs: alternativePrompt, parameters: { max_new_tokens: 500, return_full_text: false, temperature: 0.3 } },
                 { headers: { 'Authorization': `Bearer ${process.env.HF_API_TOKEN}`, 'Content-Type': 'application/json' } }
             );
-            let alternativeReply = response.data[0]?.generated_text?.trim() || 'No se me ocurre algo mejor ahora, pero no me rindo, Belén. ¿Qué tal si me das más detalles? ¡Quiero ayudarte bien!';
-            const alternativeEmbed = createEmbed('#55FFFF', '¡Probemos otra vez, Belén!', alternativeReply, '¿Mejor ahora? Reacciona con ✅ o ❌');
+            let alternativeReply = response.data[0]?.generated_text?.trim() || 'No se me ocurre algo mejor ahora, Belén. ¿Qué tal si me das más detalles? ¿Te sirvió? Reacciona con ✅ o ❌';
+            const alternativeEmbed = createEmbed('#55FFFF', '¡Probemos otra vez, Belén!', alternativeReply);
             const newSentMessage = await messageData.message.channel.send({ embeds: [alternativeEmbed] });
             await newSentMessage.react('✅');
             await newSentMessage.react('❌');
