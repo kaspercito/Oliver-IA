@@ -3,11 +3,6 @@
     "1023132788632862761": [
       {
         "role": "user",
-        "content": "a q pelota",
-        "timestamp": "2025-03-01T19:15:40.271Z"
-      },
-      {
-        "role": "user",
         "content": "!ppm",
         "timestamp": "2025-03-01T19:43:26.368Z"
       },
@@ -115,6 +110,11 @@
         "role": "user",
         "content": "no, era para mostrarte nomás",
         "timestamp": "2025-03-01T19:52:28.508Z"
+      },
+      {
+        "role": "user",
+        "content": "en ignlés me cuesta mucho",
+        "timestamp": "2025-03-01T19:52:34.344Z"
       }
     ]
   },
