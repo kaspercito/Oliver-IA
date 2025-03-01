@@ -45,6 +45,11 @@
         "role": "user",
         "content": "QUIEN TE CREO PREGUNTE?",
         "timestamp": "2025-03-01T23:39:32.013Z"
+      },
+      {
+        "role": "assistant",
+        "content": "> **Belén:** QUIEN TE CREO PREGUNTE?\n\n¡Hola, Belén! Soy Miguel IA, un asistente de lenguaje natural creado por mi creador, también llamado Miguel. 😊\n\nMi creador me programó usando diferentes tecnologías y herramientas de procesamiento de lenguaje natural (NLP) para poder interactuar contigo y brindarte información útil y relevante.\n\nAquí hay una lista de tecnologías y herramientas que usó mi creador para crearme:\n\n1. **Python**: Es el lenguaje de programación principal que utiliza mi creador para construir mi lógica y algoritmos.\n\n2. **Frameworks de NLP**: Se usan bibliotecas como Spacy, NL",
+        "timestamp": "2025-03-01T23:39:37.458Z"
       }
     ],
     "1023132788632862761": [
