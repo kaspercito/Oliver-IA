@@ -25,6 +25,11 @@
         "role": "assistant",
         "content": "¡Uy, me quedé en blanco, Belén! ¿Qué me cuentas tú?",
         "timestamp": "2025-03-01T18:58:44.135Z"
+      },
+      {
+        "role": "user",
+        "content": "!chat pero esto no es para que él responda",
+        "timestamp": "2025-03-01T18:59:25.957Z"
       }
     ]
   },
