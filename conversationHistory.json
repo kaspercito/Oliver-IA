@@ -95,6 +95,11 @@
         "role": "user",
         "content": "hola, me gustaría saber cuál es la capital de argentina",
         "timestamp": "2025-03-01T19:05:15.540Z"
+      },
+      {
+        "role": "user",
+        "content": "gracias por contestar",
+        "timestamp": "2025-03-01T19:05:39.319Z"
       }
     ]
   },
