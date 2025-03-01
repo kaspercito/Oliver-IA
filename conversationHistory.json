@@ -3,11 +3,6 @@
     "1023132788632862761": [
       {
         "role": "user",
-        "content": "ea es horrible dios",
-        "timestamp": "2025-03-01T20:06:44.706Z"
-      },
-      {
-        "role": "user",
         "content": "no no, si me equivoco que me mande otra",
         "timestamp": "2025-03-01T20:09:56.797Z"
       },
@@ -115,6 +110,11 @@
         "role": "user",
         "content": "d",
         "timestamp": "2025-03-01T20:25:59.034Z"
+      },
+      {
+        "role": "user",
+        "content": "c",
+        "timestamp": "2025-03-01T20:26:03.516Z"
       }
     ]
   },
