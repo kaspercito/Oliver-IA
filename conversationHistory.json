@@ -20,6 +20,11 @@
         "role": "user",
         "content": "anda el ranking pero no la trivia",
         "timestamp": "2025-03-01T18:35:42.856Z"
+      },
+      {
+        "role": "assistant",
+        "content": "¡Hola! Entiendo que estás buscando información sobre el ranking de la trivia, pero solo has mencionado el ranking. ¿Podrías darme más detalles sobre qué información necesitas específicamente sobre la trivia?\n\nDe todos modos, ¡felicitaciones por tu ranking! Eso significa que has respondido correctamente a muchas preguntas y has demostrado un gran conocimiento en varias áreas. La trivia puede ser una forma divertida y desafiante de poner a prueba tus conocimientos y aprender cosas nuevas.\n\nSi tienes alguna pregunta adicional sobre la trivia o cualquier otro tema, no dudes en preguntarme. Estoy aquí para ayudarte en todo lo que pueda. ¡Que tengas un gran día!",
+        "timestamp": "2025-03-01T18:35:47.281Z"
       }
     ]
   },
