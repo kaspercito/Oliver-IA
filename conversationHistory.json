@@ -105,6 +105,11 @@
         "role": "user",
         "content": "!chat no vuelvas a decir que buenos aiers es una ciudad hermosa",
         "timestamp": "2025-03-01T19:07:02.723Z"
+      },
+      {
+        "role": "assistant",
+        "content": "Hola Belén, ¡qué bueno volver a hablar contigo! No te preocupes por lo que dije antes, cada quien tiene sus gustos y preferencias. ¿Cómo estás? ¿Qué has estado haciendo últimamente?",
+        "timestamp": "2025-03-01T19:07:04.241Z"
       }
     ]
   },
