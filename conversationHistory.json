@@ -3,11 +3,6 @@
     "1023132788632862761": [
       {
         "role": "user",
-        "content": "porque es privado",
-        "timestamp": "2025-03-01T19:54:37.330Z"
-      },
-      {
-        "role": "user",
         "content": "",
         "timestamp": "2025-03-01T19:56:24.529Z"
       },
@@ -115,6 +110,11 @@
         "role": "user",
         "content": "!ppm",
         "timestamp": "2025-03-01T20:04:27.351Z"
+      },
+      {
+        "role": "user",
+        "content": "si",
+        "timestamp": "2025-03-01T20:04:33.208Z"
       }
     ]
   },
