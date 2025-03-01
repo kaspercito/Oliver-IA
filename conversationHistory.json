@@ -3,11 +3,6 @@
     "1023132788632862761": [
       {
         "role": "user",
-        "content": "mr ponelo abreviado",
-        "timestamp": "2025-03-01T20:01:42.092Z"
-      },
-      {
-        "role": "user",
         "content": "como gustes",
         "timestamp": "2025-03-01T20:01:51.906Z"
       },
@@ -115,6 +110,11 @@
         "role": "user",
         "content": "el rápido zorro marrón salta sobre el perro perezoso,.",
         "timestamp": "2025-03-01T20:05:17.236Z"
+      },
+      {
+        "role": "user",
+        "content": "!ppm",
+        "timestamp": "2025-03-01T20:06:18.727Z"
       }
     ]
   },
