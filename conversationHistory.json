@@ -3,11 +3,6 @@
     "1023132788632862761": [
       {
         "role": "user",
-        "content": "la puta madre",
-        "timestamp": "2025-03-01T20:04:24.274Z"
-      },
-      {
-        "role": "user",
         "content": "]!ppm",
         "timestamp": "2025-03-01T20:04:26.123Z"
       },
@@ -115,13 +110,18 @@
         "role": "user",
         "content": "a",
         "timestamp": "2025-03-01T20:24:51.302Z"
+      },
+      {
+        "role": "user",
+        "content": "d",
+        "timestamp": "2025-03-01T20:24:55.419Z"
       }
     ]
   },
   "triviaRanking": {
     "1023132788632862761": {
       "username": "dearluz",
-      "score": 8
+      "score": 9
     }
   }
 }
