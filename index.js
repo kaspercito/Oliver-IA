@@ -1,7 +1,7 @@
 const fs = require('fs');
 const { Client, GatewayIntentBits, EmbedBuilder } = require('discord.js');
 const axios = require('axios');
-const { v4: uuidv4 } = require('uuid'); // Añadimos uuid para generar IDs únicos
+const { v4: uuidv4 } = require('uuid');
 require('dotenv').config();
 
 const client = new Client({
@@ -90,10 +90,22 @@ const preguntasTrivia = [
     { pregunta: "¿Cuántos minutos tiene una hora?", respuesta: "60", incorrectas: ["50", "70", "80"] },
 ];
 
+// Frases para la prueba de mecanografía
+const frasesPPM = [
+    "El rápido zorro marrón salta sobre el perro perezoso.",
+    "La vida es como una caja de chocolates, nunca sabes qué te va a tocar.",
+    "Un pequeño paso para el hombre, un gran salto para la humanidad.",
+    "El sol brilla más fuerte cuando estás feliz.",
+    "La práctica hace al maestro, no lo olvides.",
+];
+
 // Estado
-const instanceId = uuidv4(); // ID único para esta instancia del bot
+const instanceId = uuidv4();
 const activeTrivia = new Map();
 const sentMessages = new Map();
+const processedMessages = new Map();
+const triviaLoops = new Map(); // Para rastrear bucles de trivia por usuario
+const ppmSessions = new Map(); // Para rastrear sesiones de mecanografía
 let dataStore = { conversationHistory: {}, triviaRanking: {} };
 
 // Utilidades
@@ -185,13 +197,12 @@ function obtenerPreguntaTrivia() {
     return { pregunta: trivia.pregunta, opciones, respuesta: trivia.respuesta };
 }
 
-async function manejarTrivia(message) {
-    // Evitar doble procesamiento si ya hay una trivia reciente en el canal
-    if (activeTrivia.has(message.channel.id)) {
+async function manejarTrivia(message, isLoop = false) {
+    if (!isLoop && activeTrivia.has(message.channel.id)) {
         const triviaData = activeTrivia.get(message.channel.id);
         if (Date.now() - triviaData.timestamp < 1000) {
             console.log(`Instancia ${instanceId} ignoró !trivia duplicado en canal ${message.channel.id}`);
-            return; // Ignorar si se procesó hace menos de 1 segundo
+            return;
         }
     }
 
@@ -204,7 +215,7 @@ async function manejarTrivia(message) {
         'Tienes 15 segundos para responder con A, B, C o D'
     );
     const sentMessage = await message.channel.send({ embeds: [embedPregunta] });
-    activeTrivia.set(message.channel.id, { id: sentMessage.id, correcta: trivia.respuesta, opciones: trivia.opciones, timestamp: Date.now() });
+    activeTrivia.set(message.channel.id, { id: sentMessage.id, correcta: trivia.respuesta, opciones: trivia.opciones, timestamp: Date.now(), userId: message.author.id });
 
     const opcionesValidas = ["a", "b", "c", "d"];
     const indiceCorrecto = trivia.opciones.indexOf(trivia.respuesta);
@@ -222,16 +233,26 @@ async function manejarTrivia(message) {
 
         if (respuestaUsuario === letraCorrecta) {
             updateRanking(message.author.id, message.author.username);
-            sendSuccess(message.channel, '🎉 ¡Correcto!',
-                `¡Bien hecho, ${message.author.tag}! La respuesta correcta era **${trivia.respuesta}**. ¡Ganaste 1 punto! Usa !trivia para otra ronda o !ranking para ver los mejores.`);
+            await sendSuccess(message.channel, '🎉 ¡Correcto!',
+                `¡Bien hecho, ${message.author.tag}! La respuesta correcta era **${trivia.respuesta}**. ¡Ganaste 1 punto!`);
         } else {
-            sendError(message.channel, '❌ ¡Casi!',
-                `Lo siento, ${message.author.tag}, la respuesta correcta era **${trivia.respuesta}** (Opción ${letraCorrecta.toUpperCase()}). ¡Intenta otra vez con !trivia!`);
+            await sendError(message.channel, '❌ ¡Casi!',
+                `Lo siento, ${message.author.tag}, la respuesta correcta era **${trivia.respuesta}** (Opción ${letraCorrecta.toUpperCase()}).`);
+        }
+
+        // Si está en modo bucle y no se ha detenido, enviar otra trivia
+        if (triviaLoops.has(message.author.id) && triviaLoops.get(message.author.id)) {
+            await manejarTrivia(message, true);
         }
     } catch (error) {
         activeTrivia.delete(message.channel.id);
-        sendError(message.channel, '⏳ ¡Tiempo agotado!',
-            `Se acabó el tiempo. La respuesta correcta era **${trivia.respuesta}** (Opción ${letraCorrecta.toUpperCase()}). ¿Otra ronda? Usa !trivia`);
+        await sendError(message.channel, '⏳ ¡Tiempo agotado!',
+            `Se acabó el tiempo. La respuesta correcta era **${trivia.respuesta}** (Opción ${letraCorrecta.toUpperCase()}).`);
+
+        // Si está en modo bucle y no se ha detenido, enviar otra trivia
+        if (triviaLoops.has(message.author.id) && triviaLoops.get(message.author.id)) {
+            await manejarTrivia(message, true);
+        }
     }
 }
 
@@ -251,6 +272,49 @@ function getRankingEmbed() {
         ? sortedRanking.map(([id, { username, score }], i) => `${i + 1}. **${username}**: ${score} puntos`).join('\n')
         : '¡Aún no hay puntajes! Juega con !trivia para empezar, Belén.';
     return createEmbed('#FFD700', '🏆 Ranking de Trivia', description);
+}
+
+// Función de mecanografía (PPM)
+async function manejarPPM(message) {
+    if (ppmSessions.has(message.author.id)) {
+        return sendError(message.channel, 'Ya tienes una prueba de mecanografía activa, Belén. Termina la actual primero.');
+    }
+
+    const frase = frasesPPM[Math.floor(Math.random() * frasesPPM.length)];
+    const startTime = Date.now();
+    const embed = createEmbed('#55FFFF', '📝 Prueba de Mecanografía',
+        `Escribe esta frase lo más rápido que puedas:\n\n**${frase}**\n\nTienes 60 segundos para responder.`);
+    await message.channel.send({ embeds: [embed] });
+
+    ppmSessions.set(message.author.id, { frase, startTime });
+
+    try {
+        const respuestas = await message.channel.awaitMessages({
+            filter: (res) => res.author.id === message.author.id,
+            max: 1,
+            time: 60000,
+            errors: ['time']
+        });
+        const respuestaUsuario = respuestas.first().content;
+        const endTime = Date.now();
+        ppmSessions.delete(message.author.id);
+
+        const tiempoSegundos = (endTime - startTime) / 1000;
+        const palabras = frase.split(' ').length;
+        const ppm = Math.round((palabras / tiempoSegundos) * 60);
+
+        if (respuestaUsuario === frase) {
+            sendSuccess(message.channel, '🎉 ¡Perfecto!',
+                `¡Bien hecho, ${message.author.tag}! Escribiste la frase correctamente en ${tiempoSegundos.toFixed(2)} segundos.\nTu velocidad: **${ppm} PPM** (palabras por minuto).`);
+        } else {
+            sendError(message.channel, '❌ ¡Casi!',
+                `Lo siento, ${message.author.tag}, no escribiste la frase correctamente.\nFrase original: **${frase}**\nTu respuesta: **${respuestaUsuario}**\nTiempo: ${tiempoSegundos.toFixed(2)} segundos.`);
+        }
+    } catch (error) {
+        ppmSessions.delete(message.author.id);
+        sendError(message.channel, '⏳ ¡Tiempo agotado!',
+            `Se acabó el tiempo. La frase era: **${frase}**. Usa !ppm para intentarlo de nuevo, Belén.`);
+    }
 }
 
 // Evento ready
@@ -301,6 +365,16 @@ client.on('messageCreate', async (message) => {
     const isTargetChannel = CHANNEL_ID && channel.id === CHANNEL_ID;
 
     console.log(`Mensaje recibido - Instancia: ${instanceId}, Autor: ${author.id}, Contenido: ${content}, Es DM: ${isDM}`);
+
+    if (processedMessages.has(message.id)) {
+        const processedTime = processedMessages.get(message.id);
+        if (Date.now() - processedTime < 1000) {
+            console.log(`Instancia ${instanceId} ignoró mensaje duplicado: ${message.id}`);
+            return;
+        }
+    }
+    processedMessages.set(message.id, Date.now());
+    setTimeout(() => processedMessages.delete(message.id), 10000);
 
     if (!isOwner && !isAllowedUser) return;
 
@@ -403,10 +477,12 @@ client.on('messageCreate', async (message) => {
             'Estoy listo para ayudarte con:\n' +
             '- **!ayuda <problema>**: Pide ayuda.\n' +
             '- **!help**: Lista de comandos.\n' +
-            '- **!trivia**: Juega trivia.\n' +
+            '- **!trivia**: Inicia trivias continuas.\n' +
+            '- **!parar**: Detiene las trivias.\n' +
             '- **!ranking**: Muestra el ranking de trivia.\n' +
             '- **!sugerencias <idea>**: Envía ideas.\n' +
-            '- **!chat [mensaje]**: Charla conmigo usando IA.\n' +
+            '- **!chat [mensaje]**: Charla conmigo.\n' +
+            '- **!ppm**: Prueba de mecanografía.\n' +
             '- **hola**: Saludo especial.'
         );
         await channel.send({ embeds: [embed] });
@@ -429,7 +505,19 @@ client.on('messageCreate', async (message) => {
     }
 
     if (content.startsWith('!trivia')) {
+        triviaLoops.set(author.id, true); // Activar modo bucle
         await manejarTrivia(message);
+        return;
+    }
+
+    if (content.startsWith('!parar')) {
+        if (triviaLoops.has(author.id)) {
+            triviaLoops.set(author.id, false);
+            activeTrivia.delete(channel.id); // Limpiar trivia activa
+            sendSuccess(channel, '🛑 ¡Trivia detenida!', 'He parado las trivias, Belén. Usa !trivia para empezar de nuevo.');
+        } else {
+            sendError(channel, 'No hay trivias activas', 'No estás jugando ahora, Belén. Usa !trivia para empezar.');
+        }
         return;
     }
 
@@ -468,6 +556,11 @@ client.on('messageCreate', async (message) => {
             const errorEmbed = createEmbed('#FF5555', '¡Ups, Belén!', 'Algo falló al buscar la respuesta, pero sigo aquí.');
             await waitingMessage.edit({ embeds: [errorEmbed] });
         }
+        return;
+    }
+
+    if (content.startsWith('!ppm')) {
+        await manejarPPM(message);
         return;
     }
 
@@ -515,7 +608,7 @@ client.on('messageReactionAdd', async (reaction, user) => {
     }
 });
 
-// Graceful Shutdown para cerrar la instancia limpiamente
+// Graceful Shutdown
 process.on('SIGTERM', () => {
     console.log(`Instancia ${instanceId} recibió SIGTERM, cerrando bot...`);
     client.destroy();
