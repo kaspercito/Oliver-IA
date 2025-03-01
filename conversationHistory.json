@@ -85,6 +85,11 @@
         "role": "user",
         "content": "para qué sirve la página whoer",
         "timestamp": "2025-03-01T18:45:04.260Z"
+      },
+      {
+        "role": "assistant",
+        "content": "¡Hola! Soy Miguel I, un asistente creado para ayudarte. 😊\n\nWhoer es una herramienta en línea que te permite obtener información detallada sobre la dirección IP de tu conexión a internet, tu sistema operativo, tu navegador y tu ubicación aproximada. Además, ofrece un servicio de prueba de velocidad de internet y un servicio VPN premium.\n\nLa página de Whoer puede ser útil para varias cosas, como por ejemplo:\n\n1. Verificar la seguridad de tu conexión a internet: Whoer puede ayudarte a identificar si tu conexión a internet está siendo monitoreada o si hay algún tipo de actividad sospechosa.\n2. Comprobar la compatibilidad de tu navegador y sistema operativo: Whoer puede mostrarte si tu navegador y sistema operativo son compatibles con ciertos sitios web o aplicaciones.\n3. Ocultar tu dirección IP: Whoer ofrece un servicio VPN premium que te permite ocultar tu dirección IP y navegar de forma anónima en internet.\n4. Probar la velocidad de tu conexión a internet: Whoer tiene una herramienta de prueba de velocidad que te permite medir la velocidad de tu conexión a internet en tiempo real.\n\nEn resumen, Whoer es una herramienta útil y fácil de usar que puede ayudarte a obtener información valiosa sobre tu conexión a internet y tu navegador. ¡Espero que esto te haya sido útil! ¿Tienes alguna otra pregunta sobre Whoer o algún otro tema? 😊",
+        "timestamp": "2025-03-01T18:45:15.066Z"
       }
     ]
   },
