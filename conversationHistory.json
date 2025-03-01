@@ -3,11 +3,6 @@
     "1023132788632862761": [
       {
         "role": "user",
-        "content": "qué barbaridad",
-        "timestamp": "2025-03-01T19:50:09.777Z"
-      },
-      {
-        "role": "user",
         "content": "de mis oropios récords",
         "timestamp": "2025-03-01T19:50:31.478Z"
       },
@@ -115,6 +110,11 @@
         "role": "user",
         "content": "mr ponelo abreviado",
         "timestamp": "2025-03-01T20:01:42.092Z"
+      },
+      {
+        "role": "user",
+        "content": "como gustes",
+        "timestamp": "2025-03-01T20:01:51.906Z"
       }
     ]
   },
