@@ -3,11 +3,6 @@
     "1023132788632862761": [
       {
         "role": "user",
-        "content": "la r´´acrica",
-        "timestamp": "2025-03-01T20:04:13.071Z"
-      },
-      {
-        "role": "user",
         "content": "!ppm",
         "timestamp": "2025-03-01T20:04:14.698Z"
       },
@@ -115,6 +110,11 @@
         "role": "user",
         "content": "perdón, me estoy preparando para viajar",
         "timestamp": "2025-03-01T20:24:17.754Z"
+      },
+      {
+        "role": "user",
+        "content": "!trivia",
+        "timestamp": "2025-03-01T20:24:37.932Z"
       }
     ]
   },
