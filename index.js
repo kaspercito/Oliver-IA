@@ -36,10 +36,10 @@ const preguntasTrivia = [
     { pregunta: "¿Cuántos bloques de altura tiene un Enderman?", respuesta: "3", incorrectas: ["2", "4", "5"] },
     { pregunta: "¿Qué mob se domesticó primero en Minecraft?", respuesta: "lobo", incorrectas: ["gato", "caballo", "cerdo"] },
     { pregunta: "¿Cuántos ojos de Ender necesitas para activar un portal al End?", respuesta: "12", incorrectas: ["10", "14", "16"] },
-    { pregunta: "¿Cómo se llama el creador original de Minecraft?", respuesta: "Notch", incorrectas: ["Herobrine", "Jeb", "Dinnerbone"] },
+    { pregunta: "¿Cómo se llama el creador original de Minecraft?", respuesta: "notch", incorrectas: ["herobrine", "jeb", "dinnerbone"] },
     { pregunta: "¿Qué animal se puede montar en Minecraft 1.8?", respuesta: "caballo", incorrectas: ["cerdo", "vaca", "oveja"] },
     { pregunta: "¿Qué estructura contiene un portal al End?", respuesta: "fortaleza", incorrectas: ["templo", "aldea", "mina"] },
-    { pregunta: "¿Qué item revive al jugador en Minecraft?", respuesta: "tótem de la inmortalidad", incorrectas: ["poción", "manzana dorada", "estrella del Nether"] },
+    { pregunta: "¿Qué item revive al jugador en Minecraft?", respuesta: "tótem de la inmortalidad", incorrectas: ["poción", "manzana dorada", "estrella del nether"] },
     { pregunta: "¿Cuál es la mejor armadura en Minecraft 1.8?", respuesta: "diamante", incorrectas: ["hierro", "oro", "cuero"] },
     { pregunta: "¿Qué item se usa para obtener lana?", respuesta: "tijeras", incorrectas: ["pala", "hacha", "pico"] },
     { pregunta: "¿Qué bioma puedes encontrar en Minecraft 1.8?", respuesta: "bosque", incorrectas: ["desierto", "montaña", "pantano"] },
@@ -54,21 +54,21 @@ const preguntasTrivia = [
     { pregunta: "¿Cuántos corazones tiene el Wither?", respuesta: "150", incorrectas: ["100", "200", "50"] },
     { pregunta: "¿Qué arma dispara flechas en Minecraft?", respuesta: "arco", incorrectas: ["espada", "pico", "hacha"] },
     { pregunta: "¿Qué bloque se usa para hacer un faro?", respuesta: "vidrio", incorrectas: ["madera", "piedra", "arcilla"] },
-    { pregunta: "¿Cuál es la capital de Francia?", respuesta: "París", incorrectas: ["Londres", "Madrid", "Berlín"] },
-    { pregunta: "¿En qué continente está Brasil?", respuesta: "América del Sur", incorrectas: ["África", "Asia", "Europa"] },
-    { pregunta: "¿Quién escribió 'Harry Potter'?", respuesta: "J.K. Rowling", incorrectas: ["Tolkien", "Stephen King", "George R.R. Martin"] },
-    { pregunta: "¿Cuál es el océano más grande del mundo?", respuesta: "Pacífico", incorrectas: ["Atlántico", "Índico", "Ártico"] },
+    { pregunta: "¿Cuál es la capital de Francia?", respuesta: "parís", incorrectas: ["londres", "madrid", "berlín"] },
+    { pregunta: "¿En qué continente está Brasil?", respuesta: "américa del sur", incorrectas: ["áfrica", "asia", "europa"] },
+    { pregunta: "¿Quién escribió 'Harry Potter'?", respuesta: "j k rowling", incorrectas: ["tolkien", "stephen king", "george r r martin"] },
+    { pregunta: "¿Cuál es el océano más grande del mundo?", respuesta: "pacífico", incorrectas: ["atlántico", "índico", "ártico"] },
     { pregunta: "¿Cuántos planetas hay en el sistema solar?", respuesta: "8", incorrectas: ["7", "9", "10"] },
     { pregunta: "¿Cuál es el animal más grande del planeta?", respuesta: "ballena azul", incorrectas: ["elefante", "tiburón", "jirafa"] },
-    { pregunta: "¿Qué planeta es el más cercano al Sol?", respuesta: "Mercurio", incorrectas: ["Venus", "Marte", "Júpiter"] },
+    { pregunta: "¿Qué planeta es el más cercano al Sol?", respuesta: "mercucio", incorrectas: ["venus", "marte", "júpiter"] },
     { pregunta: "¿En qué año llegó el hombre a la Luna?", respuesta: "1969", incorrectas: ["1965", "1972", "1960"] },
     { pregunta: "¿Qué gas compone la mayor parte de la atmósfera terrestre?", respuesta: "nitrógeno", incorrectas: ["oxígeno", "dióxido de carbono", "argón"] },
-    { pregunta: "¿Cuál es el río más largo del mundo?", respuesta: "Amazonas", incorrectas: ["Nilo", "Misisipi", "Yangtsé"] },
+    { pregunta: "¿Cuál es el río más largo del mundo?", respuesta: "amazonas", incorrectas: ["nilo", "misissippi", "yangtsé"] },
     { pregunta: "¿Qué animal es conocido por su cuello largo?", respuesta: "jirafa", incorrectas: ["elefante", "rinoceronte", "hipopótamo"] },
     { pregunta: "¿Cuántos continentes habitados hay?", respuesta: "6", incorrectas: ["5", "7", "4"] },
     { pregunta: "¿Qué elemento tiene el símbolo 'H'?", respuesta: "hidrógeno", incorrectas: ["helio", "hierro", "oro"] },
-    { pregunta: "¿Qué país es conocido como la tierra del sol naciente?", respuesta: "Japón", incorrectas: ["China", "Corea", "Tailandia"] },
-    { pregunta: "¿Cuál es el desierto más grande del mundo?", respuesta: "Antártida", incorrectas: ["Sahara", "Gobi", "Atacama"] },
+    { pregunta: "¿Qué país es conocido como la tierra del sol naciente?", respuesta: "japón", incorrectas: ["china", "corea", "tailandia"] },
+    { pregunta: "¿Cuál es el desierto más grande del mundo?", respuesta: "antártida", incorrectas: ["sahara", "gobi", "atacama"] },
     { pregunta: "¿Qué instrumento mide el tiempo?", respuesta: "reloj", incorrectas: ["termómetro", "barómetro", "compás"] },
     { pregunta: "¿Qué color tiene el cielo en un día despejado?", respuesta: "azul", incorrectas: ["verde", "rojo", "amarillo"] },
     { pregunta: "¿Cuántos días tiene un año bisiesto?", respuesta: "366", incorrectas: ["365", "364", "367"] },
@@ -76,72 +76,72 @@ const preguntasTrivia = [
     { pregunta: "¿Qué fruta es conocida por caer sobre Newton?", respuesta: "manzana", incorrectas: ["pera", "naranja", "plátano"] },
     { pregunta: "¿Cuál es el metal más abundante en la corteza terrestre?", respuesta: "aluminio", incorrectas: ["hierro", "cobre", "oro"] },
     { pregunta: "¿Qué ave no puede volar pero corre rápido?", respuesta: "avestruz", incorrectas: ["pingüino", "ganso", "pavo"] },
-    { pregunta: "¿Qué país tiene más población del mundo?", respuesta: "China", incorrectas: ["India", "EE.UU.", "Rusia"] },
+    { pregunta: "¿Qué país tiene más población del mundo?", respuesta: "china", incorrectas: ["india", "ee uu", "rusia"] },
     { pregunta: "¿Qué estación sigue al verano?", respuesta: "otoño", incorrectas: ["invierno", "primavera", "verano"] },
     { pregunta: "¿Cuántos lados tiene un triángulo?", respuesta: "3", incorrectas: ["4", "5", "6"] },
     { pregunta: "¿Qué bebida es conocida como H2O?", respuesta: "agua", incorrectas: ["leche", "jugo", "café"] },
     { pregunta: "¿Qué animal es el rey de la selva?", respuesta: "león", incorrectas: ["tigre", "elefante", "jirafa"] },
     { pregunta: "¿Qué idioma se habla en Brasil?", respuesta: "portugués", incorrectas: ["español", "inglés", "francés"] },
-    { pregunta: "¿Qué planeta tiene anillos visibles?", respuesta: "Saturno", incorrectas: ["Júpiter", "Marte", "Urano"] },
+    { pregunta: "¿Qué planeta tiene anillos visibles?", respuesta: "saturno", incorrectas: ["júpiter", "marte", "urano"] },
     { pregunta: "¿Qué inventó Thomas Edison?", respuesta: "bombilla", incorrectas: ["teléfono", "radio", "televisión"] },
     { pregunta: "¿Qué deporte se juega con una raqueta y una pelota pequeña?", respuesta: "tenis", incorrectas: ["fútbol", "básquet", "voleibol"] },
     { pregunta: "¿Qué parte del cuerpo usas para escuchar?", respuesta: "oído", incorrectas: ["ojo", "nariz", "boca"] },
-    { pregunta: "¿Qué país es famoso por los tulipanes?", respuesta: "Países Bajos", incorrectas: ["Francia", "Italia", "Alemania"] },
+    { pregunta: "¿Qué país es famoso por los tulipanes?", respuesta: "países bajos", incorrectas: ["francia", "italia", "alemania"] },
     { pregunta: "¿Cuántos minutos tiene una hora?", respuesta: "60", incorrectas: ["50", "70", "80"] },
 ];
 
-// Frases para la prueba de mecanografía (máximo 20 palabras)
+// Frases para la prueba de mecanografía (sin comas, puntos ni mayúsculas, con tildes)
 const frasesPPM = [
-    "El rápido zorro marrón salta sobre el perro perezoso",
-    "La vida es como una caja de chocolates nunca sabes qué te va a tocar",
-    "Un pequeño paso para el hombre un gran salto para la humanidad",
-    "El sol brilla más fuerte cuando estás feliz y rodeado de amigos",
-    "La práctica hace al maestro no lo olvides nunca en tu camino",
-    "El viento sopla suavemente entre los árboles altos del bosque verde",
-    "La perseverancia y el esfuerzo siempre llevan a grandes logros personales",
-    "Un día claro con un cielo azul inspira a todos a soñar",
-    "El río fluye tranquilo mientras las aves cantan al amanecer cada día",
-    "La amistad verdadera se construye con confianza y apoyo mutuo siempre",
-    "La lluvia cae suavemente sobre las flores del jardín en primavera",
-    "El camino hacia el éxito requiere paciencia y trabajo constante",
-    "Las estrellas brillan con intensidad en una noche sin luna",
-    "Un libro abierto revela historias de aventura y misterio por descubrir",
-    "El mar susurra secretos mientras las olas chocan contra la orilla",
-    "La música llena el aire con melodías que alegran el corazón",
-    "Un viaje largo comienza con un pequeño paso decidido y firme",
-    "Las montañas se alzan majestuosas bajo un cielo despejado y brillante",
-    "El fuego crepita cálido en la chimenea durante una noche fría",
-    "La esperanza florece en el corazón de quien nunca se rinde",
-    "Los niños ríen mientras juegan en el parque bajo el sol",
-    "Un sueño puede convertirse en realidad con esfuerzo y dedicación",
-    "El bosque guarda secretos antiguos entre sus árboles centenarios",
-    "La luz de la luna ilumina el camino en la oscuridad",
-    "Un amigo verdadero está siempre listo para brindar apoyo en todo",
-    "El tiempo pasa rápido cuando estás disfrutando de la vida",
-    "Las flores silvestres crecen libres en los campos abiertos y verdes",
-    "Un héroe surge de la adversidad con valentía y honor",
-    "El viento lleva consigo los sonidos de la naturaleza al amanecer",
-    "La paz se encuentra en los momentos de silencio y reflexión",
-    "Un río serpenteante corta a través de las tierras salvajes",
-    "Las aves regresan al nido al final del día",
-    "La fuerza interior ayuda a superar los desafíos más difíciles",
-    "Un amanecer dorado anuncia un nuevo comienzo lleno de esperanza",
-    "El arte captura la belleza del mundo en cada pincelada",
-    "La nieve cubre el paisaje como un manto blanco y suave",
-    "Un viaje en tren ofrece vistas increíbles de la naturaleza",
-    "La risa de los niños llena el aire con alegría pura",
-    "El desierto guarda tesoros ocultos bajo su arena dorada",
-    "Un corazón valiente nunca se rinde ante la adversidad",
-    "Las olas del mar traen consigo el sonido de la libertad",
-    "Un bosque antiguo susurra historias de tiempos olvidados",
-    "La curiosidad lleva a descubrir maravillas escondidas en el mundo",
-    "El sol se pone pintando el cielo con colores vibrantes",
-    "Un amigo leal permanece a tu lado en los peores momentos",
-    "La danza de las hojas cae suavemente en otoño",
-    "Un río cristalino refleja las montañas en su superficie",
-    "La sabiduría se gana con la experiencia de los años",
-    "El canto de los pájaros despierta la mañana con energía",
-].filter(frase => frase.split(' ').length <= 20);
+    "el rápido zorro marrón salta sobre el perro perezoso",
+    "la vida es como una caja de chocolates nunca sabes qué te va a tocar",
+    "un pequeño paso para el hombre un gran salto para la humanidad",
+    "el sol brilla más fuerte cuando estás feliz y rodeado de amigos",
+    "la práctica hace al maestro no lo olvides nunca en tu camino",
+    "el viento sopla suavemente entre los árboles altos del bosque verde",
+    "la perseverancia y el esfuerzo siempre llevan a grandes logros personales",
+    "un día claro con un cielo azul inspira a todos a soñar",
+    "el río fluye tranquilo mientras las aves cantan al amanecer cada día",
+    "la amistad verdadera se construye con confianza y apoyo mutuo siempre",
+    "la lluvia cae suavemente sobre las flores del jardín en primavera",
+    "el camino hacia el éxito requiere paciencia y trabajo constante",
+    "las estrellas brillan con intensidad en una noche sin luna",
+    "un libro abierto revela historias de aventura y misterio por descubrir",
+    "el mar susurra secretos mientras las olas chocan contra la orilla",
+    "la música llena el aire con melodías que alegran el corazón",
+    "un viaje largo comienza con un pequeño paso decidido y firme",
+    "las montañas se alzan majestuosas bajo un cielo despejado y brillante",
+    "el fuego crepita cálido en la chimenea durante una noche fría",
+    "la esperanza florece en el corazón de quien nunca se rinde",
+    "los niños ríen mientras juegan en el parque bajo el sol",
+    "un sueño puede convertirse en realidad con esfuerzo y dedicación",
+    "el bosque guarda secretos antiguos entre sus árboles centenarios",
+    "la luz de la luna ilumina el camino en la oscuridad",
+    "un amigo verdadero está siempre listo para brindar apoyo en todo",
+    "el tiempo pasa rápido cuando estás disfrutando de la vida",
+    "las flores silvestres crecen libres en los campos abiertos y verdes",
+    "un héroe surge de la adversidad con valentía y honor",
+    "el viento lleva consigo los sonidos de la naturaleza al amanecer",
+    "la paz se encuentra en los momentos de silencio y reflexión",
+    "un río serpenteante corta a través de las tierras salvajes",
+    "las aves regresan al nido al final del día",
+    "la fuerza interior ayuda a superar los desafíos más difíciles",
+    "un amanecer dorado anuncia un nuevo comienzo lleno de esperanza",
+    "el arte captura la belleza del mundo en cada pincelada",
+    "la nieve cubre el paisaje como un manto blanco y suave",
+    "un viaje en tren ofrece vistas increíbles de la naturaleza",
+    "la risa de los niños llena el aire con alegría pura",
+    "el desierto guarda tesoros ocultos bajo su arena dorada",
+    "un corazón valiente nunca se rinde ante la adversidad",
+    "las olas del mar traen consigo el sonido de la libertad",
+    "un bosque antiguo susurra historias de tiempos olvidados",
+    "la curiosidad lleva a descubrir maravillas escondidas en el mundo",
+    "el sol se pone pintando el cielo con colores vibrantes",
+    "un amigo leal permanece a tu lado en los peores momentos",
+    "la danza de las hojas cae suavemente en otoño",
+    "un río cristalino refleja las montañas en su superficie",
+    "la sabiduría se gana con la experiencia de los años",
+    "el canto de los pájaros despierta la mañana con energía",
+];
 
 // Estado
 const instanceId = uuidv4();
@@ -172,10 +172,10 @@ const sendSuccess = async (channel, title, message) => {
     await channel.send({ embeds: [embed] });
 };
 
-// Función para limpiar puntuación y normalizar texto
+// Función para limpiar puntuación (solo puntos, exclamación, interrogación; conserva comas y tildes)
 function cleanText(text) {
-    // Eliminar puntuación y convertir a minúsculas
-    return text.replace(/[.,!?]/g, '').toLowerCase().trim();
+    // Eliminar puntos, exclamaciones e interrogaciones, mantener tildes y comas, y convertir a minúsculas (aunque las frases ya están en minúsculas)
+    return text.replace(/[.!?]/g, '').toLowerCase().trim();
 }
 
 // Función para comparar texto con tolerancia a errores tipográficos simples
@@ -277,18 +277,8 @@ async function saveDataStore(data) {
 }
 
 // Funciones de trivia y ranking
-function obtenerPreguntaTrivia() {
-    if (preguntasTrivia.length === 0) {
-        console.error('No hay preguntas de trivia definidas.');
-        return null;
-    }
-    const randomIndex = Math.floor(Math.random() * preguntasTrivia.length);
-    const trivia = preguntasTrivia[randomIndex];
-    const opciones = [...trivia.incorrectas, trivia.respuesta].sort(() => Math.random() - 0.5);
-    return { pregunta: trivia.pregunta, opciones, respuesta: trivia.respuesta };
-}
-
 async function manejarTrivia(message, isLoop = false) {
+    console.log(`Instancia ${instanceId} - Recibido !trivia en canal ${message.channel.id}`);
     if (!isLoop && activeTrivia.has(message.channel.id)) {
         const triviaData = activeTrivia.get(message.channel.id);
         if (Date.now() - triviaData.timestamp < 1000) {
@@ -297,52 +287,67 @@ async function manejarTrivia(message, isLoop = false) {
         }
     }
 
-    const trivia = obtenerPreguntaTrivia();
-    if (!trivia) {
-        return sendError(message.channel, 'No hay preguntas de trivia disponibles.');
+    let numQuestions = 20; // Valor por defecto de 20 preguntas
+    const args = content.split(' ').slice(1);
+    if (args.length > 0 && !isNaN(args[0]) && args[0] >= 20) {
+        numQuestions = parseInt(args[0]);
     }
-    const embedPregunta = createEmbed('#55FFFF', '🎲 ¡Pregunta de Trivia!',
-        `${trivia.pregunta}\n\n${trivia.opciones.map((op, i) => `**${String.fromCharCode(65 + i)})** ${op}`).join('\n')}`,
-        'Tienes 15 segundos para responder con A, B, C o D'
-    );
-    const sentMessage = await message.channel.send({ embeds: [embedPregunta] });
-    activeTrivia.set(message.channel.id, { id: sentMessage.id, correcta: trivia.respuesta, opciones: trivia.opciones, timestamp: Date.now(), userId: message.author.id });
 
-    const opcionesValidas = ["a", "b", "c", "d"];
-    const indiceCorrecto = trivia.opciones.indexOf(trivia.respuesta);
-    const letraCorrecta = opcionesValidas[indiceCorrecto];
-
-    try {
-        const respuestas = await message.channel.awaitMessages({
-            filter: (res) => res.author.id === message.author.id && opcionesValidas.includes(res.content.toLowerCase()),
-            max: 1,
-            time: 15000,
-            errors: ['time']
-        });
-        const respuestaUsuario = respuestas.first().content.toLowerCase();
-        activeTrivia.delete(message.channel.id);
-
-        if (respuestaUsuario === letraCorrecta) {
-            updateRanking(message.author.id, message.author.username);
-            await sendSuccess(message.channel, '🎉 ¡Correcto!',
-                `¡Bien hecho, ${message.author.tag}! La respuesta correcta era **${trivia.respuesta}**. ¡Ganaste 1 punto!`);
-        } else {
-            await sendError(message.channel, '❌ ¡Casi!',
-                `Lo siento, ${message.author.tag}, la respuesta correcta era **${trivia.respuesta}** (Opción ${letraCorrecta.toUpperCase()}).`);
+    for (let i = 0; i < numQuestions; i++) {
+        const trivia = obtenerPreguntaTrivia();
+        if (!trivia) {
+            await sendError(message.channel, 'No hay más preguntas de trivia disponibles.');
+            break;
         }
+        console.log(`Instancia ${instanceId} - Enviando pregunta ${i + 1} de ${numQuestions}`);
+        const embedPregunta = createEmbed('#55FFFF', `🎲 ¡Pregunta ${i + 1} de ${numQuestions}!`,
+            `${trivia.pregunta}\n\n${trivia.opciones.map((op, i) => `**${String.fromCharCode(65 + i)})** ${op}`).join('\n')}`,
+            'Tienes 60 segundos para responder con A, B, C o D'
+        );
+        const sentMessage = await message.channel.send({ embeds: [embedPregunta] });
+        activeTrivia.set(message.channel.id, { id: sentMessage.id, correcta: trivia.respuesta, opciones: trivia.opciones, timestamp: Date.now(), userId: message.author.id });
 
-        if (triviaLoops.has(message.author.id) && triviaLoops.get(message.author.id)) {
-            await manejarTrivia(message, true);
-        }
-    } catch (error) {
-        activeTrivia.delete(message.channel.id);
-        await sendError(message.channel, '⏳ ¡Tiempo agotado!',
-            `Se acabó el tiempo. La respuesta correcta era **${trivia.respuesta}** (Opción ${letraCorrecta.toUpperCase()}).`);
+        const opcionesValidas = ["a", "b", "c", "d"];
+        const indiceCorrecto = trivia.opciones.indexOf(trivia.respuesta);
+        const letraCorrecta = opcionesValidas[indiceCorrecto];
 
-        if (triviaLoops.has(message.author.id) && triviaLoops.get(message.author.id)) {
-            await manejarTrivia(message, true);
+        try {
+            const respuestas = await message.channel.awaitMessages({
+                filter: (res) => res.author.id === message.author.id && opcionesValidas.includes(res.content.toLowerCase()),
+                max: 1,
+                time: 60000, // 60 segundos por pregunta
+                errors: ['time']
+            });
+            const respuestaUsuario = respuestas.first().content.toLowerCase();
+            activeTrivia.delete(message.channel.id);
+
+            if (respuestaUsuario === letraCorrecta) {
+                updateRanking(message.author.id, message.author.username);
+                await sendSuccess(message.channel, '🎉 ¡Correcto!',
+                    `¡Bien hecho, ${message.author.tag}! La respuesta correcta era **${trivia.respuesta}**. ¡Ganaste 1 punto!`);
+            } else {
+                await sendError(message.channel, '❌ ¡Casi!',
+                    `Lo siento, ${message.author.tag}, la respuesta correcta era **${trivia.respuesta}** (Opción ${letraCorrecta.toUpperCase()}).`);
+            }
+        } catch (error) {
+            activeTrivia.delete(message.channel.id);
+            await sendError(message.channel, '⏳ ¡Tiempo agotado!',
+                `Se acabó el tiempo. La respuesta correcta era **${trivia.respuesta}** (Opción ${letraCorrecta.toUpperCase()}).`);
         }
     }
+    if (triviaLoops.has(message.author.id) && triviaLoops.get(message.author.id)) {
+        await manejarTrivia(message, true);
+    }
+}
+
+function obtenerPreguntaTrivia() {
+    if (preguntasTrivia.length === 0) {
+        console.error('No hay preguntas de trivia definidas.');
+        return null;
+    }
+    const randomIndex = Math.floor(Math.random() * preguntasTrivia.length);
+    const trivia = preguntasTrivia[randomIndex];
+    return { pregunta: trivia.pregunta, opciones: [...trivia.incorrectas, trivia.respuesta].sort(() => Math.random() - 0.5), respuesta: trivia.respuesta };
 }
 
 function updateRanking(userId, username) {
@@ -374,6 +379,7 @@ function getCombinedRankingEmbed(userId, username) {
 
 // Función de mecanografía (PPM) con cuenta regresiva y nueva frase al equivocarse
 async function manejarPPM(message) {
+    console.log(`Instancia ${instanceId} - Recibido !ppm en canal ${message.channel.id}`);
     if (ppmSessions.has(message.author.id)) {
         return sendError(message.channel, 'Ya tienes una prueba de mecanografía activa, Belén. Termina la actual primero.');
     }
@@ -482,7 +488,7 @@ client.on('messageCreate', async (message) => {
     const isDM = !guild;
     const isTargetChannel = CHANNEL_ID && channel.id === CHANNEL_ID;
 
-    console.log(`Mensaje recibido - Instancia: ${instanceId}, Autor: ${author.id}, Contenido: ${content}, Es DM: ${isDM}`);
+    console.log(`Mensaje recibido - Instancia: ${instanceId}, Autor: ${author.id}, Contenido: ${content}, Canal: ${channel.id}, Es DM: ${isDM}`);
 
     if (processedMessages.has(message.id)) {
         const processedTime = processedMessages.get(message.id);
@@ -494,7 +500,10 @@ client.on('messageCreate', async (message) => {
     processedMessages.set(message.id, Date.now());
     setTimeout(() => processedMessages.delete(message.id), 10000);
 
-    if (!isOwner && !isAllowedUser) return;
+    if (!isOwner && !isAllowedUser) {
+        console.log(`Instancia ${instanceId} - Usuario ${author.id} no permitido`);
+        return;
+    }
 
     if (isAllowedUser) {
         let userHistory = dataStore.conversationHistory[author.id] || [];
@@ -548,7 +557,10 @@ client.on('messageCreate', async (message) => {
         }
     }
 
-    if (!isAllowedUser || (!isTargetChannel && !isDM)) return;
+    if (!isAllowedUser || (!isTargetChannel && !isDM)) {
+        console.log(`Instancia ${instanceId} - Canal ${channel.id} no permitido`);
+        return;
+    }
 
     if (activeTrivia.has(channel.id)) {
         const triviaData = activeTrivia.get(channel.id);
@@ -595,12 +607,12 @@ client.on('messageCreate', async (message) => {
             'Estoy listo para ayudarte con:\n' +
             '- **!ayuda <problema>**: Pide ayuda.\n' +
             '- **!help**: Lista de comandos.\n' +
-            '- **!trivia**: Inicia trivias continuas.\n' +
+            '- **!trivia [n]**: Inicia una ronda de n preguntas (mínimo 20, 60s por pregunta).\n' +
             '- **!parar**: Detiene las trivias.\n' +
             '- **!ranking**: Muestra el ranking de trivia y tus récords de mecanografía.\n' +
             '- **!sugerencias <idea>**: Envía ideas.\n' +
             '- **!chat [mensaje]**: Charla conmigo.\n' +
-            '- **!ppm**: Inicia prueba de mecanografía con cuenta regresiva.\n' +
+            '- **!ppm pls**: Inicia prueba de mecanografía con cuenta regresiva.\n' +
             '- **hola**: Saludo especial.'
         );
         await channel.send({ embeds: [embed] });
@@ -623,7 +635,8 @@ client.on('messageCreate', async (message) => {
     }
 
     if (content.startsWith('!trivia')) {
-        triviaLoops.set(author.id, true);
+        console.log(`Instancia ${instanceId} - Iniciando trivia para ${message.author.id}`);
+        triviaLoops.set(message.author.id, true);
         await manejarTrivia(message);
         return;
     }
@@ -678,6 +691,7 @@ client.on('messageCreate', async (message) => {
     }
 
     if (content.startsWith('!ppm') || content.startsWith('!ppm pls')) {
+        console.log(`Instancia ${instanceId} - Ejecutando !ppm para ${message.author.id}`);
         await manejarPPM(message);
         return;
     }
@@ -694,7 +708,7 @@ client.on('messageReactionAdd', async (reaction, user) => {
 
     const messageData = sentMessages.get(reaction.message.id);
     const owner = await client.users.fetch(OWNER_ID);
-    const ecuadorTime = new Date(messageData.timestamp).toLocaleString('es-EC', { timeZone: 'America/Guayaquil', year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: true });
+    const ecuadorTime = new Date(messageData.timestamp).toLocaleString('es-EC', { timeZone: 'America/Argentina/Buenos_Aires', year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: true });
     const reactionEmbed = createEmbed('#FFD700', '¡Reacción recibida!',
         `Pregunta original: "${messageData.originalQuestion}"\nRespuesta enviada: "${messageData.content}"\nReacción: ${reaction.emoji}\nEnviado el: ${ecuadorTime}`);
 
