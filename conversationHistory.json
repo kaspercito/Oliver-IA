@@ -5,6 +5,11 @@
         "role": "user",
         "content": "cuanto es 100+100",
         "timestamp": "2025-03-01T21:28:36.257Z"
+      },
+      {
+        "role": "user",
+        "content": "dime futbolistas Ecuatorianos por favor",
+        "timestamp": "2025-03-01T21:36:30.957Z"
       }
     ]
   },
