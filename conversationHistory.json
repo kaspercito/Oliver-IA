@@ -89,6 +89,11 @@
       "role": "user",
       "content": "!trivia",
       "timestamp": "2025-03-01T18:12:03.513Z"
+    },
+    {
+      "role": "assistant",
+      "content": "Hola! Lo siento, no entiendo muy bien tu pregunta. ¿Podrías ser más específico sobre lo que necesitas saber sobre C? ¿Te refieres a un lenguaje de programación, una herramienta o algo más? Estoy aquí para ayudarte, así que no dudes en preguntarme cualquier cosa. Por ahora, ¿qué tal si te cuento un poco sobre mí? Soy un asistente de inteligencia artificial creado para ayudar y hacer tu vida más fácil. ¡Estoy aquí para responder preguntas, dar sugerencias y ser tu amigo virtual! ¿Tienes alguna pregunta sobre mí o sobre algo más? ¡Estoy aquí para ayudarte!",
+      "timestamp": "2025-03-01T18:12:04.673Z"
     }
   ]
 }
