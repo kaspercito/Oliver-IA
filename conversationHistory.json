@@ -20,6 +20,11 @@
         "role": "user",
         "content": "Hola x_X,",
         "timestamp": "2025-03-01T18:32:04.690Z"
+      },
+      {
+        "role": "assistant",
+        "content": "Hola x_X,\n\n¡Encantado de conocerte! ¿En qué puedo ayudarte hoy? Si tienes preguntas sobre programación, desarrollo web o cualquier otro tema relacionado con la tecnología, ¡estoy aquí para ayudarte! Además, siempre es bueno tener un amigo con quien hablar y pasar un buen rato. ¡Así que no dudes en compartir tus pensamientos y opiniones conmigo!\n\nEspero que tengas un gran día y ¡que podamos conectar pronto!\n\nSaludos,\nMiguel IA",
+        "timestamp": "2025-03-01T18:32:07.209Z"
       }
     ]
   },
