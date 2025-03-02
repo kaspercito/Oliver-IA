@@ -9,6 +9,15 @@
       },
       "disney": {
         "score": 13
+      },
+      "matematicas": {
+        "score": 16
+      },
+      "quimica": {
+        "score": 5
+      },
+      "fisica": {
+        "score": 5
       }
     },
     "752987736759205960": {
@@ -43,7 +52,20 @@
       "wins": 22
     }
   },
-  "activeSessions": {},
+  "activeSessions": {
+    "1343749554905940058": {
+      "type": "trivia",
+      "currentQuestion": 2,
+      "score": 0,
+      "totalQuestions": 10,
+      "usedQuestions": [
+        "¿Quién fue el primer emperador de Roma?",
+        "¿Qué imperio fue gobernado por Gengis Kan?",
+        "¿Qué civilización construyó Machu Picchu?"
+      ],
+      "categoria": "historia"
+    }
+  },
   "triviaStats": {
     "1023132788632862761": {
       "correct": 25,
@@ -55,6 +77,22 @@
       "disney": {
         "correct": 9,
         "total": 21
+      },
+      "matematicas": {
+        "correct": 16,
+        "total": 20
+      },
+      "quimica": {
+        "correct": 5,
+        "total": 20
+      },
+      "fisica": {
+        "correct": 5,
+        "total": 20
+      },
+      "historia": {
+        "correct": 0,
+        "total": 2
       }
     },
     "752987736759205960": {
