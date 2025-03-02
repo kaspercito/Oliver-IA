@@ -61,7 +61,6 @@ const preguntasTriviaSinOpciones = [
     { pregunta: "¿Qué película tiene a Jack Sparrow como pirata?", respuesta: "piratas del caribe" },
     { pregunta: "¿Qué princesa tiene una madrastra llamada Lady Tremaine?", respuesta: "cenicienta" },
     { pregunta: "¿Qué guerra ocurrió entre 1939 y 1945?", respuesta: "segunda guerra mundial" },
-    // ... (mantengo la lista completa de antes)
 ];
 
 // Palabras aleatorias para el juego de reacciones
@@ -83,7 +82,6 @@ const frasesPPM = [
     "un día claro con un cielo azul inspira a todos a soñar",
     "el río fluye tranquilo mientras las aves cantan al amanecer cada día",
     "la amistad verdadera se construye con confianza y apoyo mutuo siempre",
-    // ... (mantengo la lista original)
 ];
 
 // Estado
@@ -134,14 +132,13 @@ async function generateImage(prompt) {
                 headers: {
                     'Authorization': `Bearer ${process.env.HF_API_TOKEN}`,
                     'Content-Type': 'application/json',
-                    'Accept': 'image/png' // Solicitar imagen en formato PNG
+                    'Accept': 'image/png'
                 },
-                responseType: 'arraybuffer', // Recibir datos binarios
-                timeout: 60000 // 60 segundos para generación
+                responseType: 'arraybuffer',
+                timeout: 60000
             }
         );
         console.log('Imagen generada exitosamente');
-        // Convertir la imagen a base64 para enviarla a Discord
         const imageBase64 = Buffer.from(response.data, 'binary').toString('base64');
         return `data:image/png;base64,${imageBase64}`;
     } catch (error) {
@@ -445,8 +442,20 @@ client.on('messageCreate', async (message) => {
             let aiReply;
             const lowerMessage = chatMessage.toLowerCase();
 
-            // Verificar si la pregunta pide una descripción visual (ejemplo: "¿Cómo es...")
-            if (lowerMessage.includes('cómo es') && (lowerMessage.includes('rata negra') || lowerMessage.includes('rata') || lowerMessage.includes('negra'))) {
+            // Condición especial para "¿Cómo es una rata blanca?" con enlace de Imgur
+            if (lowerMessage.includes('cómo es') && lowerMessage.includes('rata blanca')) {
+                const imgurLink = 'https://i.imgur.com/mjOqwH6.png'; // Reemplaza con tu enlace de Imgur aquí
+                // Alternativa dinámica: const imgurLink = process.env.IMGUR_RATA_BLANCA || 'https://i.imgur.com/TU_ENLACE_AQUI';
+                aiReply = `¡Hola, ${userName}! Una rata blanca es un pequeño roedor con un pelaje blanco puro, ojos rosados o rojos (por ser albina), orejas redondeadas y una cola larga y rosada. Son súper curiosas y amigables, ¡ideales como mascotas! Mira esta foto que encontré: [Rata blanca](${imgurLink}). ¿Qué te parece?`;
+                const finalEmbed = createEmbed('#55FFFF', `¡Aquí estoy para ti, ${userName}!`, aiReply);
+                const sentMessage = await channel.send({ embeds: [finalEmbed] });
+                await waitingMessage.delete();
+                await sentMessage.react('✅');
+                await sentMessage.react('❌');
+                sentMessages.set(sentMessage.id, { content: aiReply, originalQuestion: chatMessage, timestamp: new Date().toISOString(), message: sentMessage });
+            }
+            // Condición existente para rata negra con imagen generada
+            else if (lowerMessage.includes('cómo es') && (lowerMessage.includes('rata negra') || lowerMessage.includes('rata') || lowerMessage.includes('negra'))) {
                 aiReply = `¡Hola, ${userName}! Una rata negra, o "Rattus rattus", es un roedor pequeño con un cuerpo alargado, generalmente de color negro o gris oscuro. Tiene un hocico puntiagudo, orejas grandes y una cola larga y delgada. Son ágiles trepadoras y suelen vivir en lugares altos como áticos o árboles. Aquí tienes una imagen generada de una rata negra:`;
                 const imageUrl = await generateImage("A realistic black rat (Rattus rattus) with a pointed snout, large ears, and a long thin tail");
                 const finalEmbed = createEmbed('#55FFFF', `¡Aquí estoy para ti, ${userName}!`, aiReply);
@@ -456,7 +465,9 @@ client.on('messageCreate', async (message) => {
                 await sentMessage.react('✅');
                 await sentMessage.react('❌');
                 sentMessages.set(sentMessage.id, { content: aiReply, originalQuestion: chatMessage, timestamp: new Date().toISOString(), message: sentMessage });
-            } else {
+            }
+            // Respuesta general para otras preguntas
+            else {
                 const prompt = `Eres Miguel IA, creado por Miguel para ayudar a ${userName}. Responde a "${chatMessage}" de forma natural, amigable y detallada, explicando el tema si es una pregunta, con pasos claros si aplica. Asegúrate de completar todas las ideas y no dejar frases cortadas.`;
                 console.log(`Enviando solicitud a Hugging Face por ${userName}: "${chatMessage}"`);
                 const response = await axios.post(
@@ -531,7 +542,7 @@ client.on('messageCreate', async (message) => {
     if (content.startsWith('!help') || content.startsWith('!h')) {
         const embed = createEmbed('#55FF55', `¡Comandos para ti, ${userName}!`,
             'Aquí tienes lo que puedo hacer:\n' +
-            '- **!ch / !chat [mensaje]**: Charla conmigo (prueba "¿Cómo es una rata negra?" para una imagen).\n' +
+            '- **!ch / !chat [mensaje]**: Charla conmigo (prueba "¿Cómo es...?" para algo especial).\n' +
             '- **!tr / !trivia [n]**: Trivia (mínimo 10).\n' +
             '- **!pp / !ppm**: Prueba de mecanografía.\n' +
             '- **!rk / !ranking**: Ver puntajes y reacciones.\n' +
