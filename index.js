@@ -3,7 +3,8 @@ const { Client, GatewayIntentBits, EmbedBuilder } = require('discord.js');
 const axios = require('axios');
 const { v4: uuidv4 } = require('uuid');
 const SpotifyWebApi = require('spotify-web-api-node');
-const ytdl = require('ytdl-core');
+const play = require('play-dl'); // Reemplaza ytdl-core
+const ytSearch = require('yt-search');
 const { joinVoiceChannel, createAudioPlayer, createAudioResource, AudioPlayerStatus } = require('@discordjs/voice');
 const ytSearch = require('yt-search'); // Añadir esta línea al inicio del archivo
 require('dotenv').config();
@@ -1117,15 +1118,15 @@ async function playSong(message, connection) {
             await sendError(message.channel, 'No pude encontrar la canción en YouTube', `Falló la búsqueda de "${song.title}". Pasando a la siguiente.`);
             queue.shift();
             dataStore.musicQueue.set(message.guild.id, queue);
-            return playSong(message, connection); // Intentar la siguiente
+            return playSong(message, connection);
         }
 
         const video = searchResults.videos[0];
         const videoUrl = video.url;
 
-        const videoInfo = await ytdl.getInfo(videoUrl, { retries: 3 }); // Añadir reintentos
-        const stream = ytdl(videoUrl, { filter: 'audioonly', quality: 'highestaudio', highWaterMark: 1 << 25 }); // Aumentar buffer
-        const resource = createAudioResource(stream);
+        // Usar play-dl para obtener el stream
+        const stream = await play.stream(videoUrl, { quality: 2 }); // quality: 2 para audio de alta calidad
+        const resource = createAudioResource(stream.stream, { inputType: stream.type });
         const player = createAudioPlayer();
 
         player.play(resource);
@@ -1149,17 +1150,14 @@ async function playSong(message, connection) {
             playSong(message, connection);
         });
     } catch (error) {
-        console.error('Error al buscar o reproducir en YouTube:', error.message);
-        if (error.message.includes('Could not extract functions')) {
-            await sendError(message.channel, 'Problema con YouTube', 
-                'No puedo reproducir canciones ahora debido a un cambio en YouTube. ¡Intenta más tarde o usa !stop para detener!'); 
-            connection.destroy(); // Detener todo si falla crítico
-            dataStore.musicQueue.delete(message.guild.id);
-            delete dataStore.activeVoiceChannels[message.guild.id];
-            return; // Salir para evitar bucle
+        console.error('Error al buscar o reproducir:', error.message);
+        if (error.message.includes('Sign in to confirm your age') || error.message.includes('Video unavailable')) {
+            await sendError(message.channel, 'Canción no disponible', 
+                `"${song.title}" no está disponible en YouTube (restricción de edad o no encontrado). Pasando a la siguiente.`);
+        } else {
+            await sendError(message.channel, 'Error al procesar la canción', 
+                `Algo salió mal con "${song.title}": ${error.message}. Pasando a la siguiente.`);
         }
-        await sendError(message.channel, 'Error al procesar la canción', 
-            `Algo salió mal con "${song.title}": ${error.message}. Pasando a la siguiente.`);
         queue.shift();
         dataStore.musicQueue.set(message.guild.id, queue);
         playSong(message, connection);
