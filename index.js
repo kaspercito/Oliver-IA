@@ -1208,16 +1208,21 @@ async function manejarStop(message) {
     const voiceChannel = message.member.voice.channel;
     if (!voiceChannel) return sendError(message.channel, '¡Necesitas estar en un canal de voz!');
 
-    const connection = client.voice.adapters.get(message.guild.id)?.connection;
-    if (!connection) return sendError(message.channel, '¡No estoy reproduciendo nada ahora!');
+    const player = lavalink.players.get(message.guild.id);
+    if (!player) {
+        console.log('No hay reproductor activo para detener');
+        return sendError(message.channel, '¡No estoy reproduciendo nada ahora!', 
+            'No estoy conectado a ningún canal de voz. ¿Intentamos con !play primero?');
+    }
 
-    connection.destroy();
+    player.destroy();
+    lavalink.players.delete(message.guild.id);
     dataStore.musicQueue.delete(message.guild.id);
     delete dataStore.activeVoiceChannels[message.guild.id];
+    console.log('Reproducción detenida y cola limpiada');
 
     await sendSuccess(message.channel, '🎶 Reproducción detenida', 'He parado la música y limpiado la cola.');
 }
-
 async function manejarSkip(message) {
     if (!message.guild) return sendError(message.channel, '¡Este comando solo funciona en servidores!');
 
