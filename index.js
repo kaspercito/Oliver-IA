@@ -1,6 +1,6 @@
 const fs = require('fs');
 const { Client, GatewayIntentBits, EmbedBuilder } = require('discord.js');
-const { joinVoiceChannel, createAudioPlayer, createAudioResource, AudioPlayerStatus } = require('@discordjs/voice');
+const { Manager } = require('erela.js');
 const ytdl = require('ytdl-core');
 const SpotifyWebApi = require('spotify-web-api-node');
 const axios = require('axios');
@@ -23,8 +23,37 @@ const OWNER_ID = '752987736759205960'; // Tu ID
 const ALLOWED_USER_ID = '1023132788632862761'; // ID de Belén
 const CHANNEL_ID = '1343749554905940058'; // Canal principal
 
-// Cola de reproducción
-const queue = new Map();
+// Configuración de Erela.js
+const musicManager = new Manager({
+    nodes: [
+        {
+            host: 'localhost', // Usaremos Lavalink local o un nodo público
+            port: 2333,
+            password: 'youshallnotpass', // Cambia esto si usas un nodo diferente
+        },
+    ],
+    send(id, payload) {
+        const guild = client.guilds.cache.get(id);
+        if (guild) guild.shard.send(payload);
+    },
+})
+    .on('nodeConnect', node => console.log(`Nodo de música conectado: ${node.options.identifier}`))
+    .on('nodeError', (node, error) => console.error(`Error en nodo de música: ${error.message}`))
+    .on('trackStart', (player, track) => {
+        const channel = client.channels.cache.get(player.textChannel);
+        if (channel) {
+            channel.send({ embeds: [createEmbed('#55FF55', '🎵 Reproduciendo ahora', `**${track.title}**\nPedida por: ${track.requester}`)] });
+        }
+    })
+    .on('queueEnd', (player) => {
+        const channel = client.channels.cache.get(player.textChannel);
+        if (channel) {
+            channel.send({ embeds: [createEmbed('#FF5555', '🎵 Cola vacía', 'No hay más canciones. ¡Añade una con !play!')] });
+        }
+        player.destroy();
+        delete dataStore.musicQueue[player.guild];
+        dataStoreModified = true;
+    });
 
 // Spotify API
 const spotifyApi = new SpotifyWebApi({
