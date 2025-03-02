@@ -357,14 +357,20 @@ async function manejarReacciones(message) {
         const ganadorName = ganador.id === OWNER_ID ? 'Miguel' : 'Belén';
         reactionGames.delete(message.channel.id);
 
-        // Actualizar estadísticas de victorias en reacciones
+        // Actualizar victorias en reacciones
         if (!dataStore.reactionWins) dataStore.reactionWins = {};
         if (!dataStore.reactionWins[ganador.id]) {
             dataStore.reactionWins[ganador.id] = { username: ganador.username, wins: 0 };
         }
         dataStore.reactionWins[ganador.id].wins += 1;
+
+        // Registrar la palabra usada en reactionStats
+        if (!dataStore.reactionStats[ganador.id]) dataStore.reactionStats[ganador.id] = {};
+        if (!dataStore.reactionStats[ganador.id][palabra]) dataStore.reactionStats[ganador.id][palabra] = { count: 0 };
+        dataStore.reactionStats[ganador.id][palabra].count += 1;
+
         await saveDataStore(dataStore);
-        console.log(`Datos guardados para ${ganadorName}: ${JSON.stringify(dataStore.reactionWins)}`);
+        console.log(`Datos guardados para ${ganadorName}: ${JSON.stringify(dataStore.reactionWins)} y ${JSON.stringify(dataStore.reactionStats)}`);
 
         await sendSuccess(message.channel, '🎉 ¡Ganador!',
             `¡Felicidades, ${ganadorName}! Fuiste el primero en escribir **${palabra}**. ¡Eres rapidísimo! Mira tu progreso con !rk.`);
@@ -460,9 +466,19 @@ client.on('messageCreate', async (message) => {
             let aiReply;
             const lowerMessage = chatMessage.toLowerCase();
 
+            // Detectar saludo simple como "Hola"
+            if (lowerMessage === 'hola') {
+                aiReply = `¡Hola, ${userName}! ¿En qué puedo ayudarte hoy?`;
+                const finalEmbed = createEmbed('#55FFFF', `¡Aquí estoy para ti, ${userName}!`, aiReply);
+                const sentMessage = await channel.send({ embeds: [finalEmbed] });
+                await waitingMessage.delete();
+                await sentMessage.react('✅');
+                await sentMessage.react('❌');
+                sentMessages.set(sentMessage.id, { content: aiReply, originalQuestion: chatMessage, timestamp: new Date().toISOString(), message: sentMessage });
+            }
             // Detectar preguntas matemáticas simples como "cuánto es X + Y"
-            const mathMatch = lowerMessage.match(/cu[áa]nto es (\d+)\s*\+s*(\d+)/);
-            if (mathMatch) {
+            else if (lowerMessage.match(/cu[áa]nto es (\d+)\s*\+s*(\d+)/)) {
+                const mathMatch = lowerMessage.match(/cu[áa]nto es (\d+)\s*\+s*(\d+)/);
                 const num1 = parseInt(mathMatch[1]);
                 const num2 = parseInt(mathMatch[2]);
                 const result = num1 + num2;
@@ -476,7 +492,7 @@ client.on('messageCreate', async (message) => {
             }
             // Condición especial para "¿Cómo es una rata blanca?" con enlace de Imgur
             else if (lowerMessage.includes('cómo es') && lowerMessage.includes('rata blanca')) {
-                const imgurLink = 'https://i.imgur.com/mjOqwH6.png'; // Reemplaza con tu enlace de Imgur
+                const imgurLink = 'https://i.imgur.com/TU_ENLACE_AQUI'; // Reemplaza con tu enlace de Imgur
                 aiReply = `¡Hola, ${userName}! Una rata blanca es un pequeño roedor con un pelaje blanco puro, ojos rosados o rojos (por ser albina), orejas redondeadas y una cola larga y rosada. Son súper curiosas y amigables, ¡ideales como mascotas! Mira esta foto que encontré: [Rata blanca](${imgurLink}). ¿Qué te parece?`;
                 const finalEmbed = createEmbed('#55FFFF', `¡Aquí estoy para ti, ${userName}!`, aiReply);
                 const sentMessage = await channel.send({ embeds: [finalEmbed] });
