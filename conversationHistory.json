@@ -20,7 +20,18 @@
   },
   "triviaRanking": {},
   "personalPPMRecords": {},
-  "reactionStats": {},
-  "reactionWins": {},
+  "reactionStats": {
+    "752987736759205960": {
+      "brasilia": {
+        "count": 1
+      }
+    }
+  },
+  "reactionWins": {
+    "752987736759205960": {
+      "username": "kaspercito",
+      "wins": 1
+    }
+  },
   "activeTrivia": {}
 }
