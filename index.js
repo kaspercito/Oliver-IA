@@ -6,7 +6,6 @@ const SpotifyWebApi = require('spotify-web-api-node');
 const play = require('play-dl'); // Reemplaza ytdl-core
 const ytSearch = require('yt-search');
 const { joinVoiceChannel, createAudioPlayer, createAudioResource, AudioPlayerStatus } = require('@discordjs/voice');
-const ytSearch = require('yt-search'); // Añadir esta línea al inicio del archivo
 require('dotenv').config();
 
 const client = new Client({
