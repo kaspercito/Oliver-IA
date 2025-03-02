@@ -476,7 +476,7 @@ let dataStore = {
 let dataStoreModified = false; // Bandera para rastrear cambios en dataStore
 
 // Utilidades
-const createEmbed = (color, title, description, footer = 'Con cariño, Miguel IA | Reacciona con ✅ o ❌, ¡por favor!') => {
+const createEmbed = (color, title, description, footer = 'Con cariño, Miguel IA') => {
     return new EmbedBuilder()
         .setColor(color)
         .setTitle(title)
@@ -485,13 +485,13 @@ const createEmbed = (color, title, description, footer = 'Con cariño, Miguel IA
         .setTimestamp();
 };
 
-const sendError = async (channel, message, suggestion = '¿Intentamos de nuevo?') => {
-    const embed = createEmbed('#FF5555', '¡Ups!', `${message}\n${suggestion}`);
+const sendError = async (channel, message, suggestion = '¿Intentamos de nuevo?', footer = 'Con cariño, Miguel IA') => {
+    const embed = createEmbed('#FF5555', '¡Ups!', `${message}\n${suggestion}`, footer);
     return await channel.send({ embeds: [embed] });
 };
 
-const sendSuccess = async (channel, title, message) => {
-    const embed = createEmbed('#55FF55', title, message);
+const sendSuccess = async (channel, title, message, footer = 'Con cariño, Miguel IA') => {
+    const embed = createEmbed('#55FF55', title, message, footer);
     return await channel.send({ embeds: [embed] });
 };
 
@@ -633,6 +633,112 @@ setInterval(async () => {
 }, SAVE_INTERVAL);
 
 
+// Persistencia en GitHub
+async function loadDataStore() {
+    try {
+        const response = await axios.get(
+            `https://api.github.com/repos/${process.env.GITHUB_REPO}/contents/${process.env.GITHUB_FILE_PATH}`,
+            { headers: { 'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`, 'Accept': 'application/vnd.github+json' } }
+        );
+        const content = Buffer.from(response.data.content, 'base64').toString('utf8');
+        const loadedData = content ? JSON.parse(content) : { 
+            conversationHistory: {}, 
+            triviaRanking: {}, 
+            personalPPMRecords: {}, 
+            reactionStats: {}, 
+            reactionWins: {}, 
+            activeSessions: {}, 
+            triviaStats: {},
+            updatesSent: false
+        };
+        
+        // Asegurarse de que personalPPMRecords tenga la nueva estructura
+        if (!loadedData.personalPPMRecords) {
+            loadedData.personalPPMRecords = {};
+        }
+        for (const userId in loadedData.personalPPMRecords) {
+            if (!loadedData.personalPPMRecords[userId].best) {
+                loadedData.personalPPMRecords[userId] = { best: { ppm: 0, timestamp: null }, attempts: [] };
+            }
+        }
+
+        console.log('Datos cargados desde GitHub:', JSON.stringify(loadedData));
+        return loadedData;
+    } catch (error) {
+        console.error('Error al cargar datos desde GitHub:', error.message);
+        return { 
+            conversationHistory: {}, 
+            triviaRanking: {}, 
+            personalPPMRecords: {}, 
+            reactionStats: {}, 
+            reactionWins: {}, 
+            activeSessions: {}, 
+            triviaStats: {},
+            updatesSent: false
+        };
+    }
+}
+
+async function saveDataStore() {
+    if (!dataStoreModified) {
+        console.log('No hay cambios en dataStore, omitiendo guardado');
+        return false; // Indicar que no se guardó
+    }
+
+    try {
+        let sha;
+        try {
+            const response = await axios.get(
+                `https://api.github.com/repos/${process.env.GITHUB_REPO}/contents/${process.env.GITHUB_FILE_PATH}`,
+                { headers: { 'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`, 'Accept': 'application/vnd.github+json' } }
+            );
+            sha = response.data.sha;
+        } catch (error) {
+            if (error.response?.status !== 404) throw error;
+        }
+
+        await axios.put(
+            `https://api.github.com/repos/${process.env.GITHUB_REPO}/contents/${process.env.GITHUB_FILE_PATH}`,
+            {
+                message: 'Actualizar historial y sesiones',
+                content: Buffer.from(JSON.stringify(dataStore, null, 2)).toString('base64'),
+                sha: sha || undefined,
+            },
+            { headers: { 'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`, 'Accept': 'application/vnd.github+json' } }
+        );
+        console.log('Datos guardados en GitHub:', JSON.stringify(dataStore));
+        return true; // Indicar que se guardó exitosamente
+    } catch (error) {
+        console.error('Error al guardar datos en GitHub:', error.message);
+        throw error;
+    }
+}
+
+// Aviso anticipado y guardado automático
+const SAVE_INTERVAL = 1800000; // 30 minutos en milisegundos
+const WARNING_TIME = 300000;   // 5 minutos antes (300,000 ms)
+
+setInterval(async () => {
+    if (!dataStoreModified) {
+        console.log('No hay cambios en dataStore, omitiendo guardado automático');
+        return;
+    }
+
+    const channel = await client.channels.fetch(CHANNEL_ID);
+    if (channel) {
+        await channel.send({ embeds: [createEmbed('#FFAA00', '⏰ Aviso de Guardado', '¡Atención! El autoguardado será en 5 minutos. Por favor, evita iniciar nuevos comandos durante el guardado para no interferir.')] });
+    }
+
+    setTimeout(async () => {
+        await saveDataStore();
+        if (channel) {
+            await channel.send({ embeds: [createEmbed('#55FF55', '💾 Guardado Completado', 'Datos guardados exitosamente. ¡Puedes seguir usando el bot!')] });
+        }
+        dataStoreModified = false; // Reiniciar la bandera después de guardar
+        console.log('Guardado automático completado y bandera reiniciada');
+    }, WARNING_TIME);
+}, SAVE_INTERVAL);
+
 // Funciones de Trivia
 function obtenerPreguntaTriviaSinOpciones(usedQuestions, categoria) {
     const preguntasCategoria = preguntasTriviaSinOpciones[categoria] || [];
@@ -645,12 +751,12 @@ async function manejarTrivia(message) {
     console.log(`Instancia ${instanceId} - Iniciando trivia para ${message.author.id}`);
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
     const args = message.content.toLowerCase().split(' ').slice(1);
-    let categoria = args[0] || 'capitales'; // Por defecto: capitales
-    let numQuestions = 20; // Cambiado de 10 a 20 por defecto
-    if (args[1] && !isNaN(args[1]) && args[1] >= 20) numQuestions = parseInt(args[1]); // Mínimo 20 preguntas
+    let categoria = args[0] || 'capitales';
+    let numQuestions = 20;
+    if (args[1] && !isNaN(args[1]) && args[1] >= 20) numQuestions = parseInt(args[1]);
     else if (args[0] && !isNaN(args[0]) && args[0] >= 20) {
         numQuestions = parseInt(args[0]);
-        categoria = 'capitales'; // Si solo hay número, usar capitales
+        categoria = 'capitales';
     }
 
     if (!preguntasTriviaSinOpciones[categoria]) {
@@ -682,20 +788,16 @@ async function manejarTrivia(message) {
 
         channelProgress.usedQuestions = usedQuestions;
         dataStore.activeSessions[message.channel.id] = channelProgress;
+        dataStoreModified = true; // Indicar que dataStore ha sido modificado
 
         try {
-            console.log(`Esperando respuesta para pregunta ${channelProgress.currentQuestion + 1}: ${trivia.pregunta}`);
             const respuestas = await message.channel.awaitMessages({
-                filter: (res) => {
-                    console.log(`Filtrando respuesta de ${res.author.id} (esperado: ${message.author.id}): "${res.content}"`);
-                    return res.author.id === message.author.id && res.content.trim().length > 0;
-                },
+                filter: (res) => res.author.id === message.author.id && res.content.trim().length > 0,
                 max: 1,
                 time: 60000,
                 errors: ['time']
             });
             const respuestaUsuario = respuestas.first().content;
-            console.log(`Respuesta recibida: "${respuestaUsuario}"`);
             const cleanedUserResponse = cleanText(respuestaUsuario);
             const cleanedCorrectResponse = cleanText(trivia.respuesta);
             activeTrivia.delete(message.channel.id);
@@ -703,6 +805,7 @@ async function manejarTrivia(message) {
             if (!dataStore.triviaStats[message.author.id]) dataStore.triviaStats[message.author.id] = {};
             if (!dataStore.triviaStats[message.author.id][categoria]) dataStore.triviaStats[message.author.id][categoria] = { correct: 0, total: 0 };
             dataStore.triviaStats[message.author.id][categoria].total += 1;
+            dataStoreModified = true; // Indicar que dataStore ha sido modificado
 
             if (cleanedUserResponse === cleanedCorrectResponse) {
                 channelProgress.score += 1;
@@ -715,17 +818,18 @@ async function manejarTrivia(message) {
             }
             channelProgress.currentQuestion += 1;
             dataStore.activeSessions[message.channel.id] = channelProgress;
-            console.log(`Avanzando a pregunta ${channelProgress.currentQuestion + 1}`);
+            dataStoreModified = true; // Indicar que dataStore ha sido modificado
         } catch (error) {
-            console.log(`Tiempo agotado o error en pregunta ${channelProgress.currentQuestion + 1}: ${trivia.pregunta}`, error);
             activeTrivia.delete(message.channel.id);
             if (!dataStore.triviaStats[message.author.id]) dataStore.triviaStats[message.author.id] = {};
             if (!dataStore.triviaStats[message.author.id][categoria]) dataStore.triviaStats[message.author.id][categoria] = { correct: 0, total: 0 };
             dataStore.triviaStats[message.author.id][categoria].total += 1;
+            dataStoreModified = true; // Indicar que dataStore ha sido modificado
             await sendError(message.channel, '⏳ ¡Tiempo agotado!',
                 `Se acabó el tiempo, ${userName}. La respuesta correcta era **${trivia.respuesta}**.`);
             channelProgress.currentQuestion += 1;
             dataStore.activeSessions[message.channel.id] = channelProgress;
+            dataStoreModified = true; // Indicar que dataStore ha sido modificado
         }
     }
 
@@ -736,7 +840,7 @@ async function manejarTrivia(message) {
         if (!dataStore.triviaRanking[message.author.id][categoria]) dataStore.triviaRanking[message.author.id][categoria] = { score: 0 };
         dataStore.triviaRanking[message.author.id][categoria].score = (dataStore.triviaRanking[message.author.id][categoria].score || 0) + channelProgress.score;
         delete dataStore.activeSessions[message.channel.id];
-        console.log(`Trivia terminada para ${message.author.id} en ${categoria}. Puntaje acumulado: ${dataStore.triviaRanking[message.author.id][categoria].score}`);
+        dataStoreModified = true; // Indicar que dataStore ha sido modificado
     }
 }
 
@@ -826,7 +930,6 @@ async function manejarPPM(message) {
     }
 }
 
-
 // Reacciones
 function obtenerPalabraAleatoria() {
     return palabrasAleatorias[Math.floor(Math.random() * palabrasAleatorias.length)];
@@ -851,9 +954,9 @@ async function manejarReacciones(message) {
     session.timestamp = startTime;
     session.completed = false;
     dataStore.activeSessions[message.channel.id] = session;
+    dataStoreModified = true; // Indicar que dataStore ha sido modificado
 
     try {
-        console.log(`Esperando respuesta para palabra: "${palabra}"`);
         const respuestas = await message.channel.awaitMessages({
             filter: (res) => res.content.toLowerCase().trim() === palabra,
             max: 1,
@@ -866,17 +969,18 @@ async function manejarReacciones(message) {
         const ganadorName = ganador.id === OWNER_ID ? 'Miguel' : 'Belén';
         session.completed = true;
         delete dataStore.activeSessions[message.channel.id];
+        dataStoreModified = true; // Indicar que dataStore ha sido modificado
 
         if (!dataStore.reactionWins[ganador.id]) dataStore.reactionWins[ganador.id] = { username: ganador.username, wins: 0 };
         dataStore.reactionWins[ganador.id].wins += 1;
-        console.log(`Reacción ganada por ${ganador.id}. Victorias: ${dataStore.reactionWins[ganador.id].wins}`);
+        dataStoreModified = true; // Indicar que dataStore ha sido modificado
 
         await sendSuccess(message.channel, '🎉 ¡Ganador!',
             `¡Felicidades, ${ganadorName}! Fuiste el primero en escribir **${palabra}** en ${tiempoSegundos.toFixed(2)} segundos. ¡Eres rapidísimo! Mira tu progreso con !rk.`);
     } catch (error) {
-        console.log('Tiempo agotado en reacciones:', error);
         session.completed = true;
         delete dataStore.activeSessions[message.channel.id];
+        dataStoreModified = true; // Indicar que dataStore ha sido modificado
         await sendError(message.channel, '⏳ ¡Tiempo agotado!',
             `Nadie escribió **${palabra}** a tiempo. ¡Mejor suerte la próxima vez con !re!`);
     }
@@ -886,9 +990,9 @@ async function manejarReacciones(message) {
 async function manejarChat(message) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
     const chatMessage = message.content.startsWith('!chat') ? message.content.slice(5).trim() : message.content.slice(3).trim();
-    if (!chatMessage) return sendError(message.channel, `Escribe un mensaje después de "!ch", ${userName}.`);
+    if (!chatMessage) return sendError(message.channel, `Escribe un mensaje después de "!ch", ${userName}.`, undefined, 'Con cariño, Miguel IA | Reacciona con ✅ o ❌, ¡por favor!');
 
-    const waitingEmbed = createEmbed('#55FFFF', `¡Un momento, ${userName}!`, 'Espera, estoy buscando una respuesta...');
+    const waitingEmbed = createEmbed('#55FFFF', `¡Un momento, ${userName}!`, 'Espera, estoy buscando una respuesta...', 'Con cariño, Miguel IA | Reacciona con ✅ o ❌, ¡por favor!');
     const waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
 
     try {
@@ -906,7 +1010,7 @@ async function manejarChat(message) {
         } else if (lowerMessage.includes('cómo es') && lowerMessage.includes('rata negra')) {
             aiReply = `Una rata negra (Rattus rattus) es un roedor de cuerpo alargado, color negro o gris oscuro, hocico puntiagudo, orejas grandes y cola larga. Son ágiles y viven en lugares altos, ${userName}. Mira esta imagen generada:`;
             const imageUrl = await generateImage("A realistic black rat (Rattus rattus) with a pointed snout, large ears, and a long thin tail");
-            const finalEmbed = createEmbed('#55FFFF', `¡Aquí estoy, ${userName}!`, aiReply).setImage(imageUrl);
+            const finalEmbed = createEmbed('#55FFFF', `¡Aquí estoy, ${userName}!`, aiReply, 'Con cariño, Miguel IA | Reacciona con ✅ o ❌, ¡por favor!').setImage(imageUrl);
             const updatedMessage = await waitingMessage.edit({ embeds: [finalEmbed] });
             await updatedMessage.react('✅');
             await updatedMessage.react('❌');
@@ -926,14 +1030,14 @@ async function manejarChat(message) {
         }
 
         aiReply += `\n\n¿Te ayudó esto, ${userName}?`;
-        const finalEmbed = createEmbed('#55FFFF', `¡Aquí estoy, ${userName}!`, aiReply);
+        const finalEmbed = createEmbed('#55FFFF', `¡Aquí estoy, ${userName}!`, aiReply, 'Con cariño, Miguel IA | Reacciona con ✅ o ❌, ¡por favor!');
         const updatedMessage = await waitingMessage.edit({ embeds: [finalEmbed] });
         await updatedMessage.react('✅');
         await updatedMessage.react('❌');
         sentMessages.set(updatedMessage.id, { content: aiReply, originalQuestion: chatMessage, message: updatedMessage });
     } catch (error) {
         console.error('Error en !chat:', error.message);
-        const errorEmbed = createEmbed('#FF5555', '¡Ups!', `Algo salió mal, ${userName}. Error: ${error.message}. ¡Intenta de nuevo o reformula tu pregunta!`);
+        const errorEmbed = createEmbed('#FF5555', '¡Ups!', `Algo salió mal, ${userName}. Error: ${error.message}. ¡Intenta de nuevo o reformula tu pregunta!`, 'Con cariño, Miguel IA | Reacciona con ✅ o ❌, ¡por favor!');
         await waitingMessage.edit({ embeds: [errorEmbed] });
     }
 }
@@ -980,7 +1084,6 @@ async function manejarAyuda(message) {
         await sendError(message.channel, 'No pude avisar a Miguel', `Ocurrió un error, ${userName}. ¿Intentamos de nuevo?`);
     }
 }
-
 
 // Ranking con top por categoría para Trivia y Reacciones
 function getCombinedRankingEmbed(userId, username) {
@@ -1055,7 +1158,7 @@ async function manejarRankingPPM(message) {
     await message.channel.send({ embeds: [embed] });
 }
 
-// Comandos actualizados
+// Comandos
 async function manejarCommand(message) {
     const content = message.content.toLowerCase();
     console.log(`Comando recibido: ${content}`);
@@ -1075,12 +1178,14 @@ async function manejarCommand(message) {
         await message.channel.send({ embeds: [embed] });
     } else if (content === '!save') {
         const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
-        if (isSaving) {
-            return sendError(message.channel, 'El bot ya está realizando un guardado automático', 'Espera unos minutos y vuelve a intentarlo.');
-        }
         try {
-            await saveDataStore();
-            await sendSuccess(message.channel, '💾 ¡Guardado!', `Datos guardados exitosamente, ${userName}. Estado actual: ${JSON.stringify(dataStore)}`);
+            const saved = await saveDataStore();
+            if (saved) {
+                await sendSuccess(message.channel, '💾 ¡Guardado!', `Datos guardados exitosamente, ${userName}.`);
+                dataStoreModified = false; // Reiniciar la bandera después de guardar manualmente
+            } else {
+                await sendSuccess(message.channel, '💾 Sin Cambios', `No hay cambios para guardar, ${userName}.`);
+            }
         } catch (error) {
             await sendError(message.channel, '💾 Error al guardar', `No pude guardar los datos, ${userName}. Error: ${error.message}`);
         }
@@ -1133,12 +1238,10 @@ client.on('messageCreate', async (message) => {
 // Eventos
 client.once('ready', async () => {
     console.log(`¡Miguel IA está listo! Instancia: ${instanceId}`);
-    client.user.setPresence({ activities: [{ name: "Listo para ayudar a Miguel y Miguel", type: 0 }], status: 'online' });
+    client.user.setPresence({ activities: [{ name: "Listo para ayudar a Miguel y Belén", type: 0 }], status: 'online' });
     dataStore = await loadDataStore();
     activeTrivia = new Map(Object.entries(dataStore.activeSessions).filter(([_, s]) => s.type === 'trivia'));
-    console.log('Sesiones activas recargadas:', JSON.stringify(dataStore.activeSessions));
 
-    // Verificación de actualizaciones al iniciar
     try {
         const channel = await client.channels.fetch(CHANNEL_ID);
         if (!channel) throw new Error('Canal no encontrado');
@@ -1153,15 +1256,12 @@ client.once('ready', async () => {
 
         if (updatesChanged) {
             const updateEmbed = createEmbed('#FFD700', '📢 Actualizaciones de Miguel IA',
-                '¡Tengo mejoras nuevas para compartir contigo!', 'Con cariño, Miguel IA') // Footer personalizado
+                '¡Tengo mejoras nuevas para compartir contigo!')
                 .addFields(
                     { name: 'Novedades', value: BOT_UPDATES.map(update => `- ${update}`).join('\n'), inline: false },
                     { name: 'Hora de actualización', value: `${argentinaTime}`, inline: false },
                 );
             await channel.send({ content: `<@${ALLOWED_USER_ID}>`, embeds: [updateEmbed] });
-            console.log('Actualizaciones enviadas al canal con mención:', CHANNEL_ID);
-        } else {
-            console.log('No hay cambios en las actualizaciones, no se enviaron.');
         }
     } catch (error) {
         console.error('Error al enviar actualizaciones:', error);
@@ -1173,42 +1273,6 @@ process.on('beforeExit', async () => {
     await saveDataStore();
 });
 
-client.on('messageCreate', async (message) => {
-    if (message.author.bot) return;
-    if (![OWNER_ID, ALLOWED_USER_ID].includes(message.author.id)) return;
-
-    const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
-
-    if (processedMessages.has(message.id)) return;
-    processedMessages.set(message.id, Date.now());
-    setTimeout(() => processedMessages.delete(message.id), 10000);
-
-    await manejarCommand(message);
-
-    const content = message.content.toLowerCase();
-    if (content.startsWith('!ranking') || content.startsWith('!rk')) {
-        const embed = getCombinedRankingEmbed(message.author.id, message.author.username);
-        await message.channel.send({ embeds: [embed] });
-    } else if (content.startsWith('!help') || content.startsWith('!h')) {
-        const embed = createEmbed('#55FF55', `¡Comandos para ti, ${userName}!`,
-            '¡Aquí tienes lo que puedo hacer!\n' +
-            '- **!ch / !chat [mensaje]**: Charla conmigo.\n' +
-            '- **!tr / !trivia [categoría] [n]**: Trivia por categoría (mínimo 20). Categorías: ' + Object.keys(preguntasTriviaSinOpciones).join(', ') + '\n' +
-            '- **!pp / !ppm**: Prueba de mecanografía.\n' +
-            '- **!rk / !ranking**: Ver puntajes y estadísticas.\n' +
-            '- **!re / !reacciones**: Juego de escribir rápido.\n' +
-            '- **!su / !sugerencias [idea]**: Envía ideas para mejorar el bot.\n' +
-            '- **!ay / !ayuda [problema]**: Pide ayuda a Miguel.\n' +
-            '- **!save**: Guardar datos ahora.\n' +
-            '- **!h / !help**: Lista de comandos.\n' +
-            '- **hola**: Saludo especial.');
-        await message.channel.send({ embeds: [embed] });
-    } else if (content === 'hola') {
-        await sendSuccess(message.channel, `¡Hola, ${userName}!`, `Soy Miguel IA, aquí para ayudarte. Prueba !tr, !pp o !re.`);
-    }
-});
-
-// Evento de reacción actualizado para notificar al OWNER_ID cuando Belén reaccione
 client.on('messageReactionAdd', async (reaction, user) => {
     if (!sentMessages.has(reaction.message.id)) return;
     if (![OWNER_ID, ALLOWED_USER_ID].includes(user.id)) return;
@@ -1218,7 +1282,7 @@ client.on('messageReactionAdd', async (reaction, user) => {
 
     if (reaction.emoji.name === '❌') {
         const alternativeEmbed = createEmbed('#55FFFF', `¡Probemos otra vez, ${userName}!`,
-            `No te gustó mi respuesta a "${messageData.originalQuestion}". Dame más detalles y lo intento de nuevo.`);
+            `No te gustó mi respuesta a "${messageData.originalQuestion}". Dame más detalles y lo intento de nuevo.`, 'Con cariño, Miguel IA | Reacciona con ✅ o ❌, ¡por favor!');
         const newMessage = await reaction.message.channel.send({ embeds: [alternativeEmbed] });
         await newMessage.react('✅');
         await newMessage.react('❌');
