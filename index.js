@@ -22,7 +22,6 @@ const CHANNEL_ID = '1343749554905940058'; // Canal principal
 const BOT_UPDATES = [
     '¡Trivia extendida! Ahora las trivias son de 20 preguntas por defecto en lugar de 10.',
     '¡Guardado automático mejorado! Avisa 5 minutos antes cada 30 minutos para que evites iniciar nuevos comandos.',
-    '¡Notificaciones de reacciones! Cada vez que Belén reacciona a un mensaje del bot, Miguel recibe una notificación.',
     '¡Comandos !sugerencias y !ayuda añadidos! Envía ideas o pide ayuda directamente a Miguel.',
     '¡PPM más rápido! El tiempo para escribir la frase se redujo de 60 a 15 segundos.',
     '¡Verificación de actualizaciones! El bot compara BOT_UPDATES con PREVIOUS_BOT_UPDATES al iniciar y avisa si hay cambios.',
@@ -30,7 +29,7 @@ const BOT_UPDATES = [
 
 // Estado anterior de las actualizaciones (del código pasado)
 const PREVIOUS_BOT_UPDATES = [
-    'Prueba enviando un !ayuda por favor, también escribe algo, si puedes dime si el bot te dio una respuesta correcta, quiero revisar si funciona correctamente.',
+    '¡Trivia extendida! Ahora las trivias son de 20 preguntas por defecto en lugar de 10.',
 ];
 
 // Mensajes de ánimo para Belén
@@ -1105,7 +1104,7 @@ client.on('messageCreate', async (message) => {
 // Eventos
 client.once('ready', async () => {
     console.log(`¡Miguel IA está listo! Instancia: ${instanceId}`);
-    client.user.setPresence({ activities: [{ name: "Listo para ayudar a Miguel y Milagros", type: 0 }], status: 'online' });
+    client.user.setPresence({ activities: [{ name: "Listo para ayudar a Miguel y Miguel", type: 0 }], status: 'online' });
     dataStore = await loadDataStore();
     activeTrivia = new Map(Object.entries(dataStore.activeSessions).filter(([_, s]) => s.type === 'trivia'));
     console.log('Sesiones activas recargadas:', JSON.stringify(dataStore.activeSessions));
@@ -1125,7 +1124,7 @@ client.once('ready', async () => {
 
         if (updatesChanged) {
             const updateEmbed = createEmbed('#FFD700', '📢 Actualizaciones de Miguel IA',
-                '¡Tengo mejoras nuevas para compartir contigo!')
+                '¡Tengo mejoras nuevas para compartir contigo!', 'Con cariño, Miguel IA') // Footer personalizado
                 .addFields(
                     { name: 'Novedades', value: BOT_UPDATES.map(update => `- ${update}`).join('\n'), inline: false },
                     { name: 'Hora de actualización', value: `${argentinaTime}`, inline: false },
