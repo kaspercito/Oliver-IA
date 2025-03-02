@@ -28,7 +28,6 @@ const BOT_UPDATES = [
 
 // Preguntas de trivia organizadas por categorías
 const preguntasTriviaSinOpciones = {
-const preguntasTriviaSinOpciones = {
     capitales: [
         { pregunta: "¿Cuál es la capital de Brasil?", respuesta: "brasilia" },
         { pregunta: "¿Cuál es la capital de Japón?", respuesta: "tokio" },
