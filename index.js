@@ -982,8 +982,10 @@ async function manejarAyuda(message) {
 async function manejarPlay(message) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
     const args = message.content.toLowerCase().split(' ').slice(1).join(' ').trim();
+    
     if (!args) return sendError(message.channel, `Dime qué reproducir después de "!pl", ${userName}.`);
-
+    
+    if (!message.guild) return sendError(message.channel, `Este comando solo funciona en servidores, no en DM, ${userName}.`);
     if (!message.member.voice.channel) return sendError(message.channel, `Debes estar en un canal de voz, ${userName}.`);
 
     const player = manager.create({
@@ -1006,6 +1008,8 @@ async function manejarPlay(message) {
 
     const track = res.tracks[0];
     player.queue.add(track);
+    
+    // Verificación adicional para asegurarnos de que el guild ID existe
     dataStore.musicSessions[message.guild.id] = { current: track.title, queue: player.queue.map(t => t.title) };
     dataStoreModified = true;
 
