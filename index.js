@@ -50,7 +50,7 @@ const preguntasTriviaSinOpciones = {
         { pregunta: "¿Cuál es la capital de Turquía?", respuesta: "ankara" },
         { pregunta: "¿Cuál es la capital de Chile?", respuesta: "santiago" },
         { pregunta: "¿Cuál es la capital de Colombia?", respuesta: "bogotá" },
-        { pregunta: "¿Cuál es la capital de Perú?", respuesta: "lima" },
+        { pregunta: "¿Cuál es la capital de Ecuador?", respuesta: "quito" },
         { pregunta: "¿Cuál es la capital de Suecia?", respuesta: "estocolmo" },
         { pregunta: "¿Cuál es la capital de Noruega?", respuesta: "oslo" },
         { pregunta: "¿Cuál es la capital de Nueva Zelanda?", respuesta: "wellington" }
