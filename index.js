@@ -181,7 +181,7 @@ async function saveDataStore() {
 // Guardar cada 10 minutos
 setInterval(() => {
     saveDataStore();
-}, 600000); // 10 minutos en milisegundos
+}, 600000);
 
 // Funciones de Trivia
 function obtenerPreguntaTriviaSinOpciones(usedQuestions) {
@@ -271,7 +271,6 @@ async function manejarTrivia(message) {
         if (!dataStore.triviaRanking[message.author.id]) dataStore.triviaRanking[message.author.id] = { username: message.author.username, score: 0 };
         dataStore.triviaRanking[message.author.id].score += channelProgress.score;
         delete dataStore.activeSessions[message.channel.id];
-        // No guardar aquí, se hará cada 10 minutos
     }
 }
 
@@ -292,7 +291,7 @@ async function manejarPPM(message) {
     const countdownEmbed = createEmbed('#FFAA00', '⏳ Cuenta Regresiva', `¡Prepárate, ${userName}! Empieza en 3...`);
     const countdownMessage = await message.channel.send({ embeds: [countdownEmbed] });
 
-    for (let i = 2; i >= 0; i--) { // Corregido para contar hasta 0
+    for (let i = 2; i >= 0; i--) {
         await new Promise(resolve => setTimeout(resolve, 1000));
         const updatedEmbed = createEmbed('#FFAA00', '⏳ Cuenta Regresiva', `¡Prepárate, ${userName}! Empieza en ${i}...`);
         await countdownMessage.edit({ embeds: [updatedEmbed] });
@@ -458,18 +457,22 @@ async function manejarChat(message) {
     }
 }
 
-// Ranking con estadísticas
+// Ranking con todos los PPM
 function getCombinedRankingEmbed(userId, username) {
     const triviaScore = dataStore.triviaRanking[userId]?.score || 0;
     const ppmRecords = dataStore.personalPPMRecords[userId] || [];
-    const bestPPM = ppmRecords.length > 0 ? Math.max(...ppmRecords.map(r => r.ppm)) : 0;
     const reactionWins = dataStore.reactionWins[userId]?.wins || 0;
     const triviaStats = dataStore.triviaStats[userId] || { correct: 0, total: 0 };
     const triviaPercentage = triviaStats.total > 0 ? Math.round((triviaStats.correct / triviaStats.total) * 100) : 0;
 
+    // Construir la lista de todos los PPM
+    let ppmList = ppmRecords.length > 0 
+        ? ppmRecords.map(record => `${record.ppm} PPM (${new Date(record.timestamp).toLocaleString()})`).join('\n')
+        : 'No has hecho pruebas de PPM aún.';
+    
     return createEmbed('#FFD700', `🏆 Ranking de ${username}`,
         `Trivia: **${triviaScore} puntos** (${triviaPercentage}% acertadas)\n` +
-        `PPM: **${bestPPM} PPM**\n` +
+        `PPM:\n${ppmList}\n` +
         `Victorias en Reacciones: **${reactionWins}**`);
 }
 
