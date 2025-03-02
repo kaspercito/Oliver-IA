@@ -1,10 +1,9 @@
 const fs = require('fs');
-const { Client, GatewayIntentBits, EmbedBuilder } = require('discord.js');
+const { Client, GatewayIntentBits, EmbedBuilder, ButtonBuilder, ActionRowBuilder, ButtonStyle } = require('discord.js');
 const axios = require('axios');
 const { v4: uuidv4 } = require('uuid');
 const SpotifyWebApi = require('spotify-web-api-node');
-const { Manager } = require('erela.js'); // Reemplazamos lavalink-client por erela.js
-const { joinVoiceChannel, createAudioPlayer, createAudioResource, AudioPlayerStatus } = require('@discordjs/voice');
+const { Manager } = require('erela.js');
 require('dotenv').config();
 
 const client = new Client({
@@ -32,6 +31,7 @@ const manager = new Manager({
         if (guild) guild.shard.send(payload);
     },
 });
+
 
 
 // IDs y constantes
@@ -71,7 +71,6 @@ const spotifyApi = new SpotifyWebApi({
     clientSecret: process.env.SPOTIFY_CLIENT_SECRET,
 });
 
-// Obtener token de acceso para Spotify
 async function refreshSpotifyToken() {
     try {
         const data = await spotifyApi.clientCredentialsGrant();
@@ -508,7 +507,7 @@ let dataStore = {
     reactionWins: {}, 
     activeSessions: {}, 
     triviaStats: {},
-    musicQueue: new Map(), // Usaremos esto para complementar Erela.js si es necesario
+    musicQueue: new Map(),
     activeVoiceChannels: {},
     previousSongs: new Map()
 };
@@ -1023,17 +1022,27 @@ async function manejarAyuda(message) {
     }
 }
 
+const createMusicControls = () => {
+    return new ActionRowBuilder().addComponents(
+        new ButtonBuilder().setCustomId("prev").setLabel("⏮️").setStyle(ButtonStyle.Secondary),
+        new ButtonBuilder().setCustomId("pause").setLabel("⏸️").setStyle(ButtonStyle.Secondary),
+        new ButtonBuilder().setCustomId("resume").setLabel("▶️").setStyle(ButtonStyle.Success),
+        new ButtonBuilder().setCustomId("skip").setLabel("⏭️").setStyle(ButtonStyle.Secondary),
+        new ButtonBuilder().setCustomId("stop").setLabel("🛑").setStyle(ButtonStyle.Danger)
+    );
+};
+
 async function manejarPlay(message) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
 
     if (!message.guild) {
-        await sendError(message.channel, '¡Este comando solo funciona en servidores!', 'Úsalo en un canal de servidor, no en DMs.');
+        await sendError(message.channel, '¡Este comando solo funciona en servidores!');
         return;
     }
 
     const args = message.content.split(' ').slice(1);
     if (!args.length) {
-        await sendError(message.channel, '¡Dame un enlace de Spotify o el nombre de una canción/playlist!', 'Ejemplo: !play https://open.spotify.com/playlist/...');
+        await sendError(message.channel, '¡Dame un enlace de Spotify o el nombre de una canción/playlist!');
         return;
     }
 
@@ -1043,93 +1052,50 @@ async function manejarPlay(message) {
         return;
     }
 
-    const permissions = voiceChannel.permissionsFor(message.client.user);
+    const permissions = voiceChannel.permissionsFor(client.user);
     if (!permissions.has('CONNECT') || !permissions.has('SPEAK')) {
         await sendError(message.channel, '¡Necesito permisos para unirme y hablar en tu canal de voz!');
         return;
     }
 
+    const player = manager.create({
+        guild: message.guild.id,
+        voiceChannel: voiceChannel.id,
+        textChannel: message.channel.id,
+        selfDeafen: true,
+    });
+
+    if (player.state !== 'CONNECTED') {
+        player.connect();
+        console.log(`Conectado al canal de voz: ${voiceChannel.name} (ID: ${voiceChannel.id})`);
+        await sendSuccess(message.channel, '🔊 Conectado', `Me he unido al canal de voz ${voiceChannel.name}, ${userName}.`);
+    }
+
     const query = args.join(' ');
-    let tracks = [];
+    let res;
 
     try {
-        await refreshSpotifyToken();
-
-        if (query.includes('spotify.com/playlist/')) {
-            const playlistId = query.split('playlist/')[1].split('?')[0];
-            const playlist = await spotifyApi.getPlaylist(playlistId);
-            tracks = playlist.body.tracks.items.map(item => ({
-                title: item.track.name,
-                author: item.track.artists[0].name,
-                thumbnail: item.track.album.images[0]?.url || null,
-                identifier: item.track.id,
-            }));
-            await sendSuccess(message.channel, '🎶 Playlist cargada', `He cargado ${tracks.length} canciones de la playlist "${playlist.body.name}", ${userName}. ¡Empezando a reproducir!`);
-        } else if (query.includes('spotify.com/track/')) {
-            const trackId = query.split('track/')[1].split('?')[0];
-            const track = await spotifyApi.getTrack(trackId);
-            tracks = [{
-                title: track.body.name,
-                author: track.body.artists[0].name,
-                thumbnail: track.body.album.images[0]?.url || null,
-                identifier: track.body.id,
-            }];
-            await sendSuccess(message.channel, '🎶 Canción cargada', `Voy a reproducir "${track.body.name}" de ${track.body.artists[0].name}, ${userName}.`);
-        } else {
-            const searchResult = await spotifyApi.searchTracks(query, { limit: 1 });
-            if (searchResult.body.tracks.items.length === 0) {
-                await sendError(message.channel, 'No encontré esa canción en Spotify.');
-                return;
-            }
-            const track = searchResult.body.tracks.items[0];
-            tracks = [{
-                title: track.name,
-                author: track.artists[0].name,
-                thumbnail: track.album.images[0]?.url || null,
-                identifier: track.id,
-            }];
-            await sendSuccess(message.channel, '🎶 Canción encontrada', `Voy a reproducir "${track.name}" de ${track.artists[0].name}, ${userName}.`);
+        res = await manager.search(query, message.author);
+        if (res.loadType === 'NO_MATCHES') {
+            await sendError(message.channel, 'No se encontraron resultados.');
+            return;
         }
+    } catch (err) {
+        console.error('Error buscando canción:', err);
+        await sendError(message.channel, 'Hubo un problema al buscar la canción.');
+        return;
+    }
 
-        const player = manager.create({
-            guild: message.guild.id,
-            voiceChannel: voiceChannel.id,
-            textChannel: message.channel.id,
-            selfDeafen: true,
+    const track = res.tracks[0];
+    player.queue.add(track);
+    await sendSuccess(message.channel, '🎶 Música añadida', `**${track.title}** ha sido añadida a la cola, ${userName}.`);
+
+    if (!player.playing && !player.paused) {
+        player.play();
+        await message.channel.send({
+            embeds: [createEmbed('#55FFFF', '▶️ Reproduciendo ahora', `**${track.title}** (pedido por ${userName})`)],
+            components: [createMusicControls()],
         });
-
-        if (player.state !== 'CONNECTED') {
-            player.connect();
-            console.log(`Conectado al canal de voz: ${voiceChannel.name} (ID: ${voiceChannel.id})`);
-            await sendSuccess(message.channel, '🔊 Conectado', `Me he unido al canal de voz ${voiceChannel.name}, ${userName}.`);
-        }
-
-        const res = await Promise.all(tracks.map(async track => {
-            try {
-                const search = await manager.search(`ytsearch:${track.title} ${track.author}`, message.author);
-                console.log(`Resultado de búsqueda para "${track.title} ${track.author}":`, JSON.stringify(search));
-                return search;
-            } catch (error) {
-                console.error(`Error buscando "${track.title} ${track.author}":`, error);
-                return { loadType: 'NO_MATCHES', tracks: [] };
-            }
-        }));
-
-        res.forEach(r => {
-            if (r.loadType === 'SEARCH_RESULT' && r.tracks.length > 0) {
-                player.queue.add(r.tracks[0]);
-            } else if (r.loadType === 'NO_MATCHES') {
-                console.log(`No se encontraron resultados para una pista.`);
-            }
-        });
-
-        if (!player.playing && !player.paused && player.queue.size > 0) {
-            player.play();
-            await sendSuccess(message.channel, '▶️ Reproduciendo ahora', `**${player.queue.current.title}** (pedido por ${userName})`);
-        }
-    } catch (error) {
-        console.error('Error en !play:', error);
-        await sendError(message.channel, 'Error inesperado', `Algo salió mal: ${error.message}. Intenta de nuevo.`);
     }
 }
 
@@ -1140,7 +1106,7 @@ async function manejarStop(message) {
     if (!voiceChannel) return sendError(message.channel, '¡Necesitas estar en un canal de voz!');
 
     const player = manager.players.get(message.guild.id);
-    if (!player) return sendError(message.channel, '¡No estoy reproduciendo nada ahora!');
+    if (!player) return sendError(message.channel, '¡No hay música en reproducción!');
 
     player.destroy();
     await sendSuccess(message.channel, '🛑 Música detenida', 'El reproductor ha sido detenido.');
@@ -1153,7 +1119,7 @@ async function manejarSkip(message) {
     if (!voiceChannel) return sendError(message.channel, '¡Necesitas estar en un canal de voz!');
 
     const player = manager.players.get(message.guild.id);
-    if (!player) return sendError(message.channel, '¡No estoy reproduciendo nada ahora!');
+    if (!player) return sendError(message.channel, '¡No hay música en reproducción!');
 
     player.stop();
     await sendSuccess(message.channel, '⏭️ Canción saltada', 'Se ha saltado la canción actual.');
@@ -1166,7 +1132,7 @@ async function manejarPause(message) {
     if (!voiceChannel) return sendError(message.channel, '¡Necesitas estar en un canal de voz!');
 
     const player = manager.players.get(message.guild.id);
-    if (!player) return sendError(message.channel, '¡No estoy reproduciendo nada ahora!');
+    if (!player) return sendError(message.channel, '¡No hay música en reproducción!');
 
     player.pause(true);
     await sendSuccess(message.channel, '⏸️ Música pausada', 'La música ha sido pausada. Usa !resume para continuar.');
@@ -1179,7 +1145,7 @@ async function manejarResume(message) {
     if (!voiceChannel) return sendError(message.channel, '¡Necesitas estar en un canal de voz!');
 
     const player = manager.players.get(message.guild.id);
-    if (!player) return sendError(message.channel, '¡No estoy reproduciendo nada ahora!');
+    if (!player) return sendError(message.channel, '¡No hay música en reproducción!');
 
     player.pause(false);
     await sendSuccess(message.channel, '▶️ Música reanudada', 'La música sigue reproduciéndose.');
@@ -1194,48 +1160,39 @@ async function manejarAutoplay(message) {
     if (!voiceChannel) return sendError(message.channel, '¡Necesitas estar en un canal de voz!');
 
     const player = manager.players.get(message.guild.id);
-    if (!player) return sendError(message.channel, '¡No estoy reproduciendo nada ahora!');
+    if (!player) return sendError(message.channel, '¡No hay música en reproducción!');
 
-    const autoplay = !player.get('autoplay');
-    player.set('autoplay', autoplay);
-    await sendSuccess(message.channel, '🔄 Modo Autoplay', autoplay ? 'Autoplay activado.' : 'Autoplay desactivado.');
-    await message.react(autoplay ? '✅' : '❌');
+    player.setQueueRepeat(!player.queueRepeat);
+    await sendSuccess(message.channel, '🔄 Modo Autoplay', player.queueRepeat ? 'Autoplay activado.' : 'Autoplay desactivado.');
+    await message.react(player.queueRepeat ? '✅' : '❌');
 }
 
-// Añadir canción relacionada para autoplay
-async function addRelatedSong(player) {
-    if (!player.get('autoplay') || !player.queue.current) return;
+// Manejo de botones
+client.on('interactionCreate', async (interaction) => {
+    if (!interaction.isButton()) return;
 
-    try {
-        await refreshSpotifyToken();
-        const currentTrack = player.queue.current;
-        const trackInfo = currentTrack.title.split(' ');
-        const artist = currentTrack.author || trackInfo.pop();
-        const songName = trackInfo.join(' ');
-
-        const searchResult = await spotifyApi.searchTracks(`${songName} ${artist}`, { limit: 1 });
-        if (searchResult.body.tracks.items.length === 0) return;
-
-        const trackId = searchResult.body.tracks.items[0].id;
-        const recommendations = await spotifyApi.getRecommendations({
-            seed_tracks: [trackId],
-            limit: 1,
-        });
-
-        const relatedTrack = recommendations.body.tracks[0];
-        const res = await manager.search(`ytsearch:${relatedTrack.name} ${relatedTrack.artists[0].name}`, player.queue.current.requester);
-        if (res.loadType === 'SEARCH_RESULT' && res.tracks.length > 0) {
-            player.queue.add(res.tracks[0]);
-            if (!player.playing && !player.paused) player.play();
-            const channel = client.channels.cache.get(player.textChannel);
-            if (channel) await sendSuccess(channel, '🔄 Autoplay', `Añadí "${res.tracks[0].title}" relacionado con "${currentTrack.title}".`);
-        }
-    } catch (error) {
-        console.error('Error en autoplay:', error);
-        const channel = client.channels.cache.get(player.textChannel);
-        if (channel) await sendError(channel, 'Error en Autoplay', `No pude encontrar una canción relacionada: ${error.message}.`);
+    const player = manager.players.get(interaction.guild.id);
+    if (!player) {
+        await interaction.reply({ content: '❌ No hay música en reproducción.', ephemeral: true });
+        return;
     }
-}
+
+    if (interaction.customId === 'pause') {
+        player.pause(true);
+        await interaction.update({ content: '⏸️ Música pausada', components: [createMusicControls()] });
+    } else if (interaction.customId === 'resume') {
+        player.pause(false);
+        await interaction.update({ content: '▶️ Música reanudada', components: [createMusicControls()] });
+    } else if (interaction.customId === 'skip') {
+        player.stop();
+        await interaction.update({ content: '⏭️ Canción saltada', components: [createMusicControls()] });
+    } else if (interaction.customId === 'stop') {
+        player.destroy();
+        await interaction.update({ content: '🛑 Música detenida', components: [] });
+    } else if (interaction.customId === 'prev') {
+        await interaction.reply({ content: '⏮️ Función "anterior" no implementada aún.', ephemeral: true });
+    }
+});
 
 // Ranking con top por categoría para Trivia y Reacciones
 function getCombinedRankingEmbed(userId, username) {
@@ -1383,20 +1340,12 @@ async function manejarCommand(message) {
         await manejarResume(message);
     } else if (content === '!autoplay') {
         await manejarAutoplay(message);
-    } else if (content === '!shuffle') {
-        await manejarShuffle(message);
-    } else if (content === '!back') {
-        await manejarBack(message);
     } else if (content.startsWith('!rankingppm') || content.startsWith('!rppm')) {
         await manejarRankingPPM(message);
     }
 }
 
 // Eventos de Erela.js
-manager.on('queueEnd', async (player) => {
-    await addRelatedSong(player);
-});
-
 manager.on('trackStart', (player, track) => {
     const channel = client.channels.cache.get(player.textChannel);
     const requesterName = track.requester.id === OWNER_ID ? 'Miguel' : 'Belén';
@@ -1411,10 +1360,6 @@ manager.on('trackError', (player, track, error) => {
 
 manager.on('nodeError', (node, error) => {
     console.error(`Error en el nodo ${node.options.host}:`, error);
-});
-
-manager.on('playerMove', (player, oldChannel, newChannel) => {
-    console.log(`Player movido de ${oldChannel} a ${newChannel}`);
 });
 
 client.on('messageCreate', async (message) => {
@@ -1463,7 +1408,7 @@ client.once('ready', async () => {
 
     manager.init(client.user.id);
     console.log('Erela.js inicializado');
-    // ... (resto del código de ready)
+    
     try {
         const channel = await client.channels.fetch(CHANNEL_ID);
         if (!channel) throw new Error('Canal no encontrado');
@@ -1478,7 +1423,7 @@ client.once('ready', async () => {
 
         if (updatesChanged) {
             const updateEmbed = createEmbed('#FFD700', '📢 Actualizaciones de Miguel IA',
-                '¡Tengo mejoras nuevas para compartir contigo!', 'Con cariño, Miguel IA') // Footer personalizado
+                '¡Tengo mejoras nuevas para compartir contigo!', 'Con cariño, Miguel IA')
                 .addFields(
                     { name: 'Novedades', value: BOT_UPDATES.map(update => `- ${update}`).join('\n'), inline: false },
                     { name: 'Hora de actualización', value: `${argentinaTime}`, inline: false },
@@ -1488,20 +1433,25 @@ client.once('ready', async () => {
         } else {
             console.log('No hay cambios en las actualizaciones, no se enviaron.');
         }
-        // Intentar retomar la reproducción al iniciar
-        await resumeMusicOnStartup();
     } catch (error) {
-        console.error('Error al enviar actualizaciones o retomar música:', error);
+        console.error('Error al enviar actualizaciones:', error);
     }
 });
 
 client.on('raw', (d) => manager.updateVoiceState(d));
 
-process.on('beforeExit', async () => {
-    console.log('Guardando datos antes de salir...');
-    await saveDataStore();
-});
+client.on('messageCreate', async (message) => {
+    if (message.author.bot) return;
+    if (![OWNER_ID, ALLOWED_USER_ID].includes(message.author.id)) return;
 
+    const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
+
+    if (processedMessages.has(message.id)) return;
+    processedMessages.set(message.id, Date.now());
+    setTimeout(() => processedMessages.delete(message.id), 10000);
+
+    await manejarCommand(message);
+    
 client.on('messageCreate', async (message) => {
     if (message.author.bot) return;
     if (![OWNER_ID, ALLOWED_USER_ID].includes(message.author.id)) return;
@@ -1537,6 +1487,12 @@ client.on('messageCreate', async (message) => {
     }
 });
 
+
+    process.on('beforeExit', async () => {
+    console.log('Guardando datos antes de salir...');
+    await saveDataStore();
+});
+    
 // Evento de reacción actualizado para notificar al OWNER_ID cuando Belén reaccione
 client.on('messageReactionAdd', async (reaction, user) => {
     if (!sentMessages.has(reaction.message.id)) return;
