@@ -1,5 +1,8 @@
 const fs = require('fs');
 const { Client, GatewayIntentBits, EmbedBuilder } = require('discord.js');
+const { joinVoiceChannel, createAudioPlayer, createAudioResource, AudioPlayerStatus } = require('@discordjs/voice');
+const ytdl = require('ytdl-core');
+const SpotifyWebApi = require('spotify-web-api-node');
 const axios = require('axios');
 const { v4: uuidv4 } = require('uuid');
 require('dotenv').config();
@@ -11,6 +14,7 @@ const client = new Client({
         GatewayIntentBits.GuildMessageReactions,
         GatewayIntentBits.DirectMessageReactions,
         GatewayIntentBits.MessageContent,
+        GatewayIntentBits.GuildVoiceStates, // Necesario para música
     ],
 });
 
@@ -18,6 +22,15 @@ const client = new Client({
 const OWNER_ID = '752987736759205960'; // Tu ID
 const ALLOWED_USER_ID = '1023132788632862761'; // ID de Belén
 const CHANNEL_ID = '1343749554905940058'; // Canal principal
+
+// Cola de reproducción
+const queue = new Map();
+
+// Spotify API
+const spotifyApi = new SpotifyWebApi({
+    clientId: process.env.SPOTIFY_CLIENT_ID,
+    clientSecret: process.env.SPOTIFY_CLIENT_SECRET,
+});
 
 const BOT_UPDATES = [
     '¡Trivia extendida! Ahora las trivias son de 20 preguntas por defecto en lugar de 10.',
@@ -1049,6 +1062,226 @@ async function manejarRankingPPM(message) {
     await message.channel.send({ embeds: [embed] });
 }
 
+// Buscar en YouTube
+async function searchYouTube(query) {
+    try {
+        const response = await axios.get(`https://www.googleapis.com/youtube/v3/search`, {
+            params: {
+                part: 'snippet',
+                q: query,
+                type: 'video',
+                key: process.env.YOUTUBE_API_KEY,
+                maxResults: 1,
+            },
+        });
+        const videoId = response.data.items[0]?.id.videoId;
+        return videoId ? `https://www.youtube.com/watch?v=${videoId}` : null;
+    } catch (error) {
+        console.error('Error buscando en YouTube:', error);
+        return null;
+    }
+}
+
+// Reproducir canción
+async function playSong(guildId, channel) {
+    const serverQueue = queue.get(guildId);
+    if (!serverQueue || !serverQueue.songs.length) {
+        channel.send({ embeds: [createEmbed('#FF5555', '🎵 Cola vacía', 'No hay más canciones. ¡Añade una con !play!')] });
+        if (serverQueue.connection) serverQueue.connection.destroy();
+        queue.delete(guildId);
+        return;
+    }
+
+    const song = serverQueue.songs[0];
+    const stream = ytdl(song.url, { filter: 'audioonly', quality: 'highestaudio', highWaterMark: 1 << 25 });
+    const resource = createAudioResource(stream);
+    serverQueue.player.play(resource);
+
+    channel.send({ embeds: [createEmbed('#55FF55', '🎵 Reproduciendo ahora', `**${song.title}**\nPedida por: ${song.requester}`)] });
+    dataStore.musicQueue = dataStore.musicQueue || {};
+    dataStore.musicQueue[guildId] = {
+        songs: serverQueue.songs,
+        voiceChannelId: serverQueue.voiceChannelId,
+    };
+    dataStoreModified = true;
+}
+
+// Manejar comandos de música
+async function handleMusicCommands(message) {
+    const args = message.content.split(' ').slice(1);
+    const command = message.content.split(' ')[0].toLowerCase();
+    const voiceChannel = message.member.voice.channel;
+
+    if (!voiceChannel && command !== '!queue') {
+        return sendError(message.channel, '🎵 ¡Únete a un canal de voz!', 'Necesitas estar en un canal de voz para usar comandos de música.');
+    }
+
+    const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
+    const guildId = message.guild.id;
+
+    if (command === '!play' || command === '!p') {
+        if (!args.length) {
+            return sendError(message.channel, '🎵 ¿Qué quieres escuchar?', 'Dame un enlace de YouTube o una playlist de Spotify.');
+        }
+
+        const url = args.join(' ');
+        let songs = [];
+
+        // Autenticar Spotify si no hay token
+        if (!spotifyApi.getAccessToken()) {
+            try {
+                const data = await spotifyApi.clientCredentialsGrant();
+                spotifyApi.setAccessToken(data.body['access_token']);
+            } catch (error) {
+                console.error('Error autenticando Spotify:', error);
+                return sendError(message.channel, '🎵 Error con Spotify', 'No pude conectar con Spotify.');
+            }
+        }
+
+        // Verificar si es una playlist de Spotify
+        if (url.includes('spotify.com/playlist')) {
+            const playlistId = url.split('playlist/')[1]?.split('?')[0];
+            try {
+                const playlist = await spotifyApi.getPlaylist(playlistId);
+                const tracks = playlist.body.tracks.items;
+                for (const item of tracks) {
+                    const track = item.track;
+                    const query = `${track.name} ${track.artists[0].name}`;
+                    const youtubeUrl = await searchYouTube(query);
+                    if (youtubeUrl) {
+                        songs.push({
+                            title: track.name,
+                            url: youtubeUrl,
+                            requester: userName,
+                        });
+                    }
+                }
+                sendSuccess(message.channel, '🎵 Playlist cargada', `Se añadieron ${songs.length} canciones de "${playlist.body.name}" a la cola.`);
+            } catch (error) {
+                console.error('Error al obtener playlist:', error);
+                return sendError(message.channel, '🎵 Error con la playlist', 'No pude cargar esa playlist de Spotify.');
+            }
+        } else {
+            // Si no es playlist, asumir URL de YouTube
+            let songInfo;
+            try {
+                songInfo = await ytdl.getInfo(url);
+                songs.push({
+                    title: songInfo.videoDetails.title,
+                    url: songInfo.videoDetails.video_url,
+                    requester: userName,
+                });
+            } catch (error) {
+                return sendError(message.channel, '🎵 No encontré esa canción', 'Asegúrate de usar un enlace válido de YouTube.');
+            }
+        }
+
+        const serverQueue = queue.get(guildId);
+        if (!serverQueue) {
+            const queueConstruct = {
+                connection: joinVoiceChannel({
+                    channelId: voiceChannel.id,
+                    guildId: guildId,
+                    adapterCreator: message.guild.voiceAdapterCreator,
+                }),
+                player: createAudioPlayer(),
+                songs: songs,
+                voiceChannelId: voiceChannel.id,
+            };
+            queue.set(guildId, queueConstruct);
+
+            queueConstruct.player.on(AudioPlayerStatus.Idle, () => {
+                queueConstruct.songs.shift();
+                playSong(guildId, message.channel);
+            });
+
+            queueConstruct.player.on('error', error => {
+                console.error('Error en el reproductor:', error);
+                sendError(message.channel, '🎵 ¡Ups!', 'Algo salió mal al reproducir.');
+                queue.delete(guildId);
+            });
+
+            playSong(guildId, message.channel);
+        } else {
+            serverQueue.songs.push(...songs);
+            if (songs.length === 1) {
+                sendSuccess(message.channel, '🎵 Añadida a la cola', `**${songs[0].title}** se ha añadido, ${userName}.`);
+            }
+            dataStore.musicQueue[guildId] = {
+                songs: serverQueue.songs,
+                voiceChannelId: serverQueue.voiceChannelId,
+            };
+            dataStoreModified = true;
+        }
+    }
+
+    if (command === '!skip' || command === '!s') {
+        const serverQueue = queue.get(guildId);
+        if (!serverQueue) return sendError(message.channel, '🎵 Nada que omitir', 'No hay música reproduciéndose.');
+        serverQueue.player.stop();
+        sendSuccess(message.channel, '🎵 Canción omitida', 'Pasamos a la siguiente.');
+    }
+
+    if (command === '!stop' || command === '!st') {
+        const serverQueue = queue.get(guildId);
+        if (!serverQueue) return sendError(message.channel, '🎵 Nada que detener', 'No hay música sonando.');
+        serverQueue.songs = [];
+        serverQueue.player.stop();
+        serverQueue.connection.destroy();
+        queue.delete(guildId);
+        delete dataStore.musicQueue[guildId];
+        dataStoreModified = true;
+        sendSuccess(message.channel, '🎵 Música detenida', 'Todo parado, ¿quieres empezar de nuevo?');
+    }
+
+    if (command === '!queue' || command === '!q') {
+        const serverQueue = queue.get(guildId);
+        if (!serverQueue || !serverQueue.songs.length) {
+            return sendError(message.channel, '🎵 Cola vacía', 'No hay canciones en la cola.');
+        }
+        const songList = serverQueue.songs.map((song, index) => `${index + 1}. **${song.title}** - ${song.requester}`).join('\n');
+        sendSuccess(message.channel, '🎵 Lista de reproducción', songList);
+    }
+}
+
+// Restaurar cola de música tras reinicio
+async function restoreMusicQueue() {
+    if (!dataStore.musicQueue) return;
+    for (const guildId in dataStore.musicQueue) {
+        const guild = client.guilds.cache.get(guildId);
+        if (!guild) continue;
+
+        const savedQueue = dataStore.musicQueue[guildId];
+        const voiceChannel = guild.channels.cache.get(savedQueue.voiceChannelId);
+        if (!voiceChannel || !voiceChannel.joinable) continue;
+
+        const queueConstruct = {
+            connection: joinVoiceChannel({
+                channelId: voiceChannel.id,
+                guildId: guildId,
+                adapterCreator: guild.voiceAdapterCreator,
+            }),
+            player: createAudioPlayer(),
+            songs: savedQueue.songs,
+            voiceChannelId: savedQueue.voiceChannelId,
+        };
+        queue.set(guildId, queueConstruct);
+
+        queueConstruct.player.on(AudioPlayerStatus.Idle, () => {
+            queueConstruct.songs.shift();
+            playSong(guildId, voiceChannel);
+        });
+
+        queueConstruct.player.on('error', error => {
+            console.error('Error en el reproductor:', error);
+            queue.delete(guildId);
+        });
+
+        const channel = guild.channels.cache.get(CHANNEL_ID);
+        if (channel) playSong(guildId, channel);
+    }
+}
+
 // Comandos
 async function manejarCommand(message) {
     const content = message.content.toLowerCase();
@@ -1087,6 +1320,15 @@ async function manejarCommand(message) {
     } else if (content.startsWith('!rankingppm') || content.startsWith('!rppm')) {
         await manejarRankingPPM(message);
     }
+    if (content.startsWith('!play') || content.startsWith('!p') || 
+        content.startsWith('!skip') || content.startsWith('!s') || 
+        content.startsWith('!stop') || content.startsWith('!st') || 
+        content.startsWith('!queue') || content.startsWith('!q')) {
+        await handleMusicCommands(message);
+    } else {
+        await manejarCommand(message);
+    }
+
 }
 
 client.on('messageCreate', async (message) => {
@@ -1154,8 +1396,10 @@ client.once('ready', async () => {
                 );
             await channel.send({ content: `<@${ALLOWED_USER_ID}>`, embeds: [updateEmbed] });
         }
+        // Restaurar cola de música
+        await restoreMusicQueue();
     } catch (error) {
-        console.error('Error al enviar actualizaciones:', error);
+        console.error('Error al enviar actualizaciones o restaurar música:', error);
     }
 });
 
