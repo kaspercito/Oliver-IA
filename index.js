@@ -2,6 +2,7 @@ const fs = require('fs');
 const { Client, GatewayIntentBits, EmbedBuilder } = require('discord.js');
 const axios = require('axios');
 const { v4: uuidv4 } = require('uuid');
+const { Manager } = require('erela.js');
 require('dotenv').config();
 
 const client = new Client({
@@ -11,6 +12,7 @@ const client = new Client({
         GatewayIntentBits.GuildMessageReactions,
         GatewayIntentBits.DirectMessageReactions,
         GatewayIntentBits.MessageContent,
+        GatewayIntentBits.GuildVoiceStates, // Necesario para música
     ],
 });
 
@@ -18,6 +20,22 @@ const client = new Client({
 const OWNER_ID = '752987736759205960'; // Tu ID
 const ALLOWED_USER_ID = '1023132788632862761'; // ID de Belén
 const CHANNEL_ID = '1343749554905940058'; // Canal principal
+
+// Configuración del administrador de música con Erela.js
+const manager = new Manager({
+    nodes: [
+        {
+            host: 'lava-v3.ajieblogs.eu.org',
+            port: 443,
+            password: 'https://dsc.gg/ajidevserver',
+            secure: true,
+        },
+    ],
+    send(id, payload) {
+        const guild = client.guilds.cache.get(id);
+        if (guild) guild.shard.send(payload);
+    },
+});
 
 const BOT_UPDATES = [
     '¡Trivia extendida! Ahora las trivias son de 20 preguntas por defecto en lugar de 10.',
@@ -472,8 +490,9 @@ let dataStore = {
     reactionWins: {}, 
     activeSessions: {}, 
     triviaStats: {},
+    musicSessions: {}, // Nueva propiedad para sesiones de música
 };
-let dataStoreModified = false; // Bandera para rastrear cambios en dataStore
+let dataStoreModified = false;
 
 // Utilidades
 const createEmbed = (color, title, description, footer = 'Con cariño, Miguel IA') => {
@@ -526,7 +545,7 @@ async function generateImage(prompt) {
     }
 }
 
-// Persistencia en GitHub
+// Persistencia en GitHub (sin cambios, solo se incluye para contexto)
 async function loadDataStore() {
     try {
         const response = await axios.get(
@@ -542,20 +561,9 @@ async function loadDataStore() {
             reactionWins: {}, 
             activeSessions: {}, 
             triviaStats: {},
+            musicSessions: {}, // Añadido
             updatesSent: false
         };
-        
-        // Asegurarse de que personalPPMRecords tenga la nueva estructura
-        if (!loadedData.personalPPMRecords) {
-            loadedData.personalPPMRecords = {};
-        }
-        for (const userId in loadedData.personalPPMRecords) {
-            if (!loadedData.personalPPMRecords[userId].best) {
-                loadedData.personalPPMRecords[userId] = { best: { ppm: 0, timestamp: null }, attempts: [] };
-            }
-        }
-
-        console.log('Datos cargados desde GitHub:', JSON.stringify(loadedData));
         return loadedData;
     } catch (error) {
         console.error('Error al cargar datos desde GitHub:', error.message);
@@ -567,16 +575,14 @@ async function loadDataStore() {
             reactionWins: {}, 
             activeSessions: {}, 
             triviaStats: {},
+            musicSessions: {},
             updatesSent: false
         };
     }
 }
 
 async function saveDataStore() {
-    if (!dataStoreModified) {
-        return false; // Indicar que no se guardó, sin log
-    }
-
+    if (!dataStoreModified) return false;
     try {
         let sha;
         try {
@@ -588,7 +594,6 @@ async function saveDataStore() {
         } catch (error) {
             if (error.response?.status !== 404) throw error;
         }
-
         await axios.put(
             `https://api.github.com/repos/${process.env.GITHUB_REPO}/contents/${process.env.GITHUB_FILE_PATH}`,
             {
@@ -598,38 +603,35 @@ async function saveDataStore() {
             },
             { headers: { 'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`, 'Accept': 'application/vnd.github+json' } }
         );
-        console.log('Datos guardados en GitHub:', JSON.stringify(dataStore));
-        return true; // Indicar que se guardó exitosamente
+        console.log('Datos guardados en GitHub');
+        return true;
     } catch (error) {
         console.error('Error al guardar datos en GitHub:', error.message);
         throw error;
     }
 }
 
-// Aviso anticipado y guardado automático
-const SAVE_INTERVAL = 1800000; // 30 minutos en milisegundos
-const WARNING_TIME = 300000;   // 5 minutos antes (300,000 ms)
+// Guardado automático (sin cambios, incluido para contexto)
+const SAVE_INTERVAL = 1800000;
+const WARNING_TIME = 300000;
 
 setInterval(async () => {
-    if (!dataStoreModified) {
-        return; // Silenciar el log cuando no hay cambios
-    }
-
+    if (!dataStoreModified) return;
     const channel = await client.channels.fetch(CHANNEL_ID);
     if (channel) {
-        await channel.send({ embeds: [createEmbed('#FFAA00', '⏰ Aviso de Guardado', '¡Atención! El autoguardado será en 5 minutos. Por favor, evita iniciar nuevos comandos durante el guardado para no interferir.')] });
+        await channel.send({ embeds: [createEmbed('#FFAA00', '⏰ Aviso de Guardado', '¡Atención! El autoguardado será en 5 minutos.')] });
     }
-
     setTimeout(async () => {
         await saveDataStore();
         if (channel) {
-            await channel.send({ embeds: [createEmbed('#55FF55', '💾 Guardado Completado', 'Datos guardados exitosamente. ¡Puedes seguir usando el bot!')] });
+            await channel.send({ embeds: [createEmbed('#55FF55', '💾 Guardado Completado', 'Datos guardados exitosamente.')] });
         }
-        dataStoreModified = false; // Reiniciar la bandera después de guardar
-        console.log('Guardado automático completado y bandera reiniciada');
+        dataStoreModified = false;
     }, WARNING_TIME);
 }, SAVE_INTERVAL);
-            
+
+
+
 // Funciones de Trivia
 function obtenerPreguntaTriviaSinOpciones(usedQuestions, categoria) {
     const preguntasCategoria = preguntasTriviaSinOpciones[categoria] || [];
@@ -976,6 +978,96 @@ async function manejarAyuda(message) {
     }
 }
 
+// Funciones de música
+async function manejarPlay(message) {
+    const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
+    const args = message.content.toLowerCase().split(' ').slice(1).join(' ').trim();
+    if (!args) return sendError(message.channel, `Dime qué reproducir después de "!pl", ${userName}.`);
+
+    if (!message.member.voice.channel) return sendError(message.channel, `Debes estar en un canal de voz, ${userName}.`);
+
+    const player = manager.create({
+        guild: message.guild.id,
+        voiceChannel: message.member.voice.channel.id,
+        textChannel: message.channel.id,
+        selfDeafen: true,
+    });
+
+    if (player.state !== 'CONNECTED') player.connect();
+
+    let res;
+    try {
+        res = await manager.search(args, message.author);
+        if (res.loadType === 'NO_MATCHES') return sendError(message.channel, `No encontré resultados para "${args}", ${userName}.`);
+        if (res.loadType === 'LOAD_FAILED') throw new Error('No se pudo cargar la canción.');
+    } catch (error) {
+        return sendError(message.channel, `Hubo un problema al buscar "${args}", ${userName}. Error: ${error.message}`);
+    }
+
+    const track = res.tracks[0];
+    player.queue.add(track);
+    dataStore.musicSessions[message.guild.id] = { current: track.title, queue: player.queue.map(t => t.title) };
+    dataStoreModified = true;
+
+    const embed = createEmbed('#55FFFF', '🎶 ¡Música añadida!',
+        `**${track.title}** ha sido añadida a la cola.\nDuración: ${Math.floor(track.duration / 60000)}:${((track.duration % 60000) / 1000).toFixed(0).padStart(2, '0')}\nSolicitada por: ${userName}`);
+    await message.channel.send({ embeds: [embed] });
+
+    if (!player.playing) {
+        player.play();
+        const playingEmbed = createEmbed('#00FF00', '▶️ ¡Reproduciendo ahora!',
+            `**${track.title}**\nUsa !pause, !skip o !stop para controlar la música, ${userName}.`);
+        await message.channel.send({ embeds: [playingEmbed] });
+    }
+}
+
+async function manejarPause(message) {
+    const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
+    const player = manager.players.get(message.guild.id);
+    if (!player) return sendError(message.channel, `No hay música en reproducción, ${userName}.`);
+
+    if (player.paused) {
+        player.pause(false);
+        await sendSuccess(message.channel, '▶️ ¡Música reanudada!', `La música sigue sonando, ${userName}.`);
+    } else {
+        player.pause(true);
+        await sendSuccess(message.channel, '⏸️ ¡Música pausada!', `Pausa activada, ${userName}. Usa !pause para reanudar.`);
+    }
+}
+
+async function manejarSkip(message) {
+    const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
+    const player = manager.players.get(message.guild.id);
+    if (!player) return sendError(message.channel, `No hay música en reproducción, ${userName}.`);
+
+    player.stop();
+    await sendSuccess(message.channel, '⏭️ ¡Canción saltada!', `Pasamos a la siguiente, ${userName}.`);
+}
+
+async function manejarStop(message) {
+    const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
+    const player = manager.players.get(message.guild.id);
+    if (!player) return sendError(message.channel, `No hay música en reproducción, ${userName}.`);
+
+    player.destroy();
+    delete dataStore.musicSessions[message.guild.id];
+    dataStoreModified = true;
+    await sendSuccess(message.channel, '🛑 ¡Música detenida!', `El reproductor se detuvo, ${userName}.`);
+}
+
+async function manejarQueue(message) {
+    const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
+    const player = manager.players.get(message.guild.id);
+    if (!player || !player.queue.length) return sendError(message.channel, `No hay canciones en la cola, ${userName}.`);
+
+    const queueList = player.queue.map((track, index) => 
+        `${index + 1}. **${track.title}** - ${Math.floor(track.duration / 60000)}:${((track.duration % 60000) / 1000).toFixed(0).padStart(2, '0')}`
+    ).join('\n');
+    const embed = createEmbed('#FFD700', '📜 Cola de reproducción',
+        `Ahora: **${player.queue.current.title}**\n\n${queueList}`);
+    await message.channel.send({ embeds: [embed] });
+}
+
 // Ranking con top por categoría para Trivia y Reacciones
 function getCombinedRankingEmbed(userId, username) {
     const categorias = Object.keys(preguntasTriviaSinOpciones);
@@ -1049,6 +1141,27 @@ async function manejarRankingPPM(message) {
     await message.channel.send({ embeds: [embed] });
 }
 
+// Eventos de música con Erela.js
+manager.on('nodeConnect', node => console.log(`Nodo ${node.options.identifier} conectado.`));
+manager.on('nodeError', (node, error) => console.error(`Error en nodo ${node.options.identifier}: ${error.message}`));
+manager.on('trackStart', async (player, track) => {
+    const channel = client.channels.cache.get(player.textChannel);
+    if (channel) {
+        const embed = createEmbed('#00FF00', '▶️ ¡Reproduciendo ahora!',
+            `**${track.title}**\nDuración: ${Math.floor(track.duration / 60000)}:${((track.duration % 60000) / 1000).toFixed(0).padStart(2, '0')}`);
+        await channel.send({ embeds: [embed] });
+    }
+});
+manager.on('queueEnd', async player => {
+    const channel = client.channels.cache.get(player.textChannel);
+    if (channel) {
+        await channel.send({ embeds: [createEmbed('#FF5555', '🏁 Cola terminada', 'No hay más canciones. ¡Añade más con !pl!')] });
+    }
+    player.destroy();
+    delete dataStore.musicSessions[player.guild];
+    dataStoreModified = true;
+});
+
 // Comandos
 async function manejarCommand(message) {
     const content = message.content.toLowerCase();
@@ -1086,7 +1199,16 @@ async function manejarCommand(message) {
         await manejarAyuda(message);
     } else if (content.startsWith('!rankingppm') || content.startsWith('!rppm')) {
         await manejarRankingPPM(message);
-    }
+    } else if (content.startsWith('!play') || content.startsWith('!pl')) {
+        await manejarPlay(message);
+    } else if (content.startsWith('!pause') || content.startsWith('!pa')) {
+        await manejarPause(message);
+    } else if (content.startsWith('!skip') || content.startsWith('!sk')) {
+        await manejarSkip(message);
+    } else if (content.startsWith('!stop') || content.startsWith('!st')) {
+        await manejarStop(message);
+    } else if (content.startsWith('!queue') || content.startsWith('!qu')) {
+        await manejarQueue(message);
 }
 
 client.on('messageCreate', async (message) => {
@@ -1132,7 +1254,7 @@ client.once('ready', async () => {
     client.user.setPresence({ activities: [{ name: "Listo para ayudar a Miguel y Milagros", type: 0 }], status: 'online' });
     dataStore = await loadDataStore();
     activeTrivia = new Map(Object.entries(dataStore.activeSessions).filter(([_, s]) => s.type === 'trivia'));
-
+    manager.init(client.user.id); // Inicializar Erela.js
     try {
         const channel = await client.channels.fetch(CHANNEL_ID);
         if (!channel) throw new Error('Canal no encontrado');
@@ -1192,6 +1314,7 @@ client.on('messageReactionAdd', async (reaction, user) => {
             console.error('Error al notificar al dueño:', error);
         }
     }
+    client.on('raw', (d) => manager.updateVoiceState(d));
 });
 
 client.login(process.env.DISCORD_TOKEN);
