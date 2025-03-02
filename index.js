@@ -5,6 +5,7 @@ const { v4: uuidv4 } = require('uuid');
 const SpotifyWebApi = require('spotify-web-api-node');
 const ytdl = require('ytdl-core');
 const { joinVoiceChannel, createAudioPlayer, createAudioResource, AudioPlayerStatus } = require('@discordjs/voice');
+const ytSearch = require('yt-search'); // Añadir esta línea al inicio del archivo
 require('dotenv').config();
 
 const client = new Client({
@@ -1103,8 +1104,20 @@ async function playSong(message, connection) {
     const searchQuery = song.title;
 
     try {
-        const videoInfo = await ytdl.getInfo(`ytsearch:${searchQuery}`);
-        const videoUrl = videoInfo.videoDetails.video_url;
+        // Buscar el video en YouTube usando yt-search
+        const searchResults = await ytSearch(searchQuery);
+        if (!searchResults.videos.length) {
+            await sendError(message.channel, 'No pude encontrar la canción en YouTube', `Falló la búsqueda de "${song.title}". Pasando a la siguiente.`);
+            queue.shift();
+            dataStore.musicQueue.set(message.guild.id, queue);
+            return playSong(message, connection); // Intentar la siguiente canción
+        }
+
+        const video = searchResults.videos[0]; // Tomar el primer resultado
+        const videoUrl = video.url; // URL del video encontrado
+
+        // Usar ytdl-core con la URL encontrada
+        const videoInfo = await ytdl.getInfo(videoUrl);
         const stream = ytdl(videoUrl, { filter: 'audioonly', quality: 'highestaudio' });
         const resource = createAudioResource(stream);
         const player = createAudioPlayer();
@@ -1130,8 +1143,8 @@ async function playSong(message, connection) {
             playSong(message, connection);
         });
     } catch (error) {
-        console.error('Error al buscar en YouTube:', error);
-        await sendError(message.channel, 'No pude encontrar la canción en YouTube', `Falló la búsqueda de "${song.title}". Pasando a la siguiente.`);
+        console.error('Error al buscar o reproducir en YouTube:', error);
+        await sendError(message.channel, 'Error al procesar la canción', `Algo salió mal con "${song.title}": ${error.message}. Pasando a la siguiente.`);
         queue.shift();
         dataStore.musicQueue.set(message.guild.id, queue);
         playSong(message, connection);
