@@ -1403,6 +1403,20 @@ manager.on('trackStart', (player, track) => {
     if (channel) sendSuccess(channel, '▶️ Reproduciendo ahora', `**${track.title}** (pedido por ${requesterName})`);
 });
 
+manager.on('trackError', (player, track, error) => {
+    console.error(`Error reproduciendo "${track.title}":`, error);
+    const channel = client.channels.cache.get(player.textChannel);
+    if (channel) sendError(channel, 'Error al reproducir', `No pude reproducir "${track.title}": ${error.message}.`);
+});
+
+manager.on('nodeError', (node, error) => {
+    console.error(`Error en el nodo ${node.options.host}:`, error);
+});
+
+manager.on('playerMove', (player, oldChannel, newChannel) => {
+    console.log(`Player movido de ${oldChannel} a ${newChannel}`);
+});
+
 client.on('messageCreate', async (message) => {
     if (message.author.bot) return;
     if (![OWNER_ID, ALLOWED_USER_ID].includes(message.author.id)) return;
