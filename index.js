@@ -29,6 +29,11 @@ const BOT_UPDATES = [
     'Pronto: Más palabras para !re y más frases para !pp. ¡Estén atentos!',
 ];
 
+// Estado anterior de las actualizaciones (del código pasado)
+const PREVIOUS_BOT_UPDATES = [
+    'Prueba enviando un !ayuda por favor, también escribe algo, si puedes dime si el bot te dio una respuesta correcta, quiero revisar si funciona correctamente.',
+];
+
 // Mensajes de ánimo para Belén
 const mensajesAnimo = [
     "¡Belén, no es verdad que todos te odian! Eres increíble y tienes un corazón enorme. Aquí estoy para recordártelo siempre.",
@@ -461,7 +466,7 @@ let processedMessages = new Map();
 let dataStore = { 
     conversationHistory: {}, 
     triviaRanking: {}, 
-    personalPPMRecords: {}, // Cambia de array a objeto: { userId: { ppm: X, timestamp: Y } }
+    personalPPMRecords: {}, 
     reactionStats: {}, 
     reactionWins: {}, 
     activeSessions: {}, 
@@ -535,7 +540,7 @@ async function loadDataStore() {
             reactionWins: {}, 
             activeSessions: {}, 
             triviaStats: {},
-            updatesSent: false // Valor por defecto
+            updatesSent: false
         };
         console.log('Datos cargados desde GitHub:', JSON.stringify(loadedData));
         return loadedData;
@@ -549,7 +554,42 @@ async function loadDataStore() {
             reactionWins: {}, 
             activeSessions: {}, 
             triviaStats: {},
-            updatesSent: false // Valor por defecto en caso de error
+            updatesSent: false
+        };
+    }
+}
+
+// Persistencia en GitHub
+async function loadDataStore() {
+    try {
+        const response = await axios.get(
+            `https://api.github.com/repos/${process.env.GITHUB_REPO}/contents/${process.env.GITHUB_FILE_PATH}`,
+            { headers: { 'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`, 'Accept': 'application/vnd.github+json' } }
+        );
+        const content = Buffer.from(response.data.content, 'base64').toString('utf8');
+        const loadedData = content ? JSON.parse(content) : { 
+            conversationHistory: {}, 
+            triviaRanking: {}, 
+            personalPPMRecords: {}, 
+            reactionStats: {}, 
+            reactionWins: {}, 
+            activeSessions: {}, 
+            triviaStats: {},
+            updatesSent: false
+        };
+        console.log('Datos cargados desde GitHub:', JSON.stringify(loadedData));
+        return loadedData;
+    } catch (error) {
+        console.error('Error al cargar datos desde GitHub:', error.message);
+        return { 
+            conversationHistory: {}, 
+            triviaRanking: {}, 
+            personalPPMRecords: {}, 
+            reactionStats: {}, 
+            reactionWins: {}, 
+            activeSessions: {}, 
+            triviaStats: {},
+            updatesSent: false
         };
     }
 }
@@ -583,9 +623,24 @@ async function saveDataStore() {
     }
 }
 
-setInterval(() => {
-    saveDataStore();
-}, 1800000); // 30 minutos
+// Aviso anticipado y guardado automático (sin pausar comandos)
+const SAVE_INTERVAL = 1800000; // 30 minutos en milisegundos
+const WARNING_TIME = 300000;   // 5 minutos antes (300,000 ms)
+
+setInterval(async () => {
+    const channel = await client.channels.fetch(CHANNEL_ID);
+    if (channel) {
+        await channel.send({ embeds: [createEmbed('#FFAA00', '⏰ Aviso de Guardado', '¡Atención! El autoguardado será en 5 minutos. Por favor, evita iniciar nuevos comandos durante el guardado para no interferir.')] });
+    }
+
+    setTimeout(async () => {
+        await saveDataStore();
+        if (channel) {
+            await channel.send({ embeds: [createEmbed('#55FF55', '💾 Guardado Completado', 'Datos guardados exitosamente. ¡Puedes seguir usando el bot!')] });
+        }
+    }, WARNING_TIME);
+}, SAVE_INTERVAL);
+
 
 // Funciones de Trivia
 function obtenerPreguntaTriviaSinOpciones(usedQuestions, categoria) {
@@ -600,9 +655,9 @@ async function manejarTrivia(message) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
     const args = message.content.toLowerCase().split(' ').slice(1);
     let categoria = args[0] || 'capitales'; // Por defecto: capitales
-    let numQuestions = 10;
-    if (args[1] && !isNaN(args[1]) && args[1] >= 10) numQuestions = parseInt(args[1]);
-    else if (args[0] && !isNaN(args[0]) && args[0] >= 10) {
+    let numQuestions = 20; // Cambiado de 10 a 20 por defecto
+    if (args[1] && !isNaN(args[1]) && args[1] >= 20) numQuestions = parseInt(args[1]); // Mínimo 20 preguntas
+    else if (args[0] && !isNaN(args[0]) && args[0] >= 20) {
         numQuestions = parseInt(args[0]);
         categoria = 'capitales'; // Si solo hay número, usar capitales
     }
@@ -981,6 +1036,7 @@ function getCombinedRankingEmbed(userId, username) {
 async function manejarCommand(message) {
     const content = message.content.toLowerCase();
     console.log(`Comando recibido: ${content}`);
+
     if (content.startsWith('!trivia') || content.startsWith('!tr')) {
         await manejarTrivia(message);
     } else if (content.startsWith('!chat') || content.startsWith('!ch')) {
@@ -996,30 +1052,21 @@ async function manejarCommand(message) {
         await message.channel.send({ embeds: [embed] });
     } else if (content === '!save') {
         const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
-    } else if (content.startsWith('!sugerencias') || content.startsWith('!su')) {
-        await manejarSugerencias(message);
-    } else if (content.startsWith('!ayuda') || content.startsWith('!ay')) {
-        await manejarAyuda(message);
+        if (isSaving) {
+            return sendError(message.channel, 'El bot ya está realizando un guardado automático', 'Espera unos minutos y vuelve a intentarlo.');
+        }
         try {
             await saveDataStore();
             await sendSuccess(message.channel, '💾 ¡Guardado!', `Datos guardados exitosamente, ${userName}. Estado actual: ${JSON.stringify(dataStore)}`);
         } catch (error) {
             await sendError(message.channel, '💾 Error al guardar', `No pude guardar los datos, ${userName}. Error: ${error.message}`);
         }
+    } else if (content.startsWith('!sugerencias') || content.startsWith('!su')) {
+        await manejarSugerencias(message);
+    } else if (content.startsWith('!ayuda') || content.startsWith('!ay')) {
+        await manejarAyuda(message);
     }
 }
-// Eventos
-client.once('ready', async () => {
-    console.log(`¡Miguel IA está listo! Instancia: ${instanceId}`);
-    client.user.setPresence({ activities: [{ name: "Listo para ayudar a Miguel y Milagros", type: 0 }], status: 'online' });
-    dataStore = await loadDataStore();
-    activeTrivia = new Map(Object.entries(dataStore.activeSessions).filter(([_, s]) => s.type === 'trivia'));
-    console.log('Sesiones activas recargadas:', JSON.stringify(dataStore.activeSessions));
-});
-process.on('beforeExit', async () => {
-    console.log('Guardando datos antes de salir...');
-    await saveDataStore();
-});
 
 client.on('messageCreate', async (message) => {
     if (message.author.bot) return;
@@ -1056,6 +1103,85 @@ client.on('messageCreate', async (message) => {
     }
 });
 
+// Eventos
+client.once('ready', async () => {
+    console.log(`¡Miguel IA está listo! Instancia: ${instanceId}`);
+    client.user.setPresence({ activities: [{ name: "Listo para ayudar a Miguel y Milagros", type: 0 }], status: 'online' });
+    dataStore = await loadDataStore();
+    activeTrivia = new Map(Object.entries(dataStore.activeSessions).filter(([_, s]) => s.type === 'trivia'));
+    console.log('Sesiones activas recargadas:', JSON.stringify(dataStore.activeSessions));
+
+    // Verificación de actualizaciones al iniciar
+    try {
+        const channel = await client.channels.fetch(CHANNEL_ID);
+        if (!channel) throw new Error('Canal no encontrado');
+
+        const userHistory = dataStore.conversationHistory[ALLOWED_USER_ID] || [];
+        const historySummary = userHistory.length > 0
+            ? userHistory.slice(-3).map(msg => `${msg.role === 'user' ? 'Belén' : 'Yo'}: ${msg.content}`).join('\n')
+            : 'No hay historial reciente.';
+        const argentinaTime = new Date().toLocaleTimeString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' });
+
+        const updatesChanged = JSON.stringify(BOT_UPDATES) !== JSON.stringify(PREVIOUS_BOT_UPDATES);
+
+        if (updatesChanged) {
+            const updateEmbed = createEmbed('#FFD700', '📢 Actualizaciones de Miguel IA',
+                '¡Tengo mejoras nuevas para compartir contigo!')
+                .addFields(
+                    { name: 'Novedades', value: BOT_UPDATES.map(update => `- ${update}`).join('\n'), inline: false },
+                    { name: 'Hora de actualización', value: `${argentinaTime}`, inline: false },
+                    { name: 'Últimas conversaciones', value: historySummary, inline: false }
+                );
+            await channel.send({ content: `<@${ALLOWED_USER_ID}>`, embeds: [updateEmbed] });
+            console.log('Actualizaciones enviadas al canal con mención:', CHANNEL_ID);
+        } else {
+            console.log('No hay cambios en las actualizaciones, no se enviaron.');
+        }
+    } catch (error) {
+        console.error('Error al enviar actualizaciones:', error);
+    }
+});
+
+process.on('beforeExit', async () => {
+    console.log('Guardando datos antes de salir...');
+    await saveDataStore();
+});
+
+client.on('messageCreate', async (message) => {
+    if (message.author.bot) return;
+    if (![OWNER_ID, ALLOWED_USER_ID].includes(message.author.id)) return;
+
+    const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
+
+    if (processedMessages.has(message.id)) return;
+    processedMessages.set(message.id, Date.now());
+    setTimeout(() => processedMessages.delete(message.id), 10000);
+
+    await manejarCommand(message);
+
+    const content = message.content.toLowerCase();
+    if (content.startsWith('!ranking') || content.startsWith('!rk')) {
+        const embed = getCombinedRankingEmbed(message.author.id, message.author.username);
+        await message.channel.send({ embeds: [embed] });
+    } else if (content.startsWith('!help') || content.startsWith('!h')) {
+        const embed = createEmbed('#55FF55', `¡Comandos para ti, ${userName}!`,
+            '¡Aquí tienes lo que puedo hacer!\n' +
+            '- **!ch / !chat [mensaje]**: Charla conmigo.\n' +
+            '- **!tr / !trivia [categoría] [n]**: Trivia por categoría (mínimo 20). Categorías: ' + Object.keys(preguntasTriviaSinOpciones).join(', ') + '\n' +
+            '- **!pp / !ppm**: Prueba de mecanografía.\n' +
+            '- **!rk / !ranking**: Ver puntajes y estadísticas.\n' +
+            '- **!re / !reacciones**: Juego de escribir rápido.\n' +
+            '- **!su / !sugerencias [idea]**: Envía ideas para mejorar el bot.\n' +
+            '- **!ay / !ayuda [problema]**: Pide ayuda a Miguel.\n' +
+            '- **!save**: Guardar datos ahora.\n' +
+            '- **!h / !help**: Lista de comandos.\n' +
+            '- **hola**: Saludo especial.');
+        await message.channel.send({ embeds: [embed] });
+    } else if (content === 'hola') {
+        await sendSuccess(message.channel, `¡Hola, ${userName}!`, `Soy Miguel IA, aquí para ayudarte. Prueba !tr, !pp o !re.`);
+    }
+});
+
 // Evento de reacción actualizado para notificar al OWNER_ID cuando Belén reaccione
 client.on('messageReactionAdd', async (reaction, user) => {
     if (!sentMessages.has(reaction.message.id)) return;
@@ -1073,7 +1199,6 @@ client.on('messageReactionAdd', async (reaction, user) => {
         sentMessages.set(newMessage.id, { content: alternativeEmbed.data.description, originalQuestion: messageData.originalQuestion, message: newMessage });
     }
 
-    // Notificar al OWNER_ID si Belén reacciona
     if (user.id === ALLOWED_USER_ID) {
         const owner = await client.users.fetch(OWNER_ID);
         const reactionEmbed = createEmbed('#FFD700', '¡Belén reaccionó!',
