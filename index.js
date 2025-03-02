@@ -1086,24 +1086,49 @@ async function searchYouTube(query) {
 async function playSong(guildId, channel) {
     const serverQueue = queue.get(guildId);
     if (!serverQueue || !serverQueue.songs.length) {
-        channel.send({ embeds: [createEmbed('#FF5555', '🎵 Cola vacía', 'No hay más canciones. ¡Añade una con !play!')] });
-        if (serverQueue.connection) serverQueue.connection.destroy();
+        if (channel) {
+            channel.send({ embeds: [createEmbed('#FF5555', '🎵 Cola vacía', 'No hay más canciones. ¡Añade una con !play!')] });
+        }
+        if (serverQueue && serverQueue.connection) {
+            serverQueue.connection.destroy();
+        }
         queue.delete(guildId);
+        if (dataStore.musicQueue && dataStore.musicQueue[guildId]) {
+            delete dataStore.musicQueue[guildId];
+            dataStoreModified = true;
+        }
         return;
     }
 
-    const song = serverQueue.songs[0];
-    const stream = ytdl(song.url, { filter: 'audioonly', quality: 'highestaudio', highWaterMark: 1 << 25 });
-    const resource = createAudioResource(stream);
-    serverQueue.player.play(resource);
+    try {
+        const song = serverQueue.songs[0];
+        const stream = ytdl(song.url, { 
+            filter: 'audioonly', 
+            quality: 'highestaudio', 
+            highWaterMark: 1 << 25,
+            requestOptions: { timeout: 30000 }
+        });
+        const resource = createAudioResource(stream);
+        serverQueue.player.play(resource);
 
-    channel.send({ embeds: [createEmbed('#55FF55', '🎵 Reproduciendo ahora', `**${song.title}**\nPedida por: ${song.requester}`)] });
-    dataStore.musicQueue = dataStore.musicQueue || {};
-    dataStore.musicQueue[guildId] = {
-        songs: serverQueue.songs,
-        voiceChannelId: serverQueue.voiceChannelId,
-    };
-    dataStoreModified = true;
+        // Enviar mensaje al canal de texto desde donde se invocó el comando
+        if (channel) {
+            channel.send({ embeds: [createEmbed('#55FF55', '🎵 Reproduciendo ahora', `**${song.title}**\nPedida por: ${song.requester}`)] });
+        }
+        dataStore.musicQueue = dataStore.musicQueue || {};
+        dataStore.musicQueue[guildId] = {
+            songs: serverQueue.songs,
+            voiceChannelId: serverQueue.voiceChannelId,
+        };
+        dataStoreModified = true;
+    } catch (error) {
+        console.error('Error al reproducir canción:', error);
+        if (channel) {
+            sendError(channel, '🎵 Error al reproducir', `No pude reproducir "${serverQueue.songs[0].title}". Pasando a la siguiente...`);
+        }
+        serverQueue.songs.shift();
+        playSong(guildId, channel);
+    }
 }
 
 // Manejar comandos de música
@@ -1162,7 +1187,6 @@ async function handleMusicCommands(message) {
                 return sendError(message.channel, '🎵 Error con la playlist', 'No pude cargar esa playlist de Spotify.');
             }
         } else {
-            // Si no es playlist, asumir URL de YouTube
             let songInfo;
             try {
                 songInfo = await ytdl.getInfo(url);
@@ -1191,14 +1215,21 @@ async function handleMusicCommands(message) {
             queue.set(guildId, queueConstruct);
 
             queueConstruct.player.on(AudioPlayerStatus.Idle, () => {
-                queueConstruct.songs.shift();
-                playSong(guildId, message.channel);
+                if (queueConstruct.songs.length > 0) {
+                    queueConstruct.songs.shift();
+                    playSong(guildId, message.channel);
+                }
             });
 
             queueConstruct.player.on('error', error => {
                 console.error('Error en el reproductor:', error);
-                sendError(message.channel, '🎵 ¡Ups!', 'Algo salió mal al reproducir.');
-                queue.delete(guildId);
+                sendError(message.channel, '🎵 ¡Ups!', 'Error al reproducir, intentando la siguiente...');
+                if (queueConstruct.songs.length > 0) {
+                    queueConstruct.songs.shift();
+                    playSong(guildId, message.channel);
+                } else {
+                    queue.delete(guildId);
+                }
             });
 
             playSong(guildId, message.channel);
@@ -1207,6 +1238,7 @@ async function handleMusicCommands(message) {
             if (songs.length === 1) {
                 sendSuccess(message.channel, '🎵 Añadida a la cola', `**${songs[0].title}** se ha añadido, ${userName}.`);
             }
+            dataStore.musicQueue = dataStore.musicQueue || {};
             dataStore.musicQueue[guildId] = {
                 songs: serverQueue.songs,
                 voiceChannelId: serverQueue.voiceChannelId,
@@ -1253,35 +1285,57 @@ async function restoreMusicQueue() {
 
         const savedQueue = dataStore.musicQueue[guildId];
         const voiceChannel = guild.channels.cache.get(savedQueue.voiceChannelId);
-        if (!voiceChannel || !voiceChannel.joinable) continue;
+        if (!voiceChannel || !voiceChannel.joinable) {
+            console.log(`No se puede unir al canal ${savedQueue.voiceChannelId} en guild ${guildId}`);
+            delete dataStore.musicQueue[guildId];
+            dataStoreModified = true;
+            continue;
+        }
 
-        const queueConstruct = {
-            connection: joinVoiceChannel({
-                channelId: voiceChannel.id,
-                guildId: guildId,
-                adapterCreator: guild.voiceAdapterCreator,
-            }),
-            player: createAudioPlayer(),
-            songs: savedQueue.songs,
-            voiceChannelId: savedQueue.voiceChannelId,
-        };
-        queue.set(guildId, queueConstruct);
+        try {
+            const queueConstruct = {
+                connection: joinVoiceChannel({
+                    channelId: voiceChannel.id,
+                    guildId: guildId,
+                    adapterCreator: guild.voiceAdapterCreator,
+                }),
+                player: createAudioPlayer(),
+                songs: savedQueue.songs,
+                voiceChannelId: savedQueue.voiceChannelId,
+            };
+            queue.set(guildId, queueConstruct);
 
-        queueConstruct.player.on(AudioPlayerStatus.Idle, () => {
-            queueConstruct.songs.shift();
-            playSong(guildId, voiceChannel);
-        });
+            queueConstruct.player.on(AudioPlayerStatus.Idle, () => {
+                if (queueConstruct.songs.length > 0) {
+                    queueConstruct.songs.shift();
+                    playSong(guildId, voiceChannel.guild.channels.cache.find(ch => ch.type === 'GUILD_TEXT' && ch.permissionsFor(guild.me).has('SEND_MESSAGES')));
+                }
+            });
 
-        queueConstruct.player.on('error', error => {
-            console.error('Error en el reproductor:', error);
-            queue.delete(guildId);
-        });
+            queueConstruct.player.on('error', error => {
+                console.error('Error en el reproductor tras restauración:', error);
+                if (queueConstruct.songs.length > 0) {
+                    queueConstruct.songs.shift();
+                    playSong(guildId, voiceChannel.guild.channels.cache.find(ch => ch.type === 'GUILD_TEXT' && ch.permissionsFor(guild.me).has('SEND_MESSAGES')));
+                } else {
+                    queue.delete(guildId);
+                }
+            });
 
-        const channel = guild.channels.cache.get(CHANNEL_ID);
-        if (channel) playSong(guildId, channel);
+            // Enviar mensaje al primer canal de texto disponible donde el bot pueda escribir
+            const textChannel = guild.channels.cache.find(ch => ch.type === 'GUILD_TEXT' && ch.permissionsFor(guild.me).has('SEND_MESSAGES'));
+            if (textChannel) {
+                playSong(guildId, textChannel);
+            } else {
+                playSong(guildId, null); // Reproduce sin enviar mensaje si no hay canal de texto
+            }
+        } catch (error) {
+            console.error('Error restaurando cola:', error);
+            delete dataStore.musicQueue[guildId];
+            dataStoreModified = true;
+        }
     }
 }
-
 // Comandos
 async function manejarCommand(message) {
     const content = message.content.toLowerCase();
@@ -1396,10 +1450,12 @@ client.once('ready', async () => {
                 );
             await channel.send({ content: `<@${ALLOWED_USER_ID}>`, embeds: [updateEmbed] });
         }
-        // Restaurar cola de música
+        // Restaurar cola de música en cualquier canal de voz guardado
         await restoreMusicQueue();
     } catch (error) {
         console.error('Error al enviar actualizaciones o restaurar música:', error);
+        // Intentar restaurar música incluso si falla el envío al canal de texto
+        await restoreMusicQueue();
     }
 });
 
