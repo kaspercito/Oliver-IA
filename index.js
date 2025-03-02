@@ -539,7 +539,7 @@ async function loadDataStore() {
         };
         // Asegurar que updatesSent esté definido
         if (typeof loadedData.updatesSent === 'undefined') {
-            loadedData.updatesSent = false;
+            loadedData.updatesSent = true;
         }
         console.log('Datos cargados desde GitHub:', JSON.stringify(loadedData));
         return loadedData;
