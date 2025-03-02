@@ -27,8 +27,11 @@
   },
   "personalPPMRecords": {
     "1023132788632862761": {
-      "ppm": 75,
-      "timestamp": "2025-03-02T05:20:00.862Z"
+      "best": {
+        "ppm": 0,
+        "timestamp": null
+      },
+      "attempts": []
     }
   },
   "reactionStats": {},
@@ -39,7 +42,7 @@
     },
     "752987736759205960": {
       "username": "kaspercito",
-      "wins": 22
+      "wins": 23
     }
   },
   "activeSessions": {},
