@@ -1,5 +1,18 @@
 {
-  "conversationHistory": {},
+  "conversationHistory": {
+    "752987736759205960": [
+      {
+        "role": "assistant",
+        "content": "¡Hola, Miguel! ¿En qué puedo ayudarte hoy?\n\n¿Te ayudó esto, Miguel?",
+        "timestamp": "2025-03-02T02:31:54.836Z"
+      },
+      {
+        "role": "assistant",
+        "content": "¡Fácil, Miguel! 500 + 500 = **1000**. ¿Otra cuenta?\n\n¿Te ayudó esto, Miguel?",
+        "timestamp": "2025-03-02T02:32:01.742Z"
+      }
+    ]
+  },
   "triviaRanking": {},
   "personalPPMRecords": {},
   "reactionStats": {},
