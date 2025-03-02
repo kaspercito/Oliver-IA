@@ -27,8 +27,9 @@ const BOT_UPDATES = [
     '!ch genera imágenes para preguntas como "¿Cómo es...?".'
 ];
 
-// Preguntas sin opciones (interés general ampliado)
+// Preguntas sin opciones (interés general ampliado - muestra reducida)
 const preguntasTriviaSinOpciones = [
+    // Capitales del Mundo
     { pregunta: "¿Cuál es la capital de Brasil?", respuesta: "brasilia" },
     { pregunta: "¿Cuál es la capital de Japón?", respuesta: "tokio" },
     { pregunta: "¿Cuál es la capital de Francia?", respuesta: "parís" },
@@ -36,63 +37,80 @@ const preguntasTriviaSinOpciones = [
     { pregunta: "¿Cuál es la capital de Canadá?", respuesta: "ottawa" },
     { pregunta: "¿Cuál es la capital de Rusia?", respuesta: "moscú" },
     { pregunta: "¿Cuál es la capital de India?", respuesta: "nueva delhi" },
-    { pregunta: "¿Cuál es la capital de Sudáfrica?", respuesta: "pretoria" },
     { pregunta: "¿Cuál es la capital de Argentina?", respuesta: "buenos aires" },
-    { pregunta: "¿Cuál es la capital de Egipto?", respuesta: "el cairo" },
     { pregunta: "¿Cuál es la capital de México?", respuesta: "ciudad de méxico" },
     { pregunta: "¿Cuál es la capital de Italia?", respuesta: "roma" },
-    { pregunta: "¿Cuál es la capital de España?", respuesta: "madrid" },
-    { pregunta: "¿Cuál es la capital de China?", respuesta: "pekín" },
-    { pregunta: "¿Cuál es la capital de Alemania?", respuesta: "berlín" },
-    { pregunta: "¿Cuál es la capital de Chile?", respuesta: "santiago" },
-    { pregunta: "¿Cuál es la capital de Perú?", respuesta: "lima" },
-    { pregunta: "¿Cuál es la capital de Colombia?", respuesta: "bogotá" },
-    { pregunta: "¿Cuál es la capital de Nueva Zelanda?", respuesta: "wellington" },
-    { pregunta: "¿Cuál es la capital de Suecia?", respuesta: "estocolmo" },
+
+    // Química
     { pregunta: "¿Qué elemento tiene el símbolo 'H'?", respuesta: "hidrógeno" },
     { pregunta: "¿Qué gas tiene la fórmula CO2?", respuesta: "dióxido de carbono" },
     { pregunta: "¿Qué elemento es un metal líquido a temperatura ambiente?", respuesta: "mercurio" },
-    { pregunta: "¿Qué científico formuló la teoría de la relatividad?", respuesta: "albert einstein" },
+    { pregunta: "¿Cuál es el símbolo del oro?", respuesta: "au" },
+    { pregunta: "¿Qué compuesto es el agua?", respuesta: "h2o" },
+
+    // Física
     { pregunta: "¿Qué unidad mide la fuerza?", respuesta: "newton" },
+    { pregunta: "¿Qué ley dice que F = m * a?", respuesta: "segunda ley de newton" },
+    { pregunta: "¿Cuál es la velocidad de la luz en el vacío?", respuesta: "299792458 m/s" },
+    { pregunta: "¿Qué instrumento mide la presión atmosférica?", respuesta: "barómetro" },
+    { pregunta: "¿Qué tipo de energía almacena un resorte comprimido?", respuesta: "energía elástica" },
+
+    // Historia
     { pregunta: "¿En qué año llegó Colón a América?", respuesta: "1492" },
     { pregunta: "¿Qué civilización construyó las pirámides de Giza?", respuesta: "egipcia" },
-    { pregunta: "¿Qué órgano bompea sangre en el cuerpo humano?", respuesta: "corazón" },
-    { pregunta: "¿Qué juego tiene un personaje llamado Mario?", respuesta: "super mario" },
-    { pregunta: "¿Qué película tiene a Jack Sparrow como pirata?", respuesta: "piratas del caribe" },
-    { pregunta: "¿Qué princesa tiene una madrastra llamada Lady Tremaine?", respuesta: "cenicienta" },
     { pregunta: "¿Qué guerra ocurrió entre 1939 y 1945?", respuesta: "segunda guerra mundial" },
+    { pregunta: "¿Quién fue el primer emperador de Roma?", respuesta: "augusto" },
+    { pregunta: "¿En qué año cayó el Muro de Berlín?", respuesta: "1989" },
+
+    // Biología
+    { pregunta: "¿Qué órgano bompea sangre en el cuerpo humano?", respuesta: "corazón" },
+    { pregunta: "¿Cuál es el proceso por el que las plantas hacen su alimento?", respuesta: "fotosíntesis" },
+    { pregunta: "¿Qué gas exhalan los humanos al respirar?", respuesta: "dióxido de carbono" },
+    { pregunta: "¿Qué parte del cuerpo humano produce insulina?", respuesta: "páncreas" },
+    { pregunta: "¿Qué animal es conocido como el rey de la selva?", respuesta: "león" },
+
+    // Juegos
+    { pregunta: "¿Qué juego tiene un personaje llamado Mario?", respuesta: "super mario" },
+    { pregunta: "¿Qué juego incluye a un personaje llamado Link?", respuesta: "the legend of zelda" },
+    { pregunta: "¿Qué juego es famoso por su modo battle royale?", respuesta: "fortnite" },
+
+    // Películas
+    { pregunta: "¿Qué película tiene a Jack Sparrow como pirata?", respuesta: "piratas del caribe" },
+    { pregunta: "¿Qué película tiene a un tiburón como antagonista?", respuesta: "tiburón" },
+    { pregunta: "¿Qué película incluye a un robot llamado WALL-E?", respuesta: "wall-e" },
+
+    // Disney
+    { pregunta: "¿Qué princesa tiene una madrastra llamada Lady Tremaine?", respuesta: "cenicienta" },
+    { pregunta: "¿Qué película Disney tiene un león llamado Simba?", respuesta: "el rey león" },
+    { pregunta: "¿Qué princesa tiene poderes de hielo?", respuesta: "elsa" }
 ];
 
-// Palabras aleatorias para el juego de reacciones
+// Palabras aleatorias para el juego de reacciones (muestra reducida)
 const palabrasAleatorias = [
     "genial", "cool", "bravo", "sí", "nope", "wow", "jaja", "bien", "mal", "top",
     "luz", "estrella", "risa", "fuego", "agua", "viento", "cielo", "tierra", "sol", "luna",
-    "épico", "nice", "rápido", "lento", "fácil", "difícil", "super", "pro", "ok", "boom"
+    "químico", "átomo", "fuerza", "energía", "historia", "célula", "mario", "link", "piratas",
+    "cenicienta", "simba", "brasilia", "tokio", "parís"
 ];
 
-// Frases para PPM
+// Frases para PPM (muestra reducida)
 const frasesPPM = [
     "el rápido zorro marrón salta sobre el perro perezoso",
     "la vida es como una caja de chocolates nunca sabes qué te va a tocar",
     "un pequeño paso para el hombre un gran salto para la humanidad",
     "el sol brilla más fuerte cuando estás feliz y rodeado de amigos",
-    "la práctica hace al maestro no lo olvides nunca en tu camino",
-    "el viento sopla suavemente entre los árboles altos del bosque verde",
-    "la perseverancia y el esfuerzo siempre llevan a grandes logros personales",
-    "un día claro con un cielo azul inspira a todos a soñar",
-    "el río fluye tranquilo mientras las aves cantan al amanecer cada día",
-    "la amistad verdadera se construye con confianza y apoyo mutuo siempre",
+    "la práctica hace al maestro no lo olvides nunca en tu camino"
 ];
 
 // Estado
-const instanceId = uuidv4();
-const activeTrivia = new Map();
-const sentMessages = new Map();
-const processedMessages = new Map();
-const triviaLoops = new Map();
-const ppmSessions = new Map();
-const reactionGames = new Map();
-let dataStore = { conversationHistory: {}, triviaRanking: {}, personalPPMRecords: {}, reactionStats: {}, reactionWins: {}, activeTrivia: {} };
+let instanceId = uuidv4(); // Cambiado a let
+let activeTrivia = new Map(); // Cambiado a let
+let sentMessages = new Map();
+let processedMessages = new Map();
+let triviaLoops = new Map();
+let ppmSessions = new Map();
+let reactionGames = new Map();
+let dataStore = { conversationHistory: {}, triviaRanking: {}, personalPPMRecords: {}, reactionStats: {}, reactionWins: {}, activeTrivia: {} }; // Cambiado a let
 
 // Utilidades
 const createEmbed = (color, title, description, footer = 'Con cariño, Miguel IA | Reacciona con ✅ o ❌, ¡por favor!') => {
@@ -150,6 +168,7 @@ async function generateImage(prompt) {
 // Funciones de persistencia en GitHub
 async function loadDataStore() {
     try {
+        console.log(`Intentando cargar desde: https://api.github.com/repos/${process.env.GITHUB_REPO}/contents/${process.env.GITHUB_FILE_PATH}`);
         const response = await axios.get(
             `https://api.github.com/repos/${process.env.GITHUB_REPO}/contents/${process.env.GITHUB_FILE_PATH}`,
             { headers: { 'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`, 'Accept': 'application/vnd.github+json' } }
@@ -167,6 +186,9 @@ async function loadDataStore() {
         };
     } catch (error) {
         console.error('Error al cargar datos desde GitHub:', error.message, error.response?.data);
+        if (error.response && error.response.status === 404) {
+            console.log('Archivo no encontrado, se creará uno nuevo al guardar.');
+        }
         return { conversationHistory: {}, triviaRanking: {}, personalPPMRecords: {}, reactionStats: {}, reactionWins: {}, activeTrivia: {} };
     }
 }
@@ -293,7 +315,7 @@ async function manejarPPM(message) {
         const goEmbed = createEmbed('#00FF00', '🚀 ¡Ya!', `¡Adelante, ${userName}!`);
         await countdownMessage.edit({ embeds: [goEmbed] });
 
-        const frase = frasesPPM[Math.floor(Math.random() * frasesPPM.length)];
+        const frase = obtenerFrasePPM();
         const startTime = Date.now();
         const embed = createEmbed('#55FFFF', '📝 Prueba de Mecanografía',
             `Escribe esta frase lo más rápido que puedas:\n\n**${frase}**\n\nTienes 60 segundos, ${userName}.`);
@@ -350,7 +372,7 @@ async function manejarReacciones(message) {
         return sendError(message.channel, `Ya hay un juego de reacciones activo en este canal, ${userName}. ¡Espera a que termine!`);
     }
 
-    const palabra = palabrasAleatorias[Math.floor(Math.random() * palabrasAleatorias.length)];
+    const palabra = obtenerPalabraAleatoria();
     const embed = createEmbed('#FFD700', '🏁 ¡Juego de Reacciones!', 
         `¡Escribe esta palabra lo más rápido que puedas: **${palabra}**!\n\nEl primero en escribirla gana. Tienes 30 segundos.`);
     await message.channel.send({ embeds: [embed] });
@@ -396,6 +418,18 @@ function obtenerPreguntaTriviaSinOpciones() {
     return preguntasTriviaSinOpciones[randomIndex];
 }
 
+function obtenerPalabraAleatoria() {
+    if (palabrasAleatorias.length === 0) return null;
+    const randomIndex = Math.floor(Math.random() * palabrasAleatorias.length);
+    return palabrasAleatorias[randomIndex];
+}
+
+function obtenerFrasePPM() {
+    if (frasesPPM.length === 0) return null;
+    const randomIndex = Math.floor(Math.random() * frasesPPM.length);
+    return frasesPPM[randomIndex];
+}
+
 function updateRanking(userId, username) {
     if (!dataStore.triviaRanking) dataStore.triviaRanking = {};
     if (!dataStore.triviaRanking[userId]) {
@@ -434,9 +468,9 @@ function getCombinedRankingEmbed(userId, username) {
 client.once('ready', async () => {
     console.log(`¡Miguel IA está listo! Instancia: ${instanceId}`);
     client.user.setPresence({ activities: [{ name: "Listo para ayudar a Miguel y Belén", type: 0 }], status: 'online' });
-    dataStore = await loadDataStore();
+    dataStore = await loadDataStore(); // Reasignación permitida con let
     // Recargar trivas activas si existen
-    if (dataStore.activeTrivia) activeTrivia = new Map(Object.entries(dataStore.activeTrivia));
+    activeTrivia = new Map(Object.entries(dataStore.activeTrivia)); // Reasignación permitida con let
 });
 
 // Evento messageCreate
