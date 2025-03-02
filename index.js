@@ -364,7 +364,7 @@ async function manejarReacciones(message) {
         }
         dataStore.reactionWins[ganador.id].wins += 1;
 
-        // Registrar la palabra usada en reactionStats
+        // Registrar la palabra usada en reactionStats (aunque no se mostrará en el ranking)
         if (!dataStore.reactionStats[ganador.id]) dataStore.reactionStats[ganador.id] = {};
         if (!dataStore.reactionStats[ganador.id][palabra]) dataStore.reactionStats[ganador.id][palabra] = { count: 0 };
         dataStore.reactionStats[ganador.id][palabra].count += 1;
@@ -407,11 +407,6 @@ function getCombinedRankingEmbed(userId, username) {
         .slice(0, 5)
         .map((record, i) => `${i + 1}. **${record.ppm} PPM** - ${new Date(record.timestamp).toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })}`);
 
-    const reactionStats = Object.entries(dataStore.reactionStats[userId] || {})
-        .sort(([, a], [, b]) => b.count - a.count)
-        .slice(0, 5)
-        .map(([word, { count }], i) => `${i + 1}. **${word}**: ${count} veces`);
-
     const reactionWins = Object.entries(dataStore.reactionWins || {})
         .sort(([, a], [, b]) => b.wins - a.wins)
         .slice(0, 5)
@@ -420,7 +415,6 @@ function getCombinedRankingEmbed(userId, username) {
     const description = [
         triviaRanking.length > 0 ? '**Ranking de Trivia:**\n' + triviaRanking.join('\n') : '¡Aún no hay puntajes de trivia!',
         personalPPMRecords.length > 0 ? '\n**Tus Récords de Mecanografía:**\n' + personalPPMRecords.join('\n') : '\n¡Aún no tienes récords de mecanografía!',
-        reactionStats.length > 0 ? '\n**Tus Reacciones Favoritas:**\n' + reactionStats.join('\n') : '\n¡Aún no has reaccionado con palabras!',
         reactionWins.length > 0 ? '\n**Victorias en Reacciones:**\n' + reactionWins.join('\n') : '\n¡Aún no hay victorias en reacciones!'
     ].join('\n');
 
@@ -490,10 +484,20 @@ client.on('messageCreate', async (message) => {
                 await sentMessage.react('❌');
                 sentMessages.set(sentMessage.id, { content: aiReply, originalQuestion: chatMessage, timestamp: new Date().toISOString(), message: sentMessage });
             }
+            // Detectar pedidos de letras de canciones
+            else if (lowerMessage.includes('letra') && (lowerMessage.includes('canción') || lowerMessage.includes('cancion'))) {
+                aiReply = `¡Hola, ${userName}! No tengo la letra exacta de esa canción guardada, pero puedo ayudarte con algo más. ¿Quizás te gustaría saber sobre el artista, el género, o buscar la letra en un sitio como Genius o Letras.com? ¿Qué te parece?`;
+                const finalEmbed = createEmbed('#55FFFF', `¡Aquí estoy para ti, ${userName}!`, aiReply);
+                const sentMessage = await channel.send({ embeds: [finalEmbed] });
+                await waitingMessage.delete();
+                await sentMessage.react('✅');
+                await sentMessage.react('❌');
+                sentMessages.set(sentMessage.id, { content: aiReply, originalQuestion: chatMessage, timestamp: new Date().toISOString(), message: sentMessage });
+            }
             // Condición especial para "¿Cómo es una rata blanca?" con enlace de Imgur
             else if (lowerMessage.includes('cómo es') && lowerMessage.includes('rata blanca')) {
-                const imgurLink = 'https://i.imgur.com/TU_ENLACE_AQUI'; // Reemplaza con tu enlace de Imgur
-                aiReply = `¡Hola, ${userName}! Una rata blanca es un pequeño roedor con un pelaje blanco puro, ojos rosados o rojos (por ser albina), orejas redondeadas y una cola larga y rosada. Son súper curiosas y amigables, ¡ideales como mascotas! Mira esta foto que encontré: [Rata blanca](${imgurLink}). ¿Qué te parece?`;
+                const imgurLink = 'https://i.imgur.com/mjOqwH6.png'; // Reemplaza con tu enlace de Imgur
+                aiReply = `¡Hola, ${userName}! Una rata blanca es un pequeño roedor con un pelaje blanco puro, ojos rosados o rojos (por ser albina), orejas redondeadas y una cola larga y rosada. Son súper curiosas y amigables, ¡ideales como mascotas! Mira esta foto que encontré: ${imgurLink}. ¿Qué te parece?`;
                 const finalEmbed = createEmbed('#55FFFF', `¡Aquí estoy para ti, ${userName}!`, aiReply);
                 const sentMessage = await channel.send({ embeds: [finalEmbed] });
                 await waitingMessage.delete();
@@ -515,7 +519,7 @@ client.on('messageCreate', async (message) => {
             }
             // Respuesta general para otras preguntas
             else {
-                const prompt = `Eres Miguel IA, creado por Miguel para ayudar a ${userName}. Responde a "${chatMessage}" de forma natural, amigable y detallada, explicando el tema si es una pregunta, con pasos claros si aplica. Si es un cálculo matemático, resuélvelo directamente. Asegúrate de completar todas las ideas y no dejar frases cortadas.`;
+                const prompt = `Eres Miguel IA, creado por Miguel para ayudar a ${userName}. Responde a "${chatMessage}" de forma natural, amigable y detallada, explicando el tema si es una pregunta, con pasos claros si aplica. Si es un cálculo matemático, resuélvelo directamente. Si no sabes algo con certeza (como letras de canciones), admite que no tienes la información exacta y sugiere algo útil. Asegúrate de completar todas las ideas y no dejar frases cortadas.`;
                 console.log(`Enviando solicitud a Hugging Face por ${userName}: "${chatMessage}"`);
                 const response = await axios.post(
                     'https://api-inference.huggingface.co/models/mistralai/Mixtral-8x7B-Instruct-v0.1',
@@ -631,7 +635,7 @@ client.on('messageReactionAdd', async (reaction, user) => {
         try {
             const response = await axios.post(
                 'https://api-inference.huggingface.co/models/mistralai/Mixtral-8x7B-Instruct-v0.1',
-                { inputs: alternativePrompt, parameters: { max_new_tokens: 500, return_full_text: false, temperature: 0.6 } },
+                { inputs: alternativePrompt, parameters: { max_new_tokens: 550, return_full_text: false, temperature: 0.6 } },
                 { headers: { 'Authorization': `Bearer ${process.env.HF_API_TOKEN}`, 'Content-Type': 'application/json' }, timeout: 30000 }
             );
             let alternativeReply = response.data[0]?.generated_text?.trim() || `No se me ocurre algo mejor ahora, ${userName}. ¿Qué tal si me das más detalles?`;
