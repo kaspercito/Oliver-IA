@@ -24,7 +24,7 @@ const BOT_UPDATES = [
     '¡Trivia sin opciones con muchas preguntas!',
     'Comandos abreviados: !ch, !tr, !rk, !pp, !h, !re.',
     'Reacciones con !reacciones o !re.',
-    'Temas: química, física, historia, biología, juegos, películas, Disney y capitales.'
+    'Trivia más flexible y !ppm funcionando.'
 ];
 
 // Preguntas sin opciones (interés general ampliado)
@@ -60,6 +60,7 @@ const preguntasTriviaSinOpciones = [
     { pregunta: "¿Qué juego tiene un personaje llamado Mario?", respuesta: "super mario" },
     { pregunta: "¿Qué película tiene a Jack Sparrow como pirata?", respuesta: "piratas del caribe" },
     { pregunta: "¿Qué princesa tiene una madrastra llamada Lady Tremaine?", respuesta: "cenicienta" },
+    { pregunta: "¿Qué guerra ocurrió entre 1939 y 1945?", respuesta: "segunda guerra mundial" },
     // ... (mantengo la lista completa de antes)
 ];
 
@@ -70,10 +71,18 @@ const palabrasAleatorias = [
     "épico", "nice", "rápido", "lento", "fácil", "difícil", "super", "pro", "ok", "boom"
 ];
 
-// Frases para PPM (sin cambios)
+// Frases para PPM
 const frasesPPM = [
     "el rápido zorro marrón salta sobre el perro perezoso",
     "la vida es como una caja de chocolates nunca sabes qué te va a tocar",
+    "un pequeño paso para el hombre un gran salto para la humanidad",
+    "el sol brilla más fuerte cuando estás feliz y rodeado de amigos",
+    "la práctica hace al maestro no lo olvides nunca en tu camino",
+    "el viento sopla suavemente entre los árboles altos del bosque verde",
+    "la perseverancia y el esfuerzo siempre llevan a grandes logros personales",
+    "un día claro con un cielo azul inspira a todos a soñar",
+    "el río fluye tranquilo mientras las aves cantan al amanecer cada día",
+    "la amistad verdadera se construye con confianza y apoyo mutuo siempre",
     // ... (mantengo la lista original)
 ];
 
@@ -105,6 +114,13 @@ const sendSuccess = async (channel, title, message) => {
     const embed = createEmbed('#55FF55', title, message);
     await channel.send({ embeds: [embed] });
 };
+
+// Función para limpiar texto (eliminar artículos y normalizar)
+function cleanText(text) {
+    return text.toLowerCase().trim()
+        .replace(/\s+/g, ' ')
+        .replace(/^(el|la|los|las)\s+/i, '');
+}
 
 // Funciones de persistencia en GitHub
 async function loadDataStore() {
@@ -192,17 +208,19 @@ async function manejarTrivia(message) {
                 time: 60000,
                 errors: ['time']
             });
-            const respuestaUsuario = respuestas.first().content.toLowerCase().trim();
-            console.log(`Respuesta recibida: ${respuestaUsuario}`);
+            const respuestaUsuario = respuestas.first().content;
+            const cleanedUserResponse = cleanText(respuestaUsuario);
+            const cleanedCorrectResponse = cleanText(trivia.respuesta);
+            console.log(`Respuesta recibida: "${respuestaUsuario}" (limpia: "${cleanedUserResponse}") vs correcta: "${cleanedCorrectResponse}"`);
             activeTrivia.delete(message.channel.id);
 
-            if (respuestaUsuario === trivia.respuesta) {
+            if (cleanedUserResponse === cleanedCorrectResponse) {
                 updateRanking(message.author.id, message.author.username);
                 await sendSuccess(message.channel, '🎉 ¡Correcto!',
                     `¡Bien hecho, ${userName}! La respuesta correcta era **${trivia.respuesta}**. ¡Ganaste 1 punto!`);
             } else {
                 await sendError(message.channel, '❌ ¡Casi!',
-                    `Lo siento, ${userName}, la respuesta correcta era **${trivia.respuesta}**.`);
+                    `Lo siento, ${userName}, la respuesta correcta era **${trivia.respuesta}**. Tu respuesta fue "${respuestaUsuario}".`);
             }
         } catch (error) {
             console.log(`Tiempo agotado o error en pregunta ${i + 1}: ${trivia.pregunta}`, error);
@@ -214,13 +232,83 @@ async function manejarTrivia(message) {
     await sendSuccess(message.channel, '🏁 ¡Trivia Terminada!', `¡Completaste las ${numQuestions} preguntas, ${userName}! Usa !rk para ver tu puntaje.`);
 }
 
+// Función para manejar PPM
+async function manejarPPM(message) {
+    console.log(`Instancia ${instanceId} - Iniciando PPM para ${message.author.id}`);
+    const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
+
+    if (ppmSessions.has(message.author.id)) {
+        return sendError(message.channel, `Ya tienes una prueba activa, ${userName}. Termina la actual primero.`);
+    }
+
+    async function startTest() {
+        const countdownEmbed = createEmbed('#FFAA00', '⏳ Cuenta Regresiva', `¡Prepárate, ${userName}! Empieza en 3...`);
+        const countdownMessage = await message.channel.send({ embeds: [countdownEmbed] });
+
+        for (let i = 2; i > 0; i--) {
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            const updatedEmbed = createEmbed('#FFAA00', '⏳ Cuenta Regresiva', `¡Prepárate, ${userName}! Empieza en ${i}...`);
+            await countdownMessage.edit({ embeds: [updatedEmbed] });
+        }
+
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        const goEmbed = createEmbed('#00FF00', '🚀 ¡Ya!', `¡Adelante, ${userName}!`);
+        await countdownMessage.edit({ embeds: [goEmbed] });
+
+        const frase = frasesPPM[Math.floor(Math.random() * frasesPPM.length)];
+        const startTime = Date.now();
+        const embed = createEmbed('#55FFFF', '📝 Prueba de Mecanografía',
+            `Escribe esta frase lo más rápido que puedas:\n\n**${frase}**\n\nTienes 60 segundos, ${userName}.`);
+        await message.channel.send({ embeds: [embed] });
+
+        ppmSessions.set(message.author.id, { frase, startTime });
+
+        try {
+            const respuestas = await message.channel.awaitMessages({
+                filter: (res) => res.author.id === message.author.id,
+                max: 1,
+                time: 60000,
+                errors: ['time']
+            });
+            const respuestaUsuario = respuestas.first().content;
+            const endTime = Date.now();
+            ppmSessions.delete(message.author.id);
+
+            const tiempoSegundos = (endTime - startTime) / 1000;
+            const palabras = frase.split(' ').length;
+            const ppm = Math.round((palabras / tiempoSegundos) * 60);
+
+            if (!dataStore.personalPPMRecords[message.author.id]) {
+                dataStore.personalPPMRecords[message.author.id] = [];
+            }
+            const newRecord = { ppm, timestamp: new Date().toISOString() };
+            dataStore.personalPPMRecords[message.author.id].push(newRecord);
+            await saveDataStore(dataStore);
+
+            if (cleanText(respuestaUsuario) === cleanText(frase)) {
+                await sendSuccess(message.channel, '🎉 ¡Perfecto!',
+                    `¡Bien hecho, ${userName}! Escribiste la frase en ${tiempoSegundos.toFixed(2)} segundos.\nTu velocidad: **${ppm} PPM**. Usa !rk para ver tus récords.`);
+            } else {
+                await sendError(message.channel, '❌ ¡Casi!',
+                    `Lo siento, ${userName}, no escribiste la frase correctamente. Tu respuesta fue "${respuestaUsuario}". ¡Intenta de nuevo con !pp!`);
+                await startTest(); // Reintentar si falla
+            }
+        } catch (error) {
+            ppmSessions.delete(message.author.id);
+            await sendError(message.channel, '⏳ ¡Tiempo agotado!',
+                `Se acabó el tiempo, ${userName}. La frase era: **${frase}**. Usa !pp para intentarlo de nuevo.`);
+        }
+    }
+
+    await startTest();
+}
+
 // Función para enviar mensaje de reacciones
 async function manejarReacciones(message) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
     const randomWord = palabrasAleatorias[Math.floor(Math.random() * palabrasAleatorias.length)];
     const embed = createEmbed('#FFD700', '¡Hora de reaccionar!', 
-        `¿Qué opinas de "${randomWord}"? Reacciona con una palabra de la lista o usa ✅/❌. ¡Tus stats se guardan en !rk!`,
-        'Con cariño, Miguel IA | Reacciona con ✅ o ❌, ¡por favor!');
+        `¿Qué opinas de "${randomWord}"? Reacciona con una palabra de la lista o usa ✅/❌. ¡Tus stats se guardan en !rk!`);
     const sentMessage = await message.channel.send({ embeds: [embed] });
     await sentMessage.react('✅');
     await sentMessage.react('❌');
@@ -269,7 +357,7 @@ function getCombinedRankingEmbed(userId, username) {
 // Evento ready
 client.once('ready', async () => {
     console.log(`¡Miguel IA está listo! Instancia: ${instanceId}`);
-    client.user.setPresence({ activities: [{ name: "Listo para ayudar a Miguel y Belén", type: 0 }], status: 'online' });
+    client.user.setPresence({ activities: [{ name: "Listo para ayudar a Miguel y Milagros", type: 0 }], status: 'online' });
     dataStore = await loadDataStore();
 });
 
@@ -360,7 +448,8 @@ client.on('messageCreate', async (message) => {
     }
 
     if (content.startsWith('!ppm') || content.startsWith('!pp')) {
-        // Lógica de PPM (mantenida igual por brevedad)
+        await manejarPPM(message);
+        return;
     }
 
     if (content.startsWith('!reacciones') || content.startsWith('!re')) {
