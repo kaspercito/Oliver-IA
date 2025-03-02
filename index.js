@@ -178,10 +178,10 @@ async function saveDataStore() {
     }
 }
 
-// Guardar cada 5 minutos
+// Guardar cada 10 minutos
 setInterval(() => {
     saveDataStore();
-}, 300000);
+}, 600000); // 10 minutos en milisegundos
 
 // Funciones de Trivia
 function obtenerPreguntaTriviaSinOpciones(usedQuestions) {
@@ -224,12 +224,16 @@ async function manejarTrivia(message) {
         try {
             console.log(`Esperando respuesta para pregunta ${channelProgress.currentQuestion + 1}: ${trivia.pregunta}`);
             const respuestas = await message.channel.awaitMessages({
-                filter: (res) => res.author.id === message.author.id && res.content.trim().length > 0,
+                filter: (res) => {
+                    console.log(`Filtrando respuesta de ${res.author.id} (esperado: ${message.author.id}): "${res.content}"`);
+                    return res.author.id === message.author.id && res.content.trim().length > 0;
+                },
                 max: 1,
                 time: 60000,
                 errors: ['time']
             });
             const respuestaUsuario = respuestas.first().content;
+            console.log(`Respuesta recibida: "${respuestaUsuario}"`);
             const cleanedUserResponse = cleanText(respuestaUsuario);
             const cleanedCorrectResponse = cleanText(trivia.respuesta);
             activeTrivia.delete(message.channel.id);
@@ -248,8 +252,9 @@ async function manejarTrivia(message) {
             }
             channelProgress.currentQuestion += 1;
             dataStore.activeSessions[message.channel.id] = channelProgress;
+            console.log(`Avanzando a pregunta ${channelProgress.currentQuestion + 1}`);
         } catch (error) {
-            console.log(`Tiempo agotado en pregunta ${channelProgress.currentQuestion + 1}: ${trivia.pregunta}`);
+            console.log(`Tiempo agotado o error en pregunta ${channelProgress.currentQuestion + 1}: ${trivia.pregunta}`, error);
             activeTrivia.delete(message.channel.id);
             if (!dataStore.triviaStats[message.author.id]) dataStore.triviaStats[message.author.id] = { correct: 0, total: 0 };
             dataStore.triviaStats[message.author.id].total += 1;
@@ -266,7 +271,7 @@ async function manejarTrivia(message) {
         if (!dataStore.triviaRanking[message.author.id]) dataStore.triviaRanking[message.author.id] = { username: message.author.username, score: 0 };
         dataStore.triviaRanking[message.author.id].score += channelProgress.score;
         delete dataStore.activeSessions[message.channel.id];
-        await saveDataStore();
+        // No guardar aquí, se hará cada 10 minutos
     }
 }
 
@@ -287,13 +292,12 @@ async function manejarPPM(message) {
     const countdownEmbed = createEmbed('#FFAA00', '⏳ Cuenta Regresiva', `¡Prepárate, ${userName}! Empieza en 3...`);
     const countdownMessage = await message.channel.send({ embeds: [countdownEmbed] });
 
-    for (let i = 2; i > 0; i--) {
+    for (let i = 2; i >= 0; i--) { // Corregido para contar hasta 0
         await new Promise(resolve => setTimeout(resolve, 1000));
         const updatedEmbed = createEmbed('#FFAA00', '⏳ Cuenta Regresiva', `¡Prepárate, ${userName}! Empieza en ${i}...`);
         await countdownMessage.edit({ embeds: [updatedEmbed] });
     }
 
-    await new Promise(resolve => setTimeout(resolve, 1000));
     const goEmbed = createEmbed('#00FF00', '🚀 ¡Ya!', `¡Adelante, ${userName}!`);
     await countdownMessage.edit({ embeds: [goEmbed] });
 
@@ -309,6 +313,7 @@ async function manejarPPM(message) {
     dataStore.activeSessions[message.author.id] = session;
 
     try {
+        console.log(`Esperando respuesta para PPM: "${frase}"`);
         const respuestas = await message.channel.awaitMessages({
             filter: (res) => res.author.id === message.author.id && res.content.trim().length > 0,
             max: 1,
@@ -334,13 +339,12 @@ async function manejarPPM(message) {
             await sendError(message.channel, '❌ ¡Casi!',
                 `Lo siento, ${userName}, no escribiste la frase correctamente. Tu respuesta fue "${respuestaUsuario}". ¡Intenta de nuevo con !pp!`);
         }
-        await saveDataStore();
     } catch (error) {
+        console.log('Tiempo agotado en PPM:', error);
         session.completed = true;
         delete dataStore.activeSessions[message.author.id];
         await sendError(message.channel, '⏳ ¡Tiempo agotado!',
             `Se acabó el tiempo, ${userName}. La frase era: **${frase}**. Usa !pp para intentarlo de nuevo.`);
-        await saveDataStore();
     }
 }
 
@@ -359,16 +363,18 @@ async function manejarReacciones(message) {
     }
 
     const palabra = obtenerPalabraAleatoria();
+    const startTime = Date.now();
     const embed = createEmbed('#FFD700', '🏁 ¡Juego de Reacciones!',
         `¡Escribe esta palabra lo más rápido que puedas: **${palabra}**!\n\nEl primero en escribirla gana. Tienes 30 segundos.`);
     await message.channel.send({ embeds: [embed] });
 
     session.palabra = palabra;
-    session.timestamp = Date.now();
+    session.timestamp = startTime;
     session.completed = false;
     dataStore.activeSessions[message.channel.id] = session;
 
     try {
+        console.log(`Esperando respuesta para palabra: "${palabra}"`);
         const respuestas = await message.channel.awaitMessages({
             filter: (res) => res.content.toLowerCase().trim() === palabra,
             max: 1,
@@ -376,6 +382,8 @@ async function manejarReacciones(message) {
             errors: ['time']
         });
         const ganador = respuestas.first().author;
+        const endTime = Date.now();
+        const tiempoSegundos = (endTime - startTime) / 1000;
         const ganadorName = ganador.id === OWNER_ID ? 'Miguel' : 'Belén';
         session.completed = true;
         delete dataStore.activeSessions[message.channel.id];
@@ -384,14 +392,13 @@ async function manejarReacciones(message) {
         dataStore.reactionWins[ganador.id].wins += 1;
 
         await sendSuccess(message.channel, '🎉 ¡Ganador!',
-            `¡Felicidades, ${ganadorName}! Fuiste el primero en escribir **${palabra}**. ¡Eres rapidísimo! Mira tu progreso con !rk.`);
-        await saveDataStore();
+            `¡Felicidades, ${ganadorName}! Fuiste el primero en escribir **${palabra}** en ${tiempoSegundos.toFixed(2)} segundos. ¡Eres rapidísimo! Mira tu progreso con !rk.`);
     } catch (error) {
+        console.log('Tiempo agotado en reacciones:', error);
         session.completed = true;
         delete dataStore.activeSessions[message.channel.id];
         await sendError(message.channel, '⏳ ¡Tiempo agotado!',
             `Nadie escribió **${palabra}** a tiempo. ¡Mejor suerte la próxima vez con !re!`);
-        await saveDataStore();
     }
 }
 
