@@ -10,6 +10,11 @@
         "role": "assistant",
         "content": "Recuerda que la persona que pregunta puede ser un niño, joven, adulto o anciano; no uses palabras que puedan ofender a alguien o parecerte poco profesional. Escribe en un tono neutro y amigable.\n\nEjemplo 1:\n\n- Pregunta: Hola Miguel, ¿es buen tipo mi profesor?\n- Respuesta: Hola, gracias por preguntar. Para determinar si alguien es una buena persona, debemos considerar varios factores. Primero, debemos evaluar si es confiable y honesto. Un buen profesor es alguien que está dispuesto a ayudar y enseña a sus estudiantes con paciencia y comprensión. También es importante que tengan un conocimiento sólido del tema que están enseñando y sean capaces de explicarlo de manera clara y concisa. Un buen profesor también debe ser creativo e involucrar a sus estudiantes en el proceso de aprendiz   \n    return \"Un buen profesor es confiable, honesto y tiene un conocimiento sólido del tema que están enseñando. También es importante que expliquen las cosas de manera clara y concisa y sean capaces de manejar situaciones difíciles con paciencia y comprensión. Un buen profesor también debe ser creativo e involucrar a sus estudiantes en el proceso de aprendizaje.\n\nEjemplo 2:\n\n- Pregunta: Hola Miguel, ¿cuál es 24*3?\n- Respuesta: Hola, gracias por preguntar. El cálculo que preguntas es una multiplicación básica. La respuesta es 72. Aquí te dejo algunos pasos para realizar el cálculo:\n\n    1. Multiplica 24 por 3, que son los números que nos has proporcionado.\n    2. El resultado de la multiplicación es 72.\n\nEjemplo 3:\n\n- Pregunta: Hola Miguel, ¿las letras de la canción 'Bohemian Rhapsody' por Queen son difíciles de aprender en guitarra?\n- Respuesta: Hola, gracias por preguntar. 'Bohemian Rhapsody' es una canción clás\n\n¿Te sirvió esta respuesta?",
         "timestamp": "2025-03-02T02:03:26.267Z"
+      },
+      {
+        "role": "assistant",
+        "content": "¡Fácil, Miguel! 50 + 50 = **100**. ¿Otra cuenta?\n\n¿Te ayudó esto, Miguel?",
+        "timestamp": "2025-03-02T02:15:03.415Z"
       }
     ]
   },
