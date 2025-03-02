@@ -14,9 +14,10 @@ const client = new Client({
         GatewayIntentBits.GuildMessageReactions,
         GatewayIntentBits.DirectMessageReactions,
         GatewayIntentBits.MessageContent,
-        GatewayIntentBits.GuildVoiceStates, // Añadido para canales de voz y servidores
+        GatewayIntentBits.GuildVoiceStates,
     ],
 });
+
 
 // IDs y constantes
 const OWNER_ID = '752987736759205960'; // Tu ID
@@ -492,7 +493,8 @@ let dataStore = {
     reactionWins: {}, 
     activeSessions: {}, 
     triviaStats: {},
-    musicQueue: new Map() // Cola de música por servidor
+    musicQueue: new Map(), // Cola de música por servidor
+    activeVoiceChannels: {} // Guardar canales de voz activos por servidor
 };
 
 
@@ -563,9 +565,14 @@ async function loadDataStore() {
             reactionWins: {}, 
             activeSessions: {}, 
             triviaStats: {},
-            updatesSent: false,
-            musicQueue: new Map()
+            musicQueue: new Map(),
+            activeVoiceChannels: {},
+            updatesSent: false
         };
+        // Convertir musicQueue de objeto a Map si está guardado
+        if (loadedData.musicQueue && !(loadedData.musicQueue instanceof Map)) {
+            loadedData.musicQueue = new Map(Object.entries(loadedData.musicQueue));
+        }
         console.log('Datos cargados desde GitHub:', JSON.stringify(loadedData));
         return loadedData;
     } catch (error) {
@@ -578,8 +585,9 @@ async function loadDataStore() {
             reactionWins: {}, 
             activeSessions: {}, 
             triviaStats: {},
-            updatesSent: false,
-            musicQueue: new Map()
+            musicQueue: new Map(),
+            activeVoiceChannels: {},
+            updatesSent: false
         };
     }
 }
@@ -597,23 +605,25 @@ async function saveDataStore() {
             if (error.response?.status !== 404) throw error;
         }
 
+        // Convertir el Map a un objeto para guardarlo en JSON
+        const dataToSave = { ...dataStore, musicQueue: Object.fromEntries(dataStore.musicQueue) };
         await axios.put(
             `https://api.github.com/repos/${process.env.GITHUB_REPO}/contents/${process.env.GITHUB_FILE_PATH}`,
             {
-                message: 'Actualizar historial y sesiones',
-                content: Buffer.from(JSON.stringify(dataStore, null, 2)).toString('base64'),
+                message: 'Actualizar historial, sesiones y cola de música',
+                content: Buffer.from(JSON.stringify(dataToSave, null, 2)).toString('base64'),
                 sha: sha || undefined,
             },
             { headers: { 'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`, 'Accept': 'application/vnd.github+json' } }
         );
-        console.log('Datos guardados en GitHub:', JSON.stringify(dataStore));
+        console.log('Datos guardados en GitHub:', JSON.stringify(dataToSave));
     } catch (error) {
         console.error('Error al guardar datos en GitHub:', error.message);
         throw error;
     }
 }
 
-// Aviso anticipado y guardado automático (sin pausar comandos)
+// Aviso anticipado y guardado automático
 const SAVE_INTERVAL = 1800000; // 30 minutos en milisegundos
 const WARNING_TIME = 300000;   // 5 minutos antes (300,000 ms)
 
@@ -979,7 +989,6 @@ async function manejarAyuda(message) {
 async function manejarPlay(message) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
 
-    // Verificar que el comando se ejecute en un servidor
     if (!message.guild) {
         await sendError(message.channel, '¡Este comando solo funciona en servidores!', 'Úsalo en un canal de servidor, no en DMs.');
         return;
@@ -1012,7 +1021,7 @@ async function manejarPlay(message) {
         if (query.includes('spotify.com/playlist/')) {
             const playlistId = query.split('playlist/')[1].split('?')[0];
             const playlist = await spotifyApi.getPlaylist(playlistId);
-            songs = playlist.body.tracks.items.slice(0, 50).map(item => `${item.track.name} ${item.track.artists[0].name}`);
+            songs = playlist.body.tracks.items.map(item => `${item.track.name} ${item.track.artists[0].name}`); // Sin límite de 50
             await sendSuccess(message.channel, '🎶 Playlist cargada', `He cargado ${songs.length} canciones de la playlist "${playlist.body.name}", ${userName}. ¡Empezando a reproducir!`);
         } else if (query.includes('spotify.com/track/')) {
             const trackId = query.split('track/')[1].split('?')[0];
@@ -1036,6 +1045,14 @@ async function manejarPlay(message) {
             adapterCreator: message.guild.voiceAdapterCreator,
         });
 
+        // Guardar el canal de voz activo
+        dataStore.activeVoiceChannels[message.guild.id] = voiceChannel.id;
+
+        // Asegurarse de que musicQueue sea un Map
+        if (!(dataStore.musicQueue instanceof Map)) {
+            dataStore.musicQueue = new Map();
+        }
+
         const queue = dataStore.musicQueue.get(message.guild.id) || [];
         queue.push(...songs.map(song => ({ title: song, requester: message.author.id })));
         dataStore.musicQueue.set(message.guild.id, queue);
@@ -1046,16 +1063,19 @@ async function manejarPlay(message) {
         if (error.response && error.response.status) {
             await sendError(message.channel, 'Error con Spotify', `No pude procesar el enlace. Código de error: ${error.response.status}. Verifica el enlace o intenta de nuevo.`);
         } else {
-            await sendError(message.channel, 'Error inesperado', 'Algo salió mal al procesar tu solicitud. Intenta de nuevo.');
+            await sendError(message.channel, 'Error inesperado', `Algo salió mal: ${error.message}. Intenta de nuevo.`);
         }
     }
 }
 
 async function playSong(message, connection) {
-    const queue = dataStore.musicQueue.get(message.guild.id);
+    if (!message.guild) return;
+
+    const queue = dataStore.musicQueue.get(message.guild.id) || [];
     if (!queue || queue.length === 0) {
         connection.destroy();
         dataStore.musicQueue.delete(message.guild.id);
+        delete dataStore.activeVoiceChannels[message.guild.id];
         await message.channel.send({ embeds: [createEmbed('#55FF55', '🎶 Reproducción terminada', 'No hay más canciones en la cola.')] });
         return;
     }
@@ -1141,6 +1161,36 @@ function getCombinedRankingEmbed(userId, username) {
         )
         .setFooter({ text: 'Con cariño, Miguel IA' })
         .setTimestamp();
+}
+
+// Intentar retomar la reproducción al iniciar
+async function resumeMusicOnStartup() {
+    for (const [guildId, channelId] of Object.entries(dataStore.activeVoiceChannels)) {
+        const guild = client.guilds.cache.get(guildId);
+        if (!guild) continue;
+
+        const voiceChannel = guild.channels.cache.get(channelId);
+        if (!voiceChannel || !voiceChannel.isVoiceBased()) continue;
+
+        const permissions = voiceChannel.permissionsFor(client.user);
+        if (!permissions.has('CONNECT') || !permissions.has('SPEAK')) continue;
+
+        const connection = joinVoiceChannel({
+            channelId: voiceChannel.id,
+            guildId: guild.id,
+            adapterCreator: guild.voiceAdapterCreator,
+        });
+
+        const message = {
+            guild: guild,
+            channel: guild.channels.cache.get(CHANNEL_ID) || guild.channels.cache.first(),
+        };
+
+        if (message.channel) {
+            await message.channel.send({ embeds: [createEmbed('#FFD700', '🎶 Retomando Reproducción', 'He vuelto y estoy retomando la música donde la dejé.')] });
+            await playSong(message, connection);
+        }
+    }
 }
 
 // Comandos actualizados
@@ -1246,8 +1296,10 @@ client.once('ready', async () => {
         } else {
             console.log('No hay cambios en las actualizaciones, no se enviaron.');
         }
+        // Intentar retomar la reproducción al iniciar
+        await resumeMusicOnStartup();
     } catch (error) {
-        console.error('Error al enviar actualizaciones:', error);
+        console.error('Error al enviar actualizaciones o retomar música:', error);
     }
 });
 
