@@ -8,7 +8,12 @@
   },
   "personalPPMRecords": {},
   "reactionStats": {},
-  "reactionWins": {},
+  "reactionWins": {
+    "752987736759205960": {
+      "username": "kaspercito",
+      "wins": 1
+    }
+  },
   "activeTrivia": {},
   "activeSessions": {}
 }
