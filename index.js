@@ -20,10 +20,13 @@ const ALLOWED_USER_ID = '1023132788632862761'; // ID de Belén
 const CHANNEL_ID = '1343749554905940058'; // Canal principal
 
 const BOT_UPDATES = [
-    '¡Trivia sin opciones con muchas preguntas!',
+    '¡Chat IA mejorado! Respuestas más naturales y útiles con Miguel IA.',
+    '¡Trivia por categorías! Elige entre capitales, química, física, historia, biología, juegos, películas, Disney y matemáticas.',
+    '¡Reacciones mejoradas! Ahora el primero en escribir la palabra gana, con estadísticas de victorias.',
+    '¡PPM mejorado! Incluye cuenta regresiva, récords personales y mayor precisión.',
+    '¡Trivia sin opciones con muchas preguntas! Responde directamente y acumula puntos.',
     'Comandos abreviados: !ch, !tr, !rk, !pp, !h, !re.',
-    '!re es un juego: escribe la palabra primero y gana.',
-    '!ch genera imágenes para preguntas como "¿Cómo es...?".'
+    'Pronto: Más palabras para !re y más frases para !pp. ¡Estén atentos!',
 ];
 
 // Mensajes de ánimo para Belén
@@ -531,8 +534,13 @@ async function loadDataStore() {
             reactionStats: {}, 
             reactionWins: {}, 
             activeSessions: {}, 
-            triviaStats: {} 
+            triviaStats: {},
+            updatesSent: false // Valor por defecto
         };
+        // Asegurar que updatesSent esté definido
+        if (typeof loadedData.updatesSent === 'undefined') {
+            loadedData.updatesSent = false;
+        }
         console.log('Datos cargados desde GitHub:', JSON.stringify(loadedData));
         return loadedData;
     } catch (error) {
@@ -544,7 +552,8 @@ async function loadDataStore() {
             reactionStats: {}, 
             reactionWins: {}, 
             activeSessions: {}, 
-            triviaStats: {} 
+            triviaStats: {},
+            updatesSent: false // Valor por defecto en caso de error
         };
     }
 }
@@ -963,8 +972,27 @@ client.once('ready', async () => {
     dataStore = await loadDataStore();
     activeTrivia = new Map(Object.entries(dataStore.activeSessions).filter(([_, s]) => s.type === 'trivia'));
     console.log('Sesiones activas recargadas:', JSON.stringify(dataStore.activeSessions));
-});
 
+    // Enviar actualizaciones al canal principal
+    const channel = client.channels.cache.get(CHANNEL_ID);
+    if (channel) {
+        const updatesDescription = BOT_UPDATES.map(update => `- ${update}`).join('\n');
+        const updatesEmbed = createEmbed(
+            '#FFD700',
+            '🚀 ¡Novedades de Miguel IA!',
+            updatesDescription,
+            'Con cariño, Miguel IA | ¡A disfrutar!'
+        );
+        try {
+            await channel.send({ embeds: [updatesEmbed] });
+            console.log('Actualizaciones enviadas al canal:', CHANNEL_ID);
+        } catch (error) {
+            console.error('Error al enviar actualizaciones al canal:', error.message);
+        }
+    } else {
+        console.error('Canal no encontrado:', CHANNEL_ID);
+    }
+});
 process.on('beforeExit', async () => {
     console.log('Guardando datos antes de salir...');
     await saveDataStore();
