@@ -1098,7 +1098,11 @@ async function manejarPlay(message) {
             selfDeafen: true,
         });
 
-        if (player.state !== 'CONNECTED') player.connect();
+        if (player.state !== 'CONNECTED') {
+            player.connect();
+            console.log(`Conectado al canal de voz: ${voiceChannel.name} (ID: ${voiceChannel.id})`);
+            await sendSuccess(message.channel, '🔊 Conectado', `Me he unido al canal de voz ${voiceChannel.name}, ${userName}.`);
+        }
 
         const res = await Promise.all(tracks.map(async track => {
             try {
