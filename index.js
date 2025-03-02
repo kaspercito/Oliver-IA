@@ -1067,6 +1067,7 @@ async function manejarPlay(message) {
             guildId: message.guild.id,
             adapterCreator: message.guild.voiceAdapterCreator,
         });
+        console.log(`Conectado al canal de voz: ${voiceChannel.name} (ID: ${voiceChannel.id})`);
 
         dataStore.activeVoiceChannels[message.guild.id] = voiceChannel.id;
 
@@ -1122,18 +1123,21 @@ async function playSong(message, connection) {
 
         const video = searchResults.videos[0];
         const videoUrl = video.url;
+        console.log(`Buscando stream para: ${videoUrl}`);
 
-        // Usar play-dl para obtener el stream
-        const stream = await play.stream(videoUrl, { quality: 2 }); // quality: 2 para audio de alta calidad
+        const stream = await play.stream(videoUrl, { quality: 2 });
+        console.log(`Stream obtenido para: ${song.title}`);
         const resource = createAudioResource(stream.stream, { inputType: stream.type });
         const player = createAudioPlayer();
 
         player.play(resource);
         connection.subscribe(player);
+        console.log(`Reproduciendo: ${song.title}`);
 
         await sendSuccess(message.channel, '🎶 Reproduciendo', `Ahora suena: "${song.title}" (pedido por ${requesterName})`);
 
         player.on(AudioPlayerStatus.Idle, () => {
+            console.log(`Canción terminada: ${song.title}`);
             const playedSong = queue.shift();
             if (!dataStore.previousSongs) dataStore.previousSongs = new Map();
             dataStore.previousSongs.set(message.guild.id, playedSong);
@@ -1147,6 +1151,10 @@ async function playSong(message, connection) {
             queue.shift();
             dataStore.musicQueue.set(message.guild.id, queue);
             playSong(message, connection);
+        });
+
+        player.on(AudioPlayerStatus.Playing, () => {
+            console.log(`El reproductor está reproduciendo: ${song.title}`);
         });
     } catch (error) {
         console.error('Error al buscar o reproducir:', error.message);
