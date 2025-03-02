@@ -370,7 +370,7 @@ async function manejarReacciones(message) {
 
         // Registrar la palabra usada en reactionStats (aunque no se mostrará en el ranking)
         if (!dataStore.reactionStats[ganador.id]) dataStore.reactionStats[ganador.id] = {};
-        if (!dataStore<|control700|>Stats[ganador.id][palabra]) dataStore.reactionStats[ganador.id][palabra] = { count: 0 };
+        if (!dataStore.reactionStats[ganador.id][palabra]) dataStore.reactionStats[ganador.id][palabra] = { count: 0 };
         dataStore.reactionStats[ganador.id][palabra].count += 1;
 
         await saveDataStore(dataStore);
@@ -428,7 +428,7 @@ function getCombinedRankingEmbed(userId, username) {
 // Evento ready
 client.once('ready', async () => {
     console.log(`¡Miguel IA está listo! Instancia: ${instanceId}`);
-    client.user.setPresence({ activities: [{ name: "Listo para ayudar a Miguel y Milagros", type: 0 }], status: 'online' });
+    client.user.setPresence({ activities: [{ name: "Listo para ayudar a Miguel y Belén", type: 0 }], status: 'online' });
     dataStore = await loadDataStore();
 });
 
@@ -488,9 +488,9 @@ client.on('messageCreate', async (message) => {
                 await sentMessage.react('❌');
                 sentMessages.set(sentMessage.id, { content: aiReply, originalQuestion: chatMessage, timestamp: new Date().toISOString(), message: sentMessage });
             }
-            // Detectar pedidos de letras de canciones
-            else if (lowerMessage.includes('letra') && (lowerMessage.includes('canción') || lowerMessage.includes('cancion'))) {
-                aiReply = `¡Hola, ${userName}! No tengo la letra exacta de esa canción guardada, pero puedo ayudarte con algo más. ¿Quizás te gustaría saber sobre el artista, el género, o buscar la letra en un sitio como Genius o Letras.com? ¿Qué te parece?`;
+            // Detectar pedidos de letras de canciones explícitos
+            else if (lowerMessage.includes('letra') && (lowerMessage.includes('canción') || lowerMessage.includes('cancion') || lowerMessage.includes('que me des'))) {
+                aiReply = `¡Hola, ${userName}! No tengo acceso directo a las letras de canciones para darte la exacta de "${chatMessage.split(' - ')[1] || chatMessage}". Sin embargo, puedo sugerirte buscarla en sitios confiables como Genius (genius.com) o Letras.com, o puedo darte información sobre el artista o la canción si quieres. ¿Qué prefieres?`;
                 const finalEmbed = createEmbed('#55FFFF', `¡Aquí estoy para ti, ${userName}!`, aiReply);
                 const sentMessage = await channel.send({ embeds: [finalEmbed] });
                 await waitingMessage.delete();
@@ -500,7 +500,7 @@ client.on('messageCreate', async (message) => {
             }
             // Condición especial para "¿Cómo es una rata blanca?" con imagen incrustada
             else if (lowerMessage.includes('cómo es') && lowerMessage.includes('rata blanca')) {
-                const imgurLink = 'https://i.imgur.com/mjOqwH6.png'; // Tu enlace
+                const imgurLink = 'https://i.imgur.com/mjOqwH6.png';
                 aiReply = `¡Hola, ${userName}! Una rata blanca es un pequeño roedor con un pelaje blanco puro, ojos rosados o rojos (por ser albina), orejas redondeadas y una cola larga y rosada. Son súper curiosas y amigables, ¡ideales como mascotas! Mira esta foto que encontré:`;
                 const finalEmbed = createEmbed('#55FFFF', `¡Aquí estoy para ti, ${userName}!`, aiReply);
                 finalEmbed.setImage(imgurLink);
@@ -524,14 +524,14 @@ client.on('messageCreate', async (message) => {
             }
             // Respuesta general para otras preguntas
             else {
-                const prompt = `Eres Miguel IA, creado por Miguel para ayudar a ${userName}. Responde a "${chatMessage}" de forma natural, amigable y detallada, explicando el tema si es una pregunta, con pasos claros si aplica. Si es un cálculo matemático, resuélvelo directamente. Si no sabes algo con certeza (como letras de canciones), admite que no tienes la información exacta y sugiere algo útil. Asegúrate de completar todas las ideas y no dejar frases cortadas.`;
+                const prompt = `Eres Miguel IA, creado por Miguel para ayudar a ${userName}. Responde a "${chatMessage}" de forma natural, amigable y detallada, explicando el tema si es una pregunta, con pasos claros si aplica. Si es un cálculo matemático, resuélvelo directamente. Si no tienes información precisa (como letras de canciones), no inventes nada; admite que no sabes y sugiere algo útil como buscar en fuentes confiables. Asegúrate de completar todas las ideas y no dejar frases cortadas.`;
                 console.log(`Enviando solicitud a Hugging Face por ${userName}: "${chatMessage}"`);
                 const response = await axios.post(
                     'https://api-inference.huggingface.co/models/mistralai/Mixtral-8x7B-Instruct-v0.1',
                     { 
                         inputs: prompt, 
                         parameters: { 
-                            max_new_tokens: 550, 
+                            max_new_tokens: 1000, 
                             return_full_text: false, 
                             temperature: 0.6 
                         } 
