@@ -156,6 +156,7 @@ async function loadDataStore() {
         );
         const content = Buffer.from(response.data.content, 'base64').toString('utf8');
         const loadedData = content ? JSON.parse(content) : { conversationHistory: {}, triviaRanking: {}, personalPPMRecords: {}, reactionStats: {}, reactionWins: {} };
+        console.log('Datos cargados desde GitHub:', JSON.stringify(loadedData));
         return {
             conversationHistory: loadedData.conversationHistory || {},
             triviaRanking: loadedData.triviaRanking || {},
@@ -178,8 +179,10 @@ async function saveDataStore(data) {
                 { headers: { 'Authorization': `Bearer ${process.env.HF_API_TOKEN}`, 'Accept': 'application/vnd.github+json' } }
             );
             sha = response.data.sha;
+            console.log('Archivo existente encontrado, SHA:', sha);
         } catch (error) {
             if (error.response && error.response.status === 404) {
+                console.log('Archivo no existe, creando uno nuevo...');
                 await axios.put(
                     `https://api.github.com/repos/${process.env.GITHUB_REPO}/contents/${process.env.GITHUB_FILE_PATH}`,
                     {
@@ -188,6 +191,7 @@ async function saveDataStore(data) {
                     },
                     { headers: { 'Authorization': `Bearer ${process.env.HF_API_TOKEN}`, 'Accept': 'application/vnd.github+json' } }
                 );
+                console.log('Archivo inicial creado en GitHub');
                 return;
             } else {
                 throw error;
@@ -202,9 +206,9 @@ async function saveDataStore(data) {
             },
             { headers: { 'Authorization': `Bearer ${process.env.HF_API_TOKEN}`, 'Accept': 'application/vnd.github+json' } }
         );
-        console.log('Datos guardados correctamente en GitHub');
+        console.log('Datos guardados correctamente en GitHub:', JSON.stringify(data));
     } catch (error) {
-        console.error('Error al guardar datos en GitHub:', error.message);
+        console.error('Error al guardar datos en GitHub:', error.message, error.response?.data);
     }
 }
 
@@ -366,7 +370,7 @@ async function manejarReacciones(message) {
 
         // Registrar la palabra usada en reactionStats (aunque no se mostrará en el ranking)
         if (!dataStore.reactionStats[ganador.id]) dataStore.reactionStats[ganador.id] = {};
-        if (!dataStore.reactionStats[ganador.id][palabra]) dataStore.reactionStats[ganador.id][palabra] = { count: 0 };
+        if (!dataStore<|control700|>Stats[ganador.id][palabra]) dataStore.reactionStats[ganador.id][palabra] = { count: 0 };
         dataStore.reactionStats[ganador.id][palabra].count += 1;
 
         await saveDataStore(dataStore);
@@ -424,7 +428,7 @@ function getCombinedRankingEmbed(userId, username) {
 // Evento ready
 client.once('ready', async () => {
     console.log(`¡Miguel IA está listo! Instancia: ${instanceId}`);
-    client.user.setPresence({ activities: [{ name: "Listo para ayudar a Miguel y Belén", type: 0 }], status: 'online' });
+    client.user.setPresence({ activities: [{ name: "Listo para ayudar a Miguel y Milagros", type: 0 }], status: 'online' });
     dataStore = await loadDataStore();
 });
 
@@ -494,11 +498,12 @@ client.on('messageCreate', async (message) => {
                 await sentMessage.react('❌');
                 sentMessages.set(sentMessage.id, { content: aiReply, originalQuestion: chatMessage, timestamp: new Date().toISOString(), message: sentMessage });
             }
-            // Condición especial para "¿Cómo es una rata blanca?" con enlace de Imgur
+            // Condición especial para "¿Cómo es una rata blanca?" con imagen incrustada
             else if (lowerMessage.includes('cómo es') && lowerMessage.includes('rata blanca')) {
-                const imgurLink = 'https://i.imgur.com/mjOqwH6.png'; // Reemplaza con tu enlace de Imgur
-                aiReply = `¡Hola, ${userName}! Una rata blanca es un pequeño roedor con un pelaje blanco puro, ojos rosados o rojos (por ser albina), orejas redondeadas y una cola larga y rosada. Son súper curiosas y amigables, ¡ideales como mascotas! Mira esta foto que encontré: ${imgurLink}. ¿Qué te parece?`;
+                const imgurLink = 'https://i.imgur.com/mjOqwH6.png'; // Tu enlace
+                aiReply = `¡Hola, ${userName}! Una rata blanca es un pequeño roedor con un pelaje blanco puro, ojos rosados o rojos (por ser albina), orejas redondeadas y una cola larga y rosada. Son súper curiosas y amigables, ¡ideales como mascotas! Mira esta foto que encontré:`;
                 const finalEmbed = createEmbed('#55FFFF', `¡Aquí estoy para ti, ${userName}!`, aiReply);
+                finalEmbed.setImage(imgurLink);
                 const sentMessage = await channel.send({ embeds: [finalEmbed] });
                 await waitingMessage.delete();
                 await sentMessage.react('✅');
@@ -526,7 +531,7 @@ client.on('messageCreate', async (message) => {
                     { 
                         inputs: prompt, 
                         parameters: { 
-                            max_new_tokens: 1000, 
+                            max_new_tokens: 550, 
                             return_full_text: false, 
                             temperature: 0.6 
                         } 
@@ -635,7 +640,7 @@ client.on('messageReactionAdd', async (reaction, user) => {
         try {
             const response = await axios.post(
                 'https://api-inference.huggingface.co/models/mistralai/Mixtral-8x7B-Instruct-v0.1',
-                { inputs: alternativePrompt, parameters: { max_new_tokens: 550, return_full_text: false, temperature: 0.6 } },
+                { inputs: alternativePrompt, parameters: { max_new_tokens: 500, return_full_text: false, temperature: 0.6 } },
                 { headers: { 'Authorization': `Bearer ${process.env.HF_API_TOKEN}`, 'Content-Type': 'application/json' }, timeout: 30000 }
             );
             let alternativeReply = response.data[0]?.generated_text?.trim() || `No se me ocurre algo mejor ahora, ${userName}. ¿Qué tal si me das más detalles?`;
