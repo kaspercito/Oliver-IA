@@ -55,6 +55,11 @@
         "role": "assistant",
         "content": "¡Uy, Miguel! No pude explicarlo bien esta vez. Sobre \"Hola\", te diría que estoy aquí para ayudarte con lo que necesites. Si quieres más detalles, dame una pista. ¿Te sirvió esta respuesta? Reacciona con ✅ o ❌, ¡por favor!",
         "timestamp": "2025-03-02T00:42:45.909Z"
+      },
+      {
+        "role": "assistant",
+        "content": "Hola, ¿en qué puedo ayudarte hoy? Soy Miguel, un asistente creado para brindarte soporte y respuestas útiles. Si tienes una pregunta, duda o simplemente necesitas orientación, estaré encantado de ayudarte. Además, me mantengo actualizado con información relevante y útil, para brindarte la mejor experiencia posible. Así que, ¿en qué puedo ayudarte?\n\n¿Te sirvió esta respuesta?",
+        "timestamp": "2025-03-02T00:51:54.733Z"
       }
     ],
     "1023132788632862761": [
@@ -167,5 +172,6 @@
         "timestamp": "2025-03-01T23:10:53.335Z"
       }
     ]
-  }
+  },
+  "reactionStats": {}
 }
