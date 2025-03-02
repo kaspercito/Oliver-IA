@@ -457,12 +457,12 @@ let sentMessages = new Map();
 let processedMessages = new Map();
 let dataStore = { 
     conversationHistory: {}, 
-    triviaRanking: {}, // Ahora será { userId: { categoria: { score: X } } }
-    personalPPMRecords: {}, 
+    triviaRanking: {}, 
+    personalPPMRecords: {}, // Cambia de array a objeto: { userId: { ppm: X, timestamp: Y } }
     reactionStats: {}, 
     reactionWins: {}, 
     activeSessions: {}, 
-    triviaStats: {} // Ahora será { userId: { categoria: { correct: X, total: Y } } }
+    triviaStats: {}
 };
 
 // Utilidades
@@ -743,14 +743,22 @@ async function manejarPPM(message) {
         const palabras = frase.split(' ').length;
         const ppm = Math.round((palabras / tiempoSegundos) * 60);
 
-        if (!dataStore.personalPPMRecords[message.author.id]) dataStore.personalPPMRecords[message.author.id] = [];
-        dataStore.personalPPMRecords[message.author.id] = dataStore.personalPPMRecords[message.author.id].filter(record => 
-            new Date().getTime() - new Date(record.timestamp).getTime() < 24 * 60 * 60 * 1000);
-        dataStore.personalPPMRecords[message.author.id].push({ ppm, timestamp: new Date().toISOString() });
-
         if (cleanText(respuestaUsuario) === cleanText(frase)) {
-            await sendSuccess(message.channel, '🎉 ¡Perfecto!',
-                `¡Bien hecho, ${userName}! Escribiste la frase en ${tiempoSegundos.toFixed(2)} segundos.\nTu velocidad: **${ppm} PPM**. Usa !rk para ver tus récords.`);
+            // Inicializar el récord si no existe
+            if (!dataStore.personalPPMRecords[message.author.id]) {
+                dataStore.personalPPMRecords[message.author.id] = { ppm: 0, timestamp: null };
+            }
+
+            // Actualizar solo si el nuevo PPM es mayor al récord actual
+            const currentRecord = dataStore.personalPPMRecords[message.author.id].ppm || 0;
+            if (ppm > currentRecord) {
+                dataStore.personalPPMRecords[message.author.id] = { ppm, timestamp: new Date().toISOString() };
+                await sendSuccess(message.channel, '🎉 ¡Nuevo Récord!',
+                    `¡Increíble, ${userName}! Escribiste la frase en ${tiempoSegundos.toFixed(2)} segundos.\nTu nuevo récord: **${ppm} PPM**. ¡Mira tu ranking con !rk!`);
+            } else {
+                await sendSuccess(message.channel, '🎉 ¡Perfecto!',
+                    `¡Bien hecho, ${userName}! Escribiste la frase en ${tiempoSegundos.toFixed(2)} segundos.\nTu PPM: **${ppm}**. Tu récord sigue siendo **${currentRecord} PPM**.`);
+            }
         } else {
             await sendError(message.channel, '❌ ¡Casi!',
                 `Lo siento, ${userName}, no escribiste la frase correctamente. Tu respuesta fue "${respuestaUsuario}". ¡Intenta de nuevo con !pp!`);
@@ -894,17 +902,17 @@ function getCombinedRankingEmbed(userId, username) {
                       `> 🌟 Belén: **${luzScore} puntos** (${luzPercentage}% acertadas)\n`;
     });
 
-    // Sección PPM
-    const ppmRecords = dataStore.personalPPMRecords[userId] || [];
-    let ppmList = ppmRecords.length > 0 
-        ? ppmRecords.map(record => `> ${record.ppm} PPM - ${new Date(record.timestamp).toLocaleString()}`).join('\n')
-        : '> No has hecho pruebas de PPM aún. ¡Prueba con !pp!';
+    // Sección PPM (solo el récord más rápido)
+    const ppmRecord = dataStore.personalPPMRecords[userId] || { ppm: 0, timestamp: null };
+    let ppmList = ppmRecord.ppm > 0 
+        ? `> Tu récord: **${ppmRecord.ppm} PPM** - ${new Date(ppmRecord.timestamp).toLocaleString()}`
+        : '> No tienes un récord de PPM aún. ¡Prueba con !pp!';
 
     // Sección Reacciones
     const myReactionWins = dataStore.reactionWins[OWNER_ID]?.wins || 0;
     const luzReactionWins = dataStore.reactionWins[ALLOWED_USER_ID]?.wins || 0;
-    const reactionList = `> 👑 Miguel - **${myReactionWins} Reacciones**\n` +
-                         `> 🌟 Belén - **${luzReactionWins} Reacciones**`;
+    const reactionList = `> 👑 Miguel: **${myReactionWins} victorias**\n` +
+                         `> 🌟 Belén: **${luzReactionWins} victorias**`;
 
     // Construcción del Embed
     return new EmbedBuilder()
@@ -913,7 +921,7 @@ function getCombinedRankingEmbed(userId, username) {
         .setDescription('¡Aquí están tus logros y los de tus rivales!')
         .addFields(
             { name: '📊 Trivia', value: triviaList, inline: false },
-            { name: '⌨️ PPM (Palabras por Minuto)', value: ppmList, inline: false },
+            { name: '⌨️ PPM (Récord Más Rápido)', value: ppmList, inline: false },
             { name: '⚡ Victorias en Reacciones', value: reactionList, inline: false }
         )
         .setFooter({ text: 'Con cariño, Miguel IA' })
