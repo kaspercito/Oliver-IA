@@ -13,10 +13,9 @@
     "twilio": "^4.17.0",
     "uuid": "^10.0.0",
     "spotify-web-api-node": "^5.0.2",
-    "play-dl": "^1.9.7",
     "@discordjs/voice": "^0.17.0",
-    "yt-search": "^2.10.3",
-    "@discordjs/opus": "^0.8.0"
+    "@discordjs/opus": "^0.8.0",
+    "lavalink-client": "^2.7.2"
   },
   "author": "Miguel",
   "license": "ISC"
