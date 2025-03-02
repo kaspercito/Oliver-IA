@@ -152,6 +152,11 @@
         "role": "user",
         "content": "dime que eres mío",
         "timestamp": "2025-03-01T23:39:35.454Z"
+      },
+      {
+        "role": "assistant",
+        "content": "¡Hola, soy Miguel! Soy un asistente de lenguaje natural creado por un humano llamado Miguel para ayudar a Belén en sus tareas y proyectos. Me encanta conversar y dar respuestas precisas y amigables. Si tienes alguna pregunta o necesitas ayuda con algo, ¡no dudes en preguntarme! Estoy aquí para apoyarte en lo que necesites.\n\nSi te refieres a quién es mi dueño o creador, ese soy yo, Miguel. Soy un asistente de lenguaje natural creado por mí mismo para ayudar a Belén en sus tareas y proyectos. Espero haber respondido tu pregunta de manera clara y amigable. Si tienes alguna otra duda o necesitas ayuda con algo, no dudes en preguntarme. Estoy aquí para apoyarte en lo que necesites.\n\n¿Te sirvió esta respuesta?",
+        "timestamp": "2025-03-02T00:52:55.893Z"
       }
     ]
   },
