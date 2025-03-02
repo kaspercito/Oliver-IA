@@ -920,8 +920,8 @@ function getCombinedRankingEmbed(userId, username) {
     // Sección Reacciones
     const myReactionWins = dataStore.reactionWins[OWNER_ID]?.wins || 0;
     const luzReactionWins = dataStore.reactionWins[ALLOWED_USER_ID]?.wins || 0;
-    const reactionList = `> 👑 Miguel: **${myReactionWins} victorias**\n` +
-                         `> 🌟 Belén: **${luzReactionWins} victorias**`;
+    const reactionList = `> 👑 Miguel - **${myReactionWins} Reacciones**\n` +
+                         `> 🌟 Belén - **${luzReactionWins} Reacciones**`;
 
     // Construcción del Embed
     return new EmbedBuilder()
