@@ -110,7 +110,7 @@ let processedMessages = new Map();
 let triviaLoops = new Map();
 let ppmSessions = new Map();
 let reactionGames = new Map();
-let dataStore = { conversationHistory: {}, triviaRanking: {}, personalPPMRecords: {}, reactionStats: {}, reactionWins: {}, activeTrivia: {} }; // Cambiado a let
+let dataStore = { conversationHistory: {}, triviaRanking: {}, personalPPMRecords: {}, reactionStats: {}, reactionWins: {}, activeTrivia: {}, activeSessions: {} }; // Añadido activeSessions
 
 // Utilidades
 const createEmbed = (color, title, description, footer = 'Con cariño, Miguel IA | Reacciona con ✅ o ❌, ¡por favor!') => {
@@ -153,14 +153,14 @@ async function generateImage(prompt) {
                     'Accept': 'image/png'
                 },
                 responseType: 'arraybuffer',
-                timeout: 60000
+                timeout: 90000 // Aumentado a 90 segundos
             }
         );
         console.log('Imagen generada exitosamente');
         const imageBase64 = Buffer.from(response.data, 'binary').toString('base64');
         return `data:image/png;base64,${imageBase64}`;
     } catch (error) {
-        console.error('Error al generar imagen:', error.message);
+        console.error('Error al generar imagen:', error.message, error.response?.data);
         throw error;
     }
 }
@@ -174,7 +174,7 @@ async function loadDataStore() {
             { headers: { 'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`, 'Accept': 'application/vnd.github+json' } }
         );
         const content = Buffer.from(response.data.content, 'base64').toString('utf8');
-        const loadedData = content ? JSON.parse(content) : { conversationHistory: {}, triviaRanking: {}, personalPPMRecords: {}, reactionStats: {}, reactionWins: {}, activeTrivia: {} };
+        const loadedData = content ? JSON.parse(content) : { conversationHistory: {}, triviaRanking: {}, personalPPMRecords: {}, reactionStats: {}, reactionWins: {}, activeTrivia: {}, activeSessions: {} };
         console.log('Datos cargados desde GitHub:', JSON.stringify(loadedData));
         return {
             conversationHistory: loadedData.conversationHistory || {},
@@ -182,14 +182,15 @@ async function loadDataStore() {
             personalPPMRecords: loadedData.personalPPMRecords || {},
             reactionStats: loadedData.reactionStats || {},
             reactionWins: loadedData.reactionWins || {},
-            activeTrivia: loadedData.activeTrivia || {}
+            activeTrivia: loadedData.activeTrivia || {},
+            activeSessions: loadedData.activeSessions || {}
         };
     } catch (error) {
         console.error('Error al cargar datos desde GitHub:', error.message, error.response?.data);
         if (error.response && error.response.status === 404) {
             console.log('Archivo no encontrado, se creará uno nuevo al guardar.');
         }
-        return { conversationHistory: {}, triviaRanking: {}, personalPPMRecords: {}, reactionStats: {}, reactionWins: {}, activeTrivia: {} };
+        return { conversationHistory: {}, triviaRanking: {}, personalPPMRecords: {}, reactionStats: {}, reactionWins: {}, activeTrivia: {}, activeSessions: {} };
     }
 }
 
@@ -210,7 +211,7 @@ async function saveDataStore(data) {
                     `https://api.github.com/repos/${process.env.GITHUB_REPO}/contents/${process.env.GITHUB_FILE_PATH}`,
                     {
                         message: 'Crear archivo inicial para historial y ranking',
-                        content: Buffer.from(JSON.stringify({ conversationHistory: {}, triviaRanking: {}, personalPPMRecords: {}, reactionStats: {}, reactionWins: {}, activeTrivia: {} }, null, 2)).toString('base64'),
+                        content: Buffer.from(JSON.stringify({ conversationHistory: {}, triviaRanking: {}, personalPPMRecords: {}, reactionStats: {}, reactionWins: {}, activeTrivia: {}, activeSessions: {} }, null, 2)).toString('base64'),
                     },
                     { headers: { 'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`, 'Accept': 'application/vnd.github+json' } }
                 );
@@ -223,7 +224,7 @@ async function saveDataStore(data) {
         await axios.put(
             `https://api.github.com/repos/${process.env.GITHUB_REPO}/contents/${process.env.GITHUB_FILE_PATH}`,
             {
-                message: 'Actualizar historial, ranking, reacciones y trivia activa',
+                message: 'Actualizar historial, ranking, reacciones y sesiones activas',
                 content: Buffer.from(JSON.stringify(data, null, 2)).toString('base64'),
                 sha: sha,
             },
@@ -243,7 +244,10 @@ async function manejarTrivia(message) {
     const args = message.content.split(' ').slice(1);
     if (args.length > 0 && !isNaN(args[0]) && args[0] >= 10) numQuestions = parseInt(args[0]);
 
-    for (let i = 0; i < numQuestions; i++) {
+    let channelProgress = dataStore.activeSessions[message.channel.id] || { type: 'trivia', currentQuestion: 0, score: 0, lastMessageId: null, totalQuestions: numQuestions };
+    if (!channelProgress.currentQuestion) channelProgress.currentQuestion = 0;
+
+    for (let i = channelProgress.currentQuestion; i < numQuestions; i++) {
         const trivia = obtenerPreguntaTriviaSinOpciones();
         if (!trivia) {
             await sendError(message.channel, 'No hay más preguntas disponibles.');
@@ -253,7 +257,10 @@ async function manejarTrivia(message) {
             `${trivia.pregunta}\n\nEscribe tu respuesta (60 segundos), ${userName}.`);
         const sentMessage = await message.channel.send({ embeds: [embedPregunta] });
         activeTrivia.set(message.channel.id, { id: sentMessage.id, correcta: trivia.respuesta, timestamp: Date.now(), userId: message.author.id });
-        dataStore.activeTrivia = Object.fromEntries(activeTrivia); // Guardar estado
+        channelProgress.currentQuestion = i + 1;
+        channelProgress.lastMessageId = sentMessage.id;
+        dataStore.activeSessions[message.channel.id] = channelProgress;
+        dataStore.activeTrivia = Object.fromEntries(activeTrivia);
         await saveDataStore(dataStore);
 
         try {
@@ -269,27 +276,30 @@ async function manejarTrivia(message) {
             const cleanedCorrectResponse = cleanText(trivia.respuesta);
             console.log(`Respuesta recibida: "${respuestaUsuario}" (limpia: "${cleanedUserResponse}") vs correcta: "${cleanedCorrectResponse}"`);
             activeTrivia.delete(message.channel.id);
-            dataStore.activeTrivia = Object.fromEntries(activeTrivia); // Actualizar estado
-            await saveDataStore(dataStore);
 
             if (cleanedUserResponse === cleanedCorrectResponse) {
-                updateRanking(message.author.id, message.author.username);
+                channelProgress.score += 1;
                 await sendSuccess(message.channel, '🎉 ¡Correcto!',
-                    `¡Bien hecho, ${userName}! La respuesta correcta era **${trivia.respuesta}**. ¡Ganaste 1 punto!`);
+                    `¡Bien hecho, ${userName}! La respuesta correcta era **${trivia.respuesta}**. ¡Ganaste 1 punto! (Total: ${channelProgress.score})`);
             } else {
                 await sendError(message.channel, '❌ ¡Casi!',
                     `Lo siento, ${userName}, la respuesta correcta era **${trivia.respuesta}**. Tu respuesta fue "${respuestaUsuario}".`);
             }
+            channelProgress.currentQuestion = i + 2; // Preparar para la siguiente
+            dataStore.activeSessions[message.channel.id] = channelProgress;
+            await saveDataStore(dataStore);
         } catch (error) {
             console.log(`Tiempo agotado o error en pregunta ${i + 1}: ${trivia.pregunta}`, error);
             activeTrivia.delete(message.channel.id);
-            dataStore.activeTrivia = Object.fromEntries(activeTrivia); // Actualizar estado
+            dataStore.activeSessions[message.channel.id] = channelProgress;
             await saveDataStore(dataStore);
             await sendError(message.channel, '⏳ ¡Tiempo agotado!',
                 `Se acabó el tiempo, ${userName}. La respuesta correcta era **${trivia.respuesta}**.`);
         }
     }
-    await sendSuccess(message.channel, '🏁 ¡Trivia Terminada!', `¡Completaste las ${numQuestions} preguntas, ${userName}! Usa !rk para ver tu puntaje.`);
+    await sendSuccess(message.channel, '🏁 ¡Trivia Terminada!', `¡Completaste las ${numQuestions} preguntas, ${userName}! Puntuación final: ${channelProgress.score}. Usa !rk para ver tu ranking.`);
+    delete dataStore.activeSessions[message.channel.id]; // Limpiar al terminar
+    await saveDataStore(dataStore);
 }
 
 // Función para manejar PPM
@@ -297,8 +307,9 @@ async function manejarPPM(message) {
     console.log(`Instancia ${instanceId} - Iniciando PPM para ${message.author.id}`);
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
 
-    if (ppmSessions.has(message.author.id)) {
-        return sendError(message.channel, `Ya tienes una prueba activa, ${userName}. Termina la actual primero.`);
+    let session = dataStore.activeSessions[message.author.id] || { type: 'ppm', startTime: null, frase: null, completed: false };
+    if (session.startTime && !session.completed) {
+        return sendError(message.channel, `Ya tienes una prueba PPM activa, ${userName}. Termina la actual primero.`);
     }
 
     async function startTest() {
@@ -321,7 +332,11 @@ async function manejarPPM(message) {
             `Escribe esta frase lo más rápido que puedas:\n\n**${frase}**\n\nTienes 60 segundos, ${userName}.`);
         await message.channel.send({ embeds: [embed] });
 
-        ppmSessions.set(message.author.id, { frase, startTime });
+        session.startTime = startTime;
+        session.frase = frase;
+        session.completed = false;
+        dataStore.activeSessions[message.author.id] = session;
+        await saveDataStore(dataStore);
 
         try {
             const respuestas = await message.channel.awaitMessages({
@@ -332,7 +347,8 @@ async function manejarPPM(message) {
             });
             const respuestaUsuario = respuestas.first().content;
             const endTime = Date.now();
-            ppmSessions.delete(message.author.id);
+            session.completed = true;
+            delete dataStore.activeSessions[message.author.id];
 
             const tiempoSegundos = (endTime - startTime) / 1000;
             const palabras = frase.split(' ').length;
@@ -354,7 +370,8 @@ async function manejarPPM(message) {
                 await startTest();
             }
         } catch (error) {
-            ppmSessions.delete(message.author.id);
+            session.completed = true;
+            delete dataStore.activeSessions[message.author.id];
             await sendError(message.channel, '⏳ ¡Tiempo agotado!',
                 `Se acabó el tiempo, ${userName}. La frase era: **${frase}**. Usa !pp para intentarlo de nuevo.`);
         }
@@ -368,7 +385,8 @@ async function manejarReacciones(message) {
     console.log(`Instancia ${instanceId} - Iniciando juego de reacciones en canal ${message.channel.id}`);
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
 
-    if (reactionGames.has(message.channel.id)) {
+    let session = dataStore.activeSessions[message.channel.id] || { type: 'reaction', palabra: null, timestamp: null, completed: false };
+    if (session.palabra && !session.completed) {
         return sendError(message.channel, `Ya hay un juego de reacciones activo en este canal, ${userName}. ¡Espera a que termine!`);
     }
 
@@ -377,7 +395,11 @@ async function manejarReacciones(message) {
         `¡Escribe esta palabra lo más rápido que puedas: **${palabra}**!\n\nEl primero en escribirla gana. Tienes 30 segundos.`);
     await message.channel.send({ embeds: [embed] });
 
-    reactionGames.set(message.channel.id, { palabra, timestamp: Date.now() });
+    session.palabra = palabra;
+    session.timestamp = Date.now();
+    session.completed = false;
+    dataStore.activeSessions[message.channel.id] = session;
+    await saveDataStore(dataStore);
 
     try {
         const respuestas = await message.channel.awaitMessages({
@@ -388,7 +410,8 @@ async function manejarReacciones(message) {
         });
         const ganador = respuestas.first().author;
         const ganadorName = ganador.id === OWNER_ID ? 'Miguel' : 'Belén';
-        reactionGames.delete(message.channel.id);
+        session.completed = true;
+        delete dataStore.activeSessions[message.channel.id];
 
         if (!dataStore.reactionWins) dataStore.reactionWins = {};
         if (!dataStore.reactionWins[ganador.id]) {
@@ -406,62 +429,156 @@ async function manejarReacciones(message) {
         await sendSuccess(message.channel, '🎉 ¡Ganador!',
             `¡Felicidades, ${ganadorName}! Fuiste el primero en escribir **${palabra}**. ¡Eres rapidísimo! Mira tu progreso con !rk.`);
     } catch (error) {
-        reactionGames.delete(message.channel.id);
+        session.completed = true;
+        delete dataStore.activeSessions[message.channel.id];
         await sendError(message.channel, '⏳ ¡Tiempo agotado!',
             `Nadie escribió **${palabra}** a tiempo. ¡Mejor suerte la próxima vez con !re!`);
     }
 }
 
-function obtenerPreguntaTriviaSinOpciones() {
-    if (preguntasTriviaSinOpciones.length === 0) return null;
-    const randomIndex = Math.floor(Math.random() * preguntasTriviaSinOpciones.length);
-    return preguntasTriviaSinOpciones[randomIndex];
-}
+// Función para manejar !chat
+async function manejarChat(message) {
+    const { author, content, channel } = message;
+    const userName = author.id === OWNER_ID ? 'Miguel' : 'Belén';
+    const chatMessage = content.startsWith('!chat') ? content.slice(5).trim() : content.slice(3).trim();
+    if (!chatMessage) return sendError(channel, `Escribe un mensaje después de "!ch", ${userName}.`);
 
-function obtenerPalabraAleatoria() {
-    if (palabrasAleatorias.length === 0) return null;
-    const randomIndex = Math.floor(Math.random() * palabrasAleatorias.length);
-    return palabrasAleatorias[randomIndex];
-}
+    let session = dataStore.activeSessions[message.channel.id] || { type: 'chat', waitingMessageId: null, prompt: null, completed: false };
+    const waitingEmbed = createEmbed('#55FFFF', `¡Un momento, ${userName}!`, 'Espera, estoy buscando una respuesta...');
+    const waitingMessage = await channel.send({ embeds: [waitingEmbed] });
+    session.waitingMessageId = waitingMessage.id;
+    session.prompt = chatMessage;
+    session.completed = false;
+    dataStore.activeSessions[message.channel.id] = session;
+    await saveDataStore(dataStore);
 
-function obtenerFrasePPM() {
-    if (frasesPPM.length === 0) return null;
-    const randomIndex = Math.floor(Math.random() * frasesPPM.length);
-    return frasesPPM[randomIndex];
-}
+    try {
+        let aiReply;
+        const lowerMessage = chatMessage.toLowerCase();
 
-function updateRanking(userId, username) {
-    if (!dataStore.triviaRanking) dataStore.triviaRanking = {};
-    if (!dataStore.triviaRanking[userId]) {
-        dataStore.triviaRanking[userId] = { username, score: 0 };
+        // Saludo simple
+        if (lowerMessage === 'hola') {
+            aiReply = `¡Hola, ${userName}! ¿En qué puedo ayudarte hoy?`;
+        }
+        // Matemáticas simples
+        else if (lowerMessage.match(/cu[áa]nto es (\d+)\s*\+s*(\d+)/)) {
+            const mathMatch = lowerMessage.match(/cu[áa]nto es (\d+)\s*\+s*(\d+)/);
+            const num1 = parseInt(mathMatch[1]);
+            const num2 = parseInt(mathMatch[2]);
+            const result = num1 + num2;
+            aiReply = `¡Fácil, ${userName}! ${num1} + ${num2} = **${result}**. ¿Otra cuenta?`;
+        }
+        // Letras de canciones
+        else if (lowerMessage.includes('letra') && (lowerMessage.includes('canción') || lowerMessage.includes('cancion'))) {
+            const songQuery = chatMessage.replace(/letra(s)? de la (canci[óo]n)?/i, '').trim().toLowerCase();
+            if (songQuery.includes('with you')) {
+                aiReply = `¡Aquí tienes un fragmento de la letra de "With You" de Dean Lewis, ${userName}!\n\n` +
+                          `I wish I didn't need to lie to myself\n` +
+                          `Every time I see your face, it tears me apart\n` +
+                          `I wish I could just disappear and hide\n` +
+                          `But I know that you'll be with me when I fall\n` +
+                          `(La canción continúa... ¿quieres más detalles o un enlace oficial? Es larga, ${userName}!)`;
+            } else {
+                aiReply = `Lo siento, ${userName}, solo tengo la letra de "With You" por ahora. ¿Quieres otra canción? Puedo buscarla si me das tiempo para añadir más.`;
+            }
+        }
+        // Preguntas específicas predefinidas
+        else if (lowerMessage.includes('cómo es') && lowerMessage.includes('rata blanca')) {
+            const imgurLink = 'https://i.imgur.com/mjOqwH6.png';
+            aiReply = `Una rata blanca es un roedor pequeño con pelaje blanco puro, ojos rosados o rojos (albina), orejas redondeadas y cola larga. Son curiosas y amigables, ${userName}. Aquí tienes una foto:`;
+            const finalEmbed = createEmbed('#55FFFF', `¡Aquí estoy, ${userName}!`, aiReply).setImage(imgurLink);
+            await waitingMessage.edit({ embeds: [finalEmbed] });
+            const sentMessage = await channel.send({ content: ' ' });
+            await sentMessage.react('✅');
+            await sentMessage.react('❌');
+            sentMessages.set(sentMessage.id, { content: aiReply, originalQuestion: chatMessage, timestamp: new Date().toISOString(), message: sentMessage });
+            await waitingMessage.delete();
+            session.completed = true;
+            delete dataStore.activeSessions[message.channel.id];
+            await saveDataStore(dataStore);
+            return;
+        }
+        else if (lowerMessage.includes('cómo es') && lowerMessage.includes('rata negra')) {
+            aiReply = `Una rata negra (Rattus rattus) es un roedor de cuerpo alargado, color negro o gris oscuro, hocico puntiagudo, orejas grandes y cola larga. Son ágiles y viven en lugares altos, ${userName}. Mira esta imagen generada:`;
+            const imageUrl = await generateImage("A realistic black rat (Rattus rattus) with a pointed snout, large ears, and a long thin tail");
+            const finalEmbed = createEmbed('#55FFFF', `¡Aquí estoy, ${userName}!`, aiReply).setImage(imageUrl);
+            await waitingMessage.edit({ embeds: [finalEmbed] });
+            const sentMessage = await channel.send({ content: ' ' });
+            await sentMessage.react('✅');
+            await sentMessage.react('❌');
+            sentMessages.set(sentMessage.id, { content: aiReply, originalQuestion: chatMessage, timestamp: new Date().toISOString(), message: sentMessage });
+            await waitingMessage.delete();
+            session.completed = true;
+            delete dataStore.activeSessions[message.channel.id];
+            await saveDataStore(dataStore);
+            return;
+        }
+        else if (lowerMessage.includes('qué es') && lowerMessage.includes('inteligencia artificial')) {
+            aiReply = `La inteligencia artificial (IA) es una rama de la informática que crea sistemas capaces de tareas humanas como aprender o razonar. Yo soy un ejemplo, ${userName}. ¿Más detalles?`;
+            session.completed = true;
+            delete dataStore.activeSessions[message.channel.id];
+            await saveDataStore(dataStore);
+        }
+        // Respuesta general con Hugging Face para todo lo demás
+        else {
+            const prompt = `Eres Miguel IA, creado por Miguel para ayudar a ${userName}. Responde a "${chatMessage}" de forma natural, detallada y útil. Si es una pregunta, explica bien; si es un cálculo, resuélvelo; si no sabes (como letras de canciones exactas), admite la limitación y sugiere algo práctico. No dejes ideas incompletas.`;
+            const response = await axios.post(
+                'https://api-inference.huggingface.co/models/mistralai/Mixtral-8x7B-Instruct-v0.1',
+                { 
+                    inputs: prompt, 
+                    parameters: { 
+                        max_new_tokens: 1000,
+                        return_full_text: false, 
+                        temperature: 0.3
+                    } 
+                },
+                { 
+                    headers: { 'Authorization': `Bearer ${process.env.HF_API_TOKEN}`, 'Content-Type': 'application/json' },
+                    timeout: 90000 // Aumentado a 90 segundos
+                }
+            );
+
+            aiReply = response.data[0]?.generated_text?.trim();
+            if (!aiReply || aiReply.length < 30) {
+                aiReply = `Hmm, ${userName}, no obtuve una buena respuesta para "${chatMessage}". Podría ser un problema con la API. Intenta de nuevo o dame más contexto.`;
+                console.error('Respuesta de Hugging Face vacía o corta:', response.data);
+            }
+        }
+
+        // Enviar respuesta final
+        aiReply += `\n\n¿Te ayudó esto, ${userName}?`;
+        const finalEmbed = createEmbed('#55FFFF', `¡Aquí estoy, ${userName}!`, aiReply);
+        await waitingMessage.edit({ embeds: [finalEmbed] }); // Editar el mensaje de espera
+        await finalEmbed.message.react('✅');
+        await finalEmbed.message.react('❌');
+        sentMessages.set(finalEmbed.message.id, { content: aiReply, originalQuestion: chatMessage, timestamp: new Date().toISOString(), message: finalEmbed.message });
+        session.completed = true;
+        delete dataStore.activeSessions[message.channel.id]; // Limpiar sesión al finalizar
+        await saveDataStore(dataStore);
+    } catch (error) {
+        console.error(`Error en !ch para "${chatMessage}": ${error.message}`, error.stack, error.response?.data);
+        const errorEmbed = createEmbed('#FF5555', '¡Ups!', 
+            `Algo salió mal, ${userName}. ${error.code === 'ECONNABORTED' ? 'La API tardó demasiado (90s límite).' : 'Error: ' + error.message}. ¡Intenta de nuevo!`);
+        await waitingMessage.edit({ embeds: [errorEmbed] });
+        session.completed = true;
+        delete dataStore.activeSessions[message.channel.id];
+        await saveDataStore(dataStore);
     }
-    dataStore.triviaRanking[userId].score += 1;
-    saveDataStore(dataStore);
+    return;
 }
 
-function getCombinedRankingEmbed(userId, username) {
-    const triviaRanking = Object.entries(dataStore.triviaRanking || {})
-        .sort(([, a], [, b]) => b.score - a.score)
-        .slice(0, 5)
-        .map(([id, { username: u, score }], i) => `${i + 1}. **${u}**: ${score} puntos (Trivia)`);
-
-    const personalPPMRecords = (dataStore.personalPPMRecords[userId] || [])
-        .sort((a, b) => b.ppm - a.ppm)
-        .slice(0, 5)
-        .map((record, i) => `${i + 1}. **${record.ppm} PPM** - ${new Date(record.timestamp).toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })}`);
-
-    const reactionWins = Object.entries(dataStore.reactionWins || {})
-        .sort(([, a], [, b]) => b.wins - a.wins)
-        .slice(0, 5)
-        .map(([id, { username: u, wins }], i) => `${i + 1}. **${u}**: ${wins} victorias (Reacciones)`);
-
-    const description = [
-        triviaRanking.length > 0 ? '**Ranking de Trivia:**\n' + triviaRanking.join('\n') : '¡Aún no hay puntajes de trivia!',
-        personalPPMRecords.length > 0 ? '\n**Tus Récords de Mecanografía:**\n' + personalPPMRecords.join('\n') : '\n¡Aún no tienes récords de mecanografía!',
-        reactionWins.length > 0 ? '\n**Victorias en Reacciones:**\n' + reactionWins.join('\n') : '\n¡Aún no hay victorias en reacciones!'
-    ].join('\n');
-
-    return createEmbed('#FFD700', '🏆 Ranking Combinado', description);
+// Función para manejar comandos
+async function manejarCommand(message) {
+    const { content } = message;
+    if (content.startsWith('!trivia') || content.startsWith('!tr')) {
+        await manejarTrivia(message);
+    } else if (content.startsWith('!chat') || content.startsWith('!ch')) {
+        await manejarChat(message);
+    } else if (content.startsWith('!ppm') || content.startsWith('!pp')) {
+        await manejarPPM(message);
+    } else if (content.startsWith('!reacciones') || content.startsWith('!re')) {
+        await manejarReacciones(message);
+    }
 }
 
 // Evento ready
@@ -469,8 +586,42 @@ client.once('ready', async () => {
     console.log(`¡Miguel IA está listo! Instancia: ${instanceId}`);
     client.user.setPresence({ activities: [{ name: "Listo para ayudar a Miguel y Belén", type: 0 }], status: 'online' });
     dataStore = await loadDataStore(); // Reasignación permitida con let
-    // Recargar trivas activas si existen
-    activeTrivia = new Map(Object.entries(dataStore.activeTrivia)); // Reasignación permitida con let
+    // Recargar sesiones activas si existen
+    activeTrivia = new Map(Object.entries(dataStore.activeTrivia));
+    for (const [id, session] of Object.entries(dataStore.activeSessions || {})) {
+        console.log(`Sesión activa detectada: ${session.type} en ${id === message.author.id ? 'usuario' : 'canal'} ${id}`);
+        if (session.type === 'trivia' && session.lastMessageId && activeTrivia.has(id)) {
+            console.log(`Trivia en progreso en canal ${id} desde pregunta ${session.currentQuestion}`);
+            const channel = client.channels.cache.get(id);
+            if (channel) {
+                await channel.send(`¡Trivia en progreso detectada, ${userName}! Responde a la última pregunta si aún está activa.`);
+            }
+        } else if (session.type === 'chat' && session.waitingMessageId) {
+            console.log(`Chat en espera en canal ${id} con prompt: ${session.prompt}`);
+            const channel = client.channels.cache.get(id);
+            if (channel) {
+                await channel.send(`¡Chat en espera detectado en canal ${id}! Intenta de nuevo con !ch.`);
+            }
+        } else if (session.type === 'ppm' && session.startTime) {
+            console.log(`Prueba PPM en progreso para usuario ${id}`);
+            const channel = client.channels.cache.get(CHANNEL_ID) || message.channel;
+            if (channel) {
+                await channel.send(`¡Prueba PPM en progreso detectada para ${userName}! Termina o reinicia con !pp.`);
+            }
+        } else if (session.type === 'reaction' && session.palabra) {
+            console.log(`Juego de reacciones en progreso en canal ${id} con palabra: ${session.palabra}`);
+            const channel = client.channels.cache.get(id);
+            if (channel) {
+                await channel.send(`¡Juego de reacciones en progreso detectado en canal ${id}! Intenta de nuevo con !re.`);
+            }
+        }
+    }
+});
+
+// Manejo de cierre para guardar datos
+process.on('beforeExit', async () => {
+    console.log('Guardando datos antes de salir...');
+    await saveDataStore(dataStore);
 });
 
 // Evento messageCreate
@@ -494,142 +645,11 @@ client.on('messageCreate', async (message) => {
     processedMessages.set(message.id, Date.now());
     setTimeout(() => processedMessages.delete(message.id), 10000);
 
-    if (content.startsWith('!chat') || content.startsWith('!ch')) {
-        const chatMessage = content.startsWith('!chat') ? content.slice(5).trim() : content.slice(3).trim();
-        if (!chatMessage) return sendError(channel, `Escribe un mensaje después de "!ch", ${userName}.`);
-
-        const waitingEmbed = createEmbed('#55FFFF', `¡Un momento, ${userName}!`, 'Espera, estoy buscando una respuesta...');
-        const waitingMessage = await channel.send({ embeds: [waitingEmbed] });
-
-        try {
-            let aiReply;
-            const lowerMessage = chatMessage.toLowerCase();
-
-            // Saludo simple
-            if (lowerMessage === 'hola') {
-                aiReply = `¡Hola, ${userName}! ¿En qué puedo ayudarte hoy?`;
-            }
-            // Matemáticas simples
-            else if (lowerMessage.match(/cu[áa]nto es (\d+)\s*\+s*(\d+)/)) {
-                const mathMatch = lowerMessage.match(/cu[áa]nto es (\d+)\s*\+s*(\d+)/);
-                const num1 = parseInt(mathMatch[1]);
-                const num2 = parseInt(mathMatch[2]);
-                const result = num1 + num2;
-                aiReply = `¡Fácil, ${userName}! ${num1} + ${num2} = **${result}**. ¿Otra cuenta?`;
-            }
-            // Letras de canciones (solución directa para "Bohemian Rhapsody")
-            else if (lowerMessage.includes('letra') && (lowerMessage.includes('canción') || lowerMessage.includes('cancion'))) {
-                const songQuery = chatMessage.replace(/letra(s)? de la (canci[óo]n)?/i, '').trim().toLowerCase();
-                if (songQuery.includes('bohemian rhapsody')) {
-                    aiReply = `¡Aquí tienes la letra de "Bohemian Rhapsody", ${userName}!\n\n` +
-                              `Is this the real life? Is this just fantasy?\n` +
-                              `Caught in a landslide, no escape from reality\n` +
-                              `Open your eyes, look up to the skies and see\n` +
-                              `I'm just a poor boy, I need no sympathy\n` +
-                              `Because I'm easy come, easy go, little high, little low\n` +
-                              `Any way the wind blows doesn't really matter to me, to me\n` +
-                              `(Y sigue... ¿quieres el resto? Es larga, ${userName}!)`;
-                } else {
-                    aiReply = `Lo siento, ${userName}, solo tengo la letra de "Bohemian Rhapsody" por ahora. ¿Quieres otra canción? Puedo buscarla si me das tiempo para añadir más.`;
-                }
-            }
-            // Preguntas específicas predefinidas
-            else if (lowerMessage.includes('cómo es') && lowerMessage.includes('rata blanca')) {
-                const imgurLink = 'https://i.imgur.com/mjOqwH6.png';
-                aiReply = `Una rata blanca es un roedor pequeño con pelaje blanco puro, ojos rosados o rojos (albina), orejas redondeadas y cola larga. Son curiosas y amigables, ${userName}. Aquí tienes una foto:`;
-                const finalEmbed = createEmbed('#55FFFF', `¡Aquí estoy, ${userName}!`, aiReply).setImage(imgurLink);
-                await waitingMessage.edit({ embeds: [finalEmbed] });
-                const sentMessage = await channel.send({ content: ' ' });
-                await sentMessage.react('✅');
-                await sentMessage.react('❌');
-                sentMessages.set(sentMessage.id, { content: aiReply, originalQuestion: chatMessage, timestamp: new Date().toISOString(), message: sentMessage });
-                await waitingMessage.delete();
-                return;
-            }
-            else if (lowerMessage.includes('cómo es') && lowerMessage.includes('rata negra')) {
-                aiReply = `Una rata negra (Rattus rattus) es un roedor de cuerpo alargado, color negro o gris oscuro, hocico puntiagudo, orejas grandes y cola larga. Son ágiles y viven en lugares altos, ${userName}. Mira esta imagen generada:`;
-                const imageUrl = await generateImage("A realistic black rat (Rattus rattus) with a pointed snout, large ears, and a long thin tail");
-                const finalEmbed = createEmbed('#55FFFF', `¡Aquí estoy, ${userName}!`, aiReply).setImage(imageUrl);
-                await waitingMessage.edit({ embeds: [finalEmbed] });
-                const sentMessage = await channel.send({ content: ' ' });
-                await sentMessage.react('✅');
-                await sentMessage.react('❌');
-                sentMessages.set(sentMessage.id, { content: aiReply, originalQuestion: chatMessage, timestamp: new Date().toISOString(), message: sentMessage });
-                await waitingMessage.delete();
-                return;
-            }
-            else if (lowerMessage.includes('qué es') && lowerMessage.includes('inteligencia artificial')) {
-                aiReply = `La inteligencia artificial (IA) es una rama de la informática que crea sistemas capaces de tareas humanas como aprender o razonar. Yo soy un ejemplo, ${userName}. ¿Más detalles?`;
-            }
-            // Respuesta general con Hugging Face para todo lo demás
-            else {
-                const prompt = `Eres Miguel IA, creado por Miguel para ayudar a ${userName}. Responde a "${chatMessage}" de forma natural, detallada y útil. Si es una pregunta, explica bien; si es un cálculo, resuélvelo; si no sabes (como letras de canciones exactas), admite la limitación y sugiere algo práctico. No dejes ideas incompletas.`;
-                const response = await axios.post(
-                    'https://api-inference.huggingface.co/models/mistralai/Mixtral-8x7B-Instruct-v0.1',
-                    { 
-                        inputs: prompt, 
-                        parameters: { 
-                            max_new_tokens: 1000,
-                            return_full_text: false, 
-                            temperature: 0.3
-                        } 
-                    },
-                    { 
-                        headers: { 'Authorization': `Bearer ${process.env.HF_API_TOKEN}`, 'Content-Type': 'application/json' },
-                        timeout: 60000
-                    }
-                );
-
-                aiReply = response.data[0]?.generated_text?.trim();
-                if (!aiReply || aiReply.length < 30) {
-                    aiReply = `Hmm, ${userName}, no tengo una buena respuesta para "${chatMessage}" ahora. ¿Puedes darme más contexto o probar otra pregunta?`;
-                }
-            }
-
-            // Enviar respuesta final
-            aiReply += `\n\n¿Te ayudó esto, ${userName}?`;
-            const finalEmbed = createEmbed('#55FFFF', `¡Aquí estoy, ${userName}!`, aiReply);
-            const sentMessage = await channel.send({ embeds: [finalEmbed] });
-            await waitingMessage.delete();
-            await sentMessage.react('✅');
-            await sentMessage.react('❌');
-            sentMessages.set(sentMessage.id, { content: aiReply, originalQuestion: chatMessage, timestamp: new Date().toISOString(), message: sentMessage });
-
-            // Guardar en historial
-            let userHistory = dataStore.conversationHistory[author.id] || [];
-            userHistory.push({ role: 'assistant', content: aiReply, timestamp: new Date().toISOString() });
-            if (userHistory.length > MAX_MESSAGES) userHistory.shift();
-            dataStore.conversationHistory[author.id] = userHistory;
-            await saveDataStore(dataStore);
-
-        } catch (error) {
-            console.error(`Error en !ch para "${chatMessage}": ${error.message}`, error.stack);
-            const errorEmbed = createEmbed('#FF5555', '¡Ups!', 
-                `Algo salió mal, ${userName}. ${error.code === 'ECONNABORTED' ? 'La API tardó demasiado.' : 'Error: ' + error.message} ¡Prueba otra vez!`);
-            await channel.send({ embeds: [errorEmbed] });
-            await waitingMessage.delete();
-        }
-        return;
-    }
-
-    if (content.startsWith('!trivia') || content.startsWith('!tr')) {
-        await manejarTrivia(message);
-        return;
-    }
+    await manejarCommand(message);
 
     if (content.startsWith('!ranking') || content.startsWith('!rk')) {
         const embed = getCombinedRankingEmbed(message.author.id, message.author.username);
         await message.channel.send({ embeds: [embed] });
-        return;
-    }
-
-    if (content.startsWith('!ppm') || content.startsWith('!pp')) {
-        await manejarPPM(message);
-        return;
-    }
-
-    if (content.startsWith('!reacciones') || content.startsWith('!re')) {
-        await manejarReacciones(message);
         return;
     }
 
@@ -679,7 +699,7 @@ client.on('messageReactionAdd', async (reaction, user) => {
             const response = await axios.post(
                 'https://api-inference.huggingface.co/models/mistralai/Mixtral-8x7B-Instruct-v0.1',
                 { inputs: alternativePrompt, parameters: { max_new_tokens: 500, return_full_text: false, temperature: 0.3 } },
-                { headers: { 'Authorization': `Bearer ${process.env.HF_API_TOKEN}`, 'Content-Type': 'application/json' }, timeout: 60000 }
+                { headers: { 'Authorization': `Bearer ${process.env.HF_API_TOKEN}`, 'Content-Type': 'application/json' }, timeout: 90000 }
             );
             let alternativeReply = response.data[0]?.generated_text?.trim() || `No se me ocurre algo mejor ahora, ${userName}. ¿Qué tal si me das más detalles?`;
             alternativeReply += `\n\n¿Te sirvió esta respuesta?`;
@@ -689,8 +709,8 @@ client.on('messageReactionAdd', async (reaction, user) => {
             await newSentMessage.react('❌');
             sentMessages.set(newSentMessage.id, { content: alternativeReply, originalQuestion: messageData.originalQuestion, timestamp: new Date().toISOString(), message: newSentMessage });
         } catch (error) {
-            console.error('Error al generar respuesta alternativa:', error);
-            sendError(messageData.message.channel, `No pude encontrar una mejor respuesta ahora, ${userName}.`);
+            console.error('Error al generar respuesta alternativa:', error.message, error.response?.data);
+            sendError(messageData.message.channel, `No pude encontrar una mejor respuesta ahora, ${userName}. Error: ${error.message}`);
         }
     }
 });
