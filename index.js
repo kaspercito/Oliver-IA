@@ -1126,16 +1126,27 @@ async function playSong(message, connection) {
         console.log(`Buscando stream para: ${videoUrl}`);
 
         const stream = await play.stream(videoUrl, { quality: 2 });
-        console.log(`Stream obtenido para: ${song.title}`);
+        console.log(`Stream obtenido para: ${song.title}, tipo: ${stream.type}`);
+        
+        // Verificar si el stream es válido
+        if (!stream.stream) {
+            console.error('El stream devuelto por play-dl está vacío');
+            await sendError(message.channel, 'Problema con el stream', `No se pudo obtener un stream válido para "${song.title}". Pasando a la siguiente.`);
+            queue.shift();
+            dataStore.musicQueue.set(message.guild.id, queue);
+            return playSong(message, connection);
+        }
+
         const resource = createAudioResource(stream.stream, { inputType: stream.type, inlineVolume: true });
-        resource.volume.setVolume(1.0); // Asegurar volumen al 100%
+        resource.volume.setVolume(1.0);
         const player = createAudioPlayer();
 
         player.play(resource);
-        const subscription = connection.subscribe(player); // Guardar la suscripción
+        const subscription = connection.subscribe(player);
         if (!subscription) {
             console.error('No se pudo suscribir el reproductor a la conexión');
             await sendError(message.channel, 'Error de conexión', 'No pude conectar el reproductor al canal de voz.');
+            connection.destroy();
             return;
         }
         console.log(`Reproduciendo: ${song.title}`);
