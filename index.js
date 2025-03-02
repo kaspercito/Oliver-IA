@@ -175,6 +175,7 @@ async function saveDataStore() {
         console.log('Datos guardados en GitHub');
     } catch (error) {
         console.error('Error al guardar datos en GitHub:', error.message);
+        throw error; // Lanzar error para capturarlo en !save
     }
 }
 
@@ -436,7 +437,7 @@ async function manejarChat(message) {
             const response = await axios.post(
                 'https://api-inference.huggingface.co/models/mistralai/Mixtral-8x7B-Instruct-v0.1',
                 {
-                    inputs: `Eres Miguel IA, creado por Miguel. Responde a "${chatMessage}" de forma natural, detallada y útil para ${userName}. Si es un cálculo, resuélvelo; si no sabes, sugiere algo práctico.`,
+                    inputs: `Eres Miguel IA, creado por Miguel. La usuaria no quedó satisfecha con tu respuesta anterior a "${messageData.originalQuestion}": "${messageData.content}". Proporciona una respuesta alternativa, diferente, clara y útil, como un amigo cercano. No repitas la respuesta anterior. Termina con una nota positiva o una sugerencia para seguir charlando.\nTu respuesta:`,
                     parameters: { max_new_tokens: 500, return_full_text: false }
                 },
                 { headers: { 'Authorization': `Bearer ${process.env.HF_API_TOKEN}` }, timeout: 90000 }
@@ -465,7 +466,6 @@ function getCombinedRankingEmbed(userId, username) {
     const triviaStats = dataStore.triviaStats[userId] || { correct: 0, total: 0 };
     const triviaPercentage = triviaStats.total > 0 ? Math.round((triviaStats.correct / triviaStats.total) * 100) : 0;
 
-    // Construir la lista de todos los PPM
     let ppmList = ppmRecords.length > 0 
         ? ppmRecords.map(record => `${record.ppm} PPM (${new Date(record.timestamp).toLocaleString()})`).join('\n')
         : 'No has hecho pruebas de PPM aún.';
@@ -488,6 +488,14 @@ async function manejarCommand(message) {
         await manejarPPM(message);
     } else if (content.startsWith('!reacciones') || content.startsWith('!re')) {
         await manejarReacciones(message);
+    } else if (content === '!save') {
+        const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
+        try {
+            await saveDataStore();
+            await sendSuccess(message.channel, '💾 ¡Guardado!', `Datos guardados exitosamente, ${userName}.`);
+        } catch (error) {
+            await sendError(message.channel, '💾 Error al guardar', `No pude guardar los datos, ${userName}. Error: ${error.message}`);
+        }
     }
 }
 
@@ -529,6 +537,7 @@ client.on('messageCreate', async (message) => {
             '- **!pp / !ppm**: Prueba de mecanografía.\n' +
             '- **!rk / !ranking**: Ver puntajes y estadísticas.\n' +
             '- **!re / !reacciones**: Juego de escribir rápido.\n' +
+            '- **!save**: Guardar datos ahora.\n' +
             '- **!h / !help**: Lista de comandos.\n' +
             '- **hola**: Saludo especial.');
         await message.channel.send({ embeds: [embed] });
