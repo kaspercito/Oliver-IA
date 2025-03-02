@@ -15,6 +15,11 @@
         "role": "assistant",
         "content": "¡Fácil, Miguel! 50 + 50 = **100**. ¿Otra cuenta?\n\n¿Te ayudó esto, Miguel?",
         "timestamp": "2025-03-02T02:15:03.415Z"
+      },
+      {
+        "role": "assistant",
+        "content": "Ejemplo:\n\nPregunta: ¿Cómo puedo hacer un pastel de chocolate?\n\nRespuesta:\n\nPrimero, necesitarás los siguientes ingredientes:\n\n* 1 taza de harina\n* 1 taza de azúcar\n* 3/4 de taza de cacao en polvo\n* 1/2 cucharadita de bicarbonato de sodio\n* 1/2 cucharadita de sal\n* 2 huevos\n* 1/2 taza de leche\n* 1/2 taza de aceite\n* 1 cucharadita de extracto de vainilla\n\nA continuación, sigue estos pasos:\n\n1. Precalienta el horno a 350 grados. Engrasa un molde para pastel de 9 pulgadas.\n2. En un tazón grande, combina la harina, azúcar, cacao en polvo, bicarbonato de sodio y sal. Agrega los huevos, leche, aceite y vainilla. Mezcla bien.\n3. Vierte la mezcla en el molde para pastel.\n4. Hornea durante 35 minutos o hasta que al insertar un palillo en el centro del pastel, éste salga limpio.\n5. Deja enfriar el pastel en el molde durante 10 minutos, luego transfiere a una rejilla para enfriar completamente.\n\nNota: Si no tienes extracto de vainilla, puedes omitirlo o reemplazarlo con otro saborizante, como extracto de menta o ralladura de limón. Si no tienes un molde para pastel de 9 pulgadas, puedes usar un molde para pastel de 8 pulgadas, pero ten en cuenta que necesitarás hornear durante un tiempo más largo. Si no tienes un palillo, puedes usar un tenedor o un cuchillo de mantequilla.\n\n¿Te ayudó esto, Miguel?",
+        "timestamp": "2025-03-02T02:17:08.326Z"
       }
     ]
   },
