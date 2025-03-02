@@ -15,6 +15,17 @@
   },
   "triviaRanking": {},
   "personalPPMRecords": {},
-  "reactionStats": {},
-  "reactionWins": {}
+  "reactionStats": {
+    "752987736759205960": {
+      "cielo": {
+        "count": 1
+      }
+    }
+  },
+  "reactionWins": {
+    "752987736759205960": {
+      "username": "kaspercito",
+      "wins": 1
+    }
+  }
 }
