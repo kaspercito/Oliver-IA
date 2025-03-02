@@ -578,10 +578,9 @@ async function saveDataStore() {
     }
 }
 
-// Guardar cada 10 minutos
 setInterval(() => {
     saveDataStore();
-}, 600000);
+}, 1800000); // 30 minutos
 
 // Funciones de Trivia
 function obtenerPreguntaTriviaSinOpciones(usedQuestions, categoria) {
