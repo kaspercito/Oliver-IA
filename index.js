@@ -152,7 +152,7 @@ async function loadDataStore() {
     try {
         const response = await axios.get(
             `https://api.github.com/repos/${process.env.GITHUB_REPO}/contents/${process.env.GITHUB_FILE_PATH}`,
-            { headers: { 'Authorization': `Bearer ${process.env.HF_API_TOKEN}`, 'Accept': 'application/vnd.github+json' } }
+            { headers: { 'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`, 'Accept': 'application/vnd.github+json' } }
         );
         const content = Buffer.from(response.data.content, 'base64').toString('utf8');
         const loadedData = content ? JSON.parse(content) : { conversationHistory: {}, triviaRanking: {}, personalPPMRecords: {}, reactionStats: {}, reactionWins: {} };
@@ -165,7 +165,7 @@ async function loadDataStore() {
             reactionWins: loadedData.reactionWins || {}
         };
     } catch (error) {
-        console.error('Error al cargar datos desde GitHub:', error.message);
+        console.error('Error al cargar datos desde GitHub:', error.message, error.response?.data);
         return { conversationHistory: {}, triviaRanking: {}, personalPPMRecords: {}, reactionStats: {}, reactionWins: {} };
     }
 }
@@ -176,7 +176,7 @@ async function saveDataStore(data) {
         try {
             const response = await axios.get(
                 `https://api.github.com/repos/${process.env.GITHUB_REPO}/contents/${process.env.GITHUB_FILE_PATH}`,
-                { headers: { 'Authorization': `Bearer ${process.env.HF_API_TOKEN}`, 'Accept': 'application/vnd.github+json' } }
+                { headers: { 'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`, 'Accept': 'application/vnd.github+json' } }
             );
             sha = response.data.sha;
             console.log('Archivo existente encontrado, SHA:', sha);
@@ -189,7 +189,7 @@ async function saveDataStore(data) {
                         message: 'Crear archivo inicial para historial y ranking',
                         content: Buffer.from(JSON.stringify({ conversationHistory: {}, triviaRanking: {}, personalPPMRecords: {}, reactionStats: {}, reactionWins: {} }, null, 2)).toString('base64'),
                     },
-                    { headers: { 'Authorization': `Bearer ${process.env.HF_API_TOKEN}`, 'Accept': 'application/vnd.github+json' } }
+                    { headers: { 'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`, 'Accept': 'application/vnd.github+json' } }
                 );
                 console.log('Archivo inicial creado en GitHub');
                 return;
@@ -204,7 +204,7 @@ async function saveDataStore(data) {
                 content: Buffer.from(JSON.stringify(data, null, 2)).toString('base64'),
                 sha: sha,
             },
-            { headers: { 'Authorization': `Bearer ${process.env.HF_API_TOKEN}`, 'Accept': 'application/vnd.github+json' } }
+            { headers: { 'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`, 'Accept': 'application/vnd.github+json' } }
         );
         console.log('Datos guardados correctamente en GitHub:', JSON.stringify(data));
     } catch (error) {
@@ -361,14 +361,12 @@ async function manejarReacciones(message) {
         const ganadorName = ganador.id === OWNER_ID ? 'Miguel' : 'Belén';
         reactionGames.delete(message.channel.id);
 
-        // Actualizar victorias en reacciones
         if (!dataStore.reactionWins) dataStore.reactionWins = {};
         if (!dataStore.reactionWins[ganador.id]) {
             dataStore.reactionWins[ganador.id] = { username: ganador.username, wins: 0 };
         }
         dataStore.reactionWins[ganador.id].wins += 1;
 
-        // Registrar la palabra usada en reactionStats (aunque no se mostrará en el ranking)
         if (!dataStore.reactionStats[ganador.id]) dataStore.reactionStats[ganador.id] = {};
         if (!dataStore.reactionStats[ganador.id][palabra]) dataStore.reactionStats[ganador.id][palabra] = { count: 0 };
         dataStore.reactionStats[ganador.id][palabra].count += 1;
@@ -428,7 +426,7 @@ function getCombinedRankingEmbed(userId, username) {
 // Evento ready
 client.once('ready', async () => {
     console.log(`¡Miguel IA está listo! Instancia: ${instanceId}`);
-    client.user.setPresence({ activities: [{ name: "Listo para ayudar a Miguel y Belén", type: 0 }], status: 'online' });
+    client.user.setPresence({ activities: [{ name: "Listo para ayudar a Miguel y Miguel", type: 0 }], status: 'online' });
     dataStore = await loadDataStore();
 });
 
@@ -522,6 +520,16 @@ client.on('messageCreate', async (message) => {
                 await sentMessage.react('❌');
                 sentMessages.set(sentMessage.id, { content: aiReply, originalQuestion: chatMessage, timestamp: new Date().toISOString(), message: sentMessage });
             }
+            // Respuesta local para "¿Qué es la inteligencia artificial?"
+            else if (lowerMessage.includes('qué es') && lowerMessage.includes('inteligencia artificial')) {
+                aiReply = `¡Hola, ${userName}! La inteligencia artificial (IA) es una rama de la informática que se enfoca en crear sistemas capaces de realizar tareas que normalmente requieren inteligencia humana, como aprender, razonar, resolver problemas o tomar decisiones. Por ejemplo, yo soy una IA diseñada para ayudarte con tus preguntas. ¿Te gustaría saber más sobre cómo funciona o sus aplicaciones?`;
+                const finalEmbed = createEmbed('#55FFFF', `¡Aquí estoy para ti, ${userName}!`, aiReply);
+                const sentMessage = await channel.send({ embeds: [finalEmbed] });
+                await waitingMessage.delete();
+                await sentMessage.react('✅');
+                await sentMessage.react('❌');
+                sentMessages.set(sentMessage.id, { content: aiReply, originalQuestion: chatMessage, timestamp: new Date().toISOString(), message: sentMessage });
+            }
             // Respuesta general para otras preguntas
             else {
                 const prompt = `Eres Miguel IA, creado por Miguel para ayudar a ${userName}. Responde a "${chatMessage}" de forma natural, amigable y detallada, explicando el tema si es una pregunta, con pasos claros si aplica. Si es un cálculo matemático, resuélvelo directamente. Si no tienes información precisa (como letras de canciones), no inventes nada; admite que no sabes y sugiere algo útil como buscar en fuentes confiables. Asegúrate de completar todas las ideas y no dejar frases cortadas.`;
@@ -531,14 +539,14 @@ client.on('messageCreate', async (message) => {
                     { 
                         inputs: prompt, 
                         parameters: { 
-                            max_new_tokens: 1000, 
+                            max_new_tokens: 580, 
                             return_full_text: false, 
                             temperature: 0.6 
                         } 
                     },
                     { 
                         headers: { 'Authorization': `Bearer ${process.env.HF_API_TOKEN}`, 'Content-Type': 'application/json' },
-                        timeout: 30000
+                        timeout: 60000
                     }
                 );
 
@@ -566,7 +574,7 @@ client.on('messageCreate', async (message) => {
         } catch (error) {
             console.error(`Error en !ch para "${chatMessage}": ${error.message}`, error.stack);
             const errorEmbed = createEmbed('#FF5555', '¡Ups!', 
-                `Algo falló, ${userName}. ${error.code === 'ECONNABORTED' ? 'Tardé demasiado en pensar.' : 'Hubo un problema con mi cerebro artificial.'} ¡Intenta de nuevo con !ch!`);
+                `Algo falló, ${userName}. ${error.code === 'ECONNABORTED' ? 'La API de Hugging Face tardó demasiado en responder. Esto puede pasar con la versión gratuita.' : 'Hubo un problema técnico: ' + error.message} ¡Intenta de nuevo con !ch o prueba con otra pregunta!`);
             await channel.send({ embeds: [errorEmbed] });
             await waitingMessage.delete();
             console.log(`Error enviado a ${userName} para "${chatMessage}"`);
@@ -641,7 +649,7 @@ client.on('messageReactionAdd', async (reaction, user) => {
             const response = await axios.post(
                 'https://api-inference.huggingface.co/models/mistralai/Mixtral-8x7B-Instruct-v0.1',
                 { inputs: alternativePrompt, parameters: { max_new_tokens: 500, return_full_text: false, temperature: 0.6 } },
-                { headers: { 'Authorization': `Bearer ${process.env.HF_API_TOKEN}`, 'Content-Type': 'application/json' }, timeout: 30000 }
+                { headers: { 'Authorization': `Bearer ${process.env.HF_API_TOKEN}`, 'Content-Type': 'application/json' }, timeout: 60000 }
             );
             let alternativeReply = response.data[0]?.generated_text?.trim() || `No se me ocurre algo mejor ahora, ${userName}. ¿Qué tal si me das más detalles?`;
             alternativeReply += `\n\n¿Te sirvió esta respuesta?`;
