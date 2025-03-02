@@ -23,8 +23,8 @@ const MAX_MESSAGES = 20;
 const BOT_UPDATES = [
     '¡Trivia sin opciones con muchas preguntas!',
     'Comandos abreviados: !ch, !tr, !rk, !pp, !h, !re.',
-    '!re ahora es un juego: escribe la palabra primero y gana.',
-    'Corrección: !chat responde siempre, trivia flexible.'
+    '!re es un juego: escribe la palabra primero y gana.',
+    '!ch genera imágenes para preguntas como "¿Cómo es...?".'
 ];
 
 // Preguntas sin opciones (interés general ampliado)
@@ -93,7 +93,7 @@ const sentMessages = new Map();
 const processedMessages = new Map();
 const triviaLoops = new Map();
 const ppmSessions = new Map();
-const reactionGames = new Map(); // Nuevo estado para juegos de reacciones
+const reactionGames = new Map();
 let dataStore = { conversationHistory: {}, triviaRanking: {}, personalPPMRecords: {}, reactionStats: {} };
 
 // Utilidades
@@ -123,12 +123,39 @@ function cleanText(text) {
         .replace(/^(el|la|los|las)\s+/i, '');
 }
 
+// Función para generar imagen con Hugging Face (Stable Diffusion)
+async function generateImage(prompt) {
+    try {
+        console.log(`Generando imagen para: "${prompt}"`);
+        const response = await axios.post(
+            'https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-2-1',
+            { inputs: prompt },
+            {
+                headers: {
+                    'Authorization': `Bearer ${process.env.HF_API_TOKEN}`,
+                    'Content-Type': 'application/json',
+                    'Accept': 'image/png' // Solicitar imagen en formato PNG
+                },
+                responseType: 'arraybuffer', // Recibir datos binarios
+                timeout: 60000 // 60 segundos para generación
+            }
+        );
+        console.log('Imagen generada exitosamente');
+        // Convertir la imagen a base64 para enviarla a Discord
+        const imageBase64 = Buffer.from(response.data, 'binary').toString('base64');
+        return `data:image/png;base64,${imageBase64}`;
+    } catch (error) {
+        console.error('Error al generar imagen:', error.message);
+        throw error;
+    }
+}
+
 // Funciones de persistencia en GitHub
 async function loadDataStore() {
     try {
         const response = await axios.get(
             `https://api.github.com/repos/${process.env.GITHUB_REPO}/contents/${process.env.GITHUB_FILE_PATH}`,
-            { headers: { 'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`, 'Accept': 'application/vnd.github+json' } }
+            { headers: { 'Authorization': `Bearer ${process.env.HF_API_TOKEN}`, 'Accept': 'application/vnd.github+json' } }
         );
         const content = Buffer.from(response.data.content, 'base64').toString('utf8');
         const loadedData = content ? JSON.parse(content) : { conversationHistory: {}, triviaRanking: {}, personalPPMRecords: {}, reactionStats: {} };
@@ -150,7 +177,7 @@ async function saveDataStore(data) {
         try {
             const response = await axios.get(
                 `https://api.github.com/repos/${process.env.GITHUB_REPO}/contents/${process.env.GITHUB_FILE_PATH}`,
-                { headers: { 'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`, 'Accept': 'application/vnd.github+json' } }
+                { headers: { 'Authorization': `Bearer ${process.env.HF_API_TOKEN}`, 'Accept': 'application/vnd.github+json' } }
             );
             sha = response.data.sha;
         } catch (error) {
@@ -161,7 +188,7 @@ async function saveDataStore(data) {
                         message: 'Crear archivo inicial para historial y ranking',
                         content: Buffer.from(JSON.stringify({ conversationHistory: {}, triviaRanking: {}, personalPPMRecords: {}, reactionStats: {} }, null, 2)).toString('base64'),
                     },
-                    { headers: { 'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`, 'Accept': 'application/vnd.github+json' } }
+                    { headers: { 'Authorization': `Bearer ${process.env.HF_API_TOKEN}`, 'Accept': 'application/vnd.github+json' } }
                 );
                 return;
             } else {
@@ -175,7 +202,7 @@ async function saveDataStore(data) {
                 content: Buffer.from(JSON.stringify(data, null, 2)).toString('base64'),
                 sha: sha,
             },
-            { headers: { 'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`, 'Accept': 'application/vnd.github+json' } }
+            { headers: { 'Authorization': `Bearer ${process.env.HF_API_TOKEN}`, 'Accept': 'application/vnd.github+json' } }
         );
     } catch (error) {
         console.error('Error al guardar datos en GitHub:', error.message);
@@ -304,7 +331,7 @@ async function manejarPPM(message) {
     await startTest();
 }
 
-// Función para manejar el juego de reacciones (nueva lógica)
+// Función para manejar el juego de reacciones
 async function manejarReacciones(message) {
     console.log(`Instancia ${instanceId} - Iniciando juego de reacciones en canal ${message.channel.id}`);
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
@@ -324,7 +351,7 @@ async function manejarReacciones(message) {
         const respuestas = await message.channel.awaitMessages({
             filter: (res) => res.content.toLowerCase().trim() === palabra,
             max: 1,
-            time: 30000, // 30 segundos
+            time: 30000,
             errors: ['time']
         });
         const ganador = respuestas.first().author;
@@ -415,43 +442,59 @@ client.on('messageCreate', async (message) => {
         const waitingMessage = await channel.send({ embeds: [waitingEmbed] });
 
         try {
-            const prompt = `Eres Miguel IA, creado por Miguel para ayudar a ${userName}. Responde a "${chatMessage}" de forma natural, amigable y detallada, explicando el tema si es una pregunta, con pasos claros si aplica. Asegúrate de completar todas las ideas y no dejar frases cortadas.`;
-            console.log(`Enviando solicitud a Hugging Face por ${userName}: "${chatMessage}"`);
-            const response = await axios.post(
-                'https://api-inference.huggingface.co/models/mistralai/Mixtral-8x7B-Instruct-v0.1',
-                { 
-                    inputs: prompt, 
-                    parameters: { 
-                        max_new_tokens: 500, 
-                        return_full_text: false, 
-                        temperature: 0.6 
-                    } 
-                },
-                { 
-                    headers: { 'Authorization': `Bearer ${process.env.HF_API_TOKEN}`, 'Content-Type': 'application/json' },
-                    timeout: 30000
+            let aiReply;
+            const lowerMessage = chatMessage.toLowerCase();
+
+            // Verificar si la pregunta pide una descripción visual (ejemplo: "¿Cómo es...")
+            if (lowerMessage.includes('cómo es') && (lowerMessage.includes('rata negra') || lowerMessage.includes('rata') || lowerMessage.includes('negra'))) {
+                aiReply = `¡Hola, ${userName}! Una rata negra, o "Rattus rattus", es un roedor pequeño con un cuerpo alargado, generalmente de color negro o gris oscuro. Tiene un hocico puntiagudo, orejas grandes y una cola larga y delgada. Son ágiles trepadoras y suelen vivir en lugares altos como áticos o árboles. Aquí tienes una imagen generada de una rata negra:`;
+                const imageUrl = await generateImage("A realistic black rat (Rattus rattus) with a pointed snout, large ears, and a long thin tail");
+                const finalEmbed = createEmbed('#55FFFF', `¡Aquí estoy para ti, ${userName}!`, aiReply);
+                finalEmbed.setImage(imageUrl);
+                const sentMessage = await channel.send({ embeds: [finalEmbed] });
+                await waitingMessage.delete();
+                await sentMessage.react('✅');
+                await sentMessage.react('❌');
+                sentMessages.set(sentMessage.id, { content: aiReply, originalQuestion: chatMessage, timestamp: new Date().toISOString(), message: sentMessage });
+            } else {
+                const prompt = `Eres Miguel IA, creado por Miguel para ayudar a ${userName}. Responde a "${chatMessage}" de forma natural, amigable y detallada, explicando el tema si es una pregunta, con pasos claros si aplica. Asegúrate de completar todas las ideas y no dejar frases cortadas.`;
+                console.log(`Enviando solicitud a Hugging Face por ${userName}: "${chatMessage}"`);
+                const response = await axios.post(
+                    'https://api-inference.huggingface.co/models/mistralai/Mixtral-8x7B-Instruct-v0.1',
+                    { 
+                        inputs: prompt, 
+                        parameters: { 
+                            max_new_tokens: 500, 
+                            return_full_text: false, 
+                            temperature: 0.6 
+                        } 
+                    },
+                    { 
+                        headers: { 'Authorization': `Bearer ${process.env.HF_API_TOKEN}`, 'Content-Type': 'application/json' },
+                        timeout: 30000
+                    }
+                );
+
+                console.log(`Respuesta recibida de Hugging Face: ${JSON.stringify(response.data)}`);
+                aiReply = response.data[0]?.generated_text?.trim();
+                if (!aiReply || aiReply.length < 20) {
+                    aiReply = `¡Hola, ${userName}! Sobre "${chatMessage}", no tengo mucho que decir esta vez, pero estoy aquí para ayudarte. ¿Qué más quieres saber?`;
                 }
-            );
+                aiReply += `\n\n¿Te sirvió esta respuesta?`;
 
-            console.log(`Respuesta recibida de Hugging Face: ${JSON.stringify(response.data)}`);
-            let aiReply = response.data[0]?.generated_text?.trim();
-            if (!aiReply || aiReply.length < 20) {
-                aiReply = `¡Hola, ${userName}! Sobre "${chatMessage}", no tengo mucho que decir esta vez, pero estoy aquí para ayudarte. ¿Qué más quieres saber?`;
+                let userHistory = dataStore.conversationHistory[author.id] || [];
+                userHistory.push({ role: 'assistant', content: aiReply, timestamp: new Date().toISOString() });
+                if (userHistory.length > MAX_MESSAGES) userHistory.shift();
+                dataStore.conversationHistory[author.id] = userHistory;
+                await saveDataStore(dataStore);
+
+                const finalEmbed = createEmbed('#55FFFF', `¡Aquí estoy para ti, ${userName}!`, aiReply);
+                const sentMessage = await channel.send({ embeds: [finalEmbed] });
+                await waitingMessage.delete();
+                await sentMessage.react('✅');
+                await sentMessage.react('❌');
+                sentMessages.set(sentMessage.id, { content: aiReply, originalQuestion: chatMessage, timestamp: new Date().toISOString(), message: sentMessage });
             }
-            aiReply += `\n\n¿Te sirvió esta respuesta?`;
-
-            let userHistory = dataStore.conversationHistory[author.id] || [];
-            userHistory.push({ role: 'assistant', content: aiReply, timestamp: new Date().toISOString() });
-            if (userHistory.length > MAX_MESSAGES) userHistory.shift();
-            dataStore.conversationHistory[author.id] = userHistory;
-            await saveDataStore(dataStore);
-
-            const finalEmbed = createEmbed('#55FFFF', `¡Aquí estoy para ti, ${userName}!`, aiReply);
-            const sentMessage = await channel.send({ embeds: [finalEmbed] });
-            await waitingMessage.delete();
-            await sentMessage.react('✅');
-            await sentMessage.react('❌');
-            sentMessages.set(sentMessage.id, { content: aiReply, originalQuestion: chatMessage, timestamp: new Date().toISOString(), message: sentMessage });
             console.log(`Respuesta enviada a ${userName} para "${chatMessage}"`);
         } catch (error) {
             console.error(`Error en !ch para "${chatMessage}": ${error.message}`, error.stack);
@@ -488,7 +531,7 @@ client.on('messageCreate', async (message) => {
     if (content.startsWith('!help') || content.startsWith('!h')) {
         const embed = createEmbed('#55FF55', `¡Comandos para ti, ${userName}!`,
             'Aquí tienes lo que puedo hacer:\n' +
-            '- **!ch / !chat [mensaje]**: Charla conmigo.\n' +
+            '- **!ch / !chat [mensaje]**: Charla conmigo (prueba "¿Cómo es una rata negra?" para una imagen).\n' +
             '- **!tr / !trivia [n]**: Trivia (mínimo 10).\n' +
             '- **!pp / !ppm**: Prueba de mecanografía.\n' +
             '- **!rk / !ranking**: Ver puntajes y reacciones.\n' +
