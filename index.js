@@ -493,8 +493,9 @@ let dataStore = {
     reactionWins: {}, 
     activeSessions: {}, 
     triviaStats: {},
-    musicQueue: new Map(), // Cola de música por servidor
-    activeVoiceChannels: {} // Guardar canales de voz activos por servidor
+    musicQueue: new Map(), // Asegurarse de que siempre sea un Map
+    activeVoiceChannels: {}, // Asegurarse de que siempre sea un objeto
+    previousSongs: new Map() // Para rastrear canciones anteriores
 };
 
 
@@ -567,12 +568,22 @@ async function loadDataStore() {
             triviaStats: {},
             musicQueue: new Map(),
             activeVoiceChannels: {},
+            previousSongs: new Map(),
             updatesSent: false
         };
-        // Convertir musicQueue de objeto a Map si está guardado
+
+        // Convertir musicQueue y previousSongs a Map si son objetos
         if (loadedData.musicQueue && !(loadedData.musicQueue instanceof Map)) {
             loadedData.musicQueue = new Map(Object.entries(loadedData.musicQueue));
         }
+        if (loadedData.previousSongs && !(loadedData.previousSongs instanceof Map)) {
+            loadedData.previousSongs = new Map(Object.entries(loadedData.previousSongs));
+        }
+        // Asegurarse de que activeVoiceChannels sea un objeto
+        if (!loadedData.activeVoiceChannels) {
+            loadedData.activeVoiceChannels = {};
+        }
+
         console.log('Datos cargados desde GitHub:', JSON.stringify(loadedData));
         return loadedData;
     } catch (error) {
@@ -587,6 +598,7 @@ async function loadDataStore() {
             triviaStats: {},
             musicQueue: new Map(),
             activeVoiceChannels: {},
+            previousSongs: new Map(),
             updatesSent: false
         };
     }
@@ -605,8 +617,11 @@ async function saveDataStore() {
             if (error.response?.status !== 404) throw error;
         }
 
-        // Convertir el Map a un objeto para guardarlo en JSON
-        const dataToSave = { ...dataStore, musicQueue: Object.fromEntries(dataStore.musicQueue) };
+        const dataToSave = { 
+            ...dataStore, 
+            musicQueue: Object.fromEntries(dataStore.musicQueue),
+            previousSongs: Object.fromEntries(dataStore.previousSongs)
+        };
         await axios.put(
             `https://api.github.com/repos/${process.env.GITHUB_REPO}/contents/${process.env.GITHUB_FILE_PATH}`,
             {
@@ -1021,7 +1036,7 @@ async function manejarPlay(message) {
         if (query.includes('spotify.com/playlist/')) {
             const playlistId = query.split('playlist/')[1].split('?')[0];
             const playlist = await spotifyApi.getPlaylist(playlistId);
-            songs = playlist.body.tracks.items.map(item => `${item.track.name} ${item.track.artists[0].name}`); // Sin límite de 50
+            songs = playlist.body.tracks.items.map(item => `${item.track.name} ${item.track.artists[0].name}`);
             await sendSuccess(message.channel, '🎶 Playlist cargada', `He cargado ${songs.length} canciones de la playlist "${playlist.body.name}", ${userName}. ¡Empezando a reproducir!`);
         } else if (query.includes('spotify.com/track/')) {
             const trackId = query.split('track/')[1].split('?')[0];
@@ -1045,15 +1060,18 @@ async function manejarPlay(message) {
             adapterCreator: message.guild.voiceAdapterCreator,
         });
 
-        // Guardar el canal de voz activo
         dataStore.activeVoiceChannels[message.guild.id] = voiceChannel.id;
 
-        // Asegurarse de que musicQueue sea un Map
         if (!(dataStore.musicQueue instanceof Map)) {
             dataStore.musicQueue = new Map();
         }
 
-        const queue = dataStore.musicQueue.get(message.guild.id) || [];
+        let queue = dataStore.musicQueue.get(message.guild.id);
+        if (!Array.isArray(queue)) {
+            queue = [];
+            dataStore.musicQueue.set(message.guild.id, queue);
+        }
+
         queue.push(...songs.map(song => ({ title: song, requester: message.author.id })));
         dataStore.musicQueue.set(message.guild.id, queue);
 
@@ -1097,7 +1115,9 @@ async function playSong(message, connection) {
         await sendSuccess(message.channel, '🎶 Reproduciendo', `Ahora suena: "${song.title}" (pedido por ${requesterName})`);
 
         player.on(AudioPlayerStatus.Idle, () => {
-            queue.shift();
+            const playedSong = queue.shift();
+            if (!dataStore.previousSongs) dataStore.previousSongs = new Map();
+            dataStore.previousSongs.set(message.guild.id, playedSong);
             dataStore.musicQueue.set(message.guild.id, queue);
             playSong(message, connection);
         });
@@ -1116,6 +1136,93 @@ async function playSong(message, connection) {
         dataStore.musicQueue.set(message.guild.id, queue);
         playSong(message, connection);
     }
+}
+
+async function manejarStop(message) {
+    if (!message.guild) return sendError(message.channel, '¡Este comando solo funciona en servidores!');
+
+    const voiceChannel = message.member.voice.channel;
+    if (!voiceChannel) return sendError(message.channel, '¡Necesitas estar en un canal de voz!');
+
+    const connection = client.voice.adapters.get(message.guild.id)?.connection;
+    if (!connection) return sendError(message.channel, '¡No estoy reproduciendo nada ahora!');
+
+    connection.destroy();
+    dataStore.musicQueue.delete(message.guild.id);
+    delete dataStore.activeVoiceChannels[message.guild.id];
+
+    await sendSuccess(message.channel, '🎶 Reproducción detenida', 'He parado la música y limpiado la cola.');
+}
+
+async function manejarSkip(message) {
+    if (!message.guild) return sendError(message.channel, '¡Este comando solo funciona en servidores!');
+
+    const voiceChannel = message.member.voice.channel;
+    if (!voiceChannel) return sendError(message.channel, '¡Necesitas estar en un canal de voz!');
+
+    const queue = dataStore.musicQueue.get(message.guild.id);
+    if (!queue || queue.length === 0) return sendError(message.channel, '¡No hay canciones para saltar!');
+
+    const connection = client.voice.adapters.get(message.guild.id)?.connection;
+    if (!connection) return sendError(message.channel, '¡No estoy reproduciendo nada ahora!');
+
+    queue.shift();
+    dataStore.musicQueue.set(message.guild.id, queue);
+    await sendSuccess(message.channel, '🎶 Canción saltada', 'Pasando a la siguiente canción.');
+    await playSong(message, connection);
+}
+
+async function manejarPause(message) {
+    if (!message.guild) return sendError(message.channel, '¡Este comando solo funciona en servidores!');
+
+    const voiceChannel = message.member.voice.channel;
+    if (!voiceChannel) return sendError(message.channel, '¡Necesitas estar en un canal de voz!');
+
+    const connection = client.voice.adapters.get(message.guild.id)?.connection;
+    if (!connection) return sendError(message.channel, '¡No estoy reproduciendo nada ahora!');
+
+    const player = connection.state.subscription?.player;
+    if (!player || player.state.status === AudioPlayerStatus.Paused) return sendError(message.channel, '¡La música ya está pausada o no hay nada reproduciendo!');
+
+    player.pause();
+    await sendSuccess(message.channel, '⏸️ Música pausada', 'He pausado la reproducción.');
+}
+
+async function manejarShuffle(message) {
+    if (!message.guild) return sendError(message.channel, '¡Este comando solo funciona en servidores!');
+
+    const voiceChannel = message.member.voice.channel;
+    if (!voiceChannel) return sendError(message.channel, '¡Necesitas estar en un canal de voz!');
+
+    let queue = dataStore.musicQueue.get(message.guild.id);
+    if (!queue || queue.length <= 1) return sendError(message.channel, '¡No hay suficientes canciones para mezclar!');
+
+    for (let i = queue.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [queue[i], queue[j]] = [queue[j], queue[i]];
+    }
+
+    dataStore.musicQueue.set(message.guild.id, queue);
+    await sendSuccess(message.channel, '🔀 Cola mezclada', 'He mezclado la lista de reproducción.');
+}
+
+async function manejarBack(message) {
+    if (!message.guild) return sendError(message.channel, '¡Este comando solo funciona en servidores!');
+
+    const voiceChannel = message.member.voice.channel;
+    if (!voiceChannel) return sendError(message.channel, '¡Necesitas estar en un canal de voz!');
+
+    const queue = dataStore.musicQueue.get(message.guild.id);
+    const connection = client.voice.adapters.get(message.guild.id)?.connection;
+    if (!connection || !queue) return sendError(message.channel, '¡No hay reproducción activa!');
+
+    const previous = dataStore.previousSongs.get(message.guild.id);
+    if (!previous) return sendError(message.channel, '¡No hay canciones previas a las que volver!');
+
+    queue.unshift(previous);
+    dataStore.musicQueue.set(message.guild.id, queue);
+    await sendSuccess(message.channel, '⏮️ Volviendo atrás', `Volviendo a "${previous.title}".`);
+    await playSong(message, connection);
 }
 
 // Ranking con top por categoría para Trivia y Reacciones
@@ -1225,6 +1332,16 @@ async function manejarCommand(message) {
         await manejarAyuda(message);
     } else if (content.startsWith('!play')) {
         await manejarPlay(message);
+    } else if (content === '!stop') {
+        await manejarStop(message);
+    } else if (content === '!skip') {
+        await manejarSkip(message);
+    } else if (content === '!pause') {
+        await manejarPause(message);
+    } else if (content === '!shuffle') {
+        await manejarShuffle(message);
+    } else if (content === '!back') {
+        await manejarBack(message);
     }
 }
 
