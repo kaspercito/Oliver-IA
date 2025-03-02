@@ -3,7 +3,7 @@ const { Client, GatewayIntentBits, EmbedBuilder } = require('discord.js');
 const axios = require('axios');
 const { v4: uuidv4 } = require('uuid');
 const SpotifyWebApi = require('spotify-web-api-node');
-const LavalinkClient = require('lavalink-client');
+const { Lavalink } = require("lavalink-client");
 const { joinVoiceChannel, createAudioPlayer, createAudioResource, AudioPlayerStatus } = require('@discordjs/voice');
 require('dotenv').config();
 
@@ -18,22 +18,17 @@ const client = new Client({
     ],
 });
 
-// Configurar Lavalink
-const lavalink = new LavalinkClient({
-    rest: {
-        host: process.env.LAVALINK_HOST,
-        port: parseInt(process.env.LAVALINK_PORT),
-        password: process.env.LAVALINK_PASSWORD,
-    },
+const lavalink = new Lavalink({
+    client: client,
     nodes: [
         {
+            id: "main",
             host: process.env.LAVALINK_HOST,
             port: parseInt(process.env.LAVALINK_PORT),
-            password: process.env.LAVALINK_PASSWORD,
-            id: "main",
+            authorization: process.env.LAVALINK_PASSWORD,
+            secure: true, // Cambia a true si usas SSL
         },
     ],
-    sendGatewayPayload: (guildId, payload) => client.guilds.cache.get(guildId)?.shard?.send(payload),
 });
 
 // IDs y constantes
@@ -1060,12 +1055,18 @@ async function manejarPlay(message) {
         if (query.includes('spotify.com/playlist/')) {
             const playlistId = query.split('playlist/')[1].split('?')[0];
             const playlist = await spotifyApi.getPlaylist(playlistId);
-            songs = playlist.body.tracks.items.map(item => `${item.track.name} ${item.track.artists[0].name}`);
+            songs = playlist.body.tracks.items.map(item => ({
+                title: `${item.track.name} ${item.track.artists[0].name}`,
+                thumbnail: item.track.album.images[0]?.url || null,
+            }));
             await sendSuccess(message.channel, '🎶 Playlist cargada', `He cargado ${songs.length} canciones de la playlist "${playlist.body.name}", ${userName}. ¡Empezando a reproducir!`);
         } else if (query.includes('spotify.com/track/')) {
             const trackId = query.split('track/')[1].split('?')[0];
             const track = await spotifyApi.getTrack(trackId);
-            songs = [`${track.body.name} ${track.body.artists[0].name}`];
+            songs = [{
+                title: `${track.body.name} ${track.body.artists[0].name}`,
+                thumbnail: track.body.album.images[0]?.url || null,
+            }];
             await sendSuccess(message.channel, '🎶 Canción cargada', `Voy a reproducir "${track.body.name}" de ${track.body.artists[0].name}, ${userName}.`);
         } else {
             const searchResult = await spotifyApi.searchTracks(query, { limit: 1 });
@@ -1074,7 +1075,10 @@ async function manejarPlay(message) {
                 return;
             }
             const track = searchResult.body.tracks.items[0];
-            songs = [`${track.name} ${track.artists[0].name}`];
+            songs = [{
+                title: `${track.name} ${track.artists[0].name}`,
+                thumbnail: track.album.images[0]?.url || null,
+            }];
             await sendSuccess(message.channel, '🎶 Canción encontrada', `Voy a reproducir "${track.name}" de ${track.artists[0].name}, ${userName}.`);
         }
 
@@ -1083,51 +1087,80 @@ async function manejarPlay(message) {
             guildId: message.guild.id,
             adapterCreator: message.guild.voiceAdapterCreator,
         });
-        console.log(`Conectado al canal de voz: ${voiceChannel.name} (ID: ${voiceChannel.id})`);
-
-        connection.on('stateChange', (oldState, newState) => {
-            console.log(`Estado de la conexión cambió de ${oldState.status} a ${newState.status}`);
-            if (newState.status === 'disconnected') {
-                console.log('Conexión desconectada');
-            }
-        });
 
         dataStore.activeVoiceChannels[message.guild.id] = voiceChannel.id;
 
-        if (!(dataStore.musicQueue instanceof Map)) {
-            dataStore.musicQueue = new Map();
-        }
-
-        let queue = dataStore.musicQueue.get(message.guild.id);
-        if (!Array.isArray(queue)) {
-            queue = [];
-            dataStore.musicQueue.set(message.guild.id, queue);
-        }
-
-        queue.push(...songs.map(song => ({ title: song, requester: message.author.id })));
+        let queue = dataStore.musicQueue.get(message.guild.id) || [];
+        if (!Array.isArray(queue)) queue = [];
+        queue.push(...songs.map(song => ({ ...song, requester: message.author.id })));
         dataStore.musicQueue.set(message.guild.id, queue);
 
-        await playSong(message, connection);
+        const player = await setupOrGetPlayer(message.guild.id, voiceChannel.id, message.channel.id);
+        if (!player.playing) {
+            await playSong(message, connection, player);
+        }
     } catch (error) {
         console.error('Error en !play:', error);
-        if (error.response && error.response.status) {
-            await sendError(message.channel, 'Error con Spotify', `No pude procesar el enlace. Código de error: ${error.response.status}. Verifica el enlace o intenta de nuevo.`);
-        } else {
-            await sendError(message.channel, 'Error inesperado', `Algo salió mal: ${error.message}. Intenta de nuevo.`);
-        }
+        await sendError(message.channel, 'Error inesperado', `Algo salió mal: ${error.message}. Intenta de nuevo.`);
     }
 }
 
-// Usar Lavalink para reproducir canciones
-async function playSong(message, connection) {
-    if (!message.guild) return;
+// Configurar o obtener reproductor
+async function setupOrGetPlayer(guildId, voiceChannelId, textChannelId) {
+    let player = lavalink.players.get(guildId);
+    if (!player) {
+        player = lavalink.createPlayer({
+            guildId: guildId,
+            voiceChannelId: voiceChannelId,
+            textChannelId: textChannelId,
+            selfDeaf: true,
+        });
+        await player.connect();
 
+        player.on('trackStart', (track) => {
+            console.log(`Canción comenzada: ${track.info.title}`);
+        });
+        player.on('trackEnd', async (track, reason) => {
+            console.log(`Canción terminada: ${track.info.title}, motivo: ${reason}`);
+            const queue = dataStore.musicQueue.get(guildId) || [];
+            const song = queue.shift();
+            dataStore.musicQueue.set(guildId, queue);
+            if (!dataStore.previousSongs) dataStore.previousSongs = new Map();
+            dataStore.previousSongs.set(guildId, { title: track.info.title, requester: song?.requester });
+            
+            const channel = client.channels.cache.get(textChannelId);
+            if (queue.length > 0) {
+                const connection = client.voice.adapters.get(guildId)?.connection;
+                if (connection) await playSong({ guild: { id: guildId }, channel }, connection, player);
+            } else {
+                player.destroy();
+                dataStore.musicQueue.delete(guildId);
+                delete dataStore.activeVoiceChannels[guildId];
+                if (channel) await sendSuccess(channel, '🎶 Reproducción terminada', 'No hay más canciones en la cola.');
+            }
+        });
+        player.on('trackError', (track, error) => {
+            console.error('Error en la pista:', error);
+            const channel = client.channels.cache.get(textChannelId);
+            if (channel) sendError(channel, 'Error al reproducir', `No pude reproducir "${track.info.title}": ${error.message}. Pasando a la siguiente.`);
+            const queue = dataStore.musicQueue.get(guildId) || [];
+            queue.shift();
+            dataStore.musicQueue.set(guildId, queue);
+            const connection = client.voice.adapters.get(guildId)?.connection;
+            if (connection) playSong({ guild: { id: guildId }, channel }, connection, player);
+        });
+    }
+    return player;
+}
+
+// Reproducir canción
+async function playSong(message, connection, player) {
     const queue = dataStore.musicQueue.get(message.guild.id) || [];
-    if (!queue || queue.length === 0) {
+    if (!queue.length) {
         connection.destroy();
         dataStore.musicQueue.delete(message.guild.id);
         delete dataStore.activeVoiceChannels[message.guild.id];
-        await message.channel.send({ embeds: [createEmbed('#55FF55', '🎶 Reproducción terminada', 'No hay más canciones en la cola.')] });
+        await sendSuccess(message.channel, '🎶 Reproducción terminada', 'No hay más canciones en la cola.');
         return;
     }
 
@@ -1135,70 +1168,23 @@ async function playSong(message, connection) {
     const requesterName = song.requester === OWNER_ID ? 'Miguel' : 'Belén';
 
     try {
-        // Crear un reproductor de Lavalink para este guild
-        let player = lavalink.players.get(message.guild.id);
-        if (!player) {
-            player = await lavalink.createPlayer({
-                guildId: message.guild.id,
-                voiceChannelId: message.member.voice.channel.id,
-                textChannelId: message.channel.id,
-                selfDeaf: true,
-                selfMute: false,
-            });
-            player.on('playerUpdate', (data) => {
-                console.log(`Estado del reproductor actualizado: ${JSON.stringify(data)}`);
-            });
-            player.on('trackStart', (track) => {
-                console.log(`Canción comenzada: ${track.info.title}`);
-            });
-            player.on('trackEnd', (track, reason) => {
-                console.log(`Canción terminada: ${track.info.title}, motivo: ${reason}`);
-                const queue = dataStore.musicQueue.get(message.guild.id) || [];
-                queue.shift();
-                dataStore.musicQueue.set(message.guild.id, queue);
-                if (!dataStore.previousSongs) dataStore.previousSongs = new Map();
-                dataStore.previousSongs.set(message.guild.id, { title: track.info.title, requester: song.requester });
-                playSong(message, connection);
-            });
-            player.on('trackError', (track, error) => {
-                console.error('Error en la pista:', error);
-                sendError(message.channel, 'Error al reproducir la canción', `No pude reproducir "${track.info.title}": ${error.message}. Pasando a la siguiente.`);
-                const queue = dataStore.musicQueue.get(message.guild.id) || [];
-                queue.shift();
-                dataStore.musicQueue.set(message.guild.id, queue);
-                playSong(message, connection);
-            });
-            await player.connect();
-        }
-
-        // Buscar la canción en Lavalink
         const searchResult = await lavalink.rest.loadTracks(`ytsearch:${song.title}`);
         if (!searchResult.tracks || searchResult.tracks.length === 0) {
-            console.log(`No se encontraron resultados para: "${song.title}"`);
             await sendError(message.channel, 'No pude encontrar la canción', `No se encontraron resultados para "${song.title}". Pasando a la siguiente.`);
             queue.shift();
             dataStore.musicQueue.set(message.guild.id, queue);
-            return playSong(message, connection);
+            return playSong(message, connection, player);
         }
 
         const track = searchResult.tracks[0];
-        console.log(`Canción encontrada: ${track.info.title}`);
-
-        // Reproducir la pista
         await player.play(track);
-        await sendSuccess(message.channel, '🎶 Reproduciendo', `Ahora suena: "${track.info.title}" (pedido por ${requesterName})`);
+        await sendSuccess(message.channel, '▶️ Reproduciendo ahora', `**${track.info.title}** (pedido por ${requesterName})`);
     } catch (error) {
-        console.error('Error al buscar o reproducir:', error.message);
-        if (error.message.includes('Sign in to confirm your age') || error.message.includes('Video unavailable')) {
-            await sendError(message.channel, 'Canción no disponible', 
-                `"${song.title}" no está disponible en YouTube (restricción de edad o no encontrado). Pasando a la siguiente.`);
-        } else {
-            await sendError(message.channel, 'Error al procesar la canción', 
-                `Algo salió mal con "${song.title}": ${error.message}. Pasando a la siguiente.`);
-        }
+        console.error('Error al reproducir:', error);
+        await sendError(message.channel, 'Error al procesar la canción', `Algo salió mal con "${song.title}": ${error.message}. Pasando a la siguiente.`);
         queue.shift();
         dataStore.musicQueue.set(message.guild.id, queue);
-        playSong(message, connection);
+        playSong(message, connection, player);
     }
 }
 
@@ -1209,36 +1195,31 @@ async function manejarStop(message) {
     if (!voiceChannel) return sendError(message.channel, '¡Necesitas estar en un canal de voz!');
 
     const player = lavalink.players.get(message.guild.id);
-    if (!player) {
-        console.log('No hay reproductor activo para detener');
-        return sendError(message.channel, '¡No estoy reproduciendo nada ahora!', 
-            'No estoy conectado a ningún canal de voz. ¿Intentamos con !play primero?');
-    }
+    if (!player) return sendError(message.channel, '¡No estoy reproduciendo nada ahora!', 'No estoy conectado a ningún canal de voz. ¿Intentamos con !play primero?');
 
     player.destroy();
     lavalink.players.delete(message.guild.id);
     dataStore.musicQueue.delete(message.guild.id);
     delete dataStore.activeVoiceChannels[message.guild.id];
-    console.log('Reproducción detenida y cola limpiada');
-
-    await sendSuccess(message.channel, '🎶 Reproducción detenida', 'He parado la música y limpiado la cola.');
+    await sendSuccess(message.channel, '🛑 Música detenida', 'El reproductor ha sido detenido.');
 }
+
 async function manejarSkip(message) {
     if (!message.guild) return sendError(message.channel, '¡Este comando solo funciona en servidores!');
 
     const voiceChannel = message.member.voice.channel;
     if (!voiceChannel) return sendError(message.channel, '¡Necesitas estar en un canal de voz!');
 
-    const queue = dataStore.musicQueue.get(message.guild.id);
-    if (!queue || queue.length === 0) return sendError(message.channel, '¡No hay canciones para saltar!');
+    const player = lavalink.players.get(message.guild.id);
+    if (!player) return sendError(message.channel, '¡No estoy reproduciendo nada ahora!');
 
-    const connection = client.voice.adapters.get(message.guild.id)?.connection;
-    if (!connection) return sendError(message.channel, '¡No estoy reproduciendo nada ahora!');
+    const queue = dataStore.musicQueue.get(message.guild.id) || [];
+    if (!queue.length) return sendError(message.channel, '¡No hay canciones para saltar!');
 
     queue.shift();
     dataStore.musicQueue.set(message.guild.id, queue);
-    await sendSuccess(message.channel, '🎶 Canción saltada', 'Pasando a la siguiente canción.');
-    await playSong(message, connection);
+    await player.stop();
+    await sendSuccess(message.channel, '⏭️ Canción saltada', 'Se ha saltado la canción actual.');
 }
 
 async function manejarPause(message) {
@@ -1247,51 +1228,42 @@ async function manejarPause(message) {
     const voiceChannel = message.member.voice.channel;
     if (!voiceChannel) return sendError(message.channel, '¡Necesitas estar en un canal de voz!');
 
-    const connection = client.voice.adapters.get(message.guild.id)?.connection;
-    if (!connection) return sendError(message.channel, '¡No estoy reproduciendo nada ahora!');
-
-    const player = connection.state.subscription?.player;
-    if (!player || player.state.status === AudioPlayerStatus.Paused) return sendError(message.channel, '¡La música ya está pausada o no hay nada reproduciendo!');
+    const player = lavalink.players.get(message.guild.id);
+    if (!player) return sendError(message.channel, '¡No estoy reproduciendo nada ahora!');
 
     player.pause();
-    await sendSuccess(message.channel, '⏸️ Música pausada', 'He pausado la reproducción.');
+    await sendSuccess(message.channel, '⏸️ Música pausada', 'La música ha sido pausada. Usa !resume para continuar.');
 }
 
-async function manejarShuffle(message) {
+async function manejarResume(message) {
     if (!message.guild) return sendError(message.channel, '¡Este comando solo funciona en servidores!');
 
     const voiceChannel = message.member.voice.channel;
     if (!voiceChannel) return sendError(message.channel, '¡Necesitas estar en un canal de voz!');
 
-    let queue = dataStore.musicQueue.get(message.guild.id);
-    if (!queue || queue.length <= 1) return sendError(message.channel, '¡No hay suficientes canciones para mezclar!');
+    const player = lavalink.players.get(message.guild.id);
+    if (!player) return sendError(message.channel, '¡No estoy reproduciendo nada ahora!');
 
-    for (let i = queue.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [queue[i], queue[j]] = [queue[j], queue[i]];
-    }
-
-    dataStore.musicQueue.set(message.guild.id, queue);
-    await sendSuccess(message.channel, '🔀 Cola mezclada', 'He mezclado la lista de reproducción.');
+    player.resume();
+    await sendSuccess(message.channel, '▶️ Música reanudada', 'La música sigue reproduciéndose.');
 }
 
-async function manejarBack(message) {
+async function manejarAutoplay(message) {
     if (!message.guild) return sendError(message.channel, '¡Este comando solo funciona en servidores!');
 
     const voiceChannel = message.member.voice.channel;
     if (!voiceChannel) return sendError(message.channel, '¡Necesitas estar en un canal de voz!');
 
-    const queue = dataStore.musicQueue.get(message.guild.id);
-    const connection = client.voice.adapters.get(message.guild.id)?.connection;
-    if (!connection || !queue) return sendError(message.channel, '¡No hay reproducción activa!');
+    const player = lavalink.players.get(message.guild.id);
+    if (!player) return sendError(message.channel, '¡No estoy reproduciendo nada ahora!');
 
-    const previous = dataStore.previousSongs.get(message.guild.id);
-    if (!previous) return sendError(message.channel, '¡No hay canciones previas a las que volver!');
+    const autoplay = !player.data.get("autoplay");
+    player.data.set("autoplay", autoplay);
+    await sendSuccess(message.channel, '🔄 Modo Autoplay', autoplay ? 'Autoplay activado.' : 'Autoplay desactivado.');
+    await message.react(autoplay ? '✅' : '❌');
 
-    queue.unshift(previous);
-    dataStore.musicQueue.set(message.guild.id, queue);
-    await sendSuccess(message.channel, '⏮️ Volviendo atrás', `Volviendo a "${previous.title}".`);
-    await playSong(message, connection);
+    // Nota: Para un autoplay funcional completo, necesitarías buscar canciones relacionadas automáticamente.
+    // Esto es solo un toggle básico como en erela.js.
 }
 
 // Ranking con top por categoría para Trivia y Reacciones
@@ -1436,6 +1408,10 @@ async function manejarCommand(message) {
         await manejarSkip(message);
     } else if (content === '!pause') {
         await manejarPause(message);
+    } else if (content === '!resume') {
+        await manejarResume(message);
+    } else if (content === '!autoplay') {
+        await manejarAutoplay(message);
     } else if (content === '!shuffle') {
         await manejarShuffle(message);
     } else if (content === '!back') {
