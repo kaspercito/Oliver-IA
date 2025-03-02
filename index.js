@@ -438,7 +438,7 @@ async function manejarChat(message) {
                 'https://api-inference.huggingface.co/models/mistralai/Mixtral-8x7B-Instruct-v0.1',
                 {
                     inputs: `Eres Miguel IA, creado por Miguel. La usuaria no quedó satisfecha con tu respuesta anterior a "${messageData.originalQuestion}": "${messageData.content}". Proporciona una respuesta alternativa, diferente, clara y útil, como un amigo cercano. No repitas la respuesta anterior. Termina con una nota positiva o una sugerencia para seguir charlando.\nTu respuesta:`,
-                    parameters: { max_new_tokens: 500, return_full_text: false }
+                    parameters: { max_new_tokens: 580, return_full_text: false }
                 },
                 { headers: { 'Authorization': `Bearer ${process.env.HF_API_TOKEN}` }, timeout: 90000 }
             );
@@ -502,7 +502,7 @@ async function manejarCommand(message) {
 // Eventos
 client.once('ready', async () => {
     console.log(`¡Miguel IA está listo! Instancia: ${instanceId}`);
-    client.user.setPresence({ activities: [{ name: "Listo para ayudar a Miguel y Belén", type: 0 }], status: 'online' });
+    client.user.setPresence({ activities: [{ name: "Listo para ayudar a Miguel y Milagros", type: 0 }], status: 'online' });
     dataStore = await loadDataStore();
     activeTrivia = new Map(Object.entries(dataStore.activeSessions).filter(([_, s]) => s.type === 'trivia'));
     console.log('Sesiones activas recargadas:', JSON.stringify(dataStore.activeSessions));
