@@ -574,8 +574,7 @@ async function loadDataStore() {
 
 async function saveDataStore() {
     if (!dataStoreModified) {
-        console.log('No hay cambios en dataStore, omitiendo guardado');
-        return false; // Indicar que no se guardó
+        return false; // Indicar que no se guardó, sin log
     }
 
     try {
@@ -613,8 +612,7 @@ const WARNING_TIME = 300000;   // 5 minutos antes (300,000 ms)
 
 setInterval(async () => {
     if (!dataStoreModified) {
-        console.log('No hay cambios en dataStore, omitiendo guardado automático');
-        return;
+        return; // Silenciar el log cuando no hay cambios
     }
 
     const channel = await client.channels.fetch(CHANNEL_ID);
@@ -631,15 +629,6 @@ setInterval(async () => {
         console.log('Guardado automático completado y bandera reiniciada');
     }, WARNING_TIME);
 }, SAVE_INTERVAL);
-
-
-
-setInterval(async () => {
-    if (!dataStoreModified) {
-        console.log('No hay cambios en dataStore, omitiendo guardado automático');
-        return;
-    }
-});
             
 // Funciones de Trivia
 function obtenerPreguntaTriviaSinOpciones(usedQuestions, categoria) {
@@ -1140,7 +1129,7 @@ client.on('messageCreate', async (message) => {
 // Eventos
 client.once('ready', async () => {
     console.log(`¡Miguel IA está listo! Instancia: ${instanceId}`);
-    client.user.setPresence({ activities: [{ name: "Listo para ayudar a Miguel y Belén", type: 0 }], status: 'online' });
+    client.user.setPresence({ activities: [{ name: "Listo para ayudar a Miguel y Milagros", type: 0 }], status: 'online' });
     dataStore = await loadDataStore();
     activeTrivia = new Map(Object.entries(dataStore.activeSessions).filter(([_, s]) => s.type === 'trivia'));
 
