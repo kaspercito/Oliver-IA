@@ -24,7 +24,14 @@
       "score": 4
     }
   },
-  "personalPPMRecords": {},
+  "personalPPMRecords": {
+    "752987736759205960": [
+      {
+        "ppm": 112,
+        "timestamp": "2025-03-02T02:36:53.827Z"
+      }
+    ]
+  },
   "reactionStats": {
     "752987736759205960": {
       "brasilia": {
