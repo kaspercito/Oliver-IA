@@ -92,7 +92,7 @@ const processedMessages = new Map();
 const triviaLoops = new Map();
 const ppmSessions = new Map();
 const reactionGames = new Map();
-let dataStore = { conversationHistory: {}, triviaRanking: {}, personalPPMRecords: {}, reactionStats: {} };
+let dataStore = { conversationHistory: {}, triviaRanking: {}, personalPPMRecords: {}, reactionStats: {}, reactionWins: {} };
 
 // Utilidades
 const createEmbed = (color, title, description, footer = 'Con cariño, Miguel IA | Reacciona con ✅ o ❌, ¡por favor!') => {
@@ -155,16 +155,17 @@ async function loadDataStore() {
             { headers: { 'Authorization': `Bearer ${process.env.HF_API_TOKEN}`, 'Accept': 'application/vnd.github+json' } }
         );
         const content = Buffer.from(response.data.content, 'base64').toString('utf8');
-        const loadedData = content ? JSON.parse(content) : { conversationHistory: {}, triviaRanking: {}, personalPPMRecords: {}, reactionStats: {} };
+        const loadedData = content ? JSON.parse(content) : { conversationHistory: {}, triviaRanking: {}, personalPPMRecords: {}, reactionStats: {}, reactionWins: {} };
         return {
             conversationHistory: loadedData.conversationHistory || {},
             triviaRanking: loadedData.triviaRanking || {},
             personalPPMRecords: loadedData.personalPPMRecords || {},
-            reactionStats: loadedData.reactionStats || {}
+            reactionStats: loadedData.reactionStats || {},
+            reactionWins: loadedData.reactionWins || {}
         };
     } catch (error) {
         console.error('Error al cargar datos desde GitHub:', error.message);
-        return { conversationHistory: {}, triviaRanking: {}, personalPPMRecords: {}, reactionStats: {} };
+        return { conversationHistory: {}, triviaRanking: {}, personalPPMRecords: {}, reactionStats: {}, reactionWins: {} };
     }
 }
 
@@ -183,7 +184,7 @@ async function saveDataStore(data) {
                     `https://api.github.com/repos/${process.env.GITHUB_REPO}/contents/${process.env.GITHUB_FILE_PATH}`,
                     {
                         message: 'Crear archivo inicial para historial y ranking',
-                        content: Buffer.from(JSON.stringify({ conversationHistory: {}, triviaRanking: {}, personalPPMRecords: {}, reactionStats: {} }, null, 2)).toString('base64'),
+                        content: Buffer.from(JSON.stringify({ conversationHistory: {}, triviaRanking: {}, personalPPMRecords: {}, reactionStats: {}, reactionWins: {} }, null, 2)).toString('base64'),
                     },
                     { headers: { 'Authorization': `Bearer ${process.env.HF_API_TOKEN}`, 'Accept': 'application/vnd.github+json' } }
                 );
@@ -201,6 +202,7 @@ async function saveDataStore(data) {
             },
             { headers: { 'Authorization': `Bearer ${process.env.HF_API_TOKEN}`, 'Accept': 'application/vnd.github+json' } }
         );
+        console.log('Datos guardados correctamente en GitHub');
     } catch (error) {
         console.error('Error al guardar datos en GitHub:', error.message);
     }
@@ -355,8 +357,17 @@ async function manejarReacciones(message) {
         const ganadorName = ganador.id === OWNER_ID ? 'Miguel' : 'Belén';
         reactionGames.delete(message.channel.id);
 
+        // Actualizar estadísticas de victorias en reacciones
+        if (!dataStore.reactionWins) dataStore.reactionWins = {};
+        if (!dataStore.reactionWins[ganador.id]) {
+            dataStore.reactionWins[ganador.id] = { username: ganador.username, wins: 0 };
+        }
+        dataStore.reactionWins[ganador.id].wins += 1;
+        await saveDataStore(dataStore);
+        console.log(`Datos guardados para ${ganadorName}: ${JSON.stringify(dataStore.reactionWins)}`);
+
         await sendSuccess(message.channel, '🎉 ¡Ganador!',
-            `¡Felicidades, ${ganadorName}! Fuiste el primero en escribir **${palabra}**. ¡Eres rapidísimo!`);
+            `¡Felicidades, ${ganadorName}! Fuiste el primero en escribir **${palabra}**. ¡Eres rapidísimo! Mira tu progreso con !rk.`);
     } catch (error) {
         reactionGames.delete(message.channel.id);
         await sendError(message.channel, '⏳ ¡Tiempo agotado!',
@@ -371,6 +382,7 @@ function obtenerPreguntaTriviaSinOpciones() {
 }
 
 function updateRanking(userId, username) {
+    if (!dataStore.triviaRanking) dataStore.triviaRanking = {};
     if (!dataStore.triviaRanking[userId]) {
         dataStore.triviaRanking[userId] = { username, score: 0 };
     }
@@ -379,7 +391,7 @@ function updateRanking(userId, username) {
 }
 
 function getCombinedRankingEmbed(userId, username) {
-    const triviaRanking = Object.entries(dataStore.triviaRanking)
+    const triviaRanking = Object.entries(dataStore.triviaRanking || {})
         .sort(([, a], [, b]) => b.score - a.score)
         .slice(0, 5)
         .map(([id, { username: u, score }], i) => `${i + 1}. **${u}**: ${score} puntos (Trivia)`);
@@ -394,10 +406,16 @@ function getCombinedRankingEmbed(userId, username) {
         .slice(0, 5)
         .map(([word, { count }], i) => `${i + 1}. **${word}**: ${count} veces`);
 
+    const reactionWins = Object.entries(dataStore.reactionWins || {})
+        .sort(([, a], [, b]) => b.wins - a.wins)
+        .slice(0, 5)
+        .map(([id, { username: u, wins }], i) => `${i + 1}. **${u}**: ${wins} victorias (Reacciones)`);
+
     const description = [
         triviaRanking.length > 0 ? '**Ranking de Trivia:**\n' + triviaRanking.join('\n') : '¡Aún no hay puntajes de trivia!',
         personalPPMRecords.length > 0 ? '\n**Tus Récords de Mecanografía:**\n' + personalPPMRecords.join('\n') : '\n¡Aún no tienes récords de mecanografía!',
-        reactionStats.length > 0 ? '\n**Tus Reacciones Favoritas:**\n' + reactionStats.join('\n') : '\n¡Aún no has reaccionado con palabras!'
+        reactionStats.length > 0 ? '\n**Tus Reacciones Favoritas:**\n' + reactionStats.join('\n') : '\n¡Aún no has reaccionado con palabras!',
+        reactionWins.length > 0 ? '\n**Victorias en Reacciones:**\n' + reactionWins.join('\n') : '\n¡Aún no hay victorias en reacciones!'
     ].join('\n');
 
     return createEmbed('#FFD700', '🏆 Ranking Combinado', description);
@@ -442,10 +460,23 @@ client.on('messageCreate', async (message) => {
             let aiReply;
             const lowerMessage = chatMessage.toLowerCase();
 
+            // Detectar preguntas matemáticas simples como "cuánto es X + Y"
+            const mathMatch = lowerMessage.match(/cu[áa]nto es (\d+)\s*\+s*(\d+)/);
+            if (mathMatch) {
+                const num1 = parseInt(mathMatch[1]);
+                const num2 = parseInt(mathMatch[2]);
+                const result = num1 + num2;
+                aiReply = `¡Hola, ${userName}! Cuanto es ${num1} + ${num2}... ¡Fácil! La respuesta es **${result}**. ¿Necesitas ayuda con más cuentas?`;
+                const finalEmbed = createEmbed('#55FFFF', `¡Aquí estoy para ti, ${userName}!`, aiReply);
+                const sentMessage = await channel.send({ embeds: [finalEmbed] });
+                await waitingMessage.delete();
+                await sentMessage.react('✅');
+                await sentMessage.react('❌');
+                sentMessages.set(sentMessage.id, { content: aiReply, originalQuestion: chatMessage, timestamp: new Date().toISOString(), message: sentMessage });
+            }
             // Condición especial para "¿Cómo es una rata blanca?" con enlace de Imgur
-            if (lowerMessage.includes('cómo es') && lowerMessage.includes('rata blanca')) {
-                const imgurLink = 'https://i.imgur.com/mjOqwH6.png'; // Reemplaza con tu enlace de Imgur aquí
-                // Alternativa dinámica: const imgurLink = process.env.IMGUR_RATA_BLANCA || 'https://i.imgur.com/TU_ENLACE_AQUI';
+            else if (lowerMessage.includes('cómo es') && lowerMessage.includes('rata blanca')) {
+                const imgurLink = 'https://i.imgur.com/mjOqwH6.png'; // Reemplaza con tu enlace de Imgur
                 aiReply = `¡Hola, ${userName}! Una rata blanca es un pequeño roedor con un pelaje blanco puro, ojos rosados o rojos (por ser albina), orejas redondeadas y una cola larga y rosada. Son súper curiosas y amigables, ¡ideales como mascotas! Mira esta foto que encontré: [Rata blanca](${imgurLink}). ¿Qué te parece?`;
                 const finalEmbed = createEmbed('#55FFFF', `¡Aquí estoy para ti, ${userName}!`, aiReply);
                 const sentMessage = await channel.send({ embeds: [finalEmbed] });
@@ -468,7 +499,7 @@ client.on('messageCreate', async (message) => {
             }
             // Respuesta general para otras preguntas
             else {
-                const prompt = `Eres Miguel IA, creado por Miguel para ayudar a ${userName}. Responde a "${chatMessage}" de forma natural, amigable y detallada, explicando el tema si es una pregunta, con pasos claros si aplica. Asegúrate de completar todas las ideas y no dejar frases cortadas.`;
+                const prompt = `Eres Miguel IA, creado por Miguel para ayudar a ${userName}. Responde a "${chatMessage}" de forma natural, amigable y detallada, explicando el tema si es una pregunta, con pasos claros si aplica. Si es un cálculo matemático, resuélvelo directamente. Asegúrate de completar todas las ideas y no dejar frases cortadas.`;
                 console.log(`Enviando solicitud a Hugging Face por ${userName}: "${chatMessage}"`);
                 const response = await axios.post(
                     'https://api-inference.huggingface.co/models/mistralai/Mixtral-8x7B-Instruct-v0.1',
@@ -542,7 +573,7 @@ client.on('messageCreate', async (message) => {
     if (content.startsWith('!help') || content.startsWith('!h')) {
         const embed = createEmbed('#55FF55', `¡Comandos para ti, ${userName}!`,
             'Aquí tienes lo que puedo hacer:\n' +
-            '- **!ch / !chat [mensaje]**: Charla conmigo (prueba "¿Cómo es...?" para algo especial).\n' +
+            '- **!ch / !chat [mensaje]**: Charla conmigo (prueba "¿Cómo es...?" o "cuánto es..." para algo especial).\n' +
             '- **!tr / !trivia [n]**: Trivia (mínimo 10).\n' +
             '- **!pp / !ppm**: Prueba de mecanografía.\n' +
             '- **!rk / !ranking**: Ver puntajes y reacciones.\n' +
