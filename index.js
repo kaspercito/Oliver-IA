@@ -45,6 +45,23 @@ const mensajesAnimo = [
     "Belén, eres un sol, y si alguien no lo ve, es su pérdida. ¡Tú sigue brillando, que aquí te queremos mucho!"
 ];
 
+// Configuración de Spotify API
+const spotifyApi = new SpotifyWebApi({
+    clientId: process.env.SPOTIFY_CLIENT_ID,
+    clientSecret: process.env.SPOTIFY_CLIENT_SECRET,
+});
+
+// Obtener token de acceso para Spotify
+async function refreshSpotifyToken() {
+    try {
+        const data = await spotifyApi.clientCredentialsGrant();
+        spotifyApi.setAccessToken(data.body['access_token']);
+        console.log('Token de Spotify renovado');
+    } catch (error) {
+        console.error('Error al renovar token de Spotify:', error);
+    }
+}
+
 // Preguntas de trivia organizadas por categorías
 const preguntasTriviaSinOpciones = {
     capitales: [
@@ -470,8 +487,10 @@ let dataStore = {
     reactionStats: {}, 
     reactionWins: {}, 
     activeSessions: {}, 
-    triviaStats: {}
+    triviaStats: {},
+    musicQueue: new Map() // Cola de música por servidor
 };
+
 
 // Utilidades
 const createEmbed = (color, title, description, footer = 'Con cariño, Miguel IA | Reacciona con ✅ o ❌, ¡por favor!') => {
@@ -943,7 +962,7 @@ async function manejarChat(message) {
     }
 }
 
-// Nuevos comandos: !sugerencias y !ayuda
+// Nuevos comandos: !sugerencias, !ayuda y !play
 async function manejarSugerencias(message) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
     const suggestion = message.content.startsWith('!sugerencias') ? message.content.slice(12).trim() : message.content.slice(4).trim();
@@ -983,6 +1002,111 @@ async function manejarAyuda(message) {
     } catch (error) {
         console.error('Error al enviar ayuda:', error);
         await sendError(message.channel, 'No pude avisar a Miguel', `Ocurrió un error, ${userName}. ¿Intentamos de nuevo?`);
+    }
+}
+
+async function manejarPlay(message) {
+    const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
+    if (message.author.id !== ALLOWED_USER_ID) {
+        await sendError(message.channel, '¡Este comando es especial solo para Belén!', 'Pide a Miguel otro comando si quieres.');
+        return;
+    }
+
+    const args = message.content.split(' ').slice(1);
+    if (!args.length) {
+        await sendError(message.channel, '¡Dame un enlace de Spotify o el nombre de una canción/playlist!', 'Ejemplo: !play https://open.spotify.com/playlist/...');
+        return;
+    }
+
+    const voiceChannel = message.member.voice.channel;
+    if (!voiceChannel) {
+        await sendError(message.channel, '¡Necesitas estar en un canal de voz para reproducir música!');
+        return;
+    }
+
+    const permissions = voiceChannel.permissionsFor(message.client.user);
+    if (!permissions.has('CONNECT') || !permissions.has('SPEAK')) {
+        await sendError(message.channel, '¡Necesito permisos para unirme y hablar en tu canal de voz!');
+        return;
+    }
+
+    const query = args.join(' ');
+    let songs = [];
+
+    try {
+        await refreshSpotifyToken(); // Asegurarse de que el token esté actualizado
+
+        if (query.includes('spotify.com/playlist/')) {
+            const playlistId = query.split('playlist/')[1].split('?')[0];
+            const playlist = await spotifyApi.getPlaylist(playlistId);
+            songs = playlist.body.tracks.items.map(item => `${item.track.name} ${item.track.artists[0].name}`);
+            await sendSuccess(message.channel, '🎶 Playlist cargada', `He cargado ${songs.length} canciones de la playlist "${playlist.body.name}", Belén. ¡Empezando a reproducir!`);
+        } else if (query.includes('spotify.com/track/')) {
+            const trackId = query.split('track/')[1].split('?')[0];
+            const track = await spotifyApi.getTrack(trackId);
+            songs = [`${track.body.name} ${track.body.artists[0].name}`];
+            await sendSuccess(message.channel, '🎶 Canción cargada', `Voy a reproducir "${track.body.name}" de ${track.body.artists[0].name}, Belén.`);
+        } else {
+            const searchResult = await spotifyApi.searchTracks(query, { limit: 1 });
+            if (searchResult.body.tracks.items.length === 0) {
+                await sendError(message.channel, 'No encontré esa canción en Spotify.');
+                return;
+            }
+            const track = searchResult.body.tracks.items[0];
+            songs = [`${track.name} ${track.artists[0].name}`];
+            await sendSuccess(message.channel, '🎶 Canción encontrada', `Voy a reproducir "${track.name}" de ${track.artists[0].name}, Belén.`);
+        }
+
+        const connection = await voiceChannel.join();
+        const queue = dataStore.musicQueue.get(message.guild.id) || [];
+        queue.push(...songs.map(song => ({ title: song, requester: message.author.id })));
+        dataStore.musicQueue.set(message.guild.id, queue);
+
+        playSong(message, connection);
+    } catch (error) {
+        console.error('Error en !play:', error);
+        await sendError(message.channel, 'Error al procesar el enlace de Spotify', 'Asegúrate de que sea un enlace válido o intenta de nuevo.');
+    }
+}
+
+async function playSong(message, connection) {
+    const queue = dataStore.musicQueue.get(message.guild.id);
+    if (!queue || queue.length === 0) {
+        connection.disconnect();
+        dataStore.musicQueue.delete(message.guild.id);
+        await message.channel.send({ embeds: [createEmbed('#55FF55', '🎶 Reproducción terminada', 'No hay más canciones en la cola, Belén.')] });
+        return;
+    }
+
+    const song = queue[0];
+    const searchQuery = song.title;
+    try {
+        const videoInfo = await ytdl.getInfo(`ytsearch:${searchQuery}`);
+        const videoUrl = videoInfo.videoDetails.video_url;
+        const stream = ytdl(videoUrl, { filter: 'audioonly' });
+
+        const dispatcher = connection.play(stream);
+        await sendSuccess(message.channel, '🎶 Reproduciendo', `Ahora suena: "${song.title}" (pedido por Belén)`);
+
+        dispatcher.on('finish', () => {
+            queue.shift();
+            dataStore.musicQueue.set(message.guild.id, queue);
+            playSong(message, connection);
+        });
+
+        dispatcher.on('error', error => {
+            console.error('Error al reproducir:', error);
+            sendError(message.channel, 'Error al reproducir la canción', 'Algo salió mal con YouTube.');
+            queue.shift();
+            dataStore.musicQueue.set(message.guild.id, queue);
+            playSong(message, connection);
+        });
+    } catch (error) {
+        console.error('Error al buscar en YouTube:', error);
+        await sendError(message.channel, 'No pude encontrar la canción en YouTube', 'Intenta con otro enlace o nombre.');
+        queue.shift();
+        dataStore.musicQueue.set(message.guild.id, queue);
+        playSong(message, connection);
     }
 }
 
@@ -1052,9 +1176,6 @@ async function manejarCommand(message) {
         await message.channel.send({ embeds: [embed] });
     } else if (content === '!save') {
         const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
-        if (isSaving) {
-            return sendError(message.channel, 'El bot ya está realizando un guardado automático', 'Espera unos minutos y vuelve a intentarlo.');
-        }
         try {
             await saveDataStore();
             await sendSuccess(message.channel, '💾 ¡Guardado!', `Datos guardados exitosamente, ${userName}. Estado actual: ${JSON.stringify(dataStore)}`);
@@ -1065,6 +1186,8 @@ async function manejarCommand(message) {
         await manejarSugerencias(message);
     } else if (content.startsWith('!ayuda') || content.startsWith('!ay')) {
         await manejarAyuda(message);
+    } else if (content.startsWith('!play')) {
+        await manejarPlay(message);
     }
 }
 
