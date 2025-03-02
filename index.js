@@ -1419,6 +1419,7 @@ client.on('messageCreate', async (message) => {
             '- **!tr / !trivia [categoría] [n]**: Trivia por categoría (mínimo 10). Categorías: ' + Object.keys(preguntasTriviaSinOpciones).join(', ') + '\n' +
             '- **!pp / !ppm**: Prueba de mecanografía.\n' +
             '- **!rk / !ranking**: Ver puntajes y estadísticas.\n' +
+            '- **!rppm / !rankingppm**: Ver todos tus intentos de PPM.\n' +
             '- **!re / !reacciones**: Juego de escribir rápido.\n' +
             '- **!su / !sugerencias [idea]**: Envía ideas para mejorar el bot.\n' + // Nuevo comando
             '- **!ay / !ayuda [problema]**: Pide ayuda a Miguel.\n' +           // Nuevo comando
