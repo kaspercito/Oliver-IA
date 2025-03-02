@@ -458,6 +458,7 @@ const frasesPPM = [
     "el desierto guarda misterios bajo su arena dorada y caliente"
 ];
 
+
 // Estado
 let instanceId = uuidv4();
 let activeTrivia = new Map();
@@ -470,8 +471,9 @@ let dataStore = {
     reactionStats: {}, 
     reactionWins: {}, 
     activeSessions: {}, 
-    triviaStats: {}
+    triviaStats: {},
 };
+let dataStoreModified = false; // Bandera para rastrear cambios en dataStore
 
 // Utilidades
 const createEmbed = (color, title, description, footer = 'Con cariño, Miguel IA | Reacciona con ✅ o ❌, ¡por favor!') => {
@@ -542,41 +544,17 @@ async function loadDataStore() {
             triviaStats: {},
             updatesSent: false
         };
-        console.log('Datos cargados desde GitHub:', JSON.stringify(loadedData));
-        return loadedData;
-    } catch (error) {
-        console.error('Error al cargar datos desde GitHub:', error.message);
-        return { 
-            conversationHistory: {}, 
-            triviaRanking: {}, 
-            personalPPMRecords: {}, 
-            reactionStats: {}, 
-            reactionWins: {}, 
-            activeSessions: {}, 
-            triviaStats: {},
-            updatesSent: false
-        };
-    }
-}
+        
+        // Asegurarse de que personalPPMRecords tenga la nueva estructura
+        if (!loadedData.personalPPMRecords) {
+            loadedData.personalPPMRecords = {};
+        }
+        for (const userId in loadedData.personalPPMRecords) {
+            if (!loadedData.personalPPMRecords[userId].best) {
+                loadedData.personalPPMRecords[userId] = { best: { ppm: 0, timestamp: null }, attempts: [] };
+            }
+        }
 
-// Persistencia en GitHub
-async function loadDataStore() {
-    try {
-        const response = await axios.get(
-            `https://api.github.com/repos/${process.env.GITHUB_REPO}/contents/${process.env.GITHUB_FILE_PATH}`,
-            { headers: { 'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`, 'Accept': 'application/vnd.github+json' } }
-        );
-        const content = Buffer.from(response.data.content, 'base64').toString('utf8');
-        const loadedData = content ? JSON.parse(content) : { 
-            conversationHistory: {}, 
-            triviaRanking: {}, 
-            personalPPMRecords: {}, 
-            reactionStats: {}, 
-            reactionWins: {}, 
-            activeSessions: {}, 
-            triviaStats: {},
-            updatesSent: false
-        };
         console.log('Datos cargados desde GitHub:', JSON.stringify(loadedData));
         return loadedData;
     } catch (error) {
@@ -595,6 +573,11 @@ async function loadDataStore() {
 }
 
 async function saveDataStore() {
+    if (!dataStoreModified) {
+        console.log('No hay cambios en dataStore, omitiendo guardado');
+        return false; // Indicar que no se guardó
+    }
+
     try {
         let sha;
         try {
@@ -617,17 +600,23 @@ async function saveDataStore() {
             { headers: { 'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`, 'Accept': 'application/vnd.github+json' } }
         );
         console.log('Datos guardados en GitHub:', JSON.stringify(dataStore));
+        return true; // Indicar que se guardó exitosamente
     } catch (error) {
         console.error('Error al guardar datos en GitHub:', error.message);
         throw error;
     }
 }
 
-// Aviso anticipado y guardado automático (sin pausar comandos)
+// Aviso anticipado y guardado automático
 const SAVE_INTERVAL = 1800000; // 30 minutos en milisegundos
 const WARNING_TIME = 300000;   // 5 minutos antes (300,000 ms)
 
 setInterval(async () => {
+    if (!dataStoreModified) {
+        console.log('No hay cambios en dataStore, omitiendo guardado automático');
+        return;
+    }
+
     const channel = await client.channels.fetch(CHANNEL_ID);
     if (channel) {
         await channel.send({ embeds: [createEmbed('#FFAA00', '⏰ Aviso de Guardado', '¡Atención! El autoguardado será en 5 minutos. Por favor, evita iniciar nuevos comandos durante el guardado para no interferir.')] });
@@ -638,6 +627,8 @@ setInterval(async () => {
         if (channel) {
             await channel.send({ embeds: [createEmbed('#55FF55', '💾 Guardado Completado', 'Datos guardados exitosamente. ¡Puedes seguir usando el bot!')] });
         }
+        dataStoreModified = false; // Reiniciar la bandera después de guardar
+        console.log('Guardado automático completado y bandera reiniciada');
     }, WARNING_TIME);
 }, SAVE_INTERVAL);
 
@@ -785,9 +776,9 @@ async function manejarPPM(message) {
     session.frase = frase;
     session.completed = false;
     dataStore.activeSessions[message.author.id] = session;
+    dataStoreModified = true; // Indicar que dataStore ha sido modificado
 
     try {
-        console.log(`Esperando respuesta para PPM: "${frase}"`);
         const respuestas = await message.channel.awaitMessages({
             filter: (res) => res.author.id === message.author.id && res.content.trim().length > 0,
             max: 1,
@@ -798,39 +789,43 @@ async function manejarPPM(message) {
         const endTime = Date.now();
         session.completed = true;
         delete dataStore.activeSessions[message.author.id];
+        dataStoreModified = true; // Indicar que dataStore ha sido modificado
 
         const tiempoSegundos = (endTime - startTime) / 1000;
         const palabras = frase.split(' ').length;
         const ppm = Math.round((palabras / tiempoSegundos) * 60);
 
         if (cleanText(respuestaUsuario) === cleanText(frase)) {
-            // Inicializar el récord si no existe
             if (!dataStore.personalPPMRecords[message.author.id]) {
-                dataStore.personalPPMRecords[message.author.id] = { ppm: 0, timestamp: null };
+                dataStore.personalPPMRecords[message.author.id] = { best: { ppm: 0, timestamp: null }, attempts: [] };
             }
 
-            // Actualizar solo si el nuevo PPM es mayor al récord actual
-            const currentRecord = dataStore.personalPPMRecords[message.author.id].ppm || 0;
-            if (ppm > currentRecord) {
-                dataStore.personalPPMRecords[message.author.id] = { ppm, timestamp: new Date().toISOString() };
+            dataStore.personalPPMRecords[message.author.id].attempts.push({ ppm, timestamp: new Date().toISOString() });
+            dataStoreModified = true; // Indicar que dataStore ha sido modificado
+
+            const currentBest = dataStore.personalPPMRecords[message.author.id].best.ppm || 0;
+            if (ppm > currentBest) {
+                dataStore.personalPPMRecords[message.author.id].best = { ppm, timestamp: new Date().toISOString() };
+                dataStoreModified = true; // Indicar que dataStore ha sido modificado
                 await sendSuccess(message.channel, '🎉 ¡Nuevo Récord!',
-                    `¡Increíble, ${userName}! Escribiste la frase en ${tiempoSegundos.toFixed(2)} segundos.\nTu nuevo récord: **${ppm} PPM**. ¡Mira tu ranking con !rk!`);
+                    `¡Increíble, ${userName}! Escribiste la frase en ${tiempoSegundos.toFixed(2)} segundos.\nTu nuevo récord: **${ppm} PPM**. ¡Mira tus intentos con !rppm!`);
             } else {
                 await sendSuccess(message.channel, '🎉 ¡Perfecto!',
-                    `¡Bien hecho, ${userName}! Escribiste la frase en ${tiempoSegundos.toFixed(2)} segundos.\nTu PPM: **${ppm}**. Tu récord sigue siendo **${currentRecord} PPM**.`);
+                    `¡Bien hecho, ${userName}! Escribiste la frase en ${tiempoSegundos.toFixed(2)} segundos.\nTu PPM: **${ppm}**. Tu récord sigue siendo **${currentBest} PPM**. Mira todos tus intentos con !rppm.`);
             }
         } else {
             await sendError(message.channel, '❌ ¡Casi!',
                 `Lo siento, ${userName}, no escribiste la frase correctamente. Tu respuesta fue "${respuestaUsuario}". ¡Intenta de nuevo con !pp!`);
         }
     } catch (error) {
-        console.log('Tiempo agotado en PPM:', error);
         session.completed = true;
         delete dataStore.activeSessions[message.author.id];
+        dataStoreModified = true; // Indicar que dataStore ha sido modificado
         await sendError(message.channel, '⏳ ¡Tiempo agotado!',
             `Se acabó el tiempo, ${userName}. La frase era: **${frase}**. Usa !pp para intentarlo de nuevo.`);
     }
 }
+
 
 // Reacciones
 function obtenerPalabraAleatoria() {
@@ -991,7 +986,6 @@ async function manejarAyuda(message) {
 function getCombinedRankingEmbed(userId, username) {
     const categorias = Object.keys(preguntasTriviaSinOpciones);
     
-    // Sección Trivia
     let triviaList = '**📚 Trivia por Categoría**\n';
     categorias.forEach(categoria => {
         const myScore = dataStore.triviaRanking[OWNER_ID]?.[categoria]?.score || 0;
@@ -1006,21 +1000,18 @@ function getCombinedRankingEmbed(userId, username) {
                       `> 🌟 Belén: **${luzScore} puntos** (${luzPercentage}% acertadas)\n`;
     });
 
-    // Sección PPM (solo el récord más rápido)
-    const ppmRecord = dataStore.personalPPMRecords[userId] || { ppm: 0, timestamp: null };
+    const ppmRecord = dataStore.personalPPMRecords[userId]?.best || { ppm: 0, timestamp: null };
     let ppmList = ppmRecord.ppm > 0 
         ? `> Tu récord: **${ppmRecord.ppm} PPM** - ${new Date(ppmRecord.timestamp).toLocaleString()}`
         : '> No tienes un récord de PPM aún. ¡Prueba con !pp!';
 
-    // Sección Reacciones
     const myReactionWins = dataStore.reactionWins[OWNER_ID]?.wins || 0;
     const luzReactionWins = dataStore.reactionWins[ALLOWED_USER_ID]?.wins || 0;
     const reactionList = `> 👑 Miguel - **${myReactionWins} Reacciones**\n` +
                          `> 🌟 Belén - **${luzReactionWins} Reacciones**`;
 
-    // Construcción del Embed
     return new EmbedBuilder()
-        .setColor('#FFD700') // Dorado para un look premium
+        .setColor('#FFD700')
         .setTitle(`🏆 Ranking de ${username}`)
         .setDescription('¡Aquí están tus logros y los de tus rivales!')
         .addFields(
@@ -1030,6 +1021,38 @@ function getCombinedRankingEmbed(userId, username) {
         )
         .setFooter({ text: 'Con cariño, Miguel IA' })
         .setTimestamp();
+}
+
+async function manejarRankingPPM(message) {
+    const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
+    const userId = message.author.id;
+
+    const ppmData = dataStore.personalPPMRecords[userId] || { best: { ppm: 0, timestamp: null }, attempts: [] };
+    const attempts = ppmData.attempts;
+
+    if (attempts.length === 0) {
+        await sendError(message.channel, 'No tienes intentos de PPM registrados', `¡Juega con !pp para empezar, ${userName}!`);
+        return;
+    }
+
+    const sortedAttempts = attempts.sort((a, b) => b.ppm - a.ppm);
+    const attemptsList = sortedAttempts.map((attempt, index) => 
+        `${index + 1}. **${attempt.ppm} PPM** - ${new Date(attempt.timestamp).toLocaleString()}`
+    ).join('\n');
+
+    const embed = new EmbedBuilder()
+        .setColor('#FFD700')
+        .setTitle(`⌨️ Historial de PPM de ${userName}`)
+        .setDescription(`Aquí están todos tus intentos de PPM, ordenados de mayor a menor:`)
+        .addFields(
+            { name: 'Intentos', value: attemptsList, inline: false },
+            { name: 'Total de Intentos', value: `${attempts.length}`, inline: true },
+            { name: 'Récord Más Alto', value: `${ppmData.best.ppm} PPM`, inline: true }
+        )
+        .setFooter({ text: 'Con cariño, Miguel IA' })
+        .setTimestamp();
+
+    await message.channel.send({ embeds: [embed] });
 }
 
 // Comandos actualizados
@@ -1065,6 +1088,8 @@ async function manejarCommand(message) {
         await manejarSugerencias(message);
     } else if (content.startsWith('!ayuda') || content.startsWith('!ay')) {
         await manejarAyuda(message);
+    } else if (content.startsWith('!rankingppm') || content.startsWith('!rppm')) {
+        await manejarRankingPPM(message);
     }
 }
 
@@ -1081,19 +1106,21 @@ client.on('messageCreate', async (message) => {
     await manejarCommand(message);
 
     const content = message.content.toLowerCase();
-    if (content.startsWith('!ranking') || content.startsWith('!rk')) {
+    // Ajustar la lógica para evitar que !rankingppm y !rppm activen el ranking general
+    if ((content === '!ranking' || content === '!rk') && !content.startsWith('!rankingppm')) {
         const embed = getCombinedRankingEmbed(message.author.id, message.author.username);
         await message.channel.send({ embeds: [embed] });
     } else if (content.startsWith('!help') || content.startsWith('!h')) {
         const embed = createEmbed('#55FF55', `¡Comandos para ti, ${userName}!`,
             '¡Aquí tienes lo que puedo hacer!\n' +
             '- **!ch / !chat [mensaje]**: Charla conmigo.\n' +
-            '- **!tr / !trivia [categoría] [n]**: Trivia por categoría (mínimo 10). Categorías: ' + Object.keys(preguntasTriviaSinOpciones).join(', ') + '\n' +
+            '- **!tr / !trivia [categoría] [n]**: Trivia por categoría (mínimo 20). Categorías: ' + Object.keys(preguntasTriviaSinOpciones).join(', ') + '\n' +
             '- **!pp / !ppm**: Prueba de mecanografía.\n' +
-            '- **!rk / !ranking**: Ver puntajes y estadísticas.\n' +
+            '- **!rk / !ranking**: Ver puntajes y estadísticas (récord más alto de PPM).\n' +
+            '- **!rppm / !rankingppm**: Ver todos tus intentos de PPM.\n' +
             '- **!re / !reacciones**: Juego de escribir rápido.\n' +
-            '- **!su / !sugerencias [idea]**: Envía ideas para mejorar el bot.\n' + // Nuevo comando
-            '- **!ay / !ayuda [problema]**: Pide ayuda a Miguel.\n' +           // Nuevo comando
+            '- **!su / !sugerencias [idea]**: Envía ideas para mejorar el bot.\n' +
+            '- **!ay / !ayuda [problema]**: Pide ayuda a Miguel.\n' +
             '- **!save**: Guardar datos ahora.\n' +
             '- **!h / !help**: Lista de comandos.\n' +
             '- **hola**: Saludo especial.');
