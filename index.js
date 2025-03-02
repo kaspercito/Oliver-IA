@@ -63,7 +63,7 @@ let dataStore = {
     reactionStats: {}, 
     reactionWins: {}, 
     activeSessions: {}, 
-    triviaStats: {} // Nuevo: para estadísticas de trivia
+    triviaStats: {} 
 };
 
 // Utilidades
@@ -178,10 +178,10 @@ async function saveDataStore() {
     }
 }
 
-// Guardar periódicamente cada 5 minutos para evitar deploys constantes
+// Guardar cada 5 minutos
 setInterval(() => {
     saveDataStore();
-}, 300000); // 5 minutos en milisegundos
+}, 300000);
 
 // Funciones de Trivia
 function obtenerPreguntaTriviaSinOpciones(usedQuestions) {
@@ -266,6 +266,7 @@ async function manejarTrivia(message) {
         if (!dataStore.triviaRanking[message.author.id]) dataStore.triviaRanking[message.author.id] = { username: message.author.username, score: 0 };
         dataStore.triviaRanking[message.author.id].score += channelProgress.score;
         delete dataStore.activeSessions[message.channel.id];
+        await saveDataStore();
     }
 }
 
@@ -333,11 +334,13 @@ async function manejarPPM(message) {
             await sendError(message.channel, '❌ ¡Casi!',
                 `Lo siento, ${userName}, no escribiste la frase correctamente. Tu respuesta fue "${respuestaUsuario}". ¡Intenta de nuevo con !pp!`);
         }
+        await saveDataStore();
     } catch (error) {
         session.completed = true;
         delete dataStore.activeSessions[message.author.id];
         await sendError(message.channel, '⏳ ¡Tiempo agotado!',
             `Se acabó el tiempo, ${userName}. La frase era: **${frase}**. Usa !pp para intentarlo de nuevo.`);
+        await saveDataStore();
     }
 }
 
@@ -382,11 +385,13 @@ async function manejarReacciones(message) {
 
         await sendSuccess(message.channel, '🎉 ¡Ganador!',
             `¡Felicidades, ${ganadorName}! Fuiste el primero en escribir **${palabra}**. ¡Eres rapidísimo! Mira tu progreso con !rk.`);
+        await saveDataStore();
     } catch (error) {
         session.completed = true;
         delete dataStore.activeSessions[message.channel.id];
         await sendError(message.channel, '⏳ ¡Tiempo agotado!',
             `Nadie escribió **${palabra}** a tiempo. ¡Mejor suerte la próxima vez con !re!`);
+        await saveDataStore();
     }
 }
 
@@ -467,15 +472,12 @@ async function manejarCommand(message) {
     console.log(`Comando recibido: ${content}`);
     if (content.startsWith('!trivia') || content.startsWith('!tr')) {
         await manejarTrivia(message);
-        await saveDataStore(); // Guardar solo al final de la trivia
     } else if (content.startsWith('!chat') || content.startsWith('!ch')) {
         await manejarChat(message);
     } else if (content.startsWith('!ppm') || content.startsWith('!pp')) {
         await manejarPPM(message);
-        await saveDataStore(); // Guardar al final de PPM
     } else if (content.startsWith('!reacciones') || content.startsWith('!re')) {
         await manejarReacciones(message);
-        await saveDataStore(); // Guardar al final de reacciones
     }
 }
 
