@@ -1,9 +1,7 @@
 const fs = require('fs');
 const { Client, GatewayIntentBits, EmbedBuilder } = require('discord.js');
-const { Manager } = require('erela.js');
-const Spotify = require('erela.js-spotify');
-const { v4: uuidv4 } = require('uuid');
 const axios = require('axios');
+const { v4: uuidv4 } = require('uuid');
 require('dotenv').config();
 
 const client = new Client({
@@ -13,7 +11,6 @@ const client = new Client({
         GatewayIntentBits.GuildMessageReactions,
         GatewayIntentBits.DirectMessageReactions,
         GatewayIntentBits.MessageContent,
-        GatewayIntentBits.GuildVoiceStates,
     ],
 });
 
@@ -21,51 +18,6 @@ const client = new Client({
 const OWNER_ID = '752987736759205960'; // Tu ID
 const ALLOWED_USER_ID = '1023132788632862761'; // ID de Belén
 const CHANNEL_ID = '1343749554905940058'; // Canal principal
-
-// Configuración de Erela.js con Spotify
-const musicManager = new Manager({
-    plugins: [
-        new Spotify({
-            clientID: process.env.SPOTIFY_CLIENT_ID,
-            clientSecret: process.env.SPOTIFY_CLIENT_SECRET,
-        }),
-    ],
-    nodes: [
-        {
-            host: process.env.LAVALINK_HOST || 'localhost',
-            port: parseInt(process.env.LAVALINK_PORT) || 2333,
-            password: process.env.LAVALINK_PASSWORD || 'youshallnotpass',
-            retryAmount: 5,
-            retryDelay: 1000,
-        },
-    ],
-    send(id, payload) {
-        const guild = client.guilds.cache.get(id);
-        if (guild) guild.shard.send(payload);
-    },
-})
-    .on('nodeConnect', node => console.log(`Nodo conectado: ${node.options.identifier}`))
-    .on('nodeError', (node, error) => console.error(`Error en nodo: ${error.message}`))
-    .on('trackStart', (player, track) => {
-        const channel = client.channels.cache.get(player.textChannel);
-        if (channel) {
-            channel.send({
-                embeds: [createEmbed('#55FF55', '🎵 Reproduciendo ahora', `**${track.title}**\nPedida por: ${track.requester}`)],
-            });
-        }
-    })
-    .on('queueEnd', (player) => {
-        const channel = client.channels.cache.get(player.textChannel);
-        if (channel) {
-            channel.send({
-                embeds: [createEmbed('#FF5555', '🎵 Cola vacía', 'No hay más canciones. ¡Añade una con !play!')],
-            });
-        }
-        if (!player.autoplay) player.destroy();
-    })
-    .on('playerMove', (player, oldChannel, newChannel) => {
-        if (!newChannel) player.destroy();
-    });
 
 const BOT_UPDATES = [
     '¡Trivia extendida! Ahora las trivias son de 20 preguntas por defecto en lugar de 10.',
@@ -507,19 +459,21 @@ const frasesPPM = [
 ];
 
 
-// Estado y almacenamiento
+// Estado
 let instanceId = uuidv4();
-let dataStore = {
-    conversationHistory: {},
-    triviaRanking: {},
-    personalPPMRecords: {},
-    reactionStats: {},
-    reactionWins: {},
-    activeSessions: {},
+let activeTrivia = new Map();
+let sentMessages = new Map();
+let processedMessages = new Map();
+let dataStore = { 
+    conversationHistory: {}, 
+    triviaRanking: {}, 
+    personalPPMRecords: {}, 
+    reactionStats: {}, 
+    reactionWins: {}, 
+    activeSessions: {}, 
     triviaStats: {},
-    musicQueue: {},
 };
-let dataStoreModified = false;
+let dataStoreModified = false; // Bandera para rastrear cambios en dataStore
 
 // Utilidades
 const createEmbed = (color, title, description, footer = 'Con cariño, Miguel IA') => {
@@ -1095,167 +1049,6 @@ async function manejarRankingPPM(message) {
     await message.channel.send({ embeds: [embed] });
 }
 
-// Buscar en YouTube
-async function searchYouTube(query) {
-    try {
-        const response = await axios.get(`https://www.googleapis.com/youtube/v3/search`, {
-            params: {
-                part: 'snippet',
-                q: query,
-                type: 'video',
-                key: process.env.YOUTUBE_API_KEY,
-                maxResults: 1,
-            },
-        });
-        const videoId = response.data.items[0]?.id.videoId;
-        return videoId ? `https://www.youtube.com/watch?v=${videoId}` : null;
-    } catch (error) {
-        console.error('Error buscando en YouTube:', error);
-        return null;
-    }
-}
-
-// Funciones de música
-async function handleMusicCommands(message) {
-    const args = message.content.split(' ').slice(1);
-    const command = message.content.split(' ')[0].toLowerCase();
-    const voiceChannel = message.member.voice.channel;
-    const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
-
-    if (!voiceChannel && command !== '!queue') {
-        return sendError(message.channel, '🎵 ¡Únete a un canal de voz!', 'Necesitas estar en un canal de voz.');
-    }
-
-    const player = musicManager.players.get(message.guild.id) || musicManager.create({
-        guild: message.guild.id,
-        voiceChannel: voiceChannel?.id,
-        textChannel: message.channel.id,
-        selfDeaf: true,
-    });
-
-    if (command === '!play' || command === '!p') {
-        if (!args.length) return sendError(message.channel, '🎵 ¿Qué reproducir?', 'Dame un nombre, URL de YouTube o Spotify.');
-        
-        const query = args.join(' ');
-        try {
-            const result = await musicManager.search(query, message.author);
-            if (result.loadType === 'LOAD_FAILED' || result.loadType === 'NO_MATCHES') {
-                return sendError(message.channel, '🎵 No encontrado', 'No pude encontrar esa canción o playlist.');
-            }
-
-            if (!player.voiceChannel && voiceChannel) player.setVoiceChannel(voiceChannel.id);
-
-            if (result.loadType === 'PLAYLIST_LOADED') {
-                player.queue.add(result.tracks);
-                await sendSuccess(message.channel, '🎵 Playlist añadida', `Añadí ${result.tracks.length} canciones de "${result.playlist.name}".`);
-            } else {
-                const track = result.tracks[0];
-                track.requester = userName;
-                player.queue.add(track);
-                await sendSuccess(message.channel, '🎵 Añadida', `**${track.title}** añadida a la cola.`);
-            }
-
-            if (!player.playing && !player.paused) player.play();
-            saveQueue(message.guild.id, player);
-        } catch (error) {
-            console.error('Error en !play:', error);
-            sendError(message.channel, '🎵 Error', 'Algo falló al cargar la música.');
-        }
-    }
-
-    if (command === '!pause') {
-        if (!player) return sendError(message.channel, '🎵 Nada sonando', 'No hay música para pausar.');
-        if (player.paused) return sendError(message.channel, '🎵 Ya pausada', 'La música ya está pausada.');
-        player.pause(true);
-        await sendSuccess(message.channel, '🎵 Pausada', 'Música pausada.');
-    }
-
-    if (command === '!resume') {
-        if (!player) return sendError(message.channel, '🎵 Nada sonando', 'No hay música para reanudar.');
-        if (!player.paused) return sendError(message.channel, '🎵 Ya suena', 'La música ya está sonando.');
-        player.pause(false);
-        await sendSuccess(message.channel, '🎵 Reanudada', 'Música reanudada.');
-    }
-
-    if (command === '!skip' || command === '!s') {
-        if (!player || !player.queue.size) return sendError(message.channel, '🎵 Nada que saltar', 'No hay canciones en la cola.');
-        player.stop();
-        await sendSuccess(message.channel, '🎵 Saltada', 'Canción saltada.');
-        saveQueue(message.guild.id, player);
-    }
-
-    if (command === '!back') {
-        if (!player || !player.queue.previous) return sendError(message.channel, '🎵 Sin anterior', 'No hay canción previa.');
-        player.queue.unshift(player.queue.previous);
-        player.stop();
-        await sendSuccess(message.channel, '🎵 Regresando', 'Volviendo a la canción anterior.');
-        saveQueue(message.guild.id, player);
-    }
-
-    if (command === '!autoplay') {
-        if (!player) return sendError(message.channel, '🎵 Nada sonando', 'No hay música activa.');
-        player.set('autoplay', !player.get('autoplay'));
-        await sendSuccess(message.channel, '🎵 Autoplay', `Autoplay ${player.get('autoplay') ? 'activado' : 'desactivado'}.`);
-    }
-
-    if (command === '!queue' || command === '!q') {
-        if (!player || !player.queue.size) return sendError(message.channel, '🎵 Cola vacía', 'No hay canciones en la cola.');
-        const queueList = player.queue.map((track, i) => `${i + 1}. **${track.title}** - ${track.requester}`).join('\n');
-        await sendSuccess(message.channel, '🎵 Cola', queueList);
-    }
-}
-
-function saveQueue(guildId, player) {
-    dataStore.musicQueue[guildId] = {
-        tracks: player.queue.map(track => ({
-            uri: track.uri,
-            title: track.title,
-            requester: track.requester,
-        })),
-        previous: player.queue.previous ? {
-            uri: player.queue.previous.uri,
-            title: player.queue.previous.title,
-            requester: player.queue.previous.requester,
-        } : null,
-        voiceChannelId: player.voiceChannel,
-        textChannelId: player.textChannel,
-        autoplay: player.get('autoplay') || false,
-    };
-    dataStoreModified = true;
-}
-
-async function restoreMusicQueue() {
-    for (const guildId in dataStore.musicQueue) {
-        const guild = client.guilds.cache.get(guildId);
-        if (!guild) continue;
-
-        const savedQueue = dataStore.musicQueue[guildId];
-        const voiceChannel = guild.channels.cache.get(savedQueue.voiceChannelId);
-        if (!voiceChannel || !voiceChannel.joinable) {
-            delete dataStore.musicQueue[guildId];
-            dataStoreModified = true;
-            continue;
-        }
-
-        const player = musicManager.create({
-            guild: guildId,
-            voiceChannel: savedQueue.voiceChannelId,
-            textChannel: savedQueue.textChannelId,
-            selfDeaf: true,
-        });
-
-        const tracks = await Promise.all(savedQueue.tracks.map(t => musicManager.search(t.uri, { id: OWNER_ID })));
-        player.queue.add(tracks.map(t => t.tracks[0]));
-        if (savedQueue.previous) {
-            const prevTrack = (await musicManager.search(savedQueue.previous.uri, { id: OWNER_ID })).tracks[0];
-            player.queue.previous = prevTrack;
-        }
-        player.set('autoplay', savedQueue.autoplay);
-
-        if (!player.playing && player.queue.size) player.play();
-    }
-}
-
 // Comandos
 async function manejarCommand(message) {
     const content = message.content.toLowerCase();
@@ -1293,13 +1086,6 @@ async function manejarCommand(message) {
         await manejarAyuda(message);
     } else if (content.startsWith('!rankingppm') || content.startsWith('!rppm')) {
         await manejarRankingPPM(message);
-    }
-    if (content.startsWith('!play') || content.startsWith('!p') ||
-        content.startsWith('!pause') || content.startsWith('!resume') ||
-        content.startsWith('!skip') || content.startsWith('!s') ||
-        content.startsWith('!back') || content.startsWith('!autoplay') ||
-        content.startsWith('!queue') || content.startsWith('!q')) {
-        await handleMusicCommands(message);
     }
 }
 
@@ -1344,9 +1130,7 @@ client.on('messageCreate', async (message) => {
 client.once('ready', async () => {
     console.log(`¡Miguel IA está listo! Instancia: ${instanceId}`);
     client.user.setPresence({ activities: [{ name: "Listo para ayudar a Miguel y Milagros", type: 0 }], status: 'online' });
-    musicManager.init(client.user.id);
     dataStore = await loadDataStore();
-    await restoreMusicQueue();
     activeTrivia = new Map(Object.entries(dataStore.activeSessions).filter(([_, s]) => s.type === 'trivia'));
 
     try {
@@ -1369,9 +1153,6 @@ client.once('ready', async () => {
                     { name: 'Hora de actualización', value: `${argentinaTime}`, inline: false },
                 );
             await channel.send({ content: `<@${ALLOWED_USER_ID}>`, embeds: [updateEmbed] });
-            console.log('Actualizaciones enviadas al canal con mención:', CHANNEL_ID);
-        } else {
-            console.log('No hay cambios en las actualizaciones, no se enviaron.');
         }
     } catch (error) {
         console.error('Error al enviar actualizaciones:', error);
