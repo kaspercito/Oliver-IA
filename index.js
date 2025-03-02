@@ -537,10 +537,6 @@ async function loadDataStore() {
             triviaStats: {},
             updatesSent: false // Valor por defecto
         };
-        // Asegurar que updatesSent esté definido
-        if (typeof loadedData.updatesSent === 'undefined') {
-            loadedData.updatesSent = true;
-        }
         console.log('Datos cargados desde GitHub:', JSON.stringify(loadedData));
         return loadedData;
     } catch (error) {
@@ -973,26 +969,6 @@ client.once('ready', async () => {
     activeTrivia = new Map(Object.entries(dataStore.activeSessions).filter(([_, s]) => s.type === 'trivia'));
     console.log('Sesiones activas recargadas:', JSON.stringify(dataStore.activeSessions));
 
-    // Enviar actualizaciones al canal principal
-    const channel = client.channels.cache.get(CHANNEL_ID);
-    if (channel) {
-        const updatesDescription = BOT_UPDATES.map(update => `- ${update}`).join('\n');
-        const updatesEmbed = createEmbed(
-            '#FFD700',
-            '🚀 ¡Novedades de Miguel IA!',
-            updatesDescription,
-            'Con cariño, Miguel IA | ¡A disfrutar!'
-        );
-        try {
-            await channel.send({ embeds: [updatesEmbed] });
-            console.log('Actualizaciones enviadas al canal:', CHANNEL_ID);
-        } catch (error) {
-            console.error('Error al enviar actualizaciones al canal:', error.message);
-        }
-    } else {
-        console.error('Canal no encontrado:', CHANNEL_ID);
-    }
-});
 process.on('beforeExit', async () => {
     console.log('Guardando datos antes de salir...');
     await saveDataStore();
