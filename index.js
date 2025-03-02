@@ -535,7 +535,7 @@ client.on('messageCreate', async (message) => {
                         parameters: { 
                             max_new_tokens: 1000, // Aumentado para respuestas más completas
                             return_full_text: false, 
-                            temperature: 0.7 // Ligeramente más creativo pero coherente
+                            temperature: 0.3 // Ligeramente más creativo pero coherente
                         } 
                     },
                     { 
