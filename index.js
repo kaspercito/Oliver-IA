@@ -147,6 +147,13 @@ async function generateImage(prompt) {
     }
 }
 
+// Placeholder para búsqueda web (ajusta según tus herramientas)
+async function searchWeb(query) {
+    console.log(`Buscando en la web: ${query}`);
+    // Aquí deberías implementar tu herramienta de búsqueda web real
+    return [{ snippet: "Fragmento de prueba (ajusta esto con búsqueda real)", link: "https://ejemplo.com" }];
+}
+
 // Funciones de persistencia en GitHub
 async function loadDataStore() {
     try {
@@ -426,7 +433,7 @@ function getCombinedRankingEmbed(userId, username) {
 // Evento ready
 client.once('ready', async () => {
     console.log(`¡Miguel IA está listo! Instancia: ${instanceId}`);
-    client.user.setPresence({ activities: [{ name: "Listo para ayudar a Miguel y Miguel", type: 0 }], status: 'online' });
+    client.user.setPresence({ activities: [{ name: "Listo para ayudar a Miguel y Milagros", type: 0 }], status: 'online' });
     dataStore = await loadDataStore();
 });
 
@@ -462,86 +469,73 @@ client.on('messageCreate', async (message) => {
             let aiReply;
             const lowerMessage = chatMessage.toLowerCase();
 
-            // Detectar saludo simple como "Hola"
+            // Saludo simple
             if (lowerMessage === 'hola') {
                 aiReply = `¡Hola, ${userName}! ¿En qué puedo ayudarte hoy?`;
-                const finalEmbed = createEmbed('#55FFFF', `¡Aquí estoy para ti, ${userName}!`, aiReply);
-                const sentMessage = await channel.send({ embeds: [finalEmbed] });
-                await waitingMessage.delete();
-                await sentMessage.react('✅');
-                await sentMessage.react('❌');
-                sentMessages.set(sentMessage.id, { content: aiReply, originalQuestion: chatMessage, timestamp: new Date().toISOString(), message: sentMessage });
             }
-            // Detectar preguntas matemáticas simples como "cuánto es X + Y"
+            // Matemáticas simples (ejemplo: "¿cuánto es 5 + 3?")
             else if (lowerMessage.match(/cu[áa]nto es (\d+)\s*\+s*(\d+)/)) {
                 const mathMatch = lowerMessage.match(/cu[áa]nto es (\d+)\s*\+s*(\d+)/);
                 const num1 = parseInt(mathMatch[1]);
                 const num2 = parseInt(mathMatch[2]);
                 const result = num1 + num2;
-                aiReply = `¡Hola, ${userName}! Cuanto es ${num1} + ${num2}... ¡Fácil! La respuesta es **${result}**. ¿Necesitas ayuda con más cuentas?`;
-                const finalEmbed = createEmbed('#55FFFF', `¡Aquí estoy para ti, ${userName}!`, aiReply);
-                const sentMessage = await channel.send({ embeds: [finalEmbed] });
-                await waitingMessage.delete();
-                await sentMessage.react('✅');
-                await sentMessage.react('❌');
-                sentMessages.set(sentMessage.id, { content: aiReply, originalQuestion: chatMessage, timestamp: new Date().toISOString(), message: sentMessage });
+                aiReply = `¡Fácil, ${userName}! ${num1} + ${num2} = **${result}**. ¿Otra cuenta?`;
             }
-            // Detectar pedidos de letras de canciones explícitos
-            else if (lowerMessage.includes('letra') && (lowerMessage.includes('canción') || lowerMessage.includes('cancion') || lowerMessage.includes('que me des'))) {
-                aiReply = `¡Hola, ${userName}! No tengo acceso directo a las letras de canciones para darte la exacta de "${chatMessage.split(' - ')[1] || chatMessage}". Sin embargo, puedo sugerirte buscarla en sitios confiables como Genius (genius.com) o Letras.com, o puedo darte información sobre el artista o la canción si quieres. ¿Qué prefieres?`;
-                const finalEmbed = createEmbed('#55FFFF', `¡Aquí estoy para ti, ${userName}!`, aiReply);
-                const sentMessage = await channel.send({ embeds: [finalEmbed] });
-                await waitingMessage.delete();
-                await sentMessage.react('✅');
-                await sentMessage.react('❌');
-                sentMessages.set(sentMessage.id, { content: aiReply, originalQuestion: chatMessage, timestamp: new Date().toISOString(), message: sentMessage });
+            // Letras de canciones
+            else if (lowerMessage.includes('letra') && (lowerMessage.includes('canción') || lowerMessage.includes('cancion'))) {
+                const songQuery = chatMessage.replace(/letra(s)? de la (canci[óo]n)?/i, '').trim();
+                aiReply = `¡Buscando la letra de "${songQuery}", ${userName}! Un momento...`;
+                const waitingSongEmbed = createEmbed('#55FFFF', `¡Buscando, ${userName}!`, aiReply);
+                await waitingMessage.edit({ embeds: [waitingSongEmbed] });
+
+                // Usar la herramienta de búsqueda web disponible
+                const searchResults = await searchWeb(`letra de la canción "${songQuery}" site:genius.com OR site:letras.com`);
+                if (searchResults && searchResults.length > 0) {
+                    const firstResult = searchResults[0];
+                    aiReply = `No puedo darte la letra completa directamente, ${userName}, pero encontré esto: "${firstResult.snippet}"\n\nPuedes verla completa aquí: ${firstResult.link}`;
+                } else {
+                    aiReply = `No encontré la letra de "${songQuery}" directamente, ${userName}. Te sugiero buscar en Genius (genius.com) o Letras.com con "${songQuery}". ¿Quieres info sobre el artista en vez?`;
+                }
             }
-            // Condición especial para "¿Cómo es una rata blanca?" con imagen incrustada
+            // Preguntas específicas predefinidas
             else if (lowerMessage.includes('cómo es') && lowerMessage.includes('rata blanca')) {
                 const imgurLink = 'https://i.imgur.com/mjOqwH6.png';
-                aiReply = `¡Hola, ${userName}! Una rata blanca es un pequeño roedor con un pelaje blanco puro, ojos rosados o rojos (por ser albina), orejas redondeadas y una cola larga y rosada. Son súper curiosas y amigables, ¡ideales como mascotas! Mira esta foto que encontré:`;
-                const finalEmbed = createEmbed('#55FFFF', `¡Aquí estoy para ti, ${userName}!`, aiReply);
-                finalEmbed.setImage(imgurLink);
-                const sentMessage = await channel.send({ embeds: [finalEmbed] });
-                await waitingMessage.delete();
+                aiReply = `Una rata blanca es un roedor pequeño con pelaje blanco puro, ojos rosados o rojos (albina), orejas redondeadas y cola larga. Son curiosas y amigables, ${userName}. Aquí tienes una foto:`;
+                const finalEmbed = createEmbed('#55FFFF', `¡Aquí estoy, ${userName}!`, aiReply).setImage(imgurLink);
+                await waitingMessage.edit({ embeds: [finalEmbed] });
+                const sentMessage = await channel.send({ content: ' ' }); // Mensaje vacío para reacciones
                 await sentMessage.react('✅');
                 await sentMessage.react('❌');
                 sentMessages.set(sentMessage.id, { content: aiReply, originalQuestion: chatMessage, timestamp: new Date().toISOString(), message: sentMessage });
+                await waitingMessage.delete();
+                return;
             }
-            // Condición existente para rata negra con imagen generada
-            else if (lowerMessage.includes('cómo es') && (lowerMessage.includes('rata negra') || lowerMessage.includes('rata') || lowerMessage.includes('negra'))) {
-                aiReply = `¡Hola, ${userName}! Una rata negra, o "Rattus rattus", es un roedor pequeño con un cuerpo alargado, generalmente de color negro o gris oscuro. Tiene un hocico puntiagudo, orejas grandes y una cola larga y delgada. Son ágiles trepadoras y suelen vivir en lugares altos como áticos o árboles. Aquí tienes una imagen generada de una rata negra:`;
+            else if (lowerMessage.includes('cómo es') && lowerMessage.includes('rata negra')) {
+                aiReply = `Una rata negra (Rattus rattus) es un roedor de cuerpo alargado, color negro o gris oscuro, hocico puntiagudo, orejas grandes y cola larga. Son ágiles y viven en lugares altos, ${userName}. Mira esta imagen generada:`;
                 const imageUrl = await generateImage("A realistic black rat (Rattus rattus) with a pointed snout, large ears, and a long thin tail");
-                const finalEmbed = createEmbed('#55FFFF', `¡Aquí estoy para ti, ${userName}!`, aiReply);
-                finalEmbed.setImage(imageUrl);
-                const sentMessage = await channel.send({ embeds: [finalEmbed] });
-                await waitingMessage.delete();
+                const finalEmbed = createEmbed('#55FFFF', `¡Aquí estoy, ${userName}!`, aiReply).setImage(imageUrl);
+                await waitingMessage.edit({ embeds: [finalEmbed] });
+                const sentMessage = await channel.send({ content: ' ' });
                 await sentMessage.react('✅');
                 await sentMessage.react('❌');
                 sentMessages.set(sentMessage.id, { content: aiReply, originalQuestion: chatMessage, timestamp: new Date().toISOString(), message: sentMessage });
+                await waitingMessage.delete();
+                return;
             }
-            // Respuesta local para "¿Qué es la inteligencia artificial?"
             else if (lowerMessage.includes('qué es') && lowerMessage.includes('inteligencia artificial')) {
-                aiReply = `¡Hola, ${userName}! La inteligencia artificial (IA) es una rama de la informática que se enfoca en crear sistemas capaces de realizar tareas que normalmente requieren inteligencia humana, como aprender, razonar, resolver problemas o tomar decisiones. Por ejemplo, yo soy una IA diseñada para ayudarte con tus preguntas. ¿Te gustaría saber más sobre cómo funciona o sus aplicaciones?`;
-                const finalEmbed = createEmbed('#55FFFF', `¡Aquí estoy para ti, ${userName}!`, aiReply);
-                const sentMessage = await channel.send({ embeds: [finalEmbed] });
-                await waitingMessage.delete();
-                await sentMessage.react('✅');
-                await sentMessage.react('❌');
-                sentMessages.set(sentMessage.id, { content: aiReply, originalQuestion: chatMessage, timestamp: new Date().toISOString(), message: sentMessage });
+                aiReply = `La inteligencia artificial (IA) es una rama de la informática que crea sistemas capaces de tareas humanas como aprender o razonar. Yo soy un ejemplo, ${userName}. ¿Más detalles?`;
             }
-            // Respuesta general para otras preguntas
+            // Respuesta general con Hugging Face
             else {
-                const prompt = `Eres Miguel IA, creado por Miguel para ayudar a ${userName}. Responde a "${chatMessage}" de forma natural, amigable y detallada, explicando el tema si es una pregunta, con pasos claros si aplica. Si es un cálculo matemático, resuélvelo directamente. Si no tienes información precisa (como letras de canciones), no inventes nada; admite que no sabes y sugiere algo útil como buscar en fuentes confiables. Asegúrate de completar todas las ideas y no dejar frases cortadas.`;
-                console.log(`Enviando solicitud a Hugging Face por ${userName}: "${chatMessage}"`);
+                const prompt = `Eres Miguel IA, creado por Miguel para ayudar a ${userName}. Responde a "${chatMessage}" de forma natural, detallada y útil. Si es una pregunta, explica bien; si es un cálculo, resuélvelo; si no sabes (como letras de canciones exactas), admite la limitación y sugiere algo práctico. No dejes ideas incompletas.`;
                 const response = await axios.post(
                     'https://api-inference.huggingface.co/models/mistralai/Mixtral-8x7B-Instruct-v0.1',
                     { 
                         inputs: prompt, 
                         parameters: { 
-                            max_new_tokens: 580, 
+                            max_new_tokens: 1000, // Aumentado para respuestas más completas
                             return_full_text: false, 
-                            temperature: 0.6 
+                            temperature: 0.7 // Ligeramente más creativo pero coherente
                         } 
                     },
                     { 
@@ -550,34 +544,34 @@ client.on('messageCreate', async (message) => {
                     }
                 );
 
-                console.log(`Respuesta recibida de Hugging Face: ${JSON.stringify(response.data)}`);
                 aiReply = response.data[0]?.generated_text?.trim();
-                if (!aiReply || aiReply.length < 20) {
-                    aiReply = `¡Hola, ${userName}! Sobre "${chatMessage}", no tengo mucho que decir esta vez, pero estoy aquí para ayudarte. ¿Qué más quieres saber?`;
+                if (!aiReply || aiReply.length < 30) {
+                    aiReply = `Hmm, ${userName}, no tengo una buena respuesta para "${chatMessage}" ahora. ¿Puedes darme más contexto o probar otra pregunta?`;
                 }
-                aiReply += `\n\n¿Te sirvió esta respuesta?`;
-
-                let userHistory = dataStore.conversationHistory[author.id] || [];
-                userHistory.push({ role: 'assistant', content: aiReply, timestamp: new Date().toISOString() });
-                if (userHistory.length > MAX_MESSAGES) userHistory.shift();
-                dataStore.conversationHistory[author.id] = userHistory;
-                await saveDataStore(dataStore);
-
-                const finalEmbed = createEmbed('#55FFFF', `¡Aquí estoy para ti, ${userName}!`, aiReply);
-                const sentMessage = await channel.send({ embeds: [finalEmbed] });
-                await waitingMessage.delete();
-                await sentMessage.react('✅');
-                await sentMessage.react('❌');
-                sentMessages.set(sentMessage.id, { content: aiReply, originalQuestion: chatMessage, timestamp: new Date().toISOString(), message: sentMessage });
             }
-            console.log(`Respuesta enviada a ${userName} para "${chatMessage}"`);
+
+            // Enviar respuesta final
+            aiReply += `\n\n¿Te ayudó esto, ${userName}?`;
+            const finalEmbed = createEmbed('#55FFFF', `¡Aquí estoy, ${userName}!`, aiReply);
+            const sentMessage = await channel.send({ embeds: [finalEmbed] });
+            await waitingMessage.delete();
+            await sentMessage.react('✅');
+            await sentMessage.react('❌');
+            sentMessages.set(sentMessage.id, { content: aiReply, originalQuestion: chatMessage, timestamp: new Date().toISOString(), message: sentMessage });
+
+            // Guardar en historial
+            let userHistory = dataStore.conversationHistory[author.id] || [];
+            userHistory.push({ role: 'assistant', content: aiReply, timestamp: new Date().toISOString() });
+            if (userHistory.length > MAX_MESSAGES) userHistory.shift();
+            dataStore.conversationHistory[author.id] = userHistory;
+            await saveDataStore(dataStore);
+
         } catch (error) {
             console.error(`Error en !ch para "${chatMessage}": ${error.message}`, error.stack);
             const errorEmbed = createEmbed('#FF5555', '¡Ups!', 
-                `Algo falló, ${userName}. ${error.code === 'ECONNABORTED' ? 'La API de Hugging Face tardó demasiado en responder. Esto puede pasar con la versión gratuita.' : 'Hubo un problema técnico: ' + error.message} ¡Intenta de nuevo con !ch o prueba con otra pregunta!`);
+                `Algo salió mal, ${userName}. ${error.code === 'ECONNABORTED' ? 'La API tardó demasiado.' : 'Error: ' + error.message} ¡Prueba otra vez!`);
             await channel.send({ embeds: [errorEmbed] });
             await waitingMessage.delete();
-            console.log(`Error enviado a ${userName} para "${chatMessage}"`);
         }
         return;
     }
