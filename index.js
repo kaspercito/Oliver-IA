@@ -3,8 +3,7 @@ const { Client, GatewayIntentBits, EmbedBuilder } = require('discord.js');
 const axios = require('axios');
 const { v4: uuidv4 } = require('uuid');
 const SpotifyWebApi = require('spotify-web-api-node');
-const play = require('play-dl'); // Reemplaza ytdl-core
-const ytSearch = require('yt-search');
+const { Client: LavalinkClient } = require('lavalink-client');
 const { joinVoiceChannel, createAudioPlayer, createAudioResource, AudioPlayerStatus } = require('@discordjs/voice');
 require('dotenv').config();
 
@@ -19,6 +18,23 @@ const client = new Client({
     ],
 });
 
+// Configurar Lavalink
+const lavalink = new LavalinkClient({
+    rest: {
+        host: process.env.LAVALINK_HOST,
+        port: parseInt(process.env.LAVALINK_PORT),
+        password: process.env.LAVALINK_PASSWORD,
+    },
+    nodes: [
+        {
+            host: process.env.LAVALINK_HOST,
+            port: parseInt(process.env.LAVALINK_PORT),
+            password: process.env.LAVALINK_PASSWORD,
+            id: "main",
+        },
+    ],
+    sendGatewayPayload: (guildId, payload) => client.guilds.cache.get(guildId)?.shard?.send(payload),
+});
 
 // IDs y constantes
 const OWNER_ID = '752987736759205960'; // Tu ID
@@ -1069,6 +1085,13 @@ async function manejarPlay(message) {
         });
         console.log(`Conectado al canal de voz: ${voiceChannel.name} (ID: ${voiceChannel.id})`);
 
+        connection.on('stateChange', (oldState, newState) => {
+            console.log(`Estado de la conexión cambió de ${oldState.status} a ${newState.status}`);
+            if (newState.status === 'disconnected') {
+                console.log('Conexión desconectada');
+            }
+        });
+
         dataStore.activeVoiceChannels[message.guild.id] = voiceChannel.id;
 
         if (!(dataStore.musicQueue instanceof Map)) {
@@ -1095,6 +1118,7 @@ async function manejarPlay(message) {
     }
 }
 
+// Usar Lavalink para reproducir canciones
 async function playSong(message, connection) {
     if (!message.guild) return;
 
@@ -1109,88 +1133,60 @@ async function playSong(message, connection) {
 
     const song = queue[0];
     const requesterName = song.requester === OWNER_ID ? 'Miguel' : 'Belén';
-    const searchQuery = song.title;
 
     try {
-        const searchResults = await ytSearch(searchQuery);
-        if (!searchResults.videos.length) {
-            console.log(`No se encontraron videos para: "${searchQuery}"`);
-            await sendError(message.channel, 'No pude encontrar la canción en YouTube', `Falló la búsqueda de "${song.title}". Pasando a la siguiente.`);
-            queue.shift();
-            dataStore.musicQueue.set(message.guild.id, queue);
-            return playSong(message, connection);
-        }
-
-        const video = searchResults.videos[0];
-        const videoUrl = video.url;
-        console.log(`Buscando stream para: ${videoUrl}`);
-
-        const stream = await play.stream(videoUrl, { quality: 2, discordPlayerCompatibility: true });
-        console.log(`Stream obtenido para: ${song.title}, tipo: ${stream.type}`);
-
-        if (!stream.stream || !stream.stream.readable) {
-            console.error('El stream no es legible o está vacío');
-            await sendError(message.channel, 'Problema con el stream', `El stream para "${song.title}" no es válido. Pasando a la siguiente.`);
-            queue.shift();
-            dataStore.musicQueue.set(message.guild.id, queue);
-            return playSong(message, connection);
-        }
-
-        const resource = createAudioResource(stream.stream, { 
-            inputType: stream.type, 
-            inlineVolume: true,
-            metadata: { title: song.title }
-        });
-        resource.volume.setVolume(1.0);
-        const player = createAudioPlayer();
-
-        player.play(resource);
-        const subscription = connection.subscribe(player);
-        if (!subscription) {
-            console.error('No se pudo suscribir el reproductor a la conexión');
-            await sendError(message.channel, 'Error de conexión', 'No pude conectar el reproductor al canal de voz.');
-            connection.destroy();
-            return;
-        }
-        console.log(`Reproduciendo: ${song.title}`);
-
-        await sendSuccess(message.channel, '🎶 Reproduciendo', `Ahora suena: "${song.title}" (pedido por ${requesterName})`);
-
-        player.on(AudioPlayerStatus.Idle, () => {
-            console.log(`Canción terminada: ${song.title}`);
-            const playedSong = queue.shift();
-            if (!dataStore.previousSongs) dataStore.previousSongs = new Map();
-            dataStore.previousSongs.set(message.guild.id, playedSong);
-            dataStore.musicQueue.set(message.guild.id, queue);
-            playSong(message, connection);
-        });
-
-        player.on('error', error => {
-            console.error('Error en el reproductor:', error);
-            sendError(message.channel, 'Error al reproducir la canción', `No pude reproducir "${song.title}": ${error.message}. Pasando a la siguiente.`);
-            queue.shift();
-            dataStore.musicQueue.set(message.guild.id, queue);
-            playSong(message, connection);
-        });
-
-        player.on(AudioPlayerStatus.Playing, () => {
-            console.log(`El reproductor está reproduciendo: ${song.title}`);
-        });
-
-        player.on(AudioPlayerStatus.Buffering, () => {
-            console.log(`El reproductor está almacenando en búfer: ${song.title}`);
-        });
-
-        setTimeout(() => {
-            if (player.state.status !== AudioPlayerStatus.Playing && player.state.status !== AudioPlayerStatus.Idle) {
-                console.error('El reproductor no ha comenzado a reproducir después de 10 segundos');
-                sendError(message.channel, 'Timeout de reproducción', `No se pudo reproducir "${song.title}" después de 10 segundos. Pasando a la siguiente.`);
-                player.stop();
+        // Crear un reproductor de Lavalink para este guild
+        let player = lavalink.players.get(message.guild.id);
+        if (!player) {
+            player = await lavalink.createPlayer({
+                guildId: message.guild.id,
+                voiceChannelId: message.member.voice.channel.id,
+                textChannelId: message.channel.id,
+                selfDeaf: true,
+                selfMute: false,
+            });
+            player.on('playerUpdate', (data) => {
+                console.log(`Estado del reproductor actualizado: ${JSON.stringify(data)}`);
+            });
+            player.on('trackStart', (track) => {
+                console.log(`Canción comenzada: ${track.info.title}`);
+            });
+            player.on('trackEnd', (track, reason) => {
+                console.log(`Canción terminada: ${track.info.title}, motivo: ${reason}`);
+                const queue = dataStore.musicQueue.get(message.guild.id) || [];
+                queue.shift();
+                dataStore.musicQueue.set(message.guild.id, queue);
+                if (!dataStore.previousSongs) dataStore.previousSongs = new Map();
+                dataStore.previousSongs.set(message.guild.id, { title: track.info.title, requester: song.requester });
+                playSong(message, connection);
+            });
+            player.on('trackError', (track, error) => {
+                console.error('Error en la pista:', error);
+                sendError(message.channel, 'Error al reproducir la canción', `No pude reproducir "${track.info.title}": ${error.message}. Pasando a la siguiente.`);
+                const queue = dataStore.musicQueue.get(message.guild.id) || [];
                 queue.shift();
                 dataStore.musicQueue.set(message.guild.id, queue);
                 playSong(message, connection);
-            }
-        }, 10000);
+            });
+            await player.connect();
+        }
+
+        // Buscar la canción en Lavalink
+        const searchResult = await lavalink.rest.loadTracks(`ytsearch:${song.title}`);
+        if (!searchResult.tracks || searchResult.tracks.length === 0) {
+            console.log(`No se encontraron resultados para: "${song.title}"`);
+            await sendError(message.channel, 'No pude encontrar la canción', `No se encontraron resultados para "${song.title}". Pasando a la siguiente.`);
+            queue.shift();
+            dataStore.musicQueue.set(message.guild.id, queue);
+            return playSong(message, connection);
+        }
+
+        const track = searchResult.tracks[0];
+        console.log(`Canción encontrada: ${track.info.title}`);
+
+        // Reproducir la pista
+        await player.play(track);
+        await sendSuccess(message.channel, '🎶 Reproduciendo', `Ahora suena: "${track.info.title}" (pedido por ${requesterName})`);
     } catch (error) {
         console.error('Error al buscar o reproducir:', error.message);
         if (error.message.includes('Sign in to confirm your age') || error.message.includes('Video unavailable')) {
@@ -1488,6 +1484,7 @@ client.once('ready', async () => {
     activeTrivia = new Map(Object.entries(dataStore.activeSessions).filter(([_, s]) => s.type === 'trivia'));
     console.log('Sesiones activas recargadas:', JSON.stringify(dataStore.activeSessions));
 
+    lavalink.init({ userID: client.user.id });
     // Verificación de actualizaciones al iniciar
     try {
         const channel = await client.channels.fetch(CHANNEL_ID);
