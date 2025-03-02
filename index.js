@@ -26,22 +26,70 @@ const BOT_UPDATES = [
     '!ch genera imágenes para preguntas como "¿Cómo es...?".'
 ];
 
-// Preguntas de trivia
+// Preguntas de trivia sin opciones (ampliado a 50)
 const preguntasTriviaSinOpciones = [
     { pregunta: "¿Cuál es la capital de Brasil?", respuesta: "brasilia" },
     { pregunta: "¿Cuál es la capital de Japón?", respuesta: "tokio" },
+    { pregunta: "¿Cuál es la capital de Francia?", respuesta: "parís" },
+    { pregunta: "¿Cuál es la capital de Australia?", respuesta: "canberra" },
+    { pregunta: "¿Cuál es la capital de Canadá?", respuesta: "ottawa" },
+    { pregunta: "¿Cuál es la capital de Rusia?", respuesta: "moscú" },
+    { pregunta: "¿Cuál es la capital de India?", respuesta: "nueva delhi" },
+    { pregunta: "¿Cuál es la capital de Argentina?", respuesta: "buenos aires" },
+    { pregunta: "¿Cuál es la capital de México?", respuesta: "ciudad de méxico" },
+    { pregunta: "¿Cuál es la capital de Italia?", respuesta: "roma" },
+    { pregunta: "¿Cuál es la capital de España?", respuesta: "madrid" },
+    { pregunta: "¿Cuál es la capital de Alemania?", respuesta: "berlín" },
+    { pregunta: "¿Cuál es la capital de China?", respuesta: "pekín" },
+    { pregunta: "¿Cuál es la capital de Egipto?", respuesta: "el cairo" },
+    { pregunta: "¿Cuál es la capital de Sudáfrica?", respuesta: "pretoria" },
     { pregunta: "¿Qué elemento tiene el símbolo 'H'?", respuesta: "hidrógeno" },
+    { pregunta: "¿Qué gas tiene la fórmula CO2?", respuesta: "dióxido de carbono" },
+    { pregunta: "¿Qué elemento es un metal líquido a temperatura ambiente?", respuesta: "mercurio" },
+    { pregunta: "¿Cuál es el símbolo del oro?", respuesta: "au" },
+    { pregunta: "¿Qué compuesto es el agua?", respuesta: "h2o" },
+    { pregunta: "¿Qué elemento tiene el símbolo 'O'?", respuesta: "oxígeno" },
+    { pregunta: "¿Qué metal tiene el símbolo 'Fe'?", respuesta: "hierro" },
+    { pregunta: "¿Qué gas noble tiene el símbolo 'Ne'?", respuesta: "neón" },
+    { pregunta: "¿Qué unidad mide la fuerza?", respuesta: "newton" },
+    { pregunta: "¿Qué ley dice que F = m * a?", respuesta: "segunda ley de newton" },
+    { pregunta: "¿Cuál es la velocidad de la luz en el vacío (aproximada)?", respuesta: "300000 km/s" },
+    { pregunta: "¿Qué instrumento mide la presión atmosférica?", respuesta: "barómetro" },
+    { pregunta: "¿Qué tipo de energía almacena un resorte comprimido?", respuesta: "energía elástica" },
+    { pregunta: "¿Qué mide la unidad 'voltio'?", respuesta: "voltaje" },
+    { pregunta: "¿Quién formuló la teoría de la relatividad?", respuesta: "einstein" },
     { pregunta: "¿En qué año llegó Colón a América?", respuesta: "1492" },
-    { pregunta: "¿Qué órgano bombea sangre en el cuerpo humano?", respuesta: "corazón" },
+    { pregunta: "¿Qué civilización construyó las pirámides de Giza?", respuesta: "egipcia" },
+    { pregunta: "¿Qué guerra ocurrió entre 1939 y 1945?", respuesta: "segunda guerra mundial" },
+    { pregunta: "¿Quién fue el primer emperador de Roma?", respuesta: "augusto" },
+    { pregunta: "¿En qué año cayó el Muro de Berlín?", respuesta: "1989" },
+    { pregunta: "¿Qué revolución comenzó en 1789?", respuesta: "revolución francesa" },
+    { pregunta: "¿Quién pintó la Mona Lisa?", respuesta: "leonardo da vinci" },
+    { pregunta: "¿Qué órgano bompea sangre en el cuerpo humano?", respuesta: "corazón" },
+    { pregunta: "¿Cuál es el proceso por el que las plantas hacen su alimento?", respuesta: "fotosíntesis" },
+    { pregunta: "¿Qué gas exhalan los humanos al respirar?", respuesta: "dióxido de carbono" },
+    { pregunta: "¿Qué parte del cuerpo humano produce insulina?", respuesta: "páncreas" },
+    { pregunta: "¿Qué animal es conocido como el rey de la selva?", respuesta: "león" },
+    { pregunta: "¿Qué clase de animal es un delfín?", respuesta: "mamífero" },
+    { pregunta: "¿Qué estructura en las células contiene el ADN?", respuesta: "núcleo" },
     { pregunta: "¿Qué juego tiene un personaje llamado Mario?", respuesta: "super mario" },
+    { pregunta: "¿Qué juego incluye a un personaje llamado Link?", respuesta: "the legend of zelda" },
+    { pregunta: "¿Qué juego es famoso por su modo battle royale?", respuesta: "fortnite" },
+    { pregunta: "¿En qué juego construyes con bloques en un mundo cúbico?", respuesta: "minecraft" },
     { pregunta: "¿Qué película tiene a Jack Sparrow como pirata?", respuesta: "piratas del caribe" },
-    { pregunta: "¿Qué princesa tiene poderes de hielo?", respuesta: "elsa" },
+    { pregunta: "¿Qué película tiene un león rey llamado Mufasa?", respuesta: "el rey león" },
+    { pregunta: "¿Qué princesa tiene poderes de hielo?", respuesta: "elsa" }
 ];
 
 // Palabras aleatorias para el juego de reacciones
 const palabrasAleatorias = [
     "genial", "cool", "bravo", "sí", "nope", "wow", "jaja", "bien", "mal", "top",
-    "luz", "estrella", "risa", "fuego", "agua",
+    "luz", "estrella", "risa", "fuego", "agua", "nube", "sol", "luna", "cielo", "tierra",
+    "rápido", "lento", "fuerte", "débil", "alto", "bajo", "calor", "frío", "dulce", "salado",
+    "gato", "perro", "pájaro", "pez", "oso", "tigre", "león", "mono", "elefante", "jirafa",
+    "rojo", "azul", "verde", "amarillo", "negro", "blanco", "rosa", "violeta", "naranja", "gris",
+    "casa", "árbol", "río", "montaña", "playa", "bosque", "desierto", "ciudad", "pueblo", "camino",
+    "feliz", "triste", "enojado", "calmo", "cansado", "vivo", "raro", "simple", "duro", "suave"
 ];
 
 // Frases para PPM
@@ -49,6 +97,23 @@ const frasesPPM = [
     "el rápido zorro marrón salta sobre el perro perezoso",
     "la vida es como una caja de chocolates nunca sabes qué te va a tocar",
     "un pequeño paso para el hombre un gran salto para la humanidad",
+    "el sol brilla más fuerte cuando estás feliz y rodeado de amigos",
+    "la práctica hace al maestro no lo olvides nunca en tu camino",
+    "el río corre tranquilo bajo el puente de piedra antigua",
+    "una abeja zumba alegre mientras recoge néctar de las flores",
+    "el viento susurra secretos entre las hojas verdes del bosque",
+    "la luna llena ilumina la noche con un brillo plateado mágico",
+    "un gato negro cruza el callejón bajo la luz de un farol",
+    "el café caliente despierta los sentidos en una mañana fría",
+    "las olas del mar chocan contra las rocas con fuerza y espuma",
+    "un pájaro canta al amanecer anunciando un nuevo día brillante",
+    "la nieve cae suave sobre las montañas en un silencio helado",
+    "el tren avanza rápido por las vías dejando atrás el pueblo",
+    "una sonrisa sincera puede cambiar el día de cualquiera",
+    "el reloj marca las horas mientras el mundo sigue girando",
+    "la lluvia golpea las ventanas en una tarde gris y tranquila",
+    "un niño corre feliz persiguiendo una cometa en el parque",
+    "el desierto guarda misterios bajo su arena dorada y caliente"
 ];
 
 // Estado
@@ -172,10 +237,10 @@ async function saveDataStore() {
             },
             { headers: { 'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`, 'Accept': 'application/vnd.github+json' } }
         );
-        console.log('Datos guardados en GitHub');
+        console.log('Datos guardados en GitHub:', JSON.stringify(dataStore));
     } catch (error) {
         console.error('Error al guardar datos en GitHub:', error.message);
-        throw error; // Lanzar error para capturarlo en !save
+        throw error;
     }
 }
 
@@ -270,8 +335,9 @@ async function manejarTrivia(message) {
         await sendSuccess(message.channel, '🏁 ¡Trivia Terminada!',
             `¡Completaste las ${numQuestions} preguntas, ${userName}! Puntuación final: ${channelProgress.score}. Usa !rk para ver tu ranking.`);
         if (!dataStore.triviaRanking[message.author.id]) dataStore.triviaRanking[message.author.id] = { username: message.author.username, score: 0 };
-        dataStore.triviaRanking[message.author.id].score += channelProgress.score;
+        dataStore.triviaRanking[message.author.id].score = (dataStore.triviaRanking[message.author.id].score || 0) + channelProgress.score;
         delete dataStore.activeSessions[message.channel.id];
+        console.log(`Trivia terminada para ${message.author.id}. Puntaje acumulado: ${dataStore.triviaRanking[message.author.id].score}`);
     }
 }
 
@@ -330,6 +396,8 @@ async function manejarPPM(message) {
         const ppm = Math.round((palabras / tiempoSegundos) * 60);
 
         if (!dataStore.personalPPMRecords[message.author.id]) dataStore.personalPPMRecords[message.author.id] = [];
+        dataStore.personalPPMRecords[message.author.id] = dataStore.personalPPMRecords[message.author.id].filter(record => 
+            new Date().getTime() - new Date(record.timestamp).getTime() < 24 * 60 * 60 * 1000); // Limpiar registros de más de 24 horas
         dataStore.personalPPMRecords[message.author.id].push({ ppm, timestamp: new Date().toISOString() });
 
         if (cleanText(respuestaUsuario) === cleanText(frase)) {
@@ -390,6 +458,7 @@ async function manejarReacciones(message) {
 
         if (!dataStore.reactionWins[ganador.id]) dataStore.reactionWins[ganador.id] = { username: ganador.username, wins: 0 };
         dataStore.reactionWins[ganador.id].wins += 1;
+        console.log(`Reacción ganada por ${ganador.id}. Victorias: ${dataStore.reactionWins[ganador.id].wins}`);
 
         await sendSuccess(message.channel, '🎉 ¡Ganador!',
             `¡Felicidades, ${ganadorName}! Fuiste el primero en escribir **${palabra}** en ${tiempoSegundos.toFixed(2)} segundos. ¡Eres rapidísimo! Mira tu progreso con !rk.`);
@@ -438,7 +507,7 @@ async function manejarChat(message) {
                 'https://api-inference.huggingface.co/models/mistralai/Mixtral-8x7B-Instruct-v0.1',
                 {
                     inputs: `Eres Miguel IA, creado por Miguel. La usuaria no quedó satisfecha con tu respuesta anterior a "${messageData.originalQuestion}": "${messageData.content}". Proporciona una respuesta alternativa, diferente, clara y útil, como un amigo cercano. No repitas la respuesta anterior. Termina con una nota positiva o una sugerencia para seguir charlando.\nTu respuesta:`,
-                    parameters: { max_new_tokens: 580, return_full_text: false }
+                    parameters: { max_new_tokens: 500, return_full_text: false }
                 },
                 { headers: { 'Authorization': `Bearer ${process.env.HF_API_TOKEN}` }, timeout: 90000 }
             );
@@ -492,7 +561,7 @@ async function manejarCommand(message) {
         const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
         try {
             await saveDataStore();
-            await sendSuccess(message.channel, '💾 ¡Guardado!', `Datos guardados exitosamente, ${userName}.`);
+            await sendSuccess(message.channel, '💾 ¡Guardado!', `Datos guardados exitosamente, ${userName}. Estado actual: ${JSON.stringify(dataStore)}`);
         } catch (error) {
             await sendError(message.channel, '💾 Error al guardar', `No pude guardar los datos, ${userName}. Error: ${error.message}`);
         }
@@ -502,7 +571,7 @@ async function manejarCommand(message) {
 // Eventos
 client.once('ready', async () => {
     console.log(`¡Miguel IA está listo! Instancia: ${instanceId}`);
-    client.user.setPresence({ activities: [{ name: "Listo para ayudar a Miguel y Milagros", type: 0 }], status: 'online' });
+    client.user.setPresence({ activities: [{ name: "Listo para ayudar a Miguel y Belén", type: 0 }], status: 'online' });
     dataStore = await loadDataStore();
     activeTrivia = new Map(Object.entries(dataStore.activeSessions).filter(([_, s]) => s.type === 'trivia'));
     console.log('Sesiones activas recargadas:', JSON.stringify(dataStore.activeSessions));
