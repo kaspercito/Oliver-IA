@@ -30,6 +30,10 @@ const BOT_UPDATES = [
 // Estado anterior de las actualizaciones (del código pasado)
 const PREVIOUS_BOT_UPDATES = [
     '¡Trivia extendida! Ahora las trivias son de 20 preguntas por defecto en lugar de 10.',
+    '¡Guardado automático mejorado! Avisa 5 minutos antes cada 30 minutos para que evites iniciar nuevos comandos.',
+    '¡Comandos !sugerencias y !ayuda añadidos! Envía ideas o pide ayuda directamente a Miguel.',
+    '¡PPM más rápido! El tiempo para escribir la frase se redujo de 60 a 15 segundos.',
+    '¡Verificación de actualizaciones! El bot compara BOT_UPDATES con PREVIOUS_BOT_UPDATES al iniciar y avisa si hay cambios.',
 ];
 
 // Mensajes de ánimo para Belén
