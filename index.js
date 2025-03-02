@@ -3,7 +3,7 @@ const { Client, GatewayIntentBits, EmbedBuilder } = require('discord.js');
 const axios = require('axios');
 const { v4: uuidv4 } = require('uuid');
 const SpotifyWebApi = require('spotify-web-api-node');
-const { Client: LavalinkClient } = require('lavalink-client');
+const LavalinkClient = require('lavalink-client');
 const { joinVoiceChannel, createAudioPlayer, createAudioResource, AudioPlayerStatus } = require('@discordjs/voice');
 require('dotenv').config();
 
