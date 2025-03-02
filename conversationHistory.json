@@ -5,7 +5,7 @@
       "username": "dearluz",
       "score": 25,
       "capitales": {
-        "score": 10
+        "score": 13
       }
     },
     "752987736759205960": {
@@ -40,30 +40,14 @@
       "wins": 22
     }
   },
-  "activeSessions": {
-    "1343749554905940058": {
-      "type": "trivia",
-      "currentQuestion": 5,
-      "score": 1,
-      "totalQuestions": 10,
-      "usedQuestions": [
-        "¿Cuál es la capital de Serbia?",
-        "¿Cuál es la capital de Perú?",
-        "¿Cuál es la capital de Hungría?",
-        "¿Cuál es la capital de México?",
-        "¿Cuál es la capital de Sierra Leona?",
-        "¿Cuál es la capital de Paraguay?"
-      ],
-      "categoria": "capitales"
-    }
-  },
+  "activeSessions": {},
   "triviaStats": {
     "1023132788632862761": {
       "correct": 25,
       "total": 40,
       "capitales": {
-        "correct": 11,
-        "total": 45
+        "correct": 13,
+        "total": 50
       }
     },
     "752987736759205960": {
