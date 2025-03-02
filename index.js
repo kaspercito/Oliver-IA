@@ -1132,7 +1132,6 @@ client.once('ready', async () => {
                 .addFields(
                     { name: 'Novedades', value: BOT_UPDATES.map(update => `- ${update}`).join('\n'), inline: false },
                     { name: 'Hora de actualización', value: `${argentinaTime}`, inline: false },
-                    { name: 'Últimas conversaciones', value: historySummary, inline: false }
                 );
             await channel.send({ content: `<@${ALLOWED_USER_ID}>`, embeds: [updateEmbed] });
             console.log('Actualizaciones enviadas al canal con mención:', CHANNEL_ID);
