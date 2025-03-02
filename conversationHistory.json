@@ -5,7 +5,7 @@
       "username": "dearluz",
       "score": 25,
       "capitales": {
-        "score": 24
+        "score": 28
       },
       "disney": {
         "score": 13
@@ -52,27 +52,14 @@
       "wins": 22
     }
   },
-  "activeSessions": {
-    "1343749554905940058": {
-      "type": "trivia",
-      "currentQuestion": 2,
-      "score": 0,
-      "totalQuestions": 10,
-      "usedQuestions": [
-        "¿Quién fue el primer emperador de Roma?",
-        "¿Qué imperio fue gobernado por Gengis Kan?",
-        "¿Qué civilización construyó Machu Picchu?"
-      ],
-      "categoria": "historia"
-    }
-  },
+  "activeSessions": {},
   "triviaStats": {
     "1023132788632862761": {
       "correct": 25,
       "total": 40,
       "capitales": {
-        "correct": 24,
-        "total": 80
+        "correct": 28,
+        "total": 88
       },
       "disney": {
         "correct": 9,
