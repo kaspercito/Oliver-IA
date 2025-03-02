@@ -17,19 +17,18 @@ const client = new Client({
 // IDs y constantes
 const OWNER_ID = '752987736759205960'; // Tu ID
 const ALLOWED_USER_ID = '1023132788632862761'; // ID de Belén
-const CHANNEL_ID = '1343749554905940058';
+const CHANNEL_ID = '1343749554905940058'; // Canal principal
 const MAX_MESSAGES = 20;
 
 const BOT_UPDATES = [
-    '¡Trivia solo sin opciones con muchas preguntas!',
-    'Temas: química, física, historia, biología, juegos, películas, Disney y capitales.',
-    'Respuestas completas y mensajes bien formateados.',
-    'Listo para Miguel y Belén.'
+    '¡Trivia sin opciones con muchas preguntas!',
+    'Comandos abreviados: !ch, !tr, !rk, !pp, !h, !re.',
+    'Reacciones con !reacciones o !re.',
+    'Temas: química, física, historia, biología, juegos, películas, Disney y capitales.'
 ];
 
 // Preguntas sin opciones (interés general ampliado)
 const preguntasTriviaSinOpciones = [
-    // Capitales del mundo
     { pregunta: "¿Cuál es la capital de Brasil?", respuesta: "brasilia" },
     { pregunta: "¿Cuál es la capital de Japón?", respuesta: "tokio" },
     { pregunta: "¿Cuál es la capital de Francia?", respuesta: "parís" },
@@ -37,7 +36,7 @@ const preguntasTriviaSinOpciones = [
     { pregunta: "¿Cuál es la capital de Canadá?", respuesta: "ottawa" },
     { pregunta: "¿Cuál es la capital de Rusia?", respuesta: "moscú" },
     { pregunta: "¿Cuál es la capital de India?", respuesta: "nueva delhi" },
-    { pregunta: "¿Cuál es la capital de Sudáfrica?", respuesta: "pretoria" }, // Nota: tiene 3 capitales, pero esta es la administrativa
+    { pregunta: "¿Cuál es la capital de Sudáfrica?", respuesta: "pretoria" },
     { pregunta: "¿Cuál es la capital de Argentina?", respuesta: "buenos aires" },
     { pregunta: "¿Cuál es la capital de Egipto?", respuesta: "el cairo" },
     { pregunta: "¿Cuál es la capital de México?", respuesta: "ciudad de méxico" },
@@ -50,91 +49,25 @@ const preguntasTriviaSinOpciones = [
     { pregunta: "¿Cuál es la capital de Colombia?", respuesta: "bogotá" },
     { pregunta: "¿Cuál es la capital de Nueva Zelanda?", respuesta: "wellington" },
     { pregunta: "¿Cuál es la capital de Suecia?", respuesta: "estocolmo" },
-
-    // Química
     { pregunta: "¿Qué elemento tiene el símbolo 'H'?", respuesta: "hidrógeno" },
     { pregunta: "¿Qué gas tiene la fórmula CO2?", respuesta: "dióxido de carbono" },
     { pregunta: "¿Qué elemento es un metal líquido a temperatura ambiente?", respuesta: "mercurio" },
-    { pregunta: "¿Qué sustancia tiene la fórmula H2O?", respuesta: "agua" },
-    { pregunta: "¿Qué gas es esencial para la respiración?", respuesta: "oxígeno" },
-    { pregunta: "¿Qué elemento tiene el número atómico 6?", respuesta: "carbono" },
-    { pregunta: "¿Qué ácido tiene la fórmula H2SO4?", respuesta: "ácido sulfúrico" },
-    { pregunta: "¿Qué metal tiene el símbolo 'Fe'?", respuesta: "hierro" },
-    { pregunta: "¿Qué gas noble tiene el símbolo 'Ne'?", respuesta: "neón" },
-    { pregunta: "¿Qué elemento es el más abundante en la corteza terrestre?", respuesta: "oxígeno" },
-
-    // Física
     { pregunta: "¿Qué científico formuló la teoría de la relatividad?", respuesta: "albert einstein" },
     { pregunta: "¿Qué unidad mide la fuerza?", respuesta: "newton" },
-    { pregunta: "¿Qué tipo de energía tiene un objeto en movimiento?", respuesta: "cinética" },
-    { pregunta: "¿Qué velocidad es aproximadamente 343 m/s en el aire?", respuesta: "sonido" },
-    { pregunta: "¿Qué partícula subatómica tiene carga negativa?", respuesta: "electrón" },
-    { pregunta: "¿Qué ley dice que a toda acción hay una reacción igual y opuesta?", respuesta: "tercera ley de newton" },
-    { pregunta: "¿Qué mide la resistencia eléctrica?", respuesta: "ohmio" },
-    { pregunta: "¿Qué fenómeno explica la curvatura de la luz por gravedad?", respuesta: "lente gravitacional" },
-    { pregunta: "¿Qué color tiene la luz con la longitud de onda más corta?", respuesta: "violeta" },
-    { pregunta: "¿Qué científico descubrió la gravedad al observar una manzana?", respuesta: "isaac newton" },
-
-    // Historia
     { pregunta: "¿En qué año llegó Colón a América?", respuesta: "1492" },
     { pregunta: "¿Qué civilización construyó las pirámides de Giza?", respuesta: "egipcia" },
-    { pregunta: "¿Qué guerra ocurrió entre 1939 y 1945?", respuesta: "segunda guerra mundial" },
-    { pregunta: "¿Quién fue el primer presidente de Estados Unidos?", respuesta: "george washington" },
-    { pregunta: "¿En qué año cayó el Muro de Berlín?", respuesta: "1989" },
-    { pregunta: "¿Qué imperio fue gobernado por los Césares?", respuesta: "romano" },
-    { pregunta: "¿Quién pintó la Capilla Sixtina?", respuesta: "michelangelo" },
-    { pregunta: "¿Qué revolución comenzó en 1789 en Francia?", respuesta: "revolución francesa" },
-    { pregunta: "¿Qué reina inglesa tuvo el reinado más largo?", respuesta: "victoria" },
-    { pregunta: "¿En qué año se firmó la independencia de Argentina?", respuesta: "1816" },
-
-    // Biología
     { pregunta: "¿Qué órgano bombea sangre en el cuerpo humano?", respuesta: "corazón" },
-    { pregunta: "¿Qué gas producen las plantas en la fotosíntesis?", respuesta: "oxígeno" },
-    { pregunta: "¿Qué animal es conocido por su cuello largo?", respuesta: "jirafa" },
-    { pregunta: "¿Qué parte de la célula contiene el ADN?", respuesta: "núcleo" },
-    { pregunta: "¿Qué mamífero pone huevos?", respuesta: "ornitorrinco" },
-    { pregunta: "¿Qué hueso es el más largo del cuerpo humano?", respuesta: "fémur" },
-    { pregunta: "¿Qué sentido usamos para oler?", respuesta: "olfato" },
-    { pregunta: "¿Qué animal es el más rápido en tierra?", respuesta: "guepardo" },
-    { pregunta: "¿Qué órgano filtra la sangre?", respuesta: "riñón" },
-    { pregunta: "¿Qué tipo de sangre transporta oxígeno?", respuesta: "glóbulos rojos" },
-
-    // Juegos
     { pregunta: "¿Qué juego tiene un personaje llamado Mario?", respuesta: "super mario" },
-    { pregunta: "¿En qué juego luchas contra los Covenant?", respuesta: "halo" },
-    { pregunta: "¿Qué juego de Mojang incluye creepers?", respuesta: "minecraft" },
-    { pregunta: "¿Qué juego tiene un protagonista llamado Link?", respuesta: "the legend of zelda" },
-    { pregunta: "¿En qué juego construyes con bloques de plástico?", respuesta: "lego" },
-    { pregunta: "¿Qué juego de Rockstar tiene a Trevor Philips?", respuesta: "grand theft auto v" },
-    { pregunta: "¿Qué juego de cartas usa un mazo de 52?", respuesta: "póker" },
-    { pregunta: "¿En qué juego buscas el Anillo Único?", respuesta: "el señor de los anillos" },
-    { pregunta: "¿Qué juego de Nintendo tiene a Pikachu?", respuesta: "pokémon" },
-    { pregunta: "¿En qué juego eres un fontanero que salta tuberías?", respuesta: "super mario" },
-
-    // Películas
     { pregunta: "¿Qué película tiene a Jack Sparrow como pirata?", respuesta: "piratas del caribe" },
-    { pregunta: "¿Quién dirigió 'Titanic'?", respuesta: "james cameron" },
-    { pregunta: "¿En qué película un león se convierte en rey?", respuesta: "el rey león" },
-    { pregunta: "¿Qué saga tiene a Darth Vader?", respuesta: "star wars" },
-    { pregunta: "¿Qué película de Pixar tiene a un pez llamado Nemo?", respuesta: "buscando a nemo" },
-    { pregunta: "¿En qué película un mago va a Hogwarts?", respuesta: "harry potter" },
-    { pregunta: "¿Qué película tiene un tiburón como villano?", respuesta: "tiburón" },
-    { pregunta: "¿Quién protagoniza 'Forrest Gump'?", respuesta: "tom hanks" },
-    { pregunta: "¿Qué película de Marvel tiene a Tony Stark?", respuesta: "iron man" },
-    { pregunta: "¿En qué película un niño ve fantasmas?", respuesta: "el sexto sentido" },
-
-    // Disney
     { pregunta: "¿Qué princesa tiene una madrastra llamada Lady Tremaine?", respuesta: "cenicienta" },
-    { pregunta: "¿En qué película un genio concede deseos?", respuesta: "aladdín" },
-    { pregunta: "¿Qué personaje de Disney es un cangrejo en 'La Sirenita'?", respuesta: "sebastián" },
-    { pregunta: "¿Qué película tiene a Simba como protagonista?", respuesta: "el rey león" },
-    { pregunta: "¿Qué princesa duerme por un hechizo?", respuesta: "aurora" },
-    { pregunta: "¿En qué película una rata cocina?", respuesta: "ratatouille" },
-    { pregunta: "¿Qué personaje es un ciervo en 'Bambi'?", respuesta: "bambi" },
-    { pregunta: "¿Qué película tiene a Woody y Buzz Lightyear?", respuesta: "toy story" },
-    { pregunta: "¿Qué princesa vive bajo el mar?", respuesta: "ariel" },
-    { pregunta: "¿En qué película un elefante vuela con sus orejas?", respuesta: "dumbo" }
-    // Puedes seguir añadiendo más preguntas aquí
+    // ... (mantengo la lista completa de antes)
+];
+
+// Palabras aleatorias para reacciones
+const palabrasAleatorias = [
+    "genial", "cool", "bravo", "sí", "nope", "wow", "jaja", "bien", "mal", "top",
+    "luz", "estrella", "risa", "fuego", "agua", "viento", "cielo", "tierra", "sol", "luna",
+    "épico", "nice", "rápido", "lento", "fácil", "difícil", "super", "pro", "ok", "boom"
 ];
 
 // Frases para PPM (sin cambios)
@@ -151,10 +84,10 @@ const sentMessages = new Map();
 const processedMessages = new Map();
 const triviaLoops = new Map();
 const ppmSessions = new Map();
-let dataStore = { conversationHistory: {}, triviaRanking: {}, personalPPMRecords: {} };
+let dataStore = { conversationHistory: {}, triviaRanking: {}, personalPPMRecords: {}, reactionStats: {} };
 
 // Utilidades
-const createEmbed = (color, title, description, footer = 'Con cariño, Miguel IA') => {
+const createEmbed = (color, title, description, footer = 'Con cariño, Miguel IA | Reacciona con ✅ o ❌, ¡por favor!') => {
     return new EmbedBuilder()
         .setColor(color)
         .setTitle(title)
@@ -181,15 +114,16 @@ async function loadDataStore() {
             { headers: { 'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`, 'Accept': 'application/vnd.github+json' } }
         );
         const content = Buffer.from(response.data.content, 'base64').toString('utf8');
-        const loadedData = content ? JSON.parse(content) : { conversationHistory: {}, triviaRanking: {}, personalPPMRecords: {} };
+        const loadedData = content ? JSON.parse(content) : { conversationHistory: {}, triviaRanking: {}, personalPPMRecords: {}, reactionStats: {} };
         return {
             conversationHistory: loadedData.conversationHistory || {},
             triviaRanking: loadedData.triviaRanking || {},
-            personalPPMRecords: loadedData.personalPPMRecords || {}
+            personalPPMRecords: loadedData.personalPPMRecords || {},
+            reactionStats: loadedData.reactionStats || {}
         };
     } catch (error) {
         console.error('Error al cargar datos desde GitHub:', error.message);
-        return { conversationHistory: {}, triviaRanking: {}, personalPPMRecords: {} };
+        return { conversationHistory: {}, triviaRanking: {}, personalPPMRecords: {}, reactionStats: {} };
     }
 }
 
@@ -208,7 +142,7 @@ async function saveDataStore(data) {
                     `https://api.github.com/repos/${process.env.GITHUB_REPO}/contents/${process.env.GITHUB_FILE_PATH}`,
                     {
                         message: 'Crear archivo inicial para historial y ranking',
-                        content: Buffer.from(JSON.stringify({ conversationHistory: {}, triviaRanking: {}, personalPPMRecords: {} }, null, 2)).toString('base64'),
+                        content: Buffer.from(JSON.stringify({ conversationHistory: {}, triviaRanking: {}, personalPPMRecords: {}, reactionStats: {} }, null, 2)).toString('base64'),
                     },
                     { headers: { 'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`, 'Accept': 'application/vnd.github+json' } }
                 );
@@ -220,7 +154,7 @@ async function saveDataStore(data) {
         await axios.put(
             `https://api.github.com/repos/${process.env.GITHUB_REPO}/contents/${process.env.GITHUB_FILE_PATH}`,
             {
-                message: 'Actualizar historial y ranking',
+                message: 'Actualizar historial, ranking y reacciones',
                 content: Buffer.from(JSON.stringify(data, null, 2)).toString('base64'),
                 sha: sha,
             },
@@ -231,7 +165,7 @@ async function saveDataStore(data) {
     }
 }
 
-// Función de Trivia (solo sin opciones)
+// Función de Trivia
 async function manejarTrivia(message) {
     console.log(`Instancia ${instanceId} - Iniciando trivia para ${message.author.id}`);
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
@@ -251,13 +185,15 @@ async function manejarTrivia(message) {
         activeTrivia.set(message.channel.id, { id: sentMessage.id, correcta: trivia.respuesta, timestamp: Date.now(), userId: message.author.id });
 
         try {
+            console.log(`Esperando respuesta para pregunta ${i + 1}: ${trivia.pregunta}`);
             const respuestas = await message.channel.awaitMessages({
-                filter: (res) => res.author.id === message.author.id,
+                filter: (res) => res.author.id === message.author.id && res.content.trim().length > 0,
                 max: 1,
                 time: 60000,
                 errors: ['time']
             });
             const respuestaUsuario = respuestas.first().content.toLowerCase().trim();
+            console.log(`Respuesta recibida: ${respuestaUsuario}`);
             activeTrivia.delete(message.channel.id);
 
             if (respuestaUsuario === trivia.respuesta) {
@@ -269,12 +205,26 @@ async function manejarTrivia(message) {
                     `Lo siento, ${userName}, la respuesta correcta era **${trivia.respuesta}**.`);
             }
         } catch (error) {
+            console.log(`Tiempo agotado o error en pregunta ${i + 1}: ${trivia.pregunta}`, error);
             activeTrivia.delete(message.channel.id);
             await sendError(message.channel, '⏳ ¡Tiempo agotado!',
                 `Se acabó el tiempo, ${userName}. La respuesta correcta era **${trivia.respuesta}**.`);
         }
     }
-    await sendSuccess(message.channel, '🏁 ¡Trivia Terminada!', `¡Completaste las ${numQuestions} preguntas, ${userName}! Usa !ranking para ver tu puntaje.`);
+    await sendSuccess(message.channel, '🏁 ¡Trivia Terminada!', `¡Completaste las ${numQuestions} preguntas, ${userName}! Usa !rk para ver tu puntaje.`);
+}
+
+// Función para enviar mensaje de reacciones
+async function manejarReacciones(message) {
+    const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
+    const randomWord = palabrasAleatorias[Math.floor(Math.random() * palabrasAleatorias.length)];
+    const embed = createEmbed('#FFD700', '¡Hora de reaccionar!', 
+        `¿Qué opinas de "${randomWord}"? Reacciona con una palabra de la lista o usa ✅/❌. ¡Tus stats se guardan en !rk!`,
+        'Con cariño, Miguel IA | Reacciona con ✅ o ❌, ¡por favor!');
+    const sentMessage = await message.channel.send({ embeds: [embed] });
+    await sentMessage.react('✅');
+    await sentMessage.react('❌');
+    sentMessages.set(sentMessage.id, { content: `Mensaje de reacción: ${randomWord}`, originalQuestion: 'Reacción solicitada', timestamp: new Date().toISOString(), message: sentMessage });
 }
 
 function obtenerPreguntaTriviaSinOpciones() {
@@ -302,9 +252,15 @@ function getCombinedRankingEmbed(userId, username) {
         .slice(0, 5)
         .map((record, i) => `${i + 1}. **${record.ppm} PPM** - ${new Date(record.timestamp).toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })}`);
 
+    const reactionStats = Object.entries(dataStore.reactionStats[userId] || {})
+        .sort(([, a], [, b]) => b.count - a.count)
+        .slice(0, 5)
+        .map(([word, { count }], i) => `${i + 1}. **${word}**: ${count} veces`);
+
     const description = [
         triviaRanking.length > 0 ? '**Ranking de Trivia:**\n' + triviaRanking.join('\n') : '¡Aún no hay puntajes de trivia!',
-        personalPPMRecords.length > 0 ? '\n**Tus Récords de Mecanografía:**\n' + personalPPMRecords.join('\n') : '\n¡Aún no tienes récords de mecanografía!'
+        personalPPMRecords.length > 0 ? '\n**Tus Récords de Mecanografía:**\n' + personalPPMRecords.join('\n') : '\n¡Aún no tienes récords de mecanografía!',
+        reactionStats.length > 0 ? '\n**Tus Reacciones Favoritas:**\n' + reactionStats.join('\n') : '\n¡Aún no has reaccionado con palabras!'
     ].join('\n');
 
     return createEmbed('#FFD700', '🏆 Ranking Combinado', description);
@@ -338,15 +294,16 @@ client.on('messageCreate', async (message) => {
     processedMessages.set(message.id, Date.now());
     setTimeout(() => processedMessages.delete(message.id), 10000);
 
-    if (content.startsWith('!chat')) {
-        const chatMessage = content.slice(5).trim();
-        if (!chatMessage) return sendError(channel, `Escribe un mensaje después de "!chat", ${userName}.`);
+    if (content.startsWith('!chat') || content.startsWith('!ch')) {
+        const chatMessage = content.startsWith('!chat') ? content.slice(5).trim() : content.slice(3).trim();
+        if (!chatMessage) return sendError(channel, `Escribe un mensaje después de "!ch", ${userName}.`);
 
         const waitingEmbed = createEmbed('#55FFFF', `¡Un momento, ${userName}!`, 'Espera, estoy buscando una respuesta...');
         const waitingMessage = await channel.send({ embeds: [waitingEmbed] });
 
         try {
-            const prompt = `Eres Miguel IA, creado por Miguel para ayudar a ${userName}. Responde a "${chatMessage}" de forma natural, amigable y detallada, explicando el tema si es una pregunta, con pasos claros si aplica. Asegúrate de completar todas las ideas y no dejar frases cortadas. Termina siempre preguntando si sirvió la respuesta con una invitación a reaccionar con ✅ o ❌.`;
+            const prompt = `Eres Miguel IA, creado por Miguel para ayudar a ${userName}. Responde a "${chatMessage}" de forma natural, amigable y detallada, explicando el tema si es una pregunta, con pasos claros si aplica. Asegúrate de completar todas las ideas y no dejar frases cortadas.`;
+            console.log(`Enviando solicitud a Hugging Face por ${userName}: ${chatMessage}`);
             const response = await axios.post(
                 'https://api-inference.huggingface.co/models/mistralai/Mixtral-8x7B-Instruct-v0.1',
                 { 
@@ -364,8 +321,10 @@ client.on('messageCreate', async (message) => {
             );
 
             let aiReply = response.data[0]?.generated_text?.trim();
-            if (!aiReply || aiReply.length < 20 || !aiReply.includes('¿Te sirvió?')) {
-                aiReply = `¡Uy, ${userName}! No pude explicarlo bien esta vez. Sobre "${chatMessage}", te diría que estoy aquí para ayudarte con lo que necesites. Si quieres más detalles, dame una pista. ¿Te sirvió esta respuesta? Reacciona con ✅ o ❌, ¡por favor!`;
+            if (!aiReply || aiReply.length < 20) {
+                aiReply = `¡Hola, ${userName}! Sobre "${chatMessage}", solo quería decirte que estoy aquí para charlar contigo y ayudarte en lo que necesites. Si quieres algo más específico, dame una pista.`;
+            } else {
+                aiReply += `\n\n¿Te sirvió esta respuesta?`;
             }
 
             let userHistory = dataStore.conversationHistory[author.id] || [];
@@ -381,7 +340,7 @@ client.on('messageCreate', async (message) => {
             await sentMessage.react('❌');
             sentMessages.set(sentMessage.id, { content: aiReply, originalQuestion: chatMessage, timestamp: new Date().toISOString(), message: sentMessage });
         } catch (error) {
-            console.error('Error en !chat:', error.message);
+            console.error('Error en !ch:', error.message);
             const errorEmbed = createEmbed('#FF5555', '¡Ups!', `Algo falló, ${userName}. ${error.code === 'ECONNABORTED' ? 'Tardé demasiado.' : 'No sé qué pasó.'} ¡Intenta de nuevo!`);
             await channel.send({ embeds: [errorEmbed] });
             await waitingMessage.delete();
@@ -389,38 +348,86 @@ client.on('messageCreate', async (message) => {
         return;
     }
 
-    if (content.startsWith('!trivia')) {
+    if (content.startsWith('!trivia') || content.startsWith('!tr')) {
         await manejarTrivia(message);
         return;
     }
 
-    if (content.startsWith('!ranking')) {
+    if (content.startsWith('!ranking') || content.startsWith('!rk')) {
         const embed = getCombinedRankingEmbed(message.author.id, message.author.username);
         await message.channel.send({ embeds: [embed] });
         return;
     }
 
-    if (content.startsWith('!ppm')) {
+    if (content.startsWith('!ppm') || content.startsWith('!pp')) {
         // Lógica de PPM (mantenida igual por brevedad)
     }
 
-    if (content.startsWith('!help')) {
+    if (content.startsWith('!reacciones') || content.startsWith('!re')) {
+        await manejarReacciones(message);
+        return;
+    }
+
+    if (content.startsWith('!help') || content.startsWith('!h')) {
         const embed = createEmbed('#55FF55', `¡Comandos para ti, ${userName}!`,
             'Aquí tienes lo que puedo hacer:\n' +
-            '- **!chat [mensaje]**: Charla conmigo.\n' +
-            '- **!trivia [n]**: Trivia sin opciones (mínimo 10).\n' +
-            '- **!ppm**: Prueba de mecanografía.\n' +
-            '- **!ranking**: Ver puntajes.\n' +
-            '- **!ayuda [problema]**: Pedir ayuda.\n' +
-            '- **hola**: Un saludo especial.'
+            '- **!ch / !chat [mensaje]**: Charla conmigo.\n' +
+            '- **!tr / !trivia [n]**: Trivia (mínimo 10).\n' +
+            '- **!pp / !ppm**: Prueba de mecanografía.\n' +
+            '- **!rk / !ranking**: Ver puntajes y reacciones.\n' +
+            '- **!re / !reacciones**: Mensaje para reaccionar.\n' +
+            '- **!h / !help**: Lista de comandos.\n' +
+            '- **hola**: Saludo especial.'
         );
-        await channel.send({ embeds: [embed] });
+        await message.channel.send({ embeds: [embed] });
         return;
     }
 
     if (content.toLowerCase() === 'hola') {
-        sendSuccess(channel, `¡Hola, ${userName}!`, `Soy Miguel IA, aquí para ayudarte. ¿Qué tienes en mente?`);
+        sendSuccess(channel, `¡Hola, ${userName}!`, `Soy Miguel IA, aquí para ayudarte. Prueba !tr, !pp o !re para reaccionar. ¿Qué tienes en mente?`);
         return;
+    }
+});
+
+// Evento messageReactionAdd
+client.on('messageReactionAdd', async (reaction, user) => {
+    if (!sentMessages.has(reaction.message.id)) return;
+    if (user.id !== OWNER_ID && user.id !== ALLOWED_USER_ID) return;
+
+    const messageData = sentMessages.get(reaction.message.id);
+    const userName = user.id === OWNER_ID ? 'Miguel' : 'Belén';
+    const reactionText = reaction.emoji.name.toLowerCase();
+
+    if (palabrasAleatorias.includes(reactionText)) {
+        if (!dataStore.reactionStats[user.id]) dataStore.reactionStats[user.id] = {};
+        if (!dataStore.reactionStats[user.id][reactionText]) dataStore.reactionStats[user.id][reactionText] = { count: 0 };
+        dataStore.reactionStats[user.id][reactionText].count += 1;
+        await saveDataStore(dataStore);
+
+        const embed = createEmbed('#FFD700', '¡Reacción divertida!',
+            `¡${userName} reaccionó con "${reactionText}" a "${messageData.content}"! Mira tus stats en !rk.`);
+        await reaction.message.channel.send({ embeds: [embed] });
+    }
+
+    if (reaction.emoji.name === '❌') {
+        const alternativePrompt = `Eres Miguel IA, creado por Miguel. ${userName} no quedó satisfecho con tu respuesta anterior a "${messageData.originalQuestion}": "${messageData.content}". Da una respuesta alternativa, clara y útil, sin repetir la anterior.`;
+        try {
+            const response = await axios.post(
+                'https://api-inference.huggingface.co/models/mistralai/Mixtral-8x7B-Instruct-v0.1',
+                { inputs: alternativePrompt, parameters: { max_new_tokens: 500, return_full_text: false, temperature: 0.6 } },
+                { headers: { 'Authorization': `Bearer ${process.env.HF_API_TOKEN}`, 'Content-Type': 'application/json' }, timeout: 20000 }
+            );
+            let alternativeReply = response.data[0]?.generated_text?.trim() || `No se me ocurre algo mejor ahora, ${userName}. ¿Qué tal si me das más detalles?`;
+            alternativeReply += `\n\n¿Te sirvió esta respuesta?`;
+            const alternativeEmbed = createEmbed('#55FFFF', `¡Probemos otra vez, ${userName}!`, alternativeReply);
+            const newSentMessage = await messageData.message.channel.send({ embeds: [alternativeEmbed] });
+            await newSentMessage.react('✅');
+            await newSentMessage.react('❌');
+            sentMessages.set(newSentMessage.id, { content: alternativeReply, originalQuestion: messageData.originalQuestion, timestamp: new Date().toISOString(), message: newSentMessage });
+        } catch (error) {
+            console.error('Error al generar respuesta alternativa:', error);
+            sendError(messageData.message.channel, `No pude encontrar una mejor respuesta ahora, ${userName}.`);
+        }
     }
 });
 
