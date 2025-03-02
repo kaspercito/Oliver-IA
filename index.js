@@ -1127,11 +1127,17 @@ async function playSong(message, connection) {
 
         const stream = await play.stream(videoUrl, { quality: 2 });
         console.log(`Stream obtenido para: ${song.title}`);
-        const resource = createAudioResource(stream.stream, { inputType: stream.type });
+        const resource = createAudioResource(stream.stream, { inputType: stream.type, inlineVolume: true });
+        resource.volume.setVolume(1.0); // Asegurar volumen al 100%
         const player = createAudioPlayer();
 
         player.play(resource);
-        connection.subscribe(player);
+        const subscription = connection.subscribe(player); // Guardar la suscripción
+        if (!subscription) {
+            console.error('No se pudo suscribir el reproductor a la conexión');
+            await sendError(message.channel, 'Error de conexión', 'No pude conectar el reproductor al canal de voz.');
+            return;
+        }
         console.log(`Reproduciendo: ${song.title}`);
 
         await sendSuccess(message.channel, '🎶 Reproduciendo', `Ahora suena: "${song.title}" (pedido por ${requesterName})`);
@@ -1155,6 +1161,10 @@ async function playSong(message, connection) {
 
         player.on(AudioPlayerStatus.Playing, () => {
             console.log(`El reproductor está reproduciendo: ${song.title}`);
+        });
+
+        player.on(AudioPlayerStatus.Buffering, () => {
+            console.log(`El reproductor está almacenando en búfer: ${song.title}`);
         });
     } catch (error) {
         console.error('Error al buscar o reproducir:', error.message);
