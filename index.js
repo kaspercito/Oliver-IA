@@ -698,8 +698,10 @@ async function manejarChat(message) {
 
 // Ranking con top por categoría para Trivia y Reacciones
 function getCombinedRankingEmbed(userId, username) {
-    const categorias = Object.keys(preguntasTriviaSinOpciones); // Esto ahora incluye 'matematicas' y no 'disney'
-    let triviaList = '';
+    const categorias = Object.keys(preguntasTriviaSinOpciones);
+    
+    // Sección Trivia
+    let triviaList = '**📚 Trivia por Categoría**\n';
     categorias.forEach(categoria => {
         const myScore = dataStore.triviaRanking[OWNER_ID]?.[categoria]?.score || 0;
         const luzScore = dataStore.triviaRanking[ALLOWED_USER_ID]?.[categoria]?.score || 0;
@@ -708,26 +710,35 @@ function getCombinedRankingEmbed(userId, username) {
         const myPercentage = myStats.total > 0 ? Math.round((myStats.correct / myStats.total) * 100) : 0;
         const luzPercentage = luzStats.total > 0 ? Math.round((luzStats.correct / luzStats.total) * 100) : 0;
 
-        triviaList += `${categoria.charAt(0).toUpperCase() + categoria.slice(1)}:\n` +
-                      `Miguel: **${myScore} puntos** (${myPercentage}% acertadas)\n` +
-                      `Belén: **${luzScore} puntos** (${luzPercentage}% acertadas)\n\n`;
+        triviaList += `\n**${categoria.charAt(0).toUpperCase() + categoria.slice(1)}** 🎲\n` +
+                      `> 👑 Miguel: **${myScore} puntos** (${myPercentage}% acertadas)\n` +
+                      `> 🌟 Belén: **${luzScore} puntos** (${luzPercentage}% acertadas)\n`;
     });
 
-    // PPM personal
+    // Sección PPM
     const ppmRecords = dataStore.personalPPMRecords[userId] || [];
     let ppmList = ppmRecords.length > 0 
-        ? ppmRecords.map(record => `${record.ppm} PPM (${new Date(record.timestamp).toLocaleString()})`).join('\n')
-        : 'No has hecho pruebas de PPM aún.';
+        ? ppmRecords.map(record => `> ${record.ppm} PPM - ${new Date(record.timestamp).toLocaleString()}`).join('\n')
+        : '> No has hecho pruebas de PPM aún. ¡Prueba con !pp!';
 
-    // Reacciones para ambos
+    // Sección Reacciones
     const myReactionWins = dataStore.reactionWins[OWNER_ID]?.wins || 0;
     const luzReactionWins = dataStore.reactionWins[ALLOWED_USER_ID]?.wins || 0;
-    const reactionList = `Miguel: **${myReactionWins} victorias**\nBelén: **${luzReactionWins} victorias**`;
+    const reactionList = `> 👑 Miguel: **${myReactionWins} victorias**\n` +
+                         `> 🌟 Belén: **${luzReactionWins} victorias**`;
 
-    return createEmbed('#FFD700', `🏆 Ranking de ${username}`,
-        `Trivia:\n${triviaList}` +
-        `PPM:\n${ppmList}\n` +
-        `Victorias en Reacciones:\n${reactionList}`);
+    // Construcción del Embed
+    return new EmbedBuilder()
+        .setColor('#FFD700') // Dorado para un look premium
+        .setTitle(`🏆 Ranking de ${username}`)
+        .setDescription('¡Aquí están tus logros y los de tus rivales!')
+        .addFields(
+            { name: '📊 Trivia', value: triviaList, inline: false },
+            { name: '⌨️ PPM (Palabras por Minuto)', value: ppmList, inline: false },
+            { name: '⚡ Victorias en Reacciones', value: reactionList, inline: false }
+        )
+        .setFooter({ text: 'Con cariño, Miguel IA' })
+        .setTimestamp();
 }
 
 // Comandos
