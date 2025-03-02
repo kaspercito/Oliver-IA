@@ -5,6 +5,9 @@
       "username": "dearluz",
       "score": 25,
       "capitales": {
+        "score": 24
+      },
+      "disney": {
         "score": 13
       }
     },
@@ -46,8 +49,12 @@
       "correct": 25,
       "total": 40,
       "capitales": {
-        "correct": 13,
-        "total": 50
+        "correct": 24,
+        "total": 80
+      },
+      "disney": {
+        "correct": 9,
+        "total": 21
       }
     },
     "752987736759205960": {
