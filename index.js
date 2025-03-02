@@ -1127,19 +1127,29 @@ async function playSong(message, connection) {
 
         const stream = await play.stream(videoUrl, { quality: 2 });
         console.log(`Stream obtenido para: ${song.title}, tipo: ${stream.type}`);
-        
-        // Verificar si el stream es válido
-        if (!stream.stream) {
-            console.error('El stream devuelto por play-dl está vacío');
-            await sendError(message.channel, 'Problema con el stream', `No se pudo obtener un stream válido para "${song.title}". Pasando a la siguiente.`);
+
+        if (!stream.stream || !stream.stream.readable) {
+            console.error('El stream no es legible o está vacío');
+            await sendError(message.channel, 'Problema con el stream', `El stream para "${song.title}" no es válido. Pasando a la siguiente.`);
             queue.shift();
             dataStore.musicQueue.set(message.guild.id, queue);
             return playSong(message, connection);
         }
 
-        const resource = createAudioResource(stream.stream, { inputType: stream.type, inlineVolume: true });
+        const resource = createAudioResource(stream.stream, { 
+            inputType: stream.type, 
+            inlineVolume: true,
+            metadata: { title: song.title }
+        });
         resource.volume.setVolume(1.0);
         const player = createAudioPlayer();
+
+        // Añadir listener para errores en el resource
+        resource.playStream.on('error', (error) => {
+            console.error('Error en el playStream:', error);
+            sendError(message.channel, 'Error en el stream', `Error al procesar el stream de "${song.title}": ${error.message}. Pasando a la siguiente.`);
+            player.stop();
+        });
 
         player.play(resource);
         const subscription = connection.subscribe(player);
@@ -1164,7 +1174,7 @@ async function playSong(message, connection) {
 
         player.on('error', error => {
             console.error('Error en el reproductor:', error);
-            sendError(message.channel, 'Error al reproducir la canción', `No pude reproducir "${song.title}". Pasando a la siguiente.`);
+            sendError(message.channel, 'Error al reproducir la canción', `No pude reproducir "${song.title}": ${error.message}. Pasando a la siguiente.`);
             queue.shift();
             dataStore.musicQueue.set(message.guild.id, queue);
             playSong(message, connection);
@@ -1177,6 +1187,18 @@ async function playSong(message, connection) {
         player.on(AudioPlayerStatus.Buffering, () => {
             console.log(`El reproductor está almacenando en búfer: ${song.title}`);
         });
+
+        // Timeout para detectar si no se reproduce
+        setTimeout(() => {
+            if (player.state.status !== AudioPlayerStatus.Playing && player.state.status !== AudioPlayerStatus.Idle) {
+                console.error('El reproductor no ha comenzado a reproducir después de 10 segundos');
+                sendError(message.channel, 'Timeout de reproducción', `No se pudo reproducir "${song.title}" después de 10 segundos. Pasando a la siguiente.`);
+                player.stop();
+                queue.shift();
+                dataStore.musicQueue.set(message.guild.id, queue);
+                playSong(message, connection);
+            }
+        }, 10000);
     } catch (error) {
         console.error('Error al buscar o reproducir:', error.message);
         if (error.message.includes('Sign in to confirm your age') || error.message.includes('Video unavailable')) {
