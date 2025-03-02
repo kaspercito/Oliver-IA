@@ -1010,10 +1010,6 @@ async function manejarAyuda(message) {
 
 async function manejarPlay(message) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
-    if (message.author.id !== ALLOWED_USER_ID) {
-        await sendError(message.channel, '¡Este comando es especial solo para Belén!', 'Pide a Miguel otro comando si quieres.');
-        return;
-    }
 
     const args = message.content.split(' ').slice(1);
     if (!args.length) {
@@ -1043,12 +1039,12 @@ async function manejarPlay(message) {
             const playlistId = query.split('playlist/')[1].split('?')[0];
             const playlist = await spotifyApi.getPlaylist(playlistId);
             songs = playlist.body.tracks.items.map(item => `${item.track.name} ${item.track.artists[0].name}`);
-            await sendSuccess(message.channel, '🎶 Playlist cargada', `He cargado ${songs.length} canciones de la playlist "${playlist.body.name}", Belén. ¡Empezando a reproducir!`);
+            await sendSuccess(message.channel, '🎶 Playlist cargada', `He cargado ${songs.length} canciones de la playlist "${playlist.body.name}", ${userName}. ¡Empezando a reproducir!`);
         } else if (query.includes('spotify.com/track/')) {
             const trackId = query.split('track/')[1].split('?')[0];
             const track = await spotifyApi.getTrack(trackId);
             songs = [`${track.body.name} ${track.body.artists[0].name}`];
-            await sendSuccess(message.channel, '🎶 Canción cargada', `Voy a reproducir "${track.body.name}" de ${track.body.artists[0].name}, Belén.`);
+            await sendSuccess(message.channel, '🎶 Canción cargada', `Voy a reproducir "${track.body.name}" de ${track.body.artists[0].name}, ${userName}.`);
         } else {
             const searchResult = await spotifyApi.searchTracks(query, { limit: 1 });
             if (searchResult.body.tracks.items.length === 0) {
@@ -1057,7 +1053,7 @@ async function manejarPlay(message) {
             }
             const track = searchResult.body.tracks.items[0];
             songs = [`${track.name} ${track.artists[0].name}`];
-            await sendSuccess(message.channel, '🎶 Canción encontrada', `Voy a reproducir "${track.name}" de ${track.artists[0].name}, Belén.`);
+            await sendSuccess(message.channel, '🎶 Canción encontrada', `Voy a reproducir "${track.name}" de ${track.artists[0].name}, ${userName}.`);
         }
 
         const connection = joinVoiceChannel({
@@ -1082,11 +1078,12 @@ async function playSong(message, connection) {
     if (!queue || queue.length === 0) {
         connection.destroy();
         dataStore.musicQueue.delete(message.guild.id);
-        await message.channel.send({ embeds: [createEmbed('#55FF55', '🎶 Reproducción terminada', 'No hay más canciones en la cola, Belén.')] });
+        await message.channel.send({ embeds: [createEmbed('#55FF55', '🎶 Reproducción terminada', 'No hay más canciones en la cola.')] });
         return;
     }
 
     const song = queue[0];
+    const requesterName = song.requester === OWNER_ID ? 'Miguel' : 'Belén';
     const searchQuery = song.title;
     try {
         const videoInfo = await ytdl.getInfo(`ytsearch:${searchQuery}`);
@@ -1098,7 +1095,7 @@ async function playSong(message, connection) {
         player.play(resource);
         connection.subscribe(player);
 
-        await sendSuccess(message.channel, '🎶 Reproduciendo', `Ahora suena: "${song.title}" (pedido por Belén)`);
+        await sendSuccess(message.channel, '🎶 Reproduciendo', `Ahora suena: "${song.title}" (pedido por ${requesterName})`);
 
         player.on(AudioPlayerStatus.Idle, () => {
             queue.shift();
@@ -1121,7 +1118,6 @@ async function playSong(message, connection) {
         playSong(message, connection);
     }
 }
-
 
 // Ranking con top por categoría para Trivia y Reacciones
 function getCombinedRankingEmbed(userId, username) {
