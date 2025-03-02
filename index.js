@@ -464,7 +464,7 @@ client.on('messageCreate', async (message) => {
                     { 
                         inputs: prompt, 
                         parameters: { 
-                            max_new_tokens: 500, 
+                            max_new_tokens: 1000, 
                             return_full_text: false, 
                             temperature: 0.6 
                         } 
