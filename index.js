@@ -18,11 +18,10 @@ const client = new Client({
     ],
 });
 
-// Configurar Erela.js
 const manager = new Manager({
     nodes: [
         {
-            host: process.env.LAVALINK_HOST || 'lava-v3.ajieblogs.eu.org', // Usa tu nodo o uno público
+            host: process.env.LAVALINK_HOST || 'lava-v3.ajieblogs.eu.org',
             port: parseInt(process.env.LAVALINK_PORT) || 443,
             password: process.env.LAVALINK_PASSWORD || 'https://dsc.gg/ajidevserver',
             secure: process.env.LAVALINK_SECURE === 'true' || true,
@@ -1101,14 +1100,26 @@ async function manejarPlay(message) {
 
         if (player.state !== 'CONNECTED') player.connect();
 
-        const res = await Promise.all(tracks.map(track => manager.search(`ytsearch:${track.title} ${track.author}`, message.author)));
+        const res = await Promise.all(tracks.map(async track => {
+            try {
+                const search = await manager.search(`ytsearch:${track.title} ${track.author}`, message.author);
+                console.log(`Resultado de búsqueda para "${track.title} ${track.author}":`, JSON.stringify(search));
+                return search;
+            } catch (error) {
+                console.error(`Error buscando "${track.title} ${track.author}":`, error);
+                return { loadType: 'NO_MATCHES', tracks: [] };
+            }
+        }));
+
         res.forEach(r => {
             if (r.loadType === 'SEARCH_RESULT' && r.tracks.length > 0) {
                 player.queue.add(r.tracks[0]);
+            } else if (r.loadType === 'NO_MATCHES') {
+                console.log(`No se encontraron resultados para una pista.`);
             }
         });
 
-        if (!player.playing && !player.paused) {
+        if (!player.playing && !player.paused && player.queue.size > 0) {
             player.play();
             await sendSuccess(message.channel, '▶️ Reproduciendo ahora', `**${player.queue.current.title}** (pedido por ${userName})`);
         }
