@@ -1111,21 +1111,20 @@ async function playSong(message, connection) {
     const searchQuery = song.title;
 
     try {
-        // Buscar el video en YouTube usando yt-search
         const searchResults = await ytSearch(searchQuery);
         if (!searchResults.videos.length) {
+            console.log(`No se encontraron videos para: "${searchQuery}"`);
             await sendError(message.channel, 'No pude encontrar la canción en YouTube', `Falló la búsqueda de "${song.title}". Pasando a la siguiente.`);
             queue.shift();
             dataStore.musicQueue.set(message.guild.id, queue);
-            return playSong(message, connection); // Intentar la siguiente canción
+            return playSong(message, connection); // Intentar la siguiente
         }
 
-        const video = searchResults.videos[0]; // Tomar el primer resultado
-        const videoUrl = video.url; // URL del video encontrado
+        const video = searchResults.videos[0];
+        const videoUrl = video.url;
 
-        // Usar ytdl-core con la URL encontrada
-        const videoInfo = await ytdl.getInfo(videoUrl);
-        const stream = ytdl(videoUrl, { filter: 'audioonly', quality: 'highestaudio' });
+        const videoInfo = await ytdl.getInfo(videoUrl, { retries: 3 }); // Añadir reintentos
+        const stream = ytdl(videoUrl, { filter: 'audioonly', quality: 'highestaudio', highWaterMark: 1 << 25 }); // Aumentar buffer
         const resource = createAudioResource(stream);
         const player = createAudioPlayer();
 
@@ -1143,15 +1142,24 @@ async function playSong(message, connection) {
         });
 
         player.on('error', error => {
-            console.error('Error al reproducir:', error);
-            sendError(message.channel, 'Error al reproducir la canción', 'No pude reproducir esta canción en YouTube. Pasando a la siguiente.');
+            console.error('Error en el reproductor:', error);
+            sendError(message.channel, 'Error al reproducir la canción', `No pude reproducir "${song.title}". Pasando a la siguiente.`);
             queue.shift();
             dataStore.musicQueue.set(message.guild.id, queue);
             playSong(message, connection);
         });
     } catch (error) {
-        console.error('Error al buscar o reproducir en YouTube:', error);
-        await sendError(message.channel, 'Error al procesar la canción', `Algo salió mal con "${song.title}": ${error.message}. Pasando a la siguiente.`);
+        console.error('Error al buscar o reproducir en YouTube:', error.message);
+        if (error.message.includes('Could not extract functions')) {
+            await sendError(message.channel, 'Problema con YouTube', 
+                'No puedo reproducir canciones ahora debido a un cambio en YouTube. ¡Intenta más tarde o usa !stop para detener!'); 
+            connection.destroy(); // Detener todo si falla crítico
+            dataStore.musicQueue.delete(message.guild.id);
+            delete dataStore.activeVoiceChannels[message.guild.id];
+            return; // Salir para evitar bucle
+        }
+        await sendError(message.channel, 'Error al procesar la canción', 
+            `Algo salió mal con "${song.title}": ${error.message}. Pasando a la siguiente.`);
         queue.shift();
         dataStore.musicQueue.set(message.guild.id, queue);
         playSong(message, connection);
