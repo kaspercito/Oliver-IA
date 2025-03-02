@@ -1209,6 +1209,7 @@ async function manejarCommand(message) {
         await manejarStop(message);
     } else if (content.startsWith('!queue') || content.startsWith('!qu')) {
         await manejarQueue(message);
+    }
 }
 
 client.on('messageCreate', async (message) => {
