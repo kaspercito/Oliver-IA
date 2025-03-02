@@ -1125,7 +1125,7 @@ async function playSong(message, connection) {
         const videoUrl = video.url;
         console.log(`Buscando stream para: ${videoUrl}`);
 
-        const stream = await play.stream(videoUrl, { quality: 2 });
+        const stream = await play.stream(videoUrl, { quality: 2, discordPlayerCompatibility: true });
         console.log(`Stream obtenido para: ${song.title}, tipo: ${stream.type}`);
 
         if (!stream.stream || !stream.stream.readable) {
@@ -1136,20 +1136,28 @@ async function playSong(message, connection) {
             return playSong(message, connection);
         }
 
-        const resource = createAudioResource(stream.stream, { 
-            inputType: stream.type, 
+        // Usar FFmpeg para convertir el stream a un formato compatible
+        const ffmpeg = require('child_process').spawn('ffmpeg', [
+            '-i', 'pipe:0', // Entrada desde el stream
+            '-f', 's16le', // Formato PCM 16-bit little-endian
+            '-ac', '2', // 2 canales (estéreo)
+            '-ar', '48000', // Frecuencia de muestreo 48kHz (estándar para Discord)
+            '-acodec', 'pcm_s16le', // Códec PCM
+            'pipe:1' // Salida a pipe
+        ]);
+
+        stream.stream.pipe(ffmpeg.stdin);
+        ffmpeg.stderr.on('data', (data) => {
+            console.error(`FFmpeg stderr: ${data}`);
+        });
+
+        const resource = createAudioResource(ffmpeg.stdout, { 
+            inputType: 's16le',
             inlineVolume: true,
             metadata: { title: song.title }
         });
         resource.volume.setVolume(1.0);
         const player = createAudioPlayer();
-
-        // Añadir listener para errores en el resource
-        resource.playStream.on('error', (error) => {
-            console.error('Error en el playStream:', error);
-            sendError(message.channel, 'Error en el stream', `Error al procesar el stream de "${song.title}": ${error.message}. Pasando a la siguiente.`);
-            player.stop();
-        });
 
         player.play(resource);
         const subscription = connection.subscribe(player);
@@ -1188,7 +1196,6 @@ async function playSong(message, connection) {
             console.log(`El reproductor está almacenando en búfer: ${song.title}`);
         });
 
-        // Timeout para detectar si no se reproduce
         setTimeout(() => {
             if (player.state.status !== AudioPlayerStatus.Playing && player.state.status !== AudioPlayerStatus.Idle) {
                 console.error('El reproductor no ha comenzado a reproducir después de 10 segundos');
