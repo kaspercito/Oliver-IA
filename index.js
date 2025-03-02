@@ -3,7 +3,7 @@ const { Client, GatewayIntentBits, EmbedBuilder } = require('discord.js');
 const axios = require('axios');
 const { v4: uuidv4 } = require('uuid');
 const SpotifyWebApi = require('spotify-web-api-node');
-const { Lavalink } = require("lavalink-client");
+const { Manager } = require('erela.js'); // Reemplazamos lavalink-client por erela.js
 const { joinVoiceChannel, createAudioPlayer, createAudioResource, AudioPlayerStatus } = require('@discordjs/voice');
 require('dotenv').config();
 
@@ -18,18 +18,22 @@ const client = new Client({
     ],
 });
 
-const lavalink = new Lavalink({
-    client: client,
+// Configurar Erela.js
+const manager = new Manager({
     nodes: [
         {
-            id: "main",
-            host: process.env.LAVALINK_HOST,
-            port: parseInt(process.env.LAVALINK_PORT),
-            authorization: process.env.LAVALINK_PASSWORD,
-            secure: true, // Cambia a true si usas SSL
+            host: process.env.LAVALINK_HOST || 'lava-v3.ajieblogs.eu.org', // Usa tu nodo o uno público
+            port: parseInt(process.env.LAVALINK_PORT) || 443,
+            password: process.env.LAVALINK_PASSWORD || 'https://dsc.gg/ajidevserver',
+            secure: process.env.LAVALINK_SECURE === 'true' || true,
         },
     ],
+    send(id, payload) {
+        const guild = client.guilds.cache.get(id);
+        if (guild) guild.shard.send(payload);
+    },
 });
+
 
 // IDs y constantes
 const OWNER_ID = '752987736759205960'; // Tu ID
@@ -500,12 +504,12 @@ let processedMessages = new Map();
 let dataStore = { 
     conversationHistory: {}, 
     triviaRanking: {}, 
-    personalPPMRecords: {}, // Ahora contendrá { best: { ppm, timestamp }, attempts: [{ ppm, timestamp }] }
+    personalPPMRecords: {},
     reactionStats: {}, 
     reactionWins: {}, 
     activeSessions: {}, 
     triviaStats: {},
-    musicQueue: new Map(),
+    musicQueue: new Map(), // Usaremos esto para complementar Erela.js si es necesario
     activeVoiceChannels: {},
     previousSongs: new Map()
 };
@@ -1047,7 +1051,7 @@ async function manejarPlay(message) {
     }
 
     const query = args.join(' ');
-    let songs = [];
+    let tracks = [];
 
     try {
         await refreshSpotifyToken();
@@ -1055,17 +1059,21 @@ async function manejarPlay(message) {
         if (query.includes('spotify.com/playlist/')) {
             const playlistId = query.split('playlist/')[1].split('?')[0];
             const playlist = await spotifyApi.getPlaylist(playlistId);
-            songs = playlist.body.tracks.items.map(item => ({
-                title: `${item.track.name} ${item.track.artists[0].name}`,
+            tracks = playlist.body.tracks.items.map(item => ({
+                title: item.track.name,
+                author: item.track.artists[0].name,
                 thumbnail: item.track.album.images[0]?.url || null,
+                identifier: item.track.id,
             }));
-            await sendSuccess(message.channel, '🎶 Playlist cargada', `He cargado ${songs.length} canciones de la playlist "${playlist.body.name}", ${userName}. ¡Empezando a reproducir!`);
+            await sendSuccess(message.channel, '🎶 Playlist cargada', `He cargado ${tracks.length} canciones de la playlist "${playlist.body.name}", ${userName}. ¡Empezando a reproducir!`);
         } else if (query.includes('spotify.com/track/')) {
             const trackId = query.split('track/')[1].split('?')[0];
             const track = await spotifyApi.getTrack(trackId);
-            songs = [{
-                title: `${track.body.name} ${track.body.artists[0].name}`,
+            tracks = [{
+                title: track.body.name,
+                author: track.body.artists[0].name,
                 thumbnail: track.body.album.images[0]?.url || null,
+                identifier: track.body.id,
             }];
             await sendSuccess(message.channel, '🎶 Canción cargada', `Voy a reproducir "${track.body.name}" de ${track.body.artists[0].name}, ${userName}.`);
         } else {
@@ -1075,116 +1083,38 @@ async function manejarPlay(message) {
                 return;
             }
             const track = searchResult.body.tracks.items[0];
-            songs = [{
-                title: `${track.name} ${track.artists[0].name}`,
+            tracks = [{
+                title: track.name,
+                author: track.artists[0].name,
                 thumbnail: track.album.images[0]?.url || null,
+                identifier: track.id,
             }];
             await sendSuccess(message.channel, '🎶 Canción encontrada', `Voy a reproducir "${track.name}" de ${track.artists[0].name}, ${userName}.`);
         }
 
-        const connection = joinVoiceChannel({
-            channelId: voiceChannel.id,
-            guildId: message.guild.id,
-            adapterCreator: message.guild.voiceAdapterCreator,
+        const player = manager.create({
+            guild: message.guild.id,
+            voiceChannel: voiceChannel.id,
+            textChannel: message.channel.id,
+            selfDeafen: true,
         });
 
-        dataStore.activeVoiceChannels[message.guild.id] = voiceChannel.id;
+        if (player.state !== 'CONNECTED') player.connect();
 
-        let queue = dataStore.musicQueue.get(message.guild.id) || [];
-        if (!Array.isArray(queue)) queue = [];
-        queue.push(...songs.map(song => ({ ...song, requester: message.author.id })));
-        dataStore.musicQueue.set(message.guild.id, queue);
+        const res = await Promise.all(tracks.map(track => manager.search(`ytsearch:${track.title} ${track.author}`, message.author)));
+        res.forEach(r => {
+            if (r.loadType === 'SEARCH_RESULT' && r.tracks.length > 0) {
+                player.queue.add(r.tracks[0]);
+            }
+        });
 
-        const player = await setupOrGetPlayer(message.guild.id, voiceChannel.id, message.channel.id);
-        if (!player.playing) {
-            await playSong(message, connection, player);
+        if (!player.playing && !player.paused) {
+            player.play();
+            await sendSuccess(message.channel, '▶️ Reproduciendo ahora', `**${player.queue.current.title}** (pedido por ${userName})`);
         }
     } catch (error) {
         console.error('Error en !play:', error);
         await sendError(message.channel, 'Error inesperado', `Algo salió mal: ${error.message}. Intenta de nuevo.`);
-    }
-}
-
-// Configurar o obtener reproductor
-async function setupOrGetPlayer(guildId, voiceChannelId, textChannelId) {
-    let player = lavalink.players.get(guildId);
-    if (!player) {
-        player = lavalink.createPlayer({
-            guildId: guildId,
-            voiceChannelId: voiceChannelId,
-            textChannelId: textChannelId,
-            selfDeaf: true,
-        });
-        await player.connect();
-
-        player.on('trackStart', (track) => {
-            console.log(`Canción comenzada: ${track.info.title}`);
-        });
-        player.on('trackEnd', async (track, reason) => {
-            console.log(`Canción terminada: ${track.info.title}, motivo: ${reason}`);
-            const queue = dataStore.musicQueue.get(guildId) || [];
-            const song = queue.shift();
-            dataStore.musicQueue.set(guildId, queue);
-            if (!dataStore.previousSongs) dataStore.previousSongs = new Map();
-            dataStore.previousSongs.set(guildId, { title: track.info.title, requester: song?.requester });
-            
-            const channel = client.channels.cache.get(textChannelId);
-            if (queue.length > 0) {
-                const connection = client.voice.adapters.get(guildId)?.connection;
-                if (connection) await playSong({ guild: { id: guildId }, channel }, connection, player);
-            } else {
-                player.destroy();
-                dataStore.musicQueue.delete(guildId);
-                delete dataStore.activeVoiceChannels[guildId];
-                if (channel) await sendSuccess(channel, '🎶 Reproducción terminada', 'No hay más canciones en la cola.');
-            }
-        });
-        player.on('trackError', (track, error) => {
-            console.error('Error en la pista:', error);
-            const channel = client.channels.cache.get(textChannelId);
-            if (channel) sendError(channel, 'Error al reproducir', `No pude reproducir "${track.info.title}": ${error.message}. Pasando a la siguiente.`);
-            const queue = dataStore.musicQueue.get(guildId) || [];
-            queue.shift();
-            dataStore.musicQueue.set(guildId, queue);
-            const connection = client.voice.adapters.get(guildId)?.connection;
-            if (connection) playSong({ guild: { id: guildId }, channel }, connection, player);
-        });
-    }
-    return player;
-}
-
-// Reproducir canción
-async function playSong(message, connection, player) {
-    const queue = dataStore.musicQueue.get(message.guild.id) || [];
-    if (!queue.length) {
-        connection.destroy();
-        dataStore.musicQueue.delete(message.guild.id);
-        delete dataStore.activeVoiceChannels[message.guild.id];
-        await sendSuccess(message.channel, '🎶 Reproducción terminada', 'No hay más canciones en la cola.');
-        return;
-    }
-
-    const song = queue[0];
-    const requesterName = song.requester === OWNER_ID ? 'Miguel' : 'Belén';
-
-    try {
-        const searchResult = await lavalink.rest.loadTracks(`ytsearch:${song.title}`);
-        if (!searchResult.tracks || searchResult.tracks.length === 0) {
-            await sendError(message.channel, 'No pude encontrar la canción', `No se encontraron resultados para "${song.title}". Pasando a la siguiente.`);
-            queue.shift();
-            dataStore.musicQueue.set(message.guild.id, queue);
-            return playSong(message, connection, player);
-        }
-
-        const track = searchResult.tracks[0];
-        await player.play(track);
-        await sendSuccess(message.channel, '▶️ Reproduciendo ahora', `**${track.info.title}** (pedido por ${requesterName})`);
-    } catch (error) {
-        console.error('Error al reproducir:', error);
-        await sendError(message.channel, 'Error al procesar la canción', `Algo salió mal con "${song.title}": ${error.message}. Pasando a la siguiente.`);
-        queue.shift();
-        dataStore.musicQueue.set(message.guild.id, queue);
-        playSong(message, connection, player);
     }
 }
 
@@ -1194,13 +1124,10 @@ async function manejarStop(message) {
     const voiceChannel = message.member.voice.channel;
     if (!voiceChannel) return sendError(message.channel, '¡Necesitas estar en un canal de voz!');
 
-    const player = lavalink.players.get(message.guild.id);
-    if (!player) return sendError(message.channel, '¡No estoy reproduciendo nada ahora!', 'No estoy conectado a ningún canal de voz. ¿Intentamos con !play primero?');
+    const player = manager.players.get(message.guild.id);
+    if (!player) return sendError(message.channel, '¡No estoy reproduciendo nada ahora!');
 
     player.destroy();
-    lavalink.players.delete(message.guild.id);
-    dataStore.musicQueue.delete(message.guild.id);
-    delete dataStore.activeVoiceChannels[message.guild.id];
     await sendSuccess(message.channel, '🛑 Música detenida', 'El reproductor ha sido detenido.');
 }
 
@@ -1210,15 +1137,10 @@ async function manejarSkip(message) {
     const voiceChannel = message.member.voice.channel;
     if (!voiceChannel) return sendError(message.channel, '¡Necesitas estar en un canal de voz!');
 
-    const player = lavalink.players.get(message.guild.id);
+    const player = manager.players.get(message.guild.id);
     if (!player) return sendError(message.channel, '¡No estoy reproduciendo nada ahora!');
 
-    const queue = dataStore.musicQueue.get(message.guild.id) || [];
-    if (!queue.length) return sendError(message.channel, '¡No hay canciones para saltar!');
-
-    queue.shift();
-    dataStore.musicQueue.set(message.guild.id, queue);
-    await player.stop();
+    player.stop();
     await sendSuccess(message.channel, '⏭️ Canción saltada', 'Se ha saltado la canción actual.');
 }
 
@@ -1228,10 +1150,10 @@ async function manejarPause(message) {
     const voiceChannel = message.member.voice.channel;
     if (!voiceChannel) return sendError(message.channel, '¡Necesitas estar en un canal de voz!');
 
-    const player = lavalink.players.get(message.guild.id);
+    const player = manager.players.get(message.guild.id);
     if (!player) return sendError(message.channel, '¡No estoy reproduciendo nada ahora!');
 
-    player.pause();
+    player.pause(true);
     await sendSuccess(message.channel, '⏸️ Música pausada', 'La música ha sido pausada. Usa !resume para continuar.');
 }
 
@@ -1241,29 +1163,63 @@ async function manejarResume(message) {
     const voiceChannel = message.member.voice.channel;
     if (!voiceChannel) return sendError(message.channel, '¡Necesitas estar en un canal de voz!');
 
-    const player = lavalink.players.get(message.guild.id);
+    const player = manager.players.get(message.guild.id);
     if (!player) return sendError(message.channel, '¡No estoy reproduciendo nada ahora!');
 
-    player.resume();
+    player.pause(false);
     await sendSuccess(message.channel, '▶️ Música reanudada', 'La música sigue reproduciéndose.');
 }
 
 async function manejarAutoplay(message) {
+    const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
+
     if (!message.guild) return sendError(message.channel, '¡Este comando solo funciona en servidores!');
 
     const voiceChannel = message.member.voice.channel;
     if (!voiceChannel) return sendError(message.channel, '¡Necesitas estar en un canal de voz!');
 
-    const player = lavalink.players.get(message.guild.id);
+    const player = manager.players.get(message.guild.id);
     if (!player) return sendError(message.channel, '¡No estoy reproduciendo nada ahora!');
 
-    const autoplay = !player.data.get("autoplay");
-    player.data.set("autoplay", autoplay);
+    const autoplay = !player.get('autoplay');
+    player.set('autoplay', autoplay);
     await sendSuccess(message.channel, '🔄 Modo Autoplay', autoplay ? 'Autoplay activado.' : 'Autoplay desactivado.');
     await message.react(autoplay ? '✅' : '❌');
+}
 
-    // Nota: Para un autoplay funcional completo, necesitarías buscar canciones relacionadas automáticamente.
-    // Esto es solo un toggle básico como en erela.js.
+// Añadir canción relacionada para autoplay
+async function addRelatedSong(player) {
+    if (!player.get('autoplay') || !player.queue.current) return;
+
+    try {
+        await refreshSpotifyToken();
+        const currentTrack = player.queue.current;
+        const trackInfo = currentTrack.title.split(' ');
+        const artist = currentTrack.author || trackInfo.pop();
+        const songName = trackInfo.join(' ');
+
+        const searchResult = await spotifyApi.searchTracks(`${songName} ${artist}`, { limit: 1 });
+        if (searchResult.body.tracks.items.length === 0) return;
+
+        const trackId = searchResult.body.tracks.items[0].id;
+        const recommendations = await spotifyApi.getRecommendations({
+            seed_tracks: [trackId],
+            limit: 1,
+        });
+
+        const relatedTrack = recommendations.body.tracks[0];
+        const res = await manager.search(`ytsearch:${relatedTrack.name} ${relatedTrack.artists[0].name}`, player.queue.current.requester);
+        if (res.loadType === 'SEARCH_RESULT' && res.tracks.length > 0) {
+            player.queue.add(res.tracks[0]);
+            if (!player.playing && !player.paused) player.play();
+            const channel = client.channels.cache.get(player.textChannel);
+            if (channel) await sendSuccess(channel, '🔄 Autoplay', `Añadí "${res.tracks[0].title}" relacionado con "${currentTrack.title}".`);
+        }
+    } catch (error) {
+        console.error('Error en autoplay:', error);
+        const channel = client.channels.cache.get(player.textChannel);
+        if (channel) await sendError(channel, 'Error en Autoplay', `No pude encontrar una canción relacionada: ${error.message}.`);
+    }
 }
 
 // Ranking con top por categoría para Trivia y Reacciones
@@ -1421,6 +1377,17 @@ async function manejarCommand(message) {
     }
 }
 
+// Eventos de Erela.js
+manager.on('queueEnd', async (player) => {
+    await addRelatedSong(player);
+});
+
+manager.on('trackStart', (player, track) => {
+    const channel = client.channels.cache.get(player.textChannel);
+    const requesterName = track.requester.id === OWNER_ID ? 'Miguel' : 'Belén';
+    if (channel) sendSuccess(channel, '▶️ Reproduciendo ahora', `**${track.title}** (pedido por ${requesterName})`);
+});
+
 client.on('messageCreate', async (message) => {
     if (message.author.bot) return;
     if (![OWNER_ID, ALLOWED_USER_ID].includes(message.author.id)) return;
@@ -1465,8 +1432,9 @@ client.once('ready', async () => {
     activeTrivia = new Map(Object.entries(dataStore.activeSessions).filter(([_, s]) => s.type === 'trivia'));
     console.log('Sesiones activas recargadas:', JSON.stringify(dataStore.activeSessions));
 
-    lavalink.init({ userID: client.user.id });
-    // Verificación de actualizaciones al iniciar
+    manager.init(client.user.id);
+    console.log('Erela.js inicializado');
+    // ... (resto del código de ready)
     try {
         const channel = await client.channels.fetch(CHANNEL_ID);
         if (!channel) throw new Error('Canal no encontrado');
@@ -1497,6 +1465,8 @@ client.once('ready', async () => {
         console.error('Error al enviar actualizaciones o retomar música:', error);
     }
 });
+
+client.on('raw', (d) => manager.updateVoiceState(d));
 
 process.on('beforeExit', async () => {
     console.log('Guardando datos antes de salir...');
