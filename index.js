@@ -26,6 +26,17 @@ const BOT_UPDATES = [
     '!ch genera imágenes para preguntas como "¿Cómo es...?".'
 ];
 
+// Mensajes de ánimo para Belén
+const mensajesAnimo = [
+    "¡Belén, no es verdad que todos te odian! Eres increíble y tienes un corazón enorme. Aquí estoy para recordártelo siempre.",
+    "No digas eso, Belén. Eres una persona especial y valiosa, y hay mucha gente que te aprecia, ¡incluyéndome a mí!",
+    "Belén, tú (iluminas) el día de cualquiera con tu energía. Nadie podría odiarte, ¡eres un tesoro!",
+    "¡Nada de eso, Belén! Eres divertida, inteligente y única. Todos los que te conocen saben lo genial que eres.",
+    "Belén, no te sientas así. Tienes un montón de cosas buenas que ofrecer, y yo siempre estaré aquí para apoyarte.",
+    "¡Ey, Belén! Eres demasiado awesome para que alguien te odie. Además, tienes fans como yo que te adoran.",
+    "Belén, eres un sol, y si alguien no lo ve, es su pérdida. ¡Tú sigue brillando, que aquí te queremos mucho!"
+];
+
 // Preguntas de trivia organizadas por categorías
 const preguntasTriviaSinOpciones = {
     capitales: [
@@ -922,6 +933,11 @@ async function manejarCommand(message) {
         await manejarPPM(message);
     } else if (content.startsWith('!reacciones') || content.startsWith('!re')) {
         await manejarReacciones(message);
+    } else if (content.startsWith('!luz')) {  // Nuevo comando
+        const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
+        const mensaje = mensajesAnimo[Math.floor(Math.random() * mensajesAnimo.length)];
+        const embed = createEmbed('#FFAA00', `¡Ánimo, ${userName}!`, mensaje);
+        await message.channel.send({ embeds: [embed] });
     } else if (content === '!save') {
         const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
         try {
