@@ -20,13 +20,12 @@ const ALLOWED_USER_ID = '1023132788632862761'; // ID de Belén
 const CHANNEL_ID = '1343749554905940058'; // Canal principal
 
 const BOT_UPDATES = [
-    '¡Chat IA mejorado! Respuestas más naturales y útiles con Miguel IA.',
-    '¡Trivia por categorías! Elige entre capitales, química, física, historia, biología, juegos, películas, Disney y matemáticas.',
-    '¡Reacciones mejoradas! Ahora el primero en escribir la palabra gana, con estadísticas de victorias.',
-    '¡PPM mejorado! Incluye cuenta regresiva, récords personales y mayor precisión.',
-    '¡Trivia sin opciones con muchas preguntas! Responde directamente y acumula puntos.',
-    'Comandos abreviados: !ch, !tr, !rk, !pp, !h, !re.',
-    'Pronto: Más palabras para !re y más frases para !pp. ¡Estén atentos!',
+    '¡Trivia extendida! Ahora las trivias son de 20 preguntas por defecto en lugar de 10.',
+    '¡Guardado automático mejorado! Avisa 5 minutos antes cada 30 minutos para que evites iniciar nuevos comandos.',
+    '¡Notificaciones de reacciones! Cada vez que Belén reacciona a un mensaje del bot, Miguel recibe una notificación.',
+    '¡Comandos !sugerencias y !ayuda añadidos! Envía ideas o pide ayuda directamente a Miguel.',
+    '¡PPM más rápido! El tiempo para escribir la frase se redujo de 60 a 15 segundos.',
+    '¡Verificación de actualizaciones! El bot compara BOT_UPDATES con PREVIOUS_BOT_UPDATES al iniciar y avisa si hay cambios.',
 ];
 
 // Estado anterior de las actualizaciones (del código pasado)
