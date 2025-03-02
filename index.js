@@ -639,7 +639,7 @@ setInterval(async () => {
         console.log('No hay cambios en dataStore, omitiendo guardado automático');
         return;
     }
-}
+});
             
 // Funciones de Trivia
 function obtenerPreguntaTriviaSinOpciones(usedQuestions, categoria) {
