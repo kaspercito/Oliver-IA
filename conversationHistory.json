@@ -33,5 +33,12 @@
       "wins": 1
     }
   },
-  "activeTrivia": {}
+  "activeTrivia": {
+    "1343749554905940058": {
+      "id": "1345585030260326502",
+      "correcta": "egipcia",
+      "timestamp": 1740882871062,
+      "userId": "752987736759205960"
+    }
+  }
 }
