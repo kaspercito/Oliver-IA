@@ -26,60 +26,215 @@ const BOT_UPDATES = [
     '!ch genera imágenes para preguntas como "¿Cómo es...?".'
 ];
 
-// Preguntas de trivia sin opciones (ampliado a 50)
-const preguntasTriviaSinOpciones = [
-    { pregunta: "¿Cuál es la capital de Brasil?", respuesta: "brasilia" },
-    { pregunta: "¿Cuál es la capital de Japón?", respuesta: "tokio" },
-    { pregunta: "¿Cuál es la capital de Francia?", respuesta: "parís" },
-    { pregunta: "¿Cuál es la capital de Australia?", respuesta: "canberra" },
-    { pregunta: "¿Cuál es la capital de Canadá?", respuesta: "ottawa" },
-    { pregunta: "¿Cuál es la capital de Rusia?", respuesta: "moscú" },
-    { pregunta: "¿Cuál es la capital de India?", respuesta: "nueva delhi" },
-    { pregunta: "¿Cuál es la capital de Argentina?", respuesta: "buenos aires" },
-    { pregunta: "¿Cuál es la capital de México?", respuesta: "ciudad de méxico" },
-    { pregunta: "¿Cuál es la capital de Italia?", respuesta: "roma" },
-    { pregunta: "¿Cuál es la capital de España?", respuesta: "madrid" },
-    { pregunta: "¿Cuál es la capital de Alemania?", respuesta: "berlín" },
-    { pregunta: "¿Cuál es la capital de China?", respuesta: "pekín" },
-    { pregunta: "¿Cuál es la capital de Egipto?", respuesta: "el cairo" },
-    { pregunta: "¿Cuál es la capital de Sudáfrica?", respuesta: "pretoria" },
-    { pregunta: "¿Qué elemento tiene el símbolo 'H'?", respuesta: "hidrógeno" },
-    { pregunta: "¿Qué gas tiene la fórmula CO2?", respuesta: "dióxido de carbono" },
-    { pregunta: "¿Qué elemento es un metal líquido a temperatura ambiente?", respuesta: "mercurio" },
-    { pregunta: "¿Cuál es el símbolo del oro?", respuesta: "au" },
-    { pregunta: "¿Qué compuesto es el agua?", respuesta: "h2o" },
-    { pregunta: "¿Qué elemento tiene el símbolo 'O'?", respuesta: "oxígeno" },
-    { pregunta: "¿Qué metal tiene el símbolo 'Fe'?", respuesta: "hierro" },
-    { pregunta: "¿Qué gas noble tiene el símbolo 'Ne'?", respuesta: "neón" },
-    { pregunta: "¿Qué unidad mide la fuerza?", respuesta: "newton" },
-    { pregunta: "¿Qué ley dice que F = m * a?", respuesta: "segunda ley de newton" },
-    { pregunta: "¿Cuál es la velocidad de la luz en el vacío (aproximada)?", respuesta: "300000 km/s" },
-    { pregunta: "¿Qué instrumento mide la presión atmosférica?", respuesta: "barómetro" },
-    { pregunta: "¿Qué tipo de energía almacena un resorte comprimido?", respuesta: "energía elástica" },
-    { pregunta: "¿Qué mide la unidad 'voltio'?", respuesta: "voltaje" },
-    { pregunta: "¿Quién formuló la teoría de la relatividad?", respuesta: "einstein" },
-    { pregunta: "¿En qué año llegó Colón a América?", respuesta: "1492" },
-    { pregunta: "¿Qué civilización construyó las pirámides de Giza?", respuesta: "egipcia" },
-    { pregunta: "¿Qué guerra ocurrió entre 1939 y 1945?", respuesta: "segunda guerra mundial" },
-    { pregunta: "¿Quién fue el primer emperador de Roma?", respuesta: "augusto" },
-    { pregunta: "¿En qué año cayó el Muro de Berlín?", respuesta: "1989" },
-    { pregunta: "¿Qué revolución comenzó en 1789?", respuesta: "revolución francesa" },
-    { pregunta: "¿Quién pintó la Mona Lisa?", respuesta: "leonardo da vinci" },
-    { pregunta: "¿Qué órgano bompea sangre en el cuerpo humano?", respuesta: "corazón" },
-    { pregunta: "¿Cuál es el proceso por el que las plantas hacen su alimento?", respuesta: "fotosíntesis" },
-    { pregunta: "¿Qué gas exhalan los humanos al respirar?", respuesta: "dióxido de carbono" },
-    { pregunta: "¿Qué parte del cuerpo humano produce insulina?", respuesta: "páncreas" },
-    { pregunta: "¿Qué animal es conocido como el rey de la selva?", respuesta: "león" },
-    { pregunta: "¿Qué clase de animal es un delfín?", respuesta: "mamífero" },
-    { pregunta: "¿Qué estructura en las células contiene el ADN?", respuesta: "núcleo" },
-    { pregunta: "¿Qué juego tiene un personaje llamado Mario?", respuesta: "super mario" },
-    { pregunta: "¿Qué juego incluye a un personaje llamado Link?", respuesta: "the legend of zelda" },
-    { pregunta: "¿Qué juego es famoso por su modo battle royale?", respuesta: "fortnite" },
-    { pregunta: "¿En qué juego construyes con bloques en un mundo cúbico?", respuesta: "minecraft" },
-    { pregunta: "¿Qué película tiene a Jack Sparrow como pirata?", respuesta: "piratas del caribe" },
-    { pregunta: "¿Qué película tiene un león rey llamado Mufasa?", respuesta: "el rey león" },
-    { pregunta: "¿Qué princesa tiene poderes de hielo?", respuesta: "elsa" }
-];
+// Preguntas de trivia organizadas por categorías
+const preguntasTriviaSinOpciones = {
+const preguntasTriviaSinOpciones = {
+    capitales: [
+        { pregunta: "¿Cuál es la capital de Brasil?", respuesta: "brasilia" },
+        { pregunta: "¿Cuál es la capital de Japón?", respuesta: "tokio" },
+        { pregunta: "¿Cuál es la capital de Francia?", respuesta: "parís" },
+        { pregunta: "¿Cuál es la capital de Australia?", respuesta: "canberra" },
+        { pregunta: "¿Cuál es la capital de Canadá?", respuesta: "ottawa" },
+        { pregunta: "¿Cuál es la capital de Rusia?", respuesta: "moscú" },
+        { pregunta: "¿Cuál es la capital de India?", respuesta: "nueva delhi" },
+        { pregunta: "¿Cuál es la capital de Argentina?", respuesta: "buenos aires" },
+        { pregunta: "¿Cuál es la capital de México?", respuesta: "ciudad de méxico" },
+        { pregunta: "¿Cuál es la capital de Italia?", respuesta: "roma" },
+        { pregunta: "¿Cuál es la capital de España?", respuesta: "madrid" },
+        { pregunta: "¿Cuál es la capital de Alemania?", respuesta: "berlín" },
+        { pregunta: "¿Cuál es la capital de China?", respuesta: "pekín" },
+        { pregunta: "¿Cuál es la capital de Egipto?", respuesta: "el cairo" },
+        { pregunta: "¿Cuál es la capital de Sudáfrica?", respuesta: "pretoria" },
+        { pregunta: "¿Cuál es la capital de Reino Unido?", respuesta: "londres" },
+        { pregunta: "¿Cuál es la capital de Portugal?", respuesta: "lisboa" },
+        { pregunta: "¿Cuál es la capital de Grecia?", respuesta: "atenas" },
+        { pregunta: "¿Cuál es la capital de Turquía?", respuesta: "ankara" },
+        { pregunta: "¿Cuál es la capital de Chile?", respuesta: "santiago" },
+        { pregunta: "¿Cuál es la capital de Colombia?", respuesta: "bogotá" },
+        { pregunta: "¿Cuál es la capital de Perú?", respuesta: "lima" },
+        { pregunta: "¿Cuál es la capital de Suecia?", respuesta: "estocolmo" },
+        { pregunta: "¿Cuál es la capital de Noruega?", respuesta: "oslo" },
+        { pregunta: "¿Cuál es la capital de Nueva Zelanda?", respuesta: "wellington" }
+    ],
+    quimica: [
+        { pregunta: "¿Qué elemento tiene el símbolo 'H'?", respuesta: "hidrógeno" },
+        { pregunta: "¿Qué gas tiene la fórmula CO2?", respuesta: "dióxido de carbono" },
+        { pregunta: "¿Qué elemento es un metal líquido a temperatura ambiente?", respuesta: "mercurio" },
+        { pregunta: "¿Cuál es el símbolo del oro?", respuesta: "au" },
+        { pregunta: "¿Qué compuesto es el agua?", respuesta: "h2o" },
+        { pregunta: "¿Qué elemento tiene el símbolo 'O'?", respuesta: "oxígeno" },
+        { pregunta: "¿Qué metal tiene el símbolo 'Fe'?", respuesta: "hierro" },
+        { pregunta: "¿Qué gas noble tiene el símbolo 'Ne'?", respuesta: "neón" },
+        { pregunta: "¿Qué elemento tiene el símbolo 'Na'?", respuesta: "sodio" },
+        { pregunta: "¿Qué gas tiene el símbolo 'He'?", respuesta: "helio" },
+        { pregunta: "¿Qué elemento tiene el símbolo 'C'?", respuesta: "carbono" },
+        { pregunta: "¿Qué metal tiene el símbolo 'Cu'?", respuesta: "cobre" },
+        { pregunta: "¿Qué elemento tiene el símbolo 'Ag'?", respuesta: "plata" },
+        { pregunta: "¿Qué compuesto es el cloruro de sodio?", respuesta: "nacl" },
+        { pregunta: "¿Qué gas tiene el símbolo 'N'?", respuesta: "nitrógeno" },
+        { pregunta: "¿Qué elemento tiene el símbolo 'K'?", respuesta: "potasio" },
+        { pregunta: "¿Qué metal tiene el símbolo 'Pb'?", respuesta: "plomo" },
+        { pregunta: "¿Qué elemento tiene el símbolo 'S'?", respuesta: "azufre" },
+        { pregunta: "¿Qué gas noble tiene el símbolo 'Ar'?", respuesta: "argón" },
+        { pregunta: "¿Qué elemento tiene el símbolo 'Al'?", respuesta: "aluminio" },
+        { pregunta: "¿Qué compuesto es el dióxido de azufre?", respuesta: "so2" },
+        { pregunta: "¿Qué elemento tiene el símbolo 'P'?", respuesta: "fósforo" }
+    ],
+    fisica: [
+        { pregunta: "¿Qué unidad mide la fuerza?", respuesta: "newton" },
+        { pregunta: "¿Qué ley dice que F = m * a?", respuesta: "segunda ley de newton" },
+        { pregunta: "¿Cuál es la velocidad de la luz en el vacío (aproximada)?", respuesta: "300000 km/s" },
+        { pregunta: "¿Qué instrumento mide la presión atmosférica?", respuesta: "barómetro" },
+        { pregunta: "¿Qué tipo de energía almacena un resorte comprimido?", respuesta: "energía elástica" },
+        { pregunta: "¿Qué mide la unidad 'voltio'?", respuesta: "voltaje" },
+        { pregunta: "¿Quién formuló la teoría de la relatividad?", respuesta: "einstein" },
+        { pregunta: "¿Qué mide la unidad 'joule'?", respuesta: "energía" },
+        { pregunta: "¿Qué mide la unidad 'watt'?", respuesta: "potencia" },
+        { pregunta: "¿Qué ley dice que la energía no se crea ni se destruye?", respuesta: "conservación de la energía" },
+        { pregunta: "¿Qué instrumento mide la temperatura?", respuesta: "termómetro" },
+        { pregunta: "¿Qué tipo de onda transporta el sonido?", respuesta: "longitudinal" },
+        { pregunta: "¿Qué mide la unidad 'hertz'?", respuesta: "frecuencia" },
+        { pregunta: "¿Qué fuerza mantiene a los planetas en órbita?", respuesta: "gravedad" },
+        { pregunta: "¿Qué mide la unidad 'ohmio'?", respuesta: "resistencia" },
+        { pregunta: "¿Qué fenómeno explica la curvatura de la luz por la gravedad?", respuesta: "relatividad general" },
+        { pregunta: "¿Qué tipo de energía tiene un objeto en movimiento?", respuesta: "cinética" },
+        { pregunta: "¿Qué mide la unidad 'amperio'?", respuesta: "corriente eléctrica" },
+        { pregunta: "¿Qué instrumento mide la velocidad del viento?", respuesta: "anemómetro" },
+        { pregunta: "¿Qué ley dice que a toda acción hay una reacción igual y opuesta?", respuesta: "tercera ley de newton" }
+    ],
+    historia: [
+        { pregunta: "¿En qué año llegó Colón a América?", respuesta: "1492" },
+        { pregunta: "¿Qué civilización construyó las pirámides de Giza?", respuesta: "egipcia" },
+        { pregunta: "¿Qué guerra ocurrió entre 1939 y 1945?", respuesta: "segunda guerra mundial" },
+        { pregunta: "¿Quién fue el primer emperador de Roma?", respuesta: "augusto" },
+        { pregunta: "¿En qué año cayó el Muro de Berlín?", respuesta: "1989" },
+        { pregunta: "¿Qué revolución comenzó en 1789?", respuesta: "revolución francesa" },
+        { pregunta: "¿Quién pintó la Mona Lisa?", respuesta: "leonardo da vinci" },
+        { pregunta: "¿En qué año comenzó la Primera Guerra Mundial?", respuesta: "1914" },
+        { pregunta: "¿Qué civilización construyó Machu Picchu?", respuesta: "inca" },
+        { pregunta: "¿Quién fue el primer presidente de Estados Unidos?", respuesta: "george washington" },
+        { pregunta: "¿En qué año se firmó la Declaración de Independencia de EE.UU.?", respuesta: "1776" },
+        { pregunta: "¿Qué imperio fue gobernado por Gengis Kan?", respuesta: "mongol" },
+        { pregunta: "¿Quién descubrió la penicilina?", respuesta: "alexander fleming" },
+        { pregunta: "¿En qué año terminó la Segunda Guerra Mundial?", respuesta: "1945" },
+        { pregunta: "¿Qué civilización inventó la escritura cuneiforme?", respuesta: "sumeria" },
+        { pregunta: "¿Quién fue el líder de la Revolución Rusa de 1917?", respuesta: "lenin" },
+        { pregunta: "¿En qué año se inventó la imprenta?", respuesta: "1440" },
+        { pregunta: "¿Qué reina inglesa tuvo el reinado más largo?", respuesta: "isabel ii" },
+        { pregunta: "¿Qué evento marcó el inicio de la Edad Media?", respuesta: "caída de roma" },
+        { pregunta: "¿Quién fue el faraón famoso por su tumba llena de tesoros?", respuesta: "tutankamón" }
+    ],
+    biologia: [
+        { pregunta: "¿Qué órgano bombea sangre en el cuerpo humano?", respuesta: "corazón" },
+        { pregunta: "¿Cuál es el proceso por el que las plantas hacen su alimento?", respuesta: "fotosíntesis" },
+        { pregunta: "¿Qué gas exhalan los humanos al respirar?", respuesta: "dióxido de carbono" },
+        { pregunta: "¿Qué parte del cuerpo humano produce insulina?", respuesta: "páncreas" },
+        { pregunta: "¿Qué animal es conocido como el rey de la selva?", respuesta: "león" },
+        { pregunta: "¿Qué clase de animal es un delfín?", respuesta: "mamífero" },
+        { pregunta: "¿Qué estructura en las células contiene el ADN?", respuesta: "núcleo" },
+        { pregunta: "¿Qué gas necesitan las plantas para la fotosíntesis?", respuesta: "dióxido de carbono" },
+        { pregunta: "¿Qué órgano filtra la sangre en el cuerpo humano?", respuesta: "riñones" },
+        { pregunta: "¿Qué animal es el mamífero más grande del mundo?", respuesta: "ballena azul" },
+        { pregunta: "¿Qué parte del cuerpo humano controla el equilibrio?", respuesta: "oído" },
+        { pregunta: "¿Qué tipo de sangre transportan las arterias?", respuesta: "oxigenada" },
+        { pregunta: "¿Qué animal tiene el cuello más largo?", respuesta: "jirafa" },
+        { pregunta: "¿Qué insecto produce miel?", respuesta: "abeja" },
+        { pregunta: "¿Qué órgano humano digiere los alimentos?", respuesta: "estómago" },
+        { pregunta: "¿Qué animal es conocido por cambiar de color?", respuesta: "camaleón" },
+        { pregunta: "¿Qué gas respiran los humanos?", respuesta: "oxígeno" },
+        { pregunta: "¿Qué parte de la planta absorbe agua del suelo?", respuesta: "raíz" },
+        { pregunta: "¿Qué animal tiene un pico y plumas pero no vuela?", respuesta: "pingüino" },
+        { pregunta: "¿Qué órgano humano es el más grande?", respuesta: "piel" }
+    ],
+    juegos: [
+        { pregunta: "¿Qué juego tiene un personaje llamado Mario?", respuesta: "super mario" },
+        { pregunta: "¿Qué juego incluye a un personaje llamado Link?", respuesta: "the legend of zelda" },
+        { pregunta: "¿Qué juego es famoso por su modo battle royale?", respuesta: "fortnite" },
+        { pregunta: "¿En qué juego construyes con bloques en un mundo cúbico?", respuesta: "minecraft" },
+        { pregunta: "¿Qué juego tiene un personaje llamado Master Chief?", respuesta: "halo" },
+        { pregunta: "¿Qué juego incluye a Lara Croft como protagonista?", respuesta: "tomb raider" },
+        { pregunta: "¿Qué juego tiene un mapa llamado Summoner's Rift?", respuesta: "league of legends" },
+        { pregunta: "¿Qué juego te permite capturar criaturas con pokebolas?", respuesta: "pokémon" },
+        { pregunta: "¿Qué juego tiene un personaje llamado Kratos?", respuesta: "god of war" },
+        { pregunta: "¿Qué juego es famoso por su modo de carreras Mario Kart?", respuesta: "mario kart" },
+        { pregunta: "¿Qué juego tiene un mundo abierto llamado Los Santos?", respuesta: "grand theft auto v" },
+        { pregunta: "¿Qué juego incluye a un erizo azul llamado Sonic?", respuesta: "sonic the hedgehog" },
+        { pregunta: "¿Qué juego tiene un personaje llamado Solid Snake?", respuesta: "metal gear solid" },
+        { pregunta: "¿Qué juego te permite construir granjas y explorar cuevas?", respuesta: "stardew valley" },
+        { pregunta: "¿Qué juego tiene un modo de batalla llamado Team Deathmatch?", respuesta: "call of duty" },
+        { pregunta: "¿Qué juego incluye a un personaje llamado Geralt de Rivia?", respuesta: "the witcher" },
+        { pregunta: "¿Qué juego tiene un mundo postapocalíptico con Vaults?", respuesta: "fallout" },
+        { pregunta: "¿Qué juego te permite ser un simulador de vida?", respuesta: "the sims" },
+        { pregunta: "¿Qué juego tiene un personaje llamado Ellie en un mundo con infectados?", respuesta: "the last of us" },
+        { pregunta: "¿Qué juego incluye combates con cartas como 'Magic'?", respuesta: "hearthstone" }
+    ],
+    peliculas: [
+        { pregunta: "¿Qué película tiene a Jack Sparrow como pirata?", respuesta: "piratas del caribe" },
+        { pregunta: "¿Qué película tiene un león rey llamado Mufasa?", respuesta: "el rey león" },
+        { pregunta: "¿Qué película tiene un tiburón como antagonista principal?", respuesta: "tiburón" },
+        { pregunta: "¿Qué película incluye a un robot llamado WALL-E?", respuesta: "wall-e" },
+        { pregunta: "¿Qué película tiene un mago joven que va a Hogwarts?", respuesta: "harry potter" },
+        { pregunta: "¿Qué película tiene un superhéroe llamado Tony Stark?", respuesta: "iron man" },
+        { pregunta: "¿Qué película incluye un viaje al espacio con HAL 9000?", respuesta: "2001: odisea del espacio" },
+        { pregunta: "¿Qué película tiene un personaje llamado Darth Vader?", respuesta: "star wars" },
+        { pregunta: "¿Qué película incluye un boxeador llamado Rocky Balboa?", respuesta: "rocky" },
+        { pregunta: "¿Qué película tiene un dinosaurio llamado Rex?", respuesta: "toy story" },
+        { pregunta: "¿Qué película narra la historia del Titanic?", respuesta: "titanic" },
+        { pregunta: "¿Qué película tiene un espía llamado James Bond?", respuesta: "james bond" },
+        { pregunta: "¿Qué película incluye una ciudad subterránea llamada Zion?", respuesta: "matrix" },
+        { pregunta: "¿Qué película tiene un personaje llamado Forrest Gump?", respuesta: "forrest gump" },
+        { pregunta: "¿Qué película incluye un mago blanco llamado Gandalf?", respuesta: "el señor de los anillos" },
+        { pregunta: "¿Qué película tiene un arqueólogo llamado Indiana Jones?", respuesta: "indiana jones" },
+        { pregunta: "¿Qué película incluye un superhéroe aracnido?", respuesta: "spider-man" },
+        { pregunta: "¿Qué película tiene un mundo con sueños robados?", respuesta: "inception" },
+        { pregunta: "¿Qué película incluye un club de pelea secreto?", respuesta: "fight club" },
+        { pregunta: "¿Qué película tiene un personaje llamado Hannibal Lecter?", respuesta: "el silencio de los corderos" }
+    ],
+    disney: [
+        { pregunta: "¿Qué princesa tiene poderes de hielo?", respuesta: "elsa" },
+        { pregunta: "¿Qué princesa tiene una madrastra llamada Lady Tremaine?", respuesta: "cenicienta" },
+        { pregunta: "¿Qué película Disney tiene un pez llamado Nemo?", respuesta: "buscando a nemo" },
+        { pregunta: "¿Qué personaje Disney es un pato gruñón?", respuesta: "donald" },
+        { pregunta: "¿Qué película Disney tiene una lámpara mágica?", respuesta: "aladdín" },
+        { pregunta: "¿Qué película Disney tiene un rey león llamado Simba?", respuesta: "el rey león" },
+        { pregunta: "¿Qué princesa Disney vive bajo el mar?", respuesta: "ariel" },
+        { pregunta: "¿Qué personaje Disney es un ratón famoso?", respuesta: "mickey" },
+        { pregunta: "¿Qué película Disney tiene una bestia encantada?", respuesta: "la bella y la bestia" },
+        { pregunta: "¿Qué película Disney incluye un perro callejero y una dama?", respuesta: "la dama y el vagabundo" },
+        { pregunta: "¿Qué princesa tiene poderes de hielo?", respuesta: "elsa" },
+        { pregunta: "¿Qué princesa tiene una madrastra llamada Lady Tremaine?", respuesta: "cenicienta" },
+        { pregunta: "¿Qué película tiene un pez llamado Nemo?", respuesta: "buscando a nemo" },
+        { pregunta: "¿Qué personaje es un pato gruñón?", respuesta: "donald" },
+        { pregunta: "¿Qué película tiene una lámpara mágica?", respuesta: "aladdín" },
+        { pregunta: "¿Qué película tiene un rey león llamado Simba?", respuesta: "el rey león" },
+        { pregunta: "¿Qué princesa vive bajo el mar?", respuesta: "ariel" },
+        { pregunta: "¿Qué personaje es un ratón famoso?", respuesta: "mickey" },
+        { pregunta: "¿Qué película tiene una bestia encantada?", respuesta: "la bella y la bestia" },
+        { pregunta: "¿Qué película incluye un perro callejero y una dama?", respuesta: "la dama y el vagabundo" }
+    ],
+    matematicas: [
+        { pregunta: "¿Cuánto es 5 + 7?", respuesta: "12" },
+        { pregunta: "¿Cuál es el resultado de 3 x 4?", respuesta: "12" },
+        { pregunta: "¿Cuánto es 15 - 6?", respuesta: "9" },
+        { pregunta: "¿Qué número es el doble de 8?", respuesta: "16" },
+        { pregunta: "¿Cuánto es 20 ÷ 4?", respuesta: "5" },
+        { pregunta: "¿Cuál es el resultado de 9 + 11?", respuesta: "20" },
+        { pregunta: "¿Qué número es la mitad de 10?", respuesta: "5" },
+        { pregunta: "¿Cuánto es 7 x 3?", respuesta: "21" },
+        { pregunta: "¿Cuál es el resultado de 25 - 13?", respuesta: "12" },
+        { pregunta: "¿Cuánto es 6 + 8?", respuesta: "14" },
+        { pregunta: "¿Cuál es el resultado de 4 x 5?", respuesta: "20" },
+        { pregunta: "¿Cuánto es 18 - 9?", respuesta: "9" },
+        { pregunta: "¿Qué número es el triple de 3?", respuesta: "9" },
+        { pregunta: "¿Cuánto es 30 ÷ 5?", respuesta: "6" },
+        { pregunta: "¿Cuál es el resultado de 12 + 15?", respuesta: "27" },
+        { pregunta: "¿Cuánto es 8 x 2?", respuesta: "16" },
+        { pregunta: "¿Cuál es el resultado de 50 - 25?", respuesta: "25" },
+        { pregunta: "¿Qué número es la mitad de 14?", respuesta: "7" },
+        { pregunta: "¿Cuánto es 9 x 4?", respuesta: "36" },
+        { pregunta: "¿Cuál es el resultado de 100 ÷ 10?", respuesta: "10" }
+    ]
+};
 
 // Palabras aleatorias para el juego de reacciones
 const palabrasAleatorias = [
@@ -123,12 +278,12 @@ let sentMessages = new Map();
 let processedMessages = new Map();
 let dataStore = { 
     conversationHistory: {}, 
-    triviaRanking: {}, 
+    triviaRanking: {}, // Ahora será { userId: { categoria: { score: X } } }
     personalPPMRecords: {}, 
     reactionStats: {}, 
     reactionWins: {}, 
     activeSessions: {}, 
-    triviaStats: {} 
+    triviaStats: {} // Ahora será { userId: { categoria: { correct: X, total: Y } } }
 };
 
 // Utilidades
@@ -250,8 +405,9 @@ setInterval(() => {
 }, 600000);
 
 // Funciones de Trivia
-function obtenerPreguntaTriviaSinOpciones(usedQuestions) {
-    const available = preguntasTriviaSinOpciones.filter(q => !usedQuestions.includes(q.pregunta));
+function obtenerPreguntaTriviaSinOpciones(usedQuestions, categoria) {
+    const preguntasCategoria = preguntasTriviaSinOpciones[categoria] || [];
+    const available = preguntasCategoria.filter(q => !usedQuestions.includes(q.pregunta));
     if (available.length === 0) return null;
     return available[Math.floor(Math.random() * available.length)];
 }
@@ -259,27 +415,38 @@ function obtenerPreguntaTriviaSinOpciones(usedQuestions) {
 async function manejarTrivia(message) {
     console.log(`Instancia ${instanceId} - Iniciando trivia para ${message.author.id}`);
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
+    const args = message.content.toLowerCase().split(' ').slice(1);
+    let categoria = args[0] || 'capitales'; // Por defecto: capitales
     let numQuestions = 10;
-    const args = message.content.split(' ').slice(1);
-    if (args.length > 0 && !isNaN(args[0]) && args[0] >= 10) numQuestions = parseInt(args[0]);
+    if (args[1] && !isNaN(args[1]) && args[1] >= 10) numQuestions = parseInt(args[1]);
+    else if (args[0] && !isNaN(args[0]) && args[0] >= 10) {
+        numQuestions = parseInt(args[0]);
+        categoria = 'capitales'; // Si solo hay número, usar capitales
+    }
+
+    if (!preguntasTriviaSinOpciones[categoria]) {
+        await sendError(message.channel, `Categoría "${categoria}" no encontrada. Categorías disponibles: ${Object.keys(preguntasTriviaSinOpciones).join(', ')}`);
+        return;
+    }
 
     let channelProgress = dataStore.activeSessions[message.channel.id] || { 
         type: 'trivia', 
         currentQuestion: 0, 
         score: 0, 
         totalQuestions: numQuestions, 
-        usedQuestions: [] 
+        usedQuestions: [], 
+        categoria: categoria 
     };
     const usedQuestions = channelProgress.usedQuestions || [];
 
     while (channelProgress.currentQuestion < numQuestions) {
-        const trivia = obtenerPreguntaTriviaSinOpciones(usedQuestions);
+        const trivia = obtenerPreguntaTriviaSinOpciones(usedQuestions, categoria);
         if (!trivia) {
-            await sendError(message.channel, 'No hay más preguntas disponibles.');
+            await sendError(message.channel, 'No hay más preguntas disponibles en esta categoría.');
             break;
         }
         usedQuestions.push(trivia.pregunta);
-        const embedPregunta = createEmbed('#55FFFF', `🎲 ¡Pregunta ${channelProgress.currentQuestion + 1} de ${numQuestions}!`,
+        const embedPregunta = createEmbed('#55FFFF', `🎲 ¡Pregunta ${channelProgress.currentQuestion + 1} de ${numQuestions}! (${categoria})`,
             `${trivia.pregunta}\n\nEscribe tu respuesta (60 segundos), ${userName}.`);
         const sentMessage = await message.channel.send({ embeds: [embedPregunta] });
         activeTrivia.set(message.channel.id, { id: sentMessage.id, correcta: trivia.respuesta, timestamp: Date.now(), userId: message.author.id });
@@ -304,12 +471,13 @@ async function manejarTrivia(message) {
             const cleanedCorrectResponse = cleanText(trivia.respuesta);
             activeTrivia.delete(message.channel.id);
 
-            if (!dataStore.triviaStats[message.author.id]) dataStore.triviaStats[message.author.id] = { correct: 0, total: 0 };
-            dataStore.triviaStats[message.author.id].total += 1;
+            if (!dataStore.triviaStats[message.author.id]) dataStore.triviaStats[message.author.id] = {};
+            if (!dataStore.triviaStats[message.author.id][categoria]) dataStore.triviaStats[message.author.id][categoria] = { correct: 0, total: 0 };
+            dataStore.triviaStats[message.author.id][categoria].total += 1;
 
             if (cleanedUserResponse === cleanedCorrectResponse) {
                 channelProgress.score += 1;
-                dataStore.triviaStats[message.author.id].correct += 1;
+                dataStore.triviaStats[message.author.id][categoria].correct += 1;
                 await sendSuccess(message.channel, '🎉 ¡Correcto!',
                     `¡Bien hecho, ${userName}! La respuesta correcta era **${trivia.respuesta}**. ¡Ganaste 1 punto! (Total: ${channelProgress.score})`);
             } else {
@@ -322,8 +490,9 @@ async function manejarTrivia(message) {
         } catch (error) {
             console.log(`Tiempo agotado o error en pregunta ${channelProgress.currentQuestion + 1}: ${trivia.pregunta}`, error);
             activeTrivia.delete(message.channel.id);
-            if (!dataStore.triviaStats[message.author.id]) dataStore.triviaStats[message.author.id] = { correct: 0, total: 0 };
-            dataStore.triviaStats[message.author.id].total += 1;
+            if (!dataStore.triviaStats[message.author.id]) dataStore.triviaStats[message.author.id] = {};
+            if (!dataStore.triviaStats[message.author.id][categoria]) dataStore.triviaStats[message.author.id][categoria] = { correct: 0, total: 0 };
+            dataStore.triviaStats[message.author.id][categoria].total += 1;
             await sendError(message.channel, '⏳ ¡Tiempo agotado!',
                 `Se acabó el tiempo, ${userName}. La respuesta correcta era **${trivia.respuesta}**.`);
             channelProgress.currentQuestion += 1;
@@ -333,11 +502,12 @@ async function manejarTrivia(message) {
 
     if (channelProgress.currentQuestion >= numQuestions) {
         await sendSuccess(message.channel, '🏁 ¡Trivia Terminada!',
-            `¡Completaste las ${numQuestions} preguntas, ${userName}! Puntuación final: ${channelProgress.score}. Usa !rk para ver tu ranking.`);
-        if (!dataStore.triviaRanking[message.author.id]) dataStore.triviaRanking[message.author.id] = { username: message.author.username, score: 0 };
-        dataStore.triviaRanking[message.author.id].score = (dataStore.triviaRanking[message.author.id].score || 0) + channelProgress.score;
+            `¡Completaste las ${numQuestions} preguntas de ${categoria}, ${userName}! Puntuación final: ${channelProgress.score}. Usa !rk para ver tu ranking.`);
+        if (!dataStore.triviaRanking[message.author.id]) dataStore.triviaRanking[message.author.id] = {};
+        if (!dataStore.triviaRanking[message.author.id][categoria]) dataStore.triviaRanking[message.author.id][categoria] = { score: 0 };
+        dataStore.triviaRanking[message.author.id][categoria].score = (dataStore.triviaRanking[message.author.id][categoria].score || 0) + channelProgress.score;
         delete dataStore.activeSessions[message.channel.id];
-        console.log(`Trivia terminada para ${message.author.id}. Puntaje acumulado: ${dataStore.triviaRanking[message.author.id].score}`);
+        console.log(`Trivia terminada para ${message.author.id} en ${categoria}. Puntaje acumulado: ${dataStore.triviaRanking[message.author.id][categoria].score}`);
     }
 }
 
@@ -397,7 +567,7 @@ async function manejarPPM(message) {
 
         if (!dataStore.personalPPMRecords[message.author.id]) dataStore.personalPPMRecords[message.author.id] = [];
         dataStore.personalPPMRecords[message.author.id] = dataStore.personalPPMRecords[message.author.id].filter(record => 
-            new Date().getTime() - new Date(record.timestamp).getTime() < 24 * 60 * 60 * 1000); // Limpiar registros de más de 24 horas
+            new Date().getTime() - new Date(record.timestamp).getTime() < 24 * 60 * 60 * 1000);
         dataStore.personalPPMRecords[message.author.id].push({ ppm, timestamp: new Date().toISOString() });
 
         if (cleanText(respuestaUsuario) === cleanText(frase)) {
@@ -506,7 +676,7 @@ async function manejarChat(message) {
             const response = await axios.post(
                 'https://api-inference.huggingface.co/models/mistralai/Mixtral-8x7B-Instruct-v0.1',
                 {
-                    inputs: `Eres Miguel IA, creado por Miguel. La usuaria no quedó satisfecha con tu respuesta anterior a "${messageData.originalQuestion}": "${messageData.content}". Proporciona una respuesta alternativa, diferente, clara y útil, como un amigo cercano. No repitas la respuesta anterior. Termina con una nota positiva o una sugerencia para seguir charlando.\nTu respuesta:`,
+                    inputs: `Eres Miguel IA, creado por Miguel. Responde a "${chatMessage}" de forma natural, detallada y útil para ${userName}. Si es un cálculo, resuélvelo; si no sabes, sugiere algo práctico.`,
                     parameters: { max_new_tokens: 500, return_full_text: false }
                 },
                 { headers: { 'Authorization': `Bearer ${process.env.HF_API_TOKEN}` }, timeout: 90000 }
@@ -527,22 +697,38 @@ async function manejarChat(message) {
     }
 }
 
-// Ranking con todos los PPM
+// Ranking con top por categoría para Trivia y Reacciones
 function getCombinedRankingEmbed(userId, username) {
-    const triviaScore = dataStore.triviaRanking[userId]?.score || 0;
-    const ppmRecords = dataStore.personalPPMRecords[userId] || [];
-    const reactionWins = dataStore.reactionWins[userId]?.wins || 0;
-    const triviaStats = dataStore.triviaStats[userId] || { correct: 0, total: 0 };
-    const triviaPercentage = triviaStats.total > 0 ? Math.round((triviaStats.correct / triviaStats.total) * 100) : 0;
+    const categorias = Object.keys(preguntasTriviaSinOpciones); // Esto ahora incluye 'matematicas' y no 'disney'
+    let triviaList = '';
+    categorias.forEach(categoria => {
+        const myScore = dataStore.triviaRanking[OWNER_ID]?.[categoria]?.score || 0;
+        const luzScore = dataStore.triviaRanking[ALLOWED_USER_ID]?.[categoria]?.score || 0;
+        const myStats = dataStore.triviaStats[OWNER_ID]?.[categoria] || { correct: 0, total: 0 };
+        const luzStats = dataStore.triviaStats[ALLOWED_USER_ID]?.[categoria] || { correct: 0, total: 0 };
+        const myPercentage = myStats.total > 0 ? Math.round((myStats.correct / myStats.total) * 100) : 0;
+        const luzPercentage = luzStats.total > 0 ? Math.round((luzStats.correct / luzStats.total) * 100) : 0;
 
+        triviaList += `${categoria.charAt(0).toUpperCase() + categoria.slice(1)}:\n` +
+                      `Miguel: **${myScore} puntos** (${myPercentage}% acertadas)\n` +
+                      `Belén: **${luzScore} puntos** (${luzPercentage}% acertadas)\n\n`;
+    });
+
+    // PPM personal
+    const ppmRecords = dataStore.personalPPMRecords[userId] || [];
     let ppmList = ppmRecords.length > 0 
         ? ppmRecords.map(record => `${record.ppm} PPM (${new Date(record.timestamp).toLocaleString()})`).join('\n')
         : 'No has hecho pruebas de PPM aún.';
-    
+
+    // Reacciones para ambos
+    const myReactionWins = dataStore.reactionWins[OWNER_ID]?.wins || 0;
+    const luzReactionWins = dataStore.reactionWins[ALLOWED_USER_ID]?.wins || 0;
+    const reactionList = `Miguel: **${myReactionWins} victorias**\nBelén: **${luzReactionWins} victorias**`;
+
     return createEmbed('#FFD700', `🏆 Ranking de ${username}`,
-        `Trivia: **${triviaScore} puntos** (${triviaPercentage}% acertadas)\n` +
+        `Trivia:\n${triviaList}` +
         `PPM:\n${ppmList}\n` +
-        `Victorias en Reacciones: **${reactionWins}**`);
+        `Victorias en Reacciones:\n${reactionList}`);
 }
 
 // Comandos
@@ -598,11 +784,11 @@ client.on('messageCreate', async (message) => {
     if (content.startsWith('!ranking') || content.startsWith('!rk')) {
         const embed = getCombinedRankingEmbed(message.author.id, message.author.username);
         await message.channel.send({ embeds: [embed] });
-    } else if (content.startsWith('!help') || content.startsWith('!h')) {
+        } else if (content.startsWith('!help') || content.startsWith('!h')) {
         const embed = createEmbed('#55FF55', `¡Comandos para ti, ${userName}!`,
             '¡Aquí tienes lo que puedo hacer!\n' +
             '- **!ch / !chat [mensaje]**: Charla conmigo.\n' +
-            '- **!tr / !trivia [n]**: Trivia (mínimo 10).\n' +
+            '- **!tr / !trivia [categoría] [n]**: Trivia por categoría (mínimo 10). Categorías: ' + Object.keys(preguntasTriviaSinOpciones).join(', ') + '\n' +
             '- **!pp / !ppm**: Prueba de mecanografía.\n' +
             '- **!rk / !ranking**: Ver puntajes y estadísticas.\n' +
             '- **!re / !reacciones**: Juego de escribir rápido.\n' +
