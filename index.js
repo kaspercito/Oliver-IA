@@ -23,8 +23,8 @@ const MAX_MESSAGES = 20;
 const BOT_UPDATES = [
     '¡Trivia sin opciones con muchas preguntas!',
     'Comandos abreviados: !ch, !tr, !rk, !pp, !h, !re.',
-    'Reacciones con !reacciones o !re.',
-    'Trivia más flexible y !ppm funcionando.'
+    '!re ahora es un juego: escribe la palabra primero y gana.',
+    'Corrección: !chat responde siempre, trivia flexible.'
 ];
 
 // Preguntas sin opciones (interés general ampliado)
@@ -56,7 +56,7 @@ const preguntasTriviaSinOpciones = [
     { pregunta: "¿Qué unidad mide la fuerza?", respuesta: "newton" },
     { pregunta: "¿En qué año llegó Colón a América?", respuesta: "1492" },
     { pregunta: "¿Qué civilización construyó las pirámides de Giza?", respuesta: "egipcia" },
-    { pregunta: "¿Qué órgano bombea sangre en el cuerpo humano?", respuesta: "corazón" },
+    { pregunta: "¿Qué órgano bompea sangre en el cuerpo humano?", respuesta: "corazón" },
     { pregunta: "¿Qué juego tiene un personaje llamado Mario?", respuesta: "super mario" },
     { pregunta: "¿Qué película tiene a Jack Sparrow como pirata?", respuesta: "piratas del caribe" },
     { pregunta: "¿Qué princesa tiene una madrastra llamada Lady Tremaine?", respuesta: "cenicienta" },
@@ -64,7 +64,7 @@ const preguntasTriviaSinOpciones = [
     // ... (mantengo la lista completa de antes)
 ];
 
-// Palabras aleatorias para reacciones
+// Palabras aleatorias para el juego de reacciones
 const palabrasAleatorias = [
     "genial", "cool", "bravo", "sí", "nope", "wow", "jaja", "bien", "mal", "top",
     "luz", "estrella", "risa", "fuego", "agua", "viento", "cielo", "tierra", "sol", "luna",
@@ -93,6 +93,7 @@ const sentMessages = new Map();
 const processedMessages = new Map();
 const triviaLoops = new Map();
 const ppmSessions = new Map();
+const reactionGames = new Map(); // Nuevo estado para juegos de reacciones
 let dataStore = { conversationHistory: {}, triviaRanking: {}, personalPPMRecords: {}, reactionStats: {} };
 
 // Utilidades
@@ -291,7 +292,7 @@ async function manejarPPM(message) {
             } else {
                 await sendError(message.channel, '❌ ¡Casi!',
                     `Lo siento, ${userName}, no escribiste la frase correctamente. Tu respuesta fue "${respuestaUsuario}". ¡Intenta de nuevo con !pp!`);
-                await startTest(); // Reintentar si falla
+                await startTest();
             }
         } catch (error) {
             ppmSessions.delete(message.author.id);
@@ -303,16 +304,40 @@ async function manejarPPM(message) {
     await startTest();
 }
 
-// Función para enviar mensaje de reacciones
+// Función para manejar el juego de reacciones (nueva lógica)
 async function manejarReacciones(message) {
+    console.log(`Instancia ${instanceId} - Iniciando juego de reacciones en canal ${message.channel.id}`);
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
-    const randomWord = palabrasAleatorias[Math.floor(Math.random() * palabrasAleatorias.length)];
-    const embed = createEmbed('#FFD700', '¡Hora de reaccionar!', 
-        `¿Qué opinas de "${randomWord}"? Reacciona con una palabra de la lista o usa ✅/❌. ¡Tus stats se guardan en !rk!`);
-    const sentMessage = await message.channel.send({ embeds: [embed] });
-    await sentMessage.react('✅');
-    await sentMessage.react('❌');
-    sentMessages.set(sentMessage.id, { content: `Mensaje de reacción: ${randomWord}`, originalQuestion: 'Reacción solicitada', timestamp: new Date().toISOString(), message: sentMessage });
+
+    if (reactionGames.has(message.channel.id)) {
+        return sendError(message.channel, `Ya hay un juego de reacciones activo en este canal, ${userName}. ¡Espera a que termine!`);
+    }
+
+    const palabra = palabrasAleatorias[Math.floor(Math.random() * palabrasAleatorias.length)];
+    const embed = createEmbed('#FFD700', '🏁 ¡Juego de Reacciones!', 
+        `¡Escribe esta palabra lo más rápido que puedas: **${palabra}**!\n\nEl primero en escribirla gana. Tienes 30 segundos.`);
+    await message.channel.send({ embeds: [embed] });
+
+    reactionGames.set(message.channel.id, { palabra, timestamp: Date.now() });
+
+    try {
+        const respuestas = await message.channel.awaitMessages({
+            filter: (res) => res.content.toLowerCase().trim() === palabra,
+            max: 1,
+            time: 30000, // 30 segundos
+            errors: ['time']
+        });
+        const ganador = respuestas.first().author;
+        const ganadorName = ganador.id === OWNER_ID ? 'Miguel' : 'Belén';
+        reactionGames.delete(message.channel.id);
+
+        await sendSuccess(message.channel, '🎉 ¡Ganador!',
+            `¡Felicidades, ${ganadorName}! Fuiste el primero en escribir **${palabra}**. ¡Eres rapidísimo!`);
+    } catch (error) {
+        reactionGames.delete(message.channel.id);
+        await sendError(message.channel, '⏳ ¡Tiempo agotado!',
+            `Nadie escribió **${palabra}** a tiempo. ¡Mejor suerte la próxima vez con !re!`);
+    }
 }
 
 function obtenerPreguntaTriviaSinOpciones() {
@@ -357,7 +382,7 @@ function getCombinedRankingEmbed(userId, username) {
 // Evento ready
 client.once('ready', async () => {
     console.log(`¡Miguel IA está listo! Instancia: ${instanceId}`);
-    client.user.setPresence({ activities: [{ name: "Listo para ayudar a Miguel y Milagros", type: 0 }], status: 'online' });
+    client.user.setPresence({ activities: [{ name: "Listo para ayudar a Miguel y Belén", type: 0 }], status: 'online' });
     dataStore = await loadDataStore();
 });
 
@@ -391,7 +416,7 @@ client.on('messageCreate', async (message) => {
 
         try {
             const prompt = `Eres Miguel IA, creado por Miguel para ayudar a ${userName}. Responde a "${chatMessage}" de forma natural, amigable y detallada, explicando el tema si es una pregunta, con pasos claros si aplica. Asegúrate de completar todas las ideas y no dejar frases cortadas.`;
-            console.log(`Enviando solicitud a Hugging Face por ${userName}: ${chatMessage}`);
+            console.log(`Enviando solicitud a Hugging Face por ${userName}: "${chatMessage}"`);
             const response = await axios.post(
                 'https://api-inference.huggingface.co/models/mistralai/Mixtral-8x7B-Instruct-v0.1',
                 { 
@@ -404,16 +429,16 @@ client.on('messageCreate', async (message) => {
                 },
                 { 
                     headers: { 'Authorization': `Bearer ${process.env.HF_API_TOKEN}`, 'Content-Type': 'application/json' },
-                    timeout: 20000 
+                    timeout: 30000
                 }
             );
 
+            console.log(`Respuesta recibida de Hugging Face: ${JSON.stringify(response.data)}`);
             let aiReply = response.data[0]?.generated_text?.trim();
             if (!aiReply || aiReply.length < 20) {
-                aiReply = `¡Hola, ${userName}! Sobre "${chatMessage}", solo quería decirte que estoy aquí para charlar contigo y ayudarte en lo que necesites. Si quieres algo más específico, dame una pista.`;
-            } else {
-                aiReply += `\n\n¿Te sirvió esta respuesta?`;
+                aiReply = `¡Hola, ${userName}! Sobre "${chatMessage}", no tengo mucho que decir esta vez, pero estoy aquí para ayudarte. ¿Qué más quieres saber?`;
             }
+            aiReply += `\n\n¿Te sirvió esta respuesta?`;
 
             let userHistory = dataStore.conversationHistory[author.id] || [];
             userHistory.push({ role: 'assistant', content: aiReply, timestamp: new Date().toISOString() });
@@ -427,11 +452,14 @@ client.on('messageCreate', async (message) => {
             await sentMessage.react('✅');
             await sentMessage.react('❌');
             sentMessages.set(sentMessage.id, { content: aiReply, originalQuestion: chatMessage, timestamp: new Date().toISOString(), message: sentMessage });
+            console.log(`Respuesta enviada a ${userName} para "${chatMessage}"`);
         } catch (error) {
-            console.error('Error en !ch:', error.message);
-            const errorEmbed = createEmbed('#FF5555', '¡Ups!', `Algo falló, ${userName}. ${error.code === 'ECONNABORTED' ? 'Tardé demasiado.' : 'No sé qué pasó.'} ¡Intenta de nuevo!`);
+            console.error(`Error en !ch para "${chatMessage}": ${error.message}`, error.stack);
+            const errorEmbed = createEmbed('#FF5555', '¡Ups!', 
+                `Algo falló, ${userName}. ${error.code === 'ECONNABORTED' ? 'Tardé demasiado en pensar.' : 'Hubo un problema con mi cerebro artificial.'} ¡Intenta de nuevo con !ch!`);
             await channel.send({ embeds: [errorEmbed] });
             await waitingMessage.delete();
+            console.log(`Error enviado a ${userName} para "${chatMessage}"`);
         }
         return;
     }
@@ -464,16 +492,15 @@ client.on('messageCreate', async (message) => {
             '- **!tr / !trivia [n]**: Trivia (mínimo 10).\n' +
             '- **!pp / !ppm**: Prueba de mecanografía.\n' +
             '- **!rk / !ranking**: Ver puntajes y reacciones.\n' +
-            '- **!re / !reacciones**: Mensaje para reaccionar.\n' +
+            '- **!re / !reacciones**: Juego: escribe la palabra primero.\n' +
             '- **!h / !help**: Lista de comandos.\n' +
-            '- **hola**: Saludo especial.'
-        );
+            '- **hola**: Saludo especial.');
         await message.channel.send({ embeds: [embed] });
         return;
     }
 
     if (content.toLowerCase() === 'hola') {
-        sendSuccess(channel, `¡Hola, ${userName}!`, `Soy Miguel IA, aquí para ayudarte. Prueba !tr, !pp o !re para reaccionar. ¿Qué tienes en mente?`);
+        sendSuccess(channel, `¡Hola, ${userName}!`, `Soy Miguel IA, aquí para ayudarte. Prueba !tr, !pp o !re para un juego rápido. ¿Qué tienes en mente?`);
         return;
     }
 });
@@ -504,7 +531,7 @@ client.on('messageReactionAdd', async (reaction, user) => {
             const response = await axios.post(
                 'https://api-inference.huggingface.co/models/mistralai/Mixtral-8x7B-Instruct-v0.1',
                 { inputs: alternativePrompt, parameters: { max_new_tokens: 500, return_full_text: false, temperature: 0.6 } },
-                { headers: { 'Authorization': `Bearer ${process.env.HF_API_TOKEN}`, 'Content-Type': 'application/json' }, timeout: 20000 }
+                { headers: { 'Authorization': `Bearer ${process.env.HF_API_TOKEN}`, 'Content-Type': 'application/json' }, timeout: 30000 }
             );
             let alternativeReply = response.data[0]?.generated_text?.trim() || `No se me ocurre algo mejor ahora, ${userName}. ¿Qué tal si me das más detalles?`;
             alternativeReply += `\n\n¿Te sirvió esta respuesta?`;
