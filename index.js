@@ -1,9 +1,7 @@
 const fs = require('fs');
-const { Client, GatewayIntentBits, EmbedBuilder, ButtonBuilder, ActionRowBuilder, ButtonStyle } = require('discord.js');
+const { Client, GatewayIntentBits, EmbedBuilder } = require('discord.js');
 const axios = require('axios');
 const { v4: uuidv4 } = require('uuid');
-const SpotifyWebApi = require('spotify-web-api-node');
-const { Manager } = require('erela.js');
 require('dotenv').config();
 
 const client = new Client({
@@ -13,26 +11,8 @@ const client = new Client({
         GatewayIntentBits.GuildMessageReactions,
         GatewayIntentBits.DirectMessageReactions,
         GatewayIntentBits.MessageContent,
-        GatewayIntentBits.GuildVoiceStates,
     ],
 });
-
-const manager = new Manager({
-    nodes: [
-        {
-            host: process.env.LAVALINK_HOST || 'lava-v3.ajieblogs.eu.org',
-            port: parseInt(process.env.LAVALINK_PORT) || 443,
-            password: process.env.LAVALINK_PASSWORD || 'https://dsc.gg/ajidevserver',
-            secure: process.env.LAVALINK_SECURE === 'true' || true,
-        },
-    ],
-    send(id, payload) {
-        const guild = client.guilds.cache.get(id);
-        if (guild) guild.shard.send(payload);
-    },
-});
-
-
 
 // IDs y constantes
 const OWNER_ID = '752987736759205960'; // Tu ID
@@ -64,22 +44,6 @@ const mensajesAnimo = [
     "¡Ey, Belén! Eres demasiado awesome para que alguien te odie. Además, tienes fans como yo que te adoran.",
     "Belén, eres un sol, y si alguien no lo ve, es su pérdida. ¡Tú sigue brillando, que aquí te queremos mucho!"
 ];
-
-// Configuración de Spotify API
-const spotifyApi = new SpotifyWebApi({
-    clientId: process.env.SPOTIFY_CLIENT_ID,
-    clientSecret: process.env.SPOTIFY_CLIENT_SECRET,
-});
-
-async function refreshSpotifyToken() {
-    try {
-        const data = await spotifyApi.clientCredentialsGrant();
-        spotifyApi.setAccessToken(data.body['access_token']);
-        console.log('Token de Spotify renovado');
-    } catch (error) {
-        console.error('Error al renovar token de Spotify:', error);
-    }
-}
 
 // Preguntas de trivia organizadas por categorías
 const preguntasTriviaSinOpciones = {
@@ -502,16 +466,12 @@ let processedMessages = new Map();
 let dataStore = { 
     conversationHistory: {}, 
     triviaRanking: {}, 
-    personalPPMRecords: {},
+    personalPPMRecords: {}, 
     reactionStats: {}, 
     reactionWins: {}, 
     activeSessions: {}, 
-    triviaStats: {},
-    musicQueue: new Map(),
-    activeVoiceChannels: {},
-    previousSongs: new Map()
+    triviaStats: {}
 };
-
 
 // Utilidades
 const createEmbed = (color, title, description, footer = 'Con cariño, Miguel IA | Reacciona con ✅ o ❌, ¡por favor!') => {
@@ -564,6 +524,7 @@ async function generateImage(prompt) {
     }
 }
 
+// Persistencia en GitHub
 async function loadDataStore() {
     try {
         const response = await axios.get(
@@ -579,31 +540,8 @@ async function loadDataStore() {
             reactionWins: {}, 
             activeSessions: {}, 
             triviaStats: {},
-            musicQueue: new Map(),
-            activeVoiceChannels: {},
-            previousSongs: new Map(),
             updatesSent: false
         };
-
-        if (loadedData.musicQueue && !(loadedData.musicQueue instanceof Map)) {
-            loadedData.musicQueue = new Map(Object.entries(loadedData.musicQueue));
-        }
-        if (loadedData.previousSongs && !(loadedData.previousSongs instanceof Map)) {
-            loadedData.previousSongs = new Map(Object.entries(loadedData.previousSongs));
-        }
-        if (!loadedData.activeVoiceChannels) {
-            loadedData.activeVoiceChannels = {};
-        }
-        // Asegurarse de que personalPPMRecords tenga la nueva estructura
-        if (!loadedData.personalPPMRecords) {
-            loadedData.personalPPMRecords = {};
-        }
-        for (const userId in loadedData.personalPPMRecords) {
-            if (!loadedData.personalPPMRecords[userId].best) {
-                loadedData.personalPPMRecords[userId] = { best: { ppm: 0, timestamp: null }, attempts: [] };
-            }
-        }
-
         console.log('Datos cargados desde GitHub:', JSON.stringify(loadedData));
         return loadedData;
     } catch (error) {
@@ -616,9 +554,41 @@ async function loadDataStore() {
             reactionWins: {}, 
             activeSessions: {}, 
             triviaStats: {},
-            musicQueue: new Map(),
-            activeVoiceChannels: {},
-            previousSongs: new Map(),
+            updatesSent: false
+        };
+    }
+}
+
+// Persistencia en GitHub
+async function loadDataStore() {
+    try {
+        const response = await axios.get(
+            `https://api.github.com/repos/${process.env.GITHUB_REPO}/contents/${process.env.GITHUB_FILE_PATH}`,
+            { headers: { 'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`, 'Accept': 'application/vnd.github+json' } }
+        );
+        const content = Buffer.from(response.data.content, 'base64').toString('utf8');
+        const loadedData = content ? JSON.parse(content) : { 
+            conversationHistory: {}, 
+            triviaRanking: {}, 
+            personalPPMRecords: {}, 
+            reactionStats: {}, 
+            reactionWins: {}, 
+            activeSessions: {}, 
+            triviaStats: {},
+            updatesSent: false
+        };
+        console.log('Datos cargados desde GitHub:', JSON.stringify(loadedData));
+        return loadedData;
+    } catch (error) {
+        console.error('Error al cargar datos desde GitHub:', error.message);
+        return { 
+            conversationHistory: {}, 
+            triviaRanking: {}, 
+            personalPPMRecords: {}, 
+            reactionStats: {}, 
+            reactionWins: {}, 
+            activeSessions: {}, 
+            triviaStats: {},
             updatesSent: false
         };
     }
@@ -637,28 +607,23 @@ async function saveDataStore() {
             if (error.response?.status !== 404) throw error;
         }
 
-        const dataToSave = { 
-            ...dataStore, 
-            musicQueue: Object.fromEntries(dataStore.musicQueue),
-            previousSongs: Object.fromEntries(dataStore.previousSongs)
-        };
         await axios.put(
             `https://api.github.com/repos/${process.env.GITHUB_REPO}/contents/${process.env.GITHUB_FILE_PATH}`,
             {
-                message: 'Actualizar historial, sesiones y cola de música',
-                content: Buffer.from(JSON.stringify(dataToSave, null, 2)).toString('base64'),
+                message: 'Actualizar historial y sesiones',
+                content: Buffer.from(JSON.stringify(dataStore, null, 2)).toString('base64'),
                 sha: sha || undefined,
             },
             { headers: { 'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`, 'Accept': 'application/vnd.github+json' } }
         );
-        console.log('Datos guardados en GitHub:', JSON.stringify(dataToSave));
+        console.log('Datos guardados en GitHub:', JSON.stringify(dataStore));
     } catch (error) {
         console.error('Error al guardar datos en GitHub:', error.message);
         throw error;
     }
 }
 
-// Aviso anticipado y guardado automático
+// Aviso anticipado y guardado automático (sin pausar comandos)
 const SAVE_INTERVAL = 1800000; // 30 minutos en milisegundos
 const WARNING_TIME = 300000;   // 5 minutos antes (300,000 ms)
 
@@ -822,6 +787,7 @@ async function manejarPPM(message) {
     dataStore.activeSessions[message.author.id] = session;
 
     try {
+        console.log(`Esperando respuesta para PPM: "${frase}"`);
         const respuestas = await message.channel.awaitMessages({
             filter: (res) => res.author.id === message.author.id && res.content.trim().length > 0,
             max: 1,
@@ -838,29 +804,27 @@ async function manejarPPM(message) {
         const ppm = Math.round((palabras / tiempoSegundos) * 60);
 
         if (cleanText(respuestaUsuario) === cleanText(frase)) {
-            // Inicializar si no existe
+            // Inicializar el récord si no existe
             if (!dataStore.personalPPMRecords[message.author.id]) {
-                dataStore.personalPPMRecords[message.author.id] = { best: { ppm: 0, timestamp: null }, attempts: [] };
+                dataStore.personalPPMRecords[message.author.id] = { ppm: 0, timestamp: null };
             }
 
-            // Agregar el intento a la lista
-            dataStore.personalPPMRecords[message.author.id].attempts.push({ ppm, timestamp: new Date().toISOString() });
-
-            // Actualizar el récord más alto si aplica
-            const currentBest = dataStore.personalPPMRecords[message.author.id].best.ppm || 0;
-            if (ppm > currentBest) {
-                dataStore.personalPPMRecords[message.author.id].best = { ppm, timestamp: new Date().toISOString() };
+            // Actualizar solo si el nuevo PPM es mayor al récord actual
+            const currentRecord = dataStore.personalPPMRecords[message.author.id].ppm || 0;
+            if (ppm > currentRecord) {
+                dataStore.personalPPMRecords[message.author.id] = { ppm, timestamp: new Date().toISOString() };
                 await sendSuccess(message.channel, '🎉 ¡Nuevo Récord!',
-                    `¡Increíble, ${userName}! Escribiste la frase en ${tiempoSegundos.toFixed(2)} segundos.\nTu nuevo récord: **${ppm} PPM**. ¡Mira tus intentos con !rppm!`);
+                    `¡Increíble, ${userName}! Escribiste la frase en ${tiempoSegundos.toFixed(2)} segundos.\nTu nuevo récord: **${ppm} PPM**. ¡Mira tu ranking con !rk!`);
             } else {
                 await sendSuccess(message.channel, '🎉 ¡Perfecto!',
-                    `¡Bien hecho, ${userName}! Escribiste la frase en ${tiempoSegundos.toFixed(2)} segundos.\nTu PPM: **${ppm}**. Tu récord sigue siendo **${currentBest} PPM**. Mira todos tus intentos con !rppm.`);
+                    `¡Bien hecho, ${userName}! Escribiste la frase en ${tiempoSegundos.toFixed(2)} segundos.\nTu PPM: **${ppm}**. Tu récord sigue siendo **${currentRecord} PPM**.`);
             }
         } else {
             await sendError(message.channel, '❌ ¡Casi!',
                 `Lo siento, ${userName}, no escribiste la frase correctamente. Tu respuesta fue "${respuestaUsuario}". ¡Intenta de nuevo con !pp!`);
         }
     } catch (error) {
+        console.log('Tiempo agotado en PPM:', error);
         session.completed = true;
         delete dataStore.activeSessions[message.author.id];
         await sendError(message.channel, '⏳ ¡Tiempo agotado!',
@@ -979,7 +943,7 @@ async function manejarChat(message) {
     }
 }
 
-// Nuevos comandos: !sugerencias, !ayuda y !play
+// Nuevos comandos: !sugerencias y !ayuda
 async function manejarSugerencias(message) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
     const suggestion = message.content.startsWith('!sugerencias') ? message.content.slice(12).trim() : message.content.slice(4).trim();
@@ -1022,182 +986,12 @@ async function manejarAyuda(message) {
     }
 }
 
-const createMusicControls = () => {
-    return new ActionRowBuilder().addComponents(
-        new ButtonBuilder().setCustomId("prev").setLabel("⏮️").setStyle(ButtonStyle.Secondary),
-        new ButtonBuilder().setCustomId("pause").setLabel("⏸️").setStyle(ButtonStyle.Secondary),
-        new ButtonBuilder().setCustomId("resume").setLabel("▶️").setStyle(ButtonStyle.Success),
-        new ButtonBuilder().setCustomId("skip").setLabel("⏭️").setStyle(ButtonStyle.Secondary),
-        new ButtonBuilder().setCustomId("stop").setLabel("🛑").setStyle(ButtonStyle.Danger)
-    );
-};
-
-async function manejarPlay(message) {
-    const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
-
-    if (!message.guild) {
-        await sendError(message.channel, '¡Este comando solo funciona en servidores!');
-        return;
-    }
-
-    const args = message.content.split(' ').slice(1);
-    if (!args.length) {
-        await sendError(message.channel, '¡Dame un enlace de Spotify o el nombre de una canción/playlist!');
-        return;
-    }
-
-    const voiceChannel = message.member.voice.channel;
-    if (!voiceChannel) {
-        await sendError(message.channel, '¡Necesitas estar en un canal de voz para reproducir música!');
-        return;
-    }
-
-    const permissions = voiceChannel.permissionsFor(client.user);
-    if (!permissions.has('CONNECT') || !permissions.has('SPEAK')) {
-        await sendError(message.channel, '¡Necesito permisos para unirme y hablar en tu canal de voz!');
-        return;
-    }
-
-    const player = manager.create({
-        guild: message.guild.id,
-        voiceChannel: voiceChannel.id,
-        textChannel: message.channel.id,
-        selfDeafen: true,
-    });
-
-    if (player.state !== 'CONNECTED') {
-        player.connect();
-        console.log(`Conectado al canal de voz: ${voiceChannel.name} (ID: ${voiceChannel.id})`);
-        await sendSuccess(message.channel, '🔊 Conectado', `Me he unido al canal de voz ${voiceChannel.name}, ${userName}.`);
-    }
-
-    const query = args.join(' ');
-    let res;
-
-    try {
-        res = await manager.search(query, message.author);
-        if (res.loadType === 'NO_MATCHES') {
-            await sendError(message.channel, 'No se encontraron resultados.');
-            return;
-        }
-    } catch (err) {
-        console.error('Error buscando canción:', err);
-        await sendError(message.channel, 'Hubo un problema al buscar la canción.');
-        return;
-    }
-
-    const track = res.tracks[0];
-    player.queue.add(track);
-    await sendSuccess(message.channel, '🎶 Música añadida', `**${track.title}** ha sido añadida a la cola, ${userName}.`);
-
-    if (!player.playing && !player.paused) {
-        player.play();
-        await message.channel.send({
-            embeds: [createEmbed('#55FFFF', '▶️ Reproduciendo ahora', `**${track.title}** (pedido por ${userName})`)],
-            components: [createMusicControls()],
-        });
-    }
-}
-
-async function manejarStop(message) {
-    if (!message.guild) return sendError(message.channel, '¡Este comando solo funciona en servidores!');
-
-    const voiceChannel = message.member.voice.channel;
-    if (!voiceChannel) return sendError(message.channel, '¡Necesitas estar en un canal de voz!');
-
-    const player = manager.players.get(message.guild.id);
-    if (!player) return sendError(message.channel, '¡No hay música en reproducción!');
-
-    player.destroy();
-    await sendSuccess(message.channel, '🛑 Música detenida', 'El reproductor ha sido detenido.');
-}
-
-async function manejarSkip(message) {
-    if (!message.guild) return sendError(message.channel, '¡Este comando solo funciona en servidores!');
-
-    const voiceChannel = message.member.voice.channel;
-    if (!voiceChannel) return sendError(message.channel, '¡Necesitas estar en un canal de voz!');
-
-    const player = manager.players.get(message.guild.id);
-    if (!player) return sendError(message.channel, '¡No hay música en reproducción!');
-
-    player.stop();
-    await sendSuccess(message.channel, '⏭️ Canción saltada', 'Se ha saltado la canción actual.');
-}
-
-async function manejarPause(message) {
-    if (!message.guild) return sendError(message.channel, '¡Este comando solo funciona en servidores!');
-
-    const voiceChannel = message.member.voice.channel;
-    if (!voiceChannel) return sendError(message.channel, '¡Necesitas estar en un canal de voz!');
-
-    const player = manager.players.get(message.guild.id);
-    if (!player) return sendError(message.channel, '¡No hay música en reproducción!');
-
-    player.pause(true);
-    await sendSuccess(message.channel, '⏸️ Música pausada', 'La música ha sido pausada. Usa !resume para continuar.');
-}
-
-async function manejarResume(message) {
-    if (!message.guild) return sendError(message.channel, '¡Este comando solo funciona en servidores!');
-
-    const voiceChannel = message.member.voice.channel;
-    if (!voiceChannel) return sendError(message.channel, '¡Necesitas estar en un canal de voz!');
-
-    const player = manager.players.get(message.guild.id);
-    if (!player) return sendError(message.channel, '¡No hay música en reproducción!');
-
-    player.pause(false);
-    await sendSuccess(message.channel, '▶️ Música reanudada', 'La música sigue reproduciéndose.');
-}
-
-async function manejarAutoplay(message) {
-    const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
-
-    if (!message.guild) return sendError(message.channel, '¡Este comando solo funciona en servidores!');
-
-    const voiceChannel = message.member.voice.channel;
-    if (!voiceChannel) return sendError(message.channel, '¡Necesitas estar en un canal de voz!');
-
-    const player = manager.players.get(message.guild.id);
-    if (!player) return sendError(message.channel, '¡No hay música en reproducción!');
-
-    player.setQueueRepeat(!player.queueRepeat);
-    await sendSuccess(message.channel, '🔄 Modo Autoplay', player.queueRepeat ? 'Autoplay activado.' : 'Autoplay desactivado.');
-    await message.react(player.queueRepeat ? '✅' : '❌');
-}
-
-// Manejo de botones
-client.on('interactionCreate', async (interaction) => {
-    if (!interaction.isButton()) return;
-
-    const player = manager.players.get(interaction.guild.id);
-    if (!player) {
-        await interaction.reply({ content: '❌ No hay música en reproducción.', ephemeral: true });
-        return;
-    }
-
-    if (interaction.customId === 'pause') {
-        player.pause(true);
-        await interaction.update({ content: '⏸️ Música pausada', components: [createMusicControls()] });
-    } else if (interaction.customId === 'resume') {
-        player.pause(false);
-        await interaction.update({ content: '▶️ Música reanudada', components: [createMusicControls()] });
-    } else if (interaction.customId === 'skip') {
-        player.stop();
-        await interaction.update({ content: '⏭️ Canción saltada', components: [createMusicControls()] });
-    } else if (interaction.customId === 'stop') {
-        player.destroy();
-        await interaction.update({ content: '🛑 Música detenida', components: [] });
-    } else if (interaction.customId === 'prev') {
-        await interaction.reply({ content: '⏮️ Función "anterior" no implementada aún.', ephemeral: true });
-    }
-});
 
 // Ranking con top por categoría para Trivia y Reacciones
 function getCombinedRankingEmbed(userId, username) {
     const categorias = Object.keys(preguntasTriviaSinOpciones);
     
+    // Sección Trivia
     let triviaList = '**📚 Trivia por Categoría**\n';
     categorias.forEach(categoria => {
         const myScore = dataStore.triviaRanking[OWNER_ID]?.[categoria]?.score || 0;
@@ -1212,18 +1006,21 @@ function getCombinedRankingEmbed(userId, username) {
                       `> 🌟 Belén: **${luzScore} puntos** (${luzPercentage}% acertadas)\n`;
     });
 
-    const ppmRecord = dataStore.personalPPMRecords[userId]?.best || { ppm: 0, timestamp: null };
+    // Sección PPM (solo el récord más rápido)
+    const ppmRecord = dataStore.personalPPMRecords[userId] || { ppm: 0, timestamp: null };
     let ppmList = ppmRecord.ppm > 0 
         ? `> Tu récord: **${ppmRecord.ppm} PPM** - ${new Date(ppmRecord.timestamp).toLocaleString()}`
         : '> No tienes un récord de PPM aún. ¡Prueba con !pp!';
 
+    // Sección Reacciones
     const myReactionWins = dataStore.reactionWins[OWNER_ID]?.wins || 0;
     const luzReactionWins = dataStore.reactionWins[ALLOWED_USER_ID]?.wins || 0;
     const reactionList = `> 👑 Miguel - **${myReactionWins} Reacciones**\n` +
                          `> 🌟 Belén - **${luzReactionWins} Reacciones**`;
 
+    // Construcción del Embed
     return new EmbedBuilder()
-        .setColor('#FFD700')
+        .setColor('#FFD700') // Dorado para un look premium
         .setTitle(`🏆 Ranking de ${username}`)
         .setDescription('¡Aquí están tus logros y los de tus rivales!')
         .addFields(
@@ -1233,69 +1030,6 @@ function getCombinedRankingEmbed(userId, username) {
         )
         .setFooter({ text: 'Con cariño, Miguel IA' })
         .setTimestamp();
-}
-
-async function manejarRankingPPM(message) {
-    const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
-    const userId = message.author.id;
-
-    const ppmData = dataStore.personalPPMRecords[userId] || { best: { ppm: 0, timestamp: null }, attempts: [] };
-    const attempts = ppmData.attempts;
-
-    if (attempts.length === 0) {
-        await sendError(message.channel, 'No tienes intentos de PPM registrados', `¡Juega con !pp para empezar, ${userName}!`);
-        return;
-    }
-
-    // Ordenar intentos por PPM de mayor a menor
-    const sortedAttempts = attempts.sort((a, b) => b.ppm - a.ppm);
-    const attemptsList = sortedAttempts.map((attempt, index) => 
-        `${index + 1}. **${attempt.ppm} PPM** - ${new Date(attempt.timestamp).toLocaleString()}`
-    ).join('\n');
-
-    const embed = new EmbedBuilder()
-        .setColor('#FFD700')
-        .setTitle(`⌨️ Historial de PPM de ${userName}`)
-        .setDescription(`Aquí están todos tus intentos de PPM, ordenados de mayor a menor:`)
-        .addFields(
-            { name: 'Intentos', value: attemptsList, inline: false },
-            { name: 'Total de Intentos', value: `${attempts.length}`, inline: true },
-            { name: 'Récord Más Alto', value: `${ppmData.best.ppm} PPM`, inline: true }
-        )
-        .setFooter({ text: 'Con cariño, Miguel IA' })
-        .setTimestamp();
-
-    await message.channel.send({ embeds: [embed] });
-}
-
-// Intentar retomar la reproducción al iniciar
-async function resumeMusicOnStartup() {
-    for (const [guildId, channelId] of Object.entries(dataStore.activeVoiceChannels)) {
-        const guild = client.guilds.cache.get(guildId);
-        if (!guild) continue;
-
-        const voiceChannel = guild.channels.cache.get(channelId);
-        if (!voiceChannel || !voiceChannel.isVoiceBased()) continue;
-
-        const permissions = voiceChannel.permissionsFor(client.user);
-        if (!permissions.has('CONNECT') || !permissions.has('SPEAK')) continue;
-
-        const connection = joinVoiceChannel({
-            channelId: voiceChannel.id,
-            guildId: guild.id,
-            adapterCreator: guild.voiceAdapterCreator,
-        });
-
-        const message = {
-            guild: guild,
-            channel: guild.channels.cache.get(CHANNEL_ID) || guild.channels.cache.first(),
-        };
-
-        if (message.channel) {
-            await message.channel.send({ embeds: [createEmbed('#FFD700', '🎶 Retomando Reproducción', 'He vuelto y estoy retomando la música donde la dejé.')] });
-            await playSong(message, connection);
-        }
-    }
 }
 
 // Comandos actualizados
@@ -1318,6 +1052,9 @@ async function manejarCommand(message) {
         await message.channel.send({ embeds: [embed] });
     } else if (content === '!save') {
         const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
+        if (isSaving) {
+            return sendError(message.channel, 'El bot ya está realizando un guardado automático', 'Espera unos minutos y vuelve a intentarlo.');
+        }
         try {
             await saveDataStore();
             await sendSuccess(message.channel, '💾 ¡Guardado!', `Datos guardados exitosamente, ${userName}. Estado actual: ${JSON.stringify(dataStore)}`);
@@ -1328,39 +1065,8 @@ async function manejarCommand(message) {
         await manejarSugerencias(message);
     } else if (content.startsWith('!ayuda') || content.startsWith('!ay')) {
         await manejarAyuda(message);
-    } else if (content.startsWith('!play')) {
-        await manejarPlay(message);
-    } else if (content === '!stop') {
-        await manejarStop(message);
-    } else if (content === '!skip') {
-        await manejarSkip(message);
-    } else if (content === '!pause') {
-        await manejarPause(message);
-    } else if (content === '!resume') {
-        await manejarResume(message);
-    } else if (content === '!autoplay') {
-        await manejarAutoplay(message);
-    } else if (content.startsWith('!rankingppm') || content.startsWith('!rppm')) {
-        await manejarRankingPPM(message);
     }
 }
-
-// Eventos de Erela.js
-manager.on('trackStart', (player, track) => {
-    const channel = client.channels.cache.get(player.textChannel);
-    const requesterName = track.requester.id === OWNER_ID ? 'Miguel' : 'Belén';
-    if (channel) sendSuccess(channel, '▶️ Reproduciendo ahora', `**${track.title}** (pedido por ${requesterName})`);
-});
-
-manager.on('trackError', (player, track, error) => {
-    console.error(`Error reproduciendo "${track.title}":`, error);
-    const channel = client.channels.cache.get(player.textChannel);
-    if (channel) sendError(channel, 'Error al reproducir', `No pude reproducir "${track.title}": ${error.message}.`);
-});
-
-manager.on('nodeError', (node, error) => {
-    console.error(`Error en el nodo ${node.options.host}:`, error);
-});
 
 client.on('messageCreate', async (message) => {
     if (message.author.bot) return;
@@ -1385,7 +1091,6 @@ client.on('messageCreate', async (message) => {
             '- **!tr / !trivia [categoría] [n]**: Trivia por categoría (mínimo 10). Categorías: ' + Object.keys(preguntasTriviaSinOpciones).join(', ') + '\n' +
             '- **!pp / !ppm**: Prueba de mecanografía.\n' +
             '- **!rk / !ranking**: Ver puntajes y estadísticas.\n' +
-            '- **!rppm / !rankingppm**: Ver todos tus intentos de PPM.\n' +
             '- **!re / !reacciones**: Juego de escribir rápido.\n' +
             '- **!su / !sugerencias [idea]**: Envía ideas para mejorar el bot.\n' + // Nuevo comando
             '- **!ay / !ayuda [problema]**: Pide ayuda a Miguel.\n' +           // Nuevo comando
@@ -1406,9 +1111,7 @@ client.once('ready', async () => {
     activeTrivia = new Map(Object.entries(dataStore.activeSessions).filter(([_, s]) => s.type === 'trivia'));
     console.log('Sesiones activas recargadas:', JSON.stringify(dataStore.activeSessions));
 
-    manager.init(client.user.id);
-    console.log('Erela.js inicializado');
-    
+    // Verificación de actualizaciones al iniciar
     try {
         const channel = await client.channels.fetch(CHANNEL_ID);
         if (!channel) throw new Error('Canal no encontrado');
@@ -1423,7 +1126,7 @@ client.once('ready', async () => {
 
         if (updatesChanged) {
             const updateEmbed = createEmbed('#FFD700', '📢 Actualizaciones de Miguel IA',
-                '¡Tengo mejoras nuevas para compartir contigo!', 'Con cariño, Miguel IA')
+                '¡Tengo mejoras nuevas para compartir contigo!', 'Con cariño, Miguel IA') // Footer personalizado
                 .addFields(
                     { name: 'Novedades', value: BOT_UPDATES.map(update => `- ${update}`).join('\n'), inline: false },
                     { name: 'Hora de actualización', value: `${argentinaTime}`, inline: false },
@@ -1438,20 +1141,11 @@ client.once('ready', async () => {
     }
 });
 
-client.on('raw', (d) => manager.updateVoiceState(d));
+process.on('beforeExit', async () => {
+    console.log('Guardando datos antes de salir...');
+    await saveDataStore();
+});
 
-client.on('messageCreate', async (message) => {
-    if (message.author.bot) return;
-    if (![OWNER_ID, ALLOWED_USER_ID].includes(message.author.id)) return;
-
-    const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
-
-    if (processedMessages.has(message.id)) return;
-    processedMessages.set(message.id, Date.now());
-    setTimeout(() => processedMessages.delete(message.id), 10000);
-
-    await manejarCommand(message);
-    
 client.on('messageCreate', async (message) => {
     if (message.author.bot) return;
     if (![OWNER_ID, ALLOWED_USER_ID].includes(message.author.id)) return;
@@ -1487,12 +1181,6 @@ client.on('messageCreate', async (message) => {
     }
 });
 
-
-    process.on('beforeExit', async () => {
-    console.log('Guardando datos antes de salir...');
-    await saveDataStore();
-});
-    
 // Evento de reacción actualizado para notificar al OWNER_ID cuando Belén reaccione
 client.on('messageReactionAdd', async (reaction, user) => {
     if (!sentMessages.has(reaction.message.id)) return;
