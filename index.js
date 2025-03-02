@@ -92,7 +92,7 @@ const processedMessages = new Map();
 const triviaLoops = new Map();
 const ppmSessions = new Map();
 const reactionGames = new Map();
-let dataStore = { conversationHistory: {}, triviaRanking: {}, personalPPMRecords: {}, reactionStats: {}, reactionWins: {} };
+let dataStore = { conversationHistory: {}, triviaRanking: {}, personalPPMRecords: {}, reactionStats: {}, reactionWins: {}, activeTrivia: {} };
 
 // Utilidades
 const createEmbed = (color, title, description, footer = 'Con cariño, Miguel IA | Reacciona con ✅ o ❌, ¡por favor!') => {
@@ -114,14 +114,14 @@ const sendSuccess = async (channel, title, message) => {
     await channel.send({ embeds: [embed] });
 };
 
-// Función para limpiar texto (eliminar artículos y normalizar)
+// Función para limpiar texto
 function cleanText(text) {
     return text.toLowerCase().trim()
         .replace(/\s+/g, ' ')
         .replace(/^(el|la|los|las)\s+/i, '');
 }
 
-// Función para generar imagen con Hugging Face (Stable Diffusion)
+// Función para generar imagen
 async function generateImage(prompt) {
     try {
         console.log(`Generando imagen para: "${prompt}"`);
@@ -147,13 +147,6 @@ async function generateImage(prompt) {
     }
 }
 
-// Placeholder para búsqueda web (ajusta según tus herramientas)
-async function searchWeb(query) {
-    console.log(`Buscando en la web: ${query}`);
-    // Aquí deberías implementar tu herramienta de búsqueda web real
-    return [{ snippet: "Fragmento de prueba (ajusta esto con búsqueda real)", link: "https://ejemplo.com" }];
-}
-
 // Funciones de persistencia en GitHub
 async function loadDataStore() {
     try {
@@ -162,18 +155,19 @@ async function loadDataStore() {
             { headers: { 'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`, 'Accept': 'application/vnd.github+json' } }
         );
         const content = Buffer.from(response.data.content, 'base64').toString('utf8');
-        const loadedData = content ? JSON.parse(content) : { conversationHistory: {}, triviaRanking: {}, personalPPMRecords: {}, reactionStats: {}, reactionWins: {} };
+        const loadedData = content ? JSON.parse(content) : { conversationHistory: {}, triviaRanking: {}, personalPPMRecords: {}, reactionStats: {}, reactionWins: {}, activeTrivia: {} };
         console.log('Datos cargados desde GitHub:', JSON.stringify(loadedData));
         return {
             conversationHistory: loadedData.conversationHistory || {},
             triviaRanking: loadedData.triviaRanking || {},
             personalPPMRecords: loadedData.personalPPMRecords || {},
             reactionStats: loadedData.reactionStats || {},
-            reactionWins: loadedData.reactionWins || {}
+            reactionWins: loadedData.reactionWins || {},
+            activeTrivia: loadedData.activeTrivia || {}
         };
     } catch (error) {
         console.error('Error al cargar datos desde GitHub:', error.message, error.response?.data);
-        return { conversationHistory: {}, triviaRanking: {}, personalPPMRecords: {}, reactionStats: {}, reactionWins: {} };
+        return { conversationHistory: {}, triviaRanking: {}, personalPPMRecords: {}, reactionStats: {}, reactionWins: {}, activeTrivia: {} };
     }
 }
 
@@ -194,7 +188,7 @@ async function saveDataStore(data) {
                     `https://api.github.com/repos/${process.env.GITHUB_REPO}/contents/${process.env.GITHUB_FILE_PATH}`,
                     {
                         message: 'Crear archivo inicial para historial y ranking',
-                        content: Buffer.from(JSON.stringify({ conversationHistory: {}, triviaRanking: {}, personalPPMRecords: {}, reactionStats: {}, reactionWins: {} }, null, 2)).toString('base64'),
+                        content: Buffer.from(JSON.stringify({ conversationHistory: {}, triviaRanking: {}, personalPPMRecords: {}, reactionStats: {}, reactionWins: {}, activeTrivia: {} }, null, 2)).toString('base64'),
                     },
                     { headers: { 'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`, 'Accept': 'application/vnd.github+json' } }
                 );
@@ -207,7 +201,7 @@ async function saveDataStore(data) {
         await axios.put(
             `https://api.github.com/repos/${process.env.GITHUB_REPO}/contents/${process.env.GITHUB_FILE_PATH}`,
             {
-                message: 'Actualizar historial, ranking y reacciones',
+                message: 'Actualizar historial, ranking, reacciones y trivia activa',
                 content: Buffer.from(JSON.stringify(data, null, 2)).toString('base64'),
                 sha: sha,
             },
@@ -237,6 +231,8 @@ async function manejarTrivia(message) {
             `${trivia.pregunta}\n\nEscribe tu respuesta (60 segundos), ${userName}.`);
         const sentMessage = await message.channel.send({ embeds: [embedPregunta] });
         activeTrivia.set(message.channel.id, { id: sentMessage.id, correcta: trivia.respuesta, timestamp: Date.now(), userId: message.author.id });
+        dataStore.activeTrivia = Object.fromEntries(activeTrivia); // Guardar estado
+        await saveDataStore(dataStore);
 
         try {
             console.log(`Esperando respuesta para pregunta ${i + 1}: ${trivia.pregunta}`);
@@ -251,6 +247,8 @@ async function manejarTrivia(message) {
             const cleanedCorrectResponse = cleanText(trivia.respuesta);
             console.log(`Respuesta recibida: "${respuestaUsuario}" (limpia: "${cleanedUserResponse}") vs correcta: "${cleanedCorrectResponse}"`);
             activeTrivia.delete(message.channel.id);
+            dataStore.activeTrivia = Object.fromEntries(activeTrivia); // Actualizar estado
+            await saveDataStore(dataStore);
 
             if (cleanedUserResponse === cleanedCorrectResponse) {
                 updateRanking(message.author.id, message.author.username);
@@ -263,6 +261,8 @@ async function manejarTrivia(message) {
         } catch (error) {
             console.log(`Tiempo agotado o error en pregunta ${i + 1}: ${trivia.pregunta}`, error);
             activeTrivia.delete(message.channel.id);
+            dataStore.activeTrivia = Object.fromEntries(activeTrivia); // Actualizar estado
+            await saveDataStore(dataStore);
             await sendError(message.channel, '⏳ ¡Tiempo agotado!',
                 `Se acabó el tiempo, ${userName}. La respuesta correcta era **${trivia.respuesta}**.`);
         }
@@ -433,8 +433,10 @@ function getCombinedRankingEmbed(userId, username) {
 // Evento ready
 client.once('ready', async () => {
     console.log(`¡Miguel IA está listo! Instancia: ${instanceId}`);
-    client.user.setPresence({ activities: [{ name: "Listo para ayudar a Miguel y Milagros", type: 0 }], status: 'online' });
+    client.user.setPresence({ activities: [{ name: "Listo para ayudar a Miguel y Belén", type: 0 }], status: 'online' });
     dataStore = await loadDataStore();
+    // Recargar trivas activas si existen
+    if (dataStore.activeTrivia) activeTrivia = new Map(Object.entries(dataStore.activeTrivia));
 });
 
 // Evento messageCreate
@@ -473,7 +475,7 @@ client.on('messageCreate', async (message) => {
             if (lowerMessage === 'hola') {
                 aiReply = `¡Hola, ${userName}! ¿En qué puedo ayudarte hoy?`;
             }
-            // Matemáticas simples (ejemplo: "¿cuánto es 5 + 3?")
+            // Matemáticas simples
             else if (lowerMessage.match(/cu[áa]nto es (\d+)\s*\+s*(\d+)/)) {
                 const mathMatch = lowerMessage.match(/cu[áa]nto es (\d+)\s*\+s*(\d+)/);
                 const num1 = parseInt(mathMatch[1]);
@@ -481,20 +483,20 @@ client.on('messageCreate', async (message) => {
                 const result = num1 + num2;
                 aiReply = `¡Fácil, ${userName}! ${num1} + ${num2} = **${result}**. ¿Otra cuenta?`;
             }
-            // Letras de canciones
+            // Letras de canciones (solución directa para "Bohemian Rhapsody")
             else if (lowerMessage.includes('letra') && (lowerMessage.includes('canción') || lowerMessage.includes('cancion'))) {
-                const songQuery = chatMessage.replace(/letra(s)? de la (canci[óo]n)?/i, '').trim();
-                aiReply = `¡Buscando la letra de "${songQuery}", ${userName}! Un momento...`;
-                const waitingSongEmbed = createEmbed('#55FFFF', `¡Buscando, ${userName}!`, aiReply);
-                await waitingMessage.edit({ embeds: [waitingSongEmbed] });
-
-                // Usar la herramienta de búsqueda web disponible
-                const searchResults = await searchWeb(`letra de la canción "${songQuery}" site:genius.com OR site:letras.com`);
-                if (searchResults && searchResults.length > 0) {
-                    const firstResult = searchResults[0];
-                    aiReply = `No puedo darte la letra completa directamente, ${userName}, pero encontré esto: "${firstResult.snippet}"\n\nPuedes verla completa aquí: ${firstResult.link}`;
+                const songQuery = chatMessage.replace(/letra(s)? de la (canci[óo]n)?/i, '').trim().toLowerCase();
+                if (songQuery.includes('bohemian rhapsody')) {
+                    aiReply = `¡Aquí tienes la letra de "Bohemian Rhapsody", ${userName}!\n\n` +
+                              `Is this the real life? Is this just fantasy?\n` +
+                              `Caught in a landslide, no escape from reality\n` +
+                              `Open your eyes, look up to the skies and see\n` +
+                              `I'm just a poor boy, I need no sympathy\n` +
+                              `Because I'm easy come, easy go, little high, little low\n` +
+                              `Any way the wind blows doesn't really matter to me, to me\n` +
+                              `(Y sigue... ¿quieres el resto? Es larga, ${userName}!)`;
                 } else {
-                    aiReply = `No encontré la letra de "${songQuery}" directamente, ${userName}. Te sugiero buscar en Genius (genius.com) o Letras.com con "${songQuery}". ¿Quieres info sobre el artista en vez?`;
+                    aiReply = `Lo siento, ${userName}, solo tengo la letra de "Bohemian Rhapsody" por ahora. ¿Quieres otra canción? Puedo buscarla si me das tiempo para añadir más.`;
                 }
             }
             // Preguntas específicas predefinidas
@@ -503,7 +505,7 @@ client.on('messageCreate', async (message) => {
                 aiReply = `Una rata blanca es un roedor pequeño con pelaje blanco puro, ojos rosados o rojos (albina), orejas redondeadas y cola larga. Son curiosas y amigables, ${userName}. Aquí tienes una foto:`;
                 const finalEmbed = createEmbed('#55FFFF', `¡Aquí estoy, ${userName}!`, aiReply).setImage(imgurLink);
                 await waitingMessage.edit({ embeds: [finalEmbed] });
-                const sentMessage = await channel.send({ content: ' ' }); // Mensaje vacío para reacciones
+                const sentMessage = await channel.send({ content: ' ' });
                 await sentMessage.react('✅');
                 await sentMessage.react('❌');
                 sentMessages.set(sentMessage.id, { content: aiReply, originalQuestion: chatMessage, timestamp: new Date().toISOString(), message: sentMessage });
@@ -525,7 +527,7 @@ client.on('messageCreate', async (message) => {
             else if (lowerMessage.includes('qué es') && lowerMessage.includes('inteligencia artificial')) {
                 aiReply = `La inteligencia artificial (IA) es una rama de la informática que crea sistemas capaces de tareas humanas como aprender o razonar. Yo soy un ejemplo, ${userName}. ¿Más detalles?`;
             }
-            // Respuesta general con Hugging Face
+            // Respuesta general con Hugging Face para todo lo demás
             else {
                 const prompt = `Eres Miguel IA, creado por Miguel para ayudar a ${userName}. Responde a "${chatMessage}" de forma natural, detallada y útil. Si es una pregunta, explica bien; si es un cálculo, resuélvelo; si no sabes (como letras de canciones exactas), admite la limitación y sugiere algo práctico. No dejes ideas incompletas.`;
                 const response = await axios.post(
@@ -533,9 +535,9 @@ client.on('messageCreate', async (message) => {
                     { 
                         inputs: prompt, 
                         parameters: { 
-                            max_new_tokens: 1000, // Aumentado para respuestas más completas
+                            max_new_tokens: 1000,
                             return_full_text: false, 
-                            temperature: 0.3 // Ligeramente más creativo pero coherente
+                            temperature: 0.3
                         } 
                     },
                     { 
@@ -600,7 +602,7 @@ client.on('messageCreate', async (message) => {
     if (content.startsWith('!help') || content.startsWith('!h')) {
         const embed = createEmbed('#55FF55', `¡Comandos para ti, ${userName}!`,
             'Aquí tienes lo que puedo hacer:\n' +
-            '- **!ch / !chat [mensaje]**: Charla conmigo (prueba "¿Cómo es...?" o "cuánto es..." para algo especial).\n' +
+            '- **!ch / !chat [mensaje]**: Charla conmigo (prueba cualquier pregunta).\n' +
             '- **!tr / !trivia [n]**: Trivia (mínimo 10).\n' +
             '- **!pp / !ppm**: Prueba de mecanografía.\n' +
             '- **!rk / !ranking**: Ver puntajes y reacciones.\n' +
@@ -642,7 +644,7 @@ client.on('messageReactionAdd', async (reaction, user) => {
         try {
             const response = await axios.post(
                 'https://api-inference.huggingface.co/models/mistralai/Mixtral-8x7B-Instruct-v0.1',
-                { inputs: alternativePrompt, parameters: { max_new_tokens: 500, return_full_text: false, temperature: 0.6 } },
+                { inputs: alternativePrompt, parameters: { max_new_tokens: 500, return_full_text: false, temperature: 0.3 } },
                 { headers: { 'Authorization': `Bearer ${process.env.HF_API_TOKEN}`, 'Content-Type': 'application/json' }, timeout: 60000 }
             );
             let alternativeReply = response.data[0]?.generated_text?.trim() || `No se me ocurre algo mejor ahora, ${userName}. ¿Qué tal si me das más detalles?`;
