@@ -33,5 +33,12 @@
       "wins": 1
     }
   },
-  "activeTrivia": {}
+  "activeTrivia": {
+    "1343749554905940058": {
+      "id": "1345585073675571352",
+      "correcta": "canberra",
+      "timestamp": 1740882881513,
+      "userId": "752987736759205960"
+    }
+  }
 }
