@@ -5,7 +5,7 @@
       "username": "dearluz",
       "score": 25,
       "capitales": {
-        "score": 28
+        "score": 37
       },
       "disney": {
         "score": 13
@@ -48,8 +48,8 @@
       "correct": 25,
       "total": 40,
       "capitales": {
-        "correct": 28,
-        "total": 88
+        "correct": 37,
+        "total": 148
       },
       "disney": {
         "correct": 9,
