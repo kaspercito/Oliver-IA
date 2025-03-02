@@ -633,112 +633,14 @@ setInterval(async () => {
 }, SAVE_INTERVAL);
 
 
-// Persistencia en GitHub
-async function loadDataStore() {
-    try {
-        const response = await axios.get(
-            `https://api.github.com/repos/${process.env.GITHUB_REPO}/contents/${process.env.GITHUB_FILE_PATH}`,
-            { headers: { 'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`, 'Accept': 'application/vnd.github+json' } }
-        );
-        const content = Buffer.from(response.data.content, 'base64').toString('utf8');
-        const loadedData = content ? JSON.parse(content) : { 
-            conversationHistory: {}, 
-            triviaRanking: {}, 
-            personalPPMRecords: {}, 
-            reactionStats: {}, 
-            reactionWins: {}, 
-            activeSessions: {}, 
-            triviaStats: {},
-            updatesSent: false
-        };
-        
-        // Asegurarse de que personalPPMRecords tenga la nueva estructura
-        if (!loadedData.personalPPMRecords) {
-            loadedData.personalPPMRecords = {};
-        }
-        for (const userId in loadedData.personalPPMRecords) {
-            if (!loadedData.personalPPMRecords[userId].best) {
-                loadedData.personalPPMRecords[userId] = { best: { ppm: 0, timestamp: null }, attempts: [] };
-            }
-        }
-
-        console.log('Datos cargados desde GitHub:', JSON.stringify(loadedData));
-        return loadedData;
-    } catch (error) {
-        console.error('Error al cargar datos desde GitHub:', error.message);
-        return { 
-            conversationHistory: {}, 
-            triviaRanking: {}, 
-            personalPPMRecords: {}, 
-            reactionStats: {}, 
-            reactionWins: {}, 
-            activeSessions: {}, 
-            triviaStats: {},
-            updatesSent: false
-        };
-    }
-}
-
-async function saveDataStore() {
-    if (!dataStoreModified) {
-        console.log('No hay cambios en dataStore, omitiendo guardado');
-        return false; // Indicar que no se guardó
-    }
-
-    try {
-        let sha;
-        try {
-            const response = await axios.get(
-                `https://api.github.com/repos/${process.env.GITHUB_REPO}/contents/${process.env.GITHUB_FILE_PATH}`,
-                { headers: { 'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`, 'Accept': 'application/vnd.github+json' } }
-            );
-            sha = response.data.sha;
-        } catch (error) {
-            if (error.response?.status !== 404) throw error;
-        }
-
-        await axios.put(
-            `https://api.github.com/repos/${process.env.GITHUB_REPO}/contents/${process.env.GITHUB_FILE_PATH}`,
-            {
-                message: 'Actualizar historial y sesiones',
-                content: Buffer.from(JSON.stringify(dataStore, null, 2)).toString('base64'),
-                sha: sha || undefined,
-            },
-            { headers: { 'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`, 'Accept': 'application/vnd.github+json' } }
-        );
-        console.log('Datos guardados en GitHub:', JSON.stringify(dataStore));
-        return true; // Indicar que se guardó exitosamente
-    } catch (error) {
-        console.error('Error al guardar datos en GitHub:', error.message);
-        throw error;
-    }
-}
-
-// Aviso anticipado y guardado automático
-const SAVE_INTERVAL = 1800000; // 30 minutos en milisegundos
-const WARNING_TIME = 300000;   // 5 minutos antes (300,000 ms)
 
 setInterval(async () => {
     if (!dataStoreModified) {
         console.log('No hay cambios en dataStore, omitiendo guardado automático');
         return;
     }
-
-    const channel = await client.channels.fetch(CHANNEL_ID);
-    if (channel) {
-        await channel.send({ embeds: [createEmbed('#FFAA00', '⏰ Aviso de Guardado', '¡Atención! El autoguardado será en 5 minutos. Por favor, evita iniciar nuevos comandos durante el guardado para no interferir.')] });
-    }
-
-    setTimeout(async () => {
-        await saveDataStore();
-        if (channel) {
-            await channel.send({ embeds: [createEmbed('#55FF55', '💾 Guardado Completado', 'Datos guardados exitosamente. ¡Puedes seguir usando el bot!')] });
-        }
-        dataStoreModified = false; // Reiniciar la bandera después de guardar
-        console.log('Guardado automático completado y bandera reiniciada');
-    }, WARNING_TIME);
-}, SAVE_INTERVAL);
-
+}
+            
 // Funciones de Trivia
 function obtenerPreguntaTriviaSinOpciones(usedQuestions, categoria) {
     const preguntasCategoria = preguntasTriviaSinOpciones[categoria] || [];
