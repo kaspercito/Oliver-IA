@@ -38,12 +38,5 @@
       "wins": 1
     }
   },
-  "activeTrivia": {
-    "1343749554905940058": {
-      "id": "1345585151618449482",
-      "correcta": "piratas del caribe",
-      "timestamp": 1740882900045,
-      "userId": "752987736759205960"
-    }
-  }
+  "activeTrivia": {}
 }
