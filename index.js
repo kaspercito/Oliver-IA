@@ -2,6 +2,7 @@ const fs = require('fs');
 const { Client, GatewayIntentBits, EmbedBuilder } = require('discord.js');
 const axios = require('axios');
 const { v4: uuidv4 } = require('uuid');
+const { joinVoiceChannel, createAudioPlayer, createAudioResource, AudioPlayerStatus } = require('@discordjs/voice');
 require('dotenv').config();
 
 const client = new Client({
@@ -1034,7 +1035,7 @@ async function manejarPlay(message) {
     let songs = [];
 
     try {
-        await refreshSpotifyToken(); // Asegurarse de que el token esté actualizado
+        await refreshSpotifyToken();
 
         if (query.includes('spotify.com/playlist/')) {
             const playlistId = query.split('playlist/')[1].split('?')[0];
@@ -1057,7 +1058,12 @@ async function manejarPlay(message) {
             await sendSuccess(message.channel, '🎶 Canción encontrada', `Voy a reproducir "${track.name}" de ${track.artists[0].name}, Belén.`);
         }
 
-        const connection = await voiceChannel.join();
+        const connection = joinVoiceChannel({
+            channelId: voiceChannel.id,
+            guildId: message.guild.id,
+            adapterCreator: message.guild.voiceAdapterCreator,
+        });
+
         const queue = dataStore.musicQueue.get(message.guild.id) || [];
         queue.push(...songs.map(song => ({ title: song, requester: message.author.id })));
         dataStore.musicQueue.set(message.guild.id, queue);
@@ -1072,7 +1078,7 @@ async function manejarPlay(message) {
 async function playSong(message, connection) {
     const queue = dataStore.musicQueue.get(message.guild.id);
     if (!queue || queue.length === 0) {
-        connection.disconnect();
+        connection.destroy();
         dataStore.musicQueue.delete(message.guild.id);
         await message.channel.send({ embeds: [createEmbed('#55FF55', '🎶 Reproducción terminada', 'No hay más canciones en la cola, Belén.')] });
         return;
@@ -1084,17 +1090,21 @@ async function playSong(message, connection) {
         const videoInfo = await ytdl.getInfo(`ytsearch:${searchQuery}`);
         const videoUrl = videoInfo.videoDetails.video_url;
         const stream = ytdl(videoUrl, { filter: 'audioonly' });
+        const resource = createAudioResource(stream);
+        const player = createAudioPlayer();
 
-        const dispatcher = connection.play(stream);
+        player.play(resource);
+        connection.subscribe(player);
+
         await sendSuccess(message.channel, '🎶 Reproduciendo', `Ahora suena: "${song.title}" (pedido por Belén)`);
 
-        dispatcher.on('finish', () => {
+        player.on(AudioPlayerStatus.Idle, () => {
             queue.shift();
             dataStore.musicQueue.set(message.guild.id, queue);
             playSong(message, connection);
         });
 
-        dispatcher.on('error', error => {
+        player.on('error', error => {
             console.error('Error al reproducir:', error);
             sendError(message.channel, 'Error al reproducir la canción', 'Algo salió mal con YouTube.');
             queue.shift();
