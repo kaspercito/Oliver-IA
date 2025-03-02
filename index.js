@@ -2,7 +2,7 @@ const fs = require('fs');
 const { Client, GatewayIntentBits, EmbedBuilder } = require('discord.js');
 const axios = require('axios');
 const { v4: uuidv4 } = require('uuid');
-const SpotifyWebApi = require('spotify-web-api-node'); // Añadido aquí
+const SpotifyWebApi = require('spotify-web-api-node');
 const ytdl = require('ytdl-core');
 const { joinVoiceChannel, createAudioPlayer, createAudioResource, AudioPlayerStatus } = require('@discordjs/voice');
 require('dotenv').config();
@@ -14,6 +14,7 @@ const client = new Client({
         GatewayIntentBits.GuildMessageReactions,
         GatewayIntentBits.DirectMessageReactions,
         GatewayIntentBits.MessageContent,
+        GatewayIntentBits.GuildVoiceStates, // Añadido para canales de voz y servidores
     ],
 });
 
@@ -562,7 +563,8 @@ async function loadDataStore() {
             reactionWins: {}, 
             activeSessions: {}, 
             triviaStats: {},
-            updatesSent: false
+            updatesSent: false,
+            musicQueue: new Map()
         };
         console.log('Datos cargados desde GitHub:', JSON.stringify(loadedData));
         return loadedData;
@@ -576,42 +578,8 @@ async function loadDataStore() {
             reactionWins: {}, 
             activeSessions: {}, 
             triviaStats: {},
-            updatesSent: false
-        };
-    }
-}
-
-// Persistencia en GitHub
-async function loadDataStore() {
-    try {
-        const response = await axios.get(
-            `https://api.github.com/repos/${process.env.GITHUB_REPO}/contents/${process.env.GITHUB_FILE_PATH}`,
-            { headers: { 'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`, 'Accept': 'application/vnd.github+json' } }
-        );
-        const content = Buffer.from(response.data.content, 'base64').toString('utf8');
-        const loadedData = content ? JSON.parse(content) : { 
-            conversationHistory: {}, 
-            triviaRanking: {}, 
-            personalPPMRecords: {}, 
-            reactionStats: {}, 
-            reactionWins: {}, 
-            activeSessions: {}, 
-            triviaStats: {},
-            updatesSent: false
-        };
-        console.log('Datos cargados desde GitHub:', JSON.stringify(loadedData));
-        return loadedData;
-    } catch (error) {
-        console.error('Error al cargar datos desde GitHub:', error.message);
-        return { 
-            conversationHistory: {}, 
-            triviaRanking: {}, 
-            personalPPMRecords: {}, 
-            reactionStats: {}, 
-            reactionWins: {}, 
-            activeSessions: {}, 
-            triviaStats: {},
-            updatesSent: false
+            updatesSent: false,
+            musicQueue: new Map()
         };
     }
 }
@@ -1011,6 +979,12 @@ async function manejarAyuda(message) {
 async function manejarPlay(message) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
 
+    // Verificar que el comando se ejecute en un servidor
+    if (!message.guild) {
+        await sendError(message.channel, '¡Este comando solo funciona en servidores!', 'Úsalo en un canal de servidor, no en DMs.');
+        return;
+    }
+
     const args = message.content.split(' ').slice(1);
     if (!args.length) {
         await sendError(message.channel, '¡Dame un enlace de Spotify o el nombre de una canción/playlist!', 'Ejemplo: !play https://open.spotify.com/playlist/...');
@@ -1038,7 +1012,7 @@ async function manejarPlay(message) {
         if (query.includes('spotify.com/playlist/')) {
             const playlistId = query.split('playlist/')[1].split('?')[0];
             const playlist = await spotifyApi.getPlaylist(playlistId);
-            songs = playlist.body.tracks.items.map(item => `${item.track.name} ${item.track.artists[0].name}`);
+            songs = playlist.body.tracks.items.slice(0, 50).map(item => `${item.track.name} ${item.track.artists[0].name}`);
             await sendSuccess(message.channel, '🎶 Playlist cargada', `He cargado ${songs.length} canciones de la playlist "${playlist.body.name}", ${userName}. ¡Empezando a reproducir!`);
         } else if (query.includes('spotify.com/track/')) {
             const trackId = query.split('track/')[1].split('?')[0];
@@ -1066,10 +1040,14 @@ async function manejarPlay(message) {
         queue.push(...songs.map(song => ({ title: song, requester: message.author.id })));
         dataStore.musicQueue.set(message.guild.id, queue);
 
-        playSong(message, connection);
+        await playSong(message, connection);
     } catch (error) {
         console.error('Error en !play:', error);
-        await sendError(message.channel, 'Error al procesar el enlace de Spotify', 'Asegúrate de que sea un enlace válido o intenta de nuevo.');
+        if (error.response && error.response.status) {
+            await sendError(message.channel, 'Error con Spotify', `No pude procesar el enlace. Código de error: ${error.response.status}. Verifica el enlace o intenta de nuevo.`);
+        } else {
+            await sendError(message.channel, 'Error inesperado', 'Algo salió mal al procesar tu solicitud. Intenta de nuevo.');
+        }
     }
 }
 
@@ -1085,10 +1063,11 @@ async function playSong(message, connection) {
     const song = queue[0];
     const requesterName = song.requester === OWNER_ID ? 'Miguel' : 'Belén';
     const searchQuery = song.title;
+
     try {
         const videoInfo = await ytdl.getInfo(`ytsearch:${searchQuery}`);
         const videoUrl = videoInfo.videoDetails.video_url;
-        const stream = ytdl(videoUrl, { filter: 'audioonly' });
+        const stream = ytdl(videoUrl, { filter: 'audioonly', quality: 'highestaudio' });
         const resource = createAudioResource(stream);
         const player = createAudioPlayer();
 
@@ -1105,14 +1084,14 @@ async function playSong(message, connection) {
 
         player.on('error', error => {
             console.error('Error al reproducir:', error);
-            sendError(message.channel, 'Error al reproducir la canción', 'Algo salió mal con YouTube.');
+            sendError(message.channel, 'Error al reproducir la canción', 'No pude reproducir esta canción en YouTube. Pasando a la siguiente.');
             queue.shift();
             dataStore.musicQueue.set(message.guild.id, queue);
             playSong(message, connection);
         });
     } catch (error) {
         console.error('Error al buscar en YouTube:', error);
-        await sendError(message.channel, 'No pude encontrar la canción en YouTube', 'Intenta con otro enlace o nombre.');
+        await sendError(message.channel, 'No pude encontrar la canción en YouTube', `Falló la búsqueda de "${song.title}". Pasando a la siguiente.`);
         queue.shift();
         dataStore.musicQueue.set(message.guild.id, queue);
         playSong(message, connection);
