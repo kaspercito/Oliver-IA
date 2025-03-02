@@ -5,12 +5,5 @@
   "reactionStats": {},
   "reactionWins": {},
   "activeTrivia": {},
-  "activeSessions": {
-    "1343749554905940058": {
-      "type": "chat",
-      "waitingMessageId": "1345588494000722012",
-      "prompt": "cuanto es 50+50",
-      "completed": false
-    }
-  }
+  "activeSessions": {}
 }
