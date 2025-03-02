@@ -723,7 +723,7 @@ async function manejarPPM(message) {
     const frase = obtenerFrasePPM();
     const startTime = Date.now();
     const embed = createEmbed('#55FFFF', '📝 Prueba de Mecanografía',
-        `Escribe esta frase lo más rápido que puedas:\n\n**${frase}**\n\nTienes 60 segundos, ${userName}.`);
+        `Escribe esta frase lo más rápido que puedas:\n\n**${frase}**\n\nTienes 15 segundos, ${userName}.`);
     await message.channel.send({ embeds: [embed] });
 
     session.startTime = startTime;
@@ -736,7 +736,7 @@ async function manejarPPM(message) {
         const respuestas = await message.channel.awaitMessages({
             filter: (res) => res.author.id === message.author.id && res.content.trim().length > 0,
             max: 1,
-            time: 60000,
+            time: 15000,
             errors: ['time']
         });
         const respuestaUsuario = respuestas.first().content;
@@ -888,6 +888,50 @@ async function manejarChat(message) {
     }
 }
 
+// Nuevos comandos: !sugerencias y !ayuda
+async function manejarSugerencias(message) {
+    const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
+    const suggestion = message.content.startsWith('!sugerencias') ? message.content.slice(12).trim() : message.content.slice(4).trim();
+    if (!suggestion) {
+        return sendError(message.channel, `Escribe tu sugerencia después de "!su", ${userName}. ¡Quiero escuchar tus ideas!`);
+    }
+
+    const owner = await client.users.fetch(OWNER_ID);
+    const ownerEmbed = createEmbed('#FFD700', '💡 Nueva sugerencia de Belén',
+        `${userName} propone: "${suggestion}"`);
+
+    try {
+        await owner.send({ embeds: [ownerEmbed] });
+        await sendSuccess(message.channel, '¡Sugerencia enviada!',
+            `Tu idea ya está con Miguel, ${userName}. ¡Gracias por ayudarme a mejorar!`);
+    } catch (error) {
+        console.error('Error al enviar sugerencia:', error);
+        await sendError(message.channel, 'No pude enviar tu sugerencia', `Ocurrió un error, ${userName}. ¿Intentamos de nuevo?`);
+    }
+}
+
+async function manejarAyuda(message) {
+    const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
+    const issue = message.content.startsWith('!ayuda') ? message.content.slice(6).trim() : message.content.slice(3).trim();
+    if (!issue) {
+        return sendError(message.channel, `Dime qué necesitas después de "!ay", ${userName}.`);
+    }
+
+    const owner = await client.users.fetch(OWNER_ID);
+    const ownerEmbed = createEmbed('#FFD700', '¡Solicitud de ayuda!',
+        `${userName} necesita ayuda con: "${issue}"`);
+
+    try {
+        await owner.send({ embeds: [ownerEmbed] });
+        await sendSuccess(message.channel, '¡Ayuda en camino!',
+            `Ya le avisé a Miguel, ${userName}. ¡Pronto te ayudará!`);
+    } catch (error) {
+        console.error('Error al enviar ayuda:', error);
+        await sendError(message.channel, 'No pude avisar a Miguel', `Ocurrió un error, ${userName}. ¿Intentamos de nuevo?`);
+    }
+}
+
+
 // Ranking con top por categoría para Trivia y Reacciones
 function getCombinedRankingEmbed(userId, username) {
     const categorias = Object.keys(preguntasTriviaSinOpciones);
@@ -933,7 +977,7 @@ function getCombinedRankingEmbed(userId, username) {
         .setTimestamp();
 }
 
-// Comandos
+// Comandos actualizados
 async function manejarCommand(message) {
     const content = message.content.toLowerCase();
     console.log(`Comando recibido: ${content}`);
@@ -945,13 +989,17 @@ async function manejarCommand(message) {
         await manejarPPM(message);
     } else if (content.startsWith('!reacciones') || content.startsWith('!re')) {
         await manejarReacciones(message);
-    } else if (content.startsWith('!luz')) {  // Nuevo comando
+    } else if (content.startsWith('!luz')) {
         const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
         const mensaje = mensajesAnimo[Math.floor(Math.random() * mensajesAnimo.length)];
         const embed = createEmbed('#FFAA00', `¡Ánimo, ${userName}!`, mensaje);
         await message.channel.send({ embeds: [embed] });
     } else if (content === '!save') {
         const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
+    } else if (content.startsWith('!sugerencias') || content.startsWith('!su')) {
+        await manejarSugerencias(message);
+    } else if (content.startsWith('!ayuda') || content.startsWith('!ay')) {
+        await manejarAyuda(message);
         try {
             await saveDataStore();
             await sendSuccess(message.channel, '💾 ¡Guardado!', `Datos guardados exitosamente, ${userName}. Estado actual: ${JSON.stringify(dataStore)}`);
@@ -960,11 +1008,10 @@ async function manejarCommand(message) {
         }
     }
 }
-
 // Eventos
 client.once('ready', async () => {
     console.log(`¡Miguel IA está listo! Instancia: ${instanceId}`);
-    client.user.setPresence({ activities: [{ name: "Listo para ayudar a Miguel y Belén", type: 0 }], status: 'online' });
+    client.user.setPresence({ activities: [{ name: "Listo para ayudar a Miguel y Milagros", type: 0 }], status: 'online' });
     dataStore = await loadDataStore();
     activeTrivia = new Map(Object.entries(dataStore.activeSessions).filter(([_, s]) => s.type === 'trivia'));
     console.log('Sesiones activas recargadas:', JSON.stringify(dataStore.activeSessions));
@@ -990,7 +1037,7 @@ client.on('messageCreate', async (message) => {
     if (content.startsWith('!ranking') || content.startsWith('!rk')) {
         const embed = getCombinedRankingEmbed(message.author.id, message.author.username);
         await message.channel.send({ embeds: [embed] });
-        } else if (content.startsWith('!help') || content.startsWith('!h')) {
+    } else if (content.startsWith('!help') || content.startsWith('!h')) {
         const embed = createEmbed('#55FF55', `¡Comandos para ti, ${userName}!`,
             '¡Aquí tienes lo que puedo hacer!\n' +
             '- **!ch / !chat [mensaje]**: Charla conmigo.\n' +
@@ -998,6 +1045,8 @@ client.on('messageCreate', async (message) => {
             '- **!pp / !ppm**: Prueba de mecanografía.\n' +
             '- **!rk / !ranking**: Ver puntajes y estadísticas.\n' +
             '- **!re / !reacciones**: Juego de escribir rápido.\n' +
+            '- **!su / !sugerencias [idea]**: Envía ideas para mejorar el bot.\n' + // Nuevo comando
+            '- **!ay / !ayuda [problema]**: Pide ayuda a Miguel.\n' +           // Nuevo comando
             '- **!save**: Guardar datos ahora.\n' +
             '- **!h / !help**: Lista de comandos.\n' +
             '- **hola**: Saludo especial.');
@@ -1007,6 +1056,7 @@ client.on('messageCreate', async (message) => {
     }
 });
 
+// Evento de reacción actualizado para notificar al OWNER_ID cuando Belén reaccione
 client.on('messageReactionAdd', async (reaction, user) => {
     if (!sentMessages.has(reaction.message.id)) return;
     if (![OWNER_ID, ALLOWED_USER_ID].includes(user.id)) return;
@@ -1021,6 +1071,20 @@ client.on('messageReactionAdd', async (reaction, user) => {
         await newMessage.react('✅');
         await newMessage.react('❌');
         sentMessages.set(newMessage.id, { content: alternativeEmbed.data.description, originalQuestion: messageData.originalQuestion, message: newMessage });
+    }
+
+    // Notificar al OWNER_ID si Belén reacciona
+    if (user.id === ALLOWED_USER_ID) {
+        const owner = await client.users.fetch(OWNER_ID);
+        const reactionEmbed = createEmbed('#FFD700', '¡Belén reaccionó!',
+            `Belén reaccionó con ${reaction.emoji} al mensaje: "${messageData.content}"\n\nEnviado el: ${new Date(messageData.timestamp).toLocaleString()}`);
+        
+        try {
+            await owner.send({ embeds: [reactionEmbed] });
+            console.log(`Notificación enviada a ${OWNER_ID}: Belén reaccionó con ${reaction.emoji}`);
+        } catch (error) {
+            console.error('Error al notificar al dueño:', error);
+        }
     }
 });
 
