@@ -968,7 +968,7 @@ client.once('ready', async () => {
     dataStore = await loadDataStore();
     activeTrivia = new Map(Object.entries(dataStore.activeSessions).filter(([_, s]) => s.type === 'trivia'));
     console.log('Sesiones activas recargadas:', JSON.stringify(dataStore.activeSessions));
-
+}
 process.on('beforeExit', async () => {
     console.log('Guardando datos antes de salir...');
     await saveDataStore();
