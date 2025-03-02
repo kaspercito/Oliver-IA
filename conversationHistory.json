@@ -38,5 +38,12 @@
       "wins": 1
     }
   },
-  "activeTrivia": {}
+  "activeTrivia": {
+    "1343749554905940058": {
+      "id": "1345585280853348413",
+      "correcta": "cenicienta",
+      "timestamp": 1740882930907,
+      "userId": "752987736759205960"
+    }
+  }
 }
