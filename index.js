@@ -1136,23 +1136,8 @@ async function playSong(message, connection) {
             return playSong(message, connection);
         }
 
-        // Usar FFmpeg para convertir el stream a un formato compatible
-        const ffmpeg = require('child_process').spawn('ffmpeg', [
-            '-i', 'pipe:0', // Entrada desde el stream
-            '-f', 's16le', // Formato PCM 16-bit little-endian
-            '-ac', '2', // 2 canales (estéreo)
-            '-ar', '48000', // Frecuencia de muestreo 48kHz (estándar para Discord)
-            '-acodec', 'pcm_s16le', // Códec PCM
-            'pipe:1' // Salida a pipe
-        ]);
-
-        stream.stream.pipe(ffmpeg.stdin);
-        ffmpeg.stderr.on('data', (data) => {
-            console.error(`FFmpeg stderr: ${data}`);
-        });
-
-        const resource = createAudioResource(ffmpeg.stdout, { 
-            inputType: 's16le',
+        const resource = createAudioResource(stream.stream, { 
+            inputType: stream.type, 
             inlineVolume: true,
             metadata: { title: song.title }
         });
