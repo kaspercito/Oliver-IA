@@ -7,6 +7,335 @@ const Spotify = require('erela.js-spotify');
 const lyricsFinder = require('lyrics-finder');
 require('dotenv').config();
 
+function generarPreguntasQuimica(cantidad) {
+    const elementos = [
+        { simbolo: "H", nombre: "hidrógeno" }, { simbolo: "He", nombre: "helio" },
+        { simbolo: "Li", nombre: "litio" }, { simbolo: "Be", nombre: "berilio" },
+        { simbolo: "B", nombre: "boro" }, { simbolo: "C", nombre: "carbono" },
+        { simbolo: "N", nombre: "nitrógeno" }, { simbolo: "O", nombre: "oxígeno" },
+        { simbolo: "F", nombre: "flúor" }, { simbolo: "Ne", nombre: "neón" },
+        { simbolo: "Na", nombre: "sodio" }, { simbolo: "Mg", nombre: "magnesio" },
+        { simbolo: "Al", nombre: "aluminio" }, { simbolo: "Si", nombre: "silicio" },
+        { simbolo: "P", nombre: "fósforo" }, { simbolo: "S", nombre: "azufre" },
+        { simbolo: "Cl", nombre: "cloro" }, { simbolo: "Ar", nombre: "argón" },
+        { simbolo: "K", nombre: "potasio" }, { simbolo: "Ca", nombre: "calcio" },
+        { simbolo: "Fe", nombre: "hierro" }, { simbolo: "Cu", nombre: "cobre" },
+        { simbolo: "Zn", nombre: "zinc" }, { simbolo: "Ag", nombre: "plata" },
+        { simbolo: "Au", nombre: "oro" }, { simbolo: "Hg", nombre: "mercurio" },
+        { simbolo: "Pb", nombre: "plomo" }, { simbolo: "Sn", nombre: "estaño" }
+    ];
+    const compuestos = [
+        { formula: "H2O", nombre: "agua" }, { formula: "CO2", nombre: "dióxido de carbono" },
+        { formula: "NaCl", nombre: "cloruro de sodio" }, { formula: "CH4", nombre: "metano" },
+        { formula: "NH3", nombre: "amoníaco" }, { formula: "H2SO4", nombre: "ácido sulfúrico" },
+        { formula: "N2O", nombre: "óxido nitroso" }, { formula: "HCl", nombre: "ácido clorhídrico" },
+        { formula: "CaCO3", nombre: "carbonato de calcio" }, { formula: "C2H5OH", nombre: "etanol" }
+    ];
+    let preguntas = [];
+    let usadas = new Set();
+
+    for (let i = 0; i < elementos.length && preguntas.length < cantidad; i++) {
+        let q = `¿Qué elemento tiene el símbolo '${elementos[i].simbolo}'?`;
+        if (!usadas.has(q)) {
+            preguntas.push({ pregunta: q, respuesta: elementos[i].nombre });
+            usadas.add(q);
+        }
+    }
+    for (let i = 0; i < compuestos.length && preguntas.length < cantidad; i++) {
+        let q = `¿Qué compuesto tiene la fórmula '${compuestos[i].formula}'?`;
+        if (!usadas.has(q)) {
+            preguntas.push({ pregunta: q, respuesta: compuestos[i].nombre });
+            usadas.add(q);
+        }
+    }
+    while (preguntas.length < cantidad) {
+        let elem = elementos[Math.floor(Math.random() * elementos.length)];
+        let q = `¿Cuál es el símbolo del ${elem.nombre}?`;
+        if (!usadas.has(q)) {
+            preguntas.push({ pregunta: q, respuesta: elem.simbolo.toLowerCase() });
+            usadas.add(q);
+        }
+    }
+    return preguntas.slice(0, cantidad);
+}
+
+function generarPreguntasFisica(cantidad) {
+    const unidades = [
+        { unidad: "newton", mide: "fuerza" }, { unidad: "voltio", mide: "voltaje" },
+        { unidad: "joule", mide: "energía" }, { unidad: "watt", mide: "potencia" },
+        { unidad: "hertz", mide: "frecuencia" }, { unidad: "ohmio", mide: "resistencia" },
+        { unidad: "amperio", mide: "corriente eléctrica" }
+    ];
+    const instrumentos = [
+        { nombre: "barómetro", mide: "presión atmosférica" }, { nombre: "termómetro", mide: "temperatura" },
+        { nombre: "anemómetro", mide: "velocidad del viento" }, { nombre: "velocímetro", mide: "velocidad" }
+    ];
+    const leyes = [
+        { desc: "F = m * a", nombre: "segunda ley de Newton" },
+        { desc: "a toda acción hay una reacción igual y opuesta", nombre: "tercera ley de Newton" }
+    ];
+    let preguntas = [];
+    let usadas = new Set();
+
+    for (let i = 0; i < unidades.length && preguntas.length < cantidad; i++) {
+        let q = `¿Qué mide la unidad '${unidades[i].unidad}'?`;
+        if (!usadas.has(q)) {
+            preguntas.push({ pregunta: q, respuesta: unidades[i].mide });
+            usadas.add(q);
+        }
+    }
+    for (let i = 0; i < instrumentos.length && preguntas.length < cantidad; i++) {
+        let q = `¿Qué instrumento mide la ${instrumentos[i].mide}?`;
+        if (!usadas.has(q)) {
+            preguntas.push({ pregunta: q, respuesta: instrumentos[i].nombre });
+            usadas.add(q);
+        }
+    }
+    for (let i = 0; i < leyes.length && preguntas.length < cantidad; i++) {
+        let q = `¿Qué ley dice que '${leyes[i].desc}'?`;
+        if (!usadas.has(q)) {
+            preguntas.push({ pregunta: q, respuesta: leyes[i].nombre });
+            usadas.add(q);
+        }
+    }
+    while (preguntas.length < cantidad) {
+        let u = unidades[Math.floor(Math.random() * unidades.length)];
+        let q = `¿Qué unidad mide la ${u.mide}?`;
+        if (!usadas.has(q)) {
+            preguntas.push({ pregunta: q, respuesta: u.unidad });
+            usadas.add(q);
+        }
+    }
+    return preguntas.slice(0, cantidad);
+}
+
+function generarPreguntasHistoria(cantidad) {
+    const eventos = [
+        { año: "1492", desc: "Colón llegó a América" }, { año: "1789", desc: "Revolución Francesa" },
+        { año: "1939", desc: "Inicio de la Segunda Guerra Mundial" }, { año: "1989", desc: "Caída del Muro de Berlín" },
+        { año: "1914", desc: "Inicio de la Primera Guerra Mundial" }
+    ];
+    const personajes = [
+        { nombre: "Leonardo da Vinci", hecho: "pintó la Mona Lisa" }, { nombre: "George Washington", hecho: "fue el primer presidente de Estados Unidos" },
+        { nombre: "Alexander Fleming", hecho: "descubrió la penicilina" }
+    ];
+    let preguntas = [];
+    let usadas = new Set();
+
+    for (let i = 0; i < eventos.length && preguntas.length < cantidad; i++) {
+        let q = `¿En qué año ${eventos[i].desc.toLowerCase()}?`;
+        if (!usadas.has(q)) {
+            preguntas.push({ pregunta: q, respuesta: eventos[i].año });
+            usadas.add(q);
+        }
+    }
+    for (let i = 0; i < personajes.length && preguntas.length < cantidad; i++) {
+        let q = `¿Quién ${personajes[i].hecho.toLowerCase()}?`;
+        if (!usadas.has(q)) {
+            preguntas.push({ pregunta: q, respuesta: personajes[i].nombre.toLowerCase() });
+            usadas.add(q);
+        }
+    }
+    while (preguntas.length < cantidad) {
+        let e = eventos[Math.floor(Math.random() * eventos.length)];
+        let q = `¿Qué evento ocurrió en ${e.año}?`;
+        if (!usadas.has(q)) {
+            preguntas.push({ pregunta: q, respuesta: e.desc.toLowerCase() });
+            usadas.add(q);
+        }
+    }
+    return preguntas.slice(0, cantidad);
+}
+
+function generarPreguntasBiologia(cantidad) {
+    const organos = [
+        { organo: "corazón", funcion: "bombea sangre" }, { organo: "páncreas", funcion: "produce insulina" },
+        { organo: "riñones", funcion: "filtra la sangre" }, { organo: "cerebro", funcion: "controla el sistema nervioso" }
+    ];
+    const animales = [
+        { nombre: "león", desc: "rey de la selva" }, { nombre: "ballena azul", desc: "mamífero más grande del mundo" },
+        { nombre: "jirafa", desc: "cuello más largo" }, { nombre: "abeja", desc: "produce miel" }
+    ];
+    let preguntas = [];
+    let usadas = new Set();
+
+    for (let i = 0; i < organos.length && preguntas.length < cantidad; i++) {
+        let q = `¿Qué órgano ${organos[i].funcion}?`;
+        if (!usadas.has(q)) {
+            preguntas.push({ pregunta: q, respuesta: organos[i].organo });
+            usadas.add(q);
+        }
+    }
+    for (let i = 0; i < animales.length && preguntas.length < cantidad; i++) {
+        let q = `¿Qué animal es conocido como ${animales[i].desc}?`;
+        if (!usadas.has(q)) {
+            preguntas.push({ pregunta: q, respuesta: animales[i].nombre });
+            usadas.add(q);
+        }
+    }
+    while (preguntas.length < cantidad) {
+        let o = organos[Math.floor(Math.random() * organos.length)];
+        let q = `¿Qué hace el ${o.organo} en el cuerpo humano?`;
+        if (!usadas.has(q)) {
+            preguntas.push({ pregunta: q, respuesta: o.funcion });
+            usadas.add(q);
+        }
+    }
+    return preguntas.slice(0, cantidad);
+}
+
+function generarPreguntasJuegos(cantidad) {
+    const juegos = [
+        { juego: "Super Mario", personaje: "Mario" }, { juego: "The Legend of Zelda", personaje: "Link" },
+        { juego: "Fortnite", desc: "modo battle royale" }, { juego: "Minecraft", desc: "construyes con bloques" },
+        { juego: "Halo", personaje: "Master Chief" }, { juego: "Tomb Raider", personaje: "Lara Croft" }
+    ];
+    let preguntas = [];
+    let usadas = new Set();
+
+    for (let i = 0; i < juegos.length && preguntas.length < cantidad; i++) {
+        let q = juegos[i].personaje 
+            ? `¿Qué juego tiene un personaje llamado ${juegos[i].personaje}?`
+            : `¿Qué juego es famoso por su ${juegos[i].desc}?`;
+        if (!usadas.has(q)) {
+            preguntas.push({ pregunta: q, respuesta: juegos[i].juego.toLowerCase() });
+            usadas.add(q);
+        }
+    }
+    while (preguntas.length < cantidad) {
+        let j = juegos[Math.floor(Math.random() * juegos.length)];
+        let q = j.personaje 
+            ? `¿En qué juego aparece ${j.personaje}?`
+            : `¿Qué juego incluye ${j.desc}?`;
+        if (!usadas.has(q)) {
+            preguntas.push({ pregunta: q, respuesta: j.juego.toLowerCase() });
+            usadas.add(q);
+        }
+    }
+    return preguntas.slice(0, cantidad);
+}
+
+function generarPreguntasPeliculas(cantidad) {
+    const peliculas = [
+        { pelicula: "Piratas del Caribe", personaje: "Jack Sparrow" }, { pelicula: "El Rey León", personaje: "Mufasa" },
+        { pelicula: "Tiburón", desc: "tiburón como antagonista" }, { pelicula: "WALL-E", personaje: "WALL-E" },
+        { pelicula: "Harry Potter", desc: "mago joven en Hogwarts" }, { pelicula: "Iron Man", personaje: "Tony Stark" }
+    ];
+    let preguntas = [];
+    let usadas = new Set();
+
+    for (let i = 0; i < peliculas.length && preguntas.length < cantidad; i++) {
+        let q = peliculas[i].personaje 
+            ? `¿Qué película tiene a ${peliculas[i].personaje} como personaje?`
+            : `¿Qué película incluye ${peliculas[i].desc}?`;
+        if (!usadas.has(q)) {
+            preguntas.push({ pregunta: q, respuesta: peliculas[i].pelicula.toLowerCase() });
+            usadas.add(q);
+        }
+    }
+    while (preguntas.length < cantidad) {
+        let p = peliculas[Math.floor(Math.random() * peliculas.length)];
+        let q = p.personaje 
+            ? `¿En qué película aparece ${p.personaje}?`
+            : `¿Qué película tiene ${p.desc}?`;
+        if (!usadas.has(q)) {
+            preguntas.push({ pregunta: q, respuesta: p.pelicula.toLowerCase() });
+            usadas.add(q);
+        }
+    }
+    return preguntas.slice(0, cantidad);
+}
+
+function generarPreguntasDisney(cantidad) {
+    const personajes = [
+        { nombre: "Elsa", desc: "poderes de hielo" }, { nombre: "Cenicienta", desc: "madrastra Lady Tremaine" },
+        { nombre: "Nemo", desc: "pez en Buscando a Nemo" }, { nombre: "Donald", desc: "pato gruñón" },
+        { nombre: "Aladdín", desc: "lámpara mágica" }, { nombre: "Simba", desc: "rey león" }
+    ];
+    let preguntas = [];
+    let usadas = new Set();
+
+    for (let i = 0; i < personajes.length && preguntas.length < cantidad; i++) {
+        let q = personajes[i].desc.includes("en") 
+            ? `¿Qué película Disney tiene un ${personajes[i].desc}?`
+            : `¿Qué personaje Disney tiene ${personajes[i].desc}?`;
+        if (!usadas.has(q)) {
+            preguntas.push({ pregunta: q, respuesta: personajes[i].nombre.toLowerCase() });
+            usadas.add(q);
+        }
+    }
+    while (preguntas.length < cantidad) {
+        let p = personajes[Math.floor(Math.random() * personajes.length)];
+        let q = p.desc.includes("en") 
+            ? `¿En qué película Disney aparece un ${p.desc}?`
+            : `¿Qué personaje Disney es conocido por ${p.desc}?`;
+        if (!usadas.has(q)) {
+            preguntas.push({ pregunta: q, respuesta: p.nombre.toLowerCase() });
+            usadas.add(q);
+        }
+    }
+    return preguntas.slice(0, cantidad);
+}
+
+function generarPreguntasMatematicas(cantidad) {
+    let preguntas = [];
+    let usadas = new Set();
+
+    while (preguntas.length < cantidad) {
+        let num1 = Math.floor(Math.random() * 20) + 1;
+        let num2 = Math.floor(Math.random() * 20) + 1;
+        let operacion = ['+', '-', '*', '÷'][Math.floor(Math.random() * 4)];
+        let resultado;
+        switch (operacion) {
+            case '+': resultado = num1 + num2; break;
+            case '-': resultado = num1 - num2; break;
+            case '*': resultado = num1 * num2; break;
+            case '÷': resultado = num2 !== 0 ? Math.floor(num1 / num2) : 'indefinido'; break;
+        }
+        let q = `¿Cuánto es ${num1} ${operacion} ${num2}?`;
+        if (!usadas.has(q)) {
+            preguntas.push({ pregunta: q, respuesta: resultado.toString() });
+            usadas.add(q);
+        }
+    }
+
+    return preguntas.slice(0, cantidad);
+}
+
+function generarPalabrasAleatorias(cantidad) {
+    const categorias = {
+        animales: ["gato", "perro", "león", "tigre", "elefante", "jirafa", "mono", "oso", "pez", "pájaro"],
+        colores: ["rojo", "azul", "verde", "amarillo", "negro", "blanco", "rosa", "violeta", "naranja", "gris"],
+        naturaleza: ["sol", "luna", "estrella", "nube", "río", "montaña", "mar", "bosque", "playa", "cielo"],
+        emociones: ["feliz", "triste", "enojado", "calmo", "cansado", "vivo", "raro", "simple", "duro", "suave"],
+        objetos: ["casa", "mesa", "silla", "libro", "lápiz", "reloj", "lámpara", "puerta", "ventana", "camino"]
+    };
+    let palabras = new Set();
+
+    while (palabras.size < cantidad) {
+        let cat = Object.keys(categorias)[Math.floor(Math.random() * Object.keys(categorias).length)];
+        let palabra = categorias[cat][Math.floor(Math.random() * categorias[cat].length)];
+        palabras.add(palabra);
+    }
+
+    return Array.from(palabras).slice(0, cantidad);
+}
+
+
+function generarFrasesPPM(cantidad) {
+    const sujetos = ["el sol", "una abeja", "un niño", "el viento", "la luna", "un gato", "el río"];
+    const acciones = ["brilla", "zumba", "corre", "susurra", "ilumina", "cruza", "canta"];
+    const complementos = ["en el cielo", "entre las flores", "tras una pelota", "en el bosque", "en la noche", "por el callejón", "bajo el puente"];
+    let frases = [];
+    for (let i = 0; i < cantidad; i++) {
+        let sujeto = sujetos[Math.floor(Math.random() * sujetos.length)];
+        let accion = acciones[Math.floor(Math.random() * acciones.length)];
+        let complemento = complementos[Math.floor(Math.random() * complementos.length)];
+        frases.push(`${sujeto} ${accion} ${complemento}`);
+    }
+    return frases;
+}
+
 const client = new Client({
     intents: [
         GatewayIntentBits.Guilds,
@@ -46,10 +375,9 @@ const manager = new Manager({
 });
 
 const BOT_UPDATES = [
-    '¡Trivia extendida! Ahora las trivias son de 20 preguntas por defecto en lugar de 10.',
-    '¡Guardado automático mejorado! Avisa 5 minutos antes cada 30 minutos para que evites iniciar nuevos comandos.',
-    '¡Comandos !sugerencias y !ayuda añadidos! Envía ideas o pide ayuda directamente a Miguel.',
-    '¡PPM más rápido! El tiempo para escribir la frase se redujo de 60 a 15 segundos.',
+    '¡Detección de mayúsculas añadida! Si usas muchas mayúsculas (80% o más), el mensaje se borra y te mutea 5 minutos si hay permisos.',
+    '¡Notificación de mayúsculas en el canal! Ahora avisa si alguien fue muteado o no por gritar, con estilo costeño.',
+    '¡Chat mejorado! Segunda respuesta automática al darle ❌, pa’ que sea más bacán y no pida detalles de una.',
 ];
 
 // Estado anterior de las actualizaciones (del código pasado)
@@ -269,220 +597,21 @@ const preguntasTriviaSinOpciones = {
         { pregunta: "¿Cuál es la capital de Zambia?", respuesta: "lusaka" },
         { pregunta: "¿Cuál es la capital de Zimbabue?", respuesta: "harare" }
     ],
-    quimica: [
-        { pregunta: "¿Qué elemento tiene el símbolo 'H'?", respuesta: "hidrógeno" },
-        { pregunta: "¿Qué gas tiene la fórmula CO2?", respuesta: "dióxido de carbono" },
-        { pregunta: "¿Qué elemento es un metal líquido a temperatura ambiente?", respuesta: "mercurio" },
-        { pregunta: "¿Cuál es el símbolo del oro?", respuesta: "au" },
-        { pregunta: "¿Qué compuesto es el agua?", respuesta: "h2o" },
-        { pregunta: "¿Qué elemento tiene el símbolo 'O'?", respuesta: "oxígeno" },
-        { pregunta: "¿Qué metal tiene el símbolo 'Fe'?", respuesta: "hierro" },
-        { pregunta: "¿Qué gas noble tiene el símbolo 'Ne'?", respuesta: "neón" },
-        { pregunta: "¿Qué elemento tiene el símbolo 'Na'?", respuesta: "sodio" },
-        { pregunta: "¿Qué gas tiene el símbolo 'He'?", respuesta: "helio" },
-        { pregunta: "¿Qué elemento tiene el símbolo 'C'?", respuesta: "carbono" },
-        { pregunta: "¿Qué metal tiene el símbolo 'Cu'?", respuesta: "cobre" },
-        { pregunta: "¿Qué elemento tiene el símbolo 'Ag'?", respuesta: "plata" },
-        { pregunta: "¿Qué compuesto es el cloruro de sodio?", respuesta: "nacl" },
-        { pregunta: "¿Qué gas tiene el símbolo 'N'?", respuesta: "nitrógeno" },
-        { pregunta: "¿Qué elemento tiene el símbolo 'K'?", respuesta: "potasio" },
-        { pregunta: "¿Qué metal tiene el símbolo 'Pb'?", respuesta: "plomo" },
-        { pregunta: "¿Qué elemento tiene el símbolo 'S'?", respuesta: "azufre" },
-        { pregunta: "¿Qué gas noble tiene el símbolo 'Ar'?", respuesta: "argón" },
-        { pregunta: "¿Qué elemento tiene el símbolo 'Al'?", respuesta: "aluminio" },
-        { pregunta: "¿Qué compuesto es el dióxido de azufre?", respuesta: "so2" },
-        { pregunta: "¿Qué elemento tiene el símbolo 'P'?", respuesta: "fósforo" }
-    ],
-    fisica: [
-        { pregunta: "¿Qué unidad mide la fuerza?", respuesta: "newton" },
-        { pregunta: "¿Qué ley dice que F = m * a?", respuesta: "segunda ley de newton" },
-        { pregunta: "¿Cuál es la velocidad de la luz en el vacío (aproximada)?", respuesta: "300000 km/s" },
-        { pregunta: "¿Qué instrumento mide la presión atmosférica?", respuesta: "barómetro" },
-        { pregunta: "¿Qué tipo de energía almacena un resorte comprimido?", respuesta: "energía elástica" },
-        { pregunta: "¿Qué mide la unidad 'voltio'?", respuesta: "voltaje" },
-        { pregunta: "¿Quién formuló la teoría de la relatividad?", respuesta: "einstein" },
-        { pregunta: "¿Qué mide la unidad 'joule'?", respuesta: "energía" },
-        { pregunta: "¿Qué mide la unidad 'watt'?", respuesta: "potencia" },
-        { pregunta: "¿Qué ley dice que la energía no se crea ni se destruye?", respuesta: "conservación de la energía" },
-        { pregunta: "¿Qué instrumento mide la temperatura?", respuesta: "termómetro" },
-        { pregunta: "¿Qué tipo de onda transporta el sonido?", respuesta: "longitudinal" },
-        { pregunta: "¿Qué mide la unidad 'hertz'?", respuesta: "frecuencia" },
-        { pregunta: "¿Qué fuerza mantiene a los planetas en órbita?", respuesta: "gravedad" },
-        { pregunta: "¿Qué mide la unidad 'ohmio'?", respuesta: "resistencia" },
-        { pregunta: "¿Qué fenómeno explica la curvatura de la luz por la gravedad?", respuesta: "relatividad general" },
-        { pregunta: "¿Qué tipo de energía tiene un objeto en movimiento?", respuesta: "cinética" },
-        { pregunta: "¿Qué mide la unidad 'amperio'?", respuesta: "corriente eléctrica" },
-        { pregunta: "¿Qué instrumento mide la velocidad del viento?", respuesta: "anemómetro" },
-        { pregunta: "¿Qué ley dice que a toda acción hay una reacción igual y opuesta?", respuesta: "tercera ley de newton" }
-    ],
-    historia: [
-        { pregunta: "¿En qué año llegó Colón a América?", respuesta: "1492" },
-        { pregunta: "¿Qué civilización construyó las pirámides de Giza?", respuesta: "egipcia" },
-        { pregunta: "¿Qué guerra ocurrió entre 1939 y 1945?", respuesta: "segunda guerra mundial" },
-        { pregunta: "¿Quién fue el primer emperador de Roma?", respuesta: "augusto" },
-        { pregunta: "¿En qué año cayó el Muro de Berlín?", respuesta: "1989" },
-        { pregunta: "¿Qué revolución comenzó en 1789?", respuesta: "revolución francesa" },
-        { pregunta: "¿Quién pintó la Mona Lisa?", respuesta: "leonardo da vinci" },
-        { pregunta: "¿En qué año comenzó la Primera Guerra Mundial?", respuesta: "1914" },
-        { pregunta: "¿Qué civilización construyó Machu Picchu?", respuesta: "inca" },
-        { pregunta: "¿Quién fue el primer presidente de Estados Unidos?", respuesta: "george washington" },
-        { pregunta: "¿En qué año se firmó la Declaración de Independencia de EE.UU.?", respuesta: "1776" },
-        { pregunta: "¿Qué imperio fue gobernado por Gengis Kan?", respuesta: "mongol" },
-        { pregunta: "¿Quién descubrió la penicilina?", respuesta: "alexander fleming" },
-        { pregunta: "¿En qué año terminó la Segunda Guerra Mundial?", respuesta: "1945" },
-        { pregunta: "¿Qué civilización inventó la escritura cuneiforme?", respuesta: "sumeria" },
-        { pregunta: "¿Quién fue el líder de la Revolución Rusa de 1917?", respuesta: "lenin" },
-        { pregunta: "¿En qué año se inventó la imprenta?", respuesta: "1440" },
-        { pregunta: "¿Qué reina inglesa tuvo el reinado más largo?", respuesta: "isabel ii" },
-        { pregunta: "¿Qué evento marcó el inicio de la Edad Media?", respuesta: "caída de roma" },
-        { pregunta: "¿Quién fue el faraón famoso por su tumba llena de tesoros?", respuesta: "tutankamón" }
-    ],
-    biologia: [
-        { pregunta: "¿Qué órgano bombea sangre en el cuerpo humano?", respuesta: "corazón" },
-        { pregunta: "¿Cuál es el proceso por el que las plantas hacen su alimento?", respuesta: "fotosíntesis" },
-        { pregunta: "¿Qué gas exhalan los humanos al respirar?", respuesta: "dióxido de carbono" },
-        { pregunta: "¿Qué parte del cuerpo humano produce insulina?", respuesta: "páncreas" },
-        { pregunta: "¿Qué animal es conocido como el rey de la selva?", respuesta: "león" },
-        { pregunta: "¿Qué clase de animal es un delfín?", respuesta: "mamífero" },
-        { pregunta: "¿Qué estructura en las células contiene el ADN?", respuesta: "núcleo" },
-        { pregunta: "¿Qué gas necesitan las plantas para la fotosíntesis?", respuesta: "dióxido de carbono" },
-        { pregunta: "¿Qué órgano filtra la sangre en el cuerpo humano?", respuesta: "riñones" },
-        { pregunta: "¿Qué animal es el mamífero más grande del mundo?", respuesta: "ballena azul" },
-        { pregunta: "¿Qué parte del cuerpo humano controla el equilibrio?", respuesta: "oído" },
-        { pregunta: "¿Qué tipo de sangre transportan las arterias?", respuesta: "oxigenada" },
-        { pregunta: "¿Qué animal tiene el cuello más largo?", respuesta: "jirafa" },
-        { pregunta: "¿Qué insecto produce miel?", respuesta: "abeja" },
-        { pregunta: "¿Qué órgano humano digiere los alimentos?", respuesta: "estómago" },
-        { pregunta: "¿Qué animal es conocido por cambiar de color?", respuesta: "camaleón" },
-        { pregunta: "¿Qué gas respiran los humanos?", respuesta: "oxígeno" },
-        { pregunta: "¿Qué parte de la planta absorbe agua del suelo?", respuesta: "raíz" },
-        { pregunta: "¿Qué animal tiene un pico y plumas pero no vuela?", respuesta: "pingüino" },
-        { pregunta: "¿Qué órgano humano es el más grande?", respuesta: "piel" }
-    ],
-    juegos: [
-        { pregunta: "¿Qué juego tiene un personaje llamado Mario?", respuesta: "super mario" },
-        { pregunta: "¿Qué juego incluye a un personaje llamado Link?", respuesta: "the legend of zelda" },
-        { pregunta: "¿Qué juego es famoso por su modo battle royale?", respuesta: "fortnite" },
-        { pregunta: "¿En qué juego construyes con bloques en un mundo cúbico?", respuesta: "minecraft" },
-        { pregunta: "¿Qué juego tiene un personaje llamado Master Chief?", respuesta: "halo" },
-        { pregunta: "¿Qué juego incluye a Lara Croft como protagonista?", respuesta: "tomb raider" },
-        { pregunta: "¿Qué juego tiene un mapa llamado Summoner's Rift?", respuesta: "league of legends" },
-        { pregunta: "¿Qué juego te permite capturar criaturas con pokebolas?", respuesta: "pokémon" },
-        { pregunta: "¿Qué juego tiene un personaje llamado Kratos?", respuesta: "god of war" },
-        { pregunta: "¿Qué juego es famoso por su modo de carreras Mario Kart?", respuesta: "mario kart" },
-        { pregunta: "¿Qué juego tiene un mundo abierto llamado Los Santos?", respuesta: "grand theft auto v" },
-        { pregunta: "¿Qué juego incluye a un erizo azul llamado Sonic?", respuesta: "sonic the hedgehog" },
-        { pregunta: "¿Qué juego tiene un personaje llamado Solid Snake?", respuesta: "metal gear solid" },
-        { pregunta: "¿Qué juego te permite construir granjas y explorar cuevas?", respuesta: "stardew valley" },
-        { pregunta: "¿Qué juego tiene un modo de batalla llamado Team Deathmatch?", respuesta: "call of duty" },
-        { pregunta: "¿Qué juego incluye a un personaje llamado Geralt de Rivia?", respuesta: "the witcher" },
-        { pregunta: "¿Qué juego tiene un mundo postapocalíptico con Vaults?", respuesta: "fallout" },
-        { pregunta: "¿Qué juego te permite ser un simulador de vida?", respuesta: "the sims" },
-        { pregunta: "¿Qué juego tiene un personaje llamado Ellie en un mundo con infectados?", respuesta: "the last of us" },
-        { pregunta: "¿Qué juego incluye combates con cartas como 'Magic'?", respuesta: "hearthstone" }
-    ],
-    peliculas: [
-        { pregunta: "¿Qué película tiene a Jack Sparrow como pirata?", respuesta: "piratas del caribe" },
-        { pregunta: "¿Qué película tiene un león rey llamado Mufasa?", respuesta: "el rey león" },
-        { pregunta: "¿Qué película tiene un tiburón como antagonista principal?", respuesta: "tiburón" },
-        { pregunta: "¿Qué película incluye a un robot llamado WALL-E?", respuesta: "wall-e" },
-        { pregunta: "¿Qué película tiene un mago joven que va a Hogwarts?", respuesta: "harry potter" },
-        { pregunta: "¿Qué película tiene un superhéroe llamado Tony Stark?", respuesta: "iron man" },
-        { pregunta: "¿Qué película incluye un viaje al espacio con HAL 9000?", respuesta: "2001: odisea del espacio" },
-        { pregunta: "¿Qué película tiene un personaje llamado Darth Vader?", respuesta: "star wars" },
-        { pregunta: "¿Qué película incluye un boxeador llamado Rocky Balboa?", respuesta: "rocky" },
-        { pregunta: "¿Qué película tiene un dinosaurio llamado Rex?", respuesta: "toy story" },
-        { pregunta: "¿Qué película narra la historia del Titanic?", respuesta: "titanic" },
-        { pregunta: "¿Qué película tiene un espía llamado James Bond?", respuesta: "james bond" },
-        { pregunta: "¿Qué película incluye una ciudad subterránea llamada Zion?", respuesta: "matrix" },
-        { pregunta: "¿Qué película tiene un personaje llamado Forrest Gump?", respuesta: "forrest gump" },
-        { pregunta: "¿Qué película incluye un mago blanco llamado Gandalf?", respuesta: "el señor de los anillos" },
-        { pregunta: "¿Qué película tiene un arqueólogo llamado Indiana Jones?", respuesta: "indiana jones" },
-        { pregunta: "¿Qué película incluye un superhéroe aracnido?", respuesta: "spider-man" },
-        { pregunta: "¿Qué película tiene un mundo con sueños robados?", respuesta: "inception" },
-        { pregunta: "¿Qué película incluye un club de pelea secreto?", respuesta: "fight club" },
-        { pregunta: "¿Qué película tiene un personaje llamado Hannibal Lecter?", respuesta: "el silencio de los corderos" }
-    ],
-    disney: [
-        { pregunta: "¿Qué princesa tiene poderes de hielo?", respuesta: "elsa" },
-        { pregunta: "¿Qué princesa tiene una madrastra llamada Lady Tremaine?", respuesta: "cenicienta" },
-        { pregunta: "¿Qué película Disney tiene un pez llamado Nemo?", respuesta: "buscando a nemo" },
-        { pregunta: "¿Qué personaje Disney es un pato gruñón?", respuesta: "donald" },
-        { pregunta: "¿Qué película Disney tiene una lámpara mágica?", respuesta: "aladdín" },
-        { pregunta: "¿Qué película Disney tiene un rey león llamado Simba?", respuesta: "el rey león" },
-        { pregunta: "¿Qué princesa Disney vive bajo el mar?", respuesta: "ariel" },
-        { pregunta: "¿Qué personaje Disney es un ratón famoso?", respuesta: "mickey" },
-        { pregunta: "¿Qué película Disney tiene una bestia encantada?", respuesta: "la bella y la bestia" },
-        { pregunta: "¿Qué película Disney incluye un perro callejero y una dama?", respuesta: "la dama y el vagabundo" },
-        { pregunta: "¿Qué princesa tiene poderes de hielo?", respuesta: "elsa" },
-        { pregunta: "¿Qué princesa tiene una madrastra llamada Lady Tremaine?", respuesta: "cenicienta" },
-        { pregunta: "¿Qué película tiene un pez llamado Nemo?", respuesta: "buscando a nemo" },
-        { pregunta: "¿Qué personaje es un pato gruñón?", respuesta: "donald" },
-        { pregunta: "¿Qué película tiene una lámpara mágica?", respuesta: "aladdín" },
-        { pregunta: "¿Qué película tiene un rey león llamado Simba?", respuesta: "el rey león" },
-        { pregunta: "¿Qué princesa vive bajo el mar?", respuesta: "ariel" },
-        { pregunta: "¿Qué personaje es un ratón famoso?", respuesta: "mickey" },
-        { pregunta: "¿Qué película tiene una bestia encantada?", respuesta: "la bella y la bestia" },
-        { pregunta: "¿Qué película incluye un perro callejero y una dama?", respuesta: "la dama y el vagabundo" }
-    ],
-    matematicas: [
-        { pregunta: "¿Cuánto es 5 + 7?", respuesta: "12" },
-        { pregunta: "¿Cuál es el resultado de 3 x 4?", respuesta: "12" },
-        { pregunta: "¿Cuánto es 15 - 6?", respuesta: "9" },
-        { pregunta: "¿Qué número es el doble de 8?", respuesta: "16" },
-        { pregunta: "¿Cuánto es 20 ÷ 4?", respuesta: "5" },
-        { pregunta: "¿Cuál es el resultado de 9 + 11?", respuesta: "20" },
-        { pregunta: "¿Qué número es la mitad de 10?", respuesta: "5" },
-        { pregunta: "¿Cuánto es 7 x 3?", respuesta: "21" },
-        { pregunta: "¿Cuál es el resultado de 25 - 13?", respuesta: "12" },
-        { pregunta: "¿Cuánto es 6 + 8?", respuesta: "14" },
-        { pregunta: "¿Cuál es el resultado de 4 x 5?", respuesta: "20" },
-        { pregunta: "¿Cuánto es 18 - 9?", respuesta: "9" },
-        { pregunta: "¿Qué número es el triple de 3?", respuesta: "9" },
-        { pregunta: "¿Cuánto es 30 ÷ 5?", respuesta: "6" },
-        { pregunta: "¿Cuál es el resultado de 12 + 15?", respuesta: "27" },
-        { pregunta: "¿Cuánto es 8 x 2?", respuesta: "16" },
-        { pregunta: "¿Cuál es el resultado de 50 - 25?", respuesta: "25" },
-        { pregunta: "¿Qué número es la mitad de 14?", respuesta: "7" },
-        { pregunta: "¿Cuánto es 9 x 4?", respuesta: "36" },
-        { pregunta: "¿Cuál es el resultado de 100 ÷ 10?", respuesta: "10" }
-    ]
+    quimica: generarPreguntasQuimica(500),
+    fisica: generarPreguntasFisica(500),
+    historia: generarPreguntasHistoria(500),
+    biologia: generarPreguntasBiologia(500),
+    juegos: generarPreguntasJuegos(500),
+    peliculas: generarPreguntasPeliculas(500),
+    disney: generarPreguntasDisney(500),
+    matematicas: generarPreguntasMatematicas(500)
 };
 
 // Palabras aleatorias para el juego de reacciones
-const palabrasAleatorias = [
-    "genial", "cool", "bravo", "sí", "nope", "wow", "jaja", "bien", "mal", "top",
-    "luz", "estrella", "risa", "fuego", "agua", "nube", "sol", "luna", "cielo", "tierra",
-    "rápido", "lento", "fuerte", "débil", "alto", "bajo", "calor", "frío", "dulce", "salado",
-    "gato", "perro", "pájaro", "pez", "oso", "tigre", "león", "mono", "elefante", "jirafa",
-    "rojo", "azul", "verde", "amarillo", "negro", "blanco", "rosa", "violeta", "naranja", "gris",
-    "casa", "árbol", "río", "montaña", "playa", "bosque", "desierto", "ciudad", "pueblo", "camino",
-    "feliz", "triste", "enojado", "calmo", "cansado", "vivo", "raro", "simple", "duro", "suave"
-];
+const palabrasAleatorias = generarPalabrasAleatorias(500);
 
 // Frases para PPM
-const frasesPPM = [
-    "el rápido zorro marrón salta sobre el perro perezoso",
-    "la vida es como una caja de chocolates nunca sabes qué te va a tocar",
-    "un pequeño paso para el hombre un gran salto para la humanidad",
-    "el sol brilla más fuerte cuando estás feliz y rodeado de amigos",
-    "la práctica hace al maestro no lo olvides nunca en tu camino",
-    "el río corre tranquilo bajo el puente de piedra antigua",
-    "una abeja zumba alegre mientras recoge néctar de las flores",
-    "el viento susurra secretos entre las hojas verdes del bosque",
-    "la luna llena ilumina la noche con un brillo plateado mágico",
-    "un gato negro cruza el callejón bajo la luz de un farol",
-    "el café caliente despierta los sentidos en una mañana fría",
-    "las olas del mar chocan contra las rocas con fuerza y espuma",
-    "un pájaro canta al amanecer anunciando un nuevo día brillante",
-    "la nieve cae suave sobre las montañas en un silencio helado",
-    "el tren avanza rápido por las vías dejando atrás el pueblo",
-    "una sonrisa sincera puede cambiar el día de cualquiera",
-    "el reloj marca las horas mientras el mundo sigue girando",
-    "la lluvia golpea las ventanas en una tarde gris y tranquila",
-    "un niño corre feliz persiguiendo una cometa en el parque",
-    "el desierto guarda misterios bajo su arena dorada y caliente"
-];
+const frasesPPM = generarFrasesPPM(500);
 
 
 // Estado
