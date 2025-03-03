@@ -30,6 +30,8 @@ const manager = new Manager({
             port: 443,
             password: 'https://dsc.gg/ajidevserver',
             secure: true,
+            retryAmount: 5, // Número de intentos de reconexión
+            retryDelay: 3000, // Retraso entre intentos (3 segundos)
         },
     ],
     plugins: [
@@ -1299,6 +1301,22 @@ manager.on('queueEnd', async player => {
     delete dataStore.musicSessions[player.guild];
     dataStoreModified = true;
 });
+manager.on('nodeError', (node, error) => {
+    console.error(`Error en el nodo ${node.options.identifier}: ${error.message}`);
+    // Opcional: Notificar en el canal principal
+    client.channels.fetch(CHANNEL_ID).then(channel => {
+        channel.send({ embeds: [createEmbed('#FF5555', '❌ Error de Nodo Lavalink', 
+            `No puedo conectar al nodo de música: ${error.message}. Intentaré reconectar...`)] });
+    }).catch(err => console.error('Error al notificar error de nodo:', err));
+});
+
+manager.on('nodeReconnect', (node) => {
+    console.log(`Nodo ${node.options.identifier} intentando reconectar...`);
+});
+
+manager.on('nodeConnect', (node) => {
+    console.log(`Nodo ${node.options.identifier} conectado exitosamente.`);
+});
 
 // Comandos
 async function manejarCommand(message) {
@@ -1408,7 +1426,6 @@ client.once('ready', async () => {
     activeTrivia = new Map(Object.entries(dataStore.activeSessions).filter(([_, s]) => s.type === 'trivia'));
     manager.init(client.user.id);
 
-    // Asegurarse de que musicSessions esté inicializado
     if (!dataStore.musicSessions) {
         dataStore.musicSessions = {};
         console.log('musicSessions no estaba presente, inicializado manualmente');
@@ -1433,12 +1450,21 @@ client.once('ready', async () => {
             continue;
         }
 
-        const player = manager.create({
-            guild: guildId,
-            voiceChannel: session.voiceChannel,
-            textChannel: session.textChannel,
-            selfDeafen: true,
-        });
+        let player;
+        try {
+            player = manager.create({
+                guild: guildId,
+                voiceChannel: session.voiceChannel,
+                textChannel: session.textChannel,
+                selfDeafen: true,
+            });
+        } catch (error) {
+            console.error(`Error al crear reproductor para ${guildId}: ${error.message}`);
+            textChannel.send({ embeds: [createEmbed('#FF5555', '❌ Error al restaurar música', `No pude reconectar al reproductor: ${error.message}. Intenta reproducir música de nuevo con !play.`)] });
+            delete dataStore.musicSessions[guildId];
+            dataStoreModified = true;
+            continue;
+        }
 
         if (player.state !== 'CONNECTED') {
             try {
@@ -1446,13 +1472,13 @@ client.once('ready', async () => {
                 console.log(`Conectado al canal de voz en ${guildId}`);
             } catch (error) {
                 console.error(`Error al conectar en ${guildId}: ${error.message}`);
+                textChannel.send({ embeds: [createEmbed('#FF5555', '❌ Error al conectar', `No pude unirme al canal de voz: ${error.message}`)] });
                 delete dataStore.musicSessions[guildId];
                 dataStoreModified = true;
                 continue;
             }
         }
 
-        // Restaurar la cola
         if (session.queue && session.queue.length > 0) {
             try {
                 const tracks = await Promise.all(session.queue.map(async track => {
@@ -1461,13 +1487,11 @@ client.once('ready', async () => {
                     return null;
                 }));
                 player.queue.add(tracks.filter(track => track));
-                console.log(`Cola restaurada en ${guildId} con ${tracks.length} pistas`);
             } catch (error) {
                 console.error(`Error al restaurar cola en ${guildId}: ${error.message}`);
             }
         }
 
-        // Restaurar la pista actual
         if (session.currentTrack) {
             try {
                 const res = await manager.search(session.currentTrack.uri, client.users.cache.get(session.currentTrack.requester));
@@ -1475,7 +1499,7 @@ client.once('ready', async () => {
                     const track = res.tracks[0];
                     player.queue.unshift(track);
                     player.play(track);
-                    player.seek(session.currentTrack.position); // Reanudar desde la posición guardada
+                    player.seek(session.currentTrack.position);
                     if (session.paused) player.pause(true);
                     console.log(`Reproduciendo ${track.title} en ${guildId} desde ${session.currentTrack.position}ms`);
                     textChannel.send({ embeds: [createEmbed('#00FF00', '🎵 Música restaurada', 
@@ -1488,24 +1512,16 @@ client.once('ready', async () => {
             }
         }
 
-        // Restaurar configuraciones adicionales
         player.setVolume(session.volume || 100);
         player.setTrackRepeat(session.trackRepeat || false);
         player.setQueueRepeat(session.queueRepeat || false);
     }
 
-    // Guardar cambios si hubo limpieza de sesiones inválidas
     if (dataStoreModified) {
-        try {
-            await saveDataStore();
-            dataStoreModified = false;
-            console.log('Datos limpiados y guardados tras restauración');
-        } catch (error) {
-            console.error('Error al guardar tras restauración:', error);
-        }
+        await saveDataStore();
+        dataStoreModified = false;
     }
 
-    // Enviar actualizaciones al canal (parte original de tu código)
     try {
         const channel = await client.channels.fetch(CHANNEL_ID);
         if (!channel) throw new Error('Canal no encontrado');
