@@ -26,7 +26,7 @@ const CHANNEL_ID = '1343749554905940058'; // Canal principal
 const manager = new Manager({
     nodes: [
         {
-            host: 'lavalinkv3-id.serenetia.com',
+            host: 'lava-v3.ajieblogs.eu.org',
             port: 443,
             password: 'https://dsc.gg/ajidevserver',
             secure: true,
