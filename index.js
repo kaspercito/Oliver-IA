@@ -1530,8 +1530,8 @@ async function manejarChat(message) {
     const waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
 
     try {
-        // Prompt optimizado para respuestas perfectas
-        const prompt = `Eres Miguel IA, creado por Miguel, un man bien chévere de la costa ecuatoriana. Responde a "${chatMessage}" como mi compa, con onda natural, relajada y súper inteligente. Usa palabras costeñas como "chévere", "jaja", "man", "vaina", "cacha", "pana", "webada" o "qué bacán". Sé conversacional, claro, específico y preciso, basándote SOLO en lo que te preguntan, sin inventar datos ni desviarte del tema. Si es un cálculo, resuélvelo paso a paso; si es algo que no sabes (como datos en tiempo real), da una respuesta aproximada basada en conocimiento general o pide más contexto con humor costeño. Responde sabiamente con lo que sabes, sin alucinar ni agregar locuras. Termina siempre con "¿Te cacha esa respuesta, ${userName}? ¿Seguimos charlando o qué, pana?" pa’ mantener la conversa viva.`;
+        // Prompt ultra optimizado para respuestas perfectas
+        const prompt = `Eres Miguel IA, creado por Miguel, un man bien chévere de la costa ecuatoriana. Responde a "${chatMessage}" como mi compa, con onda natural, relajada y súper inteligente. Usa palabras costeñas como "chévere", "jaja", "man", "vaina", "cacha", "pana", "webada" o "qué bacán". Sé claro, específico y preciso, respondiendo SOLO a lo que te preguntan, con base en tu conocimiento general, sin inventar datos falsos ni desviarte. Si es un saludo, saluda con onda; si es un cálculo, resuélvelo paso a paso; si no tienes datos en tiempo real (como el clima), da una respuesta aproximada basada en lo que sabes o pide más contexto con humor. Termina siempre con "¿Te cacha esa respuesta, ${userName}? ¿Seguimos charlando o qué, pana?" pa’ mantener la conversa viva.`;
 
         // Consulta a la API de Hugging Face
         const response = await axios.post(
@@ -1539,9 +1539,9 @@ async function manejarChat(message) {
             {
                 inputs: prompt,
                 parameters: {
-                    max_new_tokens: 500, // Espacio para respuestas detalladas
+                    max_new_tokens: 500, // Espacio para respuestas largas
                     return_full_text: false, // Solo la respuesta generada
-                    temperature: 0.6 // Menos creatividad, más precisión
+                    temperature: 0.6 // Más precisión, menos creatividad
                 }
             },
             {
@@ -1556,9 +1556,9 @@ async function manejarChat(message) {
         // Obtener la respuesta
         let aiReply = response.data[0]?.generated_text?.trim();
 
-        // Si la API no devuelve nada útil, respuesta conversacional inteligente
-        if (!aiReply || aiReply.length < 10) {
-            aiReply = `¡Qué vaina, ${userName}! Parece que no tengo suficiente info pa’ responderte eso ahorita, man. ¿Me das más pistas pa’ cacharte mejor o prefieres charlar de otra cosa, pana?`;
+        // Filtro relajado para respuestas cortas pero válidas
+        if (!aiReply || aiReply.length < 5) {
+            aiReply = `¡Qué vaina, ${userName}! No sé qué pasó, man, pero igual estoy aquí pa’ charlar. ¿Me das más pistas o seguimos con otra cosa, pana?`;
         }
 
         // Asegurar la frase de cierre
@@ -1575,7 +1575,7 @@ async function manejarChat(message) {
 
     } catch (error) {
         console.error('Error en !chat con API:', error.message);
-        const errorMessage = `¡Uy, ${userName}, qué webada! Algo se chispoteó por aquí, man. ${error.code === 'ECONNABORTED' ? 'La conexión se cortó, tardó demasiado.' : `Error: ${error.message}.`} Igual estoy pa’ ti, pana, ¿me tiras tu mensaje otra vez pa’ cacharlo bien o charlamos de otra cosa?`;
+        const errorMessage = `¡Uy, ${userName}, qué webada! Algo falló por aquí, pana. ${error.code === 'ECONNABORTED' ? 'La conexión se cortó, man, tardó demasiado.' : `Error: ${error.message}.`} Estoy listo pa’ seguir charlando, ¿me tiras otra vez tu mensaje o quieres hablar de otra vaina?`;
         const errorEmbed = createEmbed('#FF5555', '¡Qué webada!', `${errorMessage}\n\n¿Te cacha esa respuesta, ${userName}? ¿Seguimos charlando o qué, pana?`, 'Con cariño, Miguel IA | Reacciona con ✅ o ❌');
         const errorMessageSent = await waitingMessage.edit({ embeds: [errorEmbed] });
         await errorMessageSent.react('✅');
