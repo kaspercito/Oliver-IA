@@ -4,6 +4,7 @@ const axios = require('axios');
 const { v4: uuidv4 } = require('uuid');
 const { Manager } = require('erela.js');
 const Spotify = require('erela.js-spotify');
+const lyricsFinder = require('lyrics-finder');
 require('dotenv').config();
 
 const client = new Client({
@@ -939,6 +940,60 @@ async function manejarReacciones(message) {
     }
 }
 
+async function manejarLyrics(message) {
+    const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
+    if (!message.guild) return sendError(message.channel, `Este comando solo funciona en servidores, ${userName}.`);
+
+    const args = message.content.toLowerCase().split(' ').slice(1).join(' ').trim();
+    const player = manager.players.get(message.guild.id);
+    let songTitle, artist;
+
+    // Si no hay argumentos, usa la canción que está sonando
+    if (!args) {
+        if (!player || !player.queue.current) {
+            return sendError(message.channel, `No hay ninguna canción sonando ahora, ${userName}. Usa !lyrics [nombre de la canción] para buscar una específica.`);
+        }
+        songTitle = player.queue.current.title;
+        artist = player.queue.current.author || ''; // El autor puede no estar disponible en todos los casos
+    } else {
+        songTitle = args; // Usa el argumento como título de la canción
+        artist = ''; // Si el usuario especifica, no asumimos artista a menos que lo indique
+    }
+
+    const waitingEmbed = createEmbed('#55FFFF', `⌛ Buscando letras, ${userName}...`, `Espera un momento mientras busco las letras de "${songTitle}".`);
+    const waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
+
+    try {
+        // Buscar letras usando lyrics-finder
+        const lyrics = await lyricsFinder(artist, songTitle) || 'No encontré las letras de esta canción.';
+
+        // Dividir las letras si superan los 2000 caracteres (límite de Discord)
+        const maxLength = 2000;
+        if (lyrics.length <= maxLength) {
+            const embed = createEmbed('#FFD700', `🎵 Letras de "${songTitle}"`, lyrics);
+            await waitingMessage.edit({ embeds: [embed] });
+        } else {
+            const chunks = [];
+            for (let i = 0; i < lyrics.length; i += maxLength) {
+                chunks.push(lyrics.substring(i, i + maxLength));
+            }
+
+            // Enviar el primer chunk editando el mensaje de espera
+            const firstEmbed = createEmbed('#FFD700', `🎵 Letras de "${songTitle}" (Parte 1/${chunks.length})`, chunks[0]);
+            await waitingMessage.edit({ embeds: [firstEmbed] });
+
+            // Enviar los chunks restantes como mensajes nuevos
+            for (let i = 1; i < chunks.length; i++) {
+                const embed = createEmbed('#FFD700', `🎵 Letras de "${songTitle}" (Parte ${i + 1}/${chunks.length})`, chunks[i]);
+                await message.channel.send({ embeds: [embed] });
+            }
+        }
+    } catch (error) {
+        console.error(`Error al buscar letras para "${songTitle}": ${error.message}`);
+        await waitingMessage.edit({ embeds: [createEmbed('#FF5555', '¡Ups!', `No pude encontrar las letras de "${songTitle}", ${userName}. Error: ${error.message}`)] });
+    }
+}
+
 // Chat
 async function manejarChat(message) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
@@ -1419,6 +1474,8 @@ async function manejarCommand(message) {
         await manejarAutoplay(message);
     } else if (content === '!autosave' || content === '!as') { // Nueva línea
         await manejarAutosave(message);
+    } else if (content ==='!lyrics' || content === '!ly') { // Añadir esta línea
+        await manejarLyrics(message);
     }
 }
 
@@ -1466,6 +1523,7 @@ client.on('messageCreate', async (message) => {
             '- **!rp / !repeat [cola]**: Repite la canción actual o la cola.\n' +
             '- **!bk / !back**: Vuelve a la canción anterior.\n' +
             '- **!ap / !autoplay**: Activa/desactiva el autoplay.\n' +
+            '- **!ly / !lyrics [canción]**: Muestra las letras de la canción actual o una específica.\n' + // Añadir esta línea
             '- **!hm / !help music**: Lista de comandos de música.');
         await message.channel.send({ embeds: [embed] });
     } else if (content === 'hola') {
