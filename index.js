@@ -1528,7 +1528,7 @@ async function manejarChat(message) {
     const waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
 
     try {
-        const prompt = `Eres Miguel IA, creado por Miguel, un man bien chévere de la costa ecuatoriana. Responde a "${chatMessage}" como mi compa, con onda natural, relajada y súper inteligente. Usa palabras costeñas como "chévere", "jaja", "man", "vaina", "cacha", "pana", "webada" o "qué bacán". Si el mensaje dice "dile a Belén" (o algún alias como "Rattus norvegicus albinus"), habla como si le pasaras el mensaje a ella desde mí, pero incluye a quien lo envió pa’ seguir charlando. Sé claro, específico y responde SOLO a lo que te piden, con base en tu conocimiento, sin inventar datos falsos. Si es una pregunta matemática como calcular algo, explica paso a paso y pide más datos si no los dan (con humor, tipo "dame más pistas, pana"). Si es un saludo, saluda con onda; si no sabes algo, di con humor que necesitas más info. Termina siempre con "¿Te cacha esa respuesta, ${userName}? ¿Seguimos charlando o qué, pana?" pa’ mantener la vibe.`;
+        const prompt = `Eres Miguel IA, creado por Miguel, un man bien chévere de la costa ecuatoriana. Responde a "${chatMessage}" como mi compa, con onda natural, relajada y súper intelligente. Usa palabras costeñas como "chévere", "jaja", "man", "vaina", "cacha", "pana", "webada" o "qué bacán". Si el mensaje dice "dile a Belén" (o un alias como "Rattus norvegicus albinus"), habla como si le pasaras el mensaje a ella desde mí, pero incluye a quien lo envió pa’ seguir charlando. Sé claro, específico y responde SOLO a lo que te piden, con base en tu conocimiento, sin inventar datos falsos. Si es una pregunta matemática como calcular algo, da un ejemplo práctico paso a paso y pide más datos si no los dan (con humor, tipo "dame más pistas, pana"). Si es un saludo, saluda con onda; si no sabes algo, di con humor que necesitas más info. Termina siempre con "¿Te cacha esa respuesta, ${userName}? ¿Seguimos charlando o qué, pana?" pa’ mantener la vibe.`;
 
         const response = await axios.post(
             'https://api-inference.huggingface.co/models/mistralai/Mixtral-8x7B-Instruct-v0.1',
@@ -2144,7 +2144,6 @@ client.on('messageReactionAdd', async (reaction, user) => {
     const userName = user.id === OWNER_ID ? 'Miguel' : 'Belén';
 
     if (reaction.emoji.name === '❌') {
-        // Intentar una segunda respuesta automáticamente
         const originalQuestion = messageData.originalQuestion;
         const prompt = `Eres Miguel IA, creado por Miguel, un man bien chévere de la costa ecuatoriana. La primera respuesta a "${originalQuestion}" no le gustó al usuario. Intenta de nuevo con una respuesta más detallada, útil y bacán, usando palabras costeñas como "chévere", "jaja", "man", "vaina", "cacha", "pana", "webada" o "qué bacán". Si es pa’ Belén, trátala con cariño. Responde SOLO con base al mensaje, nada de inventar locuras. Sé súper claro y relajado en español. Termina con una vibe pa’ seguir la conversa.`;
 
@@ -2177,6 +2176,7 @@ client.on('messageReactionAdd', async (reaction, user) => {
             await newMessage.react('✅');
             await newMessage.react('❌');
             sentMessages.set(newMessage.id, { content: aiReply, originalQuestion: originalQuestion, message: newMessage });
+            sentMessages.delete(reaction.message.id); // Borra el mensaje anterior pa’ evitar repeticiones
         } catch (error) {
             console.error('Error al generar segunda respuesta:', error.message);
             const errorEmbed = createEmbed('#FF5555', '¡Qué webada!', 
@@ -2186,9 +2186,22 @@ client.on('messageReactionAdd', async (reaction, user) => {
             await newMessage.react('✅');
             await newMessage.react('❌');
             sentMessages.set(newMessage.id, { content: errorEmbed.data.description, originalQuestion: originalQuestion, message: newMessage });
+            sentMessages.delete(reaction.message.id); // Borra el mensaje anterior
         }
     }
 
+    if (user.id === ALLOWED_USER_ID) {
+        const owner = await client.users.fetch(OWNER_ID);
+        const reactionEmbed = createEmbed('#FFD700', '¡Belén reaccionó!', 
+            `Belén reaccionó con ${reaction.emoji} a: "${messageData.content}"\nPregunta original: "${messageData.originalQuestion}"\nEnviado el: ${new Date(messageData.message.createdTimestamp).toLocaleString()}`);
+        try {
+            await owner.send({ embeds: [reactionEmbed] });
+            console.log(`Notificación enviada a ${OWNER_ID}: Belén reaccionó con ${reaction.emoji}`);
+        } catch (error) {
+            console.error('Error al notificar al dueño:', error);
+        }
+    }
+});
     // Notificación al owner si es Belén
     if (user.id === ALLOWED_USER_ID) {
         const owner = await client.users.fetch(OWNER_ID);
