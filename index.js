@@ -1399,7 +1399,14 @@ client.on('messageCreate', async (message) => {
             '- **!su / !sugerencias [idea]**: Envía ideas para mejorar el bot.\n' +
             '- **!ay / !ayuda [problema]**: Pide ayuda a Miguel.\n' +
             '- **!save**: Guardar datos ahora.\n' +
-            '- **!as / !autosave**: Pausa o reanuda el guardado automático.\n' + // Nueva línea
+            '- **!as / !autosave**: Pausa o reanuda el guardado automático.\n' +
+            '- **!h / !help**: Lista de comandos generales.\n' +
+            '- **!hm / !help musica**: Lista de comandos de música.\n' +
+            '- **hola**: Saludo especial.');
+        await message.channel.send({ embeds: [embed] });
+    } else if (content === '!help musica' || content === '!hm') {
+        const embed = createEmbed('#55FF55', `¡Comandos de música para ti, ${userName}!`,
+            '¡Controla la música con estos comandos!\n' +
             '- **!pl / !play [canción/URL]**: Reproduce música.\n' +
             '- **!pa / !pause**: Pausa o reanuda la música.\n' +
             '- **!sk / !skip**: Salta a la siguiente canción.\n' +
@@ -1408,8 +1415,7 @@ client.on('messageCreate', async (message) => {
             '- **!rp / !repeat [cola]**: Repite la canción actual o la cola.\n' +
             '- **!bk / !back**: Vuelve a la canción anterior.\n' +
             '- **!ap / !autoplay**: Activa/desactiva el autoplay.\n' +
-            '- **!h / !help**: Lista de comandos.\n' +
-            '- **hola**: Saludo especial.');
+            '- **!hm / !help music**: Lista de comandos de música.');
         await message.channel.send({ embeds: [embed] });
     } else if (content === 'hola') {
         await sendSuccess(message.channel, `¡Hola, ${userName}!`, `Soy Miguel IA, aquí para ayudarte. Prueba !tr, !pp o !re.`);
