@@ -1015,7 +1015,6 @@ async function manejarPlay(message) {
     let res;
     try {
         console.log(`Buscando "${args}"...`);
-        // Detectar si es una URL
         const isUrl = args.startsWith('http://') || args.startsWith('https://');
         res = await manager.search(args, message.author);
 
@@ -1030,13 +1029,15 @@ async function manejarPlay(message) {
         if (res.loadType === 'PLAYLIST_LOADED') {
             res.tracks.forEach(track => player.queue.add(track));
             const embed = createEmbed('#55FFFF', '🎶 ¡Playlist añadida!',
-                `**${res.playlist.name}** (${res.tracks.length} canciones) ha sido añadida a la cola.\nSolicitada por: ${userName}`);
+                `**${res.playlist.name}** (${res.tracks.length} canciones) ha sido añadida a la cola.\nSolicitada por: ${userName}`)
+                .setThumbnail(res.tracks[0].thumbnail || null);
             await message.channel.send({ embeds: [embed] });
         } else {
             const track = res.tracks[0];
             player.queue.add(track);
             const embed = createEmbed('#55FFFF', '🎶 ¡Música añadida!',
-                `**${track.title}** ha sido añadida a la cola.\nDuración: ${Math.floor(track.duration / 60000)}:${((track.duration % 60000) / 1000).toFixed(0).padStart(2, '0')}\nSolicitada por: ${userName}`);
+                `**${track.title}** ha sido añadida a la cola.\nDuración: ${Math.floor(track.duration / 60000)}:${((track.duration % 60000) / 1000).toFixed(0).padStart(2, '0')}\nSolicitada por: ${userName}`)
+                .setThumbnail(track.thumbnail || null);
             await message.channel.send({ embeds: [embed] });
         }
 
@@ -1099,6 +1100,52 @@ async function manejarQueue(message) {
     const embed = createEmbed('#FFD700', '📜 Cola de reproducción',
         `Ahora: **${player.queue.current.title}**\n\n${queueList}`);
     await message.channel.send({ embeds: [embed] });
+}
+
+async function manejarRepeat(message) {
+    const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
+    if (!message.guild) return sendError(message.channel, `Este comando solo funciona en servidores, ${userName}.`);
+    const player = manager.players.get(message.guild.id);
+    if (!player) return sendError(message.channel, `No hay música en reproducción, ${userName}.`);
+
+    const args = message.content.toLowerCase().split(' ').slice(1).join(' ').trim();
+    if (args === 'queue' || args === 'cola') {
+        player.setQueueRepeat(!player.queueRepeat);
+        await sendSuccess(message.channel, player.queueRepeat ? '🔁 ¡Repetición de cola activada!' : '▶️ ¡Repetición de cola desactivada!',
+            `La cola ${player.queueRepeat ? 'se repetirá' : 'no se repetirá'} ahora, ${userName}.`);
+    } else {
+        player.setTrackRepeat(!player.trackRepeat);
+        await sendSuccess(message.channel, player.trackRepeat ? '🔂 ¡Repetición activada!' : '▶️ ¡Repetición desactivada!',
+            `La canción actual ${player.trackRepeat ? 'se repetirá' : 'no se repetirá'}, ${userName}.`);
+    }
+}
+
+async function manejarBack(message) {
+    const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
+    if (!message.guild) return sendError(message.channel, `Este comando solo funciona en servidores, ${userName}.`);
+    const player = manager.players.get(message.guild.id);
+    if (!player) return sendError(message.channel, `No hay música en reproducción, ${userName}.`);
+    if (!player.queue.previous) return sendError(message.channel, `No hay canción anterior, ${userName}.`);
+
+    player.queue.unshift(player.queue.previous);
+    player.stop();
+    await sendSuccess(message.channel, '⏮️ ¡Volviendo atrás!',
+        `Reproduciendo la canción anterior: **${player.queue.current.title}**, ${userName}.`);
+}
+
+async function manejarAutoplay(message) {
+    const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
+    if (!message.guild) return sendError(message.channel, `Este comando solo funciona en servidores, ${userName}.`);
+    const player = manager.players.get(message.guild.id);
+    if (!player) return sendError(message.channel, `No hay música en reproducción, ${userName}.`);
+
+    const autoplayEnabled = dataStore.musicSessions[message.guild.id]?.autoplay || false;
+    dataStore.musicSessions[message.guild.id] = dataStore.musicSessions[message.guild.id] || {};
+    dataStore.musicSessions[message.guild.id].autoplay = !autoplayEnabled;
+    dataStoreModified = true;
+
+    await sendSuccess(message.channel, dataStore.musicSessions[message.guild.id].autoplay ? '🎵 ¡Autoplay activado!' : '⏹️ ¡Autoplay desactivado!',
+        `El autoplay está ahora ${dataStore.musicSessions[message.guild.id].autoplay ? 'activado' : 'desactivado'}, ${userName}.`);
 }
 
 // Ranking con top por categoría para Trivia y Reacciones
@@ -1181,12 +1228,35 @@ manager.on('trackStart', async (player, track) => {
     const channel = client.channels.cache.get(player.textChannel);
     if (channel) {
         const embed = createEmbed('#00FF00', '▶️ ¡Reproduciendo ahora!',
-            `**${track.title}**\nDuración: ${Math.floor(track.duration / 60000)}:${((track.duration % 60000) / 1000).toFixed(0).padStart(2, '0')}`);
+            `**${track.title}**\nDuración: ${Math.floor(track.duration / 60000)}:${((track.duration % 60000) / 1000).toFixed(0).padStart(2, '0')}`)
+            .setThumbnail(track.thumbnail || null);
         await channel.send({ embeds: [embed] });
     }
 });
 manager.on('queueEnd', async player => {
     const channel = client.channels.cache.get(player.textChannel);
+    const guildId = player.guild;
+    const autoplay = dataStore.musicSessions[guildId]?.autoplay || false;
+
+    if (autoplay && channel) {
+        try {
+            const currentTrack = player.queue.current;
+            const related = await manager.search(`related:${currentTrack.identifier}`, client.user);
+            if (related.tracks.length > 0) {
+                const nextTrack = related.tracks[0];
+                player.queue.add(nextTrack);
+                player.play();
+                const embed = createEmbed('#00FF00', '🎵 ¡Autoplay en acción!',
+                    `Añadí **${nextTrack.title}** automáticamente.\nDuración: ${Math.floor(nextTrack.duration / 60000)}:${((nextTrack.duration % 60000) / 1000).toFixed(0).padStart(2, '0')}`)
+                    .setThumbnail(nextTrack.thumbnail || null);
+                await channel.send({ embeds: [embed] });
+                return;
+            }
+        } catch (error) {
+            console.error(`Error en autoplay: ${error.message}`);
+        }
+    }
+
     if (channel) {
         await channel.send({ embeds: [createEmbed('#FF5555', '🏁 Cola terminada', 'No hay más canciones. ¡Añade más con !pl!')] });
     }
@@ -1200,15 +1270,15 @@ async function manejarCommand(message) {
     const content = message.content.toLowerCase();
     console.log(`Comando recibido: ${content}`);
 
-    if (content.startsWith('!trivia') || content.startsWith('!tr')) {
+    if (content === '!trivia' || content === '!tr') {
         await manejarTrivia(message);
     } else if (content.startsWith('!chat') || content.startsWith('!ch')) {
         await manejarChat(message);
-    } else if (content.startsWith('!ppm') || content.startsWith('!pp')) {
+    } else if (content === '!ppm' || content === '!pp') {
         await manejarPPM(message);
-    } else if (content.startsWith('!reacciones') || content.startsWith('!re')) {
+    } else if (content === '!reacciones' || content === '!re') {
         await manejarReacciones(message);
-    } else if (content.startsWith('!luz')) {
+    } else if (content === '!luz') {
         const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
         const mensaje = mensajesAnimo[Math.floor(Math.random() * mensajesAnimo.length)];
         const embed = createEmbed('#FFAA00', `¡Ánimo, ${userName}!`, mensaje);
@@ -1219,7 +1289,7 @@ async function manejarCommand(message) {
             const saved = await saveDataStore();
             if (saved) {
                 await sendSuccess(message.channel, '💾 ¡Guardado!', `Datos guardados exitosamente, ${userName}.`);
-                dataStoreModified = false; // Reiniciar la bandera después de guardar manualmente
+                dataStoreModified = false;
             } else {
                 await sendSuccess(message.channel, '💾 Sin Cambios', `No hay cambios para guardar, ${userName}.`);
             }
@@ -1230,18 +1300,24 @@ async function manejarCommand(message) {
         await manejarSugerencias(message);
     } else if (content.startsWith('!ayuda') || content.startsWith('!ay')) {
         await manejarAyuda(message);
-    } else if (content.startsWith('!rankingppm') || content.startsWith('!rppm')) {
+    } else if (content === '!rankingppm' || content === '!rppm') {
         await manejarRankingPPM(message);
     } else if (content.startsWith('!play') || content.startsWith('!pl')) {
         await manejarPlay(message);
-    } else if (content.startsWith('!pause') || content.startsWith('!pa')) {
+    } else if (content === '!pause' || content === '!pa') {
         await manejarPause(message);
-    } else if (content.startsWith('!skip') || content.startsWith('!sk')) {
+    } else if (content === '!skip' || content === '!sk') {
         await manejarSkip(message);
-    } else if (content.startsWith('!stop') || content.startsWith('!st')) {
+    } else if (content === '!stop' || content === '!st') {
         await manejarStop(message);
-    } else if (content.startsWith('!queue') || content.startsWith('!qu')) {
+    } else if (content === '!queue' || content === '!qu') {
         await manejarQueue(message);
+    } else if (content === '!repeat' || content === '!rp') {
+        await manejarRepeat(message);
+    } else if (content === '!back' || content === '!bk') {
+        await manejarBack(message);
+    } else if (content === '!autoplay' || content === '!ap') {
+        await manejarAutoplay(message);
     }
 }
 
@@ -1258,11 +1334,10 @@ client.on('messageCreate', async (message) => {
     await manejarCommand(message);
 
     const content = message.content.toLowerCase();
-    // Ajustar la lógica para evitar que !rankingppm y !rppm activen el ranking general
-    if ((content === '!ranking' || content === '!rk') && !content.startsWith('!rankingppm')) {
+    if (content === '!ranking' || content === '!rk') {
         const embed = getCombinedRankingEmbed(message.author.id, message.author.username);
         await message.channel.send({ embeds: [embed] });
-    } else if (content.startsWith('!help') || content.startsWith('!h')) {
+    } else if (content === '!help' || content === '!h') {
         const embed = createEmbed('#55FF55', `¡Comandos para ti, ${userName}!`,
             '¡Aquí tienes lo que puedo hacer!\n' +
             '- **!ch / !chat [mensaje]**: Charla conmigo.\n' +
@@ -1274,6 +1349,14 @@ client.on('messageCreate', async (message) => {
             '- **!su / !sugerencias [idea]**: Envía ideas para mejorar el bot.\n' +
             '- **!ay / !ayuda [problema]**: Pide ayuda a Miguel.\n' +
             '- **!save**: Guardar datos ahora.\n' +
+            '- **!pl / !play [canción/URL]**: Reproduce música.\n' +
+            '- **!pa / !pause**: Pausa o reanuda la música.\n' +
+            '- **!sk / !skip**: Salta a la siguiente canción.\n' +
+            '- **!st / !stop**: Detiene la música.\n' +
+            '- **!qu / !queue**: Muestra la cola de reproducción.\n' +
+            '- **!rp / !repeat [cola]**: Repite la canción actual o la cola.\n' +
+            '- **!bk / !back**: Vuelve a la canción anterior.\n' +
+            '- **!ap / !autoplay**: Activa/desactiva el autoplay.\n' +
             '- **!h / !help**: Lista de comandos.\n' +
             '- **hola**: Saludo especial.');
         await message.channel.send({ embeds: [embed] });
@@ -1282,16 +1365,13 @@ client.on('messageCreate', async (message) => {
     }
 });
 
-// ... (Todo el código hasta client.on('messageReactionAdd', ...) остается igual)
-
 // Eventos
 client.once('ready', async () => {
     console.log(`¡Miguel IA está listo! Instancia: ${instanceId}`);
     client.user.setPresence({ activities: [{ name: "Listo para ayudar a Miguel y Milagros", type: 0 }], status: 'online' });
     dataStore = await loadDataStore();
     activeTrivia = new Map(Object.entries(dataStore.activeSessions).filter(([_, s]) => s.type === 'trivia'));
-    manager.init(client.user.id); // Inicializar Erela.js
-    // Verificación adicional después de cargar
+    manager.init(client.user.id);
     if (!dataStore.musicSessions) {
         dataStore.musicSessions = {};
         console.log('musicSessions no estaba presente, inicializado manualmente');
@@ -1357,9 +1437,8 @@ client.on('messageReactionAdd', async (reaction, user) => {
     }
 });
 
-// Mover el evento 'raw' fuera de 'messageReactionAdd'
 client.on('raw', (d) => {
-    console.log('Evento raw recibido:', d.t); // Log para depurar eventos raw
+    console.log('Evento raw recibido:', d.t);
     manager.updateVoiceState(d);
 });
 
