@@ -1602,26 +1602,38 @@ client.on('messageCreate', async (message) => {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
     const content = message.content.toLowerCase(); // Declaramos 'content' solo aquí
 
-    // Detectar uso excesivo de mayúsculas (si lo implementaste antes)
+    // Detectar uso excesivo de mayúsculas
     const lettersOnly = message.content.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ]/g, '');
     if (lettersOnly.length > 5) {
         const uppercaseCount = lettersOnly.split('').filter(char => char === char.toUpperCase()).length;
         const uppercasePercentage = (uppercaseCount / lettersOnly.length) * 100;
         if (uppercasePercentage >= 80) {
             try {
+                // Borrar el mensaje con mayúsculas
                 await message.delete();
+
+                // Intentar mutear al usuario
                 const member = message.guild.members.cache.get(message.author.id);
                 if (member && message.guild.members.me.permissions.has('MODERATE_MEMBERS')) {
                     await member.timeout(5 * 60 * 1000, 'Uso excesivo de mayúsculas');
                     await message.channel.send({ 
                         embeds: [createEmbed('#FF5555', '⛔ ¡Calma, pana!', 
-                            `${userName}, no grites tanto, ¿sí? Te muteé 5 minutos por usar muchas mayúsculas.`)] 
+                            `¡${userName} usó muchas mayúsculas y fue muteado por 5 minutos! Nada de gritar por aquí, ¿sí?`)] 
+                    });
+                } else {
+                    await message.channel.send({ 
+                        embeds: [createEmbed('#FF5555', '⛔ ¡Ups, no pude mutear!', 
+                            `¡${userName} usó muchas mayúsculas, pero no tengo permisos pa’ mutearlo! Igual el mensaje se fue, jaja.`)] 
                     });
                 }
             } catch (error) {
                 console.error('Error al mutear:', error.message);
+                await message.channel.send({ 
+                    embeds: [createEmbed('#FF5555', '⛔ ¡Qué webada!', 
+                        `¡${userName} usó muchas mayúsculas, pero fallé al mutearlo! Error: ${error.message}. El mensaje ya se borró, tranqui.`)] 
+                });
             }
-            return;
+            return; // Salimos pa’ no procesar más el mensaje
         }
     }
 
@@ -1722,19 +1734,56 @@ client.on('messageReactionAdd', async (reaction, user) => {
     const userName = user.id === OWNER_ID ? 'Miguel' : 'Belén';
 
     if (reaction.emoji.name === '❌') {
-        const alternativeEmbed = createEmbed('#55FFFF', `¡Probemos otra vez, ${userName}!`,
-            `No te gustó mi respuesta a "${messageData.originalQuestion}". Dame más detalles y lo intento de nuevo.`, 'Con cariño, Miguel IA | Reacciona con ✅ o ❌, ¡por favor!');
-        const newMessage = await reaction.message.channel.send({ embeds: [alternativeEmbed] });
-        await newMessage.react('✅');
-        await newMessage.react('❌');
-        sentMessages.set(newMessage.id, { content: alternativeEmbed.data.description, originalQuestion: messageData.originalQuestion, message: newMessage });
+        // Intentar una segunda respuesta automáticamente
+        const originalQuestion = messageData.originalQuestion;
+        const prompt = `Eres Miguel IA, creado por Miguel, un man bien chévere de la costa ecuatoriana. La primera respuesta a "${originalQuestion}" no le gustó al usuario. Intenta de nuevo con una respuesta más detallada, útil y bacán, usando palabras costeñas como "chévere", "jaja", "man", "vaina", "cacha", "pana", "webada" o "qué bacán". Si es pa’ Belén, trátala con cariño. Responde SOLO con base al mensaje, nada de inventar locuras. Sé súper claro y relajado. Termina con una vibe pa’ seguir la conversa.`;
+
+        try {
+            const response = await axios.post(
+                'https://api-inference.huggingface.co/models/mistralai/Mixtral-8x7B-Instruct-v0.1',
+                {
+                    inputs: prompt,
+                    parameters: {
+                        max_new_tokens: 500,
+                        return_full_text: false,
+                        temperature: 0.7
+                    }
+                },
+                {
+                    headers: {
+                        'Authorization': `Bearer ${process.env.HF_API_TOKEN}`,
+                        'Content-Type': 'application/json'
+                    },
+                    timeout: 90000
+                }
+            );
+
+            let aiReply = response.data[0]?.generated_text?.trim() || 
+                `Uy, ${userName}, parece que la vaina se complicó otra vez. Dame un poco más de pista pa’ cacharte bien, ¿sí?`;
+            aiReply += `\n\n¿Mejoró esta vez, ${userName}? ¿Qué tal si seguimos charlando, pana?`;
+
+            const alternativeEmbed = createEmbed('#55FFFF', `¡Segunda ronda, ${userName}!`, aiReply, 'Con cariño, Miguel IA | Reacciona con ✅ o ❌');
+            const newMessage = await reaction.message.channel.send({ embeds: [alternativeEmbed] });
+            await newMessage.react('✅');
+            await newMessage.react('❌');
+            sentMessages.set(newMessage.id, { content: aiReply, originalQuestion: originalQuestion, message: newMessage });
+        } catch (error) {
+            console.error('Error al generar segunda respuesta:', error.message);
+            const errorEmbed = createEmbed('#FF5555', '¡Qué webada!', 
+                `¡Uy, ${userName}, fallé otra vez! Error: ${error.message}. ¿Me das más detalles pa’ cacharlo bien esta vez?`, 
+                'Con cariño, Miguel IA | Reacciona con ✅ o ❌');
+            const newMessage = await reaction.message.channel.send({ embeds: [errorEmbed] });
+            await newMessage.react('✅');
+            await newMessage.react('❌');
+            sentMessages.set(newMessage.id, { content: errorEmbed.data.description, originalQuestion: originalQuestion, message: newMessage });
+        }
     }
 
+    // Notificación al owner si es Belén
     if (user.id === ALLOWED_USER_ID) {
         const owner = await client.users.fetch(OWNER_ID);
-        const reactionEmbed = createEmbed('#FFD700', '¡Belén reaccionó!',
-            `Belén reaccionó con ${reaction.emoji} al mensaje: "${messageData.content}"\n\nEnviado el: ${new Date(messageData.timestamp).toLocaleString()}`);
-        
+        const reactionEmbed = createEmbed('#FFD700', '¡Belén reaccionó!', 
+            `Belén reaccionó con ${reaction.emoji} a: "${messageData.content}"\nPregunta original: "${messageData.originalQuestion}"\nEnviado el: ${new Date(messageData.message.createdTimestamp).toLocaleString()}`);
         try {
             await owner.send({ embeds: [reactionEmbed] });
             console.log(`Notificación enviada a ${OWNER_ID}: Belén reaccionó con ${reaction.emoji}`);
