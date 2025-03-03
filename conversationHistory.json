@@ -25,6 +25,9 @@
       "score": 4,
       "capitales": {
         "score": 7
+      },
+      "matematicas": {
+        "score": 14
       }
     }
   },
@@ -111,6 +114,10 @@
       "total": 10,
       "capitales": {
         "correct": 7,
+        "total": 20
+      },
+      "matematicas": {
+        "correct": 14,
         "total": 20
       }
     }
