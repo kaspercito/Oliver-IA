@@ -710,16 +710,18 @@ async function manejarTrivia(message) {
         console.log("Verificando categoría...");
         if (!preguntasTriviaSinOpciones[categoria]) {
             console.log("Categoría no encontrada:", categoria);
+            const categoriasDisponibles = Object.keys(preguntasTriviaSinOpciones).join(', ');
+            console.log("Categorías disponibles:", categoriasDisponibles);
             const errorEmbed = createEmbed('#FF5555', '¡Ups!', 
-                `Categoría "${categoria}" no encontrada. Categorías disponibles: ${Object.keys(preguntasTriviaSinOpciones).join(', ')}`);
+                `Categoría "${categoria}" no encontrada. Categorías disponibles: ${categoriasDisponibles}`);
             console.log("Intentando enviar error...");
             await message.channel.send({ embeds: [errorEmbed] });
-            console.log("Error enviado");
+            console.log("Error enviado con éxito");
             return;
         }
         console.log("Categoría válida:", categoria);
 
-        // Punto de prueba: enviar un mensaje justo después de validar la categoría
+        // Punto de prueba para categorías válidas
         const testEmbed = createEmbed('#55FFFF', '¡Test!', 
             `Categoría "${categoria}" válida. Preparando trivia con ${numQuestions} preguntas...`);
         console.log("Intentando enviar mensaje de prueba...");
