@@ -2214,7 +2214,6 @@ client.on('messageReactionAdd', async (reaction, user) => {
             console.error('Error al notificar al dueño:', error);
         }
     }
-});
 
 client.on('raw', (d) => {
     console.log('Evento raw recibido:', d.t);
