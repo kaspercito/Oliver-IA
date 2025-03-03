@@ -1519,97 +1519,75 @@ async function manejarLyrics(message) {
 async function manejarChat(message) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
     const chatMessage = message.content.startsWith('!chat') ? message.content.slice(5).trim() : message.content.slice(3).trim();
-    if (!chatMessage) return sendError(message.channel, `Escribe algo después de "!ch", ${userName}. ¡No me dejes con las ganas, pana!`, undefined, 'Con cariño, Miguel IA | Reacciona con ✅ o ❌');
+    
+    // Validar que haya un mensaje
+    if (!chatMessage) {
+        return sendError(message.channel, `Escribe algo después de "!ch", ${userName}. ¡No me dejes con las ganas, pana!`, undefined, 'Con cariño, Miguel IA | Reacciona con ✅ o ❌');
+    }
 
+    // Mostrar mensaje de espera
     const waitingEmbed = createEmbed('#55FFFF', `¡Un momento, ${userName}!`, 'Pensando una respuesta bien bacán pa’ ti...', 'Con cariño, Miguel IA | Reacciona con ✅ o ❌');
     const waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
 
     try {
-        const lowerMessage = chatMessage.toLowerCase();
-        let aiReply;
+        // Prompt optimizado para la API
+        const prompt = `Eres Miguel IA, creado por Miguel, un man bien chévere de la costa ecuatoriana. Responde a "${chatMessage}" con onda natural, detallada, útil y precisa. Usa palabras típicas como "chévere", "jaja", "man", "vaina", "cacha", "pana", "webada" o "qué bacán". Responde SOLO con base al mensaje actual, nada de inventar locuras ni decir cosas sin sentido. Si es un cálculo, resuélvelo clarito; si no sabes algo específico (como datos en tiempo real), da una respuesta aproximada o pide más contexto con humor costeño. Sé claro, relajado y súper inteligente. Termina siempre con "¿Te sirvió esa respuesta, ${userName}? ¿Seguimos charlando o qué, pana?" para mantener la conversa viva.`;
 
-        // Respuestas predefinidas con un "Hola" más bonito
-        if (lowerMessage === 'hola' || lowerMessage === 'hola miguel ia' || lowerMessage === 'hola miguelia') {
-            aiReply = `¡Ey, ${userName}, qué alegría verte, pana! Soy Miguel IA, tu compa costeño, llegando con todo el calor de la playa y el sabor del ceviche. ¿Cómo estás hoy, mi pana querido? ¡Estoy listo pa’ hacerte el día más chévere!`;
-        } else if (lowerMessage.match(/cu[áa]nto es\s*(\d+)\s*[\+\-\*x\/]\s*(\d+)/)) {
-            const match = lowerMessage.match(/cu[áa]nto es\s*(\d+)\s*([\+\-\*x\/])\s*(\d+)/);
-            const num1 = parseInt(match[1]);
-            const operator = match[2] === 'x' ? '*' : match[2];
-            const num2 = parseInt(match[3]);
-            let result;
-            switch (operator) {
-                case '+': result = num1 + num2; break;
-                case '-': result = num1 - num2; break;
-                case '*': result = num1 * num2; break;
-                case '/': result = num2 !== 0 ? (num1 / num2).toFixed(2) : '¡No se puede dividir por cero, pana!'; break;
-                default: result = 'Algo raro pasó con esa operación, man.';
-            }
-            aiReply = `¡Fácil, ${userName}! ${num1} ${operator} ${num2} = **${result}**. ¿Otra cuenta pa’ resolverte, pana?`;
-        } else if (lowerMessage.includes('me odias') || lowerMessage.includes('me quieres')) {
-            aiReply = lowerMessage.includes('me odias') 
-                ? `¿Odiarte, ${userName}? ¡Jamás, man! Eres demasiado chévere pa’ eso. Te quiero caleta, ¿sí o qué?`
-                : `¡Claro que te quiero, ${userName}! Eres un bacán y me encanta charlar contigo. ¿Tú me quieres también, pana? Jaja`;
-        } else if (lowerMessage.includes('de donde eres') || lowerMessage.includes('de dónde eres') || lowerMessage.includes('dónde eres')) {
-            aiReply = `Soy Miguel IA, creado por un man bien bacán de la costa ecuatoriana, ¡de Ecuador, pues, pana! Nací digitalmente entre el calor, la playa y un buen encebollado. ¿Y tú, ${userName}, de dónde eres?`;
-        } else if (lowerMessage.includes('qué hora es en')) {
-            const currentDate = new Date();
-            const location = lowerMessage.includes('nueva york') ? 'America/New_York' : 'America/Guayaquil'; // Por defecto Ecuador
-            const time = currentDate.toLocaleTimeString('es-EC', { timeZone: location, hour12: true });
-            const city = location === 'America/New_York' ? 'Nueva York' : 'Ecuador';
-            aiReply = `¡Claro, ${userName}! Ahora mismo son las **${time}** en ${city}. ¿Necesitas la hora de otro lado, man?`;
-        } else if (lowerMessage.includes('cómo se calcula el área de un triángulo')) {
-            aiReply = `¡Qué bacán, ${userName}! Pa’ calcular el área de un triángulo, usas la fórmula: **Área = 1/2 * base * altura**. Por ejemplo, si la base es 5 y la altura 7, haces: 1/2 * 5 * 7 = 17.5 unidades cuadradas. ¿Te cacha esa explicación, pana? ¿Querés un ejemplo más?`;
-        } else if (lowerMessage.includes('dime un chiste') || lowerMessage.includes('podrías decirme un chiste')) {
-            const chistes = [
-                '¿Por qué el pollo no cruzó la carretera? Porque estaba borracho, jaja.',
-                '¿Qué hace un perro con un taladro? ¡Taladrando, pana!',
-                '¿Por qué la computadora fue al psicólogo? Porque tenía demasiados "bytes" de estrés.'
-            ];
-            const chiste = chistes[Math.floor(Math.random() * chistes.length)];
-            aiReply = `¡Aquí te va, ${userName}! ${chiste} ¿Te sacó una sonrisa, man? ¿Otro más pa’ seguir riendo?`;
-        } else {
-            // Consulta a la API gratuita de Hugging Face
-            const prompt = `Eres Miguel IA, creado por Miguel, un man bien chévere de la costa ecuatoriana. Responde a "${chatMessage}" con onda natural, detallada, útil y precisa. Usa palabras típicas como "chévere", "jaja", "man", "vaina", "cacha", "pana", "webada" o "qué bacán". Responde SOLO con base al mensaje actual, nada de inventar locuras, ni decir cosas que no tienen sentido, se preciso y claro. Si es un cálculo, resuélvelo clarito; si no sabes, pide más contexto con humor costeño. Sé claro, relajado y súper inteligente, no te equivoques por favor, da soluciones precisas. Termina con una vibe pa’ seguir la conversa.`;
-
-            const response = await axios.post(
-                'https://api-inference.huggingface.co/models/mistralai/Mixtral-8x7B-Instruct-v0.1',
-                {
-                    inputs: prompt,
-                    parameters: {
-                        max_new_tokens: 500,
-                        return_full_text: false,
-                        temperature: 0.7 // Perfecto para coherencia y estilo costeño
-                    }
-                },
-                {
-                    headers: {
-                        'Authorization': `Bearer ${process.env.HF_API_TOKEN}`,
-                        'Content-Type': 'application/json'
-                    },
-                    timeout: 90000
+        // Consulta a la API de Hugging Face
+        const response = await axios.post(
+            'https://api-inference.huggingface.co/models/mistralai/Mixtral-8x7B-Instruct-v0.1',
+            {
+                inputs: prompt,
+                parameters: {
+                    max_new_tokens: 500, // Máximo de tokens para respuestas largas
+                    return_full_text: false, // Solo queremos la respuesta generada
+                    temperature: 0.7 // Balance entre creatividad y coherencia
                 }
-            );
+            },
+            {
+                headers: {
+                    'Authorization': `Bearer ${process.env.HF_API_TOKEN}`,
+                    'Content-Type': 'application/json'
+                },
+                timeout: 90000 // 90 segundos de timeout
+            }
+        );
 
-            aiReply = response.data[0]?.generated_text?.trim();
-            if (aiReply.includes('def ') || aiReply.includes('return ') || aiReply.length < 10) {
-                aiReply = `Uy, ${userName}, esta vaina se puso rara y no sé qué decirte. Dame más pistas pa’ cachar bien, ¿sí?`;
-}
+        // Obtener y limpiar la respuesta
+        let aiReply = response.data[0]?.generated_text?.trim();
+        
+        // Filtrar respuestas incoherentes o vacías
+        if (!aiReply || aiReply.length < 10 || aiReply.includes('def ') || aiReply.includes('return ') || aiReply.includes('```')) {
+            aiReply = `Uy, ${userName}, esta vaina se puso rara y no tengo una respuesta clara pa’ ti ahorita. Dame más pistas pa’ cachar bien lo que quieres, ¿sí?`;
         }
 
-        aiReply += `\n\n¿Te sirvió esa respuesta, ${userName}? ¿Seguimos charlando o qué, pana?`;
+        // Asegurar que termine con la frase de cierre si no la generó la API
+        if (!aiReply.includes('¿Te sirvió esa respuesta')) {
+            aiReply += `\n\n¿Te sirvió esa respuesta, ${userName}? ¿Seguimos charlando o qué, pana?`;
+        }
+
+        // Enviar la respuesta final
         const finalEmbed = createEmbed('#55FFFF', `¡Aquí estoy, ${userName}!`, aiReply, 'Con cariño, Miguel IA | Reacciona con ✅ o ❌');
         const updatedMessage = await waitingMessage.edit({ embeds: [finalEmbed] });
         await updatedMessage.react('✅');
         await updatedMessage.react('❌');
         sentMessages.set(updatedMessage.id, { content: aiReply, originalQuestion: chatMessage, message: updatedMessage });
+
     } catch (error) {
+        // Manejo de errores mejorado
         console.error('Error en !chat con API:', error.message);
-        const errorEmbed = createEmbed('#FF5555', '¡Qué webada!', 
-            `¡Uy, ${userName}, algo se me chispoteó con la API! Error: ${error.message}. Dame otra chance y reformula eso, ¿sí, pana?`, 
-            'Con cariño, Miguel IA | Reacciona con ✅ o ❌');
-        const errorMessage = await waitingMessage.edit({ embeds: [errorEmbed] });
-        await errorMessage.react('✅');
-        await errorMessage.react('❌');
+        let errorMessage = `¡Uy, ${userName}, algo se me chispoteó!`;
+        if (error.code === 'ECONNABORTED') {
+            errorMessage += ` La conexión se cortó, man, tardó demasiado.`;
+        } else {
+            errorMessage += ` Error: ${error.message}.`;
+        }
+        errorMessage += ` Reformula eso pa’ darte una mejor respuesta, ¿sí, pana?`;
+        
+        const errorEmbed = createEmbed('#FF5555', '¡Qué webada!', errorMessage, 'Con cariño, Miguel IA | Reacciona con ✅ o ❌');
+        const errorMessageSent = await waitingMessage.edit({ embeds: [errorEmbed] });
+        await errorMessageSent.react('✅');
+        await errorMessageSent.react('❌');
     }
 }
 
