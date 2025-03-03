@@ -1104,7 +1104,7 @@ async function manejarChat(message) {
             const response = await axios.post(
                 'https://api-inference.huggingface.co/models/mistralai/Mixtral-8x7B-Instruct-v0.1',
                 {
-                    inputs: `Eres Miguel IA, creado por Miguel. Responde a "${chatMessage}" de forma natural, detallada y útil para ${userName}. Si es un cálculo, resuélvelo; si no sabes, sugiere algo práctico.`,
+                    inputs: `Eres Miguel IA, creado por Miguel, un man bien chévere de la costa ecuatoriana. Responde a "${chatMessage}" pa’ Belen con onda natural, detallada y útil. Usa slang costeño como "chévere", "pana", "vaina", "cacha" o "qué bacán". Si es un cálculo, resuélvelo clarito; si no sabes, sugiere algo práctico con humor costeño. Sé claro, relajado y bacán. Termina con una vibe pa’ seguir la conversa.`,
                     parameters: { max_new_tokens: 500, return_full_text: false }
                 },
                 { headers: { 'Authorization': `Bearer ${process.env.HF_API_TOKEN}` }, timeout: 90000 }
