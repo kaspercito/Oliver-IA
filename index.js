@@ -7,335 +7,6 @@ const Spotify = require('erela.js-spotify');
 const lyricsFinder = require('lyrics-finder');
 require('dotenv').config();
 
-function generarPreguntasQuimica(cantidad) {
-    const elementos = [
-        { simbolo: "H", nombre: "hidrógeno" }, { simbolo: "He", nombre: "helio" },
-        { simbolo: "Li", nombre: "litio" }, { simbolo: "Be", nombre: "berilio" },
-        { simbolo: "B", nombre: "boro" }, { simbolo: "C", nombre: "carbono" },
-        { simbolo: "N", nombre: "nitrógeno" }, { simbolo: "O", nombre: "oxígeno" },
-        { simbolo: "F", nombre: "flúor" }, { simbolo: "Ne", nombre: "neón" },
-        { simbolo: "Na", nombre: "sodio" }, { simbolo: "Mg", nombre: "magnesio" },
-        { simbolo: "Al", nombre: "aluminio" }, { simbolo: "Si", nombre: "silicio" },
-        { simbolo: "P", nombre: "fósforo" }, { simbolo: "S", nombre: "azufre" },
-        { simbolo: "Cl", nombre: "cloro" }, { simbolo: "Ar", nombre: "argón" },
-        { simbolo: "K", nombre: "potasio" }, { simbolo: "Ca", nombre: "calcio" },
-        { simbolo: "Fe", nombre: "hierro" }, { simbolo: "Cu", nombre: "cobre" },
-        { simbolo: "Zn", nombre: "zinc" }, { simbolo: "Ag", nombre: "plata" },
-        { simbolo: "Au", nombre: "oro" }, { simbolo: "Hg", nombre: "mercurio" },
-        { simbolo: "Pb", nombre: "plomo" }, { simbolo: "Sn", nombre: "estaño" }
-    ];
-    const compuestos = [
-        { formula: "H2O", nombre: "agua" }, { formula: "CO2", nombre: "dióxido de carbono" },
-        { formula: "NaCl", nombre: "cloruro de sodio" }, { formula: "CH4", nombre: "metano" },
-        { formula: "NH3", nombre: "amoníaco" }, { formula: "H2SO4", nombre: "ácido sulfúrico" },
-        { formula: "N2O", nombre: "óxido nitroso" }, { formula: "HCl", nombre: "ácido clorhídrico" },
-        { formula: "CaCO3", nombre: "carbonato de calcio" }, { formula: "C2H5OH", nombre: "etanol" }
-    ];
-    let preguntas = [];
-    let usadas = new Set();
-
-    for (let i = 0; i < elementos.length && preguntas.length < cantidad; i++) {
-        let q = `¿Qué elemento tiene el símbolo '${elementos[i].simbolo}'?`;
-        if (!usadas.has(q)) {
-            preguntas.push({ pregunta: q, respuesta: elementos[i].nombre });
-            usadas.add(q);
-        }
-    }
-    for (let i = 0; i < compuestos.length && preguntas.length < cantidad; i++) {
-        let q = `¿Qué compuesto tiene la fórmula '${compuestos[i].formula}'?`;
-        if (!usadas.has(q)) {
-            preguntas.push({ pregunta: q, respuesta: compuestos[i].nombre });
-            usadas.add(q);
-        }
-    }
-    while (preguntas.length < cantidad) {
-        let elem = elementos[Math.floor(Math.random() * elementos.length)];
-        let q = `¿Cuál es el símbolo del ${elem.nombre}?`;
-        if (!usadas.has(q)) {
-            preguntas.push({ pregunta: q, respuesta: elem.simbolo.toLowerCase() });
-            usadas.add(q);
-        }
-    }
-    return preguntas.slice(0, cantidad);
-}
-
-function generarPreguntasFisica(cantidad) {
-    const unidades = [
-        { unidad: "newton", mide: "fuerza" }, { unidad: "voltio", mide: "voltaje" },
-        { unidad: "joule", mide: "energía" }, { unidad: "watt", mide: "potencia" },
-        { unidad: "hertz", mide: "frecuencia" }, { unidad: "ohmio", mide: "resistencia" },
-        { unidad: "amperio", mide: "corriente eléctrica" }
-    ];
-    const instrumentos = [
-        { nombre: "barómetro", mide: "presión atmosférica" }, { nombre: "termómetro", mide: "temperatura" },
-        { nombre: "anemómetro", mide: "velocidad del viento" }, { nombre: "velocímetro", mide: "velocidad" }
-    ];
-    const leyes = [
-        { desc: "F = m * a", nombre: "segunda ley de Newton" },
-        { desc: "a toda acción hay una reacción igual y opuesta", nombre: "tercera ley de Newton" }
-    ];
-    let preguntas = [];
-    let usadas = new Set();
-
-    for (let i = 0; i < unidades.length && preguntas.length < cantidad; i++) {
-        let q = `¿Qué mide la unidad '${unidades[i].unidad}'?`;
-        if (!usadas.has(q)) {
-            preguntas.push({ pregunta: q, respuesta: unidades[i].mide });
-            usadas.add(q);
-        }
-    }
-    for (let i = 0; i < instrumentos.length && preguntas.length < cantidad; i++) {
-        let q = `¿Qué instrumento mide la ${instrumentos[i].mide}?`;
-        if (!usadas.has(q)) {
-            preguntas.push({ pregunta: q, respuesta: instrumentos[i].nombre });
-            usadas.add(q);
-        }
-    }
-    for (let i = 0; i < leyes.length && preguntas.length < cantidad; i++) {
-        let q = `¿Qué ley dice que '${leyes[i].desc}'?`;
-        if (!usadas.has(q)) {
-            preguntas.push({ pregunta: q, respuesta: leyes[i].nombre });
-            usadas.add(q);
-        }
-    }
-    while (preguntas.length < cantidad) {
-        let u = unidades[Math.floor(Math.random() * unidades.length)];
-        let q = `¿Qué unidad mide la ${u.mide}?`;
-        if (!usadas.has(q)) {
-            preguntas.push({ pregunta: q, respuesta: u.unidad });
-            usadas.add(q);
-        }
-    }
-    return preguntas.slice(0, cantidad);
-}
-
-function generarPreguntasHistoria(cantidad) {
-    const eventos = [
-        { año: "1492", desc: "Colón llegó a América" }, { año: "1789", desc: "Revolución Francesa" },
-        { año: "1939", desc: "Inicio de la Segunda Guerra Mundial" }, { año: "1989", desc: "Caída del Muro de Berlín" },
-        { año: "1914", desc: "Inicio de la Primera Guerra Mundial" }
-    ];
-    const personajes = [
-        { nombre: "Leonardo da Vinci", hecho: "pintó la Mona Lisa" }, { nombre: "George Washington", hecho: "fue el primer presidente de Estados Unidos" },
-        { nombre: "Alexander Fleming", hecho: "descubrió la penicilina" }
-    ];
-    let preguntas = [];
-    let usadas = new Set();
-
-    for (let i = 0; i < eventos.length && preguntas.length < cantidad; i++) {
-        let q = `¿En qué año ${eventos[i].desc.toLowerCase()}?`;
-        if (!usadas.has(q)) {
-            preguntas.push({ pregunta: q, respuesta: eventos[i].año });
-            usadas.add(q);
-        }
-    }
-    for (let i = 0; i < personajes.length && preguntas.length < cantidad; i++) {
-        let q = `¿Quién ${personajes[i].hecho.toLowerCase()}?`;
-        if (!usadas.has(q)) {
-            preguntas.push({ pregunta: q, respuesta: personajes[i].nombre.toLowerCase() });
-            usadas.add(q);
-        }
-    }
-    while (preguntas.length < cantidad) {
-        let e = eventos[Math.floor(Math.random() * eventos.length)];
-        let q = `¿Qué evento ocurrió en ${e.año}?`;
-        if (!usadas.has(q)) {
-            preguntas.push({ pregunta: q, respuesta: e.desc.toLowerCase() });
-            usadas.add(q);
-        }
-    }
-    return preguntas.slice(0, cantidad);
-}
-
-function generarPreguntasBiologia(cantidad) {
-    const organos = [
-        { organo: "corazón", funcion: "bombea sangre" }, { organo: "páncreas", funcion: "produce insulina" },
-        { organo: "riñones", funcion: "filtra la sangre" }, { organo: "cerebro", funcion: "controla el sistema nervioso" }
-    ];
-    const animales = [
-        { nombre: "león", desc: "rey de la selva" }, { nombre: "ballena azul", desc: "mamífero más grande del mundo" },
-        { nombre: "jirafa", desc: "cuello más largo" }, { nombre: "abeja", desc: "produce miel" }
-    ];
-    let preguntas = [];
-    let usadas = new Set();
-
-    for (let i = 0; i < organos.length && preguntas.length < cantidad; i++) {
-        let q = `¿Qué órgano ${organos[i].funcion}?`;
-        if (!usadas.has(q)) {
-            preguntas.push({ pregunta: q, respuesta: organos[i].organo });
-            usadas.add(q);
-        }
-    }
-    for (let i = 0; i < animales.length && preguntas.length < cantidad; i++) {
-        let q = `¿Qué animal es conocido como ${animales[i].desc}?`;
-        if (!usadas.has(q)) {
-            preguntas.push({ pregunta: q, respuesta: animales[i].nombre });
-            usadas.add(q);
-        }
-    }
-    while (preguntas.length < cantidad) {
-        let o = organos[Math.floor(Math.random() * organos.length)];
-        let q = `¿Qué hace el ${o.organo} en el cuerpo humano?`;
-        if (!usadas.has(q)) {
-            preguntas.push({ pregunta: q, respuesta: o.funcion });
-            usadas.add(q);
-        }
-    }
-    return preguntas.slice(0, cantidad);
-}
-
-function generarPreguntasJuegos(cantidad) {
-    const juegos = [
-        { juego: "Super Mario", personaje: "Mario" }, { juego: "The Legend of Zelda", personaje: "Link" },
-        { juego: "Fortnite", desc: "modo battle royale" }, { juego: "Minecraft", desc: "construyes con bloques" },
-        { juego: "Halo", personaje: "Master Chief" }, { juego: "Tomb Raider", personaje: "Lara Croft" }
-    ];
-    let preguntas = [];
-    let usadas = new Set();
-
-    for (let i = 0; i < juegos.length && preguntas.length < cantidad; i++) {
-        let q = juegos[i].personaje 
-            ? `¿Qué juego tiene un personaje llamado ${juegos[i].personaje}?`
-            : `¿Qué juego es famoso por su ${juegos[i].desc}?`;
-        if (!usadas.has(q)) {
-            preguntas.push({ pregunta: q, respuesta: juegos[i].juego.toLowerCase() });
-            usadas.add(q);
-        }
-    }
-    while (preguntas.length < cantidad) {
-        let j = juegos[Math.floor(Math.random() * juegos.length)];
-        let q = j.personaje 
-            ? `¿En qué juego aparece ${j.personaje}?`
-            : `¿Qué juego incluye ${j.desc}?`;
-        if (!usadas.has(q)) {
-            preguntas.push({ pregunta: q, respuesta: j.juego.toLowerCase() });
-            usadas.add(q);
-        }
-    }
-    return preguntas.slice(0, cantidad);
-}
-
-function generarPreguntasPeliculas(cantidad) {
-    const peliculas = [
-        { pelicula: "Piratas del Caribe", personaje: "Jack Sparrow" }, { pelicula: "El Rey León", personaje: "Mufasa" },
-        { pelicula: "Tiburón", desc: "tiburón como antagonista" }, { pelicula: "WALL-E", personaje: "WALL-E" },
-        { pelicula: "Harry Potter", desc: "mago joven en Hogwarts" }, { pelicula: "Iron Man", personaje: "Tony Stark" }
-    ];
-    let preguntas = [];
-    let usadas = new Set();
-
-    for (let i = 0; i < peliculas.length && preguntas.length < cantidad; i++) {
-        let q = peliculas[i].personaje 
-            ? `¿Qué película tiene a ${peliculas[i].personaje} como personaje?`
-            : `¿Qué película incluye ${peliculas[i].desc}?`;
-        if (!usadas.has(q)) {
-            preguntas.push({ pregunta: q, respuesta: peliculas[i].pelicula.toLowerCase() });
-            usadas.add(q);
-        }
-    }
-    while (preguntas.length < cantidad) {
-        let p = peliculas[Math.floor(Math.random() * peliculas.length)];
-        let q = p.personaje 
-            ? `¿En qué película aparece ${p.personaje}?`
-            : `¿Qué película tiene ${p.desc}?`;
-        if (!usadas.has(q)) {
-            preguntas.push({ pregunta: q, respuesta: p.pelicula.toLowerCase() });
-            usadas.add(q);
-        }
-    }
-    return preguntas.slice(0, cantidad);
-}
-
-function generarPreguntasDisney(cantidad) {
-    const personajes = [
-        { nombre: "Elsa", desc: "poderes de hielo" }, { nombre: "Cenicienta", desc: "madrastra Lady Tremaine" },
-        { nombre: "Nemo", desc: "pez en Buscando a Nemo" }, { nombre: "Donald", desc: "pato gruñón" },
-        { nombre: "Aladdín", desc: "lámpara mágica" }, { nombre: "Simba", desc: "rey león" }
-    ];
-    let preguntas = [];
-    let usadas = new Set();
-
-    for (let i = 0; i < personajes.length && preguntas.length < cantidad; i++) {
-        let q = personajes[i].desc.includes("en") 
-            ? `¿Qué película Disney tiene un ${personajes[i].desc}?`
-            : `¿Qué personaje Disney tiene ${personajes[i].desc}?`;
-        if (!usadas.has(q)) {
-            preguntas.push({ pregunta: q, respuesta: personajes[i].nombre.toLowerCase() });
-            usadas.add(q);
-        }
-    }
-    while (preguntas.length < cantidad) {
-        let p = personajes[Math.floor(Math.random() * personajes.length)];
-        let q = p.desc.includes("en") 
-            ? `¿En qué película Disney aparece un ${p.desc}?`
-            : `¿Qué personaje Disney es conocido por ${p.desc}?`;
-        if (!usadas.has(q)) {
-            preguntas.push({ pregunta: q, respuesta: p.nombre.toLowerCase() });
-            usadas.add(q);
-        }
-    }
-    return preguntas.slice(0, cantidad);
-}
-
-function generarPreguntasMatematicas(cantidad) {
-    let preguntas = [];
-    let usadas = new Set();
-
-    while (preguntas.length < cantidad) {
-        let num1 = Math.floor(Math.random() * 20) + 1;
-        let num2 = Math.floor(Math.random() * 20) + 1;
-        let operacion = ['+', '-', '*', '÷'][Math.floor(Math.random() * 4)];
-        let resultado;
-        switch (operacion) {
-            case '+': resultado = num1 + num2; break;
-            case '-': resultado = num1 - num2; break;
-            case '*': resultado = num1 * num2; break;
-            case '÷': resultado = num2 !== 0 ? Math.floor(num1 / num2) : 'indefinido'; break;
-        }
-        let q = `¿Cuánto es ${num1} ${operacion} ${num2}?`;
-        if (!usadas.has(q)) {
-            preguntas.push({ pregunta: q, respuesta: resultado.toString() });
-            usadas.add(q);
-        }
-    }
-
-    return preguntas.slice(0, cantidad);
-}
-
-function generarPalabrasAleatorias(cantidad) {
-    const categorias = {
-        animales: ["gato", "perro", "león", "tigre", "elefante", "jirafa", "mono", "oso", "pez", "pájaro"],
-        colores: ["rojo", "azul", "verde", "amarillo", "negro", "blanco", "rosa", "violeta", "naranja", "gris"],
-        naturaleza: ["sol", "luna", "estrella", "nube", "río", "montaña", "mar", "bosque", "playa", "cielo"],
-        emociones: ["feliz", "triste", "enojado", "calmo", "cansado", "vivo", "raro", "simple", "duro", "suave"],
-        objetos: ["casa", "mesa", "silla", "libro", "lápiz", "reloj", "lámpara", "puerta", "ventana", "camino"]
-    };
-    let palabras = new Set();
-
-    while (palabras.size < cantidad) {
-        let cat = Object.keys(categorias)[Math.floor(Math.random() * Object.keys(categorias).length)];
-        let palabra = categorias[cat][Math.floor(Math.random() * categorias[cat].length)];
-        palabras.add(palabra);
-    }
-
-    return Array.from(palabras).slice(0, cantidad);
-}
-
-
-function generarFrasesPPM(cantidad) {
-    const sujetos = ["el sol", "una abeja", "un niño", "el viento", "la luna", "un gato", "el río"];
-    const acciones = ["brilla", "zumba", "corre", "susurra", "ilumina", "cruza", "canta"];
-    const complementos = ["en el cielo", "entre las flores", "tras una pelota", "en el bosque", "en la noche", "por el callejón", "bajo el puente"];
-    let frases = [];
-    for (let i = 0; i < cantidad; i++) {
-        let sujeto = sujetos[Math.floor(Math.random() * sujetos.length)];
-        let accion = acciones[Math.floor(Math.random() * acciones.length)];
-        let complemento = complementos[Math.floor(Math.random() * complementos.length)];
-        frases.push(`${sujeto} ${accion} ${complemento}`);
-    }
-    return frases;
-}
-
 const client = new Client({
     intents: [
         GatewayIntentBits.Guilds,
@@ -597,22 +268,668 @@ const preguntasTriviaSinOpciones = {
         { pregunta: "¿Cuál es la capital de Zambia?", respuesta: "lusaka" },
         { pregunta: "¿Cuál es la capital de Zimbabue?", respuesta: "harare" }
     ],
-    quimica: generarPreguntasQuimica(500),
-    fisica: generarPreguntasFisica(500),
-    historia: generarPreguntasHistoria(500),
-    biologia: generarPreguntasBiologia(500),
-    juegos: generarPreguntasJuegos(500),
-    peliculas: generarPreguntasPeliculas(500),
-    disney: generarPreguntasDisney(500),
-    matematicas: generarPreguntasMatematicas(500)
-};
+    quimica: [
+        { pregunta: "¿Qué elemento tiene el símbolo 'H'?", respuesta: "hidrógeno" },
+        { pregunta: "¿Qué gas tiene la fórmula CO2?", respuesta: "dióxido de carbono" },
+        { pregunta: "¿Qué elemento es un metal líquido a temperatura ambiente?", respuesta: "mercurio" },
+        { pregunta: "¿Cuál es el símbolo del oro?", respuesta: "au" },
+        { pregunta: "¿Qué compuesto es el agua?", respuesta: "h2o" },
+        { pregunta: "¿Qué elemento tiene el símbolo 'O'?", respuesta: "oxígeno" },
+        { pregunta: "¿Qué metal tiene el símbolo 'Fe'?", respuesta: "hierro" },
+        { pregunta: "¿Qué gas noble tiene el símbolo 'Ne'?", respuesta: "neón" },
+        { pregunta: "¿Qué elemento tiene el símbolo 'Na'?", respuesta: "sodio" },
+        { pregunta: "¿Qué gas tiene el símbolo 'He'?", respuesta: "helio" },
+        { pregunta: "¿Qué elemento tiene el símbolo 'C'?", respuesta: "carbono" },
+        { pregunta: "¿Qué metal tiene el símbolo 'Cu'?", respuesta: "cobre" },
+        { pregunta: "¿Qué elemento tiene el símbolo 'Ag'?", respuesta: "plata" },
+        { pregunta: "¿Qué compuesto es el cloruro de sodio?", respuesta: "nacl" },
+        { pregunta: "¿Qué gas tiene el símbolo 'N'?", respuesta: "nitrógeno" },
+        { pregunta: "¿Qué elemento tiene el símbolo 'K'?", respuesta: "potasio" },
+        { pregunta: "¿Qué metal tiene el símbolo 'Pb'?", respuesta: "plomo" },
+        { pregunta: "¿Qué elemento tiene el símbolo 'S'?", respuesta: "azufre" },
+        { pregunta: "¿Qué gas noble tiene el símbolo 'Ar'?", respuesta: "argón" },
+        { pregunta: "¿Qué elemento tiene el símbolo 'Al'?", respuesta: "aluminio" },
+        { pregunta: "¿Qué compuesto es el dióxido de azufre?", respuesta: "so2" },
+        { pregunta: "¿Qué elemento tiene el símbolo 'P'?", respuesta: "fósforo" },
+        { pregunta: "¿Qué elemento tiene el símbolo 'Cl'?", respuesta: "cloro" },
+        { pregunta: "¿Qué metal tiene el símbolo 'Zn'?", respuesta: "zinc" },
+        { pregunta: "¿Qué elemento tiene el símbolo 'Mg'?", respuesta: "magnesio" },
+        { pregunta: "¿Qué gas noble tiene el símbolo 'Kr'?", respuesta: "kriptón" },
+        { pregunta: "¿Qué compuesto es el metano?", respuesta: "ch4" },
+        { pregunta: "¿Qué elemento tiene el símbolo 'Si'?", respuesta: "silicio" },
+        { pregunta: "¿Qué metal tiene el símbolo 'Sn'?", respuesta: "estaño" },
+        { pregunta: "¿Qué elemento tiene el símbolo 'F'?", respuesta: "flúor" },
+        { pregunta: "¿Qué compuesto es el amoníaco?", respuesta: "nh3" },
+        { pregunta: "¿Qué elemento tiene el símbolo 'Ca'?", respuesta: "calcio" },
+        { pregunta: "¿Qué gas noble tiene el símbolo 'Xe'?", respuesta: "xenón" },
+        { pregunta: "¿Qué metal tiene el símbolo 'Ni'?", respuesta: "níquel" },
+        { pregunta: "¿Qué elemento tiene el símbolo 'B'?", respuesta: "boro" },
+        { pregunta: "¿Qué compuesto es el ácido sulfúrico?", respuesta: "h2so4" },
+        { pregunta: "¿Qué elemento tiene el símbolo 'I'?", respuesta: "yodo" },
+        { pregunta: "¿Qué metal tiene el símbolo 'Ti'?", respuesta: "titanio" },
+        { pregunta: "¿Qué elemento tiene el símbolo 'Br'?", respuesta: "bromo" },
+        { pregunta: "¿Qué compuesto es el óxido nitroso?", respuesta: "n2o" },
+        { pregunta: "¿Qué elemento tiene el símbolo 'Li'?", respuesta: "litio" },
+        { pregunta: "¿Qué metal tiene el símbolo 'Cr'?", respuesta: "cromo" },
+        { pregunta: "¿Qué elemento tiene el símbolo 'Be'?", respuesta: "berilio" },
+        { pregunta: "¿Qué compuesto es el etanol?", respuesta: "c2h5oh" },
+        { pregunta: "¿Qué gas noble tiene el símbolo 'Rn'?", respuesta: "radón" },
+        { pregunta: "¿Qué elemento tiene el símbolo 'As'?", respuesta: "arsénico" },
+        { pregunta: "¿Qué metal tiene el símbolo 'Mn'?", respuesta: "manganeso" },
+        { pregunta: "¿Qué elemento tiene el símbolo 'Se'?", respuesta: "selenio" },
+        { pregunta: "¿Qué compuesto es el peróxido de hidrógeno?", respuesta: "h2o2" },
+        { pregunta: "¿Qué elemento tiene el símbolo 'Sr'?", respuesta: "estroncio" },
+        { pregunta: "¿Qué metal tiene el símbolo 'Co'?", respuesta: "cobalto" },
+        { pregunta: "¿Qué elemento tiene el símbolo 'Ba'?", respuesta: "bario" },
+        { pregunta: "¿Qué compuesto es el ácido clorhídrico?", respuesta: "hcl" },
+        { pregunta: "¿Qué elemento tiene el símbolo 'Ge'?", respuesta: "germanio" },
+        { pregunta: "¿Qué metal tiene el símbolo 'Pt'?", respuesta: "platino" },
+        { pregunta: "¿Qué elemento tiene el símbolo 'Rb'?", respuesta: "rubidio" },
+        { pregunta: "¿Qué compuesto es el bicarbonato de sodio?", respuesta: "nahco3" },
+        { pregunta: "¿Qué elemento tiene el símbolo 'Cs'?", respuesta: "cesio" },
+        { pregunta: "¿Qué metal tiene el símbolo 'Pd'?", respuesta: "paladio" },
+        { pregunta: "¿Qué elemento tiene el símbolo 'Ga'?", respuesta: "galio" },
+        { pregunta: "¿Qué compuesto es el óxido de calcio?", respuesta: "cao" },
+        { pregunta: "¿Qué elemento tiene el símbolo 'In'?", respuesta: "indio" },
+        { pregunta: "¿Qué metal tiene el símbolo 'W'?", respuesta: "tungsteno" },
+        { pregunta: "¿Qué elemento tiene el símbolo 'Sb'?", respuesta: "antimonio" },
+        { pregunta: "¿Qué compuesto es el sulfato de cobre?", respuesta: "cuso4" },
+        { pregunta: "¿Qué elemento tiene el símbolo 'Te'?", respuesta: "telurio" },
+        { pregunta: "¿Qué metal tiene el símbolo 'Mo'?", respuesta: "molibdeno" },
+        { pregunta: "¿Qué elemento tiene el símbolo 'V'?", respuesta: "vanadio" },
+        { pregunta: "¿Qué compuesto es el cloruro de calcio?", respuesta: "cacl2" },
+        { pregunta: "¿Qué elemento tiene el símbolo 'Bi'?", respuesta: "bismuto" },
+        { pregunta: "¿Qué metal tiene el símbolo 'Rh'?", respuesta: "rodio" },
+        { pregunta: "¿Qué elemento tiene el símbolo 'Tl'?", respuesta: "talio" },
+        { pregunta: "¿Qué compuesto es el nitrato de potasio?", respuesta: "kno3" },
+        { pregunta: "¿Qué elemento tiene el símbolo 'U'?", respuesta: "uranio" },
+        { pregunta: "¿Qué metal tiene el símbolo 'Ir'?", respuesta: "iridio" },
+        { pregunta: "¿Qué elemento tiene el símbolo 'Th'?", respuesta: "torio" },
+        { pregunta: "¿Qué compuesto es el carbonato de calcio?", respuesta: "caco3" },
+        { pregunta: "¿Qué elemento tiene el símbolo 'Pu'?", respuesta: "plutonio" },
+        { pregunta: "¿Qué metal tiene el símbolo 'Os'?", respuesta: "osmio" },
+        { pregunta: "¿Qué elemento tiene el símbolo 'Ac'?", respuesta: "actinio" },
+        { pregunta: "¿Qué compuesto es el fosfato de sodio?", respuesta: "na3po4" },
+        { pregunta: "¿Qué elemento tiene el símbolo 'La'?", respuesta: "lantano" },
+        { pregunta: "¿Qué metal tiene el símbolo 'Ru'?", respuesta: "ruteno" },
+        { pregunta: "¿Qué elemento tiene el símbolo 'Ce'?", respuesta: "cerio" },
+        { pregunta: "¿Qué compuesto es el hidróxido de sodio?", respuesta: "naoh" },
+        { pregunta: "¿Qué elemento tiene el símbolo 'Pr'?", respuesta: "praseodimio" },
+        { pregunta: "¿Qué metal tiene el símbolo 'Re'?", respuesta: "renio" },
+        { pregunta: "¿Qué elemento tiene el símbolo 'Nd'?", respuesta: "neodimio" },
+        { pregunta: "¿Qué compuesto es el sulfuro de hidrógeno?", respuesta: "h2s" },
+        { pregunta: "¿Qué elemento tiene el símbolo 'Pm'?", respuesta: "prometio" },
+        { pregunta: "¿Qué metal tiene el símbolo 'Ta'?", respuesta: "tántalo" },
+        { pregunta: "¿Qué elemento tiene el símbolo 'Sm'?", respuesta: "samario" },
+        { pregunta: "¿Qué compuesto es el cloruro de magnesio?", respuesta: "mgcl2" },
+        { pregunta: "¿Qué elemento tiene el símbolo 'Eu'?", respuesta: "europio" },
+        { pregunta: "¿Qué metal tiene el símbolo 'Hf'?", respuesta: "hafnio" },
+        { pregunta: "¿Qué elemento tiene el símbolo 'Gd'?", respuesta: "gadolinio" },
+        { pregunta: "¿Qué compuesto es el óxido de hierro?", respuesta: "fe2o3" },
+        { pregunta: "¿Qué elemento tiene el símbolo 'Tb'?", respuesta: "terbio" },
+        { pregunta: "¿Qué metal tiene el símbolo 'Nb'?", respuesta: "niobio" },
+        { pregunta: "¿Qué elemento tiene el símbolo 'Dy'?", respuesta: "disprosio" },
+        { pregunta: "¿Qué compuesto es el acetato de sodio?", respuesta: "ch3coona" },
+        { pregunta: "¿Qué elemento tiene el símbolo 'Ho'?", respuesta: "holmio" },
+        { pregunta: "¿Qué metal tiene el símbolo 'Zr'?", respuesta: "zirconio" },
+        { pregunta: "¿Qué elemento tiene el símbolo 'Er'?", respuesta: "erbio" },
+        { pregunta: "¿Qué compuesto es el sulfato de magnesio?", respuesta: "mgso4" },
+        { pregunta: "¿Qué elemento tiene el símbolo 'Tm'?", respuesta: "tulio" },
+        { pregunta: "¿Qué metal tiene el símbolo 'Y'?", respuesta: "itrio" },
+        { pregunta: "¿Qué elemento tiene el símbolo 'Yb'?", respuesta: "iterbio" },
+        { pregunta: "¿Qué compuesto es el nitrato de amonio?", respuesta: "nh4no3" },
+        { pregunta: "¿Qué elemento tiene el símbolo 'Lu'?", respuesta: "lutecio" },
+        { pregunta: "¿Qué metal tiene el símbolo 'Sc'?", respuesta: "escandio" },
+        { pregunta: "¿Qué elemento tiene el símbolo 'At'?", respuesta: "astato" },
+        { pregunta: "¿Qué compuesto es el óxido de magnesio?", respuesta: "mgo" },
+        { pregunta: "¿Qué elemento tiene el símbolo 'Po'?", respuesta: "polonio" },
+        { pregunta: "¿Qué metal tiene el símbolo 'Cd'?", respuesta: "cadmio" },
+        { pregunta: "¿Qué elemento tiene el símbolo 'Fr'?", respuesta: "francio" },
+        { pregunta: "¿Qué compuesto es el clorato de potasio?", respuesta: "kclo3" },
+        { pregunta: "¿Qué elemento tiene el símbolo 'Ra'?", respuesta: "radio" },
+        { pregunta: "¿Qué metal tiene el símbolo 'Hg'?", respuesta: "mercurio" },
+        { pregunta: "¿Qué elemento tiene el símbolo 'Rf'?", respuesta: "rutherfordio" },
+        { pregunta: "¿Qué compuesto es el fosfato de calcio?", respuesta: "ca3(po4)2" }
+    ],
+    fisica: [
+        { pregunta: "¿Qué unidad mide la fuerza?", respuesta: "newton" },
+        { pregunta: "¿Qué ley dice que F = m * a?", respuesta: "segunda ley de newton" },
+        { pregunta: "¿Cuál es la velocidad de la luz en el vacío (aproximada)?", respuesta: "300000 km/s" },
+        { pregunta: "¿Qué instrumento mide la presión atmosférica?", respuesta: "barómetro" },
+        { pregunta: "¿Qué tipo de energía almacena un resorte comprimido?", respuesta: "energía elástica" },
+        { pregunta: "¿Qué mide la unidad 'voltio'?", respuesta: "voltaje" },
+        { pregunta: "¿Quién formuló la teoría de la relatividad?", respuesta: "einstein" },
+        { pregunta: "¿Qué mide la unidad 'joule'?", respuesta: "energía" },
+        { pregunta: "¿Qué mide la unidad 'watt'?", respuesta: "potencia" },
+        { pregunta: "¿Qué ley dice que la energía no se crea ni se destruye?", respuesta: "conservación de la energía" },
+        { pregunta: "¿Qué instrumento mide la temperatura?", respuesta: "termómetro" },
+        { pregunta: "¿Qué tipo de onda transporta el sonido?", respuesta: "longitudinal" },
+        { pregunta: "¿Qué mide la unidad 'hertz'?", respuesta: "frecuencia" },
+        { pregunta: "¿Qué fuerza mantiene a los planetas en órbita?", respuesta: "gravedad" },
+        { pregunta: "¿Qué mide la unidad 'ohmio'?", respuesta: "resistencia" },
+        { pregunta: "¿Qué fenómeno explica la curvatura de la luz por la gravedad?", respuesta: "relatividad general" },
+        { pregunta: "¿Qué tipo de energía tiene un objeto en movimiento?", respuesta: "cinética" },
+        { pregunta: "¿Qué mide la unidad 'amperio'?", respuesta: "corriente eléctrica" },
+        { pregunta: "¿Qué instrumento mide la velocidad del viento?", respuesta: "anemómetro" },
+        { pregunta: "¿Qué ley dice que a toda acción hay una reacción igual y opuesta?", respuesta: "tercera ley de newton" },
+        { pregunta: "¿Qué mide la unidad 'candela'?", respuesta: "intensidad luminosa" },
+        { pregunta: "¿Qué instrumento mide la humedad del aire?", respuesta: "higrómetro" },
+        { pregunta: "¿Qué tipo de energía tiene un objeto en altura?", respuesta: "potencial" },
+        { pregunta: "¿Qué ley dice que un objeto en reposo sigue en reposo?", respuesta: "primera ley de newton" },
+        { pregunta: "¿Qué mide la unidad 'kelvin'?", respuesta: "temperatura" },
+        { pregunta: "¿Qué fenómeno explica el arcoíris?", respuesta: "refracción" },
+        { pregunta: "¿Qué instrumento mide la radiación?", respuesta: "contador geiger" },
+        { pregunta: "¿Qué tipo de onda es la luz?", respuesta: "transversal" },
+        { pregunta: "¿Qué mide la unidad 'pascal'?", respuesta: "presión" },
+        { pregunta: "¿Quién descubrió la ley de la gravitación universal?", respuesta: "newton" },
+        { pregunta: "¿Qué mide la unidad 'tesla'?", respuesta: "campo magnético" },
+        { pregunta: "¿Qué fenómeno explica la dilatación del tiempo?", respuesta: "relatividad especial" },
+        { pregunta: "¿Qué instrumento mide la distancia recorrida?", respuesta: "odómetro" },
+        { pregunta: "¿Qué tipo de energía produce el sol?", respuesta: "nuclear" },
+        { pregunta: "¿Qué mide la unidad 'lumen'?", respuesta: "flujo luminoso" },
+        { pregunta: "¿Qué mide la unidad 'lux'?", respuesta: "iluminancia" },
+        { pregunta: "¿Qué instrumento mide la masa?", respuesta: "balanza" },
+        { pregunta: "¿Qué tipo de energía usa una batería?", respuesta: "química" },
+        { pregunta: "¿Qué fenómeno explica la dispersión de la luz?", respuesta: "difracción" },
+        { pregunta: "¿Qué mide la unidad 'weber'?", respuesta: "flujo magnético" },
+        { pregunta: "¿Qué instrumento mide el tiempo?", respuesta: "reloj" },
+        { pregunta: "¿Qué tipo de energía es el calor?", respuesta: "térmica" },
+        { pregunta: "¿Qué fenómeno explica el efecto Doppler?", respuesta: "cambio de frecuencia" },
+        { pregunta: "¿Qué mide la unidad 'sievert'?", respuesta: "dosis de radiación" },
+        { pregunta: "¿Qué instrumento mide la intensidad del sonido?", respuesta: "sonómetro" },
+        { pregunta: "¿Qué tipo de energía usa un panel solar?", respuesta: "solar" },
+        { pregunta: "¿Qué fenómeno explica la reflexión?", respuesta: "rebote de luz" },
+        { pregunta: "¿Qué mide la unidad 'faradio'?", respuesta: "capacitancia" },
+        { pregunta: "¿Qué instrumento mide la electricidad estática?", respuesta: "electroscopio" },
+        { pregunta: "¿Qué tipo de energía almacena un imán?", respuesta: "magnética" },
+        { pregunta: "¿Qué fenómeno explica la superconductividad?", respuesta: "resistencia cero" },
+        { pregunta: "¿Qué mide la unidad 'henry'?", respuesta: "inductancia" },
+        { pregunta: "¿Qué instrumento mide la densidad?", respuesta: "densímetro" },
+        { pregunta: "¿Qué tipo de energía usa un motor?", respuesta: "mecánica" },
+        { pregunta: "¿Qué fenómeno explica la interferencia?", respuesta: "superposición de ondas" },
+        { pregunta: "¿Qué mide la unidad 'gray'?", respuesta: "dosis absorbida" },
+        { pregunta: "¿Qué instrumento mide la altitud?", respuesta: "altímetro" },
+        { pregunta: "¿Qué tipo de energía tiene el viento?", respuesta: "eólica" },
+        { pregunta: "¿Qué fenómeno explica la polarización?", respuesta: "orientación de ondas" },
+        { pregunta: "¿Qué mide la unidad 'becquerel'?", respuesta: "actividad radiactiva" },
+        { pregunta: "¿Qué instrumento mide el flujo de agua?", respuesta: "caudalímetro" },
+        { pregunta: "¿Qué tipo de energía usa una central hidroeléctrica?", respuesta: "hidráulica" },
+        { pregunta: "¿Qué fenómeno explica el efecto fotoeléctrico?", respuesta: "emisión de electrones" },
+        { pregunta: "¿Qué mide la unidad 'sievert'?", respuesta: "dosis equivalente" },
+        { pregunta: "¿Qué instrumento mide la velocidad?", respuesta: "velocímetro" },
+        { pregunta: "¿Qué tipo de energía tiene una ola?", respuesta: "mareomotriz" },
+        { pregunta: "¿Qué fenómeno explica la resonancia?", respuesta: "vibración amplificada" },
+        { pregunta: "¿Qué mide la unidad 'coulomb'?", respuesta: "carga eléctrica" },
+        { pregunta: "¿Qué instrumento mide la presión de un gas?", respuesta: "manómetro" },
+        { pregunta: "¿Qué tipo de energía usa un reactor nuclear?", respuesta: "nuclear" },
+        { pregunta: "¿Qué fenómeno explica la radiación?", respuesta: "emisión de partículas" },
+        { pregunta: "¿Qué mide la unidad 'newton metro'?", respuesta: "torque" },
+        { pregunta: "¿Qué instrumento mide la luz?", respuesta: "fotómetro" },
+        { pregunta: "¿Qué tipo de energía tiene un rayo?", respuesta: "eléctrica" },
+        { pregunta: "¿Qué fenómeno explica la flotación?", respuesta: "principio de arquímedes" },
+        { pregunta: "¿Qué mide la unidad 'radian'?", respuesta: "ángulo" },
+        { pregunta: "¿Qué instrumento mide la aceleración?", respuesta: "acelerómetro" },
+        { pregunta: "¿Qué tipo de energía usa un géiser?", respuesta: "geotérmica" },
+        { pregunta: "¿Qué fenómeno explica la capilaridad?", respuesta: "tensión superficial" },
+        { pregunta: "¿Qué mide la unidad 'steradian'?", respuesta: "ángulo sólido" },
+        { pregunta: "¿Qué instrumento mide la viscosidad?", respuesta: "viscosímetro" },
+        { pregunta: "¿Qué tipo de energía tiene un terremoto?", respuesta: "sísmica" },
+        { pregunta: "¿Qué fenómeno explica la inercia?", respuesta: "resistencia al cambio" },
+        { pregunta: "¿Qué mide la unidad 'mol'?", respuesta: "cantidad de sustancia" },
+        { pregunta: "¿Qué instrumento mide la inclinación?", respuesta: "inclinómetro" },
+        { pregunta: "¿Qué tipo de energía usa un cohete?", respuesta: "química" },
+        { pregunta: "¿Qué fenómeno explica la evaporación?", respuesta: "cambio de estado" }
+    ],
+    historia: [
+        { pregunta: "¿En qué año llegó Colón a América?", respuesta: "1492" },
+        { pregunta: "¿Qué civilización construyó las pirámides de Giza?", respuesta: "egipcia" },
+        { pregunta: "¿Qué guerra ocurrió entre 1939 y 1945?", respuesta: "segunda guerra mundial" },
+        { pregunta: "¿Quién fue el primer emperador de Roma?", respuesta: "augusto" },
+        { pregunta: "¿En qué año cayó el Muro de Berlín?", respuesta: "1989" },
+        { pregunta: "¿Qué revolución comenzó en 1789?", respuesta: "revolución francesa" },
+        { pregunta: "¿Quién pintó la Mona Lisa?", respuesta: "leonardo da vinci" },
+        { pregunta: "¿En qué año comenzó la Primera Guerra Mundial?", respuesta: "1914" },
+        { pregunta: "¿Qué civilización construyó Machu Picchu?", respuesta: "inca" },
+        { pregunta: "¿Quién fue el primer presidente de Estados Unidos?", respuesta: "george washington" },
+        { pregunta: "¿En qué año se firmó la Declaración de Independencia de EE.UU.?", respuesta: "1776" },
+        { pregunta: "¿Qué imperio fue gobernado por Gengis Kan?", respuesta: "mongol" },
+        { pregunta: "¿Quién descubrió la penicilina?", respuesta: "alexander fleming" },
+        { pregunta: "¿En qué año terminó la Segunda Guerra Mundial?", respuesta: "1945" },
+        { pregunta: "¿Qué civilización inventó la escritura cuneiforme?", respuesta: "sumeria" },
+        { pregunta: "¿Quién fue el líder de la Revolución Rusa de 1917?", respuesta: "lenin" },
+        { pregunta: "¿En qué año se inventó la imprenta?", respuesta: "1440" },
+        { pregunta: "¿Qué reina inglesa tuvo el reinado más largo?", respuesta: "isabel ii" },
+        { pregunta: "¿Qué evento marcó el inicio de la Edad Media?", respuesta: "caída de roma" },
+        { pregunta: "¿Quién fue el faraón famoso por su tumba llena de tesoros?", respuesta: "tutankamón" },
+        { pregunta: "¿En qué año comenzó la Revolución Industrial?", respuesta: "1760" },
+        { pregunta: "¿Qué civilización construyó el Coliseo?", respuesta: "romana" },
+        { pregunta: "¿Quién fue el primer hombre en pisar la Luna?", respuesta: "neil armstrong" },
+        { pregunta: "¿En qué año se descubrió América del Norte por los vikingos?", respuesta: "1000" },
+        { pregunta: "¿Qué guerra duró 100 años?", respuesta: "guerra de los cien años" },
+        { pregunta: "¿Quién inventó la bombilla?", respuesta: "edison" },
+        { pregunta: "¿En qué año se fundó la ONU?", respuesta: "1945" },
+        { pregunta: "¿Qué civilización creó los Juegos Olímpicos?", respuesta: "griega" },
+        { pregunta: "¿Quién fue la primera mujer en ganar un Nobel?", respuesta: "marie curie" },
+        { pregunta: "¿En qué año se abolió la esclavitud en EE.UU.?", respuesta: "1865" },
+        { pregunta: "¿Qué imperio construyó la Gran Muralla?", respuesta: "chino" },
+        { pregunta: "¿Quién fue el líder de la independencia de India?", respuesta: "gandhi" },
+        { pregunta: "¿En qué año ocurrió la Revolución de Octubre?", respuesta: "1917" },
+        { pregunta: "¿Qué evento marcó el fin de la Segunda Guerra Mundial en Europa?", respuesta: "día de la victoria" },
+        { pregunta: "¿En qué año se descubrió el fuego?", respuesta: "prehistoria" },
+        { pregunta: "¿Qué civilización construyó Chichén Itzá?", respuesta: "maya" },
+        { pregunta: "¿Quién fue el primer emperador de Francia?", respuesta: "napoleón" },
+        { pregunta: "¿En qué año se inventó el teléfono?", respuesta: "1876" },
+        { pregunta: "¿Qué guerra tuvo lugar entre 1861 y 1865 en EE.UU.?", respuesta: "guerra civil" },
+        { pregunta: "¿Quién descubrió la teoría de la evolución?", respuesta: "darwin" },
+        { pregunta: "¿En qué año se firmó el Tratado de Versalles?", respuesta: "1919" },
+        { pregunta: "¿Qué civilización inventó el papel?", respuesta: "china" },
+        { pregunta: "¿Quién fue el líder de la Revolución Cubana?", respuesta: "fidel castro" },
+        { pregunta: "¿En qué año se inventó el automóvil?", respuesta: "1886" },
+        { pregunta: "¿Qué reina fue conocida como la Virgen?", respuesta: "isabel i" },
+        { pregunta: "¿Qué evento marcó el inicio de la Segunda Guerra Mundial?", respuesta: "invasión de polonia" },
+        { pregunta: "¿Quién inventó la máquina de vapor?", respuesta: "watt" },
+        { pregunta: "¿En qué año se descubrió la electricidad?", respuesta: "1752" },
+        { pregunta: "¿Qué civilización construyó Stonehenge?", respuesta: "neolítica" },
+        { pregunta: "¿Quién fue el último zar de Rusia?", respuesta: "nicolás ii" },
+        { pregunta: "¿En qué año se lanzó el primer satélite?", respuesta: "1957" },
+        { pregunta: "¿Qué guerra enfrentó a Esparta y Atenas?", respuesta: "guerra del peloponeso" },
+        { pregunta: "¿Quién descubrió América del Sur?", respuesta: "colón" },
+        { pregunta: "¿En qué año se inventó la televisión?", respuesta: "1927" },
+        { pregunta: "¿Qué reina gobernó España durante el descubrimiento de América?", respuesta: "isabel la católica" },
+        { pregunta: "¿Qué evento marcó el fin del apartheid?", respuesta: "liberación de mandela" },
+        { pregunta: "¿Quién inventó el telégrafo?", respuesta: "morse" },
+        { pregunta: "¿En qué año se descubrió Australia?", respuesta: "1606" },
+        { pregunta: "¿Qué civilización inventó el alfabeto?", respuesta: "fenicia" },
+        { pregunta: "¿Quién fue el líder de los nazis?", respuesta: "hitler" },
+        { pregunta: "¿En qué año se fundó Roma?", respuesta: "753 ac" },
+        { pregunta: "¿Qué guerra tuvo lugar en Vietnam entre 1955 y 1975?", respuesta: "guerra de vietnam" },
+        { pregunta: "¿Quién descubrió la radiactividad?", respuesta: "becquerel" },
+        { pregunta: "¿En qué año se inventó el avión?", respuesta: "1903" },
+        { pregunta: "¿Qué reina fue ejecutada en la Revolución Francesa?", respuesta: "maría antonieta" },
+        { pregunta: "¿Qué evento marcó el inicio del Renacimiento?", respuesta: "caída de constantinopla" },
+        { pregunta: "¿Quién inventó la rueda?", respuesta: "mesopotamia" },
+        { pregunta: "¿En qué año se descubrió el ADN?", respuesta: "1953" },
+        { pregunta: "¿Qué civilización inventó la pólvora?", respuesta: "china" },
+        { pregunta: "¿Quién fue el primer presidente de Rusia?", respuesta: "yeltsin" },
+        { pregunta: "¿En qué año se inventó la computadora?", respuesta: "1946" },
+        { pregunta: "¿Qué rey firmó la Magna Carta?", respuesta: "juan sin tierra" },
+        { pregunta: "¿Qué evento marcó el fin de la Guerra Fría?", respuesta: "caída del muro de berlín" },
+        { pregunta: "¿Quién descubrió el Nuevo Mundo?", respuesta: "colón" },
+        { pregunta: "¿En qué año se inventó la fotografía?", respuesta: "1839" },
+        { pregunta: "¿Qué civilización construyó las líneas de Nazca?", respuesta: "nazca" },
+        { pregunta: "¿Quién fue el líder de la Revolución Americana?", respuesta: "washington" }
+    ],
+    biologia: [
+        { pregunta: "¿Qué órgano bombea sangre en el cuerpo humano?", respuesta: "corazón" },
+        { pregunta: "¿Cuál es el proceso por el que las plantas hacen su alimento?", respuesta: "fotosíntesis" },
+        { pregunta: "¿Qué gas exhalan los humanos al respirar?", respuesta: "dióxido de carbono" },
+        { pregunta: "¿Qué parte del cuerpo humano produce insulina?", respuesta: "páncreas" },
+        { pregunta: "¿Qué animal es conocido como el rey de la selva?", respuesta: "león" },
+        { pregunta: "¿Qué clase de animal es un delfín?", respuesta: "mamífero" },
+        { pregunta: "¿Qué estructura en las células contiene el ADN?", respuesta: "núcleo" },
+        { pregunta: "¿Qué gas necesitan las plantas para la fotosíntesis?", respuesta: "dióxido de carbono" },
+        { pregunta: "¿Qué órgano filtra la sangre en el cuerpo humano?", respuesta: "riñones" },
+        { pregunta: "¿Qué animal es el mamífero más grande del mundo?", respuesta: "ballena azul" },
+        { pregunta: "¿Qué parte del cuerpo humano controla el equilibrio?", respuesta: "oído" },
+        { pregunta: "¿Qué tipo de sangre transportan las arterias?", respuesta: "oxigenada" },
+        { pregunta: "¿Qué animal tiene el cuello más largo?", respuesta: "jirafa" },
+        { pregunta: "¿Qué insecto produce miel?", respuesta: "abeja" },
+        { pregunta: "¿Qué órgano humano digiere los alimentos?", respuesta: "estómago" },
+        { pregunta: "¿Qué animal es conocido por cambiar de color?", respuesta: "camaleón" },
+        { pregunta: "¿Qué gas respiran los humanos?", respuesta: "oxígeno" },
+        { pregunta: "¿Qué parte de la planta absorbe agua del suelo?", respuesta: "raíz" },
+        { pregunta: "¿Qué animal tiene un pico y plumas pero no vuela?", respuesta: "pingüino" },
+        { pregunta: "¿Qué órgano humano es el más grande?", respuesta: "piel" },
+        { pregunta: "¿Qué animal tiene rayas negras y blancas?", respuesta: "cebra" },
+        { pregunta: "¿Qué parte de la planta produce semillas?", respuesta: "flor" },
+        { pregunta: "¿Qué animal es el más rápido en tierra?", respuesta: "guepardo" },
+        { pregunta: "¿Qué órgano humano controla el sistema nervioso?", respuesta: "cerebro" },
+        { pregunta: "¿Qué proceso convierte el azúcar en energía?", respuesta: "respiración celular" },
+        { pregunta: "¿Qué animal tiene trompa y colmillos?", respuesta: "elefante" },
+        { pregunta: "¿Qué parte del cuerpo humano produce glóbulos rojos?", respuesta: "médula ósea" },
+        { pregunta: "¿Qué animal es conocido por su caparazón?", respuesta: "tortuga" },
+        { pregunta: "¿Qué gas liberan las plantas durante la fotosíntesis?", respuesta: "oxígeno" },
+        { pregunta: "¿Qué animal tiene un cuerno en la nariz?", respuesta: "rinoceronte" },
+        { pregunta: "¿Qué parte de la célula produce energía?", respuesta: "mitocondria" },
+        { pregunta: "¿Qué insecto transmite la malaria?", respuesta: "mosquito" },
+        { pregunta: "¿Qué animal es el ave más grande?", respuesta: "avestruz" },
+        { pregunta: "¿Qué proceso permite a los animales reproducirse?", respuesta: "fertilización" },
+        { pregunta: "¿Qué animal tiene una melena?", respuesta: "león" },
+        { pregunta: "¿Qué parte de la planta transporta nutrientes?", respuesta: "tallo" },
+        { pregunta: "¿Qué animal es conocido por su cola prensil?", respuesta: "mono" },
+        { pregunta: "¿Qué órgano humano filtra el aire?", respuesta: "pulmones" },
+        { pregunta: "¿Qué proceso permite a las plantas crecer?", respuesta: "crecimiento celular" },
+        { pregunta: "¿Qué animal tiene alas pero no vuela?", respuesta: "gallina" },
+        { pregunta: "¿Qué parte del cuerpo humano detecta el olor?", respuesta: "nariz" },
+        { pregunta: "¿Qué animal es conocido por su veneno mortal?", respuesta: "serpiente" },
+        { pregunta: "¿Qué gas usan los peces para respirar?", respuesta: "oxígeno" },
+        { pregunta: "¿Qué parte de la planta protege las semillas?", respuesta: "fruto" },
+        { pregunta: "¿Qué animal tiene garras retráctiles?", respuesta: "gato" },
+        { pregunta: "¿Qué órgano humano regula la temperatura?", respuesta: "piel" },
+        { pregunta: "¿Qué proceso permite a las aves migrar?", respuesta: "instinto" },
+        { pregunta: "¿Qué animal tiene un pico largo para pescar?", respuesta: "pelícano" },
+        { pregunta: "¿Qué parte del cuerpo humano ve los colores?", respuesta: "ojos" },
+        { pregunta: "¿Qué animal es conocido por su cola de castor?", respuesta: "castor" },
+        { pregunta: "¿Qué gas causa el efecto invernadero?", respuesta: "dióxido de carbono" },
+        { pregunta: "¿Qué parte de la célula almacena agua?", respuesta: "vacuola" },
+        { pregunta: "¿Qué animal tiene un cuello con manchas?", respuesta: "jirafa" },
+        { pregunta: "¿Qué órgano humano produce bilis?", respuesta: "hígado" },
+        { pregunta: "¿Qué proceso permite a los reptiles mudar piel?", respuesta: "ecdysis" },
+        { pregunta: "¿Qué animal tiene un caparazón con púas?", respuesta: "erizo" },
+        { pregunta: "¿Qué parte del cuerpo humano detecta el sabor?", respuesta: "lengua" }
+    ],
+    juegos: [
+        { pregunta: "¿Qué juego tiene un personaje llamado Mario?", respuesta: "super mario" },
+        { pregunta: "¿Qué juego incluye a un personaje llamado Link?", respuesta: "the legend of zelda" },
+        { pregunta: "¿Qué juego es famoso por su modo battle royale?", respuesta: "fortnite" },
+        { pregunta: "¿En qué juego construyes con bloques en un mundo cúbico?", respuesta: "minecraft" },
+        { pregunta: "¿Qué juego tiene un personaje llamado Master Chief?", respuesta: "halo" },
+        { pregunta: "¿Qué juego incluye a Lara Croft como protagonista?", respuesta: "tomb raider" },
+        { pregunta: "¿Qué juego tiene un mapa llamado Summoner's Rift?", respuesta: "league of legends" },
+        { pregunta: "¿Qué juego te permite capturar criaturas con pokebolas?", respuesta: "pokémon" },
+        { pregunta: "¿Qué juego tiene un personaje llamado Kratos?", respuesta: "god of war" },
+        { pregunta: "¿Qué juego es famoso por su modo de carreras Mario Kart?", respuesta: "mario kart" },
+        { pregunta: "¿Qué juego tiene un mundo abierto llamado Los Santos?", respuesta: "grand theft auto v" },
+        { pregunta: "¿Qué juego incluye a un erizo azul llamado Sonic?", respuesta: "sonic the hedgehog" },
+        { pregunta: "¿Qué juego tiene un personaje llamado Solid Snake?", respuesta: "metal gear solid" },
+        { pregunta: "¿Qué juego te permite construir granjas y explorar cuevas?", respuesta: "stardew valley" },
+        { pregunta: "¿Qué juego tiene un modo de batalla llamado Team Deathmatch?", respuesta: "call of duty" },
+        { pregunta: "¿Qué juego incluye a un personaje llamado Geralt de Rivia?", respuesta: "the witcher" },
+        { pregunta: "¿Qué juego tiene un mundo postapocalíptico con Vaults?", respuesta: "fallout" },
+        { pregunta: "¿Qué juego te permite ser un simulador de vida?", respuesta: "the sims" },
+        { pregunta: "¿Qué juego tiene un personaje llamado Ellie en un mundo con infectados?", respuesta: "the last of us" },
+        { pregunta: "¿Qué juego incluye combates con cartas como 'Magic'?", respuesta: "hearthstone" },
+        { pregunta: "¿Qué juego tiene un personaje llamado Ezio Auditore?", respuesta: "assassin's creed" },
+        { pregunta: "¿Qué juego incluye un mundo con portales naranjas y azules?", respuesta: "portal" },
+        { pregunta: "¿Qué juego te deja explorar Hyrule con Breath of the Wild?", respuesta: "the legend of zelda breath of the wild" },
+        { pregunta: "¿Qué juego tiene un personaje llamado Doom Slayer?", respuesta: "doom" },
+        { pregunta: "¿Qué juego es famoso por su modo Among Us?", respuesta: "among us" },
+        { pregunta: "¿Qué juego tiene un mundo con islas flotantes llamado Skylands?", respuesta: "skylanders" },
+        { pregunta: "¿Qué juego incluye a un personaje llamado Samus Aran?", respuesta: "metroid" },
+        { pregunta: "¿Qué juego tiene un modo de construcción llamado Creative?", respuesta: "minecraft" },
+        { pregunta: "¿Qué juego incluye a un personaje llamado Aloy?", respuesta: "horizon zero dawn" },
+        { pregunta: "¿Qué juego tiene un mundo con dragones llamado Tamriel?", respuesta: "skyrim" },
+        { pregunta: "¿Qué juego te permite pelear con Pikachu?", respuesta: "super smash bros" },
+        { pregunta: "¿Qué juego tiene un personaje llamado Niko Bellic?", respuesta: "grand theft auto iv" },
+        { pregunta: "¿Qué juego incluye un modo de supervivencia en una isla?", respuesta: "ark survival evolved" },
+        { pregunta: "¿Qué juego tiene un personaje llamado Cloud Strife?", respuesta: "final fantasy vii" },
+        { pregunta: "¿Qué juego incluye un mundo con máquinas gigantes?", respuesta: "horizon forbidden west" },
+        { pregunta: "¿Qué juego te deja conducir en Night City?", respuesta: "cyberpunk 2077" },
+        { pregunta: "¿Qué juego tiene un personaje llamado Nathan Drake?", respuesta: "uncharted" },
+        { pregunta: "¿Qué juego es famoso por su modo Battlegrounds?", respuesta: "pubg" },
+        { pregunta: "¿Qué juego tiene un mundo con dioses nórdicos?", respuesta: "god of war ragnarok" },
+        { pregunta: "¿Qué juego incluye a un personaje llamado Ryu?", respuesta: "street fighter" },
+        { pregunta: "¿Qué juego tiene un modo de zombies famoso?", respuesta: "call of duty black ops" },
+        { pregunta: "¿Qué juego te permite explorar Rapture?", respuesta: "bioshock" },
+        { pregunta: "¿Qué juego tiene un personaje llamado Bayonetta?", respuesta: "bayonetta" }
+    ],
+    peliculas: [
+        { pregunta: "¿Qué película tiene a Jack Sparrow como pirata?", respuesta: "piratas del caribe" },
+        { pregunta: "¿Qué película tiene un león rey llamado Mufasa?", respuesta: "el rey león" },
+        { pregunta: "¿Qué película tiene un tiburón como antagonista principal?", respuesta: "tiburón" },
+        { pregunta: "¿Qué película incluye a un robot llamado WALL-E?", respuesta: "wall-e" },
+        { pregunta: "¿Qué película tiene un mago joven que va a Hogwarts?", respuesta: "harry potter" },
+        { pregunta: "¿Qué película tiene un superhéroe llamado Tony Stark?", respuesta: "iron man" },
+        { pregunta: "¿Qué película incluye un viaje al espacio con HAL 9000?", respuesta: "2001: odisea del espacio" },
+        { pregunta: "¿Qué película tiene un personaje llamado Darth Vader?", respuesta: "star wars" },
+        { pregunta: "¿Qué película incluye un boxeador llamado Rocky Balboa?", respuesta: "rocky" },
+        { pregunta: "¿Qué película tiene un dinosaurio llamado Rex?", respuesta: "toy story" },
+        { pregunta: "¿Qué película narra la historia del Titanic?", respuesta: "titanic" },
+        { pregunta: "¿Qué película tiene un espía llamado James Bond?", respuesta: "james bond" },
+        { pregunta: "¿Qué película incluye una ciudad subterránea llamada Zion?", respuesta: "matrix" },
+        { pregunta: "¿Qué película tiene un personaje llamado Forrest Gump?", respuesta: "forrest gump" },
+        { pregunta: "¿Qué película incluye un mago blanco llamado Gandalf?", respuesta: "el señor de los anillos" },
+        { pregunta: "¿Qué película tiene un arqueólogo llamado Indiana Jones?", respuesta: "indiana jones" },
+        { pregunta: "¿Qué película incluye un superhéroe aracnido?", respuesta: "spider-man" },
+        { pregunta: "¿Qué película tiene un mundo con sueños robados?", respuesta: "inception" },
+        { pregunta: "¿Qué película incluye un club de pelea secreto?", respuesta: "fight club" },
+        { pregunta: "¿Qué película tiene un personaje llamado Hannibal Lecter?", respuesta: "el silencio de los corderos" },
+        { pregunta: "¿Qué película tiene un león llamado Simba?", respuesta: "el rey león" },
+        { pregunta: "¿Qué película incluye un viaje en el tiempo con un DeLorean?", respuesta: "volver al futuro" },
+        { pregunta: "¿Qué película tiene un personaje llamado Bruce Wayne?", respuesta: "batman" },
+        { pregunta: "¿Qué película incluye un planeta llamado Pandora?", respuesta: "avatar" },
+        { pregunta: "¿Qué película tiene un personaje llamado John Wick?", respuesta: "john wick" },
+        { pregunta: "¿Qué película incluye un mundo con dinosaurios revividos?", respuesta: "jurassic park" },
+        { pregunta: "¿Qué película tiene un personaje llamado Woody?", respuesta: "toy story" },
+        { pregunta: "¿Qué película incluye un superhéroe con un martillo llamado Mjölnir?", respuesta: "thor" },
+        { pregunta: "¿Qué película tiene un personaje llamado Shrek?", respuesta: "shrek" },
+        { pregunta: "¿Qué película incluye una escuela de mutantes?", respuesta: "x-men" },
+        { pregunta: "¿Qué película tiene un personaje llamado Neo?", respuesta: "matrix" },
+        { pregunta: "¿Qué película incluye un viaje al centro de la Tierra?", respuesta: "viaje al centro de la tierra" },
+        { pregunta: "¿Qué película tiene un personaje llamado Elsa con poderes de hielo?", respuesta: "frozen" },
+        { pregunta: "¿Qué película tiene un personaje llamado Simba como adulto?", respuesta: "el rey león 2" },
+        { pregunta: "¿Qué película incluye un mundo con juguetes vivientes?", respuesta: "toy story" },
+        { pregunta: "¿Qué película tiene un personaje llamado Luke Skywalker?", respuesta: "star wars" },
+        { pregunta: "¿Qué película incluye un superhéroe con garras de adamantium?", respuesta: "wolverine" },
+        { pregunta: "¿Qué película tiene un personaje llamado Katniss Everdeen?", respuesta: "los juegos del hambre" },
+        { pregunta: "¿Qué película incluye un mundo con máquinas rebeldes?", respuesta: "terminator" },
+        { pregunta: "¿Qué película tiene un personaje llamado Marty McFly?", respuesta: "volver al futuro" }
+    ],
+    disney: [
+        { pregunta: "¿Qué princesa tiene poderes de hielo?", respuesta: "elsa" },
+        { pregunta: "¿Qué princesa tiene una madrastra llamada Lady Tremaine?", respuesta: "cenicienta" },
+        { pregunta: "¿Qué película Disney tiene un pez llamado Nemo?", respuesta: "buscando a nemo" },
+        { pregunta: "¿Qué personaje Disney es un pato gruñón?", respuesta: "donald" },
+        { pregunta: "¿Qué película Disney tiene una lámpara mágica?", respuesta: "aladdín" },
+        { pregunta: "¿Qué película Disney tiene un rey león llamado Simba?", respuesta: "el rey león" },
+        { pregunta: "¿Qué princesa Disney vive bajo el mar?", respuesta: "ariel" },
+        { pregunta: "¿Qué personaje Disney es un ratón famoso?", respuesta: "mickey" },
+        { pregunta: "¿Qué película Disney tiene una bestia encantada?", respuesta: "la bella y la bestia" },
+        { pregunta: "¿Qué película Disney incluye un perro callejero y una dama?", respuesta: "la dama y el vagabundo" },
+        { pregunta: "¿Qué película Disney tiene un elefante con orejas grandes?", respuesta: "dumbo" },
+        { pregunta: "¿Qué princesa Disney duerme por un hechizo?", respuesta: "aurora" },
+        { pregunta: "¿Qué película Disney tiene un gato llamado Cheshire?", respuesta: "alicia en el país de las maravillas" },
+        { pregunta: "¿Qué personaje Disney es un pato con suerte?", respuesta: "pato donald" },
+        { pregunta: "¿Qué película Disney tiene un ciervo llamado Bambi?", respuesta: "bambi" },
+        { pregunta: "¿Qué princesa Disney tiene un cabello muy largo?", respuesta: "rapunzel" },
+        { pregunta: "¿Qué película Disney incluye un tigre llamado Rajah?", respuesta: "aladdín" },
+        { pregunta: "¿Qué personaje Disney es un perro fiel?", respuesta: "pluto" },
+        { pregunta: "¿Qué película Disney tiene un jabalí llamado Pumba?", respuesta: "el rey león" },
+        { pregunta: "¿Qué princesa Disney usa un arco y flecha?", respuesta: "mérida" },
+        { pregunta: "¿Qué película Disney tiene un conejo blanco?", respuesta: "alicia en el país de las maravillas" },
+        { pregunta: "¿Qué personaje Disney es un ganso torpe?", respuesta: "goofy" },
+        { pregunta: "¿Qué película Disney incluye un cocodrilo que hace tic-tac?", respuesta: "peter pan" },
+        { pregunta: "¿Qué princesa Disney se disfraza de hombre para pelear?", respuesta: "mulán" },
+        { pregunta: "¿Qué película Disney tiene un zorro llamado Robin Hood?", respuesta: "robin hood" },
+        { pregunta: "¿Qué personaje Disney es un grillo consejero?", respuesta: "pepe grillo" },
+        { pregunta: "¿Qué película Disney incluye un mapache llamado Meeko?", respuesta: "pocahontas" },
+        { pregunta: "¿Qué princesa Disney ama los libros?", respuesta: "bella" },
+        { pregunta: "¿Qué película Disney tiene un cachorro llamado Bolt?", respuesta: "bolt" },
+        { pregunta: "¿Qué personaje Disney es un mono amigo de Aladdín?", respuesta: "abu" },
+        { pregunta: "¿Qué película Disney tiene un pájaro llamado Zazu?", respuesta: "el rey león" },
+        { pregunta: "¿Qué princesa Disney tiene un zapato de cristal?", respuesta: "cenicienta" },
+        { pregunta: "¿Qué película Disney incluye un dragón llamado Mushu?", respuesta: "mulán" },
+        { pregunta: "¿Qué personaje Disney es un ratón detective?", respuesta: "basil" },
+        { pregunta: "¿Qué película Disney tiene un pez llamado Dory?", respuesta: "buscando a dory" },
+        { pregunta: "¿Qué princesa Disney tiene un vestido azul?", respuesta: "cenicienta" },
+        { pregunta: "¿Qué película Disney incluye un genio azul?", respuesta: "aladdín" },
+        { pregunta: "¿Qué personaje Disney es un búho sabio?", respuesta: "archimedes" },
+        { pregunta: "¿Qué película Disney tiene un cachorro llamado 101?", respuesta: "101 dálmatas" },
+        { pregunta: "¿Qué princesa Disney canta con animales?", respuesta: "blancanieves" }
+    ],
+    matematicas: [
+        { pregunta: "¿Cuánto es 5 + 7?", respuesta: "12" },
+        { pregunta: "¿Cuál es el resultado de 3 x 4?", respuesta: "12" },
+        { pregunta: "¿Cuánto es 15 - 6?", respuesta: "9" },
+        { pregunta: "¿Qué número es el doble de 8?", respuesta: "16" },
+        { pregunta: "¿Cuánto es 20 ÷ 4?", respuesta: "5" },
+        { pregunta: "¿Cuál es el resultado de 9 + 11?", respuesta: "20" },
+        { pregunta: "¿Qué número es la mitad de 10?", respuesta: "5" },
+        { pregunta: "¿Cuánto es 7 x 3?", respuesta: "21" },
+        { pregunta: "¿Cuál es el resultado de 25 - 13?", respuesta: "12" },
+        { pregunta: "¿Cuánto es 6 + 8?", respuesta: "14" },
+        { pregunta: "¿Cuál es el resultado de 4 x 5?", respuesta: "20" },
+        { pregunta: "¿Cuánto es 18 - 9?", respuesta: "9" },
+        { pregunta: "¿Qué número es el triple de 3?", respuesta: "9" },
+        { pregunta: "¿Cuánto es 30 ÷ 5?", respuesta: "6" },
+        { pregunta: "¿Cuál es el resultado de 12 + 15?", respuesta: "27" },
+        { pregunta: "¿Cuánto es 8 x 2?", respuesta: "16" },
+        { pregunta: "¿Cuál es el resultado de 50 - 25?", respuesta: "25" },
+        { pregunta: "¿Qué número es la mitad de 14?", respuesta: "7" },
+        { pregunta: "¿Cuánto es 9 x 4?", respuesta: "36" },
+        { pregunta: "¿Cuánto es 100 ÷ 10?", respuesta: "10" },
+        { pregunta: "¿Cuánto es 13 + 7?", respuesta: "20" },
+        { pregunta: "¿Cuál es el resultado de 6 x 6?", respuesta: "36" },
+        { pregunta: "¿Cuánto es 40 - 15?", respuesta: "25" },
+        { pregunta: "¿Qué número es el doble de 12?", respuesta: "24" },
+        { pregunta: "¿Cuánto es 18 ÷ 3?", respuesta: "6" },
+        { pregunta: "¿Cuál es el resultado de 14 + 9?", respuesta: "23" },
+        { pregunta: "¿Qué número es la mitad de 16?", respuesta: "8" },
+        { pregunta: "¿Cuánto es 5 x 9?", respuesta: "45" },
+        { pregunta: "¿Cuál es el resultado de 33 - 17?", respuesta: "16" },
+        { pregunta: "¿Cuánto es 7 + 13?", respuesta: "20" },
+        { pregunta: "¿Cuál es el resultado de 8 x 5?", respuesta: "40" },
+        { pregunta: "¿Cuánto es 24 - 12?", respuesta: "12" },
+        { pregunta: "¿Qué número es el triple de 4?", respuesta: "12" },
+        { pregunta: "¿Cuánto es 45 ÷ 9?", respuesta: "5" },
+        { pregunta: "¿Cuál es el resultado de 19 + 6?", respuesta: "25" },
+        { pregunta: "¿Cuánto es 11 + 8?", respuesta: "19" },
+        { pregunta: "¿Cuál es el resultado de 7 x 6?", respuesta: "42" },
+        { pregunta: "¿Cuánto es 60 - 35?", respuesta: "25" },
+        { pregunta: "¿Qué número es el doble de 15?", respuesta: "30" },
+        { pregunta: "¿Cuánto es 21 ÷ 7?", respuesta: "3" },
+        { pregunta: "¿Cuál es el resultado de 16 + 14?", respuesta: "30" },
+        { pregunta: "¿Qué número es la mitad de 18?", respuesta: "9" },
+        { pregunta: "¿Cuánto es 10 x 3?", respuesta: "30" },
+        { pregunta: "¿Cuál es el resultado de 28 - 19?", respuesta: "9" },
+        { pregunta: "¿Cuánto es 9 + 17?", respuesta: "26" }
+    ],
+};// Palabras aleatorias para el juego de reacciones
 
-// Palabras aleatorias para el juego de reacciones
-const palabrasAleatorias = generarPalabrasAleatorias(500);
+const palabrasAleatorias = [
+    "genial", "cool", "bravo", "sí", "nope", "wow", "jaja", "bien", "mal", "top",
+    "luz", "estrella", "risa", "fuego", "agua", "nube", "sol", "luna", "cielo", "tierra",
+    "rápido", "lento", "fuerte", "débil", "alto", "bajo", "calor", "frío", "dulce", "salado",
+    "gato", "perro", "pájaro", "pez", "oso", "tigre", "león", "mono", "elefante", "jirafa",
+    "rojo", "azul", "verde", "amarillo", "negro", "blanco", "rosa", "violeta", "naranja", "gris",
+    "casa", "árbol", "río", "montaña", "playa", "bosque", "desierto", "ciudad", "pueblo", "camino",
+    "feliz", "triste", "enojado", "calmo", "cansado", "vivo", "raro", "simple", "duro", "suave",
+    "chévere", "pana", "vaina", "cacha", "webada", "bacán", "tranqui", "locura", "suerte", "fácil",
+    "noche", "día", "sombra", "brisa", "lluvia", "nieve", "trueno", "rayo", "mar", "arena",
+    "piedra", "roca", "valle", "cerro", "lago", "isla", "puente", "calle", "puerta", "ventana",
+    "ratón", "lobo", "zorro", "ciervo", "águila", "búho", "serpiente", "rana", "canguro", "koala",
+    "tortuga", "ballena", "delfín", "pulpo", "medusa", "araña", "hormiga", "abejorro", "mariposa", "grillo",
+    "celeste", "turquesa", "dorado", "plateado", "marrón", "beige", "lila", "índigo", "coral", "crema",
+    "alegría", "miedo", "sorpresa", "duda", "paz", "guerra", "sueño", "despertar", "silencio", "ruido",
+    "caliente", "helado", "seco", "húmedo", "claro", "oscuro", "pesado", "ligero", "largo", "corto",
+    "zapato", "camisa", "pantalón", "sombrero", "bufanda", "guante", "bolsa", "libro", "lápiz", "papel",
+    "mesa", "silla", "cama", "almohada", "espejo", "reloj", "lámpara", "vela", "flor", "fruta",
+    "pan", "queso", "carne", "pescado", "arroz", "sopa", "torta", "helado", "jugo", "café",
+    "rana", "salto", "brinco", "sal", "azúcar", "pimienta", "limón", "naranja", "manzana", "pera",
+    "sol", "luna", "estrella", "nube", "viento", "tormenta", "relámpago", "trueno", "arcoíris", "niebla",
+    "montaña", "volcán", "cueva", "selva", "pantano", "prado", "colina", "orilla", "borde", "camino",
+    "rápido", "veloz", "prisa", "tarde", "temprano", "ahora", "nunca", "siempre", "ayer", "mañana",
+    "roca", "piedra", "arena", "polvo", "barro", "hielo", "cristal", "metal", "madera", "plástico",
+    "baila", "canta", "corre", "salta", "nada", "vuela", "grita", "susurra", "ríe", "llora",
+    "suerte", "azar", "destino", "casualidad", "milagro", "misterio", "secreto", "adivinanza", "enigma", "truco",
+    "fiesta", "juego", "cuento", "canción", "poema", "sueño", "recuerdo", "olvido", "esperanza", "fe",
+    "brillo", "chispa", "fuego", "ceniza", "humo", "llama", "calor", "vapor", "frío", "nieve",
+    "ola", "corriente", "marea", "espuma", "burbuja", "gota", "río", "lago", "mar", "océano",
+    "bosque", "selva", "prado", "desierto", "pantano", "cueva", "montaña", "valle", "colina", "abismo"
+];
 
 // Frases para PPM
-const frasesPPM = generarFrasesPPM(500);
-
+const frasesPPM = [
+    "el rápido zorro marrón salta sobre el perro perezoso",
+    "la vida es como una caja de chocolates nunca sabes qué te va a tocar",
+    "un pequeño paso para el hombre un gran salto para la humanidad",
+    "el sol brilla más fuerte cuando estás feliz y rodeado de amigos",
+    "la práctica hace al maestro no lo olvides nunca en tu camino",
+    "el río corre tranquilo bajo el puente de piedra antigua",
+    "una abeja zumba alegre mientras recoge néctar de las flores",
+    "el viento susurra secretos entre las hojas verdes del bosque",
+    "la luna llena ilumina la noche con un brillo plateado mágico",
+    "un gato negro cruza el callejón bajo la luz de un farol",
+    "el café caliente despierta los sentidos en una mañana fría",
+    "las olas del mar chocan contra las rocas con fuerza y espuma",
+    "un pájaro canta al amanecer anunciando un nuevo día brillante",
+    "la nieve cae suave sobre las montañas en un silencio helado",
+    "el tren avanza rápido por las vías dejando atrás el pueblo",
+    "una sonrisa sincera puede cambiar el día de cualquiera",
+    "el reloj marca las horas mientras el mundo sigue girando",
+    "la lluvia golpea las ventanas en una tarde gris y tranquila",
+    "un niño corre feliz persiguiendo una cometa en el parque",
+    "el desierto guarda misterios bajo su arena dorada y caliente",
+    "el ceviche fresco en la playa es lo mejor pa’l alma costeña",
+    "un mono curioso salta entre las ramas buscando su comida",
+    "la brisa del mar acaricia la cara en un día de verano",
+    "el gallo canta fuerte pa’ despertar al pueblo entero",
+    "una tortuga cruza lento el camino sin mirar pa’ los lados",
+    "el sol se esconde tras las montañas pintando el cielo naranja",
+    "un perro juega con su pelota en el patio bajo el sol",
+    "la selva guarda secretos que solo los valientes descubren",
+    "un pescador lanza su red al mar con esperanza en los ojos",
+    "el olor a pan recién horneado llena la casa de alegría",
+    "una estrella fugaz cruza el cielo y alguien pide un deseo",
+    "el mercado bulle con voces y colores en la mañana",
+    "un caballo galopa libre por la llanura sin fin",
+    "la fogata crepita mientras las historias se cuentan",
+    "un delfín salta juguetón entre las olas del océano",
+    "el silencio de la noche solo lo rompe el canto del grillo",
+    "una flor abre sus pétalos al primer rayo de sol",
+    "el tren silba fuerte mientras cruza el puente viejo",
+    "un niño pinta su sueño en un papel con crayones",
+    "la ciudad brilla con luces al caer la tarde",
+    "un águila vuela alto buscando su próxima presa",
+    "el aroma del café sube desde la taza en la mesa",
+    "una ola gigante rompe contra el malecón con fuerza",
+    "el viento mueve las palmeras en un baile tropical",
+    "un loro parlanchín repite todo lo que escucha",
+    "la luna refleja su luz en el lago como un espejo",
+    "un viejo pescador remienda su red bajo el sol",
+    "el tambor suena fuerte en la fiesta del pueblo",
+    "una mariposa vuela libre entre las flores del campo",
+    "el reloj de la iglesia marca el paso del tiempo",
+    "un cangrejo corre rápido pa’ esconderse en la arena",
+    "la lluvia refresca la tierra seca después de días",
+    "un colibrí zumba rápido chupando néctar de una flor",
+    "el faro guía a los barcos en la noche oscura",
+    "una cometa sube alto con el viento a su favor",
+    "el humo sube lento desde la chimenea del rancho",
+    "un zorro astuto acecha en el bosque al anochecer",
+    "la playa se llena de risas y juegos al mediodía",
+    "un búho observa todo desde lo alto de un árbol",
+    "el río canta mientras corre entre las piedras lisas",
+    "una guitarra suena suave en la noche estrellada",
+    "el sol calienta la espalda de los que trabajan la tierra",
+    "un niño sopla burbujas que flotan por el aire",
+    "la sombra de las nubes corre sobre el valle verde",
+    "un pez salta fuera del agua pa’ volver a caer",
+    "el mercado huele a frutas frescas y pescado salado",
+    "una vaca pasta tranquila en el campo abierto",
+    "el relámpago corta el cielo antes del gran trueno",
+    "un camión pasa rápido por la carretera polvorienta",
+    "la brisa mueve las cortinas de la ventana abierta",
+    "un perro ladra fuerte pa’ avisar que alguien llega",
+    "el atardecer pinta el mar de rojo y dorado",
+    "una hormiga lleva una hoja más grande que ella",
+    "el gallo despierta al pueblo con su canto alegre",
+    "un barco navega lento por el río al amanecer",
+    "la nieve cubre los tejados en un silencio blanco",
+    "un gato duerme tranquilo en el tejado caliente",
+    "el viento lleva el olor a sal del mar lejano",
+    "una rana salta al agua pa’ escapar del peligro",
+    "el sol sube lento sobre el horizonte del campo",
+    "un niño corre tras una pelota bajo el sol ardiente",
+    "la luna brilla fuerte en un cielo sin nubes",
+    "un pescador lanza su anzuelo con calma y paciencia",
+    "el aroma a mango maduro llena el aire del patio",
+    "una paloma vuela libre sobre la plaza del pueblo",
+    "el río refleja las estrellas en una noche clara",
+    "un caballo relincha mientras corre por el prado",
+    "la lluvia moja las hojas que caen del árbol",
+    "un pájaro teje su nido con ramitas del bosque",
+    "el sol seca la ropa colgada en el tendedero",
+    "una ardilla guarda nueces pa’l invierno frío",
+    "el mar ruge fuerte en una tormenta salvaje",
+    "un niño dibuja el sol con crayones amarillos",
+    "la brisa refresca el calor de la tarde pesada",
+    "un perro corre feliz tras un palo en la playa",
+    "el cielo se llena de colores al caer el sol",
+    "una abeja vuela rápido buscando más flores",
+    "el tren pasa silbando por el pueblo dormido",
+    "un gato cazador acecha bajo la luz de la luna"
+];
 
 // Estado
 let instanceId = uuidv4();
