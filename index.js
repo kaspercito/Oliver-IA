@@ -1274,6 +1274,14 @@ manager.on('nodeConnect', node => console.log(`Nodo ${node.options.identifier} c
 manager.on('nodeError', (node, error) => console.error(`Error en nodo ${node.options.identifier}: ${error.message}`));
 manager.on('trackStart', async (player, track) => {
     const channel = client.channels.cache.get(player.textChannel);
+    const guildId = player.guild;
+    
+    // Guardar el identifier del track actual
+    dataStore.musicSessions[guildId] = dataStore.musicSessions[guildId] || {};
+    dataStore.musicSessions[guildId].lastTrackIdentifier = track.identifier;
+    dataStoreModified = true;
+    console.log(`Track started: ${track.title}, identifier saved: ${track.identifier}`);
+
     if (channel) {
         const embed = createEmbed('#00FF00', '▶️ ¡Reproduciendo ahora!',
             `**${track.title}**\nDuración: ${Math.floor(track.duration / 60000)}:${((track.duration % 60000) / 1000).toFixed(0).padStart(2, '0')}`)
