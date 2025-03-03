@@ -1069,6 +1069,7 @@ async function manejarLyrics(message) {
         await waitingMessage.edit({ embeds: [createEmbed('#FF5555', '¡Ups!', `No pude encontrar las letras de "${songTitle}", ${userName}. Puede ser que no esté en Genius o hubo un error: ${error.message}`)] });
     }
 }
+
 // Chat
 async function manejarChat(message) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
@@ -1599,41 +1600,28 @@ client.on('messageCreate', async (message) => {
     if (![OWNER_ID, ALLOWED_USER_ID].includes(message.author.id)) return;
 
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
+    const content = message.content.toLowerCase(); // Declaramos 'content' solo aquí
 
-    // Detectar uso excesivo de mayúsculas
-    const content = message.content;
-    const lettersOnly = content.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ]/g, ''); // Solo letras
-    if (lettersOnly.length > 5) { // Mínimo 5 letras para evitar falsos positivos
+    // Detectar uso excesivo de mayúsculas (si lo implementaste antes)
+    const lettersOnly = message.content.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ]/g, '');
+    if (lettersOnly.length > 5) {
         const uppercaseCount = lettersOnly.split('').filter(char => char === char.toUpperCase()).length;
         const uppercasePercentage = (uppercaseCount / lettersOnly.length) * 100;
-
-        if (uppercasePercentage >= 80) { // Si el 80% o más son mayúsculas
+        if (uppercasePercentage >= 80) {
             try {
-                // Eliminar el mensaje
                 await message.delete();
-
-                // Mutear al usuario (timeout por 5 minutos como ejemplo)
                 const member = message.guild.members.cache.get(message.author.id);
                 if (member && message.guild.members.me.permissions.has('MODERATE_MEMBERS')) {
-                    await member.timeout(5 * 60 * 1000, 'Uso excesivo de mayúsculas'); // 5 minutos
+                    await member.timeout(5 * 60 * 1000, 'Uso excesivo de mayúsculas');
                     await message.channel.send({ 
                         embeds: [createEmbed('#FF5555', '⛔ ¡Calma, pana!', 
                             `${userName}, no grites tanto, ¿sí? Te muteé 5 minutos por usar muchas mayúsculas.`)] 
                     });
-                } else {
-                    await message.channel.send({ 
-                        embeds: [createEmbed('#FF5555', '⛔ ¡Ups!', 
-                            `${userName}, usaste muchas mayúsculas, pero no tengo permisos para mutearte.`)] 
-                    });
                 }
             } catch (error) {
                 console.error('Error al mutear:', error.message);
-                await message.channel.send({ 
-                    embeds: [createEmbed('#FF5555', '⛔ Error', 
-                        `No pude mutear a ${userName}: ${error.message}`)] 
-                });
             }
-            return; // Salir del evento para no procesar más el mensaje
+            return;
         }
     }
 
@@ -1641,9 +1629,10 @@ client.on('messageCreate', async (message) => {
     processedMessages.set(message.id, Date.now());
     setTimeout(() => processedMessages.delete(message.id), 10000);
 
-    await manejarCommand(message);
+    // Pasamos 'content' a las funciones que lo necesiten
+    await manejarCommand(message, content);
 
-    const content = message.content.toLowerCase();
+    // Comandos ranking
     if (content === '!ranking' || content === '!rk') {
         const embed = getCombinedRankingEmbed(message.author.id, message.author.username);
         await message.channel.send({ embeds: [embed] });
