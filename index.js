@@ -482,6 +482,7 @@ let instanceId = uuidv4();
 let activeTrivia = new Map();
 let sentMessages = new Map();
 let processedMessages = new Map();
+// Estado inicial
 let dataStore = { 
     conversationHistory: {}, 
     triviaRanking: {}, 
@@ -490,7 +491,7 @@ let dataStore = {
     reactionWins: {}, 
     activeSessions: {}, 
     triviaStats: {},
-    musicSessions: {}, // Nueva propiedad para sesiones de música
+    musicSessions: {}, // Asegurado desde el inicio
 };
 let dataStoreModified = false;
 
@@ -545,7 +546,6 @@ async function generateImage(prompt) {
     }
 }
 
-// Persistencia en GitHub (sin cambios, solo se incluye para contexto)
 async function loadDataStore() {
     try {
         const response = await axios.get(
@@ -561,9 +561,14 @@ async function loadDataStore() {
             reactionWins: {}, 
             activeSessions: {}, 
             triviaStats: {},
-            musicSessions: {}, // Añadido
+            musicSessions: {}, // Asegurado en caso de JSON vacío
             updatesSent: false
         };
+        // Asegurar que musicSessions esté presente incluso si no está en el JSON cargado
+        if (!loadedData.musicSessions) {
+            loadedData.musicSessions = {};
+        }
+        console.log('Datos cargados desde GitHub con musicSessions asegurado');
         return loadedData;
     } catch (error) {
         console.error('Error al cargar datos desde GitHub:', error.message);
@@ -575,7 +580,7 @@ async function loadDataStore() {
             reactionWins: {}, 
             activeSessions: {}, 
             triviaStats: {},
-            musicSessions: {},
+            musicSessions: {}, // Asegurado en caso de error
             updatesSent: false
         };
     }
@@ -1031,6 +1036,11 @@ async function manejarPlay(message) {
     console.log(`Añadiendo pista: ${track.title}`);
     player.queue.add(track);
     
+    // Asegurar que musicSessions exista antes de asignar
+    if (!dataStore.musicSessions) {
+        dataStore.musicSessions = {};
+        console.log('musicSessions no estaba definido, inicializado en manejarPlay');
+    }
     console.log(`Guardando en musicSessions para guild ${message.guild.id}`);
     dataStore.musicSessions[message.guild.id] = { current: track.title, queue: player.queue.map(t => t.title) };
     dataStoreModified = true;
@@ -1289,6 +1299,11 @@ client.once('ready', async () => {
     dataStore = await loadDataStore();
     activeTrivia = new Map(Object.entries(dataStore.activeSessions).filter(([_, s]) => s.type === 'trivia'));
     manager.init(client.user.id); // Inicializar Erela.js
+    // Verificación adicional después de cargar
+    if (!dataStore.musicSessions) {
+        dataStore.musicSessions = {};
+        console.log('musicSessions no estaba presente, inicializado manualmente');
+    }
     try {
         const channel = await client.channels.fetch(CHANNEL_ID);
         if (!channel) throw new Error('Canal no encontrado');
