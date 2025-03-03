@@ -68,6 +68,18 @@
         {
           "ppm": 57,
           "timestamp": "2025-03-03T12:15:23.671Z"
+        },
+        {
+          "ppm": 50,
+          "timestamp": "2025-03-03T12:34:39.668Z"
+        },
+        {
+          "ppm": 70,
+          "timestamp": "2025-03-03T12:34:59.287Z"
+        },
+        {
+          "ppm": 59,
+          "timestamp": "2025-03-03T12:35:20.872Z"
         }
       ]
     }
@@ -76,7 +88,7 @@
   "reactionWins": {
     "1023132788632862761": {
       "username": "dearluz",
-      "wins": 30
+      "wins": 31
     },
     "752987736759205960": {
       "username": "kaspercito",
@@ -125,8 +137,8 @@
         "total": 20
       },
       "disney": {
-        "correct": 12,
-        "total": 18
+        "correct": 26,
+        "total": 36
       }
     }
   },
