@@ -26,10 +26,10 @@ const CHANNEL_ID = '1343749554905940058'; // Canal principal
 const manager = new Manager({
     nodes: [
         {
-            host: 'lava-v3.ajieblogs.eu.org',
-            port: 443,
-            password: 'https://dsc.gg/ajidevserver',
-            secure: true,
+            host: 'lavalink.oops.wtf', // Nodo público confiable
+            port: 2333,
+            password: 'www.freelavalink.ga',
+            secure: false,
         },
     ],
     plugins: [
