@@ -26,9 +26,9 @@ const CHANNEL_ID = '1343749554905940058'; // Canal principal
 const manager = new Manager({
     nodes: [
         {
-            host: 'lavahatry4.techbyte.host', // Nodo público confiable
-            port: 3000,
-            password: 'NAIGLAVA-dash.techbyte.host',
+            host: 'lava-v3.ajieblogs.eu.org', // Nodo público confiable
+            port: 80,
+            password: 'https://dsc.gg/ajidevserve',
             secure: false,
         },
     ],
