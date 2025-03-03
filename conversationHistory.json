@@ -125,9 +125,9 @@
         "total": 20
       },
       "disney": {
-        "correct": 9,
-        "total": 21
-      },
+        "correct": 12,
+        "total": 18
+      }
     }
   },
   "updatesSent": true,
