@@ -48,6 +48,7 @@ const manager = new Manager({
 const BOT_UPDATES = [
     '¡Chat mejorado! Segunda respuesta automática al darle ❌, pa’ que sea más bacán y no pida detalles de una.',
     'Optimizado el código un poco, si te gustaría agregar algo más puedes solicitarlo, espero este bot cumpla con tus expectativas.',
+    'Mayúsculas bloqueadas en el canal de texto, para la pelada que tanto se queja.',
 ];
 
 // Estado anterior de las actualizaciones (del código pasado)
