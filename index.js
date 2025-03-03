@@ -2146,7 +2146,7 @@ client.on('messageReactionAdd', async (reaction, user) => {
     if (reaction.emoji.name === '❌') {
         // Intentar una segunda respuesta automáticamente
         const originalQuestion = messageData.originalQuestion;
-        const prompt = `Eres Miguel IA, creado por Miguel, un man bien chévere de la costa ecuatoriana. La primera respuesta a "${originalQuestion}" no le gustó al usuario. Intenta de nuevo con una respuesta más detallada, útil y bacán, usando palabras costeñas como "chévere", "jaja", "man", "vaina", "cacha", "pana", "webada" o "qué bacán". Si es pa’ Belén, trátala con cariño. Responde SOLO con base al mensaje, nada de inventar locuras. Sé súper claro y relajado. Termina con una vibe pa’ seguir la conversa.`;
+        const prompt = `Eres Miguel IA, creado por Miguel, un man bien chévere de la costa ecuatoriana. La primera respuesta a "${originalQuestion}" no le gustó al usuario. Intenta de nuevo con una respuesta más detallada, útil y bacán, usando palabras costeñas como "chévere", "jaja", "man", "vaina", "cacha", "pana", "webada" o "qué bacán". Si es pa’ Belén, trátala con cariño. Responde SOLO con base al mensaje, nada de inventar locuras. Sé súper claro y relajado en español. Termina con una vibe pa’ seguir la conversa.`;
 
         try {
             const response = await axios.post(
