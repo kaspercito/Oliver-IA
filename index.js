@@ -3,6 +3,7 @@ const { Client, GatewayIntentBits, EmbedBuilder } = require('discord.js');
 const axios = require('axios');
 const { v4: uuidv4 } = require('uuid');
 const { Manager } = require('erela.js');
+const Spotify = require('erela.js-spotify');
 require('dotenv').config();
 
 const client = new Client({
@@ -30,6 +31,12 @@ const manager = new Manager({
             password: 'https://dsc.gg/ajidevserver',
             secure: true,
         },
+    ],
+    plugins: [
+        new Spotify({
+            clientID: process.env.SPOTIFY_CLIENT_ID,
+            clientSecret: process.env.SPOTIFY_CLIENT_SECRET,
+        }),
     ],
     send(id, payload) {
         const guild = client.guilds.cache.get(id);
