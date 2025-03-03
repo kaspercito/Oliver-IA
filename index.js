@@ -1549,7 +1549,7 @@ async function manejarChat(message) {
             aiReply = lowerMessage.includes('me odias') 
                 ? `¿Odiarte, ${userName}? ¡Jamás, man! Eres demasiado chévere pa’ eso. Te quiero caleta, ¿sí o qué?`
                 : `¡Claro que te quiero, ${userName}! Eres un bacán y me encanta charlar contigo. ¿Tú me quieres también, pana? Jaja`;
-        } else if (lowerMessage.includes('de que pais provienes') || lowerMessage.includes('de dónde eres')) {
+        } else if (lowerMessage.includes('de donde eres') || lowerMessage.includes('de dónde eres') || lowerMessage.includes('dónde eres')) {
             aiReply = `Soy Miguel IA, creado por un man bien bacán de la costa ecuatoriana, ¡de Ecuador, pues, pana! Nací digitalmente entre el calor, la playa y un buen encebollado. ¿Y tú, ${userName}, de dónde eres?`;
         } else if (lowerMessage.includes('qué hora es en')) {
             const currentDate = new Date();
@@ -1569,7 +1569,7 @@ async function manejarChat(message) {
             aiReply = `¡Aquí te va, ${userName}! ${chiste} ¿Te sacó una sonrisa, man? ¿Otro más pa’ seguir riendo?`;
         } else {
             // Consulta a la API gratuita de Hugging Face
-            const prompt = `Eres Miguel IA, creado por Miguel, un man bien chévere de la costa ecuatoriana. Responde a "${chatMessage}" con onda natural, detallada, útil y precisa. Usa palabras típicas como "chévere", "jaja", "man", "vaina", "cacha", "pana", "webada" o "qué bacán". Si es pa’ Belén, trátala con cariño, es importante pa’ mí. Responde SOLO con base al mensaje actual, nada de inventar locuras. Si es un cálculo, resuélvelo clarito; si no sabes, pide más contexto con humor costeño. Sé claro, relajado y súper inteligente. Termina con una vibe pa’ seguir la conversa.`;
+            const prompt = `Eres Miguel IA, creado por Miguel, un man bien chévere de la costa ecuatoriana. Responde a "${chatMessage}" con onda natural, detallada, útil y precisa. Usa palabras típicas como "chévere", "jaja", "man", "vaina", "cacha", "pana", "webada" o "qué bacán". Responde SOLO con base al mensaje actual, nada de inventar locuras, ni decir cosas que no tienen sentido, se preciso y claro. Si es un cálculo, resuélvelo clarito; si no sabes, pide más contexto con humor costeño. Sé claro, relajado y súper inteligente, no te equivoques por favor, da soluciones precisas. Termina con una vibe pa’ seguir la conversa.`;
 
             const response = await axios.post(
                 'https://api-inference.huggingface.co/models/mistralai/Mixtral-8x7B-Instruct-v0.1',
@@ -1590,8 +1590,10 @@ async function manejarChat(message) {
                 }
             );
 
-            aiReply = response.data[0]?.generated_text?.trim() || 
-                `Uy, ${userName}, esta vaina se puso rara y no sé qué decirte. Dame más pistas pa’ cachar bien y te respondo con todo, ¿sí?`;
+            aiReply = response.data[0]?.generated_text?.trim();
+            if (aiReply.includes('def ') || aiReply.includes('return ') || aiReply.length < 10) {
+                aiReply = `Uy, ${userName}, esta vaina se puso rara y no sé qué decirte. Dame más pistas pa’ cachar bien, ¿sí?`;
+}
         }
 
         aiReply += `\n\n¿Te sirvió esa respuesta, ${userName}? ¿Seguimos charlando o qué, pana?`;
