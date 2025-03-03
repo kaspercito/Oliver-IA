@@ -1530,8 +1530,8 @@ async function manejarChat(message) {
     const waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
 
     try {
-        // Prompt ultra enfocado y en español
-        const prompt = `Eres Miguel IA, un compa chévere de la costa ecuatoriana. Responde SOLO a "${chatMessage}" en español, con onda natural y precisa, usando palabras costeñas como "chévere", "man", "pana", "qué bacán". Contesta exactamente lo que te preguntan, sin inventar datos, agregar historias ni desviarte del tema. Si no sabes algo exacto (como el clima actual), da una respuesta aproximada basada en lo que sabes o pide más contexto con humor. Termina con "¿Te cacha esa respuesta, ${userName}? ¿Seguimos charlando o qué, pana?".`;
+        // Prompt ultra enfocado y sin inventos
+        const prompt = `Eres Miguel IA, un compa chévere de la costa ecuatoriana. Responde SOLO a "${chatMessage}" en español costeño, con onda natural y precisa, usando palabras como "chévere", "man", "pana", "qué bacán". NO INVENTES NADA, contesta exactamente lo que te preguntan con lo que sabes, sin agregar historias, datos falsos ni desviarte. Si no tienes info exacta (como el clima actual), da una respuesta aproximada basada en conocimiento general o pide más contexto con humor. Termina con "¿Te cacha esa respuesta, ${userName}? ¿Seguimos charlando o qué, pana?".`;
 
         // Consulta a la API de Hugging Face
         const response = await axios.post(
@@ -1539,9 +1539,9 @@ async function manejarChat(message) {
             {
                 inputs: prompt,
                 parameters: {
-                    max_new_tokens: 300, // Respuestas más cortas y enfocadas
+                    max_new_tokens: 400, // Espacio para respuestas completas pero enfocadas
                     return_full_text: false, // Solo la respuesta
-                    temperature: 0.7 // Natural pero preciso
+                    temperature: 0.7 // Natural y preciso
                 }
             },
             {
@@ -1588,7 +1588,7 @@ async function manejarChat(message) {
 
     } catch (error) {
         console.error('Error en !chat con API:', error.message);
-        const errorMessage = `¡Qué webada, ${userName}! Algo falló, man (${error.message}). Aquí estoy pa’ charlar igual, ¿me repites tu pregunta o pasamos a otra cosa?`;
+        const errorMessage = `¡Qué webada, ${userName}! Algo falló, man (${error.message}). Aquí estoy pa’ charlar igual, ¿me repites tu pregunta o seguimos con otra vaina?`;
         const errorEmbed = createEmbed('#FF5555', '¡Qué webada!', `${errorMessage}\n\n¿Te cacha esa respuesta, ${userName}? ¿Seguimos charlando o qué, pana?`, 'Con cariño, Miguel IA | Reacciona con ✅ o ❌');
         const errorMessageSent = await waitingMessage.edit({ embeds: [errorEmbed] });
         await errorMessageSent.react('✅');
