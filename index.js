@@ -1280,6 +1280,8 @@ client.on('messageCreate', async (message) => {
     }
 });
 
+// ... (Todo el código hasta client.on('messageReactionAdd', ...) остается igual)
+
 // Eventos
 client.once('ready', async () => {
     console.log(`¡Miguel IA está listo! Instancia: ${instanceId}`);
@@ -1346,7 +1348,12 @@ client.on('messageReactionAdd', async (reaction, user) => {
             console.error('Error al notificar al dueño:', error);
         }
     }
-    client.on('raw', (d) => manager.updateVoiceState(d));
+});
+
+// Mover el evento 'raw' fuera de 'messageReactionAdd'
+client.on('raw', (d) => {
+    console.log('Evento raw recibido:', d.t); // Log para depurar eventos raw
+    manager.updateVoiceState(d);
 });
 
 client.login(process.env.DISCORD_TOKEN);
