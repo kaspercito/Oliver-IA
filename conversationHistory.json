@@ -42,7 +42,7 @@
     },
     "752987736759205960": {
       "username": "kaspercito",
-      "wins": 23
+      "wins": 24
     }
   },
   "activeSessions": {},
@@ -80,5 +80,6 @@
       "total": 10
     }
   },
-  "updatesSent": true
+  "updatesSent": true,
+  "musicSessions": {}
 }
