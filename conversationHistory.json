@@ -26,6 +26,9 @@
       "capitales": {
         "score": 7
       },
+      "matematicas": {
+        "score": 14
+      }
     }
   },
   "personalPPMRecords": {
@@ -61,6 +64,10 @@
         {
           "ppm": 75,
           "timestamp": "2025-03-03T03:19:54.430Z"
+        },
+        {
+          "ppm": 57,
+          "timestamp": "2025-03-03T12:15:23.671Z"
         }
       ]
     }
@@ -73,7 +80,7 @@
     },
     "752987736759205960": {
       "username": "kaspercito",
-      "wins": 57
+      "wins": 58
     }
   },
   "activeSessions": {},
