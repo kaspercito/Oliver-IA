@@ -1399,6 +1399,7 @@ client.on('messageCreate', async (message) => {
             '- **!su / !sugerencias [idea]**: Envía ideas para mejorar el bot.\n' +
             '- **!ay / !ayuda [problema]**: Pide ayuda a Miguel.\n' +
             '- **!save**: Guardar datos ahora.\n' +
+            '- **!as / !autosave**: Pausa o reanuda el guardado automático.\n' + // Nueva línea
             '- **!pl / !play [canción/URL]**: Reproduce música.\n' +
             '- **!pa / !pause**: Pausa o reanuda la música.\n' +
             '- **!sk / !skip**: Salta a la siguiente canción.\n' +
