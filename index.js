@@ -983,10 +983,23 @@ async function manejarPlay(message) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
     const args = message.content.toLowerCase().split(' ').slice(1).join(' ').trim();
     
-    if (!args) return sendError(message.channel, `Dime qué reproducir después de "!pl", ${userName}.`);
+    console.log(`Iniciando manejarPlay para ${userName} con args: "${args}"`);
+    if (!args) {
+        console.log('No se proporcionaron argumentos');
+        return sendError(message.channel, `Dime qué reproducir después de "!pl", ${userName}.`);
+    }
     
-    if (!message.guild) return sendError(message.channel, `Este comando solo funciona en servidores, no en DM, ${userName}.`);
-    if (!message.member.voice.channel) return sendError(message.channel, `Debes estar en un canal de voz, ${userName}.`);
+    if (!message.guild) {
+        console.log('Mensaje no proviene de un servidor');
+        return sendError(message.channel, `Este comando solo funciona en servidores, no en DM, ${userName}.`);
+    }
+    console.log(`Guild ID: ${message.guild.id}`);
+
+    if (!message.member || !message.member.voice.channel) {
+        console.log('Usuario no está en un canal de voz');
+        return sendError(message.channel, `Debes estar en un canal de voz, ${userName}.`);
+    }
+    console.log(`Voice Channel ID: ${message.member.voice.channel.id}`);
 
     const player = manager.create({
         guild: message.guild.id,
@@ -995,21 +1008,30 @@ async function manejarPlay(message) {
         selfDeafen: true,
     });
 
-    if (player.state !== 'CONNECTED') player.connect();
+    if (player.state !== 'CONNECTED') {
+        console.log('Conectando player...');
+        player.connect();
+    }
 
     let res;
     try {
+        console.log(`Buscando "${args}"...`);
         res = await manager.search(args, message.author);
-        if (res.loadType === 'NO_MATCHES') return sendError(message.channel, `No encontré resultados para "${args}", ${userName}.`);
+        if (res.loadType === 'NO_MATCHES') {
+            console.log('No se encontraron resultados');
+            return sendError(message.channel, `No encontré resultados para "${args}", ${userName}.`);
+        }
         if (res.loadType === 'LOAD_FAILED') throw new Error('No se pudo cargar la canción.');
     } catch (error) {
+        console.error(`Error al buscar "${args}": ${error.message}`);
         return sendError(message.channel, `Hubo un problema al buscar "${args}", ${userName}. Error: ${error.message}`);
     }
 
     const track = res.tracks[0];
+    console.log(`Añadiendo pista: ${track.title}`);
     player.queue.add(track);
     
-    // Verificación adicional para asegurarnos de que el guild ID existe
+    console.log(`Guardando en musicSessions para guild ${message.guild.id}`);
     dataStore.musicSessions[message.guild.id] = { current: track.title, queue: player.queue.map(t => t.title) };
     dataStoreModified = true;
 
@@ -1018,6 +1040,7 @@ async function manejarPlay(message) {
     await message.channel.send({ embeds: [embed] });
 
     if (!player.playing) {
+        console.log(`Reproduciendo ${track.title}...`);
         player.play();
         const playingEmbed = createEmbed('#00FF00', '▶️ ¡Reproduciendo ahora!',
             `**${track.title}**\nUsa !pause, !skip o !stop para controlar la música, ${userName}.`);
@@ -1027,6 +1050,7 @@ async function manejarPlay(message) {
 
 async function manejarPause(message) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
+    if (!message.guild) return sendError(message.channel, `Este comando solo funciona en servidores, ${userName}.`);
     const player = manager.players.get(message.guild.id);
     if (!player) return sendError(message.channel, `No hay música en reproducción, ${userName}.`);
 
@@ -1041,6 +1065,7 @@ async function manejarPause(message) {
 
 async function manejarSkip(message) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
+    if (!message.guild) return sendError(message.channel, `Este comando solo funciona en servidores, ${userName}.`);
     const player = manager.players.get(message.guild.id);
     if (!player) return sendError(message.channel, `No hay música en reproducción, ${userName}.`);
 
@@ -1050,6 +1075,7 @@ async function manejarSkip(message) {
 
 async function manejarStop(message) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
+    if (!message.guild) return sendError(message.channel, `Este comando solo funciona en servidores, ${userName}.`);
     const player = manager.players.get(message.guild.id);
     if (!player) return sendError(message.channel, `No hay música en reproducción, ${userName}.`);
 
@@ -1061,6 +1087,7 @@ async function manejarStop(message) {
 
 async function manejarQueue(message) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
+    if (!message.guild) return sendError(message.channel, `Este comando solo funciona en servidores, ${userName}.`);
     const player = manager.players.get(message.guild.id);
     if (!player || !player.queue.length) return sendError(message.channel, `No hay canciones en la cola, ${userName}.`);
 
