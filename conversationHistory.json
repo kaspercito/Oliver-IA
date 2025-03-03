@@ -81,5 +81,25 @@
     }
   },
   "updatesSent": true,
-  "musicSessions": {}
+  "musicSessions": {
+    "1008091219961860189": {
+      "guildId": "1008091219961860189",
+      "voiceChannel": "1008091220544851971",
+      "textChannel": "1345803955242012753",
+      "currentTrack": {
+        "uri": "https://www.youtube.com/watch?v=GurljGjfrVs",
+        "title": "Dean Lewis - With You (Official Video)",
+        "duration": 194000,
+        "position": 10000,
+        "requester": "752987736759205960"
+      },
+      "queue": [],
+      "paused": false,
+      "volume": 100,
+      "trackRepeat": false,
+      "queueRepeat": false,
+      "autoplay": true,
+      "lastSaved": 1740965562368
+    }
+  }
 }
