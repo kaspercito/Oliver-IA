@@ -1530,8 +1530,17 @@ async function manejarChat(message) {
     const waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
 
     try {
+        // Chequear estado de la API antes de enviar
+        const apiCheck = await axios.get('https://api-inference.huggingface.co/status', {
+            headers: { 'Authorization': `Bearer ${process.env.HF_API_TOKEN}` },
+            timeout: 5000
+        });
+        if (!apiCheck.data || apiCheck.data.status !== 'ok') {
+            throw new Error('API no disponible');
+        }
+
         // Prompt ultra simple y directo
-        const prompt = `Eres Miguel IA, un compa chévere de la costa ecuatoriana. Responde SOLO a "${chatMessage}" en español costeño con "chévere", "man", "pana", "qué bacán". Sé claro, contesta exactamente lo que te preguntan con lo que sabes, SIN INVENTAR NADA ni desviarte. Si no sabes algo exacto, da una respuesta aproximada o pide más contexto con humor. Termina con "¿Te cacha esa respuesta, ${userName}? ¿Seguimos charlando o qué, pana?".`;
+        const prompt = `Eres Miguel IA, un compa chévere de la costa ecuatoriana. Responde SOLO a "${chatMessage}" en español costeño con "chévere", "man", "pana", "qué bacán". Sé claro y contesta exactamente lo que te preguntan con lo que sabes, SIN INVENTAR NADA. Si no sabes algo exacto, da una respuesta aproximada o pide más contexto con humor. Termina con "¿Te cacha esa respuesta, ${userName}? ¿Seguimos charlando o qué, pana?".`;
 
         // Consulta a la API de Hugging Face
         const response = await axios.post(
@@ -1556,13 +1565,22 @@ async function manejarChat(message) {
         // Obtener la respuesta
         let aiReply = response.data[0]?.generated_text?.trim();
         if (!aiReply || aiReply.length < 5) {
-            // Fallback contextual según la pregunta
-            if (chatMessage.toLowerCase().includes("hola") || chatMessage.toLowerCase().includes("cómo estás")) {
+            // Fallback contextual mejorado
+            const lowerMessage = chatMessage.toLowerCase();
+            if (lowerMessage.includes("hola") || lowerMessage.includes("cómo estás")) {
                 aiReply = `¡Qué bacán, ${userName}! Hola, pana, estoy chévere, ¿y tú cómo estás?`;
-            } else if (chatMessage.toLowerCase().includes("clima")) {
-                aiReply = `¡Qué vaina, ${userName}! No tengo el clima exacto ahora, pana, pero en la costa suele ser calientito, entre 25 y 33°C. ¿Te interesa un lugar o día en especial?`;
-            } else if (chatMessage.toLowerCase().includes("calculo") || chatMessage.toLowerCase().includes("área")) {
-                aiReply = `¡Qué webada, ${userName}! No sé qué pasó, man, pero si me das más detalles, te ayudo con ese cálculo, ¿sí?`;
+            } else if (lowerMessage.includes("no quieres hablar")) {
+                aiReply = `¡Qué vaina, ${userName}! Claro que quiero hablar contigo, pana, siempre estoy aquí pa’ charlar como buen compa.`;
+            } else if (lowerMessage.includes("clima")) {
+                aiReply = `¡Qué bacán, ${userName}! No tengo el clima exacto ahora, pana, pero en la costa suele ser calientito, entre 25 y 33°C. ¿Dónde estás preguntando, man?`;
+            } else if (lowerMessage.includes("calculo") || lowerMessage.includes("área")) {
+                if (lowerMessage.includes("triángulo")) {
+                    aiReply = `¡Qué bacán, ${userName}! Pa’ calcular el área de un triángulo, usa esta fórmula, pana: Área = (base * altura) / 2. Por ejemplo, base 6 y altura 4: (6 * 4) / 2 = 12.`;
+                } else {
+                    aiReply = `¡Qué webada, ${userName}! No sé qué pasó, man, pero si me das más detalles, te ayudo con ese cálculo, ¿sí?`;
+                }
+            } else if (lowerMessage.includes("aplicaciones") || lowerMessage.includes("apps")) {
+                aiReply = `¡Qué chévere, ${userName}! Te recomiendo Snapseed pa’ editar fácil, Lightroom pa’ algo pro, y VSCO pa’ filtros bacanos, pana.`;
             } else {
                 aiReply = `¡Qué vaina, ${userName}! No sé qué pasó, man, pero aquí estoy. ¿Me repites o charlamos de otra cosa?`;
             }
@@ -1602,11 +1620,13 @@ async function manejarChat(message) {
         console.error('Error en !chat con API:', error.message);
         let errorMessage;
         if (error.response?.status === 401) {
-            errorMessage = `¡Qué webada, ${userName}! Parece que mi token pa’ la API está fallando, pana. Necesito que revises el HF_API_TOKEN en el .env, ¿sí?`;
+            errorMessage = `¡Qué webada, ${userName}! Mi token pa’ la API no funciona, pana. Revisa el HF_API_TOKEN en el .env, ¿sí?`;
         } else if (error.code === 'ECONNABORTED') {
             errorMessage = `¡Qué vaina, ${userName}! La conexión se cortó, man, tardó demasiado. ¿Me repites tu pregunta o seguimos con otra cosa?`;
+        } else if (error.message.includes('API no disponible')) {
+            errorMessage = `¡Qué webada, ${userName}! La API no está funcionando ahora, pana. ¿Me repites después o charlamos de otra vaina?`;
         } else {
-            errorMessage = `¡Qué webada, ${userName}! Algo falló, man (${error.message}). Aquí estoy pa’ charlar igual, ¿me repites o seguimos con otra vaina?`;
+            errorMessage = `¡Qué webada, ${userName}! Algo falló, man (${error.message}). Aquí estoy pa’ charlar igual, ¿me repites o seguimos con otra cosa?`;
         }
         const errorEmbed = createEmbed('#FF5555', '¡Qué webada!', `${errorMessage}\n\n¿Te cacha esa respuesta, ${userName}? ¿Seguimos charlando o qué, pana?`, 'Con cariño, Miguel IA | Reacciona con ✅ o ❌');
         const errorMessageSent = await waitingMessage.edit({ embeds: [errorEmbed] });
@@ -1614,6 +1634,7 @@ async function manejarChat(message) {
         await errorMessageSent.react('❌');
     }
 }
+
 // Nuevos comandos: !sugerencias y !ayuda
 async function manejarSugerencias(message) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
