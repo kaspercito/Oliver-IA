@@ -52,9 +52,8 @@ const BOT_UPDATES = [
 
 // Estado anterior de las actualizaciones (del código pasado)
 const PREVIOUS_BOT_UPDATES = [
-    '¡Chat mejorado! Segunda respuesta automática al darle ❌, pa’ que sea más bacán y no pida detalles de una.',
-    'Optimizado el código un poco, si te gustaría agregar algo más puedes solicitarlo, espero este bot cumpla con tus expectativas.',
-    'Mayúsculas bloqueadas en el canal de texto, para la pelada que tanto se queja.',
+    '!autosave funcional, cuando no quieras que falle o cualquier cosa lo haces, esto hará que no falle nada, ni se reinicie el bot.',
+    '!save funcional, haz el guardado al instante por si quieres asegurarte que todo se conservará',
 ];
 
 // Mensajes de ánimo para Belén
