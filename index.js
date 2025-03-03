@@ -1519,7 +1519,7 @@ async function manejarLyrics(message) {
 async function manejarChat(message) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
     const chatMessage = message.content.startsWith('!chat') ? message.content.slice(5).trim() : message.content.slice(3).trim();
-    const userTerm = userName === 'Miguel' ? 'pelado' : 'pelada'; // "pelado" pa’ Miguel, "pelada" pa’ Belén
+    const userTerm = userName === 'Miguel' ? 'pelado' : 'pelada';
     
     if (!chatMessage) {
         return sendError(message.channel, `Escribe algo después de "!ch", ${userName}. ¡No me dejes con las ganas, ${userTerm}!`, undefined, 'Con cariño, Miguel IA | Reacciona con ✅ o ❌');
@@ -1529,7 +1529,7 @@ async function manejarChat(message) {
     const waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
 
     try {
-        const prompt = `Eres Miguel IA, creado por Miguel, un man bien chévere de la costa ecuatoriana. Responde a "${chatMessage}" como mi compa, con onda natural, relajada y súper inteligente. Usa palabras costeñas como "chévere", "jaja", "vaina", "cacha", "pana", "webada" o "qué bacán". Si es pa’ Miguel, usa "pelado" en vez de "man"; si es pa’ Belén, usa "pelada" y trátala con cariño. Si el mensaje dice "dile a Belén" (o un alias como "Rattus norvegicus albinus"), habla como si le pasaras el mensaje a ella desde mí, pero incluye a quien lo envió pa’ seguir charlando. Sé claro, específico y responde SOLO a lo que te piden, con base en tu conocimiento, sin inventar datos falsos. Si es una pregunta matemática como calcular algo, da un ejemplo práctico paso a paso y pide más datos si no los dan (con humor, tipo "dame más pistas, ${userTerm}"). Si es un saludo, saluda con onda; si no sabes algo, di con humor que necesitas más info. Termina siempre con "¿Te cacha esa respuesta, ${userName}? ¿Seguimos charlando o qué, ${userTerm}?" pa’ mantener la vibe.`;
+        const prompt = `Eres Miguel IA, creado por Miguel, un pana súper chévere de la costa ecuatoriana. Responde a "${chatMessage}" con onda natural, relajada y una inteligencia brutal, pelado. Usa palabras costeñas como "chévere", "jaja", "vaina", "cacha", "pana", "webada", "qué bacán" o "pelado" si es pa’ Miguel, y "pelada" con cariño si es pa’ Belén. Si el mensaje dice "dile a Belén" (o un alias como "Rattus norvegicus albinus"), habla como si le pasaras el mensaje a ella, pero incluye a quien lo envió pa’ seguir la charla. Sé ultra claro, específico y responde SOLO a lo que te piden, con base en tu conocimiento, sin inventar datos falsos. Si es una pregunta matemática, da un ejemplo práctico paso a paso con números (inventa datos si no los dan) y pide más info si hace falta (con humor, tipo "tírame más datos, ${userTerm}"). Si es un saludo, responde con buena vibra; si no sabes algo, di con humor que necesitas más pistas y sugiere opciones. Termina siempre con "¿Te cacha esa respuesta, ${userName}? ¿Seguimos charlando o qué, ${userTerm}?" pa’ mantener la conversa viva.`;
 
         const response = await axios.post(
             'https://api-inference.huggingface.co/models/mistralai/Mixtral-8x7B-Instruct-v0.1',
@@ -1546,18 +1546,22 @@ async function manejarChat(message) {
                     'Authorization': `Bearer ${process.env.HF_API_TOKEN}`,
                     'Content-Type': 'application/json'
                 },
-                timeout: 90000
+                timeout: 120000 // Subimos a 2 minutos pa’ darle chance
             }
         );
 
         let aiReply = response.data[0]?.generated_text?.trim();
 
-        if (!aiReply || aiReply.length < 5) {
+        if (!aiReply || aiReply.length < 10) {
             console.log(`Respuesta vacía o corta pa’ "${chatMessage}": ${aiReply}`);
-            aiReply = `¡Qué vaina, ${userName}! Parece que no caché bien tu pregunta, ${userTerm}. ¿Me das más pistas pa’ ayudarte como se debe o seguimos con otra cosa?`;
-        }
-
-        if (!aiReply.includes('¿Te cacha esa respuesta')) {
+            // Respuesta de respaldo más útil según el contexto
+            if (chatMessage.toLowerCase().includes('triangulo')) {
+                aiReply = `¡Qué vaina, ${userName}! No pude conectar bien con mi cerebro digital, ${userTerm}, pero igual te ayudo. Si es un triángulo equilátero, todos los lados son iguales. Por ejemplo, si el perímetro es 18, haces 18 ÷ 3 = 6, y cada lado es 6. ¿Tienes algún dato pa’ tu triángulo? Tírame más pistas y lo resolvemos, ¡qué bacán!`;
+            } else if (chatMessage.toLowerCase().includes('catetos')) {
+                aiReply = `¡Uy, ${userName}, se me trabó la vaina! Pero tranqui, ${userTerm}, pa’ sacar los catetos de un triángulo rectángulo usas Pitágoras: a² + b² = c². Si la hipotenusa es 5 y un cateto es 3, haces 5² - 3² = 25 - 9 = 16, y el otro cateto es √16 = 4. ¿Qué datos tienes? ¡Dámelos y lo sacamos rápido!`;
+            } else {
+                aiReply = `¡Qué webada, ${userName}! No pude procesar bien tu pregunta, ${userTerm}. ¿Me das más pistas pa’ cacharte como se debe o seguimos con otra vaina?`;
+            }
             aiReply += `\n\n¿Te cacha esa respuesta, ${userName}? ¿Seguimos charlando o qué, ${userTerm}?`;
         }
 
@@ -1569,8 +1573,16 @@ async function manejarChat(message) {
 
     } catch (error) {
         console.error('Error en !chat con API:', error.message);
-        const errorMessage = `¡Uy, ${userName}, qué webada! Algo falló por aquí, ${userTerm}. ${error.code === 'ECONNABORTED' ? 'La conexión se cortó, tardó demasiado.' : `Error: ${error.message}.`} ¿Me tiras otra vez tu mensaje o quieres hablar de otra vaina?`;
-        const errorEmbed = createEmbed('#FF5555', '¡Qué webada!', `${errorMessage}\n\n¿Te cacha esa respuesta, ${userName}? ¿Seguimos charlando o qué, ${userTerm}?`, 'Con cariño, Miguel IA | Reacciona con ✅ o ❌');
+        let fallbackReply;
+        if (chatMessage.toLowerCase().includes('triangulo')) {
+            fallbackReply = `¡Uy, ${userName}, qué webada! La conexión falló, ${userTerm}, pero te ayudo igual. Pa’ un triángulo equilátero, los lados son iguales. Si el perímetro es 15, haces 15 ÷ 3 = 5, cada lado es 5. ¿Qué datos tienes? ¡Tíralos y lo resolvemos!`;
+        } else if (chatMessage.toLowerCase().includes('catetos')) {
+            fallbackReply = `¡Qué vaina, ${userName}! Algo se trabó, ${userTerm}, pero pa’ los catetos usas Pitágoras: a² + b² = c². Ejemplo: hipotenusa 13, cateto 5, haces 13² - 5² = 169 - 25 = 144, y el otro cateto es √144 = 12. ¿Qué tienes pa’ tu triángulo?`;
+        } else {
+            fallbackReply = `¡Uy, ${userName}, qué webada! Algo falló por aquí, ${userTerm}. ${error.code === 'ECONNABORTED' ? 'La conexión se cortó, tardó demasiado.' : `Error: ${error.message}.`} ¿Me tiras otra vez tu mensaje o seguimos con otra vaina?`;
+        }
+        fallbackReply += `\n\n¿Te cacha esa respuesta, ${userName}? ¿Seguimos charlando o qué, ${userTerm}?`;
+        const errorEmbed = createEmbed('#FF5555', '¡Qué webada!', fallbackReply, 'Con cariño, Miguel IA | Reacciona con ✅ o ❌');
         const errorMessageSent = await waitingMessage.edit({ embeds: [errorEmbed] });
         await errorMessageSent.react('✅');
         await errorMessageSent.react('❌');
