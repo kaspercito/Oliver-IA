@@ -1520,28 +1520,24 @@ async function manejarChat(message) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
     const chatMessage = message.content.startsWith('!chat') ? message.content.slice(5).trim() : message.content.slice(3).trim();
     
-    // Validar que haya un mensaje
     if (!chatMessage) {
         return sendError(message.channel, `Escribe algo después de "!ch", ${userName}. ¡No me dejes con las ganas, pana!`, undefined, 'Con cariño, Miguel IA | Reacciona con ✅ o ❌');
     }
 
-    // Mostrar mensaje de espera
     const waitingEmbed = createEmbed('#55FFFF', `¡Un momento, ${userName}!`, 'Pensando una respuesta bien bacán pa’ ti...', 'Con cariño, Miguel IA | Reacciona con ✅ o ❌');
     const waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
 
     try {
-        // Prompt ultra optimizado para respuestas perfectas
-        const prompt = `Eres Miguel IA, creado por Miguel, un man bien chévere de la costa ecuatoriana. Responde a "${chatMessage}" como mi compa, con onda natural, relajada y súper inteligente. Usa palabras costeñas como "chévere", "jaja", "man", "vaina", "cacha", "pana", "webada" o "qué bacán". Sé claro, específico y preciso, respondiendo SOLO a lo que te preguntan, con base en tu conocimiento general, sin inventar datos falsos ni desviarte. Si es un saludo, saluda con onda; si es un cálculo, resuélvelo paso a paso; si no tienes datos en tiempo real (como el clima), da una respuesta aproximada basada en lo que sabes o pide más contexto con humor. Termina siempre con "¿Te cacha esa respuesta, ${userName}? ¿Seguimos charlando o qué, pana?" pa’ mantener la conversa viva.`;
+        const prompt = `Eres Miguel IA, creado por Miguel, un man bien chévere de la costa ecuatoriana. Responde a "${chatMessage}" como mi compa, con onda natural, relajada y súper inteligente. Usa palabras costeñas como "chévere", "jaja", "pelada", "vaina", "cacha", "pelado", "webada" o "qué bacán". Si el mensaje dice "dile a Belén" (o algún alias como "Rattus norvegicus albinus"), habla como si le estuvieras mandando un mensaje a ella desde mí, pero también incluye a quien lo envió pa’ mantener la conversa viva con ambos. Sé claro, específico y responde SOLO a lo que te piden, con base en tu conocimiento, sin inventar datos falsos. Si es un saludo, saluda con onda; si no sabes algo, dile con humor que necesitas más pistas. Termina siempre con "¿Te cacha esa respuesta, ${userName}? ¿Seguimos charlando o qué, pana?" pa’ seguir la vibe.`;
 
-        // Consulta a la API de Hugging Face
         const response = await axios.post(
             'https://api-inference.huggingface.co/models/mistralai/Mixtral-8x7B-Instruct-v0.1',
             {
                 inputs: prompt,
                 parameters: {
-                    max_new_tokens: 500, // Espacio para respuestas largas
-                    return_full_text: false, // Solo la respuesta generada
-                    temperature: 0.6 // Más precisión, menos creatividad
+                    max_new_tokens: 500,
+                    return_full_text: false,
+                    temperature: 0.6
                 }
             },
             {
@@ -1549,24 +1545,20 @@ async function manejarChat(message) {
                     'Authorization': `Bearer ${process.env.HF_API_TOKEN}`,
                     'Content-Type': 'application/json'
                 },
-                timeout: 90000 // 90 segundos de timeout
+                timeout: 90000
             }
         );
 
-        // Obtener la respuesta
         let aiReply = response.data[0]?.generated_text?.trim();
 
-        // Filtro relajado para respuestas cortas pero válidas
         if (!aiReply || aiReply.length < 5) {
             aiReply = `¡Qué vaina, ${userName}! No sé qué pasó, man, pero igual estoy aquí pa’ charlar. ¿Me das más pistas o seguimos con otra cosa, pana?`;
         }
 
-        // Asegurar la frase de cierre
         if (!aiReply.includes('¿Te cacha esa respuesta')) {
             aiReply += `\n\n¿Te cacha esa respuesta, ${userName}? ¿Seguimos charlando o qué, pana?`;
         }
 
-        // Enviar la respuesta
         const finalEmbed = createEmbed('#55FFFF', `¡Aquí estoy, ${userName}!`, aiReply, 'Con cariño, Miguel IA | Reacciona con ✅ o ❌');
         const updatedMessage = await waitingMessage.edit({ embeds: [finalEmbed] });
         await updatedMessage.react('✅');
@@ -1575,7 +1567,7 @@ async function manejarChat(message) {
 
     } catch (error) {
         console.error('Error en !chat con API:', error.message);
-        const errorMessage = `¡Uy, ${userName}, qué webada! Algo falló por aquí, pana. ${error.code === 'ECONNABORTED' ? 'La conexión se cortó, man, tardó demasiado.' : `Error: ${error.message}.`} Estoy listo pa’ seguir charlando, ¿me tiras otra vez tu mensaje o quieres hablar de otra vaina?`;
+        const errorMessage = `¡Uy, ${userName}, qué webada! Algo falló por aquí, pana. ${error.code === 'ECONNABORTED' ? 'La conexión se cortó, man, tardó demasiado.' : `Error: ${error.message}.`} ¿Me tiras otra vez tu mensaje o quieres hablar de otra vaina?`;
         const errorEmbed = createEmbed('#FF5555', '¡Qué webada!', `${errorMessage}\n\n¿Te cacha esa respuesta, ${userName}? ¿Seguimos charlando o qué, pana?`, 'Con cariño, Miguel IA | Reacciona con ✅ o ❌');
         const errorMessageSent = await waitingMessage.edit({ embeds: [errorEmbed] });
         await errorMessageSent.react('✅');
