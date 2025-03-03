@@ -46,10 +46,10 @@ const manager = new Manager({
 });
 
 const BOT_UPDATES = [
-    '¡Trivia extendida! Ahora las trivias son de 20 preguntas por defecto en lugar de 10.',
+    'Música!! Ahora el bot puede reproducir música cuando tu gustes, !help musica servíra mientras disfrutas de las actividades.',
     '¡Guardado automático mejorado! Avisa 5 minutos antes cada 30 minutos para que evites iniciar nuevos comandos.',
-    '¡Comandos !sugerencias y !ayuda añadidos! Envía ideas o pide ayuda directamente a Miguel.',
-    '¡PPM más rápido! El tiempo para escribir la frase se redujo de 60 a 15 segundos.',
+    '¡Comando! !autosave desactivar el autoguardado por si no quieres que falle y después lo activas de nuevo o haces un !save.',
+    '¡Comando !rppm ahora tendrás tu historial completo de !ppm por si gustas observar todos lo que haz logrado.',
 ];
 
 // Estado anterior de las actualizaciones (del código pasado)
