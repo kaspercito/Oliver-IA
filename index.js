@@ -996,22 +996,9 @@ async function manejarPlay(message) {
     const args = message.content.toLowerCase().split(' ').slice(1).join(' ').trim();
     
     console.log(`Iniciando manejarPlay para ${userName} con args: "${args}"`);
-    if (!args) {
-        console.log('No se proporcionaron argumentos');
-        return sendError(message.channel, `Dime qué reproducir después de "!pl", ${userName}.`);
-    }
-    
-    if (!message.guild) {
-        console.log('Mensaje no proviene de un servidor');
-        return sendError(message.channel, `Este comando solo funciona en servidores, no en DM, ${userName}.`);
-    }
-    console.log(`Guild ID: ${message.guild.id}`);
-
-    if (!message.member || !message.member.voice.channel) {
-        console.log('Usuario no está en un canal de voz');
-        return sendError(message.channel, `Debes estar en un canal de voz, ${userName}.`);
-    }
-    console.log(`Voice Channel ID: ${message.member.voice.channel.id}`);
+    if (!args) return sendError(message.channel, `Dime qué reproducir después de "!pl", ${userName}.`);
+    if (!message.guild) return sendError(message.channel, `Este comando solo funciona en servidores, ${userName}.`);
+    if (!message.member || !message.member.voice.channel) return sendError(message.channel, `Debes estar en un canal de voz, ${userName}.`);
 
     const player = manager.create({
         guild: message.guild.id,
@@ -1029,39 +1016,37 @@ async function manejarPlay(message) {
     try {
         console.log(`Buscando "${args}"...`);
         res = await manager.search(args, message.author);
+        console.log(`Resultado de búsqueda: ${res.loadType}`);
+
         if (res.loadType === 'NO_MATCHES') {
-            console.log('No se encontraron resultados');
             return sendError(message.channel, `No encontré resultados para "${args}", ${userName}.`);
         }
-        if (res.loadType === 'LOAD_FAILED') throw new Error('No se pudo cargar la canción.');
+        if (res.loadType === 'LOAD_FAILED') {
+            throw new Error(`No se pudo cargar: ${res.exception?.message || 'Error desconocido'}`);
+        }
+
+        if (res.loadType === 'PLAYLIST_LOADED') {
+            // Añadir todas las pistas de la playlist
+            res.tracks.forEach(track => player.queue.add(track));
+            const embed = createEmbed('#55FFFF', '🎶 ¡Playlist añadida!',
+                `**${res.playlist.name}** (${res.tracks.length} canciones) ha sido añadida a la cola.\nSolicitada por: ${userName}`);
+            await message.channel.send({ embeds: [embed] });
+        } else {
+            // Caso de una sola pista
+            const track = res.tracks[0];
+            player.queue.add(track);
+            const embed = createEmbed('#55FFFF', '🎶 ¡Música añadida!',
+                `**${track.title}** ha sido añadida a la cola.\nDuración: ${Math.floor(track.duration / 60000)}:${((track.duration % 60000) / 1000).toFixed(0).padStart(2, '0')}\nSolicitada por: ${userName}`);
+            await message.channel.send({ embeds: [embed] });
+        }
+
+        if (!player.playing) {
+            console.log(`Reproduciendo...`);
+            player.play();
+        }
     } catch (error) {
         console.error(`Error al buscar "${args}": ${error.message}`);
         return sendError(message.channel, `Hubo un problema al buscar "${args}", ${userName}. Error: ${error.message}`);
-    }
-
-    const track = res.tracks[0];
-    console.log(`Añadiendo pista: ${track.title}`);
-    player.queue.add(track);
-    
-    // Asegurar que musicSessions exista antes de asignar
-    if (!dataStore.musicSessions) {
-        dataStore.musicSessions = {};
-        console.log('musicSessions no estaba definido, inicializado en manejarPlay');
-    }
-    console.log(`Guardando en musicSessions para guild ${message.guild.id}`);
-    dataStore.musicSessions[message.guild.id] = { current: track.title, queue: player.queue.map(t => t.title) };
-    dataStoreModified = true;
-
-    const embed = createEmbed('#55FFFF', '🎶 ¡Música añadida!',
-        `**${track.title}** ha sido añadida a la cola.\nDuración: ${Math.floor(track.duration / 60000)}:${((track.duration % 60000) / 1000).toFixed(0).padStart(2, '0')}\nSolicitada por: ${userName}`);
-    await message.channel.send({ embeds: [embed] });
-
-    if (!player.playing) {
-        console.log(`Reproduciendo ${track.title}...`);
-        player.play();
-        const playingEmbed = createEmbed('#00FF00', '▶️ ¡Reproduciendo ahora!',
-            `**${track.title}**\nUsa !pause, !skip o !stop para controlar la música, ${userName}.`);
-        await message.channel.send({ embeds: [playingEmbed] });
     }
 }
 
