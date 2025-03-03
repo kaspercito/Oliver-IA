@@ -53,10 +53,9 @@ const BOT_UPDATES = [
 
 // Estado anterior de las actualizaciones (del código pasado)
 const PREVIOUS_BOT_UPDATES = [
-    '¡Trivia extendida! Ahora las trivias son de 20 preguntas por defecto en lugar de 10.',
-    '¡Guardado automático mejorado! Avisa 5 minutos antes cada 30 minutos para que evites iniciar nuevos comandos.',
-    '¡Comandos !sugerencias y !ayuda añadidos! Envía ideas o pide ayuda directamente a Miguel.',
-    '¡PPM más rápido! El tiempo para escribir la frase se redujo de 60 a 15 segundos.',
+    '¡Detección de mayúsculas añadida! Si usas muchas mayúsculas (80% o más), el mensaje se borra y te mutea 5 minutos si hay permisos.',
+    '¡Notificación de mayúsculas en el canal! Ahora avisa si alguien fue muteado o no por gritar, con estilo costeño.',
+    '¡Chat mejorado! Segunda respuesta automática al darle ❌, pa’ que sea más bacán y no pida detalles de una.',
 ];
 
 // Mensajes de ánimo para Belén
