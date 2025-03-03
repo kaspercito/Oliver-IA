@@ -26,12 +26,28 @@ const CHANNEL_ID = '1343749554905940058'; // Canal principal
 const manager = new Manager({
     nodes: [
         {
-            host: 'lava-v3.ajieblogs.eu.org',
-            port: 443,
+            host: 'lavalink.api.rovi.me',
+            port: 2333,
+            password: 'RoviLavalink',
+            secure: false,
+            retryAmount: 5,
+            retryDelay: 3000,
+        },
+        {
+            host: 'lava-v3.ajieblogs.eu.orgm',
+            port: 80,
             password: 'https://dsc.gg/ajidevserver',
+            secure: false,
+            retryAmount: 5,
+            retryDelay: 3000,
+        },
+        {
+            host: 'lavalinkv3-id.serenetia.com',
+            port: 443,
+            password: 'https://dsc.gg/ajidevserver', // Cambia esto si encuentras la contraseña correcta
             secure: true,
-            retryAmount: 5, // Número de intentos de reconexión
-            retryDelay: 3000, // Retraso entre intentos (3 segundos)
+            retryAmount: 5,
+            retryDelay: 3000,
         },
     ],
     plugins: [
