@@ -1073,55 +1073,95 @@ async function manejarLyrics(message) {
 async function manejarChat(message) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
     const chatMessage = message.content.startsWith('!chat') ? message.content.slice(5).trim() : message.content.slice(3).trim();
-    if (!chatMessage) return sendError(message.channel, `Escribe un mensaje después de "!ch", ${userName}.`, undefined, 'Con cariño, Miguel IA | Reacciona con ✅ o ❌, ¡por favor!');
+    if (!chatMessage) return sendError(message.channel, `Escribe algo después de "!ch", ${userName}. ¡No me dejes con las ganas, pana!`, undefined, 'Con cariño, Miguel IA | Reacciona con ✅ o ❌');
 
-    const waitingEmbed = createEmbed('#55FFFF', `¡Un momento, ${userName}!`, 'Espera, estoy buscando una respuesta...', 'Con cariño, Miguel IA | Reacciona con ✅ o ❌, ¡por favor!');
+    const waitingEmbed = createEmbed('#55FFFF', `¡Un momento, ${userName}!`, 'Pensando una respuesta bien bacán pa’ ti...', 'Con cariño, Miguel IA | Reacciona con ✅ o ❌');
     const waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
 
     try {
-        let aiReply;
         const lowerMessage = chatMessage.toLowerCase();
+        let aiReply;
 
-        if (lowerMessage === 'hola') {
-            aiReply = `¡Hola, ${userName}! ¿En qué puedo ayudarte hoy?`;
-        } else if (lowerMessage.match(/cu[áa]nto es\s*(\d+)\s*\+s*(\d+)/)) {
-            const match = lowerMessage.match(/cu[áa]nto es\s*(\d+)\s*\+s*(\d+)/);
+        // Respuestas predefinidas con un "Hola" más bonito
+        if (lowerMessage === 'hola' || lowerMessage === 'hola miguel ia' || lowerMessage === 'hola miguelia') {
+            aiReply = `¡Ey, ${userName}, qué alegría verte, pana! Soy Miguel IA, tu compa costeño, llegando con todo el calor de la playa y el sabor del ceviche. ¿Cómo estás hoy, mi pana querido? ¡Estoy listo pa’ hacerte el día más chévere!`;
+        } else if (lowerMessage.match(/cu[áa]nto es\s*(\d+)\s*[\+\-\*x\/]\s*(\d+)/)) {
+            const match = lowerMessage.match(/cu[áa]nto es\s*(\d+)\s*([\+\-\*x\/])\s*(\d+)/);
             const num1 = parseInt(match[1]);
-            const num2 = parseInt(match[2]);
-            const result = num1 + num2;
-            aiReply = `¡Fácil, ${userName}! ${num1} + ${num2} = **${result}**. ¿Otra cuenta?`;
-        } else if (lowerMessage.includes('cómo es') && lowerMessage.includes('rata negra')) {
-            aiReply = `Una rata negra (Rattus rattus) es un roedor de cuerpo alargado, color negro o gris oscuro, hocico puntiagudo, orejas grandes y cola larga. Son ágiles y viven en lugares altos, ${userName}. Mira esta imagen generada:`;
-            const imageUrl = await generateImage("A realistic black rat (Rattus rattus) with a pointed snout, large ears, and a long thin tail");
-            const finalEmbed = createEmbed('#55FFFF', `¡Aquí estoy, ${userName}!`, aiReply, 'Con cariño, Miguel IA | Reacciona con ✅ o ❌, ¡por favor!').setImage(imageUrl);
-            const updatedMessage = await waitingMessage.edit({ embeds: [finalEmbed] });
-            await updatedMessage.react('✅');
-            await updatedMessage.react('❌');
-            sentMessages.set(updatedMessage.id, { content: aiReply, originalQuestion: chatMessage, message: updatedMessage });
-            return;
+            const operator = match[2] === 'x' ? '*' : match[2];
+            const num2 = parseInt(match[3]);
+            let result;
+            switch (operator) {
+                case '+': result = num1 + num2; break;
+                case '-': result = num1 - num2; break;
+                case '*': result = num1 * num2; break;
+                case '/': result = num2 !== 0 ? (num1 / num2).toFixed(2) : '¡No se puede dividir por cero, pana!'; break;
+                default: result = 'Algo raro pasó con esa operación, man.';
+            }
+            aiReply = `¡Fácil, ${userName}! ${num1} ${operator} ${num2} = **${result}**. ¿Otra cuenta pa’ resolverte, pana?`;
+        } else if (lowerMessage.includes('me odias') || lowerMessage.includes('me quieres')) {
+            aiReply = lowerMessage.includes('me odias') 
+                ? `¿Odiarte, ${userName}? ¡Jamás, man! Eres demasiado chévere pa’ eso. Te quiero caleta, ¿sí o qué?`
+                : `¡Claro que te quiero, ${userName}! Eres un bacán y me encanta charlar contigo. ¿Tú me quieres también, pana? Jaja`;
+        } else if (lowerMessage.includes('de que pais provienes') || lowerMessage.includes('de dónde eres')) {
+            aiReply = `Soy Miguel IA, creado por un man bien bacán de la costa ecuatoriana, ¡de Ecuador, pues, pana! Nací digitalmente entre el calor, la playa y un buen encebollado. ¿Y tú, ${userName}, de dónde eres?`;
+        } else if (lowerMessage.includes('qué hora es en')) {
+            const currentDate = new Date();
+            const location = lowerMessage.includes('nueva york') ? 'America/New_York' : 'America/Guayaquil'; // Por defecto Ecuador
+            const time = currentDate.toLocaleTimeString('es-EC', { timeZone: location, hour12: true });
+            const city = location === 'America/New_York' ? 'Nueva York' : 'Ecuador';
+            aiReply = `¡Claro, ${userName}! Ahora mismo son las **${time}** en ${city}. ¿Necesitas la hora de otro lado, man?`;
+        } else if (lowerMessage.includes('cómo se calcula el área de un triángulo')) {
+            aiReply = `¡Qué bacán, ${userName}! Pa’ calcular el área de un triángulo, usas la fórmula: **Área = 1/2 * base * altura**. Por ejemplo, si la base es 5 y la altura 7, haces: 1/2 * 5 * 7 = 17.5 unidades cuadradas. ¿Te cacha esa explicación, pana? ¿Querés un ejemplo más?`;
+        } else if (lowerMessage.includes('dime un chiste') || lowerMessage.includes('podrías decirme un chiste')) {
+            const chistes = [
+                '¿Por qué el pollo no cruzó la carretera? Porque estaba borracho, jaja.',
+                '¿Qué hace un perro con un taladro? ¡Taladrando, pana!',
+                '¿Por qué la computadora fue al psicólogo? Porque tenía demasiados "bytes" de estrés.'
+            ];
+            const chiste = chistes[Math.floor(Math.random() * chistes.length)];
+            aiReply = `¡Aquí te va, ${userName}! ${chiste} ¿Te sacó una sonrisa, man? ¿Otro más pa’ seguir riendo?`;
         } else {
-            console.log(`Consultando API para: "${chatMessage}"`);
+            // Consulta a la API gratuita de Hugging Face
+            const prompt = `Eres Miguel IA, creado por Miguel, un man bien chévere de la costa ecuatoriana. Responde a "${chatMessage}" con onda natural, detallada, útil y precisa. Usa palabras típicas como "chévere", "jaja", "man", "vaina", "cacha", "pana", "webada" o "qué bacán". Si es pa’ Belén, trátala con cariño, es importante pa’ mí. Responde SOLO con base al mensaje actual, nada de inventar locuras. Si es un cálculo, resuélvelo clarito; si no sabes, pide más contexto con humor costeño. Sé claro, relajado y súper inteligente. Termina con una vibe pa’ seguir la conversa.`;
+
             const response = await axios.post(
                 'https://api-inference.huggingface.co/models/mistralai/Mixtral-8x7B-Instruct-v0.1',
                 {
-                    inputs: `Eres Miguel IA, creado por Miguel, un man bien chévere de la costa ecuatoriana. Responde a "${chatMessage}" si es Belen, tratala bien siempre, me importa mucho y no le deseó nada malo en la vida, responde con onda natural detallada, útil y precisa. Usa palabras típicas de la costa de Ecuador como "chévere", "jaja", "man", "vaina", "cacha", "pana", "webada" o "qué bacán". Responde SOLO con base a lo que sabes y el mensaje actual, nada de inventar locuras. Si es un cálculo, resuélvelo clarito; si no sabes,  pidele mas contexto, sugiere algo práctico con humor costeño. Sé claro, relajado y bacán. Termina con una vibe pa’ seguir la conversación.`,
-                    parameters: { max_new_tokens: 500, return_full_text: false }
+                    inputs: prompt,
+                    parameters: {
+                        max_new_tokens: 500,
+                        return_full_text: false,
+                        temperature: 0.7 // Perfecto para coherencia y estilo costeño
+                    }
                 },
-                { headers: { 'Authorization': `Bearer ${process.env.HF_API_TOKEN}` }, timeout: 90000 }
+                {
+                    headers: {
+                        'Authorization': `Bearer ${process.env.HF_API_TOKEN}`,
+                        'Content-Type': 'application/json'
+                    },
+                    timeout: 90000
+                }
             );
-            aiReply = response.data[0]?.generated_text?.trim() || `No sé cómo responder a eso, ${userName}. ¿Puedes darme más detalles?`;
+
+            aiReply = response.data[0]?.generated_text?.trim() || 
+                `Uy, ${userName}, esta vaina se puso rara y no sé qué decirte. Dame más pistas pa’ cachar bien y te respondo con todo, ¿sí?`;
         }
 
-        aiReply += `\n\n¿Te ayudó esto, ${userName}?`;
-        const finalEmbed = createEmbed('#55FFFF', `¡Aquí estoy, ${userName}!`, aiReply, 'Con cariño, Miguel IA | Reacciona con ✅ o ❌, ¡por favor!');
+        aiReply += `\n\n¿Te sirvió esa respuesta, ${userName}? ¿Seguimos charlando o qué, pana?`;
+        const finalEmbed = createEmbed('#55FFFF', `¡Aquí estoy, ${userName}!`, aiReply, 'Con cariño, Miguel IA | Reacciona con ✅ o ❌');
         const updatedMessage = await waitingMessage.edit({ embeds: [finalEmbed] });
         await updatedMessage.react('✅');
         await updatedMessage.react('❌');
         sentMessages.set(updatedMessage.id, { content: aiReply, originalQuestion: chatMessage, message: updatedMessage });
     } catch (error) {
-        console.error('Error en !chat:', error.message);
-        const errorEmbed = createEmbed('#FF5555', '¡Ups!', `Algo salió mal, ${userName}. Error: ${error.message}. ¡Intenta de nuevo o reformula tu pregunta!`, 'Con cariño, Miguel IA | Reacciona con ✅ o ❌, ¡por favor!');
-        await waitingMessage.edit({ embeds: [errorEmbed] });
+        console.error('Error en !chat con API:', error.message);
+        const errorEmbed = createEmbed('#FF5555', '¡Qué webada!', 
+            `¡Uy, ${userName}, algo se me chispoteó con la API! Error: ${error.message}. Dame otra chance y reformula eso, ¿sí, pana?`, 
+            'Con cariño, Miguel IA | Reacciona con ✅ o ❌');
+        const errorMessage = await waitingMessage.edit({ embeds: [errorEmbed] });
+        await errorMessage.react('✅');
+        await errorMessage.react('❌');
     }
 }
 
@@ -1559,6 +1599,43 @@ client.on('messageCreate', async (message) => {
     if (![OWNER_ID, ALLOWED_USER_ID].includes(message.author.id)) return;
 
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
+
+    // Detectar uso excesivo de mayúsculas
+    const content = message.content;
+    const lettersOnly = content.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ]/g, ''); // Solo letras
+    if (lettersOnly.length > 5) { // Mínimo 5 letras para evitar falsos positivos
+        const uppercaseCount = lettersOnly.split('').filter(char => char === char.toUpperCase()).length;
+        const uppercasePercentage = (uppercaseCount / lettersOnly.length) * 100;
+
+        if (uppercasePercentage >= 80) { // Si el 80% o más son mayúsculas
+            try {
+                // Eliminar el mensaje
+                await message.delete();
+
+                // Mutear al usuario (timeout por 5 minutos como ejemplo)
+                const member = message.guild.members.cache.get(message.author.id);
+                if (member && message.guild.members.me.permissions.has('MODERATE_MEMBERS')) {
+                    await member.timeout(5 * 60 * 1000, 'Uso excesivo de mayúsculas'); // 5 minutos
+                    await message.channel.send({ 
+                        embeds: [createEmbed('#FF5555', '⛔ ¡Calma, pana!', 
+                            `${userName}, no grites tanto, ¿sí? Te muteé 5 minutos por usar muchas mayúsculas.`)] 
+                    });
+                } else {
+                    await message.channel.send({ 
+                        embeds: [createEmbed('#FF5555', '⛔ ¡Ups!', 
+                            `${userName}, usaste muchas mayúsculas, pero no tengo permisos para mutearte.`)] 
+                    });
+                }
+            } catch (error) {
+                console.error('Error al mutear:', error.message);
+                await message.channel.send({ 
+                    embeds: [createEmbed('#FF5555', '⛔ Error', 
+                        `No pude mutear a ${userName}: ${error.message}`)] 
+                });
+            }
+            return; // Salir del evento para no procesar más el mensaje
+        }
+    }
 
     if (processedMessages.has(message.id)) return;
     processedMessages.set(message.id, Date.now());
