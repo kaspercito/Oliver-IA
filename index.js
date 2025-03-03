@@ -679,7 +679,6 @@ function normalizeText(text) {
     return text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 }
 
-// Obtener una pregunta de trivia (sin cambios, pero añadido log para depuración)
 function obtenerPreguntaTriviaSinOpciones(usedQuestions, categoria) {
     console.log("Obteniendo pregunta para categoría:", categoria, "Preguntas usadas:", usedQuestions.length);
     const preguntasCategoria = preguntasTriviaSinOpciones[categoria] || [];
@@ -689,32 +688,18 @@ function obtenerPreguntaTriviaSinOpciones(usedQuestions, categoria) {
     return available[Math.floor(Math.random() * available.length)];
 }
 
-// Función principal de trivia corregida
 async function manejarTrivia(message) {
     console.log(`Instancia ${instanceId} - Iniciando trivia para ${message.author.id}`);
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
     console.log("Mensaje recibido:", message.content);
 
-    // Verificar permisos del bot en el canal
-    const channelPermissions = message.channel.permissionsFor(message.guild.members.me);
-    if (!channelPermissions.has('SEND_MESSAGES')) {
-        console.log("No tengo permiso para enviar mensajes en el canal:", message.channel.id);
-        return;
-    }
-    if (!channelPermissions.has('EMBED_LINKS')) {
-        console.log("No tengo permiso para incrustar enlaces en el canal:", message.channel.id);
-        return;
-    }
-    console.log("Permisos verificados: SEND_MESSAGES y EMBED_LINKS OK");
-
-    // Procesar argumentos con normalización de tildes
-    const args = message.content.split(' ').slice(1).map(arg => normalizeText(arg));
+    const args = message.content.split(' ').slice(1).map(normalizeText);
     console.log("Argumentos procesados:", args);
 
     let categoria = args[0] || 'capitales';
     let numQuestions = 20;
     if (args[1] && !isNaN(args[1])) {
-        numQuestions = Math.max(parseInt(args[1]), 20); // Acepta cualquier número, mínimo 20
+        numQuestions = Math.max(parseInt(args[1]), 20);
     } else if (args[0] && !isNaN(args[0])) {
         numQuestions = Math.max(parseInt(args[0]), 20);
         categoria = 'capitales';
@@ -722,17 +707,24 @@ async function manejarTrivia(message) {
     console.log("Categoría seleccionada:", categoria, "Número de preguntas:", numQuestions);
 
     try {
-        // Validar categoría
+        console.log("Verificando categoría...");
         if (!preguntasTriviaSinOpciones[categoria]) {
             console.log("Categoría no encontrada:", categoria);
             const errorEmbed = createEmbed('#FF5555', '¡Ups!', 
                 `Categoría "${categoria}" no encontrada. Categorías disponibles: ${Object.keys(preguntasTriviaSinOpciones).join(', ')}`);
-            console.log("Intentando enviar mensaje de error...");
+            console.log("Intentando enviar error...");
             await message.channel.send({ embeds: [errorEmbed] });
-            console.log("Mensaje de error enviado");
+            console.log("Error enviado");
             return;
         }
-        console.log("Categoría válida, iniciando trivia...");
+        console.log("Categoría válida:", categoria);
+
+        // Punto de prueba: enviar un mensaje justo después de validar la categoría
+        const testEmbed = createEmbed('#55FFFF', '¡Test!', 
+            `Categoría "${categoria}" válida. Preparando trivia con ${numQuestions} preguntas...`);
+        console.log("Intentando enviar mensaje de prueba...");
+        await message.channel.send({ embeds: [testEmbed] });
+        console.log("Mensaje de prueba enviado");
 
         let channelProgress = dataStore.activeSessions[message.channel.id] || { 
             type: 'trivia', 
@@ -747,9 +739,9 @@ async function manejarTrivia(message) {
 
         while (channelProgress.currentQuestion < numQuestions) {
             const trivia = obtenerPreguntaTriviaSinOpciones(usedQuestions, categoria);
-            console.log("Pregunta seleccionada:", trivia);
+            console.log("Pregunta obtenida:", trivia);
             if (!trivia) {
-                console.log("No hay más preguntas disponibles en", categoria);
+                console.log("No hay más preguntas en", categoria);
                 await message.channel.send({ embeds: [createEmbed('#FF5555', '¡Ups!', 
                     'No hay más preguntas disponibles en esta categoría.')] });
                 break;
