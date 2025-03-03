@@ -1289,6 +1289,15 @@ manager.on('queueEnd', async player => {
     if (autoplay && channel) {
         try {
             const currentTrack = player.queue.current;
+            if (!currentTrack || !currentTrack.identifier) {
+                await channel.send({ embeds: [createEmbed('#FF5555', '⚠️ Autoplay detenido', 
+                    'No hay una canción actual para buscar relacionadas. Usa !pl para añadir más música.')] });
+                player.destroy();
+                delete dataStore.musicSessions[guildId];
+                dataStoreModified = true;
+                return;
+            }
+
             const related = await manager.search(`related:${currentTrack.identifier}`, client.user);
             if (related.tracks.length > 0) {
                 const nextTrack = related.tracks[0];
@@ -1299,14 +1308,20 @@ manager.on('queueEnd', async player => {
                     .setThumbnail(nextTrack.thumbnail || null);
                 await channel.send({ embeds: [embed] });
                 return;
+            } else {
+                await channel.send({ embeds: [createEmbed('#FF5555', '⚠️ Autoplay falló', 
+                    'No encontré canciones relacionadas.')] });
             }
         } catch (error) {
             console.error(`Error en autoplay: ${error.message}`);
+            await channel.send({ embeds: [createEmbed('#FF5555', '⚠️ Error en Autoplay', 
+                `Algo salió mal: ${error.message}`)] });
         }
     }
 
     if (channel) {
-        await channel.send({ embeds: [createEmbed('#FF5555', '🏁 Cola terminada', 'No hay más canciones. ¡Añade más con !pl!')] });
+        await channel.send({ embeds: [createEmbed('#FF5555', '🏁 Cola terminada', 
+            'No hay más canciones. ¡Añade más con !pl!')] });
     }
     player.destroy();
     delete dataStore.musicSessions[player.guild];
