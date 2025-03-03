@@ -604,18 +604,48 @@ async function saveDataStore() {
             );
             sha = response.data.sha;
         } catch (error) {
-            if (error.response?.status !== 404) throw error;
+            if (error.response?.status !== 404) throw error; // Si el archivo no existe, se creará
         }
+
+        // Guardar el estado detallado de los reproductores de música
+        manager.players.forEach((player, guildId) => {
+            if (!player.queue.current) return; // Ignorar si no hay música activa
+            dataStore.musicSessions[guildId] = {
+                guildId: guildId,
+                voiceChannel: player.voiceChannel,
+                textChannel: player.textChannel,
+                currentTrack: {
+                    uri: player.queue.current.uri,
+                    title: player.queue.current.title,
+                    duration: player.queue.current.duration,
+                    position: player.position, // Posición exacta en milisegundos
+                    requester: player.queue.current.requester.id,
+                },
+                queue: player.queue.map(track => ({
+                    uri: track.uri,
+                    title: track.title,
+                    duration: track.duration,
+                    requester: track.requester.id,
+                })),
+                paused: player.paused,
+                volume: player.volume,
+                trackRepeat: player.trackRepeat,
+                queueRepeat: player.queueRepeat,
+                autoplay: dataStore.musicSessions[guildId]?.autoplay || false,
+                lastSaved: Date.now(), // Para depuración
+            };
+        });
+
         await axios.put(
             `https://api.github.com/repos/${process.env.GITHUB_REPO}/contents/${process.env.GITHUB_FILE_PATH}`,
             {
-                message: 'Actualizar historial y sesiones',
+                message: `Actualizar historial, sesiones y estado de música - ${new Date().toISOString()}`,
                 content: Buffer.from(JSON.stringify(dataStore, null, 2)).toString('base64'),
                 sha: sha || undefined,
             },
             { headers: { 'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`, 'Accept': 'application/vnd.github+json' } }
         );
-        console.log('Datos guardados en GitHub');
+        console.log('Datos y estado de música guardados en GitHub');
         return true;
     } catch (error) {
         console.error('Error al guardar datos en GitHub:', error.message);
@@ -623,26 +653,31 @@ async function saveDataStore() {
     }
 }
 
-// Guardado automático (sin cambios, incluido para contexto)
-const SAVE_INTERVAL = 1800000;
-const WARNING_TIME = 300000;
+// Guardado automático ajustado
+const SAVE_INTERVAL = 5 * 60 * 1000; // 5 minutos (300,000 ms)
+const WARNING_TIME = 60 * 1000; // 1 minuto de advertencia (60,000 ms)
 
 setInterval(async () => {
     if (!dataStoreModified) return;
     const channel = await client.channels.fetch(CHANNEL_ID);
     if (channel) {
-        await channel.send({ embeds: [createEmbed('#FFAA00', '⏰ Aviso de Guardado', '¡Atención! El autoguardado será en 5 minutos.')] });
+        await channel.send({ embeds: [createEmbed('#FFAA00', '⏰ Aviso de Guardado', '¡Atención! El autoguardado será en 1 minuto.')] });
     }
     setTimeout(async () => {
-        await saveDataStore();
-        if (channel) {
-            await channel.send({ embeds: [createEmbed('#55FF55', '💾 Guardado Completado', 'Datos guardados exitosamente.')] });
+        try {
+            await saveDataStore();
+            if (channel) {
+                await channel.send({ embeds: [createEmbed('#55FF55', '💾 Guardado Completado', 'Datos y estado de música guardados exitosamente.')] });
+            }
+            dataStoreModified = false;
+        } catch (error) {
+            console.error('Error en autosave:', error);
+            if (channel) {
+                await channel.send({ embeds: [createEmbed('#FF5555', '💾 Error', `No pude guardar los datos: ${error.message}`)] });
+            }
         }
-        dataStoreModified = false;
     }, WARNING_TIME);
 }, SAVE_INTERVAL);
-
-
 
 // Funciones de Trivia
 function obtenerPreguntaTriviaSinOpciones(usedQuestions, categoria) {
@@ -1367,15 +1402,110 @@ client.on('messageCreate', async (message) => {
 
 // Eventos
 client.once('ready', async () => {
-    console.log(`¡Miguel IA está listo! Instancia: ${instanceId}`);
+    console.log(`¡Miguel IA está listo en Railway! Instancia: ${instanceId}`);
     client.user.setPresence({ activities: [{ name: "Listo para ayudar a Miguel y Milagros", type: 0 }], status: 'online' });
     dataStore = await loadDataStore();
     activeTrivia = new Map(Object.entries(dataStore.activeSessions).filter(([_, s]) => s.type === 'trivia'));
     manager.init(client.user.id);
+
+    // Asegurarse de que musicSessions esté inicializado
     if (!dataStore.musicSessions) {
         dataStore.musicSessions = {};
         console.log('musicSessions no estaba presente, inicializado manualmente');
     }
+
+    // Restaurar sesiones de música
+    for (const [guildId, session] of Object.entries(dataStore.musicSessions)) {
+        const guild = client.guilds.cache.get(guildId);
+        if (!guild) {
+            console.log(`Guild ${guildId} no encontrado, eliminando sesión`);
+            delete dataStore.musicSessions[guildId];
+            dataStoreModified = true;
+            continue;
+        }
+
+        const voiceChannel = guild.channels.cache.get(session.voiceChannel);
+        const textChannel = guild.channels.cache.get(session.textChannel);
+        if (!voiceChannel || !textChannel) {
+            console.log(`Canales no encontrados en ${guildId}, eliminando sesión`);
+            delete dataStore.musicSessions[guildId];
+            dataStoreModified = true;
+            continue;
+        }
+
+        const player = manager.create({
+            guild: guildId,
+            voiceChannel: session.voiceChannel,
+            textChannel: session.textChannel,
+            selfDeafen: true,
+        });
+
+        if (player.state !== 'CONNECTED') {
+            try {
+                player.connect();
+                console.log(`Conectado al canal de voz en ${guildId}`);
+            } catch (error) {
+                console.error(`Error al conectar en ${guildId}: ${error.message}`);
+                delete dataStore.musicSessions[guildId];
+                dataStoreModified = true;
+                continue;
+            }
+        }
+
+        // Restaurar la cola
+        if (session.queue && session.queue.length > 0) {
+            try {
+                const tracks = await Promise.all(session.queue.map(async track => {
+                    const res = await manager.search(track.uri, client.users.cache.get(track.requester));
+                    if (res.loadType === 'TRACK_LOADED' || res.loadType === 'SEARCH_RESULT') return res.tracks[0];
+                    return null;
+                }));
+                player.queue.add(tracks.filter(track => track));
+                console.log(`Cola restaurada en ${guildId} con ${tracks.length} pistas`);
+            } catch (error) {
+                console.error(`Error al restaurar cola en ${guildId}: ${error.message}`);
+            }
+        }
+
+        // Restaurar la pista actual
+        if (session.currentTrack) {
+            try {
+                const res = await manager.search(session.currentTrack.uri, client.users.cache.get(session.currentTrack.requester));
+                if (res.loadType === 'TRACK_LOADED' || res.loadType === 'SEARCH_RESULT') {
+                    const track = res.tracks[0];
+                    player.queue.unshift(track);
+                    player.play(track);
+                    player.seek(session.currentTrack.position); // Reanudar desde la posición guardada
+                    if (session.paused) player.pause(true);
+                    console.log(`Reproduciendo ${track.title} en ${guildId} desde ${session.currentTrack.position}ms`);
+                    textChannel.send({ embeds: [createEmbed('#00FF00', '🎵 Música restaurada', 
+                        `Continuando con **${track.title}** desde donde se quedó.`)] });
+                }
+            } catch (error) {
+                console.error(`Error al restaurar pista en ${guildId}: ${error.message}`);
+                textChannel.send({ embeds: [createEmbed('#FF5555', '❌ Error', 
+                    `No pude restaurar la música: ${error.message}`)] });
+            }
+        }
+
+        // Restaurar configuraciones adicionales
+        player.setVolume(session.volume || 100);
+        player.setTrackRepeat(session.trackRepeat || false);
+        player.setQueueRepeat(session.queueRepeat || false);
+    }
+
+    // Guardar cambios si hubo limpieza de sesiones inválidas
+    if (dataStoreModified) {
+        try {
+            await saveDataStore();
+            dataStoreModified = false;
+            console.log('Datos limpiados y guardados tras restauración');
+        } catch (error) {
+            console.error('Error al guardar tras restauración:', error);
+        }
+    }
+
+    // Enviar actualizaciones al canal (parte original de tu código)
     try {
         const channel = await client.channels.fetch(CHANNEL_ID);
         if (!channel) throw new Error('Canal no encontrado');
@@ -1404,7 +1534,25 @@ client.once('ready', async () => {
 
 process.on('beforeExit', async () => {
     console.log('Guardando datos antes de salir...');
-    await saveDataStore();
+    try {
+        await saveDataStore();
+        console.log('Datos guardados exitosamente antes de cerrar');
+    } catch (error) {
+        console.error('Error al guardar antes de salir:', error);
+    }
+});
+
+process.on('SIGTERM', async () => {
+    console.log('Recibido SIGTERM en Railway, guardando datos...');
+    try {
+        await saveDataStore();
+        client.destroy(); // Cerrar el cliente de Discord limpiamente
+        console.log('Bot cerrado limpiamente tras guardar');
+        process.exit(0);
+    } catch (error) {
+        console.error('Error al guardar en SIGTERM:', error);
+        process.exit(1);
+    }
 });
 
 client.on('messageReactionAdd', async (reaction, user) => {
