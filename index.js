@@ -1015,9 +1015,11 @@ async function manejarPlay(message) {
     let res;
     try {
         console.log(`Buscando "${args}"...`);
+        // Detectar si es una URL
+        const isUrl = args.startsWith('http://') || args.startsWith('https://');
         res = await manager.search(args, message.author);
-        console.log(`Resultado de búsqueda: ${res.loadType}`);
 
+        console.log(`Resultado de búsqueda: ${res.loadType}`);
         if (res.loadType === 'NO_MATCHES') {
             return sendError(message.channel, `No encontré resultados para "${args}", ${userName}.`);
         }
@@ -1026,13 +1028,11 @@ async function manejarPlay(message) {
         }
 
         if (res.loadType === 'PLAYLIST_LOADED') {
-            // Añadir todas las pistas de la playlist
             res.tracks.forEach(track => player.queue.add(track));
             const embed = createEmbed('#55FFFF', '🎶 ¡Playlist añadida!',
                 `**${res.playlist.name}** (${res.tracks.length} canciones) ha sido añadida a la cola.\nSolicitada por: ${userName}`);
             await message.channel.send({ embeds: [embed] });
         } else {
-            // Caso de una sola pista
             const track = res.tracks[0];
             player.queue.add(track);
             const embed = createEmbed('#55FFFF', '🎶 ¡Música añadida!',
@@ -1040,7 +1040,7 @@ async function manejarPlay(message) {
             await message.channel.send({ embeds: [embed] });
         }
 
-        if (!player.playing) {
+        if (!player.playing && !player.paused) {
             console.log(`Reproduciendo...`);
             player.play();
         }
