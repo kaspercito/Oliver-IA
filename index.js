@@ -46,18 +46,18 @@ const manager = new Manager({
 });
 
 const BOT_UPDATES = [
-    'Música!! Ahora el bot puede reproducir música cuando tu gustes, !help musica servíra mientras disfrutas de las actividades.',
+    '¡Trivia extendida! Ahora las trivias son de 20 preguntas por defecto en lugar de 10.',
     '¡Guardado automático mejorado! Avisa 5 minutos antes cada 30 minutos para que evites iniciar nuevos comandos.',
-    '¡Comando! !autosave desactivar el autoguardado por si no quieres que falle y después lo activas de nuevo o haces un !save.',
-    '¡Comando !rppm ahora tendrás tu historial completo de !ppm por si gustas observar todos lo que haz logrado.',
+    '¡Comandos !sugerencias y !ayuda añadidos! Envía ideas o pide ayuda directamente a Miguel.',
+    '¡PPM más rápido! El tiempo para escribir la frase se redujo de 60 a 15 segundos.',
 ];
 
 // Estado anterior de las actualizaciones (del código pasado)
 const PREVIOUS_BOT_UPDATES = [
-    'Música!! Ahora el bot puede reproducir música cuando tu gustes, !help musica servíra mientras disfrutas de las actividades.',
+    '¡Trivia extendida! Ahora las trivias son de 20 preguntas por defecto en lugar de 10.',
     '¡Guardado automático mejorado! Avisa 5 minutos antes cada 30 minutos para que evites iniciar nuevos comandos.',
-    '¡Comando! !autosave desactivar el autoguardado por si no quieres que falle y después lo activas de nuevo o haces un !save.',
-    '¡Comando !rppm ahora tendrás tu historial completo de !ppm por si gustas observar todos lo que haz logrado.',
+    '¡Comandos !sugerencias y !ayuda añadidos! Envía ideas o pide ayuda directamente a Miguel.',
+    '¡PPM más rápido! El tiempo para escribir la frase se redujo de 60 a 15 segundos.',
 ];
 
 // Mensajes de ánimo para Belén
@@ -679,6 +679,7 @@ function normalizeText(text) {
     return text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 }
 
+// Obtener una pregunta de trivia (sin cambios, pero añadido log para depuración)
 function obtenerPreguntaTriviaSinOpciones(usedQuestions, categoria) {
     console.log("Obteniendo pregunta para categoría:", categoria, "Preguntas usadas:", usedQuestions.length);
     const preguntasCategoria = preguntasTriviaSinOpciones[categoria] || [];
@@ -688,18 +689,32 @@ function obtenerPreguntaTriviaSinOpciones(usedQuestions, categoria) {
     return available[Math.floor(Math.random() * available.length)];
 }
 
+// Función principal de trivia corregida
 async function manejarTrivia(message) {
     console.log(`Instancia ${instanceId} - Iniciando trivia para ${message.author.id}`);
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
     console.log("Mensaje recibido:", message.content);
 
-    const args = message.content.split(' ').slice(1).map(normalizeText);
+    // Verificar permisos del bot en el canal
+    const channelPermissions = message.channel.permissionsFor(message.guild.members.me);
+    if (!channelPermissions.has('SEND_MESSAGES')) {
+        console.log("No tengo permiso para enviar mensajes en el canal:", message.channel.id);
+        return;
+    }
+    if (!channelPermissions.has('EMBED_LINKS')) {
+        console.log("No tengo permiso para incrustar enlaces en el canal:", message.channel.id);
+        return;
+    }
+    console.log("Permisos verificados: SEND_MESSAGES y EMBED_LINKS OK");
+
+    // Procesar argumentos con normalización de tildes
+    const args = message.content.split(' ').slice(1).map(arg => normalizeText(arg));
     console.log("Argumentos procesados:", args);
 
     let categoria = args[0] || 'capitales';
     let numQuestions = 20;
     if (args[1] && !isNaN(args[1])) {
-        numQuestions = Math.max(parseInt(args[1]), 20);
+        numQuestions = Math.max(parseInt(args[1]), 20); // Acepta cualquier número, mínimo 20
     } else if (args[0] && !isNaN(args[0])) {
         numQuestions = Math.max(parseInt(args[0]), 20);
         categoria = 'capitales';
@@ -707,26 +722,17 @@ async function manejarTrivia(message) {
     console.log("Categoría seleccionada:", categoria, "Número de preguntas:", numQuestions);
 
     try {
-        console.log("Verificando categoría...");
+        // Validar categoría
         if (!preguntasTriviaSinOpciones[categoria]) {
             console.log("Categoría no encontrada:", categoria);
-            const categoriasDisponibles = Object.keys(preguntasTriviaSinOpciones).join(', ');
-            console.log("Categorías disponibles:", categoriasDisponibles);
             const errorEmbed = createEmbed('#FF5555', '¡Ups!', 
-                `Categoría "${categoria}" no encontrada. Categorías disponibles: ${categoriasDisponibles}`);
-            console.log("Intentando enviar error...");
+                `Categoría "${categoria}" no encontrada. Categorías disponibles: ${Object.keys(preguntasTriviaSinOpciones).join(', ')}`);
+            console.log("Intentando enviar mensaje de error...");
             await message.channel.send({ embeds: [errorEmbed] });
-            console.log("Error enviado con éxito");
+            console.log("Mensaje de error enviado");
             return;
         }
-        console.log("Categoría válida:", categoria);
-
-        // Punto de prueba para categorías válidas
-        const testEmbed = createEmbed('#55FFFF', '¡Test!', 
-            `Categoría "${categoria}" válida. Preparando trivia con ${numQuestions} preguntas...`);
-        console.log("Intentando enviar mensaje de prueba...");
-        await message.channel.send({ embeds: [testEmbed] });
-        console.log("Mensaje de prueba enviado");
+        console.log("Categoría válida, iniciando trivia...");
 
         let channelProgress = dataStore.activeSessions[message.channel.id] || { 
             type: 'trivia', 
@@ -741,9 +747,9 @@ async function manejarTrivia(message) {
 
         while (channelProgress.currentQuestion < numQuestions) {
             const trivia = obtenerPreguntaTriviaSinOpciones(usedQuestions, categoria);
-            console.log("Pregunta obtenida:", trivia);
+            console.log("Pregunta seleccionada:", trivia);
             if (!trivia) {
-                console.log("No hay más preguntas en", categoria);
+                console.log("No hay más preguntas disponibles en", categoria);
                 await message.channel.send({ embeds: [createEmbed('#FF5555', '¡Ups!', 
                     'No hay más preguntas disponibles en esta categoría.')] });
                 break;
@@ -1493,7 +1499,7 @@ async function manejarCommand(message) {
     const content = message.content.toLowerCase();
     console.log(`Comando recibido: ${content}`);
 
-    if (content.startsWith('!trivia') || content.startsWith('!tr')) {
+    if (content === '!trivia' || content === '!tr') {
         await manejarTrivia(message);
     } else if (content.startsWith('!chat') || content.startsWith('!ch')) {
         await manejarChat(message);
@@ -1541,9 +1547,9 @@ async function manejarCommand(message) {
         await manejarBack(message);
     } else if (content === '!autoplay' || content === '!ap') {
         await manejarAutoplay(message);
-    } else if (content === '!autosave' || content === '!as') {
+    } else if (content === '!autosave' || content === '!as') { // Nueva línea
         await manejarAutosave(message);
-    } else if (content === '!lyrics' || content === '!ly') {
+    } else if (content ==='!lyrics' || content === '!ly') { // Añadir esta línea
         await manejarLyrics(message);
     }
 }
