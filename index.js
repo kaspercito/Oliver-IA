@@ -1530,16 +1530,7 @@ async function manejarChat(message) {
     const waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
 
     try {
-        // Chequear estado de la API antes de enviar
-        const apiCheck = await axios.get('https://api-inference.huggingface.co/status', {
-            headers: { 'Authorization': `Bearer ${process.env.HF_API_TOKEN}` },
-            timeout: 5000
-        });
-        if (!apiCheck.data || apiCheck.data.status !== 'ok') {
-            throw new Error('API no disponible');
-        }
-
-        // Prompt ultra simple y directo
+        // Prompt simple y directo
         const prompt = `Eres Miguel IA, un compa chévere de la costa ecuatoriana. Responde SOLO a "${chatMessage}" en español costeño con "chévere", "man", "pana", "qué bacán". Sé claro y contesta exactamente lo que te preguntan con lo que sabes, SIN INVENTAR NADA. Si no sabes algo exacto, da una respuesta aproximada o pide más contexto con humor. Termina con "¿Te cacha esa respuesta, ${userName}? ¿Seguimos charlando o qué, pana?".`;
 
         // Consulta a la API de Hugging Face
@@ -1548,9 +1539,9 @@ async function manejarChat(message) {
             {
                 inputs: prompt,
                 parameters: {
-                    max_new_tokens: 400, // Espacio pa’ respuestas completas
-                    return_full_text: false, // Solo la respuesta
-                    temperature: 0.7 // Natural y preciso
+                    max_new_tokens: 400,
+                    return_full_text: false,
+                    temperature: 0.7
                 }
             },
             {
@@ -1558,14 +1549,14 @@ async function manejarChat(message) {
                     'Authorization': `Bearer ${process.env.HF_API_TOKEN}`,
                     'Content-Type': 'application/json'
                 },
-                timeout: 90000 // 90 segundos de timeout
+                timeout: 90000
             }
         );
 
         // Obtener la respuesta
         let aiReply = response.data[0]?.generated_text?.trim();
         if (!aiReply || aiReply.length < 5) {
-            // Fallback contextual mejorado
+            // Fallback contextual
             const lowerMessage = chatMessage.toLowerCase();
             if (lowerMessage.includes("hola") || lowerMessage.includes("cómo estás")) {
                 aiReply = `¡Qué bacán, ${userName}! Hola, pana, estoy chévere, ¿y tú cómo estás?`;
@@ -1575,7 +1566,7 @@ async function manejarChat(message) {
                 aiReply = `¡Qué bacán, ${userName}! No tengo el clima exacto ahora, pana, pero en la costa suele ser calientito, entre 25 y 33°C. ¿Dónde estás preguntando, man?`;
             } else if (lowerMessage.includes("calculo") || lowerMessage.includes("área")) {
                 if (lowerMessage.includes("triángulo")) {
-                    aiReply = `¡Qué bacán, ${userName}! Pa’ calcular el área de un triángulo, usa esta fórmula, pana: Área = (base * altura) / 2. Por ejemplo, base 6 y altura 4: (6 * 4) / 2 = 12.`;
+                    aiReply = `¡Qué bacán, ${userName}! Pa’ calcular el área de un triángulo, usa esta fórmula, pana: Área = (base * altura) / 2. Ejemplo: base 6 y altura 4, (6 * 4) / 2 = 12.`;
                 } else {
                     aiReply = `¡Qué webada, ${userName}! No sé qué pasó, man, pero si me das más detalles, te ayudo con ese cálculo, ¿sí?`;
                 }
@@ -1619,15 +1610,32 @@ async function manejarChat(message) {
     } catch (error) {
         console.error('Error en !chat con API:', error.message);
         let errorMessage;
-        if (error.response?.status === 401) {
-            errorMessage = `¡Qué webada, ${userName}! Mi token pa’ la API no funciona, pana. Revisa el HF_API_TOKEN en el .env, ¿sí?`;
+        if (error.response?.status === 400 || error.response?.status === 401) {
+            errorMessage = `¡Qué webada, ${userName}! Algo está mal con mi token pa’ la API, pana (Error ${error.response?.status}). Revisa el HF_API_TOKEN en el .env, ¿sí?`;
         } else if (error.code === 'ECONNABORTED') {
             errorMessage = `¡Qué vaina, ${userName}! La conexión se cortó, man, tardó demasiado. ¿Me repites tu pregunta o seguimos con otra cosa?`;
-        } else if (error.message.includes('API no disponible')) {
-            errorMessage = `¡Qué webada, ${userName}! La API no está funcionando ahora, pana. ¿Me repites después o charlamos de otra vaina?`;
         } else {
-            errorMessage = `¡Qué webada, ${userName}! Algo falló, man (${error.message}). Aquí estoy pa’ charlar igual, ¿me repites o seguimos con otra cosa?`;
+            errorMessage = `¡Qué webada, ${userName}! Algo falló, man (${error.message}). Aquí estoy pa’ charlar igual, ¿me repites o seguimos con otra vaina?`;
         }
+
+        // Fallback contextual en caso de error
+        const lowerMessage = chatMessage.toLowerCase();
+        if (lowerMessage.includes("hola") || lowerMessage.includes("cómo estás")) {
+            errorMessage = `¡Qué bacán, ${userName}! Hola, pana, estoy chévere, ¿y tú cómo estás? La API falló, pero aquí estoy, man.`;
+        } else if (lowerMessage.includes("no quieres hablar")) {
+            errorMessage = `¡Qué vaina, ${userName}! Claro que quiero hablar contigo, pana, siempre estoy aquí pa’ charlar como buen compa. La API se chispoteó, pero seguimos.`;
+        } else if (lowerMessage.includes("clima")) {
+            errorMessage = `¡Qué bacán, ${userName}! No tengo el clima exacto ahora, pana, pero en la costa suele ser calientito, entre 25 y 33°C. La API falló, ¿dónde estás preguntando, man?`;
+        } else if (lowerMessage.includes("calculo") || lowerMessage.includes("área")) {
+            if (lowerMessage.includes("triángulo")) {
+                errorMessage = `¡Qué bacán, ${userName}! Pa’ calcular el área de un triángulo, usa esta fórmula, pana: Área = (base * altura) / 2. Ejemplo: base 6 y altura 4, (6 * 4) / 2 = 12. La API falló, pero te ayudo igual.`;
+            } else {
+                errorMessage = `¡Qué webada, ${userName}! No sé qué pasó, man, pero si me das más detalles, te ayudo con ese cálculo, ¿sí? La API se fue al carajo.`;
+            }
+        } else if (lowerMessage.includes("aplicaciones") || lowerMessage.includes("apps")) {
+            errorMessage = `¡Qué chévere, ${userName}! Te recomiendo Snapseed pa’ editar fácil, Lightroom pa’ algo pro, y VSCO pa’ filtros bacanos, pana. La API falló, pero aquí tienes.`;
+        }
+
         const errorEmbed = createEmbed('#FF5555', '¡Qué webada!', `${errorMessage}\n\n¿Te cacha esa respuesta, ${userName}? ¿Seguimos charlando o qué, pana?`, 'Con cariño, Miguel IA | Reacciona con ✅ o ❌');
         const errorMessageSent = await waitingMessage.edit({ embeds: [errorEmbed] });
         await errorMessageSent.react('✅');
