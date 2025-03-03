@@ -26,9 +26,9 @@ const CHANNEL_ID = '1343749554905940058'; // Canal principal
 const manager = new Manager({
     nodes: [
         {
-            host: 'lavalink.oops.wtf', // Nodo público confiable
-            port: 2333,
-            password: 'www.freelavalink.ga',
+            host: 'lavahatry4.techbyte.host', // Nodo público confiable
+            port: 3000,
+            password: 'NAIGLAVA-dash.techbyte.host',
             secure: false,
         },
     ],
