@@ -2167,7 +2167,7 @@ client.on('messageReactionAdd', async (reaction, user) => {
                 {
                     inputs: prompt,
                     parameters: {
-                        max_new_tokens: 500,
+                        max_new_tokens: 550,
                         return_full_text: false,
                         temperature: 0.7
                     }
