@@ -2202,18 +2202,6 @@ client.on('messageReactionAdd', async (reaction, user) => {
         }
     }
 });
-    // Notificación al owner si es Belén
-    if (user.id === ALLOWED_USER_ID) {
-        const owner = await client.users.fetch(OWNER_ID);
-        const reactionEmbed = createEmbed('#FFD700', '¡Belén reaccionó!', 
-            `Belén reaccionó con ${reaction.emoji} a: "${messageData.content}"\nPregunta original: "${messageData.originalQuestion}"\nEnviado el: ${new Date(messageData.message.createdTimestamp).toLocaleString()}`);
-        try {
-            await owner.send({ embeds: [reactionEmbed] });
-            console.log(`Notificación enviada a ${OWNER_ID}: Belén reaccionó con ${reaction.emoji}`);
-        } catch (error) {
-            console.error('Error al notificar al dueño:', error);
-        }
-    }
 
 client.on('raw', (d) => {
     console.log('Evento raw recibido:', d.t);
