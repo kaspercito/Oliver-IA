@@ -32,6 +32,34 @@
         "timestamp": null
       },
       "attempts": []
+    },
+    "752987736759205960": {
+      "best": {
+        "ppm": 110,
+        "timestamp": "2025-03-03T03:20:50.111Z"
+      },
+      "attempts": [
+        {
+          "ppm": 110,
+          "timestamp": "2025-03-03T03:20:50.111Z"
+        },
+        {
+          "ppm": 90,
+          "timestamp": "2025-03-03T03:19:41.269Z"
+        },
+        {
+          "ppm": 86,
+          "timestamp": "2025-03-03T03:20:23.259Z"
+        },
+        {
+          "ppm": 80,
+          "timestamp": "2025-03-03T03:20:38.331Z"
+        },
+        {
+          "ppm": 75,
+          "timestamp": "2025-03-03T03:19:54.430Z"
+        }
+      ]
     }
   },
   "reactionStats": {},
@@ -42,7 +70,7 @@
     },
     "752987736759205960": {
       "username": "kaspercito",
-      "wins": 25
+      "wins": 26
     }
   },
   "activeSessions": {},
