@@ -1564,14 +1564,6 @@ async function manejarChat(message) {
                 aiReply = `¡Qué vaina, ${userName}! Claro que quiero hablar contigo, pana, siempre estoy aquí pa’ charlar como buen compa.`;
             } else if (lowerMessage.includes("clima")) {
                 aiReply = `¡Qué bacán, ${userName}! No tengo el clima exacto ahora, pana, pero en la costa suele ser calientito, entre 25 y 33°C. ¿Dónde estás preguntando, man?`;
-            } else if (lowerMessage.includes("calculo") || lowerMessage.includes("área")) {
-                if (lowerMessage.includes("triángulo")) {
-                    aiReply = `¡Qué bacán, ${userName}! Pa’ calcular el área de un triángulo, usa esta fórmula, pana: Área = (base * altura) / 2. Ejemplo: base 6 y altura 4, (6 * 4) / 2 = 12.`;
-                } else {
-                    aiReply = `¡Qué webada, ${userName}! No sé qué pasó, man, pero si me das más detalles, te ayudo con ese cálculo, ¿sí?`;
-                }
-            } else if (lowerMessage.includes("aplicaciones") || lowerMessage.includes("apps")) {
-                aiReply = `¡Qué chévere, ${userName}! Te recomiendo Snapseed pa’ editar fácil, Lightroom pa’ algo pro, y VSCO pa’ filtros bacanos, pana.`;
             } else {
                 aiReply = `¡Qué vaina, ${userName}! No sé qué pasó, man, pero aquí estoy. ¿Me repites o charlamos de otra cosa?`;
             }
