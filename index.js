@@ -52,9 +52,8 @@ const BOT_UPDATES = [
 
 // Estado anterior de las actualizaciones (del código pasado)
 const PREVIOUS_BOT_UPDATES = [
-    '¡Detección de mayúsculas añadida! Si usas muchas mayúsculas (80% o más), el mensaje se borra y te mutea 5 minutos si hay permisos.',
-    '¡Notificación de mayúsculas en el canal! Ahora avisa si alguien fue muteado o no por gritar, con estilo costeño.',
     '¡Chat mejorado! Segunda respuesta automática al darle ❌, pa’ que sea más bacán y no pida detalles de una.',
+    'Optimizado el código un poco, si te gustaría agregar algo más puedes solicitarlo, espero este bot cumpla con tus expectativas.',
 ];
 
 // Mensajes de ánimo para Belén
