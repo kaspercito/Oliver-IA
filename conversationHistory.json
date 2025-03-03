@@ -5,7 +5,7 @@
       "username": "dearluz",
       "score": 25,
       "capitales": {
-        "score": 37
+        "score": 52
       },
       "disney": {
         "score": 13
@@ -72,49 +72,21 @@
   "reactionWins": {
     "1023132788632862761": {
       "username": "dearluz",
-      "wins": 15
+      "wins": 30
     },
     "752987736759205960": {
       "username": "kaspercito",
-      "wins": 26
+      "wins": 57
     }
   },
-  "activeSessions": {
-    "1343749554905940058": {
-      "type": "trivia",
-      "currentQuestion": 18,
-      "score": 12,
-      "totalQuestions": 20,
-      "usedQuestions": [
-        "¿Qué película tiene un rey león llamado Simba?",
-        "¿Qué película Disney incluye un perro callejero y una dama?",
-        "¿Qué princesa tiene poderes de hielo?",
-        "¿Qué princesa Disney vive bajo el mar?",
-        "¿Qué personaje es un pato gruñón?",
-        "¿Qué película tiene un pez llamado Nemo?",
-        "¿Qué personaje Disney es un ratón famoso?",
-        "¿Qué princesa vive bajo el mar?",
-        "¿Qué película tiene una lámpara mágica?",
-        "¿Qué princesa tiene una madrastra llamada Lady Tremaine?",
-        "¿Qué película incluye un perro callejero y una dama?",
-        "¿Qué película Disney tiene un pez llamado Nemo?",
-        "¿Qué película tiene una bestia encantada?",
-        "¿Qué personaje Disney es un pato gruñón?",
-        "¿Qué personaje es un ratón famoso?",
-        "¿Qué película Disney tiene una lámpara mágica?",
-        "¿Qué película Disney tiene una bestia encantada?",
-        "¿Qué película Disney tiene un rey león llamado Simba?"
-      ],
-      "categoria": "disney"
-    }
-  },
+  "activeSessions": {},
   "triviaStats": {
     "1023132788632862761": {
       "correct": 25,
       "total": 40,
       "capitales": {
-        "correct": 37,
-        "total": 148
+        "correct": 40,
+        "total": 170
       },
       "disney": {
         "correct": 9,
