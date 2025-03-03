@@ -22,7 +22,10 @@
     },
     "752987736759205960": {
       "username": "kaspercito",
-      "score": 4
+      "score": 4,
+      "capitales": {
+        "score": 7
+      }
     }
   },
   "personalPPMRecords": {
@@ -105,7 +108,11 @@
     },
     "752987736759205960": {
       "correct": 4,
-      "total": 10
+      "total": 10,
+      "capitales": {
+        "correct": 7,
+        "total": 20
+      }
     }
   },
   "updatesSent": true,
