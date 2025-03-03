@@ -1296,17 +1296,42 @@ manager.on('queueEnd', async player => {
 
     if (autoplay && channel) {
         try {
+            let trackIdentifier = null;
+
+            // Intento 1: Usar currentTrack
             const currentTrack = player.queue.current;
-            if (!currentTrack || !currentTrack.identifier) {
-                await channel.send({ embeds: [createEmbed('#FF5555', '⚠️ Autoplay detenido', 
-                    'No hay una canción actual para buscar relacionadas. Usa !pl para añadir más música.')] });
-                player.destroy();
-                delete dataStore.musicSessions[guildId];
-                dataStoreModified = true;
-                return;
+            console.log(`queueEnd: currentTrack = ${JSON.stringify(currentTrack)}`);
+            if (currentTrack && currentTrack.identifier) {
+                trackIdentifier = currentTrack.identifier;
+            } else {
+                // Intento 2: Usar previousTrack
+                const previousTrack = player.queue.previous;
+                console.log(`currentTrack nulo, intentando previousTrack = ${JSON.stringify(previousTrack)}`);
+                if (previousTrack && previousTrack.identifier) {
+                    trackIdentifier = previousTrack.identifier;
+                    await channel.send({ embeds: [createEmbed('#FFAA00', 'ℹ️ Autoplay ajustado', 
+                        'No hay canción actual, usando la anterior para continuar.')] });
+                } else {
+                    // Intento 3: Usar el último identifier guardado
+                    const lastIdentifier = dataStore.musicSessions[guildId]?.lastTrackIdentifier;
+                    console.log(`previousTrack nulo, intentando lastTrackIdentifier = ${lastIdentifier}`);
+                    if (lastIdentifier) {
+                        trackIdentifier = lastIdentifier;
+                        await channel.send({ embeds: [createEmbed('#FFAA00', 'ℹ️ Autoplay ajustado', 
+                            'No hay canciones recientes, usando el último registro para continuar.')] });
+                    }
+                }
             }
 
-            const related = await manager.search(`related:${currentTrack.identifier}`, client.user);
+            if (!trackIdentifier) {
+                await channel.send({ embeds: [createEmbed('#FF5555', '⚠️ Autoplay detenido', 
+                    'No hay canciones recientes para buscar relacionadas. Usa !pl para añadir más música.')] });
+                return; // No destruimos el player, permitimos que siga vivo
+            }
+
+            const related = await manager.search(`related:${trackIdentifier}`, client.user);
+            console.log(`Búsqueda relacionada: ${related.loadType}, tracks: ${related.tracks.length}`);
+            
             if (related.tracks.length > 0) {
                 const nextTrack = related.tracks[0];
                 player.queue.add(nextTrack);
@@ -1318,12 +1343,12 @@ manager.on('queueEnd', async player => {
                 return;
             } else {
                 await channel.send({ embeds: [createEmbed('#FF5555', '⚠️ Autoplay falló', 
-                    'No encontré canciones relacionadas.')] });
+                    'No encontré canciones relacionadas. Usa !pl para continuar.')] });
             }
         } catch (error) {
             console.error(`Error en autoplay: ${error.message}`);
             await channel.send({ embeds: [createEmbed('#FF5555', '⚠️ Error en Autoplay', 
-                `Algo salió mal: ${error.message}`)] });
+                `Algo salió mal: ${error.message}. Intenta con !pl.`)] });
         }
     }
 
@@ -1331,9 +1356,12 @@ manager.on('queueEnd', async player => {
         await channel.send({ embeds: [createEmbed('#FF5555', '🏁 Cola terminada', 
             'No hay más canciones. ¡Añade más con !pl!')] });
     }
-    player.destroy();
-    delete dataStore.musicSessions[player.guild];
-    dataStoreModified = true;
+    // Solo destruimos el player si el autoplay está desactivado
+    if (!autoplay) {
+        player.destroy();
+        delete dataStore.musicSessions[player.guild];
+        dataStoreModified = true;
+    }
 });
 
 // Comandos
