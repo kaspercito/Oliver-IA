@@ -1530,8 +1530,8 @@ async function manejarChat(message) {
     const waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
 
     try {
-        // Prompt simple y directo
-        const prompt = `Eres Miguel IA, un compa chévere de la costa ecuatoriana. Responde SOLO a "${chatMessage}" en español costeño con "chévere", "man", "pana", "qué bacán". Sé claro y contesta exactamente lo que te preguntan con lo que sabes, SIN INVENTAR NADA. Si no sabes algo exacto, da una respuesta aproximada o pide más contexto con humor. Termina con "¿Te cacha esa respuesta, ${userName}? ¿Seguimos charlando o qué, pana?".`;
+        // Prompt ultra optimizado para respuestas perfectas
+        const prompt = `Eres Miguel IA, creado por Miguel, un man bien chévere de la costa ecuatoriana. Responde a "${chatMessage}" como mi compa, con onda natural, relajada y súper inteligente. Usa palabras costeñas como "chévere", "jaja", "man", "vaina", "cacha", "pana", "webada" o "qué bacán". Sé claro, específico y preciso, respondiendo SOLO a lo que te preguntan, con base en tu conocimiento general, sin inventar datos falsos ni desviarte. Si es un saludo, saluda con onda; si es un cálculo, resuélvelo paso a paso; si no tienes datos en tiempo real (como el clima), da una respuesta aproximada basada en lo que sabes o pide más contexto con humor. Termina siempre con "¿Te cacha esa respuesta, ${userName}? ¿Seguimos charlando o qué, pana?" pa’ mantener la conversa viva.`;
 
         // Consulta a la API de Hugging Face
         const response = await axios.post(
@@ -1539,9 +1539,9 @@ async function manejarChat(message) {
             {
                 inputs: prompt,
                 parameters: {
-                    max_new_tokens: 400,
-                    return_full_text: false,
-                    temperature: 0.7
+                    max_new_tokens: 500, // Espacio para respuestas largas
+                    return_full_text: false, // Solo la respuesta generada
+                    temperature: 0.6 // Más precisión, menos creatividad
                 }
             },
             {
@@ -1549,24 +1549,16 @@ async function manejarChat(message) {
                     'Authorization': `Bearer ${process.env.HF_API_TOKEN}`,
                     'Content-Type': 'application/json'
                 },
-                timeout: 90000
+                timeout: 90000 // 90 segundos de timeout
             }
         );
 
         // Obtener la respuesta
         let aiReply = response.data[0]?.generated_text?.trim();
+
+        // Filtro relajado para respuestas cortas pero válidas
         if (!aiReply || aiReply.length < 5) {
-            // Fallback contextual
-            const lowerMessage = chatMessage.toLowerCase();
-            if (lowerMessage.includes("hola") || lowerMessage.includes("cómo estás")) {
-                aiReply = `¡Qué bacán, ${userName}! Hola, pana, estoy chévere, ¿y tú cómo estás?`;
-            } else if (lowerMessage.includes("no quieres hablar")) {
-                aiReply = `¡Qué vaina, ${userName}! Claro que quiero hablar contigo, pana, siempre estoy aquí pa’ charlar como buen compa.`;
-            } else if (lowerMessage.includes("clima")) {
-                aiReply = `¡Qué bacán, ${userName}! No tengo el clima exacto ahora, pana, pero en la costa suele ser calientito, entre 25 y 33°C. ¿Dónde estás preguntando, man?`;
-            } else {
-                aiReply = `¡Qué vaina, ${userName}! No sé qué pasó, man, pero aquí estoy. ¿Me repites o charlamos de otra cosa?`;
-            }
+            aiReply = `¡Qué vaina, ${userName}! No sé qué pasó, man, pero igual estoy aquí pa’ charlar. ¿Me das más pistas o seguimos con otra cosa, pana?`;
         }
 
         // Asegurar la frase de cierre
@@ -1574,60 +1566,16 @@ async function manejarChat(message) {
             aiReply += `\n\n¿Te cacha esa respuesta, ${userName}? ¿Seguimos charlando o qué, pana?`;
         }
 
-        // Manejar respuestas largas (Discord limita a 2000 caracteres por embed)
-        const maxLength = 2000;
-        if (aiReply.length <= maxLength) {
-            const finalEmbed = createEmbed('#55FFFF', `¡Aquí estoy, ${userName}!`, aiReply, 'Con cariño, Miguel IA | Reacciona con ✅ o ❌');
-            const updatedMessage = await waitingMessage.edit({ embeds: [finalEmbed] });
-            await updatedMessage.react('✅');
-            await updatedMessage.react('❌');
-            sentMessages.set(updatedMessage.id, { content: aiReply, originalQuestion: chatMessage, message: updatedMessage });
-        } else {
-            const chunks = [];
-            for (let i = 0; i < aiReply.length; i += maxLength) {
-                chunks.push(aiReply.substring(i, i + maxLength));
-            }
-            const firstEmbed = createEmbed('#55FFFF', `¡Aquí estoy, ${userName}! (Parte 1/${chunks.length})`, chunks[0], 'Con cariño, Miguel IA | Reacciona con ✅ o ❌');
-            const updatedMessage = await waitingMessage.edit({ embeds: [firstEmbed] });
-            await updatedMessage.react('✅');
-            await updatedMessage.react('❌');
-            sentMessages.set(updatedMessage.id, { content: chunks[0], originalQuestion: chatMessage, message: updatedMessage });
-
-            for (let i = 1; i < chunks.length; i++) {
-                const chunkEmbed = createEmbed('#55FFFF', `¡Aquí estoy, ${userName}! (Parte ${i + 1}/${chunks.length})`, chunks[i], 'Con cariño, Miguel IA');
-                await message.channel.send({ embeds: [chunkEmbed] });
-            }
-        }
+        // Enviar la respuesta
+        const finalEmbed = createEmbed('#55FFFF', `¡Aquí estoy, ${userName}!`, aiReply, 'Con cariño, Miguel IA | Reacciona con ✅ o ❌');
+        const updatedMessage = await waitingMessage.edit({ embeds: [finalEmbed] });
+        await updatedMessage.react('✅');
+        await updatedMessage.react('❌');
+        sentMessages.set(updatedMessage.id, { content: aiReply, originalQuestion: chatMessage, message: updatedMessage });
 
     } catch (error) {
         console.error('Error en !chat con API:', error.message);
-        let errorMessage;
-        if (error.response?.status === 400 || error.response?.status === 401) {
-            errorMessage = `¡Qué webada, ${userName}! Algo está mal con mi token pa’ la API, pana (Error ${error.response?.status}). Revisa el HF_API_TOKEN en el .env, ¿sí?`;
-        } else if (error.code === 'ECONNABORTED') {
-            errorMessage = `¡Qué vaina, ${userName}! La conexión se cortó, man, tardó demasiado. ¿Me repites tu pregunta o seguimos con otra cosa?`;
-        } else {
-            errorMessage = `¡Qué webada, ${userName}! Algo falló, man (${error.message}). Aquí estoy pa’ charlar igual, ¿me repites o seguimos con otra vaina?`;
-        }
-
-        // Fallback contextual en caso de error
-        const lowerMessage = chatMessage.toLowerCase();
-        if (lowerMessage.includes("hola") || lowerMessage.includes("cómo estás")) {
-            errorMessage = `¡Qué bacán, ${userName}! Hola, pana, estoy chévere, ¿y tú cómo estás? La API falló, pero aquí estoy, man.`;
-        } else if (lowerMessage.includes("no quieres hablar")) {
-            errorMessage = `¡Qué vaina, ${userName}! Claro que quiero hablar contigo, pana, siempre estoy aquí pa’ charlar como buen compa. La API se chispoteó, pero seguimos.`;
-        } else if (lowerMessage.includes("clima")) {
-            errorMessage = `¡Qué bacán, ${userName}! No tengo el clima exacto ahora, pana, pero en la costa suele ser calientito, entre 25 y 33°C. La API falló, ¿dónde estás preguntando, man?`;
-        } else if (lowerMessage.includes("calculo") || lowerMessage.includes("área")) {
-            if (lowerMessage.includes("triángulo")) {
-                errorMessage = `¡Qué bacán, ${userName}! Pa’ calcular el área de un triángulo, usa esta fórmula, pana: Área = (base * altura) / 2. Ejemplo: base 6 y altura 4, (6 * 4) / 2 = 12. La API falló, pero te ayudo igual.`;
-            } else {
-                errorMessage = `¡Qué webada, ${userName}! No sé qué pasó, man, pero si me das más detalles, te ayudo con ese cálculo, ¿sí? La API se fue al carajo.`;
-            }
-        } else if (lowerMessage.includes("aplicaciones") || lowerMessage.includes("apps")) {
-            errorMessage = `¡Qué chévere, ${userName}! Te recomiendo Snapseed pa’ editar fácil, Lightroom pa’ algo pro, y VSCO pa’ filtros bacanos, pana. La API falló, pero aquí tienes.`;
-        }
-
+        const errorMessage = `¡Uy, ${userName}, qué webada! Algo falló por aquí, pana. ${error.code === 'ECONNABORTED' ? 'La conexión se cortó, man, tardó demasiado.' : `Error: ${error.message}.`} Estoy listo pa’ seguir charlando, ¿me tiras otra vez tu mensaje o quieres hablar de otra vaina?`;
         const errorEmbed = createEmbed('#FF5555', '¡Qué webada!', `${errorMessage}\n\n¿Te cacha esa respuesta, ${userName}? ¿Seguimos charlando o qué, pana?`, 'Con cariño, Miguel IA | Reacciona con ✅ o ❌');
         const errorMessageSent = await waitingMessage.edit({ embeds: [errorEmbed] });
         await errorMessageSent.react('✅');
