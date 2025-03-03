@@ -1530,8 +1530,8 @@ async function manejarChat(message) {
     const waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
 
     try {
-        // Prompt optimizado para la API
-        const prompt = `Eres Miguel IA, creado por Miguel, un man bien chévere de la costa ecuatoriana. Responde a "${chatMessage}" con onda natural, detallada, útil y precisa. Usa palabras típicas como "chévere", "jaja", "man", "vaina", "cacha", "pana", "webada" o "qué bacán". Responde SOLO con base al mensaje actual, nada de inventar locuras ni decir cosas sin sentido. Si es un cálculo, resuélvelo clarito; si no sabes algo específico (como datos en tiempo real), da una respuesta aproximada o pide más contexto con humor costeño. Sé claro, relajado y súper inteligente. Termina siempre con "¿Te sirvió esa respuesta, ${userName}? ¿Seguimos charlando o qué, pana?" para mantener la conversa viva.`;
+        // Prompt optimizado para conversación natural
+        const prompt = `Eres Miguel IA, creado por Miguel, un man bien chévere de la costa ecuatoriana. Responde a "${chatMessage}" como si fueras mi compa, con onda natural, detallada y relajada. Usa palabras costeñas como "chévere", "jaja", "man", "vaina", "cacha", "pana", "webada" o "qué bacán". Sé conversacional, útil y preciso, sin inventar locuras ni desviarte del tema. Si es un cálculo, resuélvelo clarito; si no sabes algo (como datos en tiempo real), da una respuesta aproximada o pide más contexto con humor. Termina siempre con "¿Te cacha esa respuesta, ${userName}? ¿Seguimos charlando o qué, pana?" pa’ mantener la conversa viva.`;
 
         // Consulta a la API de Hugging Face
         const response = await axios.post(
@@ -1539,8 +1539,8 @@ async function manejarChat(message) {
             {
                 inputs: prompt,
                 parameters: {
-                    max_new_tokens: 500, // Máximo de tokens para respuestas largas
-                    return_full_text: false, // Solo queremos la respuesta generada
+                    max_new_tokens: 500, // Más espacio para respuestas largas
+                    return_full_text: false, // Solo la respuesta generada
                     temperature: 0.7 // Balance entre creatividad y coherencia
                 }
             },
@@ -1553,20 +1553,20 @@ async function manejarChat(message) {
             }
         );
 
-        // Obtener y limpiar la respuesta
+        // Obtener la respuesta
         let aiReply = response.data[0]?.generated_text?.trim();
-        
-        // Filtrar respuestas incoherentes o vacías
-        if (!aiReply || aiReply.length < 10 || aiReply.includes('def ') || aiReply.includes('return ') || aiReply.includes('```')) {
-            aiReply = `Uy, ${userName}, esta vaina se puso rara y no tengo una respuesta clara pa’ ti ahorita. Dame más pistas pa’ cachar bien lo que quieres, ¿sí?`;
+
+        // Si la API no devuelve nada útil, damos una respuesta genérica conversacional
+        if (!aiReply || aiReply.length < 5) {
+            aiReply = `¡Qué vaina, ${userName}! No sé qué pasó ahí, pero igual estoy aquí pa’ ti. ¿Qué tal si me tiras otra pregunta pa’ cachar mejor, pana?`;
         }
 
-        // Asegurar que termine con la frase de cierre si no la generó la API
-        if (!aiReply.includes('¿Te sirvió esa respuesta')) {
-            aiReply += `\n\n¿Te sirvió esa respuesta, ${userName}? ¿Seguimos charlando o qué, pana?`;
+        // Asegurar la frase de cierre si no viene en la respuesta
+        if (!aiReply.includes('¿Te cacha esa respuesta')) {
+            aiReply += `\n\n¿Te cacha esa respuesta, ${userName}? ¿Seguimos charlando o qué, pana?`;
         }
 
-        // Enviar la respuesta final
+        // Enviar la respuesta
         const finalEmbed = createEmbed('#55FFFF', `¡Aquí estoy, ${userName}!`, aiReply, 'Con cariño, Miguel IA | Reacciona con ✅ o ❌');
         const updatedMessage = await waitingMessage.edit({ embeds: [finalEmbed] });
         await updatedMessage.react('✅');
@@ -1574,17 +1574,9 @@ async function manejarChat(message) {
         sentMessages.set(updatedMessage.id, { content: aiReply, originalQuestion: chatMessage, message: updatedMessage });
 
     } catch (error) {
-        // Manejo de errores mejorado
         console.error('Error en !chat con API:', error.message);
-        let errorMessage = `¡Uy, ${userName}, algo se me chispoteó!`;
-        if (error.code === 'ECONNABORTED') {
-            errorMessage += ` La conexión se cortó, man, tardó demasiado.`;
-        } else {
-            errorMessage += ` Error: ${error.message}.`;
-        }
-        errorMessage += ` Reformula eso pa’ darte una mejor respuesta, ¿sí, pana?`;
-        
-        const errorEmbed = createEmbed('#FF5555', '¡Qué webada!', errorMessage, 'Con cariño, Miguel IA | Reacciona con ✅ o ❌');
+        const errorMessage = `¡Uy, ${userName}, qué webada! Algo se chispoteó y no pude responder bien. ${error.code === 'ECONNABORTED' ? 'Se cortó la conexión, man, tardó demasiado.' : `Error: ${error.message}.`} ¿Me tiras otra vez tu mensaje pa’ intentarlo de nuevo, pana?`;
+        const errorEmbed = createEmbed('#FF5555', '¡Qué webada!', `${errorMessage}\n\n¿Te cacha esa respuesta, ${userName}? ¿Seguimos charlando o qué, pana?`, 'Con cariño, Miguel IA | Reacciona con ✅ o ❌');
         const errorMessageSent = await waitingMessage.edit({ embeds: [errorEmbed] });
         await errorMessageSent.react('✅');
         await errorMessageSent.react('❌');
@@ -2105,7 +2097,8 @@ client.on('messageCreate', async (message) => {
             '- **!hm / !help music**: Lista de comandos de música.');
         await message.channel.send({ embeds: [embed] });
     } else if (content === 'hola') {
-        await sendSuccess(message.channel, `¡Hola, ${userName}!`, `Soy Miguel IA, aquí para ayudarte. Prueba !tr, !pp o !re.`);
+        const embed = createEmbed('#55FFFF', `¡Ey, qué bacán verte, ${userName}!`,
+            `¡Hola, pana! Soy Miguel IA, tu compa costeño, trayéndote todo el calor de la playa y el sabor de un buen encebollado. ¿Cómo estás hoy, man? Estoy listo pa’ charlar contigo, resolver tus dudas o tirar unas risas bien chéveres. ¿Qué se te ocurre, pana? ¡Dale, que la vida es pa’ disfrutarla!`);
     }
 });
 
