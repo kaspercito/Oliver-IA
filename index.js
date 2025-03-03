@@ -1530,8 +1530,8 @@ async function manejarChat(message) {
     const waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
 
     try {
-        // Prompt ultra enfocado y sin inventos
-        const prompt = `Eres Miguel IA, un compa chévere de la costa ecuatoriana. Responde SOLO a "${chatMessage}" en español costeño, con onda natural y precisa, usando palabras como "chévere", "man", "pana", "qué bacán". NO INVENTES NADA, contesta exactamente lo que te preguntan con lo que sabes, sin agregar historias, datos falsos ni desviarte. Si no tienes info exacta (como el clima actual), da una respuesta aproximada basada en conocimiento general o pide más contexto con humor. Termina con "¿Te cacha esa respuesta, ${userName}? ¿Seguimos charlando o qué, pana?".`;
+        // Prompt ultra simple y directo
+        const prompt = `Eres Miguel IA, un compa chévere de la costa ecuatoriana. Responde SOLO a "${chatMessage}" en español costeño con "chévere", "man", "pana", "qué bacán". Sé claro, contesta exactamente lo que te preguntan con lo que sabes, SIN INVENTAR NADA ni desviarte. Si no sabes algo exacto, da una respuesta aproximada o pide más contexto con humor. Termina con "¿Te cacha esa respuesta, ${userName}? ¿Seguimos charlando o qué, pana?".`;
 
         // Consulta a la API de Hugging Face
         const response = await axios.post(
@@ -1539,7 +1539,7 @@ async function manejarChat(message) {
             {
                 inputs: prompt,
                 parameters: {
-                    max_new_tokens: 400, // Espacio para respuestas completas pero enfocadas
+                    max_new_tokens: 400, // Espacio pa’ respuestas completas
                     return_full_text: false, // Solo la respuesta
                     temperature: 0.7 // Natural y preciso
                 }
@@ -1554,7 +1554,19 @@ async function manejarChat(message) {
         );
 
         // Obtener la respuesta
-        let aiReply = response.data[0]?.generated_text?.trim() || `¡Qué vaina, ${userName}! No sé qué pasó, man, pero aquí estoy pa’ charlar. ¿Me repites o seguimos con otra cosa?`;
+        let aiReply = response.data[0]?.generated_text?.trim();
+        if (!aiReply || aiReply.length < 5) {
+            // Fallback contextual según la pregunta
+            if (chatMessage.toLowerCase().includes("hola") || chatMessage.toLowerCase().includes("cómo estás")) {
+                aiReply = `¡Qué bacán, ${userName}! Hola, pana, estoy chévere, ¿y tú cómo estás?`;
+            } else if (chatMessage.toLowerCase().includes("clima")) {
+                aiReply = `¡Qué vaina, ${userName}! No tengo el clima exacto ahora, pana, pero en la costa suele ser calientito, entre 25 y 33°C. ¿Te interesa un lugar o día en especial?`;
+            } else if (chatMessage.toLowerCase().includes("calculo") || chatMessage.toLowerCase().includes("área")) {
+                aiReply = `¡Qué webada, ${userName}! No sé qué pasó, man, pero si me das más detalles, te ayudo con ese cálculo, ¿sí?`;
+            } else {
+                aiReply = `¡Qué vaina, ${userName}! No sé qué pasó, man, pero aquí estoy. ¿Me repites o charlamos de otra cosa?`;
+            }
+        }
 
         // Asegurar la frase de cierre
         if (!aiReply.includes('¿Te cacha esa respuesta')) {
@@ -1588,14 +1600,20 @@ async function manejarChat(message) {
 
     } catch (error) {
         console.error('Error en !chat con API:', error.message);
-        const errorMessage = `¡Qué webada, ${userName}! Algo falló, man (${error.message}). Aquí estoy pa’ charlar igual, ¿me repites tu pregunta o seguimos con otra vaina?`;
+        let errorMessage;
+        if (error.response?.status === 401) {
+            errorMessage = `¡Qué webada, ${userName}! Parece que mi token pa’ la API está fallando, pana. Necesito que revises el HF_API_TOKEN en el .env, ¿sí?`;
+        } else if (error.code === 'ECONNABORTED') {
+            errorMessage = `¡Qué vaina, ${userName}! La conexión se cortó, man, tardó demasiado. ¿Me repites tu pregunta o seguimos con otra cosa?`;
+        } else {
+            errorMessage = `¡Qué webada, ${userName}! Algo falló, man (${error.message}). Aquí estoy pa’ charlar igual, ¿me repites o seguimos con otra vaina?`;
+        }
         const errorEmbed = createEmbed('#FF5555', '¡Qué webada!', `${errorMessage}\n\n¿Te cacha esa respuesta, ${userName}? ¿Seguimos charlando o qué, pana?`, 'Con cariño, Miguel IA | Reacciona con ✅ o ❌');
         const errorMessageSent = await waitingMessage.edit({ embeds: [errorEmbed] });
         await errorMessageSent.react('✅');
         await errorMessageSent.react('❌');
     }
 }
-
 // Nuevos comandos: !sugerencias y !ayuda
 async function manejarSugerencias(message) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
