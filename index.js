@@ -1499,7 +1499,7 @@ async function manejarCommand(message) {
     const content = message.content.toLowerCase();
     console.log(`Comando recibido: ${content}`);
 
-    if (content === '!trivia' || content === '!tr') {
+    if (content.startsWith('!trivia') || content.startsWith('!tr')) {
         await manejarTrivia(message);
     } else if (content.startsWith('!chat') || content.startsWith('!ch')) {
         await manejarChat(message);
@@ -1547,9 +1547,9 @@ async function manejarCommand(message) {
         await manejarBack(message);
     } else if (content === '!autoplay' || content === '!ap') {
         await manejarAutoplay(message);
-    } else if (content === '!autosave' || content === '!as') { // Nueva línea
+    } else if (content === '!autosave' || content === '!as') {
         await manejarAutosave(message);
-    } else if (content ==='!lyrics' || content === '!ly') { // Añadir esta línea
+    } else if (content === '!lyrics' || content === '!ly') {
         await manejarLyrics(message);
     }
 }
