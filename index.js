@@ -1530,8 +1530,8 @@ async function manejarChat(message) {
     const waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
 
     try {
-        // Prompt simplificado y directo
-        const prompt = `Eres Miguel IA, un compa chévere de la costa ecuatoriana. Responde a "${chatMessage}" con onda natural y precisa, usando palabras como "chévere", "man", "pana", "qué bacán". Contesta solo lo que te preguntan, basado en lo que sabes, sin inventar datos falsos. Si no tienes info exacta (como el clima actual), da una respuesta aproximada o pide más contexto con humor. Termina con "¿Te cacha esa respuesta, ${userName}? ¿Seguimos charlando o qué, pana?".`;
+        // Prompt ultra enfocado y en español
+        const prompt = `Eres Miguel IA, un compa chévere de la costa ecuatoriana. Responde SOLO a "${chatMessage}" en español, con onda natural y precisa, usando palabras costeñas como "chévere", "man", "pana", "qué bacán". Contesta exactamente lo que te preguntan, sin inventar datos, agregar historias ni desviarte del tema. Si no sabes algo exacto (como el clima actual), da una respuesta aproximada basada en lo que sabes o pide más contexto con humor. Termina con "¿Te cacha esa respuesta, ${userName}? ¿Seguimos charlando o qué, pana?".`;
 
         // Consulta a la API de Hugging Face
         const response = await axios.post(
@@ -1539,9 +1539,9 @@ async function manejarChat(message) {
             {
                 inputs: prompt,
                 parameters: {
-                    max_new_tokens: 500, // Espacio suficiente
+                    max_new_tokens: 300, // Respuestas más cortas y enfocadas
                     return_full_text: false, // Solo la respuesta
-                    temperature: 0.7 // Balance entre precisión y naturalidad
+                    temperature: 0.7 // Natural pero preciso
                 }
             },
             {
@@ -1554,14 +1554,14 @@ async function manejarChat(message) {
         );
 
         // Obtener la respuesta
-        let aiReply = response.data[0]?.generated_text?.trim() || `¡Qué vaina, ${userName}! No sé qué pasó, man, pero aquí estoy. ¿Me repites o charlamos de otra cosa?`;
+        let aiReply = response.data[0]?.generated_text?.trim() || `¡Qué vaina, ${userName}! No sé qué pasó, man, pero aquí estoy pa’ charlar. ¿Me repites o seguimos con otra cosa?`;
 
         // Asegurar la frase de cierre
         if (!aiReply.includes('¿Te cacha esa respuesta')) {
             aiReply += `\n\n¿Te cacha esa respuesta, ${userName}? ¿Seguimos charlando o qué, pana?`;
         }
 
-        // Manejar respuestas largas (más de 2000 caracteres en Discord)
+        // Manejar respuestas largas (Discord limita a 2000 caracteres por embed)
         const maxLength = 2000;
         if (aiReply.length <= maxLength) {
             const finalEmbed = createEmbed('#55FFFF', `¡Aquí estoy, ${userName}!`, aiReply, 'Con cariño, Miguel IA | Reacciona con ✅ o ❌');
@@ -1588,7 +1588,7 @@ async function manejarChat(message) {
 
     } catch (error) {
         console.error('Error en !chat con API:', error.message);
-        const errorMessage = `¡Qué webada, ${userName}! Algo falló, man (${error.message}). Pero no te preocupes, pana, aquí estoy pa’ charlar. ¿Me repites tu pregunta o seguimos con otra cosa?`;
+        const errorMessage = `¡Qué webada, ${userName}! Algo falló, man (${error.message}). Aquí estoy pa’ charlar igual, ¿me repites tu pregunta o pasamos a otra cosa?`;
         const errorEmbed = createEmbed('#FF5555', '¡Qué webada!', `${errorMessage}\n\n¿Te cacha esa respuesta, ${userName}? ¿Seguimos charlando o qué, pana?`, 'Con cariño, Miguel IA | Reacciona con ✅ o ❌');
         const errorMessageSent = await waitingMessage.edit({ embeds: [errorEmbed] });
         await errorMessageSent.react('✅');
