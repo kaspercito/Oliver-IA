@@ -46,8 +46,8 @@ const manager = new Manager({
 });
 
 const BOT_UPDATES = [
-    '!autosave funcional, cuando no quieras que falle o cualquier cosa lo haces, esto hará que no falle nada, ni se reinicie el bot.',
-    '!save funcional, haz el guardado al instante por si quieres asegurarte que todo se conservará',
+    '!reacciones ahora va como trivia: una palabra tras otra hasta que lo parás con !re o fallás, ¡a meterle velocidad, che!',
+    '!ppm cambiado: si te equivocás o se te pasa el tiempo, te tira otra frase; si la hacés bien, termina ahí, ¡posta!'
 ];
 
 // Estado anterior de las actualizaciones (del código pasado)
@@ -1300,9 +1300,16 @@ async function manejarPPM(message) {
     console.log(`Instancia ${instanceId} - Iniciando PPM para ${message.author.id}`);
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
 
-    let session = dataStore.activeSessions[message.author.id] || { type: 'ppm', startTime: null, frase: null, completed: false };
+    // Verificar si hay una sesión activa
+    let session = dataStore.activeSessions[message.author.id] || { 
+        type: 'ppm', 
+        startTime: null, 
+        frase: null, 
+        completed: false 
+    };
+
     if (session.startTime && !session.completed) {
-        return sendError(message.channel, `Ya tienes una prueba PPM activa, ${userName}. Termina la actual primero.`);
+        return sendError(message.channel, `Ya tenés una prueba PPM activa, ${userName}. Termina la actual primero.`);
     }
 
     const countdownEmbed = createEmbed('#FFAA00', '⏳ Cuenta Regresiva', `¡Prepárate, ${userName}! Empieza en 3...`);
@@ -1317,63 +1324,70 @@ async function manejarPPM(message) {
     const goEmbed = createEmbed('#00FF00', '🚀 ¡Ya!', `¡Adelante, ${userName}!`);
     await countdownMessage.edit({ embeds: [goEmbed] });
 
-    const frase = obtenerFrasePPM();
-    const startTime = Date.now();
-    const embed = createEmbed('#55FFFF', '📝 Prueba de Mecanografía',
-        `Escribe esta frase lo más rápido que puedas:\n\n**${frase}**\n\nTienes 15 segundos, ${userName}.`);
-    await message.channel.send({ embeds: [embed] });
+    // Bucle para seguir dando frases solo si se equivoca
+    let intentoCorrecto = false;
+    while (!intentoCorrecto) {
+        const frase = obtenerFrasePPM();
+        const startTime = Date.now();
+        const embed = createEmbed('#55FFFF', '📝 Prueba de Mecanografía',
+            `Escribe esta frase lo más rápido que puedas:\n\n**${frase}**\n\nTenés 15 segundos, ${userName}.`);
+        await message.channel.send({ embeds: [embed] });
 
-    session.startTime = startTime;
-    session.frase = frase;
-    session.completed = false;
-    dataStore.activeSessions[message.author.id] = session;
-    dataStoreModified = true; // Indicar que dataStore ha sido modificado
-
-    try {
-        const respuestas = await message.channel.awaitMessages({
-            filter: (res) => res.author.id === message.author.id && res.content.trim().length > 0,
-            max: 1,
-            time: 15000,
-            errors: ['time']
-        });
-        const respuestaUsuario = respuestas.first().content;
-        const endTime = Date.now();
-        session.completed = true;
-        delete dataStore.activeSessions[message.author.id];
-        dataStoreModified = true; // Indicar que dataStore ha sido modificado
-
-        const tiempoSegundos = (endTime - startTime) / 1000;
-        const palabras = frase.split(' ').length;
-        const ppm = Math.round((palabras / tiempoSegundos) * 60);
-
-        if (cleanText(respuestaUsuario) === cleanText(frase)) {
-            if (!dataStore.personalPPMRecords[message.author.id]) {
-                dataStore.personalPPMRecords[message.author.id] = { best: { ppm: 0, timestamp: null }, attempts: [] };
-            }
-
-            dataStore.personalPPMRecords[message.author.id].attempts.push({ ppm, timestamp: new Date().toISOString() });
-            dataStoreModified = true; // Indicar que dataStore ha sido modificado
-
-            const currentBest = dataStore.personalPPMRecords[message.author.id].best.ppm || 0;
-            if (ppm > currentBest) {
-                dataStore.personalPPMRecords[message.author.id].best = { ppm, timestamp: new Date().toISOString() };
-                dataStoreModified = true; // Indicar que dataStore ha sido modificado
-                await sendSuccess(message.channel, '🎉 ¡Récord nuevo, crack!',
-                    `¡Sos un animal, ${userName}! Tipeaste la frase en ${tiempoSegundos.toFixed(2)} segundos.\nTu nuevo récord: **${ppm} PPM**. Mirá tus intentos con !rppm.`);
-            } else {
-                await sendSuccess(message.channel, '🎉 ¡Copado, che!',
-                    `¡Bien ahí, ${userName}! La frase te salió en ${tiempoSegundos.toFixed(2)} segundos.\nTu PPM: **${ppm}**. Tu récord sigue en **${currentBest} PPM**. Fijate todo con !rppm.`);
-            }
-        } else {
-            await sendError(message.channel, '❌ ¡Casi la pegás!',
-                `¡Uy, ${userName}, te mandaste una cagada! Tu respuesta fue "${respuestaUsuario}". ¡Probá otra vez con !pp, dale!`);
-        }
-    } catch (error) {
-        session.completed = true;
-        delete dataStore.activeSessions[message.author.id];
+        session.startTime = startTime;
+        session.frase = frase;
+        session.completed = false;
+        dataStore.activeSessions[message.author.id] = session;
         dataStoreModified = true;
-        await sendError(message.channel, '⏳ ¡Te dormiste, boludo!',
-            `Se te fue el tiempo, ${userName}. La frase era: **${frase}**. Dale otra chance con !pp.`);
+
+        try {
+            const respuestas = await message.channel.awaitMessages({
+                filter: (res) => res.author.id === message.author.id && res.content.trim().length > 0,
+                max: 1,
+                time: 15000,
+                errors: ['time']
+            });
+            const respuestaUsuario = respuestas.first().content;
+            const endTime = Date.now();
+            session.completed = true;
+            delete dataStore.activeSessions[message.author.id];
+            dataStoreModified = true;
+
+            const tiempoSegundos = (endTime - startTime) / 1000;
+            const palabras = frase.split(' ').length;
+            const ppm = Math.round((palabras / tiempoSegundos) * 60);
+
+            if (cleanText(respuestaUsuario) === cleanText(frase)) {
+                intentoCorrecto = true; // Sale del bucle si acierta
+                if (!dataStore.personalPPMRecords[message.author.id]) {
+                    dataStore.personalPPMRecords[message.author.id] = { best: { ppm: 0, timestamp: null }, attempts: [] };
+                }
+
+                dataStore.personalPPMRecords[message.author.id].attempts.push({ ppm, timestamp: new Date().toISOString() });
+                dataStoreModified = true;
+
+                const currentBest = dataStore.personalPPMRecords[message.author.id].best.ppm || 0;
+                if (ppm > currentBest) {
+                    dataStore.personalPPMRecords[message.author.id].best = { ppm, timestamp: new Date().toISOString() };
+                    dataStoreModified = true;
+                    await sendSuccess(message.channel, '🎉 ¡Récord nuevo, crack!',
+                        `¡Sos un animal, ${userName}! Tipeaste la frase en ${tiempoSegundos.toFixed(2)} segundos.\nTu nuevo récord: **${ppm} PPM**. Mirá tus intentos con !rppm.`);
+                } else {
+                    await sendSuccess(message.channel, '🎉 ¡Copado, che!',
+                        `¡Bien ahí, ${userName}! La frase te salió en ${tiempoSegundos.toFixed(2)} segundos.\nTu PPM: **${ppm}**. Tu récord sigue en **${currentBest} PPM**. Fijate todo con !rppm.`);
+                }
+            } else {
+                await sendError(message.channel, '❌ ¡Casi la pegás!',
+                    `¡Uy, ${userName}, te mandaste una cagada! Tu respuesta fue "${respuestaUsuario}". La posta era **${frase}**. ¡Probá de nuevo, dale!`);
+                // Continúa el bucle porque se equivocó
+            }
+        } catch (error) {
+            session.completed = true;
+            delete dataStore.activeSessions[message.author.id];
+            dataStoreModified = true;
+            await sendError(message.channel, '⏳ ¡Te dormiste, boludo!',
+                `Se te fue el tiempo, ${userName}. La frase era: **${frase}**. ¡Otra chance ahora!`);
+            // Continúa el bucle porque falló el tiempo
+        }
     }
 }
 
@@ -1386,50 +1400,82 @@ async function manejarReacciones(message) {
     console.log(`Instancia ${instanceId} - Iniciando juego de reacciones en canal ${message.channel.id}`);
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
 
-    let session = dataStore.activeSessions[message.channel.id] || { type: 'reaction', palabra: null, timestamp: null, completed: false };
+    // Verificar si ya hay una sesión activa en el canal
+    let session = dataStore.activeSessions[message.channel.id] || { 
+        type: 'reaction', 
+        palabra: null, 
+        timestamp: null, 
+        completed: false, 
+        currentRound: 0, 
+        score: 0 
+    };
+
+    // Si ya hay una sesión en curso y no está completada, detenerla
     if (session.palabra && !session.completed) {
-        return sendError(message.channel, `Ya hay un juego de reacciones andando acá, ${userName}. ¡Esperá que termine, che!`);
+        session.completed = true;
+        delete dataStore.activeSessions[message.channel.id];
+        dataStoreModified = true;
+        await sendSuccess(message.channel, '🛑 ¡Juego de reacciones parado!', 
+            `Paraste el juego, ${userName}. Puntuación final: ${session.score}. ¡Volvé a arrancar con !re cuando quieras!`);
+        return;
     }
 
-    const palabra = obtenerPalabraAleatoria();
-    const startTime = Date.now();
-    const embed = createEmbed('#FFD700', '🏁 ¡A meterle velocidad, loco!',
-        `¡Escribí esta palabra lo más rápido que puedas: **${palabra}**!\n\nEl primero que la tipea gana. Tenés 30 segundos, ¡dale gas!`);
-    await message.channel.send({ embeds: [embed] });
-
-    session.palabra = palabra;
-    session.timestamp = startTime;
-    session.completed = false;
+    // Iniciar nueva sesión
+    session = { 
+        type: 'reaction', 
+        palabra: null, 
+        timestamp: null, 
+        completed: false, 
+        currentRound: 0, 
+        score: 0 
+    };
     dataStore.activeSessions[message.channel.id] = session;
-    dataStoreModified = true; // Indicar que dataStore ha sido modificado
+    dataStoreModified = true;
 
-    try {
-        const respuestas = await message.channel.awaitMessages({
-            filter: (res) => res.content.toLowerCase().trim() === palabra,
-            max: 1,
-            time: 30000,
-            errors: ['time']
-        });
-        const ganador = respuestas.first().author;
-        const endTime = Date.now();
-        const tiempoSegundos = (endTime - startTime) / 1000;
-        const ganadorName = ganador.id === OWNER_ID ? 'Miguel' : 'Belén';
-        session.completed = true;
-        delete dataStore.activeSessions[message.channel.id];
-        dataStoreModified = true; // Indicar que dataStore ha sido modificado
+    // Bucle del juego
+    while (!session.completed) {
+        const palabra = obtenerPalabraAleatoria();
+        const startTime = Date.now();
+        session.palabra = palabra;
+        session.timestamp = startTime;
+        session.currentRound += 1;
+        dataStore.activeSessions[message.channel.id] = session;
+        dataStoreModified = true;
 
-        if (!dataStore.reactionWins[ganador.id]) dataStore.reactionWins[ganador.id] = { username: ganador.username, wins: 0 };
-        dataStore.reactionWins[ganador.id].wins += 1;
-        dataStoreModified = true; // Indicar que dataStore ha sido modificado
+        const embed = createEmbed('#FFD700', `🏁 ¡Ronda ${session.currentRound}!`,
+            `¡Escribí esta palabra lo más rápido que puedas: **${palabra}**!\n\nTenés 30 segundos, ${userName}. ¡Dale gas!`);
+        await message.channel.send({ embeds: [embed] });
 
-        await sendSuccess(message.channel, '🎉 ¡Ganaste, fenómeno!',
-            `¡Grande, ${ganadorName}! Fuiste el más rápido en tipear **${palabra}** en ${tiempoSegundos.toFixed(2)} segundos. ¡Sos un avión, che! Mirá tu progreso con !rk.`);
-    } catch (error) {
-        session.completed = true;
-        delete dataStore.activeSessions[message.channel.id];
-        dataStoreModified = true; // Indicar que dataStore ha sido modificado
-        await sendError(message.channel, '⏳ ¡Nadie la pegó, loco!',
-            `Se acabó el tiempo y nadie tipeó **${palabra}**. ¡A meterle pilas la próxima con !re, che!`);
+        try {
+            const respuestas = await message.channel.awaitMessages({
+                filter: (res) => res.author.id === message.author.id && res.content.toLowerCase().trim() === palabra,
+                max: 1,
+                time: 30000,
+                errors: ['time']
+            });
+            const endTime = Date.now();
+            const tiempoSegundos = (endTime - startTime) / 1000;
+            session.score += 1;
+
+            if (!dataStore.reactionWins[message.author.id]) {
+                dataStore.reactionWins[message.author.id] = { username: message.author.username, wins: 0 };
+            }
+            dataStore.reactionWins[message.author.id].wins += 1;
+            dataStoreModified = true;
+
+            await sendSuccess(message.channel, '🎉 ¡La pegaste, crack!',
+                `¡Grande, ${userName}! Tipeaste **${palabra}** en ${tiempoSegundos.toFixed(2)} segundos. Vas ${session.score} puntos. ¡Sigue así!`);
+        } catch (error) {
+            session.completed = true;
+            delete dataStore.activeSessions[message.channel.id];
+            dataStoreModified = true;
+            await sendError(message.channel, '⏳ ¡Te dormiste o la pifiaste!',
+                `Se acabó el tiempo para **${palabra}**, ${userName}. Puntuación final: ${session.score}. ¡Arrancá de nuevo con !re si querés!`);
+            break; // Sale del bucle si falla
+        }
+
+        // Pequeña pausa para que sea jugable
+        await new Promise(resolve => setTimeout(resolve, 1000));
     }
 }
 
