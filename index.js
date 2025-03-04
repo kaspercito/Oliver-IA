@@ -1794,15 +1794,11 @@ function getCombinedRankingEmbed(userId, username) {
     
     let triviaList = '**📚 Trivia por Categoría**\n';
     categorias.forEach(categoria => {
-        const myScore = dataStore.triviaRanking[OWNER_ID]?.[categoria]?.score || 0;
         const luzScore = dataStore.triviaRanking[ALLOWED_USER_ID]?.[categoria]?.score || 0;
-        const myStats = dataStore.triviaStats[OWNER_ID]?.[categoria] || { correct: 0, total: 0 };
         const luzStats = dataStore.triviaStats[ALLOWED_USER_ID]?.[categoria] || { correct: 0, total: 0 };
-        const myPercentage = myStats.total > 0 ? Math.round((myStats.correct / myStats.total) * 100) : 0;
         const luzPercentage = luzStats.total > 0 ? Math.round((luzStats.correct / luzStats.total) * 100) : 0;
 
         triviaList += `\n**${categoria.charAt(0).toUpperCase() + categoria.slice(1)}** 🎲\n` +
-                      `> 👑 Miguel: **${myScore} puntos** (${myPercentage}% acertadas)\n` +
                       `> 🌟 Belén: **${luzScore} puntos** (${luzPercentage}% acertadas)\n`;
     });
 
@@ -1811,21 +1807,19 @@ function getCombinedRankingEmbed(userId, username) {
         ? `> Tu récord: **${ppmRecord.ppm} PPM** - ${new Date(ppmRecord.timestamp).toLocaleString()}`
         : '> No tienes un récord de PPM aún. ¡Prueba con !pp!';
 
-    const myReactionWins = dataStore.reactionWins[OWNER_ID]?.wins || 0;
     const luzReactionWins = dataStore.reactionWins[ALLOWED_USER_ID]?.wins || 0;
-    const reactionList = `> 👑 Miguel - **${myReactionWins} Reacciones**\n` +
-                         `> 🌟 Belén - **${luzReactionWins} Reacciones**`;
+    const reactionList = `> 🌟 Belén - **${luzReactionWins} Reacciones**`;
 
     return new EmbedBuilder()
         .setColor('#FFD700')
         .setTitle(`🏆 Ranking de ${username}`)
-        .setDescription('¡Aquí están tus logros y los de tus rivales!')
+        .setDescription('¡Aquí están tus logros!')
         .addFields(
             { name: '📊 Trivia', value: triviaList, inline: false },
             { name: '⌨️ PPM (Récord Más Rápido)', value: ppmList, inline: false },
             { name: '⚡ Victorias en Reacciones', value: reactionList, inline: false }
         )
-        .setFooter({ text: 'Con cariño, Miguel IA' })
+        .setFooter({ text: 'Hecho por Kasper, de Miguel IA' })
         .setTimestamp();
 }
 
@@ -2018,10 +2012,18 @@ async function manejarCommand(message) {
 
 client.on('messageCreate', async (message) => {
     if (message.author.bot) return;
-    if (![OWNER_ID, ALLOWED_USER_ID].includes(message.author.id)) return;
+    // Solo responde a Belén (ALLOWED_USER_ID)
+    if (message.author.id !== ALLOWED_USER_ID) {
+        if (message.author.id === OWNER_ID) {
+            // Mensaje opcional para ti, Miguel, si quieres que te avise
+            // await message.channel.send('Lo siento, Miguel, por ahora solo funciono para Belén.');
+            return; // No procesa comandos de Miguel
+        }
+        return; // Ignora a cualquier otro usuario
+    }
 
-    const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
-    const content = message.content.toLowerCase(); // Declaramos 'content' solo aquí
+    const userName = 'Belén'; // Solo Belén usará el bot
+    const content = message.content.toLowerCase();
 
     // Detectar uso excesivo de mayúsculas
     const lettersOnly = message.content.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ]/g, '');
@@ -2030,31 +2032,28 @@ client.on('messageCreate', async (message) => {
         const uppercasePercentage = (uppercaseCount / lettersOnly.length) * 100;
         if (uppercasePercentage >= 80) {
             try {
-                // Borrar el mensaje con mayúsculas
                 await message.delete();
-
-                // Intentar mutear al usuario
                 const member = message.guild.members.cache.get(message.author.id);
                 if (member && message.guild.members.me.permissions.has('MODERATE_MEMBERS')) {
                     await member.timeout(5 * 60 * 1000, 'Uso excesivo de mayúsculas');
                     await message.channel.send({ 
                         embeds: [createEmbed('#FF5555', '⛔ ¡Calma, pana!', 
-                            `¡${userName} usó muchas mayúsculas y fue muteado por 5 minutos! Nada de gritar por aquí, ¿sí?`)] 
+                            `¡${userName} usó muchas mayúsculas y fue muteada por 5 minutos! Nada de gritar por aquí, ¿sí?`)] 
                     });
                 } else {
                     await message.channel.send({ 
                         embeds: [createEmbed('#FF5555', '⛔ ¡Ups, no pude mutear!', 
-                            `¡${userName} usó muchas mayúsculas, pero no tengo permisos pa’ mutearlo! Igual el mensaje se fue, jaja.`)] 
+                            `¡${userName} usó muchas mayúsculas, pero no tengo permisos pa’ mutearla! Igual el mensaje se fue, jaja.`)] 
                     });
                 }
             } catch (error) {
                 console.error('Error al mutear:', error.message);
                 await message.channel.send({ 
                     embeds: [createEmbed('#FF5555', '⛔ ¡Qué webada!', 
-                        `¡${userName} usó muchas mayúsculas, pero fallé al mutearlo! Error: ${error.message}. El mensaje ya se borró, tranqui.`)] 
+                        `¡${userName} usó muchas mayúsculas, pero fallé al mutearla! Error: ${error.message}. El mensaje ya se borró, tranqui.`)] 
                 });
             }
-            return; // Salimos pa’ no procesar más el mensaje
+            return;
         }
     }
 
@@ -2062,10 +2061,8 @@ client.on('messageCreate', async (message) => {
     processedMessages.set(message.id, Date.now());
     setTimeout(() => processedMessages.delete(message.id), 10000);
 
-    // Pasamos 'content' a las funciones que lo necesiten
-    await manejarCommand(message, content);
+    await manejarCommand(message); // Pasamos 'content' implícitamente en message.content
 
-    // Comandos ranking
     if (content === '!ranking' || content === '!rk') {
         const embed = getCombinedRankingEmbed(message.author.id, message.author.username);
         await message.channel.send({ embeds: [embed] });
@@ -2075,7 +2072,7 @@ client.on('messageCreate', async (message) => {
             '- **!ch / !chat [mensaje]**: Charla conmigo.\n' +
             '- **!tr / !trivia [categoría] [n]**: Trivia por categoría (mínimo 20). Categorías: ' + Object.keys(preguntasTriviaSinOpciones).join(', ') + '\n' +
             '- **!pp / !ppm**: Prueba de mecanografía.\n' +
-            '- **!rk / !ranking**: Ver puntajes y estadísticas (récord más alto de PPM).\n' +
+            '- **!rk / !ranking**: Ver tus puntajes y estadísticas (récord más alto de PPM).\n' +
             '- **!rppm / !rankingppm**: Ver todos tus intentos de PPM.\n' +
             '- **!re / !reacciones**: Juego de escribir rápido.\n' +
             '- **!su / !sugerencias [idea]**: Envía ideas para mejorar el bot.\n' +
@@ -2097,19 +2094,20 @@ client.on('messageCreate', async (message) => {
             '- **!rp / !repeat [cola]**: Repite la canción actual o la cola.\n' +
             '- **!bk / !back**: Vuelve a la canción anterior.\n' +
             '- **!ap / !autoplay**: Activa/desactiva el autoplay.\n' +
-            '- **!ly / !lyrics [canción]**: Muestra las letras de la canción actual o una específica.\n' + // Añadir esta línea
-            '- **!hm / !help music**: Lista de comandos de música.');
+            '- **!ly / !lyrics [canción]**: Muestra las letras de la canción actual o una específica.\n' +
+            '- **!hm / !help musica**: Lista de comandos de música.');
         await message.channel.send({ embeds: [embed] });
     } else if (content === 'hola') {
         const embed = createEmbed('#55FFFF', `¡Ey, qué bacán verte, ${userName}!`,
-            `¡Hola, pana! Soy Miguel IA, tu compa costeño, trayéndote todo el calor de la playa y el sabor de un buen encebollado. ¿Cómo estás hoy, man? Estoy listo pa’ charlar contigo, resolver tus dudas o tirar unas risas bien chéveres. ¿Qué se te ocurre, pana? ¡Dale, que la vida es pa’ disfrutarla!`);
+            `¡Hola, pelada! Soy Miguel IA, tu compa costeño, trayéndote todo el calor de la playa y el sabor de un buen encebollado. ¿Cómo estás hoy? Estoy listo pa’ charlar contigo, resolver tus dudas o tirar unas risas bien chéveres. ¿Qué se te ocurre? ¡Dale, que la vida es pa’ disfrutarla!`);
+        await message.channel.send({ embeds: [embed] });
     }
 });
 
 // Eventos
 client.once('ready', async () => {
     console.log(`¡Miguel IA está listo! Instancia: ${instanceId}`);
-    client.user.setPresence({ activities: [{ name: "Listo para ayudar a Miguel y Milagros", type: 0 }], status: 'online' });
+    client.user.setPresence({ activities: [{ name: "Listo para ayudar a Milagros", type: 0 }], status: 'online' });
     dataStore = await loadDataStore();
     activeTrivia = new Map(Object.entries(dataStore.activeSessions).filter(([_, s]) => s.type === 'trivia'));
     manager.init(client.user.id);
