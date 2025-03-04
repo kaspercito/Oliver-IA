@@ -948,8 +948,8 @@ let dataStoreModified = false;
 let autosaveEnabled = true; // Control manual del autosave
 let autosavePausedByMusic = false; // Control automático por música
 
-// Utilidades
-const createEmbed = (color, title, description, footer = 'Con cariño, Miguel IA') => {
+// Utilidades con tono argentino
+const createEmbed = (color, title, description, footer = 'Hecho con onda por Miguel IA') => {
     return new EmbedBuilder()
         .setColor(color)
         .setTitle(title)
@@ -958,12 +958,12 @@ const createEmbed = (color, title, description, footer = 'Con cariño, Miguel IA
         .setTimestamp();
 };
 
-const sendError = async (channel, message, suggestion = '¿Intentamos de nuevo?', footer = 'Con cariño, Miguel IA') => {
-    const embed = createEmbed('#FF5555', '¡Ups!', `${message}\n${suggestion}`, footer);
+const sendError = async (channel, message, suggestion = '¿Probamos de nuevo, loco?', footer = 'Hecho con onda por Miguel IA') => {
+    const embed = createEmbed('#FF5555', '¡Uh, qué cagada!', `${message}\n${suggestion}`, footer);
     return await channel.send({ embeds: [embed] });
 };
 
-const sendSuccess = async (channel, title, message, footer = 'Con cariño, Miguel IA') => {
+const sendSuccess = async (channel, title, message, footer = 'Hecho con onda por Miguel IA') => {
     const embed = createEmbed('#55FF55', title, message, footer);
     return await channel.send({ embeds: [embed] });
 };
@@ -1081,8 +1081,8 @@ setInterval(async () => {
         autosavePausedByMusic = true;
         const channel = await client.channels.fetch(CHANNEL_ID);
         if (channel) {
-            await channel.send({ embeds: [createEmbed('#FFAA00', '🎵 Autosave pausado', 
-                'El guardado automático se pausó porque estás escuchando música.')] });
+            await channel.send({ embeds: [createEmbed('#FFAA00', '🎵 Autosave en pausa', 
+                '¡Pará un cacho! El guardado automático se frenó porque estás con la música a full.')] });
         }
         return;
     }
@@ -1092,8 +1092,8 @@ setInterval(async () => {
         autosaveEnabled = true; // Reanudar autosave si estaba pausado solo por música
         const channel = await client.channels.fetch(CHANNEL_ID);
         if (channel) {
-            await channel.send({ embeds: [createEmbed('#55FF55', '💾 Autosave reanudado', 
-                'La música terminó, el guardado automático se reanudó.')] });
+            await channel.send({ embeds: [createEmbed('#55FF55', '💾 Autosave de vuelta', 
+                'La música paró, así que el guardado automático arrancó de nuevo, ¡dale!')] });
         }
     }
 
@@ -1101,15 +1101,15 @@ setInterval(async () => {
 
     const channel = await client.channels.fetch(CHANNEL_ID);
     if (channel) {
-        await channel.send({ embeds: [createEmbed('#FFAA00', '⏰ Aviso de Guardado', 
-            '¡Atención! El autoguardado será en 5 minutos.')] });
+        await channel.send({ embeds: [createEmbed('#FFAA00', '⏰ Ojo al dato', 
+            '¡Atenti, che! En 5 minutos guardo todo automáticamente.')] });
     }
     setTimeout(async () => {
         if (!autosaveEnabled || autosavePausedByMusic) return; // No guardar si está pausado
         await saveDataStore();
         if (channel) {
-            await channel.send({ embeds: [createEmbed('#55FF55', '💾 Guardado Completado', 
-                'Datos guardados exitosamente.')] });
+            await channel.send({ embeds: [createEmbed('#55FF55', '💾 ¡Listo el pollo!', 
+                'Datos guardados al toque, ¡tranqui!')] });
         }
         dataStoreModified = false;
     }, WARNING_TIME);
@@ -1168,7 +1168,7 @@ async function manejarTrivia(message) {
         // Validar categoría
         if (!preguntasTriviaSinOpciones[categoria]) {
             console.log("Categoría no encontrada:", categoria);
-            const errorEmbed = createEmbed('#FF5555', '¡Ups!', 
+            const errorEmbed = createEmbed('#FF5555', '¡Qué quilombo!', 
                 `Categoría "${categoria}" no encontrada. Categorías disponibles: ${Object.keys(preguntasTriviaSinOpciones).join(', ')}`);
             console.log("Intentando enviar mensaje de error...");
             await message.channel.send({ embeds: [errorEmbed] });
@@ -1193,13 +1193,13 @@ async function manejarTrivia(message) {
             console.log("Pregunta seleccionada:", trivia);
             if (!trivia) {
                 console.log("No hay más preguntas disponibles en", categoria);
-                await message.channel.send({ embeds: [createEmbed('#FF5555', '¡Ups!', 
-                    'No hay más preguntas disponibles en esta categoría.')] });
+                await message.channel.send({ embeds: [createEmbed('#FF5555', '¡Se acabó el mambo!', 
+                    'No quedan más preguntas en esta categoría, che.')] });
                 break;
             }
             usedQuestions.push(trivia.pregunta);
             const embedPregunta = createEmbed('#55FFFF', `🎲 ¡Pregunta ${channelProgress.currentQuestion + 1} de ${numQuestions}! (${categoria})`,
-                `${trivia.pregunta}\n\nEscribe tu respuesta (60 segundos), ${userName}.`);
+                `${trivia.pregunta}\n\nTirame tu respuesta en 60 segundos, ${userName}, ¡dale!`);
             console.log("Intentando enviar pregunta...");
             const sentMessage = await message.channel.send({ embeds: [embedPregunta] });
             console.log("Pregunta enviada, ID:", sentMessage.id);
@@ -1229,11 +1229,11 @@ async function manejarTrivia(message) {
                 if (cleanedUserResponse === cleanedCorrectResponse) {
                     channelProgress.score += 1;
                     dataStore.triviaStats[message.author.id][categoria].correct += 1;
-                    await message.channel.send({ embeds: [createEmbed('#55FF55', '🎉 ¡Correcto!',
-                        `¡Bien hecho, ${userName}! La respuesta correcta era **${trivia.respuesta}**. ¡Ganaste 1 punto! (Total: ${channelProgress.score})`)] });
+                    await message.channel.send({ embeds: [createEmbed('#55FF55', '🎉 ¡La pegaste, genio!',
+                        `¡Grande, ${userName}! La respuesta era **${trivia.respuesta}**. Sumaste 1 punto, vas ${channelProgress.score}.`)] });
                 } else {
-                    await message.channel.send({ embeds: [createEmbed('#FF5555', '❌ ¡Casi!',
-                        `Lo siento, ${userName}, la respuesta correcta era **${trivia.respuesta}**. Tu respuesta fue "${respuestaUsuario}".`)] });
+                    await message.channel.send({ embeds: [createEmbed('#FF5555', '❌ ¡Estuviste cerca, boludo!',
+                        `Uy, ${userName}, la posta era **${trivia.respuesta}**. Vos pusiste "${respuestaUsuario}". ¡A seguirle dando!`)] });
                 }
                 channelProgress.currentQuestion += 1;
                 dataStore.activeSessions[message.channel.id] = channelProgress;
@@ -1244,8 +1244,8 @@ async function manejarTrivia(message) {
                 if (!dataStore.triviaStats[message.author.id][categoria]) dataStore.triviaStats[message.author.id][categoria] = { correct: 0, total: 0 };
                 dataStore.triviaStats[message.author.id][categoria].total += 1;
                 dataStoreModified = true;
-                await message.channel.send({ embeds: [createEmbed('#FF5555', '⏳ ¡Tiempo agotado!',
-                    `Se acabó el tiempo, ${userName}. La respuesta correcta era **${trivia.respuesta}**.`)] });
+                await message.channel.send({ embeds: [createEmbed('#FF5555', '⏳ ¡Se te pasó el bondi!',
+                    `Te dormiste, ${userName}. La respuesta era **${trivia.respuesta}**. ¡A estar más atento, che!`)] });
                 channelProgress.currentQuestion += 1;
                 dataStore.activeSessions[message.channel.id] = channelProgress;
                 dataStoreModified = true;
@@ -1253,8 +1253,8 @@ async function manejarTrivia(message) {
         }
 
         if (channelProgress.currentQuestion >= numQuestions) {
-            await message.channel.send({ embeds: [createEmbed('#55FF55', '🏁 ¡Trivia Terminada!',
-                `¡Completaste las ${numQuestions} preguntas de ${categoria}, ${userName}! Puntuación final: ${channelProgress.score}. Usa !rk para ver tu ranking.`)] });
+            await message.channel.send({ embeds: [createEmbed('#55FF55', '🏁 ¡Terminaste la trivia, crack!',
+                `¡Listo, ${userName}! Hiciste las ${numQuestions} preguntas de ${categoria}. Puntuación final: ${channelProgress.score}. Chequeá tu ranking con !rk.`)] });
             if (!dataStore.triviaRanking[message.author.id]) dataStore.triviaRanking[message.author.id] = {};
             if (!dataStore.triviaRanking[message.author.id][categoria]) dataStore.triviaRanking[message.author.id][categoria] = { score: 0 };
             dataStore.triviaRanking[message.author.id][categoria].score = (dataStore.triviaRanking[message.author.id][categoria].score || 0) + channelProgress.score;
@@ -1276,18 +1276,18 @@ async function manejarAutosave(message) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
 
     if (autosavePausedByMusic && autosaveEnabled) {
-        return sendError(message.channel, `El autosave está pausado por música activa, ${userName}.`, 
-            'Espera a que termine la música o usa !st para detenerla.');
+        return sendError(message.channel, `El autosave está en pausa por la música, ${userName}.`, 
+            'Esperá a que termine el tema o usá !st para cortarla.');
     }
 
     autosaveEnabled = !autosaveEnabled;
-
+    
     if (autosaveEnabled) {
-        await sendSuccess(message.channel, '💾 ¡Autosave reanudado!', 
-            `El guardado automático está ahora activo, ${userName}. Se guardará cada 30 minutos.`);
+        await sendSuccess(message.channel, '💾 ¡Autosave prendido!', 
+            `El guardado automático arrancó de nuevo, ${userName}. Se guarda cada 30 minutos, ¡tranqui!`);
     } else {
-        await sendSuccess(message.channel, '⏸️ ¡Autosave pausado!', 
-            `El guardado automático está pausado, ${userName}. Usa !as para reanudarlo o !save para guardar manualmente.`);
+        await sendSuccess(message.channel, '⏸️ ¡Autosave en pausa!', 
+            `Paré el guardado automático, ${userName}. Usá !as para volver a prenderlo o !save para guardar ya.`);
     }
 }
 
@@ -1358,22 +1358,22 @@ async function manejarPPM(message) {
             if (ppm > currentBest) {
                 dataStore.personalPPMRecords[message.author.id].best = { ppm, timestamp: new Date().toISOString() };
                 dataStoreModified = true; // Indicar que dataStore ha sido modificado
-                await sendSuccess(message.channel, '🎉 ¡Nuevo Récord!',
-                    `¡Increíble, ${userName}! Escribiste la frase en ${tiempoSegundos.toFixed(2)} segundos.\nTu nuevo récord: **${ppm} PPM**. ¡Mira tus intentos con !rppm!`);
+                await sendSuccess(message.channel, '🎉 ¡Récord nuevo, crack!',
+                    `¡Sos un animal, ${userName}! Tipeaste la frase en ${tiempoSegundos.toFixed(2)} segundos.\nTu nuevo récord: **${ppm} PPM**. Mirá tus intentos con !rppm.`);
             } else {
-                await sendSuccess(message.channel, '🎉 ¡Perfecto!',
-                    `¡Bien hecho, ${userName}! Escribiste la frase en ${tiempoSegundos.toFixed(2)} segundos.\nTu PPM: **${ppm}**. Tu récord sigue siendo **${currentBest} PPM**. Mira todos tus intentos con !rppm.`);
+                await sendSuccess(message.channel, '🎉 ¡Copado, che!',
+                    `¡Bien ahí, ${userName}! La frase te salió en ${tiempoSegundos.toFixed(2)} segundos.\nTu PPM: **${ppm}**. Tu récord sigue en **${currentBest} PPM**. Fijate todo con !rppm.`);
             }
         } else {
-            await sendError(message.channel, '❌ ¡Casi!',
-                `Lo siento, ${userName}, no escribiste la frase correctamente. Tu respuesta fue "${respuestaUsuario}". ¡Intenta de nuevo con !pp!`);
+            await sendError(message.channel, '❌ ¡Casi la pegás!',
+                `¡Uy, ${userName}, te mandaste una cagada! Tu respuesta fue "${respuestaUsuario}". ¡Probá otra vez con !pp, dale!`);
         }
     } catch (error) {
         session.completed = true;
         delete dataStore.activeSessions[message.author.id];
-        dataStoreModified = true; // Indicar que dataStore ha sido modificado
-        await sendError(message.channel, '⏳ ¡Tiempo agotado!',
-            `Se acabó el tiempo, ${userName}. La frase era: **${frase}**. Usa !pp para intentarlo de nuevo.`);
+        dataStoreModified = true;
+        await sendError(message.channel, '⏳ ¡Te dormiste, boludo!',
+            `Se te fue el tiempo, ${userName}. La frase era: **${frase}**. Dale otra chance con !pp.`);
     }
 }
 
@@ -1388,13 +1388,13 @@ async function manejarReacciones(message) {
 
     let session = dataStore.activeSessions[message.channel.id] || { type: 'reaction', palabra: null, timestamp: null, completed: false };
     if (session.palabra && !session.completed) {
-        return sendError(message.channel, `Ya hay un juego de reacciones activo en este canal, ${userName}. ¡Espera a que termine!`);
+        return sendError(message.channel, `Ya hay un juego de reacciones andando acá, ${userName}. ¡Esperá que termine, che!`);
     }
 
     const palabra = obtenerPalabraAleatoria();
     const startTime = Date.now();
-    const embed = createEmbed('#FFD700', '🏁 ¡Juego de Reacciones!',
-        `¡Escribe esta palabra lo más rápido que puedas: **${palabra}**!\n\nEl primero en escribirla gana. Tienes 30 segundos.`);
+    const embed = createEmbed('#FFD700', '🏁 ¡A meterle velocidad, loco!',
+        `¡Escribí esta palabra lo más rápido que puedas: **${palabra}**!\n\nEl primero que la tipea gana. Tenés 30 segundos, ¡dale gas!`);
     await message.channel.send({ embeds: [embed] });
 
     session.palabra = palabra;
@@ -1422,14 +1422,14 @@ async function manejarReacciones(message) {
         dataStore.reactionWins[ganador.id].wins += 1;
         dataStoreModified = true; // Indicar que dataStore ha sido modificado
 
-        await sendSuccess(message.channel, '🎉 ¡Ganador!',
-            `¡Felicidades, ${ganadorName}! Fuiste el primero en escribir **${palabra}** en ${tiempoSegundos.toFixed(2)} segundos. ¡Eres rapidísimo! Mira tu progreso con !rk.`);
+        await sendSuccess(message.channel, '🎉 ¡Ganaste, fenómeno!',
+            `¡Grande, ${ganadorName}! Fuiste el más rápido en tipear **${palabra}** en ${tiempoSegundos.toFixed(2)} segundos. ¡Sos un avión, che! Mirá tu progreso con !rk.`);
     } catch (error) {
         session.completed = true;
         delete dataStore.activeSessions[message.channel.id];
         dataStoreModified = true; // Indicar que dataStore ha sido modificado
-        await sendError(message.channel, '⏳ ¡Tiempo agotado!',
-            `Nadie escribió **${palabra}** a tiempo. ¡Mejor suerte la próxima vez con !re!`);
+        await sendError(message.channel, '⏳ ¡Nadie la pegó, loco!',
+            `Se acabó el tiempo y nadie tipeó **${palabra}**. ¡A meterle pilas la próxima con !re, che!`);
     }
 }
 
@@ -1520,14 +1520,14 @@ async function manejarChat(message) {
     const userTerm = userName === 'Miguel' ? 'pelado' : 'pelada';
     
     if (!chatMessage) {
-        return sendError(message.channel, `Escribe algo después de "!ch", ${userName}. ¡No me dejes con las ganas, ${userTerm}!`, undefined, 'Con cariño, Miguel IA | Reacciona con ✅ o ❌');
+        return sendError(message.channel, `¡Escribí algo después de "!ch", ${userName}! No me dejes colgado, che.`, undefined, 'Hecho con onda por Miguel IA | Reacciona con ✅ o ❌');
     }
 
-    const waitingEmbed = createEmbed('#55FFFF', `¡Un momento, ${userName}!`, 'Pensando una respuesta bien bacán pa’ ti...', 'Con cariño, Miguel IA | Reacciona con ✅ o ❌');
+    const waitingEmbed = createEmbed('#55FFFF', `¡Aguantá un toque, ${userName}!`, 'Estoy pensando una respuesta re copada para vos...', 'Hecho con onda por Miguel IA | Reacciona con ✅ o ❌');
     const waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
 
     try {
-        const prompt = `Eres Miguel IA, creado por Miguel, un pana súper chévere de la costa ecuatoriana. Responde a "${chatMessage}" con onda natural, relajada y una inteligencia brutal, pelado. Usa palabras costeñas como "chévere", "jaja", "vaina", "cacha", "pana", "webada", "qué bacán" o "pelado" si es pa’ Miguel, y "pelada" con cariño si es pa’ Belén. Si el mensaje dice "dile a Belén" (o un alias como "Rattus norvegicus albinus"), habla como si le pasaras el mensaje a ella, pero incluye a quien lo envió pa’ seguir la charla. Sé ultra claro, específico y responde SOLO a lo que te piden, con base en tu conocimiento, sin inventar datos falsos. Si es una pregunta matemática, da un ejemplo práctico paso a paso con números (inventa datos si no los dan) y pide más info si hace falta (con humor, tipo "tírame más datos, ${userTerm}"). Si es un saludo, responde con buena vibra; si no sabes algo, di con humor que necesitas más pistas y sugiere opciones. Termina siempre con "¿Te cacha esa respuesta, ${userName}? ¿Seguimos charlando o qué, ${userTerm}?" pa’ mantener la conversa viva.`;
+        const prompt = `Sos Miguel IA, creado por Miguel, un loco re piola. Respondé a "${chatMessage}" con buena onda, al estilo argentino, bien relajado pero con cabeza, che. Usá palabras como "copado", "joya", "boludo", "re", "dale", "posta", "genial" o "loco". Si es para Belén, hablale con cariño como "grosa" o "genia". Si dice "dile a Belén" (o algo como "Rattus norvegicus albinus"), pasale el mensaje a ella pero incluí al que lo mandó para seguir la charla. Sé re claro, respondé solo lo que te piden con lo que sabés, sin chamuyo. Si es algo matemático, tirá un ejemplo práctico paso a paso con números (inventá si no hay datos) y pedí más info con onda tipo "dame más data, loco". Si es un saludo, devolvé buena vibra; si no sabés, decí con humor que te falta data y tirá opciones. Terminá siempre con "¿Te cerró esa respuesta, ${userName}? ¿Seguimos charlando, che?" para mantener el mambo.`;
 
         const response = await axios.post(
             'https://api-inference.huggingface.co/models/mistralai/Mixtral-8x7B-Instruct-v0.1',
@@ -1554,13 +1554,13 @@ async function manejarChat(message) {
             console.log(`Respuesta vacía o corta pa’ "${chatMessage}": ${aiReply}`);
             // Respuesta de respaldo más útil según el contexto
             if (chatMessage.toLowerCase().includes('triangulo')) {
-                aiReply = `¡Qué vaina, ${userName}! No pude conectar bien con mi cerebro digital, ${userTerm}, pero igual te ayudo. Si es un triángulo equilátero, todos los lados son iguales. Por ejemplo, si el perímetro es 18, haces 18 ÷ 3 = 6, y cada lado es 6. ¿Tienes algún dato pa’ tu triángulo? Tírame más pistas y lo resolvemos, ¡qué bacán!`;
+                aiReply = `¡Qué quilombo, ${userName}! Se me trabó el mate, loco, pero igual te la hago corta. Si es un triángulo equilátero, todos los lados son iguales. Ejemplo: si el perímetro es 18, hacés 18 ÷ 3 = 6, cada lado mide 6. ¿Tenés más data de tu triángulo? ¡Tirame algo y lo resolvemos, dale!`;
             } else if (chatMessage.toLowerCase().includes('catetos')) {
-                aiReply = `¡Uy, ${userName}, se me trabó la vaina! Pero tranqui, ${userTerm}, pa’ sacar los catetos de un triángulo rectángulo usas Pitágoras: a² + b² = c². Si la hipotenusa es 5 y un cateto es 3, haces 5² - 3² = 25 - 9 = 16, y el otro cateto es √16 = 4. ¿Qué datos tienes? ¡Dámelos y lo sacamos rápido!`;
+                aiReply = `¡Uy, ${userName}, se me fue el bondi! Pero tranqui, loco, para los catetos de un triángulo rectángulo usás Pitágoras: a² + b² = c². Si la hipotenusa es 5 y un cateto 3, hacés 5² - 3² = 25 - 9 = 16, y el otro cateto es √16 = 4. ¿Qué datos tenés? ¡Mandamelos y lo sacamos al toque!`;
             } else {
-                aiReply = `¡Qué webada, ${userName}! No pude procesar bien tu pregunta, ${userTerm}. ¿Me das más pistas pa’ cacharte como se debe o seguimos con otra vaina?`;
+                aiReply = `¡Qué cagada, ${userName}! No me salió bien la respuesta, loco. ¿Me das más pistas para cacharlo o seguimos con otro mambo?`;
             }
-            aiReply += `\n\n¿Te cacha esa respuesta, ${userName}? ¿Seguimos charlando o qué, ${userTerm}?`;
+            aiReply += `\n\n¿Te cerró esa respuesta, ${userName}? ¿Seguimos charlando, che?`;
         }
 
         const finalEmbed = createEmbed('#55FFFF', `¡Aquí estoy, ${userName}!`, aiReply, 'Con cariño, Miguel IA | Reacciona con ✅ o ❌');
@@ -1575,12 +1575,12 @@ async function manejarChat(message) {
         if (chatMessage.toLowerCase().includes('triangulo')) {
             fallbackReply = `¡Uy, ${userName}, qué webada! La conexión falló, ${userTerm}, pero te ayudo igual. Pa’ un triángulo equilátero, los lados son iguales. Si el perímetro es 15, haces 15 ÷ 3 = 5, cada lado es 5. ¿Qué datos tienes? ¡Tíralos y lo resolvemos!`;
         } else if (chatMessage.toLowerCase().includes('catetos')) {
-            fallbackReply = `¡Qué vaina, ${userName}! Algo se trabó, ${userTerm}, pero pa’ los catetos usas Pitágoras: a² + b² = c². Ejemplo: hipotenusa 13, cateto 5, haces 13² - 5² = 169 - 25 = 144, y el otro cateto es √144 = 12. ¿Qué tienes pa’ tu triángulo?`;
+            fallbackReply = `¡Qué onda, ${userName}! Algo se trabó, ${userTerm}, pero pa’ los catetos usas Pitágoras: a² + b² = c². Ejemplo: hipotenusa 13, cateto 5, haces 13² - 5² = 169 - 25 = 144, y el otro cateto es √144 = 12. ¿Qué tienes pa’ tu triángulo?`;
         } else {
-            fallbackReply = `¡Uy, ${userName}, qué webada! Algo falló por aquí, ${userTerm}. ${error.code === 'ECONNABORTED' ? 'La conexión se cortó, tardó demasiado.' : `Error: ${error.message}.`} ¿Me tiras otra vez tu mensaje o seguimos con otra vaina?`;
+            fallbackReply = `¡Uy, ${userName}, qué onda! Algo falló por aquí, ${userTerm}. ${error.code === 'ECONNABORTED' ? 'La conexión se cortó, tardó demasiado.' : `Error: ${error.message}.`} ¿Me tiras otra vez tu mensaje o seguimos con otra vaina?`;
         }
         fallbackReply += `\n\n¿Te cacha esa respuesta, ${userName}? ¿Seguimos charlando o qué, ${userTerm}?`;
-        const errorEmbed = createEmbed('#FF5555', '¡Qué webada!', fallbackReply, 'Con cariño, Miguel IA | Reacciona con ✅ o ❌');
+        const finalEmbed = createEmbed('#55FFFF', `¡Acá tenés, ${userName}!`, aiReply, 'Hecho con onda por Miguel IA | Reacciona con ✅ o ❌');
         const errorMessageSent = await waitingMessage.edit({ embeds: [errorEmbed] });
         await errorMessageSent.react('✅');
         await errorMessageSent.react('❌');
@@ -2013,10 +2013,10 @@ async function manejarCommand(message) {
 client.on('messageCreate', async (message) => {
     if (message.author.bot) return;
 
-    const userName = message.author.id === OWNER_ID ? 'Miguel' : (message.author.id === ALLOWED_USER_ID ? 'Belén' : 'Desconocido');
+    const userName = message.author.id === OWNER_ID ? 'Miguel' : (message.author.id === ALLOWED_USER_ID ? 'Belén' : 'Un desconocido');
     const content = message.content.toLowerCase();
 
-    // Detectar uso excesivo de mayúsculas para Miguel (OWNER_ID) y Belén (ALLOWED_USER_ID)
+    // Detectar si gritan demasiado con mayúsculas (Miguel o Belén)
     const lettersOnly = message.content.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ]/g, '');
     if (lettersOnly.length > 5 && (message.author.id === OWNER_ID || message.author.id === ALLOWED_USER_ID)) {
         const uppercaseCount = lettersOnly.split('').filter(char => char === char.toUpperCase()).length;
@@ -2026,39 +2026,39 @@ client.on('messageCreate', async (message) => {
                 await message.delete();
                 const member = message.guild?.members.cache.get(message.author.id);
                 if (member && message.guild?.members.me.permissions.has('MODERATE_MEMBERS')) {
-                    await member.timeout(5 * 60 * 1000, 'Uso excesivo de mayúsculas');
+                    await member.timeout(5 * 60 * 1000, 'Te pasaste con las mayúsculas, loco');
                     await message.channel.send({ 
-                        embeds: [createEmbed('#FF5555', '⛔ ¡Calma, pana!', 
-                            `¡${userName} usó muchas mayúsculas y fue muteado/a por 5 minutos! Nada de gritar por aquí, ¿sí?`)] 
+                        embeds: [createEmbed('#FF5555', '⛔ ¡Pará un poco, che!', 
+                            `¡${userName} se mandó un griterío con mayúsculas y se comió 5 minutos de mute! Nada de hacer lío, ¿eh?`)] 
                     });
                 } else {
                     await message.channel.send({ 
-                        embeds: [createEmbed('#FF5555', '⛔ ¡Ups, no pude mutear!', 
-                            `¡${userName} usó muchas mayúsculas, pero no tengo permisos pa’ mutearlo/a! Igual el mensaje se fue, jaja.`)] 
+                        embeds: [createEmbed('#FF5555', '⛔ ¡No pude muteartelo, boludo!', 
+                            `¡${userName} gritó todo en mayúsculas, pero no tengo permisos para muteartelo! Igual borré el mensaje, tranqui.`)] 
                     });
                 }
             } catch (error) {
                 console.error('Error al mutear:', error.message);
                 await message.channel.send({ 
-                    embeds: [createEmbed('#FF5555', '⛔ ¡Qué webada!', 
-                        `¡${userName} usó muchas mayúsculas, pero fallé al mutearlo/a! Error: ${error.message}. El mensaje ya se borró, tranqui.`)] 
+                    embeds: [createEmbed('#FF5555', '⛔ ¡Qué quilombo!', 
+                        `¡${userName} usó un montón de mayúsculas, pero la cagué muteándolo/a! Error: ${error.message}. El mensaje ya se fue, relajá.`)] 
                 });
             }
-            return; // Salimos para no procesar más el mensaje
+            return; // Cortamos acá para no seguir con el mensaje
         }
     }
 
-    // Solo responde a Belén (ALLOWED_USER_ID)
+    // Solo Belén puede usar el bot
     if (message.author.id !== ALLOWED_USER_ID) {
         if (message.author.id === OWNER_ID) {
-            // Mensaje opcional para ti, Miguel, si quieres que te avise
-            // await message.channel.send('Lo siento, Miguel, por ahora solo funciono para Belén.');
-            return; // No procesa comandos de Miguel
+            // Opcional para vos, Miguel, si querés un mensaje
+            // await message.channel.send('Perdón, Miguel, por ahora solo laburo para Belén, loco.');
+            return; // No procesa nada de Miguel
         }
-        return; // Ignora a cualquier otro usuario
+        return; // Ignora a cualquiera que no sea Belén
     }
 
-    // Desde aquí, solo Belén puede continuar
+    // Acá sigue solo para Belén
     if (processedMessages.has(message.id)) return;
     processedMessages.set(message.id, Date.now());
     setTimeout(() => processedMessages.delete(message.id), 10000);
@@ -2069,39 +2069,39 @@ client.on('messageCreate', async (message) => {
         const embed = getCombinedRankingEmbed(message.author.id, message.author.username);
         await message.channel.send({ embeds: [embed] });
     } else if (content === '!help' || content === '!h') {
-        const embed = createEmbed('#55FF55', `¡Comandos para ti, ${userName}!`,
-            '¡Aquí tienes lo que puedo hacer!\n' +
-            '- **!ch / !chat [mensaje]**: Charla conmigo.\n' +
-            '- **!tr / !trivia [categoría] [n]**: Trivia por categoría (mínimo 20). Categorías: ' + Object.keys(preguntasTriviaSinOpciones).join(', ') + '\n' +
-            '- **!pp / !ppm**: Prueba de mecanografía.\n' +
-            '- **!rk / !ranking**: Ver tus puntajes y estadísticas (récord más alto de PPM).\n' +
-            '- **!rppm / !rankingppm**: Ver todos tus intentos de PPM.\n' +
-            '- **!re / !reacciones**: Juego de escribir rápido.\n' +
-            '- **!su / !sugerencias [idea]**: Envía ideas para mejorar el bot.\n' +
-            '- **!ay / !ayuda [problema]**: Pide ayuda a Miguel.\n' +
-            '- **!save**: Guardar datos ahora.\n' +
-            '- **!as / !autosave**: Pausa o reanuda el guardado automático.\n' +
-            '- **!h / !help**: Lista de comandos generales.\n' +
-            '- **!hm / !help musica**: Lista de comandos de música.\n' +
-            '- **hola**: Saludo especial.');
+        const embed = createEmbed('#55FF55', `¡Lista de comandos para vos, ${userName}!`,
+            '¡Acá tenés todo lo que puedo hacer por vos, genia!\n' +
+            '- **!ch / !chat [mensaje]**: Charlamos un rato, posta.\n' +
+            '- **!tr / !trivia [categoría] [n]**: Trivia copada por categoría (mínimo 20). Categorías: ' + Object.keys(preguntasTriviaSinOpciones).join(', ') + '\n' +
+            '- **!pp / !ppm**: A ver qué tan rápido tipeás, ¡dale!\n' +
+            '- **!rk / !ranking**: Tus puntajes y estadísticas (récord más alto de PPM).\n' +
+            '- **!rppm / !rankingppm**: Todos tus intentos de PPM, loco.\n' +
+            '- **!re / !reacciones**: Juego para ver quién tipea más rápido.\n' +
+            '- **!su / !sugerencias [idea]**: Mandame tus ideas para hacer este bot más piola.\n' +
+            '- **!ay / !ayuda [problema]**: Pedile una mano a Miguel.\n' +
+            '- **!save**: Guardo todo al toque, tranqui.\n' +
+            '- **!as / !autosave**: Paro o arranco el guardado automático.\n' +
+            '- **!h / !help**: Esta lista, boluda.\n' +
+            '- **!hm / !help musica**: Comandos para meterle música al día.\n' +
+            '- **hola**: Te tiro un saludito con onda.');
         await message.channel.send({ embeds: [embed] });
     } else if (content === '!help musica' || content === '!hm') {
-        const embed = createEmbed('#55FF55', `¡Comandos de música para ti, ${userName}!`,
-            '¡Controla la música con estos comandos!\n' +
-            '- **!pl / !play [canción/URL]**: Reproduce música.\n' +
-            '- **!pa / !pause**: Pausa o reanuda la música.\n' +
-            '- **!sk / !skip**: Salta a la siguiente canción.\n' +
-            '- **!st / !stop**: Detiene la música.\n' +
-            '- **!qu / !queue**: Muestra la cola de reproducción.\n' +
-            '- **!rp / !repeat [cola]**: Repite la canción actual o la cola.\n' +
-            '- **!bk / !back**: Vuelve a la canción anterior.\n' +
-            '- **!ap / !autoplay**: Activa/desactiva el autoplay.\n' +
-            '- **!ly / !lyrics [canción]**: Muestra las letras de la canción actual o una específica.\n' +
-            '- **!hm / !help musica**: Lista de comandos de música.');
+        const embed = createEmbed('#55FF55', `¡Comandos de música para vos, ${userName}!`,
+            '¡Poné el ritmo con estos comandos, loco!\n' +
+            '- **!pl / !play [canción/URL]**: Tiro un tema para que suene.\n' +
+            '- **!pa / !pause**: Pauso o sigo la música, vos elegís.\n' +
+            '- **!sk / !skip**: Salto al próximo tema, al toque.\n' +
+            '- **!st / !stop**: Corto todo, silencio total.\n' +
+            '- **!qu / !queue**: Te muestro la lista de temas que vienen.\n' +
+            '- **!rp / !repeat [cola]**: Repito el tema o toda la cola, ¿qué querés?\n' +
+            '- **!bk / !back**: Vuelvo al tema anterior, como en los viejos tiempos.\n' +
+            '- **!ap / !autoplay**: Prendo o apago el autoplay, re práctico.\n' +
+            '- **!ly / !lyrics [canción]**: Te traigo la letra del tema que suena o uno que me digas.\n' +
+            '- **!hm / !help musica**: Esta guía de música, posta.');
         await message.channel.send({ embeds: [embed] });
     } else if (content === 'hola') {
-        const embed = createEmbed('#55FFFF', `¡Ey, qué bacán verte, ${userName}!`,
-            `¡Hola, pelada! Soy Miguel IA, tu compa costeño, trayéndote todo el calor de la playa y el sabor de un buen encebollado. ¿Cómo estás hoy? Estoy listo pa’ charlar contigo, resolver tus dudas o tirar unas risas bien chéveres. ¿Qué se te ocurre? ¡Dale, que la vida es pa’ disfrutarla!`);
+        const embed = createEmbed('#55FFFF', `¡Qué lindo verte, ${userName}!`,
+            `¡Hola, grosa! Soy Miguel IA, tu compañero piola, trayéndote buena onda como si estuviéramos tomando mate en la vereda. ¿Cómo estás hoy, che? Estoy listo para charlar, ayudarte o tirar unas pavadas para reírnos. ¿Qué tenés en mente? ¡Dale, arrancamos!`);
         await message.channel.send({ embeds: [embed] });
     }
 });
@@ -2155,65 +2155,64 @@ client.on('messageReactionAdd', async (reaction, user) => {
     const messageData = sentMessages.get(reaction.message.id);
     const userName = user.id === OWNER_ID ? 'Miguel' : 'Belén';
 
-    if (reaction.emoji.name === '❌') {
-        const originalQuestion = messageData.originalQuestion;
-        const prompt = `Eres Miguel IA, creado por Miguel, un man bien chévere de la costa ecuatoriana. La primera respuesta a "${originalQuestion}" no le gustó al usuario. Intenta de nuevo con una respuesta más detallada, útil y bacán, usando palabras costeñas como "chévere", "jaja", "man", "vaina", "cacha", "pana", "webada" o "qué bacán". Si es pa’ Belén, trátala con cariño. Responde SOLO con base al mensaje, nada de inventar locuras. Sé súper claro y relajado en español. Termina con una vibe pa’ seguir la conversa.`;
+if (reaction.emoji.name === '❌') {
+    const originalQuestion = messageData.originalQuestion;
+    const prompt = `Sos Miguel IA, creado por Miguel, un loco re piola. La primera respuesta a "${originalQuestion}" no le copó al usuario. Probá de nuevo con una respuesta más copada, detallada y útil, usando palabras argentinas como "copado", "joya", "boludo", "re", "dale", "posta" o "genial". Si es para Belén, hablale con cariño como "grosa" o "genia". Respondé solo lo que te piden, con info posta, sin chamuyo. Sé claro y relajado en español. Terminá con buena onda pa’ seguir la charla, tipo "¿Te cerró, ${userName}?".`;
 
-        try {
-            const response = await axios.post(
-                'https://api-inference.huggingface.co/models/mistralai/Mixtral-8x7B-Instruct-v0.1',
-                {
-                    inputs: prompt,
-                    parameters: {
-                        max_new_tokens: 550,
-                        return_full_text: false,
-                        temperature: 0.7
-                    }
-                },
-                {
-                    headers: {
-                        'Authorization': `Bearer ${process.env.HF_API_TOKEN}`,
-                        'Content-Type': 'application/json'
-                    },
-                    timeout: 90000
+    try {
+        const response = await axios.post(
+            'https://api-inference.huggingface.co/models/mistralai/Mixtral-8x7B-Instruct-v0.1',
+            {
+                inputs: prompt,
+                parameters: {
+                    max_new_tokens: 550,
+                    return_full_text: false,
+                    temperature: 0.7
                 }
-            );
+            },
+            {
+                headers: {
+                    'Authorization': `Bearer ${process.env.HF_API_TOKEN}`,
+                    'Content-Type': 'application/json'
+                },
+                timeout: 90000
+            }
+        );
 
-            let aiReply = response.data[0]?.generated_text?.trim() || 
-                `Uy, ${userName}, parece que la vaina se complicó otra vez. Dame un poco más de pista pa’ cacharte bien, ¿sí?`;
-            aiReply += `\n\n¿Mejoró esta vez, ${userName}? ¿Qué tal si seguimos charlando, pana?`;
+        let aiReply = response.data[0]?.generated_text?.trim() || 
+            `¡Epa, ${userName}! Se ve que la compliqué otra vez, loco. ¿Me das un poco más de data para sacarla bien, che?`;
+        aiReply += `\n\n¿Te cerró esta vez, ${userName}? ¿Seguimos charlando, loco?`;
 
-            const alternativeEmbed = createEmbed('#55FFFF', `¡Segunda ronda, ${userName}!`, aiReply, 'Con cariño, Miguel IA | Reacciona con ✅ o ❌');
-            const newMessage = await reaction.message.channel.send({ embeds: [alternativeEmbed] });
-            await newMessage.react('✅');
-            await newMessage.react('❌');
-            sentMessages.set(newMessage.id, { content: aiReply, originalQuestion: originalQuestion, message: newMessage });
-            sentMessages.delete(reaction.message.id); // Borra el mensaje anterior pa’ evitar repeticiones
-        } catch (error) {
-            console.error('Error al generar segunda respuesta:', error.message);
-            const errorEmbed = createEmbed('#FF5555', '¡Qué webada!', 
-                `¡Uy, ${userName}, fallé otra vez! Error: ${error.message}. ¿Me das más detalles pa’ cacharlo bien esta vez?`, 
-                'Con cariño, Miguel IA | Reacciona con ✅ o ❌');
-            const newMessage = await reaction.message.channel.send({ embeds: [errorEmbed] });
-            await newMessage.react('✅');
-            await newMessage.react('❌');
-            sentMessages.set(newMessage.id, { content: errorEmbed.data.description, originalQuestion: originalQuestion, message: newMessage });
-            sentMessages.delete(reaction.message.id); // Borra el mensaje anterior
-        }
+        const alternativeEmbed = createEmbed('#55FFFF', `¡Segunda chance, ${userName}!`, aiReply, 'Hecho con onda por Miguel IA | Reacciona con ✅ o ❌');
+        const newMessage = await reaction.message.channel.send({ embeds: [alternativeEmbed] });
+        await newMessage.react('✅');
+        await newMessage.react('❌');
+        sentMessages.set(newMessage.id, { content: aiReply, originalQuestion: originalQuestion, message: newMessage });
+        sentMessages.delete(reaction.message.id); // Borramos el mensaje anterior para no repetir
+    } catch (error) {
+        console.error('Error al generar segunda respuesta:', error.message);
+        const errorEmbed = createEmbed('#FF5555', '¡Qué cagada, che!', 
+            `¡Uy, ${userName}, la pifié otra vez! Error: ${error.message}. ¿Me tirás más detalles para sacarla bien esta vez, loco?`, 
+            'Hecho con onda por Miguel IA | Reacciona con ✅ o ❌');
+        const newMessage = await reaction.message.channel.send({ embeds: [errorEmbed] });
+        await newMessage.react('✅');
+        await newMessage.react('❌');
+        sentMessages.set(newMessage.id, { content: errorEmbed.data.description, originalQuestion: originalQuestion, message: newMessage });
+        sentMessages.delete(reaction.message.id); // Borramos el anterior
     }
+}
 
-    if (user.id === ALLOWED_USER_ID) {
-        const owner = await client.users.fetch(OWNER_ID);
-        const reactionEmbed = createEmbed('#FFD700', '¡Belén reaccionó!', 
-            `Belén reaccionó con ${reaction.emoji} a: "${messageData.content}"\nPregunta original: "${messageData.originalQuestion}"\nEnviado el: ${new Date(messageData.message.createdTimestamp).toLocaleString()}`);
-        try {
-            await owner.send({ embeds: [reactionEmbed] });
-            console.log(`Notificación enviada a ${OWNER_ID}: Belén reaccionó con ${reaction.emoji}`);
-        } catch (error) {
-            console.error('Error al notificar al dueño:', error);
-        }
+if (user.id === ALLOWED_USER_ID) {
+    const owner = await client.users.fetch(OWNER_ID);
+    const reactionEmbed = createEmbed('#FFD700', '¡Belén le puso pilas!', 
+        `Belén reaccionó con ${reaction.emoji} a: "${messageData.content}"\nPregunta original: "${messageData.originalQuestion}"\nMandado el: ${new Date(messageData.message.createdTimestamp).toLocaleString()}`);
+    try {
+        await owner.send({ embeds: [reactionEmbed] });
+        console.log(`Notificación enviada a ${OWNER_ID}: Belén reaccionó con ${reaction.emoji}`);
+    } catch (error) {
+        console.error('Error al notificar al dueño:', error);
     }
-});
+}
 
 client.on('raw', (d) => {
     console.log('Evento raw recibido:', d.t);
