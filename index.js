@@ -52,8 +52,8 @@ const BOT_UPDATES = [
 
 // Estado anterior de las actualizaciones (del código pasado)
 const PREVIOUS_BOT_UPDATES = [
-    '!autosave funcional, cuando no quieras que falle o cualquier cosa lo haces, esto hará que no falle nada, ni se reinicie el bot.',
-    '!save funcional, haz el guardado al instante por si quieres asegurarte que todo se conservará',
+    '!reacciones ahora va como trivia: una palabra tras otra hasta que lo parás con !re o fallás, ¡a meterle velocidad, che!',
+    '!ppm cambiado: si te equivocás o se te pasa el tiempo, te tira otra frase; si la hacés bien, termina ahí, ¡posta!'
 ];
 
 // Mensajes de ánimo para Belén
