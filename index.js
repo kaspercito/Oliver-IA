@@ -2212,6 +2212,7 @@ if (user.id === ALLOWED_USER_ID) {
     } catch (error) {
         console.error('Error al notificar al dueño:', error);
     }
+    }
 }
 
 client.on('raw', (d) => {
