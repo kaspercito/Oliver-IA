@@ -955,7 +955,7 @@ let autosaveEnabled = true;
 let autosavePausedByMusic = false;
 
 // Utilidades con tono argentino
-const createEmbed = (color, title, description, footer = 'Hecho con onda por Miguel IA') => {
+const createEmbed = (color, title, description, footer = 'Hecho con onda por Oliver IA') => {
     return new EmbedBuilder()
         .setColor(color)
         .setTitle(title)
@@ -964,12 +964,12 @@ const createEmbed = (color, title, description, footer = 'Hecho con onda por Mig
         .setTimestamp();
 };
 
-const sendError = async (channel, message, suggestion = '¿Probamos de nuevo, loco?', footer = 'Hecho con onda por Miguel IA') => {
+const sendError = async (channel, message, suggestion = '¿Probamos de nuevo, loco?', footer = 'Hecho con onda por Oliver IA') => {
     const embed = createEmbed('#FF5555', '¡Uh, qué cagada!', `${message}\n${suggestion}`, footer);
     return await channel.send({ embeds: [embed] });
 };
 
-const sendSuccess = async (channel, title, message, footer = 'Hecho con onda por Miguel IA') => {
+const sendSuccess = async (channel, title, message, footer = 'Hecho con onda por Oliver IA') => {
     const embed = createEmbed('#55FF55', title, message, footer);
     return await channel.send({ embeds: [embed] });
 };
@@ -1517,7 +1517,7 @@ async function manejarChat(message) {
     const waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
 
     try {
-        const prompt = `Sos Miguel IA, creado por Miguel, un loco re piola. Respondé a "${chatMessage}" con buena onda, al estilo argentino, bien relajado pero con cabeza, che. Usá palabras como "copado", "joya", "boludo", "re", "dale", "posta", "genial" o "loco". Si es para Belén, hablale con cariño como "grosa" o "genia". Si dice "dile a Belén" (o algo como "Rattus norvegicus albinus"), pasale el mensaje a ella pero incluí al que lo mandó para seguir la charla. Sé re claro, respondé solo lo que te piden con lo que sabés, sin chamuyo. Si es algo matemático, tirá un ejemplo práctico paso a paso con números (inventá si no hay datos) y pedí más info con onda tipo "dame más data, loco". Si es un saludo, devolvé buena vibra; si no sabés, decí con humor que te falta data y tirá opciones. Terminá siempre con "¿Te cerró esa respuesta, ${userName}? ¿Seguimos charlando, che?" para mantener el mambo.`;
+        const prompt = `Sos Oliver IA, creado por Miguel, un loco re piola. Respondé a "${chatMessage}" con buena onda, al estilo argentino, bien relajado pero con cabeza, che. Usá palabras como "copado", "joya", "boludo", "re", "dale", "posta", "genial" o "loco". Si es para Belén, hablale con cariño como "grosa" o "genia". Si dice "dile a Belén" (o algo como "Rattus norvegicus albinus"), pasale el mensaje a ella pero incluí al que lo mandó para seguir la charla. Sé re claro, respondé solo lo que te piden con lo que sabés, sin chamuyo. Si es algo matemático, tirá un ejemplo práctico paso a paso con números (inventá si no hay datos) y pedí más info con onda tipo "dame más data, loco". Si es un saludo, devolvé buena vibra; si no sabés, decí con humor que te falta data y tirá opciones. Terminá siempre con "¿Te cerró esa respuesta, ${userName}? ¿Seguimos charlando, che?" para mantener el mambo.`;
 
         const response = await axios.post(
             'https://api-inference.huggingface.co/models/mistralai/Mixtral-8x7B-Instruct-v0.1',
@@ -1553,7 +1553,7 @@ async function manejarChat(message) {
             aiReply += `\n\n¿Te cerró esa respuesta, ${userName}? ¿Seguimos charlando, che?`;
         }
 
-        const finalEmbed = createEmbed('#55FFFF', `¡Aquí estoy, ${userName}!`, aiReply, 'Con cariño, Miguel IA | Reacciona con ✅ o ❌');
+        const finalEmbed = createEmbed('#55FFFF', `¡Aquí estoy, ${userName}!`, aiReply, 'Con cariño, Oliver IA | Reacciona con ✅ o ❌');
         const updatedMessage = await waitingMessage.edit({ embeds: [finalEmbed] });
         await updatedMessage.react('✅');
         await updatedMessage.react('❌');
@@ -1693,7 +1693,7 @@ async function manejarActualizaciones(message) {
         ? BOT_UPDATES.map((update, index) => `${index + 1}. ${update}`).join('\n')
         : 'No hay actualizaciones nuevas por ahora, ¡pero seguí atenta, genia!';
 
-    const embed = createEmbed('#FFD700', '📢 Últimas Actualizaciones de Miguel IA',
+    const embed = createEmbed('#FFD700', '📢 Últimas Actualizaciones de Oliver IA',
         `¡Mirá lo nuevo que traigo, ${userName}!\n\n${updatesText}\n\n**Hora local (Argentina):** ${argentinaTime}`,
         'Hecho con onda por Miguel IA');
     
@@ -1919,7 +1919,7 @@ function getCombinedRankingEmbed(userId, username) {
             { name: '⌨️ PPM (Récord Más Rápido)', value: ppmList, inline: false },
             { name: '⚡ Victorias en Reacciones', value: reactionList, inline: false }
         )
-        .setFooter({ text: 'Hecho por Kasper, de Miguel IA' })
+        .setFooter({ text: 'Hecho por Kasper, de Oliver IA' })
         .setTimestamp();
 }
 
@@ -1949,7 +1949,7 @@ async function manejarRankingPPM(message) {
             { name: 'Total de Intentos', value: `${attempts.length}`, inline: true },
             { name: 'Récord Más Alto', value: `${ppmData.best.ppm} PPM`, inline: true }
         )
-        .setFooter({ text: 'Con cariño, Miguel IA' })
+        .setFooter({ text: 'Con cariño, Oliver IA' })
         .setTimestamp();
 
     await message.channel.send({ embeds: [embed] });
@@ -2364,7 +2364,7 @@ client.on('messageCreate', async (message) => {
         await message.channel.send({ embeds: [embed] });
     } else if (content === 'hola') {
         const embed = createEmbed('#55FFFF', `¡Qué lindo verte, ${userName}!`,
-            `¡Hola, loco! Soy Miguel IA, tu compañero piola, trayéndote buena onda como si estuviéramos tomando mate en la vereda. ¿Cómo estás hoy, che? Estoy listo para charlar, ayudarte o tirar unas pavadas para reírnos. ¿Qué tenés en mente? ¡Dale, arrancamos!`);
+            `¡Hola, loco! Soy Oliver IA, tu compañero piola, trayéndote buena onda como si estuviéramos tomando mate en la vereda. ¿Cómo estás hoy, che? Estoy listo para charlar, ayudarte o tirar unas pavadas para reírnos. ¿Qué tenés en mente? ¡Dale, arrancamos!`);
         await message.channel.send({ embeds: [embed] });
     }
 });
@@ -2401,7 +2401,7 @@ client.once('ready', async () => {
         const updatesChanged = JSON.stringify(BOT_UPDATES) !== JSON.stringify(dataStore.sentUpdates);
 
         if (updatesChanged) {
-            const updateEmbed = createEmbed('#FFD700', '📢 Actualizaciones de Miguel IA',
+            const updateEmbed = createEmbed('#FFD700', '📢 Actualizaciones de Oliver IA',
                 '¡Tengo mejoras nuevas para compartir contigo!');
 
             const updatesText = BOT_UPDATES.map(update => `- ${update}`).join('\n');
@@ -2455,7 +2455,7 @@ client.on('messageReactionAdd', async (reaction, user) => {
 
 if (reaction.emoji.name === '❌') {
     const originalQuestion = messageData.originalQuestion;
-    const prompt = `Sos Miguel IA, creado por Miguel, un loco re piola. La primera respuesta a "${originalQuestion}" no le copó al usuario. Probá de nuevo con una respuesta más copada, detallada y útil, usando palabras argentinas como "copado", "joya", "boludo", "re", "dale", "posta" o "genial". Si es para Belén, hablale con cariño como "grosa" o "genia". Respondé solo lo que te piden, con info posta, sin chamuyo. Sé claro y relajado en español. Terminá con buena onda pa’ seguir la charla, tipo "¿Te cerró, ${userName}?".`;
+    const prompt = `Sos Oliver IA, creado por Miguel, un loco re piola. La primera respuesta a "${originalQuestion}" no le copó al usuario. Probá de nuevo con una respuesta más copada, detallada y útil, usando palabras argentinas como "copado", "joya", "boludo", "re", "dale", "posta" o "genial". Si es para Belén, hablale con cariño como "grosa" o "genia". Respondé solo lo que te piden, con info posta, sin chamuyo. Sé claro y relajado en español. Terminá con buena onda pa’ seguir la charla, tipo "¿Te cerró, ${userName}?".`;
 
     try {
         const response = await axios.post(
