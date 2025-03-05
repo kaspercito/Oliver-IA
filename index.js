@@ -942,23 +942,23 @@ const frasesPPM = [
 
 // Estado
 let instanceId = uuidv4();
-let activeTrivia = new Map();
+let activeTrivia = new Map(); // Una trivia por canal
 let sentMessages = new Map();
 let processedMessages = new Map();
-// Estado inicial
 let dataStore = { 
     conversationHistory: {}, 
     triviaRanking: {}, 
     personalPPMRecords: {}, 
     reactionStats: {}, 
     reactionWins: {}, 
-    activeSessions: {}, 
+    activeSessions: {}, // Claves como trivia_${channel.id}, reaction_${channel.id}
     triviaStats: {},
-    musicSessions: {}, // Asegurado desde el inicio
+    musicSessions: {},
+    updatesSent: false, // Para controlar actualizaciones
 };
 let dataStoreModified = false;
-let autosaveEnabled = true; // Control manual del autosave
-let autosavePausedByMusic = false; // Control automático por música
+let autosaveEnabled = true;
+let autosavePausedByMusic = false;
 
 // Utilidades con tono argentino
 const createEmbed = (color, title, description, footer = 'Hecho con onda por Miguel IA') => {
@@ -1146,139 +1146,86 @@ function obtenerPreguntaTriviaSinOpciones(usedQuestions, categoria) {
 
 // Función principal de trivia corregida
 async function manejarTrivia(message) {
-    console.log(`Instancia ${instanceId} - Iniciando trivia para ${message.author.id}`);
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
-    console.log("Mensaje recibido:", message.content);
+    if (!message.channel.permissionsFor(client.user).has(['SEND_MESSAGES', 'EMBED_LINKS'])) return;
 
-    const channelPermissions = message.channel.permissionsFor(message.guild.members.me);
-    if (!channelPermissions.has('SEND_MESSAGES')) {
-        console.log("No tengo permiso para enviar mensajes en el canal:", message.channel.id);
+    const args = normalizeText(message.content).split(' ').slice(1);
+    const categoria = args[0] in preguntasTriviaSinOpciones ? args[0] : 'capitales';
+    const numQuestions = Math.max(parseInt(args[1]) || 20, 20);
+
+    const triviaKey = `trivia_${message.channel.id}`;
+    if (dataStore.activeSessions[triviaKey]) {
+        await sendError(message.channel, `Ya hay una trivia activa en este canal, ${userName}.`, 'Cancelala con !tc primero.');
         return;
     }
-    if (!channelPermissions.has('EMBED_LINKS')) {
-        console.log("No tengo permiso para incrustar enlaces en el canal:", message.channel.id);
-        return;
-    }
-    console.log("Permisos verificados: SEND_MESSAGES y EMBED_LINKS OK");
 
-    const args = message.content.split(' ').slice(1).map(arg => normalizeText(arg));
-    console.log("Argumentos procesados:", args);
+    let session = {
+        type: 'trivia',
+        currentQuestion: 0,
+        score: 0,
+        totalQuestions: numQuestions,
+        usedQuestions: [],
+        categoria,
+    };
+    dataStore.activeSessions[triviaKey] = session;
+    dataStoreModified = true;
 
-    let categoria = args[0] || 'capitales';
-    let numQuestions = 20;
-    if (args[1] && !isNaN(args[1])) {
-        numQuestions = Math.max(parseInt(args[1]), 20);
-    } else if (args[0] && !isNaN(args[0])) {
-        numQuestions = Math.max(parseInt(args[0]), 20);
-        categoria = 'capitales';
-    }
-    console.log("Categoría seleccionada:", categoria, "Número de preguntas:", numQuestions);
-
-    try {
-        if (!preguntasTriviaSinOpciones[categoria]) {
-            console.log("Categoría no encontrada:", categoria);
-            const errorEmbed = createEmbed('#FF5555', '¡Qué quilombo!', 
-                `Categoría "${categoria}" no encontrada. Categorías disponibles: ${Object.keys(preguntasTriviaSinOpciones).join(', ')}`);
-            console.log("Intentando enviar mensaje de error...");
-            await message.channel.send({ embeds: [errorEmbed] });
-            console.log("Mensaje de error enviado");
-            return;
-        }
-        console.log("Categoría válida, iniciando trivia...");
-
-        let channelProgress = dataStore.activeSessions[message.channel.id] || { 
-            type: 'trivia', 
-            currentQuestion: 0, 
-            score: 0, 
-            totalQuestions: numQuestions, 
-            usedQuestions: [], 
-            categoria: categoria 
-        };
-        const usedQuestions = channelProgress.usedQuestions || [];
-        console.log("Progreso del canal:", channelProgress);
-
-        while (channelProgress.currentQuestion < numQuestions) {
-            const trivia = obtenerPreguntaTriviaSinOpciones(usedQuestions, categoria);
-            console.log("Pregunta seleccionada:", trivia);
-            if (!trivia) {
-                console.log("No hay más preguntas disponibles en", categoria);
-                await message.channel.send({ embeds: [createEmbed('#FF5555', '¡Se acabó el mambo!', 
-                    'No quedan más preguntas en esta categoría, che.')] });
-                break;
-            }
-            usedQuestions.push(trivia.pregunta);
-            const embedPregunta = createEmbed('#55FFFF', `🎲 ¡Pregunta ${channelProgress.currentQuestion + 1} de ${numQuestions}! (${categoria})`,
-                `${trivia.pregunta}\n\nTirame tu respuesta en 60 segundos, ${userName}, ¡dale! O usá !tc para cortar.`);
-            console.log("Intentando enviar pregunta...");
-            const sentMessage = await message.channel.send({ embeds: [embedPregunta] });
-            console.log("Pregunta enviada, ID:", sentMessage.id);
-            activeTrivia.set(message.channel.id, { id: sentMessage.id, correcta: trivia.respuesta, timestamp: Date.now(), userId: message.author.id });
-
-            channelProgress.usedQuestions = usedQuestions;
-            dataStore.activeSessions[message.channel.id] = channelProgress;
-            dataStoreModified = true;
-
-            try {
-                const respuestas = await message.channel.awaitMessages({
-                    filter: (res) => res.author.id === message.author.id && res.content.trim().length > 0 && 
-                                     !['!trivia cancelar', '!tc', '!reacciones cancelar', '!rc'].includes(res.content.toLowerCase().trim()),
-                    max: 1,
-                    time: 60000,
-                    errors: ['time']
-                });
-                const respuestaUsuario = respuestas.first().content;
-                const cleanedUserResponse = cleanText(respuestaUsuario);
-                const cleanedCorrectResponse = cleanText(trivia.respuesta);
-                activeTrivia.delete(message.channel.id);
-
-                if (!dataStore.triviaStats[message.author.id]) dataStore.triviaStats[message.author.id] = {};
-                if (!dataStore.triviaStats[message.author.id][categoria]) dataStore.triviaStats[message.author.id][categoria] = { correct: 0, total: 0 };
-                dataStore.triviaStats[message.author.id][categoria].total += 1;
-                dataStoreModified = true;
-
-                if (cleanedUserResponse === cleanedCorrectResponse) {
-                    channelProgress.score += 1;
-                    dataStore.triviaStats[message.author.id][categoria].correct += 1;
-                    await message.channel.send({ embeds: [createEmbed('#55FF55', '🎉 ¡La pegaste, genio!',
-                        `¡Grande, ${userName}! La respuesta era **${trivia.respuesta}**. Sumaste 1 punto, vas ${channelProgress.score}.`)] });
-                } else {
-                    await message.channel.send({ embeds: [createEmbed('#FF5555', '❌ ¡Estuviste cerca, boludo!',
-                        `Uy, ${userName}, la posta era **${trivia.respuesta}**. Vos pusiste "${respuestaUsuario}". ¡A seguirle dando!`)] });
-                }
-                channelProgress.currentQuestion += 1;
-                dataStore.activeSessions[message.channel.id] = channelProgress;
-                dataStoreModified = true;
-            } catch (error) {
-                activeTrivia.delete(message.channel.id);
-                if (!dataStore.triviaStats[message.author.id]) dataStore.triviaStats[message.author.id] = {};
-                if (!dataStore.triviaStats[message.author.id][categoria]) dataStore.triviaStats[message.author.id][categoria] = { correct: 0, total: 0 };
-                dataStore.triviaStats[message.author.id][categoria].total += 1;
-                dataStoreModified = true;
-                await message.channel.send({ embeds: [createEmbed('#FF5555', '⏳ ¡Se te pasó el bondi!',
-                    `Te dormiste, ${userName}. La respuesta era **${trivia.respuesta}**. ¡A estar más atento, che!`)] });
-                channelProgress.currentQuestion += 1;
-                dataStore.activeSessions[message.channel.id] = channelProgress;
-                dataStoreModified = true;
-            }
+    while (session.currentQuestion < session.totalQuestions) {
+        const available = preguntasTriviaSinOpciones[categoria].filter(q => !session.usedQuestions.includes(q.pregunta));
+        if (!available.length) {
+            await sendSuccess(message.channel, '🏁 ¡Se acabaron las preguntas!', `No hay más en ${categoria}, ${userName}.`);
+            break;
         }
 
-        if (channelProgress.currentQuestion >= numQuestions) {
-            await message.channel.send({ embeds: [createEmbed('#55FF55', '🏁 ¡Terminaste la trivia, crack!',
-                `¡Listo, ${userName}! Hiciste las ${numQuestions} preguntas de ${categoria}. Puntuación final: ${channelProgress.score}. Chequeá tu ranking con !rk.`)] });
-            if (!dataStore.triviaRanking[message.author.id]) dataStore.triviaRanking[message.author.id] = {};
-            if (!dataStore.triviaRanking[message.author.id][categoria]) dataStore.triviaRanking[message.author.id][categoria] = { score: 0 };
-            dataStore.triviaRanking[message.author.id][categoria].score = (dataStore.triviaRanking[message.author.id][categoria].score || 0) + channelProgress.score;
-            delete dataStore.activeSessions[message.channel.id];
-            dataStoreModified = true;
-        }
-    } catch (error) {
-        console.error("Error en manejarTrivia:", error.message);
+        const trivia = available[Math.floor(Math.random() * available.length)];
+        session.usedQuestions.push(trivia.pregunta);
+        const embed = createEmbed('#55FFFF', `🎲 Pregunta ${session.currentQuestion + 1}/${numQuestions} (${categoria})`,
+            `${trivia.pregunta}\n\n¡Responde en 60 segundos, ${userName}! O cancelá con !tc.`);
+        const sent = await message.channel.send({ embeds: [embed] });
+
+        activeTrivia.set(message.channel.id, { id: sent.id, correcta: trivia.respuesta, userId: message.author.id });
+        dataStoreModified = true;
+
         try {
-            await message.channel.send({ embeds: [createEmbed('#FF5555', '¡Error!', 
-                `Algo salió mal: ${error.message}. ¿Tengo permisos para enviar mensajes aquí?`)] });
-        } catch (sendError) {
-            console.error("No se pudo enviar mensaje de error:", sendError.message);
+            const respuestas = await message.channel.awaitMessages({
+                filter: (res) => res.author.id === message.author.id && !['!tc', '!trivia cancelar'].includes(res.content.toLowerCase()),
+                max: 1,
+                time: 60000,
+                errors: ['time'],
+            });
+            const respuesta = cleanText(respuestas.first().content);
+            activeTrivia.delete(message.channel.id);
+
+            if (!dataStore.triviaStats[message.author.id]) dataStore.triviaStats[message.author.id] = {};
+            if (!dataStore.triviaStats[message.author.id][categoria]) dataStore.triviaStats[message.author.id][categoria] = { correct: 0, total: 0 };
+            dataStore.triviaStats[message.author.id][categoria].total += 1;
+
+            if (respuesta === cleanText(trivia.respuesta)) {
+                session.score += 1;
+                dataStore.triviaStats[message.author.id][categoria].correct += 1;
+                await sendSuccess(message.channel, '🎉 ¡Acierto!', `¡Grande, ${userName}! Era **${trivia.respuesta}**. Vas ${session.score}.`);
+            } else {
+                await sendError(message.channel, '❌ ¡Fallaste!', `La posta era **${trivia.respuesta}**, ${userName}. Dijiste "${respuesta}".`);
+            }
+            session.currentQuestion += 1;
+            dataStore.activeSessions[triviaKey] = session;
+            dataStoreModified = true;
+        } catch {
+            activeTrivia.delete(message.channel.id);
+            await sendError(message.channel, '⏳ ¡Tiempo!', `Se acabó, ${userName}. Era **${trivia.respuesta}**.`);
+            session.currentQuestion += 1;
+            dataStore.activeSessions[triviaKey] = session;
+            dataStoreModified = true;
         }
+    }
+
+    if (session.currentQuestion >= session.totalQuestions) {
+        await sendSuccess(message.channel, '🏁 ¡Trivia terminada!', `Puntuación: ${session.score}/${numQuestions}, ${userName}.`);
+        if (!dataStore.triviaRanking[message.author.id]) dataStore.triviaRanking[message.author.id] = {};
+        dataStore.triviaRanking[message.author.id][categoria] = (dataStore.triviaRanking[message.author.id][categoria] || 0) + session.score;
+        delete dataStore.activeSessions[triviaKey];
+        activeTrivia.delete(message.channel.id);
+        dataStoreModified = true;
     }
 }
 
@@ -1407,91 +1354,52 @@ function obtenerPalabraAleatoria() {
 }
 
 async function manejarReacciones(message) {
-    console.log(`Instancia ${instanceId} - Iniciando juego de reacciones en canal ${message.channel.id}`);
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
+    if (!message.channel.permissionsFor(client.user).has(['SEND_MESSAGES', 'EMBED_LINKS'])) return;
 
-    let session = dataStore.activeSessions[message.channel.id] || { 
-        type: 'reaction', 
-        palabra: null, 
-        timestamp: null, 
-        completed: false, 
-        currentRound: 0, 
-        score: 0 
-    };
+    const reactionKey = `reaction_${message.channel.id}`;
+    let session = dataStore.activeSessions[reactionKey];
 
-    if (session.palabra && !session.completed) {
+    if (session && !session.completed) {
         session.completed = true;
-        delete dataStore.activeSessions[message.channel.id];
+        delete dataStore.activeSessions[reactionKey];
         dataStoreModified = true;
-        await sendSuccess(message.channel, '🛑 ¡Juego de reacciones parado!', 
-            `Paraste el juego, ${userName}. Puntuación final: ${session.score}. ¡Volvé a arrancar con !re cuando quieras!`);
+        await sendSuccess(message.channel, '🛑 ¡Reacciones paradas!', `Puntuación: ${session.score}, ${userName}.`);
         return;
     }
 
-    session = { 
-        type: 'reaction', 
-        palabra: null, 
-        timestamp: null, 
-        completed: false, 
-        currentRound: 0, 
-        score: 0 
-    };
-    dataStore.activeSessions[message.channel.id] = session;
+    session = { type: 'reaction', score: 0, currentRound: 0, completed: false };
+    dataStore.activeSessions[reactionKey] = session;
     dataStoreModified = true;
 
     while (!session.completed) {
         const palabra = obtenerPalabraAleatoria();
-        const startTime = Date.now();
-        session.palabra = palabra;
-        session.timestamp = startTime;
-        session.currentRound += 1;
-        dataStore.activeSessions[message.channel.id] = session;
-        dataStoreModified = true;
-
-        const embed = createEmbed('#FFD700', `🏁 ¡Ronda ${session.currentRound}!`,
-            `¡Escribí esta palabra lo más rápido que puedas: **${palabra}**!\n\nTenés 30 segundos, ${userName}. ¡Dale gas! O usá !rc para cortar.`);
+        const embed = createEmbed('#FFD700', `🏁 Ronda ${session.currentRound + 1}`, 
+            `Escribí: **${palabra}** en 30 segundos, ${userName}! (!rc para parar)`);
         await message.channel.send({ embeds: [embed] });
 
         try {
             const respuestas = await message.channel.awaitMessages({
-                filter: (res) => res.author.id === message.author.id && res.content.trim().length > 0 && 
-                                 !['!trivia cancelar', '!tc', '!reacciones cancelar', '!rc'].includes(res.content.toLowerCase().trim()),
+                filter: (res) => res.author.id === message.author.id && !['!rc', '!reacciones cancelar'].includes(res.content.toLowerCase()),
                 max: 1,
                 time: 30000,
-                errors: ['time']
+                errors: ['time'],
             });
-            const respuestaUsuario = respuestas.first().content.toLowerCase().trim();
-
-            if (respuestaUsuario === palabra) {
-                const endTime = Date.now();
-                const tiempoSegundos = (endTime - startTime) / 1000;
+            if (respuestas.first().content.toLowerCase() === palabra) {
                 session.score += 1;
-
-                if (!dataStore.reactionWins[message.author.id]) {
-                    dataStore.reactionWins[message.author.id] = { username: message.author.username, wins: 0 };
-                }
-                dataStore.reactionWins[message.author.id].wins += 1;
-                dataStoreModified = true;
-
-                await sendSuccess(message.channel, '🎉 ¡La pegaste, crack!',
-                    `¡Grande, ${userName}! Tipeaste **${palabra}** en ${tiempoSegundos.toFixed(2)} segundos. Vas ${session.score} puntos. ¡Sigue así!`);
+                await sendSuccess(message.channel, '🎉 ¡Bien!', `La pegaste, ${userName}. Vas ${session.score}.`);
             } else {
                 session.completed = true;
-                delete dataStore.activeSessions[message.channel.id];
-                dataStoreModified = true;
-                await sendError(message.channel, '❌ ¡La pifiaste, boludo!',
-                    `Uy, ${userName}, escribiste "${respuestaUsuario}" y era **${palabra}**. Puntuación final: ${session.score}. ¡Arrancá de nuevo con !re si querés!`);
-                break;
+                await sendError(message.channel, '❌ ¡Error!', `Fallaste, ${userName}. Era **${palabra}**.`);
             }
-
-            await new Promise(resolve => setTimeout(resolve, 1000));
-        } catch (error) {
-            session.completed = true;
-            delete dataStore.activeSessions[message.channel.id];
+            session.currentRound += 1;
+            dataStore.activeSessions[reactionKey] = session;
             dataStoreModified = true;
-            await sendError(message.channel, '⏳ ¡Te dormiste, boludo!',
-                `Se acabó el tiempo para **${palabra}**, ${userName}. Puntuación final: ${session.score}. ¡Arrancá de nuevo con !re si querés!`);
-            break;
+        } catch {
+            session.completed = true;
+            await sendError(message.channel, '⏳ ¡Tiempo!', `Se acabó, ${userName}. Puntuación: ${session.score}.`);
+            delete dataStore.activeSessions[reactionKey];
+            dataStoreModified = true;
         }
     }
 }
@@ -2242,57 +2150,75 @@ client.on('messageCreate', async (message) => {
                         `¡${userName} usó un montón de mayúsculas, pero la cagué muteándolo/a! Error: ${error.message}. El mensaje ya se fue, relajá.`)] 
                 });
             }
-            return; // Cortamos acá para no seguir con el mensaje
+            return;
         }
     }
 
-    // Procesar !responder o !resp solo para Miguel antes del filtro de Belén
     if (message.author.id === OWNER_ID && (content.startsWith('!responder') || content.startsWith('!resp'))) {
-        console.log(`[${instanceId}] Procesando !responder/!resp desde ${message.channel.type === 'DM' ? 'MD' : 'canal ' + message.channel.id} por Miguel`);
         await manejarCommand(message);
         return;
     }
 
-    // Solo Belén puede usar el resto de los comandos
-    if (message.author.id !== ALLOWED_USER_ID) {
-        if (message.author.id === OWNER_ID) {
-            // No procesa nada más para Miguel, ya manejamos !responder arriba
-            return;
-        }
-        return; // Ignora a cualquiera que no sea Belén
-    }
+    if (message.author.id !== ALLOWED_USER_ID) return;
 
-    // Acá sigue solo para Belén
     if (processedMessages.has(message.id)) return;
     processedMessages.set(message.id, Date.now());
     setTimeout(() => processedMessages.delete(message.id), 10000);
+
+    if (content === '!tc' || content === '!trivia cancelar') {
+        const triviaKey = `trivia_${message.channel.id}`;
+        const session = dataStore.activeSessions[triviaKey];
+        if (!session || session.type !== 'trivia') {
+            await sendError(message.channel, `No hay trivia activa, ${userName}.`, '¿Querés una con !trivia?');
+            return;
+        }
+        delete dataStore.activeSessions[triviaKey];
+        activeTrivia.delete(message.channel.id);
+        dataStoreModified = true;
+        await sendSuccess(message.channel, '🛑 ¡Trivia cancelada!', `Listo, ${userName}. Puntuación: ${session.score}/${session.currentQuestion}.`);
+        return;
+    }
+
+    if (content === '!rc' || content === '!reacciones cancelar') {
+        const reactionKey = `reaction_${message.channel.id}`;
+        const session = dataStore.activeSessions[reactionKey];
+        if (!session || session.type !== 'reaction' || session.completed) {
+            await sendError(message.channel, `No hay reacciones activas, ${userName}.`, '¿Arrancamos con !reacciones?');
+            return;
+        }
+        session.completed = true;
+        delete dataStore.activeSessions[reactionKey];
+        dataStoreModified = true;
+        await sendSuccess(message.channel, '🛑 ¡Reacciones canceladas!', `Listo, ${userName}. Puntuación: ${session.score}.`);
+        return;
+    }
 
     await manejarCommand(message);
 
     if (content === '!ranking' || content === '!rk') {
         const embed = getCombinedRankingEmbed(message.author.id, message.author.username);
         await message.channel.send({ embeds: [embed] });
-        } else if (content === '!help' || content === '!h') {
-            const embed = createEmbed('#55FF55', `¡Lista de comandos para vos, ${userName}!`,
-                '¡Acá tenés todo lo que puedo hacer por vos, genia!\n' +
-                '- **!ch / !chat [mensaje]**: Charlamos un rato, posta.\n' +
-                '- **!tr / !trivia [categoría] [n]**: Trivia copada por categoría (mínimo 20).\n' +
-                '- **!tc / !trivia cancelar**: Cancela la trivia que haz empezado.\n' +             
-                '- **!pp / !ppm**: A ver qué tan rápido tipeás, ¡dale!\n' +
-                '- **!rk / !ranking**: Tus puntajes y estadísticas (récord más alto de PPM).\n' +
-                '- **!rppm / !rankingppm**: Todos tus intentos de PPM, loco.\n' +
-                '- **!re / !reacciones**: Juego para ver quién tipea más rápido.\n' +
-                '- **!rc / !reacciones cancelar**: Cancela las reacciones que haz empezado.\n' +            
-                '- **!su / !sugerencias [idea]**: Mandame tus ideas para hacer este bot más piola.\n' +
-                '- **!ay / !ayuda [problema]**: Pedile una mano a Miguel.\n' +
-                '- **!save**: Guardo todo al toque, tranqui.\n' +
-                '- **!as / !autosave**: Paro o arranco el guardado automático.\n' +
-                '- **!act / !actualizaciones**: Mirá las últimas novedades del bot.\n' +
-                '- **!h / !help**: Esta lista, boluda.\n' +
-                '- **!hm / !help musica**: Comandos para meterle música al día.\n' +
-                '- **hola**: Te tiro un saludito con onda.');
-            await message.channel.send({ embeds: [embed] });
-        } else if (content === '!help musica' || content === '!hm') {
+    } else if (content === '!help' || content === '!h') {
+        const embed = createEmbed('#55FF55', `¡Lista de comandos para vos, ${userName}!`,
+            '¡Acá tenés todo lo que puedo hacer por vos, genia!\n' +
+            '- **!ch / !chat [mensaje]**: Charlamos un rato, posta.\n' +
+            '- **!tr / !trivia [categoría] [n]**: Trivia copada por categoría (mínimo 20).\n' +
+            '- **!tc / !trivia cancelar**: Cancela la trivia que haz empezado.\n' +             
+            '- **!pp / !ppm**: A ver qué tan rápido tipeás, ¡dale!\n' +
+            '- **!rk / !ranking**: Tus puntajes y estadísticas (récord más alto de PPM).\n' +
+            '- **!rppm / !rankingppm**: Todos tus intentos de PPM, loco.\n' +
+            '- **!re / !reacciones**: Juego para ver quién tipea más rápido.\n' +
+            '- **!rc / !reacciones cancelar**: Cancela las reacciones que haz empezado.\n' +            
+            '- **!su / !sugerencias [idea]**: Mandame tus ideas para hacer este bot más piola.\n' +
+            '- **!ay / !ayuda [problema]**: Pedile una mano a Miguel.\n' +
+            '- **!save**: Guardo todo al toque, tranqui.\n' +
+            '- **!as / !autosave**: Paro o arranco el guardado automático.\n' +
+            '- **!act / !actualizaciones**: Mirá las últimas novedades del bot.\n' +
+            '- **!h / !help**: Esta lista, boluda.\n' +
+            '- **!hm / !help musica**: Comandos para meterle música al día.\n' +
+            '- **hola**: Te tiro un saludito con onda.');
+        await message.channel.send({ embeds: [embed] });
+    } else if (content === '!help musica' || content === '!hm') {
         const embed = createEmbed('#55FF55', `¡Comandos de música para vos, ${userName}!`,
             '¡Poné el ritmo con estos comandos, loco!\n' +
             '- **!pl / !play [canción/URL]**: Tiro un tema para que suene.\n' +
