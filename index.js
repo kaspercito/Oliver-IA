@@ -1210,7 +1210,7 @@ async function manejarTrivia(message) {
             }
             usedQuestions.push(trivia.pregunta);
             const embedPregunta = createEmbed('#55FFFF', `🎲 ¡Pregunta ${channelProgress.currentQuestion + 1} de ${numQuestions}! (${categoria})`,
-                `${trivia.pregunta}\n\nTirame tu respuesta en 60 segundos, ${userName}, ¡dale! O escribí "!trivia cancelar" para cortar.`);
+                `${trivia.pregunta}\n\nTirame tu respuesta en 60 segundos, ${userName}, ¡dale! O usá !tc para cortar.`);
             console.log("Intentando enviar pregunta...");
             const sentMessage = await message.channel.send({ embeds: [embedPregunta] });
             console.log("Pregunta enviada, ID:", sentMessage.id);
@@ -1222,25 +1222,16 @@ async function manejarTrivia(message) {
 
             try {
                 const respuestas = await message.channel.awaitMessages({
-                    filter: (res) => res.author.id === message.author.id && res.content.trim().length > 0,
+                    filter: (res) => res.author.id === message.author.id && res.content.trim().length > 0 && 
+                                     res.content.toLowerCase() !== '!trivia cancelar' && res.content.toLowerCase() !== '!tc',
                     max: 1,
                     time: 60000,
                     errors: ['time']
                 });
-                const respuestaUsuario = respuestas.first().content.toLowerCase().trim();
-                activeTrivia.delete(message.channel.id);
-
-                // Chequear si quiere cancelar
-                if (respuestaUsuario === '!trivia cancelar' || respuestaUsuario === '!tc') {
-                    delete dataStore.activeSessions[message.channel.id];
-                    dataStoreModified = true;
-                    await message.channel.send({ embeds: [createEmbed('#FFAA00', '🛑 ¡Trivia cancelada!', 
-                        `Bueno, ${userName}, cortaste la trivia. Puntuación parcial: ${channelProgress.score}/${channelProgress.currentQuestion}. ¿Querés arrancar otra con !trivia?`)] });
-                    return; // Salimos de la función
-                }
-
+                const respuestaUsuario = respuestas.first().content;
                 const cleanedUserResponse = cleanText(respuestaUsuario);
                 const cleanedCorrectResponse = cleanText(trivia.respuesta);
+                activeTrivia.delete(message.channel.id);
 
                 if (!dataStore.triviaStats[message.author.id]) dataStore.triviaStats[message.author.id] = {};
                 if (!dataStore.triviaStats[message.author.id][categoria]) dataStore.triviaStats[message.author.id][categoria] = { correct: 0, total: 0 };
@@ -1431,7 +1422,7 @@ async function manejarReacciones(message) {
         score: 0 
     };
 
-    // Si ya hay una sesión en curso y no está completada, detenerla
+    // Si ya hay una sesión en curso y no está completada, detenerla con !re (esto ya está manejado en manejarCommand)
     if (session.palabra && !session.completed) {
         session.completed = true;
         delete dataStore.activeSessions[message.channel.id];
@@ -1464,39 +1455,51 @@ async function manejarReacciones(message) {
         dataStoreModified = true;
 
         const embed = createEmbed('#FFD700', `🏁 ¡Ronda ${session.currentRound}!`,
-            `¡Escribí esta palabra lo más rápido que puedas: **${palabra}**!\n\nTenés 30 segundos, ${userName}. ¡Dale gas!`);
+            `¡Escribí esta palabra lo más rápido que puedas: **${palabra}**!\n\nTenés 30 segundos, ${userName}. ¡Dale gas! O usá !rc para cortar.`);
         await message.channel.send({ embeds: [embed] });
 
         try {
             const respuestas = await message.channel.awaitMessages({
-                filter: (res) => res.author.id === message.author.id && res.content.toLowerCase().trim() === palabra,
+                filter: (res) => res.author.id === message.author.id && res.content.trim().length > 0 && 
+                                 res.content.toLowerCase() !== '!reacciones cancelar' && res.content.toLowerCase() !== '!rc',
                 max: 1,
                 time: 30000,
                 errors: ['time']
             });
-            const endTime = Date.now();
-            const tiempoSegundos = (endTime - startTime) / 1000;
-            session.score += 1;
+            const respuestaUsuario = respuestas.first().content.toLowerCase().trim();
 
-            if (!dataStore.reactionWins[message.author.id]) {
-                dataStore.reactionWins[message.author.id] = { username: message.author.username, wins: 0 };
+            if (respuestaUsuario === palabra) {
+                const endTime = Date.now();
+                const tiempoSegundos = (endTime - startTime) / 1000;
+                session.score += 1;
+
+                if (!dataStore.reactionWins[message.author.id]) {
+                    dataStore.reactionWins[message.author.id] = { username: message.author.username, wins: 0 };
+                }
+                dataStore.reactionWins[message.author.id].wins += 1;
+                dataStoreModified = true;
+
+                await sendSuccess(message.channel, '🎉 ¡La pegaste, crack!',
+                    `¡Grande, ${userName}! Tipeaste **${palabra}** en ${tiempoSegundos.toFixed(2)} segundos. Vas ${session.score} puntos. ¡Sigue así!`);
+            } else {
+                session.completed = true;
+                delete dataStore.activeSessions[message.channel.id];
+                dataStoreModified = true;
+                await sendError(message.channel, '❌ ¡La pifiaste, boludo!',
+                    `Uy, ${userName}, escribiste "${respuestaUsuario}" y era **${palabra}**. Puntuación final: ${session.score}. ¡Arrancá de nuevo con !re si querés!`);
+                break; // Sale del bucle si se equivoca
             }
-            dataStore.reactionWins[message.author.id].wins += 1;
-            dataStoreModified = true;
 
-            await sendSuccess(message.channel, '🎉 ¡La pegaste, crack!',
-                `¡Grande, ${userName}! Tipeaste **${palabra}** en ${tiempoSegundos.toFixed(2)} segundos. Vas ${session.score} puntos. ¡Sigue así!`);
+            // Pequeña pausa para que sea jugable
+            await new Promise(resolve => setTimeout(resolve, 1000));
         } catch (error) {
             session.completed = true;
             delete dataStore.activeSessions[message.channel.id];
             dataStoreModified = true;
-            await sendError(message.channel, '⏳ ¡Te dormiste o la pifiaste!',
+            await sendError(message.channel, '⏳ ¡Te dormiste, boludo!',
                 `Se acabó el tiempo para **${palabra}**, ${userName}. Puntuación final: ${session.score}. ¡Arrancá de nuevo con !re si querés!`);
             break; // Sale del bucle si falla
         }
-
-        // Pequeña pausa para que sea jugable
-        await new Promise(resolve => setTimeout(resolve, 1000));
     }
 }
 
@@ -2108,8 +2111,10 @@ async function manejarCommand(message) {
             activeTrivia.delete(message.channel.id);
             dataStoreModified = true;
 
+            // Mensaje unificado y único
             await sendSuccess(message.channel, '🛑 ¡Trivia cancelada!', 
-                `Listo, ${userName}, la trivia se fue al carajo. Puntuación parcial: ${channelProgress.score}/${channelProgress.currentQuestion}. ¿Arrancamos otra con !trivia?`);
+                `Listo, ${userName}, cortaste la trivia al toque. Puntuación parcial: ${channelProgress.score}/${channelProgress.currentQuestion}. ¿Arrancamos otra con !trivia?`);
+            return; // Nos aseguramos de salir para no procesar más
         } else {
             await manejarTrivia(message);
         }
@@ -2117,8 +2122,29 @@ async function manejarCommand(message) {
         await manejarChat(message);
     } else if (content === '!ppm' || content === '!pp') {
         await manejarPPM(message);
-    } else if (content === '!reacciones' || content === '!re') {
-        await manejarReacciones(message);
+    } else if (content.startsWith('!reacciones') || content.startsWith('!re')) {
+        if (content === '!reacciones cancelar' || content === '!rc') {
+            const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
+            if (message.author.id !== ALLOWED_USER_ID) return;
+
+            const session = dataStore.activeSessions[message.channel.id];
+            if (!session || session.type !== 'reaction' || session.completed) {
+                await sendError(message.channel, `No hay un juego de reacciones activo para cancelar, ${userName}.`, 
+                    '¿Querés empezar uno con !reacciones?');
+                return;
+            }
+
+            session.completed = true;
+            delete dataStore.activeSessions[message.channel.id];
+            dataStoreModified = true;
+
+            await sendSuccess(message.channel, '🛑 ¡Juego de reacciones cancelado!', 
+                `Paraste el juego, ${userName}. Puntuación parcial: ${session.score} en ${session.currentRound - 1} rondas. ¡Volvé a arrancar con !re cuando quieras!`);
+        } else {
+            await manejarReacciones(message);
+        }
+    } else if (content === '!actualizaciones' || content === '!act') {
+        await manejarActualizaciones(message);
     } else if (content === '!luz') {
         const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
         const mensaje = mensajesAnimo[Math.floor(Math.random() * mensajesAnimo.length)];
@@ -2163,8 +2189,6 @@ async function manejarCommand(message) {
         await manejarAutosave(message);
     } else if (content === '!lyrics' || content === '!ly') {
         await manejarLyrics(message);
-    } else if (content === '!actualizaciones' || content === '!act') { // Nueva línea
-        await manejarActualizaciones(message);
     } else if (content.startsWith('!responder') || content.startsWith('!resp')) {
         await manejarResponder(message);
     }
@@ -2238,11 +2262,13 @@ client.on('messageCreate', async (message) => {
             const embed = createEmbed('#55FF55', `¡Lista de comandos para vos, ${userName}!`,
                 '¡Acá tenés todo lo que puedo hacer por vos, genia!\n' +
                 '- **!ch / !chat [mensaje]**: Charlamos un rato, posta.\n' +
-                '- **!tr / !trivia [categoría] [n]**: Trivia copada por categoría (mínimo 20). Usá !tc o !trivia cancelar para cortarla cuando quieras. Categorías: ' + Object.keys(preguntasTriviaSinOpciones).join(', ') + '\n' +
+                '- **!tr / !trivia [categoría] [n]**: Trivia copada por categoría (mínimo 20).\n' +
+                '- **!tc / !trivia cancelar**: Cancela la trivia que haz empezado.\n' +             
                 '- **!pp / !ppm**: A ver qué tan rápido tipeás, ¡dale!\n' +
                 '- **!rk / !ranking**: Tus puntajes y estadísticas (récord más alto de PPM).\n' +
                 '- **!rppm / !rankingppm**: Todos tus intentos de PPM, loco.\n' +
                 '- **!re / !reacciones**: Juego para ver quién tipea más rápido.\n' +
+                '- **!rc / !reacciones cancelar**: Cancela las reacciones que haz empezado.\n' +            
                 '- **!su / !sugerencias [idea]**: Mandame tus ideas para hacer este bot más piola.\n' +
                 '- **!ay / !ayuda [problema]**: Pedile una mano a Miguel.\n' +
                 '- **!save**: Guardo todo al toque, tranqui.\n' +
