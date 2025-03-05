@@ -1166,11 +1166,14 @@ async function manejarTrivia(message) {
         totalQuestions: numQuestions,
         usedQuestions: [],
         categoria,
+        active: true, // Para controlar cancelación
     };
     dataStore.activeSessions[triviaKey] = session;
     dataStoreModified = true;
 
-    while (session.currentQuestion < session.totalQuestions) {
+    while (session.currentQuestion < session.totalQuestions && session.active) {
+        if (!dataStore.activeSessions[triviaKey]) break; // Si se borró la sesión, salimos
+
         const available = preguntasTriviaSinOpciones[categoria].filter(q => !session.usedQuestions.includes(q.pregunta));
         if (!available.length) {
             await sendSuccess(message.channel, '🏁 ¡Se acabaron las preguntas!', `No hay más en ${categoria}, ${userName}.`);
@@ -1196,6 +1199,8 @@ async function manejarTrivia(message) {
             const respuesta = cleanText(respuestas.first().content);
             activeTrivia.delete(message.channel.id);
 
+            if (!dataStore.activeSessions[triviaKey]) break; // Si se canceló mientras esperaba, salimos
+
             if (!dataStore.triviaStats[message.author.id]) dataStore.triviaStats[message.author.id] = {};
             if (!dataStore.triviaStats[message.author.id][categoria]) dataStore.triviaStats[message.author.id][categoria] = { correct: 0, total: 0 };
             dataStore.triviaStats[message.author.id][categoria].total += 1;
@@ -1212,6 +1217,7 @@ async function manejarTrivia(message) {
             dataStoreModified = true;
         } catch {
             activeTrivia.delete(message.channel.id);
+            if (!dataStore.activeSessions[triviaKey]) break; // Si se canceló, salimos
             await sendError(message.channel, '⏳ ¡Tiempo!', `Se acabó, ${userName}. Era **${trivia.respuesta}**.`);
             session.currentQuestion += 1;
             dataStore.activeSessions[triviaKey] = session;
@@ -1373,6 +1379,8 @@ async function manejarReacciones(message) {
     dataStoreModified = true;
 
     while (!session.completed) {
+        if (!dataStore.activeSessions[reactionKey]) break; // Si se canceló, salimos
+
         const palabra = obtenerPalabraAleatoria();
         const embed = createEmbed('#FFD700', `🏁 Ronda ${session.currentRound + 1}`, 
             `Escribí: **${palabra}** en 30 segundos, ${userName}! (!rc para parar)`);
@@ -1385,6 +1393,8 @@ async function manejarReacciones(message) {
                 time: 30000,
                 errors: ['time'],
             });
+            if (!dataStore.activeSessions[reactionKey]) break; // Si se canceló mientras esperaba, salimos
+
             if (respuestas.first().content.toLowerCase() === palabra) {
                 session.score += 1;
                 await sendSuccess(message.channel, '🎉 ¡Bien!', `La pegaste, ${userName}. Vas ${session.score}.`);
@@ -1396,6 +1406,7 @@ async function manejarReacciones(message) {
             dataStore.activeSessions[reactionKey] = session;
             dataStoreModified = true;
         } catch {
+            if (!dataStore.activeSessions[reactionKey]) break; // Si se canceló, salimos
             session.completed = true;
             await sendError(message.channel, '⏳ ¡Tiempo!', `Se acabó, ${userName}. Puntuación: ${session.score}.`);
             delete dataStore.activeSessions[reactionKey];
@@ -2165,6 +2176,7 @@ client.on('messageCreate', async (message) => {
     processedMessages.set(message.id, Date.now());
     setTimeout(() => processedMessages.delete(message.id), 10000);
 
+    // Cancelaciones primero
     if (content === '!tc' || content === '!trivia cancelar') {
         const triviaKey = `trivia_${message.channel.id}`;
         const session = dataStore.activeSessions[triviaKey];
@@ -2172,6 +2184,7 @@ client.on('messageCreate', async (message) => {
             await sendError(message.channel, `No hay trivia activa, ${userName}.`, '¿Querés una con !trivia?');
             return;
         }
+        session.active = false; // Marcamos como inactiva
         delete dataStore.activeSessions[triviaKey];
         activeTrivia.delete(message.channel.id);
         dataStoreModified = true;
@@ -2193,6 +2206,7 @@ client.on('messageCreate', async (message) => {
         return;
     }
 
+    // Otros comandos después
     await manejarCommand(message);
 
     if (content === '!ranking' || content === '!rk') {
