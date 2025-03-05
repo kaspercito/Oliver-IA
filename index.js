@@ -1156,14 +1156,95 @@ function obtenerPreguntaTriviaSinOpciones(usedQuestions, categoria) {
 }
 
 // Función principal de trivia corregida
-if (session.currentQuestion >= session.totalQuestions && dataStore.activeSessions[triviaKey]) {
-    await sendSuccess(message.channel, '🏁 ¡Trivia terminada!', `Puntuación: ${session.score}/${numQuestions}, ${userName}.`);
-    if (!dataStore.triviaRanking[message.author.id]) dataStore.triviaRanking[message.author.id] = {};
-    // Usamos triviaStats como base y sumamos el score de la sesión
-    dataStore.triviaRanking[message.author.id][categoria] = dataStore.triviaStats[message.author.id][categoria].correct;
-    delete dataStore.activeSessions[triviaKey];
-    activeTrivia.delete(message.channel.id);
+async function manejarTrivia(message) {
+    const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
+    if (!message.channel.permissionsFor(client.user).has(['SEND_MESSAGES', 'EMBED_LINKS'])) return;
+
+    const args = normalizeText(message.content).split(' ').slice(1);
+    const categoria = args[0] in preguntasTriviaSinOpciones ? args[0] : 'capitales';
+    const numQuestions = Math.max(parseInt(args[1]) || 20, 20);
+
+    const triviaKey = `trivia_${message.channel.id}`;
+    if (dataStore.activeSessions[triviaKey]) {
+        await sendError(message.channel, `Ya hay una trivia activa en este canal, ${userName}.`, 'Cancelala con !tc primero.');
+        return;
+    }
+
+    let session = {
+        type: 'trivia',
+        currentQuestion: 0,
+        score: 0,
+        totalQuestions: numQuestions,
+        usedQuestions: [],
+        categoria,
+        active: true,
+    };
+    dataStore.activeSessions[triviaKey] = session;
     dataStoreModified = true;
+
+    while (session.currentQuestion < session.totalQuestions && session.active) {
+        if (!dataStore.activeSessions[triviaKey] || !dataStore.activeSessions[triviaKey].active) break;
+
+        const available = preguntasTriviaSinOpciones[categoria].filter(q => !session.usedQuestions.includes(q.pregunta));
+        if (!available.length) {
+            await sendSuccess(message.channel, '🏁 ¡Se acabaron las preguntas!', `No hay más en ${categoria}, ${userName}.`);
+            break;
+        }
+
+        const trivia = available[Math.floor(Math.random() * available.length)];
+        session.usedQuestions.push(trivia.pregunta);
+        const embed = createEmbed('#55FFFF', `🎲 Pregunta ${session.currentQuestion + 1}/${numQuestions} (${categoria})`,
+            `${trivia.pregunta}\n\n¡Responde en 60 segundos, ${userName}! O cancelá con !tc.`);
+        const sent = await message.channel.send({ embeds: [embed] });
+
+        activeTrivia.set(message.channel.id, { id: sent.id, correcta: trivia.respuesta, userId: message.author.id });
+        dataStoreModified = true;
+
+        try {
+            const respuestas = await message.channel.awaitMessages({
+                filter: (res) => res.author.id === message.author.id && !['!tc', '!trivia cancelar'].includes(res.content.toLowerCase()),
+                max: 1,
+                time: 60000,
+                errors: ['time'],
+            });
+            const respuesta = cleanText(respuestas.first().content);
+            activeTrivia.delete(message.channel.id);
+
+            if (!dataStore.activeSessions[triviaKey] || !dataStore.activeSessions[triviaKey].active) break;
+
+            if (!dataStore.triviaStats[message.author.id]) dataStore.triviaStats[message.author.id] = {};
+            if (!dataStore.triviaStats[message.author.id][categoria]) dataStore.triviaStats[message.author.id][categoria] = { correct: 0, total: 0 };
+            dataStore.triviaStats[message.author.id][categoria].total += 1;
+
+            if (respuesta === cleanText(trivia.respuesta)) {
+                session.score += 1;
+                dataStore.triviaStats[message.author.id][categoria].correct += 1;
+                await sendSuccess(message.channel, '🎉 ¡Acierto!', `¡Grande, ${userName}! Era **${trivia.respuesta}**. Vas ${session.score}.`);
+            } else {
+                await sendError(message.channel, '❌ ¡Fallaste!', `La posta era **${trivia.respuesta}**, ${userName}. Dijiste "${respuesta}".`);
+            }
+            session.currentQuestion += 1;
+            dataStore.activeSessions[triviaKey] = session;
+            dataStoreModified = true;
+        } catch {
+            activeTrivia.delete(message.channel.id);
+            if (!dataStore.activeSessions[triviaKey] || !dataStore.activeSessions[triviaKey].active) break;
+            await sendError(message.channel, '⏳ ¡Tiempo!', `Se acabó, ${userName}. Era **${trivia.respuesta}**.`);
+            session.currentQuestion += 1;
+            dataStore.activeSessions[triviaKey] = session;
+            dataStoreModified = true;
+        }
+    }
+
+    // Este bloque ya está bien puesto acá dentro
+    if (session.currentQuestion >= session.totalQuestions && dataStore.activeSessions[triviaKey]) {
+        await sendSuccess(message.channel, '🏁 ¡Trivia terminada!', `Puntuación: ${session.score}/${numQuestions}, ${userName}.`);
+        if (!dataStore.triviaRanking[message.author.id]) dataStore.triviaRanking[message.author.id] = {};
+        dataStore.triviaRanking[message.author.id][categoria] = dataStore.triviaStats[message.author.id][categoria].correct;
+        delete dataStore.activeSessions[triviaKey];
+        activeTrivia.delete(message.channel.id);
+        dataStoreModified = true;
+    }
 }
 
 async function manejarAutosave(message) {
