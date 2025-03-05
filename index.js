@@ -1730,6 +1730,22 @@ async function manejarResponder(message) {
     }
 }
 
+async function manejarActualizaciones(message) {
+    const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
+    if (message.author.id !== ALLOWED_USER_ID) return; // Solo Belén puede usarlo
+
+    const argentinaTime = new Date().toLocaleTimeString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' });
+    const updatesText = BOT_UPDATES.length > 0 
+        ? BOT_UPDATES.map((update, index) => `${index + 1}. ${update}`).join('\n')
+        : 'No hay actualizaciones nuevas por ahora, ¡pero seguí atenta, genia!';
+
+    const embed = createEmbed('#FFD700', '📢 Últimas Actualizaciones de Miguel IA',
+        `¡Mirá lo nuevo que traigo, ${userName}!\n\n${updatesText}\n\n**Hora local (Argentina):** ${argentinaTime}`,
+        'Hecho con onda por Miguel IA');
+    
+    await message.channel.send({ embeds: [embed] });
+}
+
 // Funciones de música
 async function manejarPlay(message) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
@@ -2107,6 +2123,8 @@ async function manejarCommand(message) {
         await manejarAutosave(message);
     } else if (content === '!lyrics' || content === '!ly') {
         await manejarLyrics(message);
+    } else if (content === '!actualizaciones' || content === '!act') { // Nueva línea
+        await manejarActualizaciones(message);
     } else if (content.startsWith('!responder') || content.startsWith('!resp')) {
         await manejarResponder(message);
     }
@@ -2188,6 +2206,7 @@ client.on('messageCreate', async (message) => {
             '- **!su / !sugerencias [idea]**: Mandame tus ideas para hacer este bot más piola.\n' +
             '- **!ay / !ayuda [problema]**: Pedile una mano a Miguel.\n' +
             '- **!save**: Guardo todo al toque, tranqui.\n' +
+            '- **!act / !actualizaciones**: Mirá las últimas novedades del bot.\n' + // Nueva línea
             '- **!as / !autosave**: Paro o arranco el guardado automático.\n' +
             '- **!h / !help**: Esta lista, boluda.\n' +
             '- **!hm / !help musica**: Comandos para meterle música al día.\n' +
