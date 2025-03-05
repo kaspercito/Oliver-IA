@@ -56,7 +56,7 @@ const BOT_UPDATES = [
     'Miguel (OWNER_ID) ahora puede usar todos los comandos y participar en los juegos, ¡a romperla, loco!',
     'Ranking (!rk) mejorado: muestra a Miguel y Belén, ordenados por quién tiene más puntos en trivia, PPM y reacciones.',
     '¡Reacciones arregladas! Ahora se cancelan bien con !rc y no siguen tirando mensajes después de parar.',
-    '¡Nuevo !idea agregado! Tirale ideas al bot con !id y las manda a Miguel y Luz por MD, ¡posta!',
+    '¡Nuevo !idea agregado! Tirale ideas al bot con !id y las manda a Miguel por MD, ¡posta!'
 ];
 
 // Estado anterior de las actualizaciones (del código pasado)
@@ -70,7 +70,7 @@ const PREVIOUS_BOT_UPDATES = [
     '¡Trivia, reacciones y PPM ahora con cancelación posta! Usá !tc, !rc o !pc pa’ parar al toque sin quilombo.',
     'Miguel (OWNER_ID) ahora puede usar todos los comandos y participar en los juegos, ¡a romperla, loco!',
     'Ranking (!rk) mejorado: muestra a Miguel y Belén, ordenados por quién tiene más puntos en trivia, PPM y reacciones.',
-    '¡Reacciones arregladas! Ahora se cancelan bien con !rc y no siguen tirando mensajes después de parar.',
+    '¡Reacciones arregladas! Ahora se cancelan bien con !rc y no siguen tirando mensajes después de parar.'
 ];
 
 // Mensajes de ánimo para Belén
@@ -1975,17 +1975,15 @@ async function manejarIdea(message) {
     dataStore.ideas.push({ autor: userName, texto: idea, timestamp: new Date().toISOString() });
     dataStoreModified = true;
 
-    // Enviar a ambos por MD
+    // Enviar solo al OWNER_ID (Miguel) por MD
     const owner = await client.users.fetch(OWNER_ID);
-    const luz = await client.users.fetch(ALLOWED_USER_ID);
     const ideaEmbed = createEmbed('#FFD700', `💡 Nueva idea de ${userName}`, 
         `${userName} dice: "${idea}"\nGuardada el: ${new Date().toLocaleString()}`);
 
     try {
         await owner.send({ embeds: [ideaEmbed] });
-        await luz.send({ embeds: [ideaEmbed] });
         await sendSuccess(message.channel, '✅ ¡Idea guardada!', 
-            `Ya la anoté y se la mandé a los dos por MD, ${userName}. ¡Buena esa!`);
+            `Ya la anoté y te la mandé por MD, ${userName}. ¡Buena esa!`);
     } catch (error) {
         console.error('Error al enviar idea:', error);
         await sendError(message.channel, '❌ No pude mandar la idea', 
