@@ -1701,48 +1701,35 @@ async function manejarResponder(message) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
     if (message.author.id !== OWNER_ID) return; // Solo vos podés usarlo
 
+    console.log(`[${instanceId}] Ejecutando !responder por ${userName} con contenido: "${message.content}"`);
+
     const args = message.content.slice(10).trim(); // "!responder" tiene 9 caracteres
     if (!args) {
+        console.log(`[${instanceId}] Error: No hay argumentos en !responder`);
         return sendError(message.channel, `Escribí algo después de "!responder", ${userName}. ¿Qué le querés decir a Belén por MD?`);
     }
 
-    // Buscar el último mensaje en sentMessages que necesite respuesta
-    const pendingMessages = Array.from(sentMessages.entries())
-        .filter(([_, data]) => data.userId === ALLOWED_USER_ID && (data.type === 'suggestion' || data.type === 'help'))
-        .sort((a, b) => b[1].timestamp - a[1].timestamp); // Ordenar por más reciente
-
-    if (pendingMessages.length === 0) {
-        return sendError(message.channel, `No hay sugerencias o pedidos de ayuda pendientes para responder, ${userName}.`);
-    }
-
-    const [messageId, messageData] = pendingMessages[0]; // Tomamos el más reciente
     const belen = await client.users.fetch(ALLOWED_USER_ID); // MD de Belén
     const attachments = message.attachments.size > 0 ? message.attachments.map(att => ({ attachment: att.url })) : [];
+    console.log(`[${instanceId}] Preparando envío a Belén (${ALLOWED_USER_ID}), adjuntos: ${attachments.length}`);
 
     try {
-        if (messageData.type === 'suggestion') {
-            const responseEmbed = createEmbed('#FFD700', '📬 Respuesta de Miguel a tu sugerencia',
-                `Tu idea fue: "${messageData.suggestion}"\nMiguel dice: "${args || 'Sin texto, pero mirá las imágenes si hay.'}"`);
-            
-            await belen.send({ embeds: [responseEmbed], files: attachments });
-            sentMessages.delete(messageId); // Limpiamos después de responder
-        } else if (messageData.type === 'help') {
-            const responseEmbed = createEmbed('#FFD700', '📬 Respuesta de Miguel a tu pedido de ayuda',
-                `Tu problema fue: "${messageData.issue}"\nMiguel dice: "${args || 'Sin texto, pero mirá las imágenes si hay.'}"` +
-                (messageData.attachments.length > 0 ? `\nTus imágenes:\n${messageData.attachments.join('\n')}` : ''));
-            
-            await belen.send({ embeds: [responseEmbed], files: attachments });
-            sentMessages.delete(messageId); // Limpiamos después de responder
-        }
+        const responseEmbed = createEmbed('#FFD700', '📬 Mensaje de Miguel',
+            `Miguel dice: "${args || 'Sin texto, pero mirá las imágenes si hay.'}"`);
+        
+        console.log(`[${instanceId}] Enviando mensaje a Belén...`);
+        await belen.send({ embeds: [responseEmbed], files: attachments });
+        console.log(`[${instanceId}] Mensaje enviado exitosamente a Belén`);
 
         await sendSuccess(message.channel, '✅ ¡Respuesta enviada!',
             `Le mandé tu mensaje a Belén por MD, ${userName}. ¡Ya lo va a ver, loco!`);
     } catch (error) {
-        console.error('Error al enviar respuesta por MD:', error);
+        console.error(`[${instanceId}] Error al enviar mensaje por MD: ${error.message}`);
         await sendError(message.channel, '❌ ¡No pude mandarle el MD a Belén!',
             `Algo falló, ${userName}. Error: ${error.message}. ¿Belén tiene los MD abiertos para el bot?`);
     }
 }
+
 // Funciones de música
 async function manejarPlay(message) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
