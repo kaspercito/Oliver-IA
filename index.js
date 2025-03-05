@@ -2217,7 +2217,7 @@ client.on('messageCreate', async (message) => {
 // Eventos
 client.once('ready', async () => {
     console.log(`¡Miguel IA está listo! Instancia: ${instanceId}`);
-    client.user.setPresence({ activities: [{ name: "Listo para ayudar a Milagros", type: 0 }], status: 'online' });
+    client.user.setPresence({ activities: [{ name: "Listo para ayudar a Milagros", type: 0 }], status: 'dnd' });
     dataStore = await loadDataStore();
     activeTrivia = new Map(Object.entries(dataStore.activeSessions).filter(([_, s]) => s.type === 'trivia'));
     manager.init(client.user.id);
