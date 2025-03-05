@@ -1260,19 +1260,15 @@ function obtenerFrasePPM() {
 }
 
 async function manejarPPM(message) {
-    console.log(`Instancia ${instanceId} - Iniciando PPM para ${message.author.id}`);
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
+    if (!message.channel.permissionsFor(client.user).has(['SEND_MESSAGES', 'EMBED_LINKS'])) return;
 
-    // Verificar si hay una sesión activa
-    let session = dataStore.activeSessions[message.author.id] || { 
-        type: 'ppm', 
-        startTime: null, 
-        frase: null, 
-        completed: false 
-    };
+    const ppmKey = `ppm_${message.author.id}`;
+    let session = dataStore.activeSessions[ppmKey];
 
-    if (session.startTime && !session.completed) {
-        return sendError(message.channel, `Ya tenés una prueba PPM activa, ${userName}. Termina la actual primero.`);
+    if (session && !session.completed) {
+        await sendError(message.channel, `Ya tenés un PPM activo, ${userName}.`, 'Termina el actual o cancelalo con !pc.');
+        return;
     }
 
     const countdownEmbed = createEmbed('#FFAA00', '⏳ Cuenta Regresiva', `¡Prepárate, ${userName}! Empieza en 3...`);
@@ -1287,40 +1283,47 @@ async function manejarPPM(message) {
     const goEmbed = createEmbed('#00FF00', '🚀 ¡Ya!', `¡Adelante, ${userName}!`);
     await countdownMessage.edit({ embeds: [goEmbed] });
 
-    // Bucle para seguir dando frases solo si se equivoca
     let intentoCorrecto = false;
-    while (!intentoCorrecto) {
+    session = { type: 'ppm', frase: null, startTime: null, completed: false, active: true };
+    dataStore.activeSessions[ppmKey] = session;
+    dataStoreModified = true;
+
+    while (!intentoCorrecto && session.active) {
+        if (!dataStore.activeSessions[ppmKey] || !dataStore.activeSessions[ppmKey].active) break;
+
         const frase = obtenerFrasePPM();
         const startTime = Date.now();
         const embed = createEmbed('#55FFFF', '📝 Prueba de Mecanografía',
-            `Escribe esta frase lo más rápido que puedas:\n\n**${frase}**\n\nTenés 15 segundos, ${userName}.`);
+            `Escribí esta frase lo más rápido que puedas:\n\n**${frase}**\n\nTenés 15 segundos, ${userName}. (!pc para cancelar)`);
         await message.channel.send({ embeds: [embed] });
 
-        session.startTime = startTime;
         session.frase = frase;
-        session.completed = false;
-        dataStore.activeSessions[message.author.id] = session;
+        session.startTime = startTime;
+        dataStore.activeSessions[ppmKey] = session;
         dataStoreModified = true;
 
         try {
             const respuestas = await message.channel.awaitMessages({
-                filter: (res) => res.author.id === message.author.id && res.content.trim().length > 0,
+                filter: (res) => res.author.id === message.author.id && !['!pc', '!ppm cancelar'].includes(res.content.toLowerCase()),
                 max: 1,
                 time: 15000,
-                errors: ['time']
+                errors: ['time'],
             });
-            const respuestaUsuario = respuestas.first().content;
+            const respuestaUsuario = cleanText(respuestas.first().content);
             const endTime = Date.now();
+
+            if (!dataStore.activeSessions[ppmKey] || !dataStore.activeSessions[ppmKey].active) break;
+
             session.completed = true;
-            delete dataStore.activeSessions[message.author.id];
+            delete dataStore.activeSessions[ppmKey];
             dataStoreModified = true;
 
             const tiempoSegundos = (endTime - startTime) / 1000;
             const palabras = frase.split(' ').length;
             const ppm = Math.round((palabras / tiempoSegundos) * 60);
 
-            if (cleanText(respuestaUsuario) === cleanText(frase)) {
-                intentoCorrecto = true; // Sale del bucle si acierta
+            if (respuestaUsuario === cleanText(frase)) {
+                intentoCorrecto = true;
                 if (!dataStore.personalPPMRecords[message.author.id]) {
                     dataStore.personalPPMRecords[message.author.id] = { best: { ppm: 0, timestamp: null }, attempts: [] };
                 }
@@ -1341,15 +1344,11 @@ async function manejarPPM(message) {
             } else {
                 await sendError(message.channel, '❌ ¡Casi la pegás!',
                     `¡Uy, ${userName}, te mandaste una cagada! Tu respuesta fue "${respuestaUsuario}". La posta era **${frase}**. ¡Probá de nuevo, dale!`);
-                // Continúa el bucle porque se equivocó
             }
-        } catch (error) {
-            session.completed = true;
-            delete dataStore.activeSessions[message.author.id];
-            dataStoreModified = true;
+        } catch {
+            if (!dataStore.activeSessions[ppmKey] || !dataStore.activeSessions[ppmKey].active) break;
             await sendError(message.channel, '⏳ ¡Te dormiste, boludo!',
                 `Se te fue el tiempo, ${userName}. La frase era: **${frase}**. ¡Otra chance ahora!`);
-            // Continúa el bucle porque falló el tiempo
         }
     }
 }
@@ -2206,6 +2205,20 @@ client.on('messageCreate', async (message) => {
         return;
     }
 
+    if (content === '!pc' || content === '!ppm cancelar') {
+        const ppmKey = `ppm_${message.author.id}`;
+        const session = dataStore.activeSessions[ppmKey];
+        if (!session || session.type !== 'ppm' || session.completed) {
+            await sendError(message.channel, `No hay PPM activo, ${userName}.`, '¿Querés uno con !ppm?');
+        } else {
+            session.active = false;
+            delete dataStore.activeSessions[ppmKey];
+            dataStoreModified = true;
+            await sendSuccess(message.channel, '🛑 ¡PPM cancelado!', `Listo, ${userName}. Paraste antes de terminar.`);
+        }
+        return;
+    }
+
     // Otros comandos después
     await manejarCommand(message);
 
@@ -2219,6 +2232,7 @@ client.on('messageCreate', async (message) => {
             '- **!tr / !trivia [categoría] [n]**: Trivia copada por categoría (mínimo 20).\n' +
             '- **!tc / !trivia cancelar**: Cancela la trivia que haz empezado.\n' +             
             '- **!pp / !ppm**: A ver qué tan rápido tipeás, ¡dale!\n' +
+            '- **!pc / !ppm cancelar**: Cancela el PPM si te arrepentís.\n' +
             '- **!rk / !ranking**: Tus puntajes y estadísticas (récord más alto de PPM).\n' +
             '- **!rppm / !rankingppm**: Todos tus intentos de PPM, loco.\n' +
             '- **!re / !reacciones**: Juego para ver quién tipea más rápido.\n' +
