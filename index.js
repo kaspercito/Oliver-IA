@@ -1150,7 +1150,6 @@ async function manejarTrivia(message) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
     console.log("Mensaje recibido:", message.content);
 
-    // Verificar permisos del bot en el canal
     const channelPermissions = message.channel.permissionsFor(message.guild.members.me);
     if (!channelPermissions.has('SEND_MESSAGES')) {
         console.log("No tengo permiso para enviar mensajes en el canal:", message.channel.id);
@@ -1162,7 +1161,6 @@ async function manejarTrivia(message) {
     }
     console.log("Permisos verificados: SEND_MESSAGES y EMBED_LINKS OK");
 
-    // Procesar argumentos con normalización de tildes
     const args = message.content.split(' ').slice(1).map(arg => normalizeText(arg));
     console.log("Argumentos procesados:", args);
 
@@ -1223,7 +1221,7 @@ async function manejarTrivia(message) {
             try {
                 const respuestas = await message.channel.awaitMessages({
                     filter: (res) => res.author.id === message.author.id && res.content.trim().length > 0 && 
-                                     res.content.toLowerCase() !== '!trivia cancelar' && res.content.toLowerCase() !== '!tc',
+                                     !['!trivia cancelar', '!tc', '!reacciones cancelar', '!rc'].includes(res.content.toLowerCase().trim()),
                     max: 1,
                     time: 60000,
                     errors: ['time']
@@ -1412,7 +1410,6 @@ async function manejarReacciones(message) {
     console.log(`Instancia ${instanceId} - Iniciando juego de reacciones en canal ${message.channel.id}`);
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
 
-    // Verificar si ya hay una sesión activa en el canal
     let session = dataStore.activeSessions[message.channel.id] || { 
         type: 'reaction', 
         palabra: null, 
@@ -1422,7 +1419,6 @@ async function manejarReacciones(message) {
         score: 0 
     };
 
-    // Si ya hay una sesión en curso y no está completada, detenerla con !re (esto ya está manejado en manejarCommand)
     if (session.palabra && !session.completed) {
         session.completed = true;
         delete dataStore.activeSessions[message.channel.id];
@@ -1432,7 +1428,6 @@ async function manejarReacciones(message) {
         return;
     }
 
-    // Iniciar nueva sesión
     session = { 
         type: 'reaction', 
         palabra: null, 
@@ -1444,7 +1439,6 @@ async function manejarReacciones(message) {
     dataStore.activeSessions[message.channel.id] = session;
     dataStoreModified = true;
 
-    // Bucle del juego
     while (!session.completed) {
         const palabra = obtenerPalabraAleatoria();
         const startTime = Date.now();
@@ -1461,7 +1455,7 @@ async function manejarReacciones(message) {
         try {
             const respuestas = await message.channel.awaitMessages({
                 filter: (res) => res.author.id === message.author.id && res.content.trim().length > 0 && 
-                                 res.content.toLowerCase() !== '!reacciones cancelar' && res.content.toLowerCase() !== '!rc',
+                                 !['!trivia cancelar', '!tc', '!reacciones cancelar', '!rc'].includes(res.content.toLowerCase().trim()),
                 max: 1,
                 time: 30000,
                 errors: ['time']
@@ -1487,10 +1481,9 @@ async function manejarReacciones(message) {
                 dataStoreModified = true;
                 await sendError(message.channel, '❌ ¡La pifiaste, boludo!',
                     `Uy, ${userName}, escribiste "${respuestaUsuario}" y era **${palabra}**. Puntuación final: ${session.score}. ¡Arrancá de nuevo con !re si querés!`);
-                break; // Sale del bucle si se equivoca
+                break;
             }
 
-            // Pequeña pausa para que sea jugable
             await new Promise(resolve => setTimeout(resolve, 1000));
         } catch (error) {
             session.completed = true;
@@ -1498,7 +1491,7 @@ async function manejarReacciones(message) {
             dataStoreModified = true;
             await sendError(message.channel, '⏳ ¡Te dormiste, boludo!',
                 `Se acabó el tiempo para **${palabra}**, ${userName}. Puntuación final: ${session.score}. ¡Arrancá de nuevo con !re si querés!`);
-            break; // Sale del bucle si falla
+            break;
         }
     }
 }
@@ -2095,62 +2088,69 @@ async function manejarCommand(message) {
     const content = message.content.toLowerCase();
     console.log(`Comando recibido: ${content}`);
 
-    if (content.startsWith('!trivia') || content.startsWith('!tr')) {
-        if (content === '!trivia cancelar' || content === '!tc') {
-            const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
-            if (message.author.id !== ALLOWED_USER_ID) return; // Solo Belén puede usarlo
+    // Cancelar trivia
+    if (content === '!trivia cancelar' || content === '!tc') {
+        const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
+        if (message.author.id !== ALLOWED_USER_ID) return;
 
-            const channelProgress = dataStore.activeSessions[message.channel.id];
-            if (!channelProgress || channelProgress.type !== 'trivia') {
-                await sendError(message.channel, `No hay ninguna trivia activa para cancelar, ${userName}.`, 
-                    '¿Querés arrancar una con !trivia?');
-                return;
-            }
-
-            delete dataStore.activeSessions[message.channel.id];
-            activeTrivia.delete(message.channel.id);
-            dataStoreModified = true;
-
-            // Mensaje unificado y único
-            await sendSuccess(message.channel, '🛑 ¡Trivia cancelada!', 
-                `Listo, ${userName}, cortaste la trivia al toque. Puntuación parcial: ${channelProgress.score}/${channelProgress.currentQuestion}. ¿Arrancamos otra con !trivia?`);
-            return; // Nos aseguramos de salir para no procesar más
-        } else {
-            await manejarTrivia(message);
+        const channelProgress = dataStore.activeSessions[message.channel.id];
+        if (!channelProgress || channelProgress.type !== 'trivia') {
+            await sendError(message.channel, `No hay ninguna trivia activa para cancelar, ${userName}.`, 
+                '¿Querés arrancar una con !trivia?');
+            return;
         }
-    } else if (content.startsWith('!chat') || content.startsWith('!ch')) {
+
+        delete dataStore.activeSessions[message.channel.id];
+        activeTrivia.delete(message.channel.id);
+        dataStoreModified = true;
+
+        await sendSuccess(message.channel, '🛑 ¡Trivia cancelada!', 
+            `Listo, ${userName}, cortaste la trivia al toque. Puntuación parcial: ${channelProgress.score}/${channelProgress.currentQuestion}. ¿Arrancamos otra con !trivia?`);
+        return; // Salimos para no procesar más
+    } 
+    // Cancelar reacciones
+    else if (content === '!reacciones cancelar' || content === '!rc') {
+        const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
+        if (message.author.id !== ALLOWED_USER_ID) return;
+
+        const session = dataStore.activeSessions[message.channel.id];
+        if (!session || session.type !== 'reaction' || session.completed) {
+            await sendError(message.channel, `No hay un juego de reacciones activo para cancelar, ${userName}.`, 
+                '¿Querés empezar uno con !reacciones?');
+            return;
+        }
+
+        session.completed = true;
+        delete dataStore.activeSessions[message.channel.id];
+        dataStoreModified = true;
+
+        await sendSuccess(message.channel, '🛑 ¡Juego de reacciones cancelado!', 
+            `Listo, ${userName}, cortaste el juego al toque. Puntuación parcial: ${session.score} en ${session.currentRound - 1} rondas. ¿Arrancamos otro con !reacciones?`);
+        return; // Salimos para no procesar más
+    } 
+    // Iniciar juegos
+    else if (content.startsWith('!trivia') || content.startsWith('!tr')) {
+        await manejarTrivia(message);
+    } 
+    else if (content.startsWith('!reacciones') || content.startsWith('!re')) {
+        await manejarReacciones(message);
+    } 
+    else if (content.startsWith('!chat') || content.startsWith('!ch')) {
         await manejarChat(message);
-    } else if (content === '!ppm' || content === '!pp') {
+    } 
+    else if (content === '!ppm' || content === '!pp') {
         await manejarPPM(message);
-    } else if (content.startsWith('!reacciones') || content.startsWith('!re')) {
-        if (content === '!reacciones cancelar' || content === '!rc') {
-            const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
-            if (message.author.id !== ALLOWED_USER_ID) return;
-
-            const session = dataStore.activeSessions[message.channel.id];
-            if (!session || session.type !== 'reaction' || session.completed) {
-                await sendError(message.channel, `No hay un juego de reacciones activo para cancelar, ${userName}.`, 
-                    '¿Querés empezar uno con !reacciones?');
-                return;
-            }
-
-            session.completed = true;
-            delete dataStore.activeSessions[message.channel.id];
-            dataStoreModified = true;
-
-            await sendSuccess(message.channel, '🛑 ¡Juego de reacciones cancelado!', 
-                `Paraste el juego, ${userName}. Puntuación parcial: ${session.score} en ${session.currentRound - 1} rondas. ¡Volvé a arrancar con !re cuando quieras!`);
-        } else {
-            await manejarReacciones(message);
-        }
-    } else if (content === '!actualizaciones' || content === '!act') {
+    } 
+    else if (content === '!actualizaciones' || content === '!act') {
         await manejarActualizaciones(message);
-    } else if (content === '!luz') {
+    } 
+    else if (content === '!luz') {
         const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
         const mensaje = mensajesAnimo[Math.floor(Math.random() * mensajesAnimo.length)];
         const embed = createEmbed('#FFAA00', `¡Ánimo, ${userName}!`, mensaje);
         await message.channel.send({ embeds: [embed] });
-    } else if (content === '!save') {
+    } 
+    else if (content === '!save') {
         const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
         try {
             const saved = await saveDataStore();
@@ -2163,33 +2163,47 @@ async function manejarCommand(message) {
         } catch (error) {
             await sendError(message.channel, '💾 Error al guardar', `No pude guardar los datos, ${userName}. Error: ${error.message}`);
         }
-    } else if (content.startsWith('!sugerencias') || content.startsWith('!su')) {
+    } 
+    else if (content.startsWith('!sugerencias') || content.startsWith('!su')) {
         await manejarSugerencias(message);
-    } else if (content.startsWith('!ayuda') || content.startsWith('!ay')) {
+    } 
+    else if (content.startsWith('!ayuda') || content.startsWith('!ay')) {
         await manejarAyuda(message);
-    } else if (content === '!rankingppm' || content === '!rppm') {
+    } 
+    else if (content === '!rankingppm' || content === '!rppm') {
         await manejarRankingPPM(message);
-    } else if (content.startsWith('!play') || content.startsWith('!pl')) {
+    } 
+    else if (content.startsWith('!play') || content.startsWith('!pl')) {
         await manejarPlay(message);
-    } else if (content === '!pause' || content === '!pa') {
+    } 
+    else if (content === '!pause' || content === '!pa') {
         await manejarPause(message);
-    } else if (content === '!skip' || content === '!sk') {
+    } 
+    else if (content === '!skip' || content === '!sk') {
         await manejarSkip(message);
-    } else if (content === '!stop' || content === '!st') {
+    } 
+    else if (content === '!stop' || content === '!st') {
         await manejarStop(message);
-    } else if (content === '!queue' || content === '!qu') {
+    } 
+    else if (content === '!queue' || content === '!qu') {
         await manejarQueue(message);
-    } else if (content === '!repeat' || content === '!rp') {
+    } 
+    else if (content === '!repeat' || content === '!rp') {
         await manejarRepeat(message);
-    } else if (content === '!back' || content === '!bk') {
+    } 
+    else if (content === '!back' || content === '!bk') {
         await manejarBack(message);
-    } else if (content === '!autoplay' || content === '!ap') {
+    } 
+    else if (content === '!autoplay' || content === '!ap') {
         await manejarAutoplay(message);
-    } else if (content === '!autosave' || content === '!as') {
+    } 
+    else if (content === '!autosave' || content === '!as') {
         await manejarAutosave(message);
-    } else if (content === '!lyrics' || content === '!ly') {
+    } 
+    else if (content === '!lyrics' || content === '!ly') {
         await manejarLyrics(message);
-    } else if (content.startsWith('!responder') || content.startsWith('!resp')) {
+    } 
+    else if (content.startsWith('!responder') || content.startsWith('!resp')) {
         await manejarResponder(message);
     }
 }
