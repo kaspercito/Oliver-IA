@@ -58,7 +58,7 @@ const BOT_UPDATES = [
     'Miguel (OWNER_ID) ahora puede usar todos los comandos y participar en los juegos, ¡a romperla, loco!',
     'Ranking (!rk) mejorado: muestra a Miguel y Belén, ordenados por quién tiene más puntos en trivia, PPM y reacciones.',
     '¡Reacciones arregladas! Ahora se cancelan bien con !rc y no siguen tirando mensajes después de parar.',
-    '¡Nuevo !idea agregado! Tirale ideas al bot con !id y las manda a Miguel y Luz por MD, ¡posta!'
+    '¡Nuevo !idea agregado! Tirale ideas al bot con !id y las manda a Miguel y Luz por MD, ¡posta!',
 ];
 
 // Estado anterior de las actualizaciones (del código pasado)
@@ -74,7 +74,7 @@ const PREVIOUS_BOT_UPDATES = [
     '¡Trivia, reacciones y PPM ahora con cancelación posta! Usá !tc, !rc o !pc pa’ parar al toque sin quilombo.',
     'Miguel (OWNER_ID) ahora puede usar todos los comandos y participar en los juegos, ¡a romperla, loco!',
     'Ranking (!rk) mejorado: muestra a Miguel y Belén, ordenados por quién tiene más puntos en trivia, PPM y reacciones.',
-    '¡Reacciones arregladas! Ahora se cancelan bien con !rc y no siguen tirando mensajes después de parar.'
+    '¡Reacciones arregladas! Ahora se cancelan bien con !rc y no siguen tirando mensajes después de parar.',
 ];
 
 // Mensajes de ánimo para Belén
