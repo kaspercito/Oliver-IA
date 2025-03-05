@@ -4,7 +4,7 @@
     "1023132788632862761": {
       "username": "dearluz",
       "score": 25,
-      "capitales": "[object Object]99",
+      "capitales": "[object Object]9911",
       "disney": {
         "score": 13
       },
@@ -114,31 +114,14 @@
       "wins": 58
     }
   },
-  "activeSessions": {
-    "trivia_1343749554905940058": {
-      "type": "trivia",
-      "currentQuestion": 5,
-      "score": 1,
-      "totalQuestions": 20,
-      "usedQuestions": [
-        "¿Cuál es la capital de Camboya?",
-        "¿Cuál es la capital de Namibia?",
-        "¿Cuál es la capital de Eritrea?",
-        "¿Cuál es la capital de Eslovaquia?",
-        "¿Cuál es la capital de Kazajistán?",
-        "¿Cuál es la capital de Benín?"
-      ],
-      "categoria": "capitales",
-      "active": true
-    }
-  },
+  "activeSessions": {},
   "triviaStats": {
     "1023132788632862761": {
       "correct": 25,
       "total": 40,
       "capitales": {
-        "correct": 59,
-        "total": 215
+        "correct": 70,
+        "total": 235
       },
       "disney": {
         "correct": 9,
