@@ -1365,6 +1365,7 @@ async function manejarReacciones(message) {
     const reactionKey = `reaction_${message.channel.id}`;
     let session = dataStore.activeSessions[reactionKey];
 
+    // Si ya hay una sesión activa y no está completada, la cancelamos
     if (session && !session.completed) {
         session.completed = true;
         delete dataStore.activeSessions[reactionKey];
@@ -1373,12 +1374,14 @@ async function manejarReacciones(message) {
         return;
     }
 
-    session = { type: 'reaction', score: 0, currentRound: 0, completed: false };
+    // Nueva sesión
+    session = { type: 'reaction', score: 0, currentRound: 0, completed: false, active: true };
     dataStore.activeSessions[reactionKey] = session;
     dataStoreModified = true;
 
-    while (!session.completed) {
-        if (!dataStore.activeSessions[reactionKey]) break; // Si se canceló, salimos
+    while (!session.completed && session.active) {
+        // Verificamos si la sesión sigue activa antes de cada ronda
+        if (!dataStore.activeSessions[reactionKey] || !dataStore.activeSessions[reactionKey].active) break;
 
         const palabra = obtenerPalabraAleatoria();
         const embed = createEmbed('#FFD700', `🏁 Ronda ${session.currentRound + 1}`, 
@@ -1392,9 +1395,12 @@ async function manejarReacciones(message) {
                 time: 30000,
                 errors: ['time'],
             });
-            if (!dataStore.activeSessions[reactionKey]) break; // Si se canceló mientras esperaba, salimos
 
-            if (respuestas.first().content.toLowerCase() === palabra) {
+            // Verificamos de nuevo después de esperar la respuesta
+            if (!dataStore.activeSessions[reactionKey] || !dataStore.activeSessions[reactionKey].active) break;
+
+            const respuesta = respuestas.first().content.toLowerCase();
+            if (respuesta === palabra) {
                 session.score += 1;
                 await sendSuccess(message.channel, '🎉 ¡Bien!', `La pegaste, ${userName}. Vas ${session.score}.`);
             } else {
@@ -1405,12 +1411,20 @@ async function manejarReacciones(message) {
             dataStore.activeSessions[reactionKey] = session;
             dataStoreModified = true;
         } catch {
-            if (!dataStore.activeSessions[reactionKey]) break; // Si se canceló, salimos
+            // Si se acaba el tiempo, verificamos si se canceló
+            if (!dataStore.activeSessions[reactionKey] || !dataStore.activeSessions[reactionKey].active) break;
+
             session.completed = true;
             await sendError(message.channel, '⏳ ¡Tiempo!', `Se acabó, ${userName}. Puntuación: ${session.score}.`);
             delete dataStore.activeSessions[reactionKey];
             dataStoreModified = true;
         }
+    }
+
+    // Limpieza final si se termina normalmente
+    if (dataStore.activeSessions[reactionKey] && session.completed) {
+        delete dataStore.activeSessions[reactionKey];
+        dataStoreModified = true;
     }
 }
 
@@ -2214,13 +2228,11 @@ client.on('messageCreate', async (message) => {
         }
     }
 
-    // Permitir que Miguel use !responder sin restricciones
     if (message.author.id === OWNER_ID && (content.startsWith('!responder') || content.startsWith('!resp'))) {
         await manejarCommand(message);
         return;
     }
 
-    // Solo Miguel y Belén pueden usar los comandos
     if (message.author.id !== OWNER_ID && message.author.id !== ALLOWED_USER_ID) return;
 
     if (processedMessages.has(message.id)) return;
@@ -2249,6 +2261,7 @@ client.on('messageCreate', async (message) => {
         if (!session || session.type !== 'reaction' || session.completed) {
             await sendError(message.channel, `No hay reacciones activas, ${userName}.`, '¿Arrancamos con !reacciones?');
         } else {
+            session.active = false; // Marcamos como inactiva
             session.completed = true;
             delete dataStore.activeSessions[reactionKey];
             dataStoreModified = true;
