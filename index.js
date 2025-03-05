@@ -1845,26 +1845,58 @@ function getCombinedRankingEmbed(userId, username) {
     
     let triviaList = '**📚 Trivia por Categoría**\n';
     categorias.forEach(categoria => {
-        const luzScore = dataStore.triviaRanking[ALLOWED_USER_ID]?.[categoria]?.score || 0;
+        const miguelScore = dataStore.triviaRanking[OWNER_ID]?.[categoria] || 0;
+        const miguelStats = dataStore.triviaStats[OWNER_ID]?.[categoria] || { correct: 0, total: 0 };
+        const miguelPercentage = miguelStats.total > 0 ? Math.round((miguelStats.correct / miguelStats.total) * 100) : 0;
+
+        const luzScore = dataStore.triviaRanking[ALLOWED_USER_ID]?.[categoria] || 0;
         const luzStats = dataStore.triviaStats[ALLOWED_USER_ID]?.[categoria] || { correct: 0, total: 0 };
         const luzPercentage = luzStats.total > 0 ? Math.round((luzStats.correct / luzStats.total) * 100) : 0;
 
+        // Ordenar según puntaje en esta categoría
+        const ranking = [
+            { name: 'Miguel', score: miguelScore, percentage: miguelPercentage },
+            { name: 'Belén', score: luzScore, percentage: luzPercentage }
+        ].sort((a, b) => b.score - a.score); // Mayor puntaje primero
+
         triviaList += `\n**${categoria.charAt(0).toUpperCase() + categoria.slice(1)}** 🎲\n` +
-                      `> 🌟 Belén: **${luzScore} puntos** (${luzPercentage}% acertadas)\n`;
+                      ranking.map(participant => 
+                          `> 🌟 ${participant.name}: **${participant.score} puntos** (${participant.percentage}% acertadas)`
+                      ).join('\n') + '\n';
     });
 
-    const ppmRecord = dataStore.personalPPMRecords[userId]?.best || { ppm: 0, timestamp: null };
-    let ppmList = ppmRecord.ppm > 0 
-        ? `> Tu récord: **${ppmRecord.ppm} PPM** - ${new Date(ppmRecord.timestamp).toLocaleString()}`
-        : '> No tienes un récord de PPM aún. ¡Prueba con !pp!';
+    const miguelPPMRecord = dataStore.personalPPMRecords[OWNER_ID]?.best || { ppm: 0, timestamp: null };
+    const luzPPMRecord = dataStore.personalPPMRecords[ALLOWED_USER_ID]?.best || { ppm: 0, timestamp: null };
+    
+    // Ordenar PPM según récord más alto
+    const ppmRanking = [
+        { name: 'Miguel', ppm: miguelPPMRecord.ppm, timestamp: miguelPPMRecord.timestamp },
+        { name: 'Belén', ppm: luzPPMRecord.ppm, timestamp: luzPPMRecord.timestamp }
+    ].sort((a, b) => b.ppm - a.ppm); // Mayor PPM primero
+    
+    let ppmList = ppmRanking.map(participant => 
+        participant.ppm > 0 
+            ? `> ${participant.name}: **${participant.ppm} PPM** - ${new Date(participant.timestamp).toLocaleString()}`
+            : `> ${participant.name}: No tiene récord aún. ¡Probá con !pp!`
+    ).join('\n');
 
+    const miguelReactionWins = dataStore.reactionWins[OWNER_ID]?.wins || 0;
     const luzReactionWins = dataStore.reactionWins[ALLOWED_USER_ID]?.wins || 0;
-    const reactionList = `> 🌟 Belén - **${luzReactionWins} Reacciones**`;
+    
+    // Ordenar reacciones según victorias
+    const reactionRanking = [
+        { name: 'Miguel', wins: miguelReactionWins },
+        { name: 'Belén', wins: luzReactionWins }
+    ].sort((a, b) => b.wins - a.wins); // Más victorias primero
+    
+    const reactionList = reactionRanking.map(participant => 
+        `> 🌟 ${participant.name} - **${participant.wins} Reacciones**`
+    ).join('\n');
 
     return new EmbedBuilder()
         .setColor('#FFD700')
         .setTitle(`🏆 Ranking de ${username}`)
-        .setDescription('¡Aquí están tus logros!')
+        .setDescription('¡Aquí están tus logros, ordenados por los cracks que la rompen!')
         .addFields(
             { name: '📊 Trivia', value: triviaList, inline: false },
             { name: '⌨️ PPM (Récord Más Rápido)', value: ppmList, inline: false },
@@ -2004,21 +2036,21 @@ manager.on('queueEnd', async player => {
 // Comandos
 async function manejarCommand(message) {
     const content = message.content.toLowerCase();
+    const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
     console.log(`Comando recibido: ${content}`);
 
     // Cancelar trivia
     if (content === '!trivia cancelar' || content === '!tc') {
-        const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
-        if (message.author.id !== ALLOWED_USER_ID) return;
+        if (message.author.id !== OWNER_ID && message.author.id !== ALLOWED_USER_ID) return;
 
-        const channelProgress = dataStore.activeSessions[message.channel.id];
+        const channelProgress = dataStore.activeSessions[`trivia_${message.channel.id}`];
         if (!channelProgress || channelProgress.type !== 'trivia') {
             await sendError(message.channel, `No hay ninguna trivia activa para cancelar, ${userName}.`, 
                 '¿Querés arrancar una con !trivia?');
             return;
         }
 
-        delete dataStore.activeSessions[message.channel.id];
+        delete dataStore.activeSessions[`trivia_${message.channel.id}`];
         activeTrivia.delete(message.channel.id);
         dataStoreModified = true;
 
@@ -2028,10 +2060,9 @@ async function manejarCommand(message) {
     } 
     // Cancelar reacciones
     else if (content === '!reacciones cancelar' || content === '!rc') {
-        const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
-        if (message.author.id !== ALLOWED_USER_ID) return;
+        if (message.author.id !== OWNER_ID && message.author.id !== ALLOWED_USER_ID) return;
 
-        const session = dataStore.activeSessions[message.channel.id];
+        const session = dataStore.activeSessions[`reaction_${message.channel.id}`];
         if (!session || session.type !== 'reaction' || session.completed) {
             await sendError(message.channel, `No hay un juego de reacciones activo para cancelar, ${userName}.`, 
                 '¿Querés empezar uno con !reacciones?');
@@ -2039,14 +2070,30 @@ async function manejarCommand(message) {
         }
 
         session.completed = true;
-        delete dataStore.activeSessions[message.channel.id];
+        delete dataStore.activeSessions[`reaction_${message.channel.id}`];
         dataStoreModified = true;
 
         await sendSuccess(message.channel, '🛑 ¡Juego de reacciones cancelado!', 
             `Listo, ${userName}, cortaste el juego al toque. Puntuación parcial: ${session.score} en ${session.currentRound - 1} rondas. ¿Arrancamos otro con !reacciones?`);
         return; // Salimos para no procesar más
     } 
-    // Iniciar juegos
+    // Cancelar PPM
+    else if (content === '!ppm cancelar' || content === '!pc') {
+        if (message.author.id !== OWNER_ID && message.author.id !== ALLOWED_USER_ID) return;
+
+        const ppmKey = `ppm_${message.author.id}`;
+        const session = dataStore.activeSessions[ppmKey];
+        if (!session || session.type !== 'ppm' || session.completed) {
+            await sendError(message.channel, `No hay PPM activo, ${userName}.`, '¿Querés uno con !ppm?');
+        } else {
+            session.active = false;
+            delete dataStore.activeSessions[ppmKey];
+            dataStoreModified = true;
+            await sendSuccess(message.channel, '🛑 ¡PPM cancelado!', `Listo, ${userName}. Paraste antes de terminar.`);
+        }
+        return;
+    }
+    // Iniciar juegos y otros comandos
     else if (content.startsWith('!trivia') || content.startsWith('!tr')) {
         await manejarTrivia(message);
     } 
@@ -2063,13 +2110,11 @@ async function manejarCommand(message) {
         await manejarActualizaciones(message);
     } 
     else if (content === '!luz') {
-        const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
         const mensaje = mensajesAnimo[Math.floor(Math.random() * mensajesAnimo.length)];
         const embed = createEmbed('#FFAA00', `¡Ánimo, ${userName}!`, mensaje);
         await message.channel.send({ embeds: [embed] });
     } 
     else if (content === '!save') {
-        const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
         try {
             const saved = await saveDataStore();
             if (saved) {
@@ -2164,12 +2209,14 @@ client.on('messageCreate', async (message) => {
         }
     }
 
+    // Permitir que Miguel use !responder sin restricciones
     if (message.author.id === OWNER_ID && (content.startsWith('!responder') || content.startsWith('!resp'))) {
         await manejarCommand(message);
         return;
     }
 
-    if (message.author.id !== ALLOWED_USER_ID) return;
+    // Solo Miguel y Belén pueden usar los comandos
+    if (message.author.id !== OWNER_ID && message.author.id !== ALLOWED_USER_ID) return;
 
     if (processedMessages.has(message.id)) return;
     processedMessages.set(message.id, Date.now());
@@ -2227,22 +2274,22 @@ client.on('messageCreate', async (message) => {
         await message.channel.send({ embeds: [embed] });
     } else if (content === '!help' || content === '!h') {
         const embed = createEmbed('#55FF55', `¡Lista de comandos para vos, ${userName}!`,
-            '¡Acá tenés todo lo que puedo hacer por vos, genia!\n' +
+            '¡Acá tenés todo lo que puedo hacer por vos, loco!\n' +
             '- **!ch / !chat [mensaje]**: Charlamos un rato, posta.\n' +
             '- **!tr / !trivia [categoría] [n]**: Trivia copada por categoría (mínimo 20).\n' +
-            '- **!tc / !trivia cancelar**: Cancela la trivia que haz empezado.\n' +             
+            '- **!tc / !trivia cancelar**: Cancela la trivia que empezaste.\n' +             
             '- **!pp / !ppm**: A ver qué tan rápido tipeás, ¡dale!\n' +
             '- **!pc / !ppm cancelar**: Cancela el PPM si te arrepentís.\n' +
             '- **!rk / !ranking**: Tus puntajes y estadísticas (récord más alto de PPM).\n' +
             '- **!rppm / !rankingppm**: Todos tus intentos de PPM, loco.\n' +
             '- **!re / !reacciones**: Juego para ver quién tipea más rápido.\n' +
-            '- **!rc / !reacciones cancelar**: Cancela las reacciones que haz empezado.\n' +            
+            '- **!rc / !reacciones cancelar**: Cancela las reacciones que empezaste.\n' +            
             '- **!su / !sugerencias [idea]**: Mandame tus ideas para hacer este bot más piola.\n' +
             '- **!ay / !ayuda [problema]**: Pedile una mano a Miguel.\n' +
             '- **!save**: Guardo todo al toque, tranqui.\n' +
             '- **!as / !autosave**: Paro o arranco el guardado automático.\n' +
             '- **!act / !actualizaciones**: Mirá las últimas novedades del bot.\n' +
-            '- **!h / !help**: Esta lista, boluda.\n' +
+            '- **!h / !help**: Esta lista, che.\n' +
             '- **!hm / !help musica**: Comandos para meterle música al día.\n' +
             '- **hola**: Te tiro un saludito con onda.');
         await message.channel.send({ embeds: [embed] });
@@ -2262,7 +2309,7 @@ client.on('messageCreate', async (message) => {
         await message.channel.send({ embeds: [embed] });
     } else if (content === 'hola') {
         const embed = createEmbed('#55FFFF', `¡Qué lindo verte, ${userName}!`,
-            `¡Hola, grosa! Soy Miguel IA, tu compañero piola, trayéndote buena onda como si estuviéramos tomando mate en la vereda. ¿Cómo estás hoy, che? Estoy listo para charlar, ayudarte o tirar unas pavadas para reírnos. ¿Qué tenés en mente? ¡Dale, arrancamos!`);
+            `¡Hola, loco! Soy Miguel IA, tu compañero piola, trayéndote buena onda como si estuviéramos tomando mate en la vereda. ¿Cómo estás hoy, che? Estoy listo para charlar, ayudarte o tirar unas pavadas para reírnos. ¿Qué tenés en mente? ¡Dale, arrancamos!`);
         await message.channel.send({ embeds: [embed] });
     }
 });
