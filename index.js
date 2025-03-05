@@ -48,7 +48,7 @@ const manager = new Manager({
 const BOT_UPDATES = [
     '¡Chat mejorado! Segunda respuesta automática al darle ❌, pa’ que sea más bacán y no pida detalles de una.',
     'Optimizado el código un poco, si te gustaría agregar algo más puedes solicitarlo, espero este bot cumpla con tus expectativas.',
-    'Mayúsculas bloqueadas en el canal de texto, para la pelada que tanto se queja.',
+    'Mayúsculas bloqueadas en el canal de texto.',
     '!autosave funcional, cuando no quieras que falle o cualquier cosa lo haces, esto hará que no falle nada, ni se reinicie el bot.',
     '!save funcional, haz el guardado al instante por si quieres asegurarte que todo se conservará',
     '!reacciones ahora va como trivia: una palabra tras otra hasta que lo parás con !re o fallás, ¡a meterle velocidad, che!',
@@ -1169,7 +1169,7 @@ async function manejarTrivia(message) {
     let categoria = args[0] || 'capitales';
     let numQuestions = 20;
     if (args[1] && !isNaN(args[1])) {
-        numQuestions = Math.max(parseInt(args[1]), 20); // Acepta cualquier número, mínimo 20
+        numQuestions = Math.max(parseInt(args[1]), 20);
     } else if (args[0] && !isNaN(args[0])) {
         numQuestions = Math.max(parseInt(args[0]), 20);
         categoria = 'capitales';
@@ -1177,7 +1177,6 @@ async function manejarTrivia(message) {
     console.log("Categoría seleccionada:", categoria, "Número de preguntas:", numQuestions);
 
     try {
-        // Validar categoría
         if (!preguntasTriviaSinOpciones[categoria]) {
             console.log("Categoría no encontrada:", categoria);
             const errorEmbed = createEmbed('#FF5555', '¡Qué quilombo!', 
@@ -1211,7 +1210,7 @@ async function manejarTrivia(message) {
             }
             usedQuestions.push(trivia.pregunta);
             const embedPregunta = createEmbed('#55FFFF', `🎲 ¡Pregunta ${channelProgress.currentQuestion + 1} de ${numQuestions}! (${categoria})`,
-                `${trivia.pregunta}\n\nTirame tu respuesta en 60 segundos, ${userName}, ¡dale!`);
+                `${trivia.pregunta}\n\nTirame tu respuesta en 60 segundos, ${userName}, ¡dale! O escribí "!trivia cancelar" para cortar.`);
             console.log("Intentando enviar pregunta...");
             const sentMessage = await message.channel.send({ embeds: [embedPregunta] });
             console.log("Pregunta enviada, ID:", sentMessage.id);
@@ -1228,10 +1227,20 @@ async function manejarTrivia(message) {
                     time: 60000,
                     errors: ['time']
                 });
-                const respuestaUsuario = respuestas.first().content;
+                const respuestaUsuario = respuestas.first().content.toLowerCase().trim();
+                activeTrivia.delete(message.channel.id);
+
+                // Chequear si quiere cancelar
+                if (respuestaUsuario === '!trivia cancelar' || respuestaUsuario === '!tc') {
+                    delete dataStore.activeSessions[message.channel.id];
+                    dataStoreModified = true;
+                    await message.channel.send({ embeds: [createEmbed('#FFAA00', '🛑 ¡Trivia cancelada!', 
+                        `Bueno, ${userName}, cortaste la trivia. Puntuación parcial: ${channelProgress.score}/${channelProgress.currentQuestion}. ¿Querés arrancar otra con !trivia?`)] });
+                    return; // Salimos de la función
+                }
+
                 const cleanedUserResponse = cleanText(respuestaUsuario);
                 const cleanedCorrectResponse = cleanText(trivia.respuesta);
-                activeTrivia.delete(message.channel.id);
 
                 if (!dataStore.triviaStats[message.author.id]) dataStore.triviaStats[message.author.id] = {};
                 if (!dataStore.triviaStats[message.author.id][categoria]) dataStore.triviaStats[message.author.id][categoria] = { correct: 0, total: 0 };
@@ -2084,7 +2093,26 @@ async function manejarCommand(message) {
     console.log(`Comando recibido: ${content}`);
 
     if (content.startsWith('!trivia') || content.startsWith('!tr')) {
-        await manejarTrivia(message);
+        if (content === '!trivia cancelar' || content === '!tc') {
+            const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
+            if (message.author.id !== ALLOWED_USER_ID) return; // Solo Belén puede usarlo
+
+            const channelProgress = dataStore.activeSessions[message.channel.id];
+            if (!channelProgress || channelProgress.type !== 'trivia') {
+                await sendError(message.channel, `No hay ninguna trivia activa para cancelar, ${userName}.`, 
+                    '¿Querés arrancar una con !trivia?');
+                return;
+            }
+
+            delete dataStore.activeSessions[message.channel.id];
+            activeTrivia.delete(message.channel.id);
+            dataStoreModified = true;
+
+            await sendSuccess(message.channel, '🛑 ¡Trivia cancelada!', 
+                `Listo, ${userName}, la trivia se fue al carajo. Puntuación parcial: ${channelProgress.score}/${channelProgress.currentQuestion}. ¿Arrancamos otra con !trivia?`);
+        } else {
+            await manejarTrivia(message);
+        }
     } else if (content.startsWith('!chat') || content.startsWith('!ch')) {
         await manejarChat(message);
     } else if (content === '!ppm' || content === '!pp') {
@@ -2206,25 +2234,25 @@ client.on('messageCreate', async (message) => {
     if (content === '!ranking' || content === '!rk') {
         const embed = getCombinedRankingEmbed(message.author.id, message.author.username);
         await message.channel.send({ embeds: [embed] });
-    } else if (content === '!help' || content === '!h') {
-        const embed = createEmbed('#55FF55', `¡Lista de comandos para vos, ${userName}!`,
-            '¡Acá tenés todo lo que puedo hacer por vos, genia!\n' +
-            '- **!ch / !chat [mensaje]**: Charlamos un rato, posta.\n' +
-            '- **!tr / !trivia [categoría] [n]**: Trivia copada por categoría (mínimo 20). Categorías: ' + Object.keys(preguntasTriviaSinOpciones).join(', ') + '\n' +
-            '- **!pp / !ppm**: A ver qué tan rápido tipeás, ¡dale!\n' +
-            '- **!rk / !ranking**: Tus puntajes y estadísticas (récord más alto de PPM).\n' +
-            '- **!rppm / !rankingppm**: Todos tus intentos de PPM, loco.\n' +
-            '- **!re / !reacciones**: Juego para ver quién tipea más rápido.\n' +
-            '- **!su / !sugerencias [idea]**: Mandame tus ideas para hacer este bot más piola.\n' +
-            '- **!ay / !ayuda [problema]**: Pedile una mano a Miguel.\n' +
-            '- **!save**: Guardo todo al toque, tranqui.\n' +
-            '- **!act / !actualizaciones**: Mirá las últimas novedades del bot.\n' + // Nueva línea
-            '- **!as / !autosave**: Paro o arranco el guardado automático.\n' +
-            '- **!h / !help**: Esta lista, boluda.\n' +
-            '- **!hm / !help musica**: Comandos para meterle música al día.\n' +
-            '- **hola**: Te tiro un saludito con onda.');
-        await message.channel.send({ embeds: [embed] });
-    } else if (content === '!help musica' || content === '!hm') {
+        } else if (content === '!help' || content === '!h') {
+            const embed = createEmbed('#55FF55', `¡Lista de comandos para vos, ${userName}!`,
+                '¡Acá tenés todo lo que puedo hacer por vos, genia!\n' +
+                '- **!ch / !chat [mensaje]**: Charlamos un rato, posta.\n' +
+                '- **!tr / !trivia [categoría] [n]**: Trivia copada por categoría (mínimo 20). Usá !tc o !trivia cancelar para cortarla cuando quieras. Categorías: ' + Object.keys(preguntasTriviaSinOpciones).join(', ') + '\n' +
+                '- **!pp / !ppm**: A ver qué tan rápido tipeás, ¡dale!\n' +
+                '- **!rk / !ranking**: Tus puntajes y estadísticas (récord más alto de PPM).\n' +
+                '- **!rppm / !rankingppm**: Todos tus intentos de PPM, loco.\n' +
+                '- **!re / !reacciones**: Juego para ver quién tipea más rápido.\n' +
+                '- **!su / !sugerencias [idea]**: Mandame tus ideas para hacer este bot más piola.\n' +
+                '- **!ay / !ayuda [problema]**: Pedile una mano a Miguel.\n' +
+                '- **!save**: Guardo todo al toque, tranqui.\n' +
+                '- **!as / !autosave**: Paro o arranco el guardado automático.\n' +
+                '- **!act / !actualizaciones**: Mirá las últimas novedades del bot.\n' +
+                '- **!h / !help**: Esta lista, boluda.\n' +
+                '- **!hm / !help musica**: Comandos para meterle música al día.\n' +
+                '- **hola**: Te tiro un saludito con onda.');
+            await message.channel.send({ embeds: [embed] });
+        } else if (content === '!help musica' || content === '!hm') {
         const embed = createEmbed('#55FF55', `¡Comandos de música para vos, ${userName}!`,
             '¡Poné el ritmo con estos comandos, loco!\n' +
             '- **!pl / !play [canción/URL]**: Tiro un tema para que suene.\n' +
