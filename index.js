@@ -57,7 +57,8 @@ const BOT_UPDATES = [
     '¡Trivia, reacciones y PPM ahora con cancelación posta! Usá !tc, !rc o !pc pa’ parar al toque sin quilombo.',
     'Miguel (OWNER_ID) ahora puede usar todos los comandos y participar en los juegos, ¡a romperla, loco!',
     'Ranking (!rk) mejorado: muestra a Miguel y Belén, ordenados por quién tiene más puntos en trivia, PPM y reacciones.',
-    '¡Reacciones arregladas! Ahora se cancelan bien con !rc y no siguen tirando mensajes después de parar.'
+    '¡Reacciones arregladas! Ahora se cancelan bien con !rc y no siguen tirando mensajes después de parar.',
+    '¡Nuevo !idea agregado! Tirale ideas al bot con !id y las manda a Miguel y Luz por MD, ¡posta!'
 ];
 
 // Estado anterior de las actualizaciones (del código pasado)
@@ -1965,6 +1966,37 @@ async function manejarRankingPPM(message) {
     await message.channel.send({ embeds: [embed] });
 }
 
+async function manejarIdea(message) {
+    const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Luz';
+    const idea = message.content.startsWith('!idea') ? message.content.slice(5).trim() : message.content.slice(3).trim();
+
+    if (!idea) {
+        return sendError(message.channel, `¡Tirame algo después de "!idea", ${userName}! ¿Qué se te ocurrió, loco?`);
+    }
+
+    // Guardar la idea en dataStore
+    if (!dataStore.ideas) dataStore.ideas = [];
+    dataStore.ideas.push({ autor: userName, texto: idea, timestamp: new Date().toISOString() });
+    dataStoreModified = true;
+
+    // Enviar a ambos por MD
+    const owner = await client.users.fetch(OWNER_ID);
+    const luz = await client.users.fetch(ALLOWED_USER_ID);
+    const ideaEmbed = createEmbed('#FFD700', `💡 Nueva idea de ${userName}`, 
+        `${userName} dice: "${idea}"\nGuardada el: ${new Date().toLocaleString()}`);
+
+    try {
+        await owner.send({ embeds: [ideaEmbed] });
+        await luz.send({ embeds: [ideaEmbed] });
+        await sendSuccess(message.channel, '✅ ¡Idea guardada!', 
+            `Ya la anoté y se la mandé a los dos por MD, ${userName}. ¡Buena esa!`);
+    } catch (error) {
+        console.error('Error al enviar idea:', error);
+        await sendError(message.channel, '❌ No pude mandar la idea', 
+            `Algo falló, ${userName}. Error: ${error.message}. ¿Probamos de nuevo?`);
+    }
+}
+
 // Eventos de música con Erela.js
 manager.on('nodeConnect', node => console.log(`Nodo ${node.options.identifier} conectado.`));
 manager.on('nodeError', (node, error) => console.error(`Error en nodo ${node.options.identifier}: ${error.message}`));
@@ -2196,6 +2228,9 @@ async function manejarCommand(message) {
     else if (content.startsWith('!responder') || content.startsWith('!resp')) {
         await manejarResponder(message);
     }
+    else if (content.startsWith('!idea') || content.startsWith('!id')) {
+    await manejarIdea(message);
+    }
 }
 
 client.on('messageCreate', async (message) => {
@@ -2310,7 +2345,8 @@ client.on('messageCreate', async (message) => {
             '- **!rppm / !rankingppm**: Todos tus intentos de PPM, loco.\n' +
             '- **!re / !reacciones**: Juego para ver quién tipea más rápido.\n' +
             '- **!rc / !reacciones cancelar**: Cancela las reacciones que empezaste.\n' +            
-            '- **!su / !sugerencias [idea]**: Mandame tus ideas para hacer este bot más piola.\n' +
+            '- **!su / !sugerencias [sugerencia]**: Mandame tus sugerencias para hacer este bot más piola.\n' +
+            '- **!id / !idea [texto]**: Tirame una idea rápida pa’ mejorar el bot, ¡dale!\n' + 
             '- **!ay / !ayuda [problema]**: Pedile una mano a Miguel.\n' +
             '- **!save**: Guardo todo al toque, tranqui.\n' +
             '- **!as / !autosave**: Paro o arranco el guardado automático.\n' +
