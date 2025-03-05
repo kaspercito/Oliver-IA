@@ -1845,11 +1845,16 @@ function getCombinedRankingEmbed(userId, username) {
     
     let triviaList = '**📚 Trivia por Categoría**\n';
     categorias.forEach(categoria => {
-        const miguelScore = dataStore.triviaRanking[OWNER_ID]?.[categoria] || 0;
+        // Aseguramos que los puntajes sean números, manejando estructuras anidadas o undefined
+        const miguelScore = typeof dataStore.triviaRanking[OWNER_ID]?.[categoria] === 'object' 
+            ? (dataStore.triviaRanking[OWNER_ID]?.[categoria]?.score || 0) 
+            : (dataStore.triviaRanking[OWNER_ID]?.[categoria] || 0);
         const miguelStats = dataStore.triviaStats[OWNER_ID]?.[categoria] || { correct: 0, total: 0 };
         const miguelPercentage = miguelStats.total > 0 ? Math.round((miguelStats.correct / miguelStats.total) * 100) : 0;
 
-        const luzScore = dataStore.triviaRanking[ALLOWED_USER_ID]?.[categoria] || 0;
+        const luzScore = typeof dataStore.triviaRanking[ALLOWED_USER_ID]?.[categoria] === 'object' 
+            ? (dataStore.triviaRanking[ALLOWED_USER_ID]?.[categoria]?.score || 0) 
+            : (dataStore.triviaRanking[ALLOWED_USER_ID]?.[categoria] || 0);
         const luzStats = dataStore.triviaStats[ALLOWED_USER_ID]?.[categoria] || { correct: 0, total: 0 };
         const luzPercentage = luzStats.total > 0 ? Math.round((luzStats.correct / luzStats.total) * 100) : 0;
 
