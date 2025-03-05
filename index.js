@@ -2107,7 +2107,7 @@ async function manejarCommand(message) {
         await manejarAutosave(message);
     } else if (content === '!lyrics' || content === '!ly') {
         await manejarLyrics(message);
-    } else if (content.startsWith('!responder') || content.startsWith('!re')) { // ¡Cuidado! !re está duplicado con reacciones, cambialo si querés
+    } else if (content.startsWith('!responder') || content.startsWith('!resp')) {
         await manejarResponder(message);
     }
 }
