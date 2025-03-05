@@ -3,77 +3,214 @@
   "triviaRanking": {
     "1023132788632862761": {
       "username": "dearluz",
-      "capitales": {"score": 70},
-      "disney": {"score": 9},
-      "matematicas": {"score": 16},
-      "quimica": {"score": 5},
-      "fisica": {"score": 5}
+      "capitales": {
+        "score": 70
+      },
+      "disney": {
+        "score": 9
+      },
+      "matematicas": {
+        "score": 16
+      },
+      "quimica": {
+        "score": 5
+      },
+      "fisica": {
+        "score": 5
+      }
     },
     "752987736759205960": {
       "username": "kaspercito",
-      "capitales": {"score": 7},
-      "matematicas": {"score": 14},
-      "disney": {"score": 26}
+      "capitales": {
+        "score": 7
+      },
+      "matematicas": {
+        "score": 14
+      },
+      "disney": {
+        "score": 26
+      }
     }
   },
   "personalPPMRecords": {
     "1023132788632862761": {
-      "best": {"ppm": 117, "timestamp": "2025-03-05T14:54:08.536Z"},
+      "best": {
+        "ppm": 117,
+        "timestamp": "2025-03-05T14:54:08.536Z"
+      },
       "attempts": [
-        {"ppm": 83, "timestamp": "2025-03-04T23:37:04.719Z"},
-        {"ppm": 66, "timestamp": "2025-03-04T23:37:22.235Z"},
-        {"ppm": 80, "timestamp": "2025-03-04T23:37:34.587Z"},
-        {"ppm": 69, "timestamp": "2025-03-04T23:38:57.514Z"},
-        {"ppm": 79, "timestamp": "2025-03-04T23:39:34.909Z"},
-        {"ppm": 96, "timestamp": "2025-03-05T14:48:56.055Z"},
-        {"ppm": 70, "timestamp": "2025-03-05T14:49:21.866Z"},
-        {"ppm": 108, "timestamp": "2025-03-05T14:50:30.839Z"},
-        {"ppm": 87, "timestamp": "2025-03-05T14:52:12.444Z"},
-        {"ppm": 117, "timestamp": "2025-03-05T14:54:08.536Z"},
-        {"ppm": 99, "timestamp": "2025-03-05T14:54:52.353Z"},
-        {"ppm": 112, "timestamp": "2025-03-05T14:56:49.651Z"},
-        {"ppm": 86, "timestamp": "2025-03-05T14:58:20.035Z"}
+        {
+          "ppm": 83,
+          "timestamp": "2025-03-04T23:37:04.719Z"
+        },
+        {
+          "ppm": 66,
+          "timestamp": "2025-03-04T23:37:22.235Z"
+        },
+        {
+          "ppm": 80,
+          "timestamp": "2025-03-04T23:37:34.587Z"
+        },
+        {
+          "ppm": 69,
+          "timestamp": "2025-03-04T23:38:57.514Z"
+        },
+        {
+          "ppm": 79,
+          "timestamp": "2025-03-04T23:39:34.909Z"
+        },
+        {
+          "ppm": 96,
+          "timestamp": "2025-03-05T14:48:56.055Z"
+        },
+        {
+          "ppm": 70,
+          "timestamp": "2025-03-05T14:49:21.866Z"
+        },
+        {
+          "ppm": 108,
+          "timestamp": "2025-03-05T14:50:30.839Z"
+        },
+        {
+          "ppm": 87,
+          "timestamp": "2025-03-05T14:52:12.444Z"
+        },
+        {
+          "ppm": 117,
+          "timestamp": "2025-03-05T14:54:08.536Z"
+        },
+        {
+          "ppm": 99,
+          "timestamp": "2025-03-05T14:54:52.353Z"
+        },
+        {
+          "ppm": 112,
+          "timestamp": "2025-03-05T14:56:49.651Z"
+        },
+        {
+          "ppm": 86,
+          "timestamp": "2025-03-05T14:58:20.035Z"
+        }
       ]
     },
     "752987736759205960": {
-      "best": {"ppm": 110, "timestamp": "2025-03-03T03:20:50.111Z"},
+      "best": {
+        "ppm": 110,
+        "timestamp": "2025-03-03T03:20:50.111Z"
+      },
       "attempts": [
-        {"ppm": 110, "timestamp": "2025-03-03T03:20:50.111Z"},
-        {"ppm": 90, "timestamp": "2025-03-03T03:19:41.269Z"},
-        {"ppm": 86, "timestamp": "2025-03-03T03:20:23.259Z"},
-        {"ppm": 80, "timestamp": "2025-03-03T03:20:38.331Z"},
-        {"ppm": 75, "timestamp": "2025-03-03T03:19:54.430Z"},
-        {"ppm": 57, "timestamp": "2025-03-03T12:15:23.671Z"},
-        {"ppm": 50, "timestamp": "2025-03-03T12:34:39.668Z"},
-        {"ppm": 70, "timestamp": "2025-03-03T12:34:59.287Z"},
-        {"ppm": 59, "timestamp": "2025-03-03T12:35:20.872Z"}
+        {
+          "ppm": 110,
+          "timestamp": "2025-03-03T03:20:50.111Z"
+        },
+        {
+          "ppm": 90,
+          "timestamp": "2025-03-03T03:19:41.269Z"
+        },
+        {
+          "ppm": 86,
+          "timestamp": "2025-03-03T03:20:23.259Z"
+        },
+        {
+          "ppm": 80,
+          "timestamp": "2025-03-03T03:20:38.331Z"
+        },
+        {
+          "ppm": 75,
+          "timestamp": "2025-03-03T03:19:54.430Z"
+        },
+        {
+          "ppm": 57,
+          "timestamp": "2025-03-03T12:15:23.671Z"
+        },
+        {
+          "ppm": 50,
+          "timestamp": "2025-03-03T12:34:39.668Z"
+        },
+        {
+          "ppm": 70,
+          "timestamp": "2025-03-03T12:34:59.287Z"
+        },
+        {
+          "ppm": 59,
+          "timestamp": "2025-03-03T12:35:20.872Z"
+        }
       ]
     }
   },
   "reactionWins": {
-    "1023132788632862761": {"username": "dearluz", "wins": 82},
-    "752987736759205960": {"username": "kaspercito", "wins": 58}
+    "1023132788632862761": {
+      "username": "dearluz",
+      "wins": 82
+    },
+    "752987736759205960": {
+      "username": "kaspercito",
+      "wins": 58
+    }
   },
   "activeSessions": {},
   "triviaStats": {
     "1023132788632862761": {
       "correct": 25,
       "total": 40,
-      "capitales": {"correct": 70, "total": 235},
-      "disney": {"correct": 9, "total": 21},
-      "matematicas": {"correct": 16, "total": 20},
-      "quimica": {"correct": 5, "total": 20},
-      "fisica": {"correct": 5, "total": 20},
-      "historia": {"correct": 0, "total": 2}
+      "capitales": {
+        "correct": 70,
+        "total": 235
+      },
+      "disney": {
+        "correct": 9,
+        "total": 21
+      },
+      "matematicas": {
+        "correct": 16,
+        "total": 20
+      },
+      "quimica": {
+        "correct": 5,
+        "total": 20
+      },
+      "fisica": {
+        "correct": 5,
+        "total": 20
+      },
+      "historia": {
+        "correct": 0,
+        "total": 2
+      }
     },
     "752987736759205960": {
       "correct": 4,
       "total": 10,
-      "capitales": {"correct": 7, "total": 20},
-      "matematicas": {"correct": 14, "total": 20},
-      "disney": {"correct": 26, "total": 36}
+      "capitales": {
+        "correct": 7,
+        "total": 20
+      },
+      "matematicas": {
+        "correct": 14,
+        "total": 20
+      },
+      "disney": {
+        "correct": 26,
+        "total": 36
+      }
     }
   },
   "updatesSent": true,
-  "musicSessions": {}
+  "musicSessions": {},
+  "sentUpdates": [
+    "¡Chat mejorado! Segunda respuesta automática al darle ❌, pa’ que sea más bacán y no pida detalles de una.",
+    "Optimizado el código un poco, si te gustaría agregar algo más puedes solicitarlo, espero este bot cumpla con tus expectativas.",
+    "Mayúsculas bloqueadas en el canal de texto.",
+    "!autosave funcional, cuando no quieras que falle o cualquier cosa lo haces, esto hará que no falle nada, ni se reinicie el bot.",
+    "!save funcional, haz el guardado al instante por si quieres asegurarte que todo se conservará.",
+    "!reacciones ahora va como trivia: una palabra tras otra hasta que lo parás con !re o fallás, ¡a meterle velocidad, che!",
+    "!ppm cambiado: si te equivocás o se te pasa el tiempo, te tira otra frase; si la hacés bien, termina ahí, ¡posta!",
+    "!resp / !responder metido: para poder recibir ayuda en lo que necesites, ¡posta!",
+    "¡Trivia, reacciones y PPM ahora con cancelación posta! Usá !tc, !rc o !pc pa’ parar al toque sin quilombo.",
+    "Miguel (OWNER_ID) ahora puede usar todos los comandos y participar en los juegos, ¡a romperla, loco!",
+    "Ranking (!rk) mejorado: muestra a Miguel y Belén, ordenados por quién tiene más puntos en trivia, PPM y reacciones.",
+    "¡Reacciones arregladas! Ahora se cancelan bien con !rc y no siguen tirando mensajes después de parar.",
+    "¡Nuevo !idea agregado! Tirale ideas al bot con !id y las manda solo a Miguel por MD, ¡posta!",
+    "Sincronizado triviaRanking con triviaStats pa’ que los puntajes sean posta y no haya más errores raros en el ranking."
+  ]
 }
