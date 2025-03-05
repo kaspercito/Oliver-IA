@@ -46,7 +46,8 @@ const manager = new Manager({
 });
 
 const BOT_UPDATES = [
-    '!resp / !responder metido: para poder recibir ayuda en lo que necesites, ¡posta!'
+    '!reacciones ahora va como trivia: una palabra tras otra hasta que lo parás con !re o fallás, ¡a meterle velocidad, che!',
+    '!ppm cambiado: si te equivocás o se te pasa el tiempo, te tira otra frase; si la hacés bien, termina ahí, ¡posta!'
 ];
 
 // Estado anterior de las actualizaciones (del código pasado)
