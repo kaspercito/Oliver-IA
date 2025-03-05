@@ -59,6 +59,7 @@ const BOT_UPDATES = [
     'Ranking (!rk) mejorado: muestra a Miguel y Belén, ordenados por quién tiene más puntos en trivia, PPM y reacciones.',
     '¡Reacciones arregladas! Ahora se cancelan bien con !rc y no siguen tirando mensajes después de parar.',
     '¡Nuevo !idea agregado! Tirale ideas al bot con !id y las manda solo a Miguel por MD, ¡posta!'
+    '¡Nuevo !idea agregado! Tirale ideas al bot con !id y las manda solo a Miguel por MD, ¡posta!'
 ];
 
 // Estado anterior de las actualizaciones (del código pasado)
@@ -1155,94 +1156,14 @@ function obtenerPreguntaTriviaSinOpciones(usedQuestions, categoria) {
 }
 
 // Función principal de trivia corregida
-async function manejarTrivia(message) {
-    const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
-    if (!message.channel.permissionsFor(client.user).has(['SEND_MESSAGES', 'EMBED_LINKS'])) return;
-
-    const args = normalizeText(message.content).split(' ').slice(1);
-    const categoria = args[0] in preguntasTriviaSinOpciones ? args[0] : 'capitales';
-    const numQuestions = Math.max(parseInt(args[1]) || 20, 20);
-
-    const triviaKey = `trivia_${message.channel.id}`;
-    if (dataStore.activeSessions[triviaKey]) {
-        await sendError(message.channel, `Ya hay una trivia activa en este canal, ${userName}.`, 'Cancelala con !tc primero.');
-        return;
-    }
-
-    let session = {
-        type: 'trivia',
-        currentQuestion: 0,
-        score: 0,
-        totalQuestions: numQuestions,
-        usedQuestions: [],
-        categoria,
-        active: true,
-    };
-    dataStore.activeSessions[triviaKey] = session;
+if (session.currentQuestion >= session.totalQuestions && dataStore.activeSessions[triviaKey]) {
+    await sendSuccess(message.channel, '🏁 ¡Trivia terminada!', `Puntuación: ${session.score}/${numQuestions}, ${userName}.`);
+    if (!dataStore.triviaRanking[message.author.id]) dataStore.triviaRanking[message.author.id] = {};
+    // Usamos triviaStats como base y sumamos el score de la sesión
+    dataStore.triviaRanking[message.author.id][categoria] = dataStore.triviaStats[message.author.id][categoria].correct;
+    delete dataStore.activeSessions[triviaKey];
+    activeTrivia.delete(message.channel.id);
     dataStoreModified = true;
-
-    while (session.currentQuestion < session.totalQuestions && session.active) {
-        if (!dataStore.activeSessions[triviaKey] || !dataStore.activeSessions[triviaKey].active) break;
-
-        const available = preguntasTriviaSinOpciones[categoria].filter(q => !session.usedQuestions.includes(q.pregunta));
-        if (!available.length) {
-            await sendSuccess(message.channel, '🏁 ¡Se acabaron las preguntas!', `No hay más en ${categoria}, ${userName}.`);
-            break;
-        }
-
-        const trivia = available[Math.floor(Math.random() * available.length)];
-        session.usedQuestions.push(trivia.pregunta);
-        const embed = createEmbed('#55FFFF', `🎲 Pregunta ${session.currentQuestion + 1}/${numQuestions} (${categoria})`,
-            `${trivia.pregunta}\n\n¡Responde en 60 segundos, ${userName}! O cancelá con !tc.`);
-        const sent = await message.channel.send({ embeds: [embed] });
-
-        activeTrivia.set(message.channel.id, { id: sent.id, correcta: trivia.respuesta, userId: message.author.id });
-        dataStoreModified = true;
-
-        try {
-            const respuestas = await message.channel.awaitMessages({
-                filter: (res) => res.author.id === message.author.id && !['!tc', '!trivia cancelar'].includes(res.content.toLowerCase()),
-                max: 1,
-                time: 60000,
-                errors: ['time'],
-            });
-            const respuesta = cleanText(respuestas.first().content);
-            activeTrivia.delete(message.channel.id);
-
-            if (!dataStore.activeSessions[triviaKey] || !dataStore.activeSessions[triviaKey].active) break;
-
-            if (!dataStore.triviaStats[message.author.id]) dataStore.triviaStats[message.author.id] = {};
-            if (!dataStore.triviaStats[message.author.id][categoria]) dataStore.triviaStats[message.author.id][categoria] = { correct: 0, total: 0 };
-            dataStore.triviaStats[message.author.id][categoria].total += 1;
-
-            if (respuesta === cleanText(trivia.respuesta)) {
-                session.score += 1;
-                dataStore.triviaStats[message.author.id][categoria].correct += 1;
-                await sendSuccess(message.channel, '🎉 ¡Acierto!', `¡Grande, ${userName}! Era **${trivia.respuesta}**. Vas ${session.score}.`);
-            } else {
-                await sendError(message.channel, '❌ ¡Fallaste!', `La posta era **${trivia.respuesta}**, ${userName}. Dijiste "${respuesta}".`);
-            }
-            session.currentQuestion += 1;
-            dataStore.activeSessions[triviaKey] = session;
-            dataStoreModified = true;
-        } catch {
-            activeTrivia.delete(message.channel.id);
-            if (!dataStore.activeSessions[triviaKey] || !dataStore.activeSessions[triviaKey].active) break;
-            await sendError(message.channel, '⏳ ¡Tiempo!', `Se acabó, ${userName}. Era **${trivia.respuesta}**.`);
-            session.currentQuestion += 1;
-            dataStore.activeSessions[triviaKey] = session;
-            dataStoreModified = true;
-        }
-    }
-
-    if (session.currentQuestion >= session.totalQuestions && dataStore.activeSessions[triviaKey]) {
-        await sendSuccess(message.channel, '🏁 ¡Trivia terminada!', `Puntuación: ${session.score}/${numQuestions}, ${userName}.`);
-        if (!dataStore.triviaRanking[message.author.id]) dataStore.triviaRanking[message.author.id] = {};
-        dataStore.triviaRanking[message.author.id][categoria] = (dataStore.triviaRanking[message.author.id][categoria] || 0) + session.score;
-        delete dataStore.activeSessions[triviaKey];
-        activeTrivia.delete(message.channel.id);
-        dataStoreModified = true;
-    }
 }
 
 async function manejarAutosave(message) {
@@ -1658,17 +1579,21 @@ async function manejarAyuda(message) {
 
 async function manejarResponder(message) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
-    if (message.author.id !== OWNER_ID) return; // Solo vos podés usarlo
+    if (message.author.id !== OWNER_ID) return;
 
     console.log(`[${instanceId}] Ejecutando !responder por ${userName} con contenido: "${message.content}"`);
 
-    const args = message.content.slice(10).trim(); // "!responder" tiene 9 caracteres
+    // Limpiamos sentMessages para evitar interferencias
+    sentMessages.clear();
+    console.log(`[${instanceId}] sentMessages limpiado antes de responder`);
+
+    const args = message.content.slice(10).trim();
     if (!args) {
         console.log(`[${instanceId}] Error: No hay argumentos en !responder`);
         return sendError(message.channel, `Escribí algo después de "!responder", ${userName}. ¿Qué le querés decir a Belén por MD?`);
     }
 
-    const belen = await client.users.fetch(ALLOWED_USER_ID); // MD de Belén
+    const belen = await client.users.fetch(ALLOWED_USER_ID);
     const attachments = message.attachments.size > 0 ? message.attachments.map(att => ({ attachment: att.url })) : [];
     console.log(`[${instanceId}] Preparando envío a Belén (${ALLOWED_USER_ID}), adjuntos: ${attachments.length}`);
 
@@ -1869,24 +1794,19 @@ function getCombinedRankingEmbed(userId, username) {
     
     let triviaList = '**📚 Trivia por Categoría**\n';
     categorias.forEach(categoria => {
-        // Aseguramos que los puntajes sean números, manejando estructuras anidadas o undefined
-        const miguelScore = typeof dataStore.triviaRanking[OWNER_ID]?.[categoria] === 'object' 
-            ? (dataStore.triviaRanking[OWNER_ID]?.[categoria]?.score || 0) 
-            : (dataStore.triviaRanking[OWNER_ID]?.[categoria] || 0);
+        // Usamos triviaStats como fuente principal
         const miguelStats = dataStore.triviaStats[OWNER_ID]?.[categoria] || { correct: 0, total: 0 };
-        const miguelPercentage = miguelStats.total > 0 ? Math.round((miguelStats.correct / miguelStats.total) * 100) : 0;
+        const miguelScore = miguelStats.correct; // Puntaje es el número de correctas
+        const miguelPercentage = miguelStats.total > 0 ? Math.round((miguelScore / miguelStats.total) * 100) : 0;
 
-        const luzScore = typeof dataStore.triviaRanking[ALLOWED_USER_ID]?.[categoria] === 'object' 
-            ? (dataStore.triviaRanking[ALLOWED_USER_ID]?.[categoria]?.score || 0) 
-            : (dataStore.triviaRanking[ALLOWED_USER_ID]?.[categoria] || 0);
         const luzStats = dataStore.triviaStats[ALLOWED_USER_ID]?.[categoria] || { correct: 0, total: 0 };
-        const luzPercentage = luzStats.total > 0 ? Math.round((luzStats.correct / luzStats.total) * 100) : 0;
+        const luzScore = luzStats.correct; // Puntaje es el número de correctas
+        const luzPercentage = luzStats.total > 0 ? Math.round((luzScore / luzStats.total) * 100) : 0;
 
-        // Ordenar según puntaje en esta categoría
         const ranking = [
             { name: 'Miguel', score: miguelScore, percentage: miguelPercentage },
             { name: 'Belén', score: luzScore, percentage: luzPercentage }
-        ].sort((a, b) => b.score - a.score); // Mayor puntaje primero
+        ].sort((a, b) => b.score - a.score);
 
         triviaList += `\n**${categoria.charAt(0).toUpperCase() + categoria.slice(1)}** 🎲\n` +
                       ranking.map(participant => 
@@ -1897,11 +1817,10 @@ function getCombinedRankingEmbed(userId, username) {
     const miguelPPMRecord = dataStore.personalPPMRecords[OWNER_ID]?.best || { ppm: 0, timestamp: null };
     const luzPPMRecord = dataStore.personalPPMRecords[ALLOWED_USER_ID]?.best || { ppm: 0, timestamp: null };
     
-    // Ordenar PPM según récord más alto
     const ppmRanking = [
         { name: 'Miguel', ppm: miguelPPMRecord.ppm, timestamp: miguelPPMRecord.timestamp },
         { name: 'Belén', ppm: luzPPMRecord.ppm, timestamp: luzPPMRecord.timestamp }
-    ].sort((a, b) => b.ppm - a.ppm); // Mayor PPM primero
+    ].sort((a, b) => b.ppm - a.ppm);
     
     let ppmList = ppmRanking.map(participant => 
         participant.ppm > 0 
@@ -1912,11 +1831,10 @@ function getCombinedRankingEmbed(userId, username) {
     const miguelReactionWins = dataStore.reactionWins[OWNER_ID]?.wins || 0;
     const luzReactionWins = dataStore.reactionWins[ALLOWED_USER_ID]?.wins || 0;
     
-    // Ordenar reacciones según victorias
     const reactionRanking = [
         { name: 'Miguel', wins: miguelReactionWins },
         { name: 'Belén', wins: luzReactionWins }
-    ].sort((a, b) => b.wins - a.wins); // Más victorias primero
+    ].sort((a, b) => b.wins - a.wins);
     
     const reactionList = reactionRanking.map(participant => 
         `> 🌟 ${participant.name} - **${participant.wins} Reacciones**`
