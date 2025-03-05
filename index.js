@@ -2150,12 +2150,18 @@ client.on('messageCreate', async (message) => {
         }
     }
 
-    // Solo Belén puede usar el bot
+    // Procesar !responder o !resp solo para Miguel antes del filtro de Belén
+    if (message.author.id === OWNER_ID && (content.startsWith('!responder') || content.startsWith('!resp'))) {
+        console.log(`[${instanceId}] Procesando !responder/!resp desde ${message.channel.type === 'DM' ? 'MD' : 'canal ' + message.channel.id} por Miguel`);
+        await manejarCommand(message);
+        return;
+    }
+
+    // Solo Belén puede usar el resto de los comandos
     if (message.author.id !== ALLOWED_USER_ID) {
         if (message.author.id === OWNER_ID) {
-            // Opcional para vos, Miguel, si querés un mensaje
-            // await message.channel.send('Perdón, Miguel, por ahora solo laburo para Belén, loco.');
-            return; // No procesa nada de Miguel
+            // No procesa nada más para Miguel, ya manejamos !responder arriba
+            return;
         }
         return; // Ignora a cualquiera que no sea Belén
     }
