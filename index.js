@@ -46,6 +46,8 @@ const manager = new Manager({
 });
 
 const BOT_UPDATES = [
+    '¡Chat mejorado! Segunda respuesta automática al darle ❌, pa’ que sea más bacán y no pida detalles de una.',
+    'Optimizado el código un poco, si te gustaría agregar algo más puedes solicitarlo, espero este bot cumpla con tus expectativas.',
     'Mayúsculas bloqueadas en el canal de texto.',
     '!autosave funcional, cuando no quieras que falle o cualquier cosa lo haces, esto hará que no falle nada, ni se reinicie el bot.',
     '!save funcional, haz el guardado al instante por si quieres asegurarte que todo se conservará',
@@ -56,11 +58,13 @@ const BOT_UPDATES = [
     'Miguel (OWNER_ID) ahora puede usar todos los comandos y participar en los juegos, ¡a romperla, loco!',
     'Ranking (!rk) mejorado: muestra a Miguel y Belén, ordenados por quién tiene más puntos en trivia, PPM y reacciones.',
     '¡Reacciones arregladas! Ahora se cancelan bien con !rc y no siguen tirando mensajes después de parar.',
-    '¡Nuevo !idea agregado! Tirale ideas al bot con !id y las manda a Miguel por MD, ¡posta!'
+    '¡Nuevo !idea agregado! Tirale ideas al bot con !id y las manda solo a Miguel por MD, ¡posta!'
 ];
 
 // Estado anterior de las actualizaciones (del código pasado)
-const PREVIOUS_BOT_UPDATES = [
+const BOT_UPDATES = [
+    '¡Chat mejorado! Segunda respuesta automática al darle ❌, pa’ que sea más bacán y no pida detalles de una.',
+    'Optimizado el código un poco, si te gustaría agregar algo más puedes solicitarlo, espero este bot cumpla con tus expectativas.',
     'Mayúsculas bloqueadas en el canal de texto.',
     '!autosave funcional, cuando no quieras que falle o cualquier cosa lo haces, esto hará que no falle nada, ni se reinicie el bot.',
     '!save funcional, haz el guardado al instante por si quieres asegurarte que todo se conservará',
@@ -70,7 +74,8 @@ const PREVIOUS_BOT_UPDATES = [
     '¡Trivia, reacciones y PPM ahora con cancelación posta! Usá !tc, !rc o !pc pa’ parar al toque sin quilombo.',
     'Miguel (OWNER_ID) ahora puede usar todos los comandos y participar en los juegos, ¡a romperla, loco!',
     'Ranking (!rk) mejorado: muestra a Miguel y Belén, ordenados por quién tiene más puntos en trivia, PPM y reacciones.',
-    '¡Reacciones arregladas! Ahora se cancelan bien con !rc y no siguen tirando mensajes después de parar.'
+    '¡Reacciones arregladas! Ahora se cancelan bien con !rc y no siguen tirando mensajes después de parar.',
+    '¡Nuevo !idea agregado! Tirale ideas al bot con !id y las manda solo a Miguel por MD, ¡posta!'
 ];
 
 // Mensajes de ánimo para Belén
@@ -2387,7 +2392,7 @@ client.once('ready', async () => {
 
         const userHistory = dataStore.conversationHistory[ALLOWED_USER_ID] || [];
         const historySummary = userHistory.length > 0
-            ? userHistory.slice(-3).map(msg => `${msg.role === 'user' ? 'Belén' : 'Yo'}: ${msg.content}`).join('\n')
+            ? userHistory.slice(-3).map(msg => `${msg.role === 'user' ? 'Luz' : 'Yo'}: ${msg.content}`).join('\n')
             : 'No hay historial reciente.';
         const argentinaTime = new Date().toLocaleTimeString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' });
 
@@ -2395,11 +2400,32 @@ client.once('ready', async () => {
 
         if (updatesChanged) {
             const updateEmbed = createEmbed('#FFD700', '📢 Actualizaciones de Miguel IA',
-                '¡Tengo mejoras nuevas para compartir contigo!')
-                .addFields(
-                    { name: 'Novedades', value: BOT_UPDATES.map(update => `- ${update}`).join('\n'), inline: false },
-                    { name: 'Hora de actualización', value: `${argentinaTime}`, inline: false },
-                );
+                '¡Tengo mejoras nuevas para compartir contigo!');
+
+            // Dividir las actualizaciones en partes menores a 1024 caracteres
+            const updatesText = BOT_UPDATES.map(update => `- ${update}`).join('\n');
+            const maxFieldLength = 1024;
+            let currentField = '';
+            let fieldCount = 1;
+            const fields = [];
+
+            updatesText.split('\n').forEach(line => {
+                if (currentField.length + line.length + 1 > maxFieldLength) {
+                    fields.push({ name: `Novedades (Parte ${fieldCount})`, value: currentField.trim(), inline: false });
+                    currentField = line;
+                    fieldCount++;
+                } else {
+                    currentField += (currentField ? '\n' : '') + line;
+                }
+            });
+            if (currentField) {
+                fields.push({ name: `Novedades (Parte ${fieldCount})`, value: currentField.trim(), inline: false });
+            }
+
+            // Agregar los campos al embed
+            fields.forEach(field => updateEmbed.addFields(field));
+            updateEmbed.addFields({ name: 'Hora de actualización', value: `${argentinaTime}`, inline: false });
+
             await channel.send({ content: `<@${ALLOWED_USER_ID}>`, embeds: [updateEmbed] });
         }
     } catch (error) {
