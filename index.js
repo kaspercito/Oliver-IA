@@ -1643,12 +1643,15 @@ async function manejarSugerencias(message) {
 
     const owner = await client.users.fetch(OWNER_ID);
     const ownerEmbed = createEmbed('#FFD700', '💡 Nueva sugerencia de Belén',
-        `${userName} propone: "${suggestion}"`);
+        `${userName} propone: "${suggestion}"\nReacciona con ✅ para dar visto, loco.\nUsá !responder en cualquier canal para contestarle.`);
 
     try {
-        await owner.send({ embeds: [ownerEmbed] });
+        const sentToOwner = await owner.send({ embeds: [ownerEmbed] });
+        await sentToOwner.react('✅');
+        sentMessages.set(sentToOwner.id, { type: 'suggestion', suggestion, channelId: message.channel.id, userId: message.author.id });
+
         await sendSuccess(message.channel, '¡Sugerencia enviada!',
-            `Tu idea ya está con Miguel, ${userName}. ¡Gracias por ayudarme a mejorar!`);
+            `Tu idea ya está con Miguel, ${userName}. ¡Si le da el visto o te responde con !responder, te aviso, genia!`);
     } catch (error) {
         console.error('Error al enviar sugerencia:', error);
         await sendError(message.channel, 'No pude enviar tu sugerencia', `Ocurrió un error, ${userName}. ¿Intentamos de nuevo?`);
@@ -1663,17 +1666,63 @@ async function manejarAyuda(message) {
     }
 
     const owner = await client.users.fetch(OWNER_ID);
+    const attachments = message.attachments.size > 0 ? message.attachments.map(att => att.url) : [];
     const ownerEmbed = createEmbed('#FFD700', '¡Solicitud de ayuda!',
-        `${userName} necesita ayuda con: "${issue}"`);
+        `${userName} necesita ayuda con: "${issue}"\n` +
+        (attachments.length > 0 ? `Imágenes adjuntas:\n${attachments.join('\n')}` : 'Sin imágenes adjuntas.') +
+        `\nUsá !responder en cualquier canal para contestarle, loco.`);
 
     try {
-        await owner.send({ embeds: [ownerEmbed] });
+        const sentToOwner = await owner.send({ embeds: [ownerEmbed] });
+        sentMessages.set(sentToOwner.id, { type: 'help', issue, channelId: message.channel.id, userId: message.author.id, attachments });
+
         await sendSuccess(message.channel, '¡Ayuda en camino!',
-            `Ya le avisé a Miguel, ${userName}. ¡Pronto te ayudará!`);
+            `Ya le avisé a Miguel, ${userName}. ¡Si te responde con !responder, lo vas a ver acá, grosa!`);
     } catch (error) {
         console.error('Error al enviar ayuda:', error);
         await sendError(message.channel, 'No pude avisar a Miguel', `Ocurrió un error, ${userName}. ¿Intentamos de nuevo?`);
     }
+}
+
+async function manejarResponder(message) {
+    const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
+    if (message.author.id !== OWNER_ID) return; // Solo vos podés usarlo
+
+    const args = message.content.slice(10).trim(); // "!responder" tiene 9 caracteres
+    if (!args) {
+        return sendError(message.channel, `Escribí algo después de "!responder", ${userName}. ¿Qué le querés decir a Belén por MD?`);
+    }
+
+    // Buscar el último mensaje en sentMessages que necesite respuesta
+    const pendingMessages = Array.from(sentMessages.entries())
+        .filter(([_, data]) => data.userId === ALLOWED_USER_ID && (data.type === 'suggestion' || data.type === 'help'))
+        .sort((a, b) => b[1].timestamp - a[1].timestamp); // Ordenar por más reciente
+
+    if (pendingMessages.length === 0) {
+        return sendError(message.channel, `No hay sugerencias o pedidos de ayuda pendientes para responder, ${userName}.`);
+    }
+
+    const [messageId, messageData] = pendingMessages[0]; // Tomamos el más reciente
+    const belen = await client.users.fetch(ALLOWED_USER_ID); // MD de Belén
+    const attachments = message.attachments.size > 0 ? message.attachments.map(att => ({ attachment: att.url })) : [];
+
+    if (messageData.type === 'suggestion') {
+        const responseEmbed = createEmbed('#FFD700', '📬 Respuesta de Miguel a tu sugerencia',
+            `Tu idea fue: "${messageData.suggestion}"\nMiguel dice: "${args || 'Sin texto, pero mirá las imágenes si hay.'}"`);
+        
+        await belen.send({ embeds: [responseEmbed], files: attachments });
+        sentMessages.delete(messageId); // Limpiamos después de responder
+    } else if (messageData.type === 'help') {
+        const responseEmbed = createEmbed('#FFD700', '📬 Respuesta de Miguel a tu pedido de ayuda',
+            `Tu problema fue: "${messageData.issue}"\nMiguel dice: "${args || 'Sin texto, pero mirá las imágenes si hay.'}"` +
+            (messageData.attachments.length > 0 ? `\nTus imágenes:\n${messageData.attachments.join('\n')}` : ''));
+        
+        await belen.send({ embeds: [responseEmbed], files: attachments });
+        sentMessages.delete(messageId); // Limpiamos después de responder
+    }
+
+    await sendSuccess(message.channel, '✅ ¡Respuesta enviada!',
+        `Le mandé tu mensaje a Belén por MD, ${userName}. ¡Ya lo va a ver, loco!`);
 }
 
 // Funciones de música
