@@ -1166,13 +1166,13 @@ async function manejarTrivia(message) {
         totalQuestions: numQuestions,
         usedQuestions: [],
         categoria,
-        active: true, // Para controlar cancelación
+        active: true,
     };
     dataStore.activeSessions[triviaKey] = session;
     dataStoreModified = true;
 
     while (session.currentQuestion < session.totalQuestions && session.active) {
-        if (!dataStore.activeSessions[triviaKey]) break; // Si se borró la sesión, salimos
+        if (!dataStore.activeSessions[triviaKey] || !dataStore.activeSessions[triviaKey].active) break;
 
         const available = preguntasTriviaSinOpciones[categoria].filter(q => !session.usedQuestions.includes(q.pregunta));
         if (!available.length) {
@@ -1199,7 +1199,7 @@ async function manejarTrivia(message) {
             const respuesta = cleanText(respuestas.first().content);
             activeTrivia.delete(message.channel.id);
 
-            if (!dataStore.activeSessions[triviaKey]) break; // Si se canceló mientras esperaba, salimos
+            if (!dataStore.activeSessions[triviaKey] || !dataStore.activeSessions[triviaKey].active) break;
 
             if (!dataStore.triviaStats[message.author.id]) dataStore.triviaStats[message.author.id] = {};
             if (!dataStore.triviaStats[message.author.id][categoria]) dataStore.triviaStats[message.author.id][categoria] = { correct: 0, total: 0 };
@@ -1217,7 +1217,7 @@ async function manejarTrivia(message) {
             dataStoreModified = true;
         } catch {
             activeTrivia.delete(message.channel.id);
-            if (!dataStore.activeSessions[triviaKey]) break; // Si se canceló, salimos
+            if (!dataStore.activeSessions[triviaKey] || !dataStore.activeSessions[triviaKey].active) break;
             await sendError(message.channel, '⏳ ¡Tiempo!', `Se acabó, ${userName}. Era **${trivia.respuesta}**.`);
             session.currentQuestion += 1;
             dataStore.activeSessions[triviaKey] = session;
@@ -1225,7 +1225,7 @@ async function manejarTrivia(message) {
         }
     }
 
-    if (session.currentQuestion >= session.totalQuestions) {
+    if (session.currentQuestion >= session.totalQuestions && dataStore.activeSessions[triviaKey]) {
         await sendSuccess(message.channel, '🏁 ¡Trivia terminada!', `Puntuación: ${session.score}/${numQuestions}, ${userName}.`);
         if (!dataStore.triviaRanking[message.author.id]) dataStore.triviaRanking[message.author.id] = {};
         dataStore.triviaRanking[message.author.id][categoria] = (dataStore.triviaRanking[message.author.id][categoria] || 0) + session.score;
@@ -2176,19 +2176,19 @@ client.on('messageCreate', async (message) => {
     processedMessages.set(message.id, Date.now());
     setTimeout(() => processedMessages.delete(message.id), 10000);
 
-    // Cancelaciones primero
+    // Cancelaciones con prioridad absoluta
     if (content === '!tc' || content === '!trivia cancelar') {
         const triviaKey = `trivia_${message.channel.id}`;
         const session = dataStore.activeSessions[triviaKey];
         if (!session || session.type !== 'trivia') {
             await sendError(message.channel, `No hay trivia activa, ${userName}.`, '¿Querés una con !trivia?');
-            return;
+        } else {
+            session.active = false;
+            delete dataStore.activeSessions[triviaKey];
+            activeTrivia.delete(message.channel.id);
+            dataStoreModified = true;
+            await sendSuccess(message.channel, '🛑 ¡Trivia cancelada!', `Listo, ${userName}. Puntuación: ${session.score}/${session.currentQuestion}.`);
         }
-        session.active = false; // Marcamos como inactiva
-        delete dataStore.activeSessions[triviaKey];
-        activeTrivia.delete(message.channel.id);
-        dataStoreModified = true;
-        await sendSuccess(message.channel, '🛑 ¡Trivia cancelada!', `Listo, ${userName}. Puntuación: ${session.score}/${session.currentQuestion}.`);
         return;
     }
 
@@ -2197,12 +2197,12 @@ client.on('messageCreate', async (message) => {
         const session = dataStore.activeSessions[reactionKey];
         if (!session || session.type !== 'reaction' || session.completed) {
             await sendError(message.channel, `No hay reacciones activas, ${userName}.`, '¿Arrancamos con !reacciones?');
-            return;
+        } else {
+            session.completed = true;
+            delete dataStore.activeSessions[reactionKey];
+            dataStoreModified = true;
+            await sendSuccess(message.channel, '🛑 ¡Reacciones canceladas!', `Listo, ${userName}. Puntuación: ${session.score}.`);
         }
-        session.completed = true;
-        delete dataStore.activeSessions[reactionKey];
-        dataStoreModified = true;
-        await sendSuccess(message.channel, '🛑 ¡Reacciones canceladas!', `Listo, ${userName}. Puntuación: ${session.score}.`);
         return;
     }
 
