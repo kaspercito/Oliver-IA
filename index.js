@@ -1665,17 +1665,23 @@ async function manejarResponder(message) {
 
     console.log(`[${instanceId}] Ejecutando !responder por ${userName} con contenido: "${message.content}"`);
 
-    // Limpiamos sentMessages para evitar interferencias
-    sentMessages.clear();
-    console.log(`[${instanceId}] sentMessages limpiado antes de responder`);
-
     const args = message.content.slice(10).trim();
     if (!args) {
         console.log(`[${instanceId}] Error: No hay argumentos en !responder`);
         return sendError(message.channel, `Escribí algo después de "!responder", ${userName}. ¿Qué le querés decir a Belén por MD?`);
     }
 
-    const belen = await client.users.fetch(ALLOWED_USER_ID);
+    console.log(`[${instanceId}] Argumentos extraídos: "${args}"`);
+
+    let belen;
+    try {
+        belen = await client.users.fetch(ALLOWED_USER_ID);
+        console.log(`[${instanceId}] Usuario Belén (${ALLOWED_USER_ID}) obtenido con éxito`);
+    } catch (error) {
+        console.error(`[${instanceId}] Error al obtener usuario Belén: ${error.message}`);
+        return sendError(message.channel, '❌ ¡No pude encontrar a Belén!', `Error: ${error.message}, ${userName}.`);
+    }
+
     const attachments = message.attachments.size > 0 ? message.attachments.map(att => ({ attachment: att.url })) : [];
     console.log(`[${instanceId}] Preparando envío a Belén (${ALLOWED_USER_ID}), adjuntos: ${attachments.length}`);
 
@@ -2097,6 +2103,12 @@ async function manejarCommand(message) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
     console.log(`Comando recibido: ${content}`);
 
+    // Prioridad absoluta para !responder
+    if (message.author.id === OWNER_ID && (content.startsWith('!responder') || content.startsWith('!resp'))) {
+        await manejarResponder(message);
+        return; // Salimos para no procesar más
+    }
+    
     // Cancelar trivia
     if (content === '!trivia cancelar' || content === '!tc') {
         if (message.author.id !== OWNER_ID && message.author.id !== ALLOWED_USER_ID) return;
@@ -2386,6 +2398,7 @@ client.once('ready', async () => {
         dataStore.musicSessions = {};
         console.log('musicSessions no estaba presente, inicializado manualmente');
     }
+
     try {
         const channel = await client.channels.fetch(CHANNEL_ID);
         if (!channel) throw new Error('Canal no encontrado');
@@ -2396,13 +2409,19 @@ client.once('ready', async () => {
             : 'No hay historial reciente.';
         const argentinaTime = new Date().toLocaleTimeString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' });
 
-        const updatesChanged = JSON.stringify(BOT_UPDATES) !== JSON.stringify(PREVIOUS_BOT_UPDATES);
+        // Inicializamos sentUpdates si no existe en dataStore
+        if (!dataStore.sentUpdates) {
+            dataStore.sentUpdates = [];
+            dataStoreModified = true;
+        }
+
+        // Comparamos BOT_UPDATES con lo que ya se envió
+        const updatesChanged = JSON.stringify(BOT_UPDATES) !== JSON.stringify(dataStore.sentUpdates);
 
         if (updatesChanged) {
             const updateEmbed = createEmbed('#FFD700', '📢 Actualizaciones de Miguel IA',
                 '¡Tengo mejoras nuevas para compartir contigo!');
 
-            // Dividir las actualizaciones en partes menores a 1024 caracteres
             const updatesText = BOT_UPDATES.map(update => `- ${update}`).join('\n');
             const maxFieldLength = 1024;
             let currentField = '';
@@ -2422,11 +2441,18 @@ client.once('ready', async () => {
                 fields.push({ name: `Novedades (Parte ${fieldCount})`, value: currentField.trim(), inline: false });
             }
 
-            // Agregar los campos al embed
             fields.forEach(field => updateEmbed.addFields(field));
             updateEmbed.addFields({ name: 'Hora de actualización', value: `${argentinaTime}`, inline: false });
 
             await channel.send({ content: `<@${ALLOWED_USER_ID}>`, embeds: [updateEmbed] });
+            
+            // Actualizamos sentUpdates con BOT_UPDATES y guardamos
+            dataStore.sentUpdates = [...BOT_UPDATES];
+            dataStoreModified = true;
+            await saveDataStore();
+            console.log('Actualizaciones enviadas y guardadas en sentUpdates.');
+        } else {
+            console.log('No hay cambios en BOT_UPDATES respecto a sentUpdates, no se envían.');
         }
     } catch (error) {
         console.error('Error al enviar actualizaciones:', error);
