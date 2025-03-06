@@ -2076,17 +2076,20 @@ async function manejarNoticias(message) {
     const waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
 
     try {
-        const apiKey = process.env.MEDIASTACK_API_KEY; // Nueva variable en tu .env
+        const apiKey = process.env.MEDIASTACK_API_KEY;
         if (!apiKey) throw new Error('Falta la clave de Mediastack en el .env, loco.');
 
+        // Fecha de hoy para filtrar noticias recientes (formato YYYY-MM-DD)
+        const today = new Date().toISOString().split('T')[0];
+
         // Noticias de Argentina
-        const urlAR = `http://api.mediastack.com/v1/news?access_key=${apiKey}&countries=ar&languages=es&limit=1&sort=published_desc`;
+        const urlAR = `http://api.mediastack.com/v1/news?access_key=${apiKey}&countries=ar&languages=es&limit=5&date=${today}&sort=published_desc`;
         console.log(`Pidiendo noticias de Argentina a: ${urlAR}`);
         const responseAR = await axios.get(urlAR);
         const articlesAR = responseAR.data.data || [];
 
         // Noticias de Ecuador
-        const urlEC = `http://api.mediastack.com/v1/news?access_key=${apiKey}&countries=ec&languages=es&limit=1&sort=published_desc`;
+        const urlEC = `http://api.mediastack.com/v1/news?access_key=${apiKey}&countries=ec&languages=es&limit=5&date=${today}&sort=published_desc`;
         console.log(`Pidiendo noticias de Ecuador a: ${urlEC}`);
         const responseEC = await axios.get(urlEC);
         const articlesEC = responseEC.data.data || [];
@@ -2095,24 +2098,28 @@ async function manejarNoticias(message) {
         console.log('Respuesta EC:', JSON.stringify(responseEC.data, null, 2));
 
         if (articlesAR.length === 0 && articlesEC.length === 0) {
-            throw new Error('No encontré noticias ni de Argentina ni de Ecuador, qué cagada.');
+            throw new Error('No encontré noticias de hoy ni de Argentina ni de Ecuador, qué cagada.');
         }
 
-        // Elegimos una noticia de Argentina
-        let noticiaAR = 'No encontré una noticia posta de Argentina, loco.';
+        // Formateamos noticias de Argentina
+        let noticiasAR = 'No encontré noticias posta de Argentina hoy, loco.';
         if (articlesAR.length > 0) {
-            noticiaAR = `"${articlesAR[0].title}"\n*Fuente: ${articlesAR[0].source}*`;
+            noticiasAR = articlesAR.slice(0, 5).map((article, index) => 
+                `${index + 1}. **${article.title}**\n${article.description ? article.description.slice(0, 150) + '...' : 'Sin descripción.'}\n*Fuente: ${article.source}*`
+            ).join('\n\n');
         }
 
-        // Elegimos una noticia de Ecuador diferente
-        let noticiaEC = 'No encontré una noticia posta de Ecuador, loco.';
+        // Formateamos noticias de Ecuador
+        let noticiasEC = 'No encontré noticias posta de Ecuador hoy, loco.';
         if (articlesEC.length > 0) {
-            const ecFiltered = articlesEC.find(article => article.title !== articlesAR[0]?.title) || articlesEC[0];
-            noticiaEC = `"${ecFiltered.title}"\n*Fuente: ${ecFiltered.source}*`;
+            noticiasEC = articlesEC.slice(0, 5).map((article, index) => 
+                `${index + 1}. **${article.title}**\n${article.description ? article.description.slice(0, 150) + '...' : 'Sin descripción.'}\n*Fuente: ${article.source}*`
+            ).join('\n\n');
         }
 
-        const embed = createEmbed('#FFD700', `📰 Últimas Noticias`, 
-            `**Argentina:** ${noticiaAR}\n\n**Ecuador:** ${noticiaEC}\n\n*Traído con onda desde Mediastack, che.*`);
+        // Creamos el embed con más detalles
+        const embed = createEmbed('#FFD700', `📰 Últimas Noticias de Hoy (${today})`, 
+            `**Argentina:**\n${noticiasAR}\n\n**Ecuador:**\n${noticiasEC}\n\n*Traído con onda desde Mediastack, che.*`);
         await waitingMessage.edit({ embeds: [embed] });
     } catch (error) {
         console.error(`Error en noticias: ${error.message}`);
