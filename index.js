@@ -1514,16 +1514,28 @@ async function manejarChat(message) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
     const chatMessage = message.content.startsWith('!chat') ? message.content.slice(5).trim() : message.content.slice(3).trim();
     const userTerm = userName === 'Miguel' ? 'pelado' : 'pelada';
-    
-    if (!chatMessage) {
-        return sendError(message.channel, `¡Escribí algo después de "!ch", ${userName}! No me dejes colgado, che.`, undefined, 'Hecho con onda por Miguel IA | Reacciona con ✅ o ❌');
-    }
 
-    const waitingEmbed = createEmbed('#55FFFF', `¡Aguantá un toque, ${userName}!`, 'Estoy pensando una respuesta re copada para vos...', 'Hecho con onda por Miguel IA | Reacciona con ✅ o ❌');
+    // Chequeo para evitar procesar mensajes vacíos o repetidos
+    if (!chatMessage) {
+        return sendError(message.channel, `¡Escribí algo después de "!ch", ${userName}! No me dejes colgado, che.`, undefined, 'Hecho con onda por Oliver IA | Reacciona con ✅ o ❌');
+    }
+    if (processedMessages.has(message.id)) {
+        console.log(`Mensaje ${message.id} ya procesado, ignorando...`);
+        return;
+    }
+    processedMessages.set(message.id, Date.now());
+
+    const waitingEmbed = createEmbed('#55FFFF', `¡Aguantá un toque, ${userName}!`, 'Estoy pensando una respuesta re copada para vos...', 'Hecho con onda por Oliver IA | Reacciona con ✅ o ❌');
     const waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
 
     try {
-        const prompt = `Sos Oliver IA, creado por Miguel, un loco re piola. Respondé a "${chatMessage}" con buena onda, al estilo argentino, bien relajado pero con cabeza, che. Usá palabras como "copado", "joya", "boludo", "re", "dale", "posta", "genial" o "loco". Si es para Belén, hablale con cariño como "grosa" o "genia". Si dice "dile a Belén" (o algo como "Rattus norvegicus albinus"), pasale el mensaje a ella pero incluí al que lo mandó para seguir la charla. Sé re claro, respondé solo lo que te piden con lo que sabés, sin chamuyo. Si es algo matemático, tirá un ejemplo práctico paso a paso con números (inventá si no hay datos) y pedí más info con onda tipo "dame más data, loco". Si es un saludo, devolvé buena vibra; si no sabés, decí con humor que te falta data y tirá opciones. Terminá siempre con "¿Te cerró esa respuesta, ${userName}? ¿Seguimos charlando, che?" para mantener el mambo.`;
+        // Prompt específico para ecuaciones lineales si el mensaje las menciona
+        const isLinearEquation = chatMessage.toLowerCase().includes('ecuaciones lineales');
+        let prompt = `Sos Oliver IA, creado por Miguel, un loco re piola. Respondé a "${chatMessage}" con buena onda, al estilo argentino, bien relajado pero con cabeza, che. Usá palabras como "copado", "joya", "boludo", "re", "dale", "posta", "genial" o "loco". `;
+        if (isLinearEquation) {
+            prompt += `Si te piden ayuda con ecuaciones lineales, explicá cómo resolverlas rápido paso a paso con un ejemplo práctico (como 2x + 3 = 7) y pedí más datos si hace falta con onda tipo "dame más data, loco". `;
+        }
+        prompt += `Si es para Belén, hablale con cariño como "grosa" o "genia". Sé re claro, respondé solo lo que te piden con lo que sabés, sin chamuyo. Terminá siempre con "¿Te cerró esa respuesta, ${userName}? ¿Seguimos charlando, che?" para mantener el mambo.`;
 
         const response = await axios.post(
             'https://api-inference.huggingface.co/models/mistralai/Mixtral-8x7B-Instruct-v0.1',
@@ -1540,19 +1552,16 @@ async function manejarChat(message) {
                     'Authorization': `Bearer ${process.env.HF_API_TOKEN}`,
                     'Content-Type': 'application/json'
                 },
-                timeout: 120000 // Subimos a 2 minutos pa’ darle chance
+                timeout: 30000 // Reducimos a 30 segundos para evitar esperas largas
             }
         );
 
         let aiReply = response.data[0]?.generated_text?.trim();
-
         if (!aiReply || aiReply.length < 10) {
-            console.log(`Respuesta vacía o corta pa’ "${chatMessage}": ${aiReply}`);
-            // Respuesta de respaldo más útil según el contexto
-            if (chatMessage.toLowerCase().includes('triangulo')) {
-                aiReply = `¡Qué quilombo, ${userName}! Se me trabó el mate, loco, pero igual te la hago corta. Si es un triángulo equilátero, todos los lados son iguales. Ejemplo: si el perímetro es 18, hacés 18 ÷ 3 = 6, cada lado mide 6. ¿Tenés más data de tu triángulo? ¡Tirame algo y lo resolvemos, dale!`;
-            } else if (chatMessage.toLowerCase().includes('catetos')) {
-                aiReply = `¡Uy, ${userName}, se me fue el bondi! Pero tranqui, loco, para los catetos de un triángulo rectángulo usás Pitágoras: a² + b² = c². Si la hipotenusa es 5 y un cateto 3, hacés 5² - 3² = 25 - 9 = 16, y el otro cateto es √16 = 4. ¿Qué datos tenés? ¡Mandamelos y lo sacamos al toque!`;
+            console.log(`Respuesta vacía o corta para "${chatMessage}": ${aiReply}`);
+            // Respuesta de respaldo útil para ecuaciones lineales
+            if (isLinearEquation) {
+                aiReply = `¡Qué lindo desafío, ${userName}! Te ayudo con las ecuaciones lineales al toque, genia. Mirá, para resolver algo como **2x + 3 = 7**, hacés esto: primero restás 3 a los dos lados, te queda **2x = 4**, después dividís entre 2 y listo, **x = 2**. ¿Tenés alguna ecuación específica pa’ resolver? ¡Dame más data, loco, y la sacamos juntos!`;
             } else {
                 aiReply = `¡Qué cagada, ${userName}! No me salió bien la respuesta, loco. ¿Me das más pistas para cacharlo o seguimos con otro mambo?`;
             }
@@ -1567,19 +1576,22 @@ async function manejarChat(message) {
 
     } catch (error) {
         console.error('Error en !chat con API:', error.message);
-        let fallbackReply;
-        if (chatMessage.toLowerCase().includes('triangulo')) {
-            fallbackReply = `¡Uy, ${userName}, qué webada! La conexión falló, ${userTerm}, pero te ayudo igual. Pa’ un triángulo equilátero, los lados son iguales. Si el perímetro es 15, haces 15 ÷ 3 = 5, cada lado es 5. ¿Qué datos tienes? ¡Tíralos y lo resolvemos!`;
-        } else if (chatMessage.toLowerCase().includes('catetos')) {
-            fallbackReply = `¡Qué onda, ${userName}! Algo se trabó, ${userTerm}, pero pa’ los catetos usas Pitágoras: a² + b² = c². Ejemplo: hipotenusa 13, cateto 5, haces 13² - 5² = 169 - 25 = 144, y el otro cateto es √144 = 12. ¿Qué tienes pa’ tu triángulo?`;
+        let fallbackReply = `¡Uy, ${userName}, qué quilombo! Algo se trabó, ${userTerm}. `;
+        if (chatMessage.toLowerCase().includes('ecuaciones lineales')) {
+            fallbackReply += `Te tiro una solución rápida para ecuaciones lineales: si tenés **3x - 5 = 10**, sumás 5 a ambos lados, queda **3x = 15**, dividís entre 3 y te da **x = 5**. ¿Querés que resuelva una tuya? ¡Mandámela, genia!`;
         } else {
-            fallbackReply = `¡Uy, ${userName}, qué onda! Algo falló por aquí, ${userTerm}. ${error.code === 'ECONNABORTED' ? 'La conexión se cortó, tardó demasiado.' : `Error: ${error.message}.`} ¿Me tiras otra vez tu mensaje o seguimos con otra vaina?`;
+            fallbackReply += `${error.code === 'ECONNABORTED' ? 'La conexión se cortó, tardó demasiado.' : `Error: ${error.message}.`} ¿Me tirás otra vez tu mensaje o seguimos con otra vaina?`;
         }
-        fallbackReply += `\n\n¿Te cacha esa respuesta, ${userName}? ¿Seguimos charlando o qué, ${userTerm}?`;
-        const finalEmbed = createEmbed('#55FFFF', `¡Acá tenés, ${userName}!`, aiReply, 'Hecho con onda por Miguel IA | Reacciona con ✅ o ❌');
+        fallbackReply += `\n\n¿Te cerró esa respuesta, ${userName}? ¿Seguimos charlando, che?`;
+
+        const errorEmbed = createEmbed('#FF5555', `¡Acá tenés, ${userName}!`, fallbackReply, 'Hecho con onda por Oliver IA | Reacciona con ✅ o ❌');
         const errorMessageSent = await waitingMessage.edit({ embeds: [errorEmbed] });
         await errorMessageSent.react('✅');
         await errorMessageSent.react('❌');
+        sentMessages.set(errorMessageSent.id, { content: fallbackReply, originalQuestion: chatMessage, message: errorMessageSent });
+    } finally {
+        // Limpiamos processedMessages después de procesar
+        setTimeout(() => processedMessages.delete(message.id), 10000);
     }
 }
 
