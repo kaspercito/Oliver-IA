@@ -2077,10 +2077,16 @@ async function manejarNoticias(message) {
 
     try {
         const apiKey = process.env.NEWSAPI_KEY;
+        if (!apiKey) throw new Error('Falta la clave de NewsAPI en el .env, loco.');
+        
         const url = `https://newsapi.org/v2/top-headlines?country=ar&apiKey=${apiKey}&pageSize=1`;
         const response = await axios.get(url);
-        const article = response.data.articles[0];
 
+        if (!response.data.articles || response.data.articles.length === 0) {
+            throw new Error('No traje artículos, la API devolvió vacío.');
+        }
+
+        const article = response.data.articles[0];
         const title = article.title.split(' - ')[0];
         const source = article.source.name;
 
@@ -2090,7 +2096,7 @@ async function manejarNoticias(message) {
     } catch (error) {
         console.error(`Error en noticias: ${error.message}`);
         const errorEmbed = createEmbed('#FF5555', '¡Qué quilombo!', 
-            `No pude traer noticias, ${userName}. ¿La API anda enojada o qué?`);
+            `No pude traer noticias, ${userName}. Error: ${error.message}. ¿La clave está bien puesta en el .env, loco?`);
         await waitingMessage.edit({ embeds: [errorEmbed] });
     }
 }
@@ -2140,26 +2146,22 @@ async function manejarTraduci(message) {
     }
 
     const text = args[0].trim();
-    const targetLang = args[1].trim();
+    const targetLang = args[1].trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, ""); // Normalizamos
 
     const waitingEmbed = createEmbed('#55FFFF', `✍️ Traduciendo, ${userName}...`, 
         `Aguantá que traduzco "${text}" a ${targetLang}...`);
     const waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
 
     try {
-        // Mapa básico de idiomas pa’ simplificar
         const langMap = {
-            'inglés': 'en',
             'ingles': 'en',
             'español': 'es',
             'espanol': 'es',
-            'francés': 'fr',
             'frances': 'fr',
             'italiano': 'it',
-            'portugués': 'pt',
             'portugues': 'pt',
-            'alemán': 'de',
-            'aleman': 'de'
+            'aleman': 'de',
+            'ruso': 'ru' // Sumamos ruso
         };
         const langCode = langMap[targetLang] || targetLang;
 
@@ -2182,7 +2184,7 @@ async function manejarTraduci(message) {
     } catch (error) {
         console.error(`Error traduciendo "${text}" a "${targetLang}": ${error.message}`);
         const errorEmbed = createEmbed('#FF5555', '¡Qué cagada!', 
-            `No pude traducir "${text}" a ${targetLang}, ${userName}. ¿Probamos con otro idioma o frase, loco?`);
+            `No pude traducir "${text}" a ${targetLang}, ${userName}. ¿Seguro que el idioma está bien escrito, loco?`);
         await waitingMessage.edit({ embeds: [errorEmbed] });
     }
 }
