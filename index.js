@@ -1515,9 +1515,12 @@ async function manejarChat(message) {
     const chatMessage = message.content.startsWith('!chat') ? message.content.slice(5).trim() : message.content.slice(3).trim();
     const userTerm = userName === 'Miguel' ? 'pelado' : 'pelada';
 
+    // Log para debuggear
+    console.log(`Procesando mensaje ID: ${message.id}, Contenido: "${chatMessage}", processedMessages: ${JSON.stringify([...processedMessages.entries()])}`);
+
     // Chequeo para evitar procesar mensajes vacíos
     if (!chatMessage) {
-        return sendError(message.channel, `¡Escribí algo después de "!ch", ${userName}! No me dejes colgado, che.`, undefined, 'Hecho con onda por Oliver IA | Reacciona con ✅ o ❌');
+        return sendError(message.channel, `¡Escribí algo después de "!chat", ${userName}! No me dejes colgado, che.`, undefined, 'Hecho con onda por Oliver IA | Reacciona con ✅ o ❌');
     }
 
     // Chequeo de mensajes repetidos
@@ -1591,7 +1594,11 @@ async function manejarChat(message) {
         await errorMessageSent.react('❌');
         sentMessages.set(errorMessageSent.id, { content: fallbackReply, originalQuestion: chatMessage, message: errorMessageSent });
     } finally {
-        setTimeout(() => processedMessages.delete(message.id), 10000);
+        // Limpieza más agresiva
+        setTimeout(() => {
+            processedMessages.delete(message.id);
+            console.log(`Mensaje ${message.id} eliminado de processedMessages`);
+        }, 5000); // Reduje a 5 segundos para pruebas rápidas
     }
 }
 
