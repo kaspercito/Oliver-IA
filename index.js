@@ -1568,7 +1568,6 @@ async function manejarChat(message) {
         await updatedMessage.react('❌');
         sentMessages.set(updatedMessage.id, { content: aiReply, originalQuestion: chatMessage, message: updatedMessage });
 
-        // Solo marcamos como procesado si todo salió bien
         processedMessages.set(message.id, Date.now());
         console.log(`[EXITO] Mensaje ${message.id} procesado con éxito`);
 
