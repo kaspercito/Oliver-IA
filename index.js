@@ -2080,12 +2080,13 @@ async function manejarNoticias(message) {
         if (!apiKey) throw new Error('Falta la clave de GNews en el .env, loco.');
 
         const url = `https://gnews.io/api/v4/top-headlines?country=ar&max=1&lang=es&apikey=${apiKey}`;
+        console.log(`Pidiendo noticias a: ${url}`);
         const response = await axios.get(url);
 
         console.log('Respuesta de GNews:', JSON.stringify(response.data, null, 2));
 
         if (!response.data.articles || response.data.articles.length === 0) {
-            throw new Error('No traje artículos, la API devolvió vacío.');
+            throw new Error('No traje artículos, la API devolvió vacío. ¿Está todo bien con la clave?');
         }
 
         const article = response.data.articles[0];
@@ -2101,7 +2102,7 @@ async function manejarNoticias(message) {
             console.error(`Respuesta de la API: ${JSON.stringify(error.response.data)}`);
         }
         const errorEmbed = createEmbed('#FF5555', '¡Qué quilombo!', 
-            `No pude traer noticias, ${userName}. Error: ${error.message}. ¿Pusiste la clave de GNews en el .env, loco?`);
+            `No pude traer noticias, ${userName}. Error: ${error.message}. ¿Pusiste bien la clave de GNews en el .env, loco?`);
         await waitingMessage.edit({ embeds: [errorEmbed] });
     }
 }
@@ -2171,14 +2172,17 @@ async function manejarTraduci(message) {
         const langCode = langMap[targetLang];
 
         if (!langCode) {
-            throw new Error(`No sé traducir a "${targetLang}", ${userName}. Usá algo como "inglés", "ruso", "francés", etc.`);
+            throw new Error(`No sé traducir a "${targetLang}", ${userName}. Probá con "inglés", "ruso", "francés", etc.`);
         }
 
         const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=auto|${langCode}`;
+        console.log(`Pidiendo traducción a MyMemory: ${url}`);
         const response = await axios.get(url);
 
+        console.log('Respuesta de MyMemory:', JSON.stringify(response.data, null, 2));
+
         if (response.data.responseStatus !== 200) {
-            throw new Error(`Error en la API: ${response.data.responseDetails || 'Algo se rompió, che.'}`);
+            throw new Error(`La API falló, loco: ${response.data.responseDetails || 'No sé qué pasó, che.'}`);
         }
 
         const translated = response.data.responseData.translatedText;
@@ -2188,6 +2192,9 @@ async function manejarTraduci(message) {
         await waitingMessage.edit({ embeds: [embed] });
     } catch (error) {
         console.error(`Error traduciendo "${text}" a "${targetLang}": ${error.message}`);
+        if (error.response) {
+            console.error(`Respuesta de la API: ${JSON.stringify(error.response.data)}`);
+        }
         const errorEmbed = createEmbed('#FF5555', '¡Qué cagada!', 
             `${error.message}`);
         await waitingMessage.edit({ embeds: [errorEmbed] });
