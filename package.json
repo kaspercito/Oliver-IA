@@ -1,7 +1,7 @@
 {
   "name": "miguel-ia",
   "version": "1.0.0",
-  "description": "Un bot de Discord exclusivo para ella",
+  "description": "Un bot de Discord exclusivo para ella, ahora con Gemini IA",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
@@ -15,7 +15,8 @@
     "erela.js": "^2.4.0",
     "erela.js-spotify": "latest",
     "ytdl-core": "^4.11.5",
-    "lyrics-finder": "^21.7.0"
+    "lyrics-finder": "^21.7.0",
+    "@google/generative-ai": "^0.12.0"
   },
   "author": "Miguel",
   "license": "ISC"
