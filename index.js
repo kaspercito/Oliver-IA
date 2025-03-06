@@ -60,6 +60,11 @@ const BOT_UPDATES = [
     '¡Reacciones arregladas! Ahora se cancelan bien con !rc y no siguen tirando mensajes después de parar.',
     '¡Nuevo !idea agregado! Tirale ideas al bot con !id y las manda solo a Miguel por MD, ¡posta!',
     'Sincronizado triviaRanking con triviaStats pa’ que los puntajes sean posta y no haya más errores raros en el ranking.'
+    '¡Nuevo !dato / !dt agregado! Busco datos rápidos en la web o X pa’ que sepas todo al toque.',
+    '¡Clima al toque con !clima! Te digo cómo está el tiempo en cualquier ciudad, ideal pa’l asado o el mate.',
+    '¡Noticias rápidas con !noticias! Te traigo el último titular de Argentina, re copado.',
+    '¡Wiki Bot con !wiki! Busco resúmenes en Wikipedia pa’ que aprendas sin esfuerzo.',
+    '¡Traductor piola con !traducí! Traduzco frases cortas a cualquier idioma, joya pa’ practicar.'
 ];
 
 // Mensajes de ánimo para Belén
@@ -1984,6 +1989,159 @@ async function manejarIdea(message) {
     }
 }
 
+async function manejarDato(message) {
+    const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
+    const args = message.content.toLowerCase().startsWith('!dato') 
+        ? message.content.slice(5).trim() 
+        : message.content.slice(3).trim();
+
+    if (!args) {
+        return sendError(message.channel, `¡Tirame algo después de "!dato", ${userName}! ¿Qué querés saber, loco?`);
+    }
+
+    const waitingEmbed = createEmbed('#55FFFF', `⌛ Buscando, ${userName}...`, 
+        `Dame un segundo que ya te traigo el dato de "${args}"...`);
+    const waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
+
+    try {
+        const apiKey = process.env.GOOGLE_API_KEY;
+        const cx = process.env.GOOGLE_CX;
+        const url = `https://www.googleapis.com/customsearch/v1?key=${apiKey}&cx=${cx}&q=${encodeURIComponent(args)}&num=1`;
+        const response = await axios.get(url);
+        const result = response.data.items;
+
+        let reply = '';
+        if (!result || result.length === 0) {
+            throw new Error('No encontré nada posta, che.');
+        } else {
+            reply = result[0].snippet || 'No hay descripción, pero te lo resumo al toque.';
+        }
+
+        reply = reply.length > 200 ? `${reply.slice(0, 197)}...` : reply;
+
+        const embed = createEmbed('#FFD700', `📜 Dato sobre "${args}"`, 
+            `${reply}\n\n*Lo saqué de la web, che.*`);
+        await waitingMessage.edit({ embeds: [embed] });
+    } catch (error) {
+        console.error(`Error buscando "${args}": ${error.message}`);
+        const errorEmbed = createEmbed('#FF5555', '¡Qué cagada!', 
+            `No pude encontrar nada sobre "${args}", ${userName}. ¿Probamos con otra cosa, loco?`);
+        await waitingMessage.edit({ embeds: [errorEmbed] });
+    }
+}
+
+async function manejarClima(message) {
+    const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
+    const args = message.content.toLowerCase().startsWith('!clima') 
+        ? message.content.slice(6).trim() 
+        : message.content.slice(3).trim();
+
+    if (!args) {
+        return sendError(message.channel, `¡Decime una ciudad después de "!clima", ${userName}! Ejemplo: !clima Córdoba`);
+    }
+
+    const waitingEmbed = createEmbed('#55FFFF', `⛅ Chequeando el clima, ${userName}...`, 
+        `Aguantá que veo cómo está "${args}"...`);
+    const waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
+
+    try {
+        const apiKey = process.env.OPENWEATHER_API_KEY;
+        const url = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(args)}&appid=${apiKey}&units=metric&lang=es`;
+        const response = await axios.get(url);
+        const data = response.data;
+
+        const temp = Math.round(data.main.temp);
+        const desc = data.weather[0].description;
+        const city = data.name;
+        const country = data.sys.country;
+        const vibe = temp > 25 ? "pa’l asado" : temp < 10 ? "pa’ un mate calentito" : "tranqui";
+
+        const embed = createEmbed('#FFD700', `⛅ Clima en ${city}, ${country}`, 
+            `${temp}°C, ${desc}, ${vibe}.`);
+        await waitingMessage.edit({ embeds: [embed] });
+    } catch (error) {
+        console.error(`Error en clima para "${args}": ${error.message}`);
+        const errorEmbed = createEmbed('#FF5555', '¡Qué cagada!', 
+            `No pude encontrar el clima de "${args}", ${userName}. ¿Seguro que existe esa ciudad, loco?`);
+        await waitingMessage.edit({ embeds: [errorEmbed] });
+    }
+}
+
+async function manejarNoticias(message) {
+    const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
+
+    const waitingEmbed = createEmbed('#55FFFF', `📰 Buscando noticias, ${userName}...`, 
+        `Aguantá que te traigo lo último al toque...`);
+    const waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
+
+    try {
+        const apiKey = process.env.NEWSAPI_KEY;
+        const url = `https://newsapi.org/v2/top-headlines?country=ar&apiKey=${apiKey}&pageSize=1`;
+        const response = await axios.get(url);
+        const article = response.data.articles[0];
+
+        const title = article.title.split(' - ')[0];
+        const source = article.source.name;
+
+        const embed = createEmbed('#FFD700', `📰 Última Noticia`, 
+            `"${title}"\n*Fuente: ${source}, che.*`);
+        await waitingMessage.edit({ embeds: [embed] });
+    } catch (error) {
+        console.error(`Error en noticias: ${error.message}`);
+        const errorEmbed = createEmbed('#FF5555', '¡Qué quilombo!', 
+            `No pude traer noticias, ${userName}. ¿La API anda enojada o qué?`);
+        await waitingMessage.edit({ embeds: [errorEmbed] });
+    }
+}
+
+async function manejarWiki(message) {
+    const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
+    const args = message.content.toLowerCase().startsWith('!wiki') 
+        ? message.content.slice(5).trim() 
+        : message.content.slice(3).trim();
+
+    if (!args) {
+        return sendError(message.channel, `¡Tirame algo después de "!wiki", ${userName}! Ejemplo: !wiki tango`);
+    }
+
+    const waitingEmbed = createEmbed('#55FFFF', `📖 Buscando en Wiki, ${userName}...`, 
+        `Aguantá que te traigo info de "${args}"...`);
+    const waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
+
+    try {
+        const url = `https://es.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(args)}`;
+        const response = await axios.get(url);
+        const data = response.data;
+
+        const summary = data.extract.length > 200 
+            ? `${data.extract.slice(0, 197)}...` 
+            : data.extract;
+
+        const embed = createEmbed('#FFD700', `📖 Sobre "${data.title}"`, 
+            `${summary}\n*Sacado de Wikipedia, posta.*`);
+        await waitingMessage.edit({ embeds: [embed] });
+    } catch (error) {
+        console.error(`Error en wiki para "${args}": ${error.message}`);
+        const errorEmbed = createEmbed('#FF5555', '¡Qué cagada!', 
+            `No encontré nada en Wikipedia sobre "${args}", ${userName}. ¿Probamos otra cosa, loco?`);
+        await waitingMessage.edit({ embeds: [errorEmbed] });
+    }
+}
+
+async function manejarTraduci(message) {
+    const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
+    const args = message.content.toLowerCase().startsWith('!traducí') 
+        ? message.content.slice(8).trim().split(' a ') 
+        : message.content.slice(3).trim().split(' a ');
+
+    if (args.length < 2) {
+        return sendError(message.channel, `¡Escribí algo como "!traducí hola a inglés", ${userName}!`);
+    }
+
+    const text = args[0].trim();
+    const targetLang = args[1].trim();
+Sorry about that, something didn't go as planned. Please try again, and if you're still seeing this message, go ahead and restart the app.
+
 // Eventos de música con Erela.js
 manager.on('nodeConnect', node => console.log(`Nodo ${node.options.identifier} conectado.`));
 manager.on('nodeError', (node, error) => console.error(`Error en nodo ${node.options.identifier}: ${error.message}`));
@@ -2222,7 +2380,22 @@ async function manejarCommand(message) {
         await manejarResponder(message);
     }
     else if (content.startsWith('!idea') || content.startsWith('!id')) {
-    await manejarIdea(message);
+        await manejarIdea(message);
+    }    
+    else if (content.startsWith('!dato') || content.startsWith('!dt')) {
+        await manejarDato(message);
+    } 
+    else if (content.startsWith('!clima')) {
+        await manejarClima(message);
+    } 
+    else if (content === '!noticias') {
+        await manejarNoticias(message);
+    } 
+    else if (content.startsWith('!wiki')) {
+        await manejarWiki(message);
+    } 
+    else if (content.startsWith('!traducí')) {
+        await manejarTraduci(message);
     }
 }
 
@@ -2322,7 +2495,11 @@ client.on('messageCreate', async (message) => {
 
     // Otros comandos después
     await manejarCommand(message);
-
+    if (content.startsWith('!dato') || content.startsWith('!dt')) await manejarDato(message);
+    else if (content.startsWith('!clima')) await manejarClima(message);
+    else if (content === '!noticias') await manejarNoticias(message);
+    else if (content.startsWith('!wiki')) await manejarWiki(message);
+    else if (content.startsWith('!traducí')) await manejarTraduci(message);
     if (content === '!ranking' || content === '!rk') {
         const embed = getCombinedRankingEmbed(message.author.id, message.author.username);
         await message.channel.send({ embeds: [embed] });
@@ -2344,6 +2521,11 @@ client.on('messageCreate', async (message) => {
             '- **!save**: Guardo todo al toque, tranqui.\n' +
             '- **!as / !autosave**: Paro o arranco el guardado automático.\n' +
             '- **!act / !actualizaciones**: Mirá las últimas novedades del bot.\n' +
+            '- **!dt / !dato [pregunta]**: Te busco un dato rápido en la web o X, ¡posta!\n' +
+            '- **!clima [ciudad]**: Te digo el clima de cualquier ciudad, re útil.\n' +
+            '- **!noticias**: Te traigo el último titular de Argentina, al toque.\n' +
+            '- **!wiki [término]**: Busco un resumen en Wikipedia, ¡copado!\n' +
+            '- **!traducí [frase] a [idioma]**: Traduzco frases cortas, joya pa’ practicar.\n' +
             '- **!h / !help**: Esta lista, che.\n' +
             '- **!hm / !help musica**: Comandos para meterle música al día.\n' +
             '- **hola**: Te tiro un saludito con onda.');
