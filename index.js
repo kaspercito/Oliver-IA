@@ -2348,7 +2348,9 @@ async function manejarCommand(message) {
         }
         return;
     }
-    // Iniciar juegos y otros comandos
+    else if (content.startsWith('!traducí')) {
+        await manejarTraduci(message);
+    }
     else if (content.startsWith('!trivia') || content.startsWith('!tr')) {
         await manejarTrivia(message);
     } 
@@ -2439,9 +2441,6 @@ async function manejarCommand(message) {
     else if (content.startsWith('!wiki')) {
         await manejarWiki(message);
     } 
-    else if (content.startsWith('!traducí')) {
-        await manejarTraduci(message);
-    }
 }
 
 client.on('messageCreate', async (message) => {
@@ -2540,11 +2539,6 @@ client.on('messageCreate', async (message) => {
 
     // Otros comandos después
     await manejarCommand(message);
-    if (content.startsWith('!dato') || content.startsWith('!dt')) await manejarDato(message);
-    else if (content.startsWith('!clima')) await manejarClima(message);
-    else if (content === '!noticias') await manejarNoticias(message);
-    else if (content.startsWith('!wiki')) await manejarWiki(message);
-    else if (content.startsWith('!traducí')) await manejarTraduci(message);
     if (content === '!ranking' || content === '!rk') {
         const embed = getCombinedRankingEmbed(message.author.id, message.author.username);
         await message.channel.send({ embeds: [embed] });
