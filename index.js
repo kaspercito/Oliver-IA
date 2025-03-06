@@ -2076,17 +2076,17 @@ async function manejarNoticias(message) {
     const waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
 
     try {
-        const apiKey = process.env.GNEWS_API_KEY;
-        if (!apiKey) throw new Error('Falta la clave de GNews en el .env, loco.');
+        const apiKey = process.env.NEWSAPI_KEY; // Nueva variable en tu .env
+        if (!apiKey) throw new Error('Falta la clave de NewsAPI en el .env, loco.');
 
         // Noticias de Argentina
-        const urlAR = `https://gnews.io/api/v4/top-headlines?country=ar&max=3&lang=es&apikey=${apiKey}`;
+        const urlAR = `https://newsapi.org/v2/top-headlines?country=ar&category=general&language=es&apiKey=${apiKey}`;
         console.log(`Pidiendo noticias de Argentina a: ${urlAR}`);
         const responseAR = await axios.get(urlAR);
         const articlesAR = responseAR.data.articles || [];
 
         // Noticias de Ecuador
-        const urlEC = `https://gnews.io/api/v4/top-headlines?country=ec&max=3&lang=es&apikey=${apiKey}`;
+        const urlEC = `https://newsapi.org/v2/top-headlines?country=ec&category=general&language=es&apiKey=${apiKey}`;
         console.log(`Pidiendo noticias de Ecuador a: ${urlEC}`);
         const responseEC = await axios.get(urlEC);
         const articlesEC = responseEC.data.articles || [];
@@ -2112,7 +2112,7 @@ async function manejarNoticias(message) {
         }
 
         const embed = createEmbed('#FFD700', `📰 Últimas Noticias`, 
-            `**Argentina:** ${noticiaAR}\n\n**Ecuador:** ${noticiaEC}\n\n*Traído con onda desde GNews, che.*`);
+            `**Argentina:** ${noticiaAR}\n\n**Ecuador:** ${noticiaEC}\n\n*Traído con onda desde NewsAPI, che.*`);
         await waitingMessage.edit({ embeds: [embed] });
     } catch (error) {
         console.error(`Error en noticias: ${error.message}`);
@@ -2120,7 +2120,7 @@ async function manejarNoticias(message) {
             console.error(`Respuesta de la API: ${JSON.stringify(error.response.data)}`);
         }
         const errorEmbed = createEmbed('#FF5555', '¡Qué quilombo!', 
-            `No pude traer noticias copadas, ${userName}. Error: ${error.message}. ¿Probamos de nuevo o la API está rota, loco?`);
+            `No pude traer noticias copadas, ${userName}. Error: ${error.message}. ¿Probamos de nuevo, loco?`);
         await waitingMessage.edit({ embeds: [errorEmbed] });
     }
 }
