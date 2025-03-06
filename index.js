@@ -2076,20 +2076,20 @@ async function manejarNoticias(message) {
     const waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
 
     try {
-        const apiKey = process.env.NEWSAPI_KEY;
-        if (!apiKey) throw new Error('Falta la clave de NewsAPI en el .env, loco.');
-        
-        const url = `https://newsapi.org/v2/top-headlines?country=ar&apiKey=${apiKey}&pageSize=1`;
+        const apiKey = process.env.GNEWS_API_KEY;
+        if (!apiKey) throw new Error('Falta la clave de GNews en el .env, loco.');
+
+        const url = `https://gnews.io/api/v4/top-headlines?country=ar&max=1&lang=es&apikey=${apiKey}`;
         const response = await axios.get(url);
 
-        console.log('Respuesta de NewsAPI:', JSON.stringify(response.data, null, 2));
+        console.log('Respuesta de GNews:', JSON.stringify(response.data, null, 2));
 
         if (!response.data.articles || response.data.articles.length === 0) {
-            throw new Error(`No traje artículos. Estado: ${response.data.status}, Mensaje: ${response.data.message || 'Sin info'}`);
+            throw new Error('No traje artículos, la API devolvió vacío.');
         }
 
         const article = response.data.articles[0];
-        const title = article.title.split(' - ')[0];
+        const title = article.title;
         const source = article.source.name;
 
         const embed = createEmbed('#FFD700', `📰 Última Noticia`, 
@@ -2101,7 +2101,7 @@ async function manejarNoticias(message) {
             console.error(`Respuesta de la API: ${JSON.stringify(error.response.data)}`);
         }
         const errorEmbed = createEmbed('#FF5555', '¡Qué quilombo!', 
-            `No pude traer noticias, ${userName}. Error: ${error.message}. ¿La clave está bien puesta o ya gastaste los requests, loco?`);
+            `No pude traer noticias, ${userName}. Error: ${error.message}. ¿Pusiste la clave de GNews en el .env, loco?`);
         await waitingMessage.edit({ embeds: [errorEmbed] });
     }
 }
@@ -2174,30 +2174,20 @@ async function manejarTraduci(message) {
             throw new Error(`No sé traducir a "${targetLang}", ${userName}. Usá algo como "inglés", "ruso", "francés", etc.`);
         }
 
-        const requestBody = {
-            q: text,
-            source: 'auto',
-            target: langCode,
-            format: 'text'
-        };
-        console.log(`Enviando a LibreTranslate: ${JSON.stringify(requestBody)}`);
+        const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=auto|${langCode}`;
+        const response = await axios.get(url);
 
-        const response = await axios.post(
-            'https://libretranslate.com/translate',
-            requestBody,
-            { headers: { 'Content-Type': 'application/json' } }
-        );
+        if (response.data.responseStatus !== 200) {
+            throw new Error(`Error en la API: ${response.data.responseDetails || 'Algo se rompió, che.'}`);
+        }
 
-        const translated = response.data.translatedText;
+        const translated = response.data.responseData.translatedText;
 
         const embed = createEmbed('#FFD700', `✅ Traducción a ${targetLang}`, 
             `"${text}" → **${translated}**\n*Traducido con onda, che.*`);
         await waitingMessage.edit({ embeds: [embed] });
     } catch (error) {
         console.error(`Error traduciendo "${text}" a "${targetLang}": ${error.message}`);
-        if (error.response) {
-            console.error(`Respuesta de la API: ${JSON.stringify(error.response.data)}`);
-        }
         const errorEmbed = createEmbed('#FF5555', '¡Qué cagada!', 
             `${error.message}`);
         await waitingMessage.edit({ embeds: [errorEmbed] });
