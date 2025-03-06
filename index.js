@@ -2080,13 +2080,13 @@ async function manejarNoticias(message) {
         if (!apiKey) throw new Error('Falta la clave de GNews en el .env, loco.');
 
         // Noticias de Argentina
-        const urlAR = `https://gnews.io/api/v4/top-headlines?country=ar&max=1&lang=es&apikey=${apiKey}`;
+        const urlAR = `https://gnews.io/api/v4/top-headlines?country=ar&max=3&lang=es&apikey=${apiKey}`;
         console.log(`Pidiendo noticias de Argentina a: ${urlAR}`);
         const responseAR = await axios.get(urlAR);
         const articlesAR = responseAR.data.articles || [];
-        
+
         // Noticias de Ecuador
-        const urlEC = `https://gnews.io/api/v4/top-headlines?country=ec&max=1&lang=es&apikey=${apiKey}`;
+        const urlEC = `https://gnews.io/api/v4/top-headlines?country=ec&max=3&lang=es&apikey=${apiKey}`;
         console.log(`Pidiendo noticias de Ecuador a: ${urlEC}`);
         const responseEC = await axios.get(urlEC);
         const articlesEC = responseEC.data.articles || [];
@@ -2098,17 +2098,17 @@ async function manejarNoticias(message) {
             throw new Error('No encontré noticias ni de Argentina ni de Ecuador, qué cagada.');
         }
 
-        // Chequeamos que las noticias sean del país correcto
-        const noticiaAR = articlesAR.length > 0 && articlesAR[0].source.url.includes('.ar') 
-            ? `"${articlesAR[0].title}"\n*Fuente: ${articlesAR[0].source.name}*` 
-            : 'No encontré una noticia posta de Argentina, loco.';
-        const noticiaEC = articlesEC.length > 0 && articlesEC[0].source.url.includes('.ec') 
-            ? `"${articlesEC[0].title}"\n*Fuente: ${articlesEC[0].source.name}*` 
-            : 'No encontré una noticia posta de Ecuador, loco.';
+        // Elegimos una noticia de Argentina
+        let noticiaAR = 'No encontré una noticia posta de Argentina, loco.';
+        if (articlesAR.length > 0) {
+            noticiaAR = `"${articlesAR[0].title}"\n*Fuente: ${articlesAR[0].source.name}*`;
+        }
 
-        // Si las noticias son iguales, avisamos
-        if (articlesAR.length > 0 && articlesEC.length > 0 && articlesAR[0].title === articlesEC[0].title) {
-            throw new Error('La API me dio la misma noticia para los dos países, ¡qué boludo!');
+        // Elegimos una noticia de Ecuador diferente
+        let noticiaEC = 'No encontré una noticia posta de Ecuador, loco.';
+        if (articlesEC.length > 0) {
+            const ecFiltered = articlesEC.find(article => article.title !== articlesAR[0]?.title) || articlesEC[0];
+            noticiaEC = `"${ecFiltered.title}"\n*Fuente: ${ecFiltered.source.name}*`;
         }
 
         const embed = createEmbed('#FFD700', `📰 Últimas Noticias`, 
@@ -2193,21 +2193,17 @@ async function manejarTraduci(message) {
             throw new Error(`No sé traducir a "${targetLang}", ${userName}. Probá con "inglés", "ruso", "francés", etc.`);
         }
 
-        const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=es|${langCode}`;
-        console.log(`Pidiendo traducción a MyMemory: ${url}`);
+        // Usamos una API alternativa porque MyMemory está fallando
+        const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=es&tl=${langCode}&dt=t&q=${encodeURIComponent(text)}`;
+        console.log(`Pidiendo traducción a Google Translate: ${url}`);
         const response = await axios.get(url);
 
-        console.log('Respuesta de MyMemory:', JSON.stringify(response.data, null, 2));
+        console.log('Respuesta de Google Translate:', JSON.stringify(response.data, null, 2));
 
-        if (response.data.responseStatus !== 200) {
-            throw new Error(`La API falló, loco: ${response.data.responseDetails || 'No sé qué pasó, che.'}`);
-        }
+        const translated = response.data[0][0][0]; // Google devuelve un array raro, esto saca el texto traducido
 
-        const translated = response.data.responseData.translatedText;
-
-        // Chequeamos si la traducción es igual al original (falló)
-        if (translated.toLowerCase() === text.toLowerCase()) {
-            throw new Error(`¡Qué boludo! La traducción salió igual que el original: "${translated}". ¿MyMemory está dormido o qué?`);
+        if (!translated || translated.toLowerCase() === text.toLowerCase()) {
+            throw new Error(`¡Qué boludo! La traducción salió igual que el original: "${translated}". ¿La API está rota o qué?`);
         }
 
         const embed = createEmbed('#FFD700', `✅ Traducción a ${targetLang.charAt(0).toUpperCase() + targetLang.slice(1)}`, 
