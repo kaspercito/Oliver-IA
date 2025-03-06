@@ -5,6 +5,7 @@ const { v4: uuidv4 } = require('uuid');
 const { Manager } = require('erela.js');
 const Spotify = require('erela.js-spotify');
 const lyricsFinder = require('lyrics-finder');
+const { GoogleGenerativeAI } = require('@google/generative-ai');
 require('dotenv').config();
 
 const client = new Client({
@@ -1510,6 +1511,9 @@ async function manejarLyrics(message) {
 }
 
 // Chat
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' }); // Usamos Flash por velocidad
+
 async function manejarChat(message) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
     const chatMessage = message.content.startsWith('!chat') ? message.content.slice(5).trim() : message.content.slice(3).trim();
@@ -1522,35 +1526,25 @@ async function manejarChat(message) {
     const waitingEmbed = createEmbed('#55FFFF', `¡Aguantá un toque, ${userName}!`, 'Estoy pensando una respuesta re copada para vos...', 'Hecho con onda por Miguel IA | Reacciona con ✅ o ❌');
     const waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
 
-    try {    
-        const prompt = `Sos Oliver IA, creado por Miguel, un loco re piola. Respondé a "${chatMessage}" con buena onda, al estilo argentino, bien relajado pero con cabeza, che. Usá palabras como "copado", "joya", "boludo", "re", "dale", "posta", "genial" o "loco". Si es para Belén, hablale con cariño como "grosa" o "genia". Si dice "dile a Belén" (o algo como "Rattus norvegicus albinus"), pasale el mensaje a ella pero incluí al que lo mandó para seguir la charla. Sé re claro, respondé solo lo que te piden con lo que sabés, sin chamuyo. Si es algo matemático, tirá un ejemplo práctico paso a paso con números (inventá si no hay datos) y pedí más info con onda tipo "dame más data, loco". Si es un saludo, devolvé buena vibra; si no sabés, decí con humor que te falta data y tirá opciones. Terminá siempre con "¿Te cerró esa respuesta, ${userName}? ¿Seguimos charlando, che?" para mantener el mambo.`;
+    try {
+        // Armamos el prompt con tu toque personal
+        const prompt = `Sos Oliver IA, un bot re piola con onda argentina creado por Miguel. Hablá en argentino, usá "loco", "che", "posta" y demás. Respondé a: "${chatMessage}" como si fueras un amigo re zarpado.`;
 
-        const response = await axios.post(
-            'https://api-inference.huggingface.co/models/mistralai/Mixtral-7B-v0.1',
-            {
-                inputs: prompt,
-                parameters: {
-                    max_new_tokens: 500,
-                    return_full_text: false,
-                    temperature: 0.6
-                }
-            },
-            {
-                headers: {
-                    'Authorization': `Bearer ${process.env.HF_API_TOKEN}`,
-                    'Content-Type': 'application/json'
-                },
-                timeout: 120000
-            }
-        );
+        // Llamamos a Gemini
+        const result = await model.generateContent(prompt);
+        let aiReply = result.response.text().trim();
 
-        let aiReply = response.data[0]?.generated_text?.trim();
-        console.log(`Respuesta de API: ${aiReply}`); // Log pa’ debug
+        console.log(`Respuesta de Gemini: ${aiReply}`); // Log pa’ debug
 
         if (!aiReply || aiReply.length < 10) {
             console.log(`Respuesta vacía o corta pa’ "${chatMessage}": ${aiReply}`);
             aiReply = `¡Qué cagada, ${userName}! No me salió bien la respuesta, loco. ¿Me das más pistas para cacharlo o seguimos con otro mambo?`;
             aiReply += `\n\n¿Te cerró esa respuesta, ${userName}? ¿Seguimos charlando, che?`;
+        }
+
+        // Si es muy largo, lo cortamos por el límite de Discord (2000 caracteres)
+        if (aiReply.length > 2000) {
+            aiReply = aiReply.slice(0, 1990) + '... (seguí charlando pa’ más, loco)';
         }
 
         const finalEmbed = createEmbed('#55FFFF', `¡Aquí estoy, ${userName}!`, aiReply, 'Con cariño, Oliver IA | Reacciona con ✅ o ❌');
@@ -1560,15 +1554,14 @@ async function manejarChat(message) {
         sentMessages.set(updatedMessage.id, { content: aiReply, originalQuestion: chatMessage, message: updatedMessage });
 
     } catch (error) {
-        console.error('Error en !chat con API:', error.message, error.response?.data || 'Sin más data');
-        let fallbackReply = `¡Uy, ${userName}, qué onda! Algo falló por aquí, ${userTerm}. ${error.code === 'ECONNABORTED' ? 'La conexión se cortó, tardó demasiado.' : `Error: ${error.message}.`} ¿Me tirás otra vez tu mensaje o seguimos con otra vaina?`;
+        console.error('Error con Gemini:', error.message, error.response?.data || 'Sin más data');
+        let fallbackReply = `¡Uy, ${userName}, qué onda! Algo falló por aquí, ${userTerm}. ${error.message.includes('timeout') ? 'La conexión se cortó, tardó demasiado.' : `Error: ${error.message}.`} ¿Me tirás otra vez tu mensaje o seguimos con otra vaina?`;
         fallbackReply += `\n\n¿Te cerró esa respuesta, ${userName}? ¿Seguimos charlando o qué, ${userTerm}?`;
 
         const errorEmbed = createEmbed('#FF5555', `¡Qué cagada, ${userName}!`, fallbackReply, 'Hecho con onda por Miguel IA | Reacciona con ✅ o ❌');
         const errorMessageSent = await waitingMessage.edit({ embeds: [errorEmbed] });
         await errorMessageSent.react('✅');
         await errorMessageSent.react('❌');
-        sentMessages.set(errorMessageSent.id, { content: fallbackReply, originalQuestion: chatMessage, message: errorMessageSent });
     }
 }
 
