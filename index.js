@@ -2140,7 +2140,51 @@ async function manejarTraduci(message) {
 
     const text = args[0].trim();
     const targetLang = args[1].trim();
-Sorry about that, something didn't go as planned. Please try again, and if you're still seeing this message, go ahead and restart the app.
+
+    const waitingEmbed = createEmbed('#55FFFF', `✍️ Traduciendo, ${userName}...`, 
+        `Aguantá que traduzco "${text}" a ${targetLang}...`);
+    const waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
+
+    try {
+        // Mapa básico de idiomas pa’ simplificar
+        const langMap = {
+            'inglés': 'en',
+            'ingles': 'en',
+            'español': 'es',
+            'espanol': 'es',
+            'francés': 'fr',
+            'frances': 'fr',
+            'italiano': 'it',
+            'portugués': 'pt',
+            'portugues': 'pt',
+            'alemán': 'de',
+            'aleman': 'de'
+        };
+        const langCode = langMap[targetLang] || targetLang;
+
+        const response = await axios.post(
+            'https://libretranslate.com/translate',
+            {
+                q: text,
+                source: 'auto',
+                target: langCode,
+                format: 'text'
+            },
+            { headers: { 'Content-Type': 'application/json' } }
+        );
+
+        const translated = response.data.translatedText;
+
+        const embed = createEmbed('#FFD700', `✅ Traducción a ${targetLang}`, 
+            `"${text}" → **${translated}**\n*Traducido con onda, che.*`);
+        await waitingMessage.edit({ embeds: [embed] });
+    } catch (error) {
+        console.error(`Error traduciendo "${text}" a "${targetLang}": ${error.message}`);
+        const errorEmbed = createEmbed('#FF5555', '¡Qué cagada!', 
+            `No pude traducir "${text}" a ${targetLang}, ${userName}. ¿Probamos con otro idioma o frase, loco?`);
+        await waitingMessage.edit({ embeds: [errorEmbed] });
+    }
+}
 
 // Eventos de música con Erela.js
 manager.on('nodeConnect', node => console.log(`Nodo ${node.options.identifier} conectado.`));
