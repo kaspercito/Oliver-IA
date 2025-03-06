@@ -1522,7 +1522,7 @@ async function manejarChat(message) {
     const waitingEmbed = createEmbed('#55FFFF', `¡Aguantá un toque, ${userName}!`, 'Estoy pensando una respuesta re copada para vos...', 'Hecho con onda por Miguel IA | Reacciona con ✅ o ❌');
     const waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
 
-    try {
+    try {    
         const prompt = `Sos Oliver IA, creado por Miguel, un loco re piola. Respondé a "${chatMessage}" con buena onda, al estilo argentino, bien relajado pero con cabeza, che. Usá palabras como "copado", "joya", "boludo", "re", "dale", "posta", "genial" o "loco". Si es para Belén, hablale con cariño como "grosa" o "genia". Si dice "dile a Belén" (o algo como "Rattus norvegicus albinus"), pasale el mensaje a ella pero incluí al que lo mandó para seguir la charla. Sé re claro, respondé solo lo que te piden con lo que sabés, sin chamuyo. Si es algo matemático, tirá un ejemplo práctico paso a paso con números (inventá si no hay datos) y pedí más info con onda tipo "dame más data, loco". Si es un saludo, devolvé buena vibra; si no sabés, decí con humor que te falta data y tirá opciones. Terminá siempre con "¿Te cerró esa respuesta, ${userName}? ¿Seguimos charlando, che?" para mantener el mambo.`;
 
         const response = await axios.post(
@@ -1532,7 +1532,7 @@ async function manejarChat(message) {
                 parameters: {
                     max_new_tokens: 500,
                     return_full_text: false,
-                    temperature: 0.6
+                    DM temperature: 0.6
                 }
             },
             {
@@ -1540,22 +1540,16 @@ async function manejarChat(message) {
                     'Authorization': `Bearer ${process.env.HF_API_TOKEN}`,
                     'Content-Type': 'application/json'
                 },
-                timeout: 120000 // Subimos a 2 minutos pa’ darle chance
+                timeout: 120000
             }
         );
 
         let aiReply = response.data[0]?.generated_text?.trim();
+        console.log(`Respuesta de API: ${aiReply}`); // Log pa’ debug
 
         if (!aiReply || aiReply.length < 10) {
             console.log(`Respuesta vacía o corta pa’ "${chatMessage}": ${aiReply}`);
-            // Respuesta de respaldo más útil según el contexto
-            if (chatMessage.toLowerCase().includes('triangulo')) {
-                aiReply = `¡Qué quilombo, ${userName}! Se me trabó el mate, loco, pero igual te la hago corta. Si es un triángulo equilátero, todos los lados son iguales. Ejemplo: si el perímetro es 18, hacés 18 ÷ 3 = 6, cada lado mide 6. ¿Tenés más data de tu triángulo? ¡Tirame algo y lo resolvemos, dale!`;
-            } else if (chatMessage.toLowerCase().includes('catetos')) {
-                aiReply = `¡Uy, ${userName}, se me fue el bondi! Pero tranqui, loco, para los catetos de un triángulo rectángulo usás Pitágoras: a² + b² = c². Si la hipotenusa es 5 y un cateto 3, hacés 5² - 3² = 25 - 9 = 16, y el otro cateto es √16 = 4. ¿Qué datos tenés? ¡Mandamelos y lo sacamos al toque!`;
-            } else {
-                aiReply = `¡Qué cagada, ${userName}! No me salió bien la respuesta, loco. ¿Me das más pistas para cacharlo o seguimos con otro mambo?`;
-            }
+            aiReply = `¡Qué cagada, ${userName}! No me salió bien la respuesta, loco. ¿Me das más pistas para cacharlo o seguimos con otro mambo?`;
             aiReply += `\n\n¿Te cerró esa respuesta, ${userName}? ¿Seguimos charlando, che?`;
         }
 
@@ -1566,20 +1560,15 @@ async function manejarChat(message) {
         sentMessages.set(updatedMessage.id, { content: aiReply, originalQuestion: chatMessage, message: updatedMessage });
 
     } catch (error) {
-        console.error('Error en !chat con API:', error.message);
-        let fallbackReply;
-        if (chatMessage.toLowerCase().includes('triangulo')) {
-            fallbackReply = `¡Uy, ${userName}, qué webada! La conexión falló, ${userTerm}, pero te ayudo igual. Pa’ un triángulo equilátero, los lados son iguales. Si el perímetro es 15, haces 15 ÷ 3 = 5, cada lado es 5. ¿Qué datos tienes? ¡Tíralos y lo resolvemos!`;
-        } else if (chatMessage.toLowerCase().includes('catetos')) {
-            fallbackReply = `¡Qué onda, ${userName}! Algo se trabó, ${userTerm}, pero pa’ los catetos usas Pitágoras: a² + b² = c². Ejemplo: hipotenusa 13, cateto 5, haces 13² - 5² = 169 - 25 = 144, y el otro cateto es √144 = 12. ¿Qué tienes pa’ tu triángulo?`;
-        } else {
-            fallbackReply = `¡Uy, ${userName}, qué onda! Algo falló por aquí, ${userTerm}. ${error.code === 'ECONNABORTED' ? 'La conexión se cortó, tardó demasiado.' : `Error: ${error.message}.`} ¿Me tiras otra vez tu mensaje o seguimos con otra vaina?`;
-        }
-        fallbackReply += `\n\n¿Te cacha esa respuesta, ${userName}? ¿Seguimos charlando o qué, ${userTerm}?`;
-        const finalEmbed = createEmbed('#55FFFF', `¡Acá tenés, ${userName}!`, aiReply, 'Hecho con onda por Miguel IA | Reacciona con ✅ o ❌');
+        console.error('Error en !chat con API:', error.message, error.response?.data || 'Sin más data');
+        let fallbackReply = `¡Uy, ${userName}, qué onda! Algo falló por aquí, ${userTerm}. ${error.code === 'ECONNABORTED' ? 'La conexión se cortó, tardó demasiado.' : `Error: ${error.message}.`} ¿Me tirás otra vez tu mensaje o seguimos con otra vaina?`;
+        fallbackReply += `\n\n¿Te cerró esa respuesta, ${userName}? ¿Seguimos charlando o qué, ${userTerm}?`;
+
+        const errorEmbed = createEmbed('#FF5555', `¡Qué cagada, ${userName}!`, fallbackReply, 'Hecho con onda por Miguel IA | Reacciona con ✅ o ❌');
         const errorMessageSent = await waitingMessage.edit({ embeds: [errorEmbed] });
         await errorMessageSent.react('✅');
         await errorMessageSent.react('❌');
+        sentMessages.set(errorMessageSent.id, { content: fallbackReply, originalQuestion: chatMessage, message: errorMessageSent });
     }
 }
 
