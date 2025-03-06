@@ -2082,8 +2082,10 @@ async function manejarNoticias(message) {
         const url = `https://newsapi.org/v2/top-headlines?country=ar&apiKey=${apiKey}&pageSize=1`;
         const response = await axios.get(url);
 
+        console.log('Respuesta de NewsAPI:', JSON.stringify(response.data, null, 2));
+
         if (!response.data.articles || response.data.articles.length === 0) {
-            throw new Error('No traje artículos, la API devolvió vacío.');
+            throw new Error(`No traje artículos. Estado: ${response.data.status}, Mensaje: ${response.data.message || 'Sin info'}`);
         }
 
         const article = response.data.articles[0];
@@ -2095,8 +2097,11 @@ async function manejarNoticias(message) {
         await waitingMessage.edit({ embeds: [embed] });
     } catch (error) {
         console.error(`Error en noticias: ${error.message}`);
+        if (error.response) {
+            console.error(`Respuesta de la API: ${JSON.stringify(error.response.data)}`);
+        }
         const errorEmbed = createEmbed('#FF5555', '¡Qué quilombo!', 
-            `No pude traer noticias, ${userName}. Error: ${error.message}. ¿La clave está bien puesta en el .env, loco?`);
+            `No pude traer noticias, ${userName}. Error: ${error.message}. ¿La clave está bien puesta o ya gastaste los requests, loco?`);
         await waitingMessage.edit({ embeds: [errorEmbed] });
     }
 }
@@ -2146,7 +2151,7 @@ async function manejarTraduci(message) {
     }
 
     const text = args[0].trim();
-    const targetLang = args[1].trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, ""); // Normalizamos
+    const targetLang = args[1].trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 
     const waitingEmbed = createEmbed('#55FFFF', `✍️ Traduciendo, ${userName}...`, 
         `Aguantá que traduzco "${text}" a ${targetLang}...`);
@@ -2161,18 +2166,25 @@ async function manejarTraduci(message) {
             'italiano': 'it',
             'portugues': 'pt',
             'aleman': 'de',
-            'ruso': 'ru' // Sumamos ruso
+            'ruso': 'ru'
         };
-        const langCode = langMap[targetLang] || targetLang;
+        const langCode = langMap[targetLang];
+
+        if (!langCode) {
+            throw new Error(`No sé traducir a "${targetLang}", ${userName}. Usá algo como "inglés", "ruso", "francés", etc.`);
+        }
+
+        const requestBody = {
+            q: text,
+            source: 'auto',
+            target: langCode,
+            format: 'text'
+        };
+        console.log(`Enviando a LibreTranslate: ${JSON.stringify(requestBody)}`);
 
         const response = await axios.post(
             'https://libretranslate.com/translate',
-            {
-                q: text,
-                source: 'auto',
-                target: langCode,
-                format: 'text'
-            },
+            requestBody,
             { headers: { 'Content-Type': 'application/json' } }
         );
 
@@ -2183,8 +2195,11 @@ async function manejarTraduci(message) {
         await waitingMessage.edit({ embeds: [embed] });
     } catch (error) {
         console.error(`Error traduciendo "${text}" a "${targetLang}": ${error.message}`);
+        if (error.response) {
+            console.error(`Respuesta de la API: ${JSON.stringify(error.response.data)}`);
+        }
         const errorEmbed = createEmbed('#FF5555', '¡Qué cagada!', 
-            `No pude traducir "${text}" a ${targetLang}, ${userName}. ¿Seguro que el idioma está bien escrito, loco?`);
+            `${error.message}`);
         await waitingMessage.edit({ embeds: [errorEmbed] });
     }
 }
