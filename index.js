@@ -1515,13 +1515,15 @@ async function manejarChat(message) {
     const chatMessage = message.content.startsWith('!chat') ? message.content.slice(5).trim() : message.content.slice(3).trim();
     const userTerm = userName === 'Miguel' ? 'pelado' : 'pelada';
 
-    // Chequeo para evitar procesar mensajes vacíos o repetidos
+    // Chequeo para evitar procesar mensajes vacíos
     if (!chatMessage) {
         return sendError(message.channel, `¡Escribí algo después de "!ch", ${userName}! No me dejes colgado, che.`, undefined, 'Hecho con onda por Oliver IA | Reacciona con ✅ o ❌');
     }
+
+    // Chequeo de mensajes repetidos
     if (processedMessages.has(message.id)) {
         console.log(`Mensaje ${message.id} ya procesado, ignorando...`);
-        return;
+        return sendError(message.channel, `¡Pará un cacho, ${userName}!`, `Ya estoy laburando con ese mensaje, genia. Aguantá unos segundos y probá de nuevo, ¿dale?`, 'Hecho con onda por Oliver IA');
     }
     processedMessages.set(message.id, Date.now());
 
@@ -1552,14 +1554,13 @@ async function manejarChat(message) {
                     'Authorization': `Bearer ${process.env.HF_API_TOKEN}`,
                     'Content-Type': 'application/json'
                 },
-                timeout: 30000 // Reducimos a 30 segundos para evitar esperas largas
+                timeout: 30000
             }
         );
 
         let aiReply = response.data[0]?.generated_text?.trim();
         if (!aiReply || aiReply.length < 10) {
             console.log(`Respuesta vacía o corta para "${chatMessage}": ${aiReply}`);
-            // Respuesta de respaldo útil para ecuaciones lineales
             if (isLinearEquation) {
                 aiReply = `¡Qué lindo desafío, ${userName}! Te ayudo con las ecuaciones lineales al toque, genia. Mirá, para resolver algo como **2x + 3 = 7**, hacés esto: primero restás 3 a los dos lados, te queda **2x = 4**, después dividís entre 2 y listo, **x = 2**. ¿Tenés alguna ecuación específica pa’ resolver? ¡Dame más data, loco, y la sacamos juntos!`;
             } else {
@@ -1590,7 +1591,6 @@ async function manejarChat(message) {
         await errorMessageSent.react('❌');
         sentMessages.set(errorMessageSent.id, { content: fallbackReply, originalQuestion: chatMessage, message: errorMessageSent });
     } finally {
-        // Limpiamos processedMessages después de procesar
         setTimeout(() => processedMessages.delete(message.id), 10000);
     }
 }
