@@ -2072,29 +2072,42 @@ async function manejarNoticias(message) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
 
     const waitingEmbed = createEmbed('#55FFFF', `📰 Buscando noticias, ${userName}...`, 
-        `Aguantá que te traigo lo último al toque...`);
+        `Aguantá que te traigo lo último de Argentina y Ecuador al toque...`);
     const waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
 
     try {
         const apiKey = process.env.GNEWS_API_KEY;
         if (!apiKey) throw new Error('Falta la clave de GNews en el .env, loco.');
 
-        const url = `https://gnews.io/api/v4/top-headlines?country=ar&max=1&lang=es&apikey=${apiKey}`;
-        console.log(`Pidiendo noticias a: ${url}`);
-        const response = await axios.get(url);
+        // Pedido para Argentina
+        const urlAR = `https://gnews.io/api/v4/top-headlines?country=ar&max=1&lang=es&apikey=${apiKey}`;
+        console.log(`Pidiendo noticias de Argentina a: ${urlAR}`);
+        const responseAR = await axios.get(urlAR);
 
-        console.log('Respuesta de GNews:', JSON.stringify(response.data, null, 2));
+        // Pedido para Ecuador
+        const urlEC = `https://gnews.io/api/v4/top-headlines?country=ec&max=1&lang=es&apikey=${apiKey}`;
+        console.log(`Pidiendo noticias de Ecuador a: ${urlEC}`);
+        const responseEC = await axios.get(urlEC);
 
-        if (!response.data.articles || response.data.articles.length === 0) {
-            throw new Error('No traje artículos, la API devolvió vacío. ¿Está todo bien con la clave?');
+        console.log('Respuesta de GNews AR:', JSON.stringify(responseAR.data, null, 2));
+        console.log('Respuesta de GNews EC:', JSON.stringify(responseEC.data, null, 2));
+
+        const articlesAR = responseAR.data.articles || [];
+        const articlesEC = responseEC.data.articles || [];
+
+        if (articlesAR.length === 0 && articlesEC.length === 0) {
+            throw new Error('No traje artículos de ningún lado, che. ¿La API está viva?');
         }
 
-        const article = response.data.articles[0];
-        const title = article.title;
-        const source = article.source.name;
+        const noticiaAR = articlesAR.length > 0 
+            ? `"${articlesAR[0].title}"\n*Fuente: ${articlesAR[0].source.name}*` 
+            : 'No encontré noticias de Argentina hoy, loco.';
+        const noticiaEC = articlesEC.length > 0 
+            ? `"${articlesEC[0].title}"\n*Fuente: ${articlesEC[0].source.name}*` 
+            : 'No encontré noticias de Ecuador hoy, loco.';
 
-        const embed = createEmbed('#FFD700', `📰 Última Noticia`, 
-            `"${title}"\n*Fuente: ${source}, che.*`);
+        const embed = createEmbed('#FFD700', `📰 Últimas Noticias`, 
+            `**Argentina:** ${noticiaAR}\n\n**Ecuador:** ${noticiaEC}\n\n*Al toque desde GNews, che.*`);
         await waitingMessage.edit({ embeds: [embed] });
     } catch (error) {
         console.error(`Error en noticias: ${error.message}`);
@@ -2102,7 +2115,7 @@ async function manejarNoticias(message) {
             console.error(`Respuesta de la API: ${JSON.stringify(error.response.data)}`);
         }
         const errorEmbed = createEmbed('#FF5555', '¡Qué quilombo!', 
-            `No pude traer noticias, ${userName}. Error: ${error.message}. ¿Pusiste bien la clave de GNews en el .env, loco?`);
+            `No pude traer noticias, ${userName}. Error: ${error.message}. ¿La clave de GNews está bien puesta, loco?`);
         await waitingMessage.edit({ embeds: [errorEmbed] });
     }
 }
@@ -2175,7 +2188,7 @@ async function manejarTraduci(message) {
             throw new Error(`No sé traducir a "${targetLang}", ${userName}. Probá con "inglés", "ruso", "francés", etc.`);
         }
 
-        const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=auto|${langCode}`;
+        const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=es|${langCode}`;
         console.log(`Pidiendo traducción a MyMemory: ${url}`);
         const response = await axios.get(url);
 
@@ -2188,7 +2201,7 @@ async function manejarTraduci(message) {
         const translated = response.data.responseData.translatedText;
 
         const embed = createEmbed('#FFD700', `✅ Traducción a ${targetLang}`, 
-            `"${text}" → **${translated}**\n*Traducido con onda, che.*`);
+            `"${text}" → **${translated}**\n*Traducido con onda desde español, che.*`);
         await waitingMessage.edit({ embeds: [embed] });
     } catch (error) {
         console.error(`Error traduciendo "${text}" a "${targetLang}": ${error.message}`);
