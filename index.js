@@ -1511,14 +1511,19 @@ async function manejarLyrics(message) {
 
 // Chat
 async function manejarChat(message) {
-    const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
-    const chatMessage = message.content.startsWith('!chat') ? message.content.slice(5).trim() : message.content.slice(3).trim();
-    const userTerm = userName === 'Miguel' ? 'pelado' : 'pelada';
+    if (processedMessages.has(message.id)) {
+        console.log(`[DUPLICADO] Mensaje ya procesado: ${message.id}`);
+        return;
+    }
+    processedMessages.add(message.id);
+
+    const userName = message.author.id === process.env.OWNER_ID ? 'Miguel' : 'Belén';
+    const chatMessage = message.content.startsWith('!chat') ? message.content.slice(5).trim() : message.content.trim();
 
     console.log(`[CHAT] Iniciando para ${userName}, mensaje: "${chatMessage}"`);
     
     if (!chatMessage) {
-        return sendError(message.channel, `¡Escribí algo después de "!chat", ${userName}! No me dejes colgado, che.`, undefined, 'Hecho con onda por Oliver IA | Reacciona con ✅ o ❌');
+        return message.channel.send({ embeds: [createEmbed('#FF5555', `¡Epa, ${userName}!`, '¡Tirame algo después de "!chat", loco! No me dejes en banda.', 'Hecho con onda por Oliver IA')] });
     }
 
     const waitingEmbed = createEmbed('#55FFFF', `¡Aguantá un toque, ${userName}!`, 'Estoy pensando una respuesta re copada para vos...', 'Hecho con onda por Oliver IA | Reacciona con ✅ o ❌');
@@ -1526,42 +1531,42 @@ async function manejarChat(message) {
 
     try {
         console.log(`[CHAT] Construyendo prompt para "${chatMessage}"`);
-        const prompt = `Sos Oliver IA, creado por Miguel, un loco re piola. Respondé a "${chatMessage}" con buena onda, al estilo argentino, bien relajado pero con cabeza, che. Usá palabras como "copado", "joya", "boludo", "re", "dale", "posta", "genial" o "loco". Si te piden ayuda con ecuaciones lineales, explicá cómo resolverlas rápido paso a paso con un ejemplo práctico (como 2x + 3 = 7) y pedí más datos si hace falta con onda tipo "dame más data, loco". Si es para Belén, hablale con cariño como "grosa" o "genia". Sé re claro, respondé solo lo que te piden con lo que sabés, sin chamuyo. Terminá siempre con "¿Te cerró esa respuesta, ${userName}? ¿Seguimos charlando, che?" para mantener el mambo.`;
+        const prompt = `Sos Oliver IA, creado por Miguel, un loco re piola. Respondé a "${chatMessage}" con buena onda, al estilo argentino, bien relajado pero con cabeza, che. Usá palabras como "copado", "joya", "boludo", "re", "dale", "posta", "genial" o "loco". Si te piden ayuda con ecuaciones lineales, explicá cómo resolverlas rápido paso a paso con un ejemplo práctico (como 2x + 3 = 7) y pedí más datos si hace falta con onda tipo "dame más data, loco". Si es para Belén, hablale con cariño como "grosa" o "genia". Sé re claro, respondé solo lo que te piden con lo que sabés, sin chamuyo. Terminá siempre con "¿Te cerró esa respuesta, ${userName}? ¿Seguimos charlando, che?"`;
 
         console.log(`[CHAT] Enviando request a API para "${chatMessage}"`);
         const response = await axios.post(
-            'https://api-inference.huggingface.co/models/mistralai/Mixtral-8x7B-Instruct-v0.1',
+            'https://api-inference.huggingface.co/models/mistralai/Mixtral-7B-v0.1', // Modelo gratuito
             {
                 inputs: prompt,
-                parameters: { max_new_tokens: 500, return_full_text: false, temperature: 0.6 }
+                parameters: { max_new_tokens: 200, return_full_text: false, temperature: 0.7 }
             },
             {
                 headers: { 'Authorization': `Bearer ${process.env.HF_API_TOKEN}`, 'Content-Type': 'application/json' },
-                timeout: 30000 // Bajamos a 30 segundos para debug
+                timeout: 20000 // 20 segundos
             }
         );
 
         console.log(`[CHAT] Respuesta recibida: ${JSON.stringify(response.data)}`);
-        let aiReply = response.data[0]?.generated_text?.trim();
+        let aiReply = RESPONSE.data[0]?.generated_text?.trim();
         if (!aiReply || aiReply.length < 10) {
             console.log(`[CHAT] Respuesta vacía o corta: "${aiReply}"`);
-            aiReply = `¡Qué lindo desafío, ${userName}! Te ayudo con las ecuaciones lineales al toque, genia. Mirá, para resolver algo como **2x + 3 = 7**, hacés esto: primero restás 3 a los dos lados, te queda **2x = 4**, después dividís entre 2 y listo, **x = 2**. ¿Tenés alguna ecuación específica pa’ resolver? ¡Dame más data, loco, y la sacamos juntos!\n\n¿Te cerró esa respuesta, ${userName}? ¿Seguimos charlando, che?`;
+            aiReply = `¡Qué lindo, ${userName}! Si es sobre ecuaciones, mirá: **2x + 3 = 7**, restás 3 y queda **2x = 4**, dividís por 2 y **x = 2**. ¿Tenés una tuya? ¡Dame más data, loco!\n\n¿Te cerró esa respuesta, ${userName}? ¿Seguimos charlando, che?`;
         }
 
-        const finalEmbed = createEmbed('#55FFFF', `¡Aquí estoy, ${userName}!`, aiReply, 'Con cariño, Oliver IA | Reacciona con ✅ o ❌');
+        const finalEmbed = createEmbed('#55FFFF', `¡Acá tenés, ${userName}!`, aiReply, 'Hecho con onda por Oliver IA | Reacciona con ✅ o ❌');
         const updatedMessage = await waitingMessage.edit({ embeds: [finalEmbed] });
         await updatedMessage.react('✅');
         await updatedMessage.react('❌');
         sentMessages.set(updatedMessage.id, { content: aiReply, originalQuestion: chatMessage, message: updatedMessage });
-        console.log(`[CHAT] Mensaje enviado con éxito para "${chatMessage}"`);
+        console.log(`[CHAT] Mensaje enviado con éxito`);
 
     } catch (error) {
         console.error(`[CHAT] Error en API: ${error.message}`);
-        let fallbackReply = `¡Uy, ${userName}, qué quilombo! Algo se trabó, ${userTerm}. `;
-        if (chatMessage.toLowerCase().includes('ecuaciones lineales')) {
-            fallbackReply += `Te tiro una solución rápida para ecuaciones lineales: si tenés **3x - 5 = 10**, sumás 5 a ambos lados, queda **3x = 15**, dividís entre 3 y te da **x = 5**. ¿Querés que resuelva una tuya? ¡Mandámela, genia!`;
+        let fallbackReply = `¡Uy, ${userName}, qué quilombo! Algo se trabó, ${userName === 'Miguel' ? 'pelado' : 'pelada'}. `;
+        if (chatMessage.toLowerCase().includes('ecuaciones')) {
+            fallbackReply += `Te tiro una rápida: **3x - 5 = 10**, sumás 5 y queda **3x = 15**, dividís por 3 y **x = 5**. ¿Querés una tuya? ¡Mandámela, genia!`;
         } else {
-            fallbackReply += `${error.code === 'ECONNABORTED' ? 'La conexión se cortó, tardó demasiado.' : `Error: ${error.message}.`} ¿Me tirás otra vez tu mensaje o seguimos con otra vaina?`;
+            fallbackReply += `${error.code === 'ECONNABORTED' ? 'Tardó demasiado, boludo.' : `Error: ${error.message}.`} ¿Me tirás otra vez o seguimos con otra cosa?`;
         }
         fallbackReply += `\n\n¿Te cerró esa respuesta, ${userName}? ¿Seguimos charlando, che?`;
 
