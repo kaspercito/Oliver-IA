@@ -1532,7 +1532,7 @@ async function manejarChat(message) {
                 parameters: {
                     max_new_tokens: 500,
                     return_full_text: false,
-                    DM temperature: 0.6
+                    temperature: 0.6
                 }
             },
             {
