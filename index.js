@@ -1515,30 +1515,20 @@ async function manejarChat(message) {
     const chatMessage = message.content.startsWith('!chat') ? message.content.slice(5).trim() : message.content.slice(3).trim();
     const userTerm = userName === 'Miguel' ? 'pelado' : 'pelada';
 
-    console.log(`[INICIO] Procesando mensaje ID: ${message.id}, Contenido: "${chatMessage}", processedMessages antes: ${JSON.stringify([...processedMessages.entries()])}`);
-
+    console.log(`[CHAT] Iniciando para ${userName}, mensaje: "${chatMessage}"`);
+    
     if (!chatMessage) {
         return sendError(message.channel, `¡Escribí algo después de "!chat", ${userName}! No me dejes colgado, che.`, undefined, 'Hecho con onda por Oliver IA | Reacciona con ✅ o ❌');
-    }
-
-    if (processedMessages.has(message.id)) {
-        console.log(`[DUPLICADO] Mensaje ${message.id} ya procesado, ignorando...`);
-        return sendError(message.channel, `¡Pará un cacho, ${userName}!`, `Ya estoy laburando con ese mensaje, genia. Aguantá unos segundos y probá de nuevo, ¿dale?`, 'Hecho con onda por Oliver IA');
     }
 
     const waitingEmbed = createEmbed('#55FFFF', `¡Aguantá un toque, ${userName}!`, 'Estoy pensando una respuesta re copada para vos...', 'Hecho con onda por Oliver IA | Reacciona con ✅ o ❌');
     const waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
 
     try {
-        const isLinearEquation = chatMessage.toLowerCase().includes('ecuaciones lineales');
-        let prompt = `Sos Oliver IA, creado por Miguel, un loco re piola. Respondé a "${chatMessage}" con buena onda, al estilo argentino, bien relajado pero con cabeza, che. Usá palabras como "copado", "joya", "boludo", "re", "dale", "posta", "genial" o "loco". `;
-        if (isLinearEquation) {
-            prompt += `Si te piden ayuda con ecuaciones lineales, explicá cómo resolverlas rápido paso a paso con un ejemplo práctico (como 2x + 3 = 7) y pedí más datos si hace falta con onda tipo "dame más data, loco". `;
-        }
-        prompt += `Si es para Belén, hablale con cariño como "grosa" o "genia". Sé re claro, respondé solo lo que te piden con lo que sabés, sin chamuyo. Terminá siempre con "¿Te cerró esa respuesta, ${userName}? ¿Seguimos charlando, che?" para mantener el mambo.`;
+        console.log(`[CHAT] Construyendo prompt para "${chatMessage}"`);
+        const prompt = `Sos Oliver IA, creado por Miguel, un loco re piola. Respondé a "${chatMessage}" con buena onda, al estilo argentino, bien relajado pero con cabeza, che. Usá palabras como "copado", "joya", "boludo", "re", "dale", "posta", "genial" o "loco". Si te piden ayuda con ecuaciones lineales, explicá cómo resolverlas rápido paso a paso con un ejemplo práctico (como 2x + 3 = 7) y pedí más datos si hace falta con onda tipo "dame más data, loco". Si es para Belén, hablale con cariño como "grosa" o "genia". Sé re claro, respondé solo lo que te piden con lo que sabés, sin chamuyo. Terminá siempre con "¿Te cerró esa respuesta, ${userName}? ¿Seguimos charlando, che?" para mantener el mambo.`;
 
-        console.log(`[API] Enviando prompt para mensaje ID: ${message.id}`);
-
+        console.log(`[CHAT] Enviando request a API para "${chatMessage}"`);
         const response = await axios.post(
             'https://api-inference.huggingface.co/models/mistralai/Mixtral-8x7B-Instruct-v0.1',
             {
@@ -1547,19 +1537,15 @@ async function manejarChat(message) {
             },
             {
                 headers: { 'Authorization': `Bearer ${process.env.HF_API_TOKEN}`, 'Content-Type': 'application/json' },
-                timeout: 30000
+                timeout: 30000 // Bajamos a 30 segundos para debug
             }
         );
 
+        console.log(`[CHAT] Respuesta recibida: ${JSON.stringify(response.data)}`);
         let aiReply = response.data[0]?.generated_text?.trim();
         if (!aiReply || aiReply.length < 10) {
-            console.log(`[API] Respuesta vacía o corta para "${chatMessage}": ${aiReply}`);
-            if (isLinearEquation) {
-                aiReply = `¡Qué lindo desafío, ${userName}! Te ayudo con las ecuaciones lineales al toque, genia. Mirá, para resolver algo como **2x + 3 = 7**, hacés esto: primero restás 3 a los dos lados, te queda **2x = 4**, después dividís entre 2 y listo, **x = 2**. ¿Tenés alguna ecuación específica pa’ resolver? ¡Dame más data, loco, y la sacamos juntos!`;
-            } else {
-                aiReply = `¡Qué cagada, ${userName}! No me salió bien la respuesta, loco. ¿Me das más pistas para cacharlo o seguimos con otro mambo?`;
-            }
-            aiReply += `\n\n¿Te cerró esa respuesta, ${userName}? ¿Seguimos charlando, che?`;
+            console.log(`[CHAT] Respuesta vacía o corta: "${aiReply}"`);
+            aiReply = `¡Qué lindo desafío, ${userName}! Te ayudo con las ecuaciones lineales al toque, genia. Mirá, para resolver algo como **2x + 3 = 7**, hacés esto: primero restás 3 a los dos lados, te queda **2x = 4**, después dividís entre 2 y listo, **x = 2**. ¿Tenés alguna ecuación específica pa’ resolver? ¡Dame más data, loco, y la sacamos juntos!\n\n¿Te cerró esa respuesta, ${userName}? ¿Seguimos charlando, che?`;
         }
 
         const finalEmbed = createEmbed('#55FFFF', `¡Aquí estoy, ${userName}!`, aiReply, 'Con cariño, Oliver IA | Reacciona con ✅ o ❌');
@@ -1567,12 +1553,10 @@ async function manejarChat(message) {
         await updatedMessage.react('✅');
         await updatedMessage.react('❌');
         sentMessages.set(updatedMessage.id, { content: aiReply, originalQuestion: chatMessage, message: updatedMessage });
-
-        processedMessages.set(message.id, Date.now());
-        console.log(`[EXITO] Mensaje ${message.id} procesado con éxito`);
+        console.log(`[CHAT] Mensaje enviado con éxito para "${chatMessage}"`);
 
     } catch (error) {
-        console.error(`[ERROR] Error en !chat con API para ID ${message.id}:`, error.message);
+        console.error(`[CHAT] Error en API: ${error.message}`);
         let fallbackReply = `¡Uy, ${userName}, qué quilombo! Algo se trabó, ${userTerm}. `;
         if (chatMessage.toLowerCase().includes('ecuaciones lineales')) {
             fallbackReply += `Te tiro una solución rápida para ecuaciones lineales: si tenés **3x - 5 = 10**, sumás 5 a ambos lados, queda **3x = 15**, dividís entre 3 y te da **x = 5**. ¿Querés que resuelva una tuya? ¡Mandámela, genia!`;
@@ -1586,12 +1570,6 @@ async function manejarChat(message) {
         await errorMessageSent.react('✅');
         await errorMessageSent.react('❌');
         sentMessages.set(errorMessageSent.id, { content: fallbackReply, originalQuestion: chatMessage, message: errorMessageSent });
-
-    } finally {
-        setTimeout(() => {
-            processedMessages.delete(message.id);
-            console.log(`[LIMPIEZA] Mensaje ${message.id} eliminado de processedMessages`);
-        }, 5000);
     }
 }
 
