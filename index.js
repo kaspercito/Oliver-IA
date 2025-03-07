@@ -69,6 +69,7 @@ const BOT_UPDATES = [
     '¡Traductor piola con !traducí! Traduzco frases cortas a cualquier idioma, joya pa’ practicar.',
     "¡Oliver ahora se acuerda de las últimas 20 charlas, posta! Preguntale lo que sea con !chat y sigue la onda como amigo piola.",
     "El mensaje diario a Belén ahora se envía una vez por día y respeta las reacciones ✅ o ❌ pa' no spamear. Si reacciona, no se repite hasta mañana, ¡posta!",
+    "¡Arreglado la opción de segunda respuestas uando reaccionás con ❌! Más rápido y copado, loco.",
 ];
 
 // Mensajes de ánimo para Belén
