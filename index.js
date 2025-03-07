@@ -2488,7 +2488,7 @@ client.on('messageCreate', async (message) => {
             try {
                 await message.delete();
                 const member = message.guild?.members.cache.get(message.author.id);
-                if (member && message.guild?.members.me.permissions.has('MODERkiaATE_MEMBERS')) {
+                if (member && message.guild?.members.me.permissions.has('MODERATE_MEMBERS')) {
                     await member.timeout(5 * 60 * 1000, 'Te pasaste con las mayúsculas, loco');
                     await message.channel.send({ 
                         embeds: [createEmbed('#FF5555', '⛔ ¡Pará un poco, che!', 
@@ -2521,24 +2521,6 @@ client.on('messageCreate', async (message) => {
     if (processedMessages.has(message.id)) return;
     processedMessages.set(message.id, Date.now());
     setTimeout(() => processedMessages.delete(message.id), 10000);
-
-    // Chequear y enviar mensaje de utilidad una vez al día
-    if (!dataStore.utilMessageTimestamps) dataStore.utilMessageTimestamps = {};
-    const lastSent = dataStore.utilMessageTimestamps[message.author.id] || 0;
-    const now = Date.now();
-    const oneDayInMs = 24 * 60 * 60 * 1000; // 24 horas en milisegundos
-
-    if (now - lastSent >= oneDayInMs) {
-        const utilEmbed = createEmbed('#55FFFF', `¡Che, ${userName}!`, 
-            `¿Te estoy siendo útil, ${userName === 'Belén' ? 'grosa' : 'loco'}? ¡Contame cómo te va conmigo, dale!`, 
-            'Con cariño, Oliver IA');
-        await message.channel.send({ embeds: [utilEmbed] });
-        
-        // Actualizar timestamp
-        dataStore.utilMessageTimestamps[message.author.id] = now;
-        dataStoreModified = true;
-        await saveDataStore(); // Guardar para que persista
-    }
 
     // Cancelaciones con prioridad absoluta
     if (content === '!tc' || content === '!trivia cancelar') {
@@ -2650,6 +2632,9 @@ client.once('ready', async () => {
         console.log('musicSessions no estaba presente, inicializado manualmente');
     }
 
+    // Inicializar utilMessageTimestamps si no existe
+    if (!dataStore.utilMessageTimestamps) dataStore.utilMessageTimestamps = {};
+
     try {
         const channel = await client.channels.fetch(CHANNEL_ID);
         if (!channel) throw new Error('Canal no encontrado');
@@ -2705,8 +2690,35 @@ client.once('ready', async () => {
         } else {
             console.log('No hay cambios en BOT_UPDATES respecto a sentUpdates, no se envían.');
         }
+
+        // Intervalo para enviar mensaje útil diario al CHANNEL_ID existente
+        const oneDayInMs = 24 * 60 * 60 * 1000; // 24 horas en milisegundos
+        const checkInterval = 60 * 60 * 1000; // Chequear cada hora
+
+        setInterval(async () => {
+            try {
+                const now = Date.now();
+                const lastSent = dataStore.utilMessageTimestamps[CHANNEL_ID] || 0;
+
+                if (now - lastSent >= oneDayInMs) {
+                    const utilEmbed = createEmbed('#55FFFF', '¡Che, Belén!', 
+                        '¿Te estoy siendo útil, grosa? ¡Contame cómo te va conmigo, dale!', 
+                        'Con cariño, Oliver IA');
+                    await channel.send({ embeds: [utilEmbed] });
+
+                    // Actualizar timestamp para el canal
+                    dataStore.utilMessageTimestamps[CHANNEL_ID] = now;
+                    dataStoreModified = true;
+                    await saveDataStore();
+                    console.log(`Mensaje útil enviado al canal ${CHANNEL_ID}`);
+                }
+            } catch (error) {
+                console.error('Error en el intervalo de mensaje útil:', error.message);
+            }
+        }, checkInterval);
+
     } catch (error) {
-        console.error('Error al enviar actualizaciones:', error);
+        console.error('Error al enviar actualizaciones o configurar mensaje útil:', error);
     }
 });
 
