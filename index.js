@@ -2488,7 +2488,7 @@ client.on('messageCreate', async (message) => {
             try {
                 await message.delete();
                 const member = message.guild?.members.cache.get(message.author.id);
-                if (member && message.guild?.members.me.permissions.has('MODERATE_MEMBERS')) {
+                if (member && message.guild?.members.me.permissions.has('MODERkiaATE_MEMBERS')) {
                     await member.timeout(5 * 60 * 1000, 'Te pasaste con las mayúsculas, loco');
                     await message.channel.send({ 
                         embeds: [createEmbed('#FF5555', '⛔ ¡Pará un poco, che!', 
@@ -2521,6 +2521,24 @@ client.on('messageCreate', async (message) => {
     if (processedMessages.has(message.id)) return;
     processedMessages.set(message.id, Date.now());
     setTimeout(() => processedMessages.delete(message.id), 10000);
+
+    // Chequear y enviar mensaje de utilidad una vez al día
+    if (!dataStore.utilMessageTimestamps) dataStore.utilMessageTimestamps = {};
+    const lastSent = dataStore.utilMessageTimestamps[message.author.id] || 0;
+    const now = Date.now();
+    const oneDayInMs = 24 * 60 * 60 * 1000; // 24 horas en milisegundos
+
+    if (now - lastSent >= oneDayInMs) {
+        const utilEmbed = createEmbed('#55FFFF', `¡Che, ${userName}!`, 
+            `¿Te estoy siendo útil, ${userName === 'Belén' ? 'grosa' : 'loco'}? ¡Contame cómo te va conmigo, dale!`, 
+            'Con cariño, Oliver IA');
+        await message.channel.send({ embeds: [utilEmbed] });
+        
+        // Actualizar timestamp
+        dataStore.utilMessageTimestamps[message.author.id] = now;
+        dataStoreModified = true;
+        await saveDataStore(); // Guardar para que persista
+    }
 
     // Cancelaciones con prioridad absoluta
     if (content === '!tc' || content === '!trivia cancelar') {
