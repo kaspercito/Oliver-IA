@@ -67,7 +67,8 @@ const BOT_UPDATES = [
     '¡Noticias rápidas con !noticias! Te traigo el último titular de Argentina, re copado.',
     '¡Wiki Bot con !wiki! Busco resúmenes en Wikipedia pa’ que aprendas sin esfuerzo.',
     '¡Traductor piola con !traducí! Traduzco frases cortas a cualquier idioma, joya pa’ practicar.',
-    "¡Oliver ahora se acuerda de las últimas 20 charlas, posta! Preguntale lo que sea con !chat y sigue la onda como amigo piola."
+    "¡Oliver ahora se acuerda de las últimas 20 charlas, posta! Preguntale lo que sea con !chat y sigue la onda como amigo piola.",
+    "El mensaje diario a Belén ahora se envía una vez por día y respeta las reacciones ✅ o ❌ pa' no spamear. Si reacciona, no se repite hasta mañana, ¡posta!",
 ];
 
 // Mensajes de ánimo para Belén
@@ -2622,7 +2623,7 @@ client.on('messageCreate', async (message) => {
 
 // Eventos
 client.once('ready', async () => {
-    console.log(`¡Miguel IA está listo! Instancia: ${instanceId}`);
+    console.log(`¡Miguel IA está listo! Instancia: ${instanceId} - ${new Date().toLocaleString('es-AR')}`);
     client.user.setPresence({ activities: [{ name: "Listo para ayudar a Milagros", type: 0 }], status: 'dnd' });
     dataStore = await loadDataStore();
     activeTrivia = new Map(Object.entries(dataStore.activeSessions).filter(([_, s]) => s.type === 'trivia'));
@@ -2632,8 +2633,9 @@ client.once('ready', async () => {
         console.log('musicSessions no estaba presente, inicializado manualmente');
     }
 
-    // Inicializar utilMessageTimestamps si no existe
+    // Inicializar utilMessageTimestamps y utilMessageReactions si no existen
     if (!dataStore.utilMessageTimestamps) dataStore.utilMessageTimestamps = {};
+    if (!dataStore.utilMessageReactions) dataStore.utilMessageReactions = {};
 
     try {
         const channel = await client.channels.fetch(CHANNEL_ID);
@@ -2682,7 +2684,6 @@ client.once('ready', async () => {
 
             await channel.send({ content: `<@${ALLOWED_USER_ID}>`, embeds: [updateEmbed] });
             
-            // Actualizamos sentUpdates con BOT_UPDATES y guardamos
             dataStore.sentUpdates = [...BOT_UPDATES];
             dataStoreModified = true;
             await saveDataStore();
@@ -2691,19 +2692,7 @@ client.once('ready', async () => {
             console.log('No hay cambios en BOT_UPDATES respecto a sentUpdates, no se envían.');
         }
 
-        // Enviar el mensaje a Belén inmediatamente al iniciar
-        const utilEmbed = createEmbed('#55FFFF', '¡Che, Belén!', 
-            '¿Te estoy siendo útil, grosa? ¡Contame cómo te va conmigo, dale!', 
-            'Con cariño, Oliver IA');
-        await channel.send({ embeds: [utilEmbed] });
-        console.log(`Mensaje útil enviado al canal ${CHANNEL_ID} al iniciar`);
-
-        // Actualizar timestamp para el canal inmediatamente
-        dataStore.utilMessageTimestamps[CHANNEL_ID] = Date.now();
-        dataStoreModified = true;
-        await saveDataStore();
-
-        // Intervalo para enviar mensaje útil diario al CHANNEL_ID existente
+        // Intervalo para enviar mensaje útil diario
         const oneDayInMs = 24 * 60 * 60 * 1000; // 24 horas en milisegundos
         const checkInterval = 60 * 60 * 1000; // Chequear cada hora
 
@@ -2711,23 +2700,47 @@ client.once('ready', async () => {
             try {
                 const now = Date.now();
                 const lastSent = dataStore.utilMessageTimestamps[CHANNEL_ID] || 0;
+                const lastReaction = dataStore.utilMessageReactions[CHANNEL_ID] || 0;
 
-                if (now - lastSent >= oneDayInMs) {
+                if (now - lastSent >= oneDayInMs && (!lastReaction || now - lastReaction >= oneDayInMs)) {
                     const dailyUtilEmbed = createEmbed('#55FFFF', '¡Che, Belén!', 
                         '¿Te estoy siendo útil, grosa? ¡Contame cómo te va conmigo, dale!', 
-                        'Con cariño, Oliver IA');
-                    await channel.send({ embeds: [dailyUtilEmbed] });
+                        'Con cariño, Oliver IA | Reacciona con ✅ o ❌');
+                    const sentMessage = await channel.send({ embeds: [dailyUtilEmbed] });
 
-                    // Actualizar timestamp para el canal
+                    await sentMessage.react('✅');
+                    await sentMessage.react('❌');
+
                     dataStore.utilMessageTimestamps[CHANNEL_ID] = now;
+                    sentMessages.set(sentMessage.id, { content: dailyUtilEmbed.description, message: sentMessage });
                     dataStoreModified = true;
                     await saveDataStore();
-                    console.log(`Mensaje útil diario enviado al canal ${CHANNEL_ID}`);
+                    console.log(`Mensaje útil diario enviado al canal ${CHANNEL_ID} - ${new Date().toLocaleString('es-AR')}`);
                 }
             } catch (error) {
                 console.error('Error en el intervalo de mensaje útil:', error.message);
             }
         }, checkInterval);
+
+        // Enviar mensaje al iniciar si no se envió hoy
+        const now = Date.now();
+        const lastSent = dataStore.utilMessageTimestamps[CHANNEL_ID] || 0;
+        const lastReaction = dataStore.utilMessageReactions[CHANNEL_ID] || 0;
+        if (now - lastSent >= oneDayInMs && (!lastReaction || now - lastReaction >= oneDayInMs)) {
+            const utilEmbed = createEmbed('#55FFFF', '¡Che, Belén!', 
+                '¿Te estoy siendo útil, grosa? ¡Contame cómo te va conmigo, dale!', 
+                'Con cariño, Oliver IA | Reacciona con ✅ o ❌');
+            const sentMessage = await channel.send({ embeds: [utilEmbed] });
+
+            await sentMessage.react('✅');
+            await sentMessage.react('❌');
+
+            dataStore.utilMessageTimestamps[CHANNEL_ID] = now;
+            sentMessages.set(sentMessage.id, { content: utilEmbed.description, message: sentMessage });
+            dataStoreModified = true;
+            await saveDataStore();
+            console.log(`Mensaje útil enviado al iniciar - ${new Date().toLocaleString('es-AR')}`);
+        }
 
     } catch (error) {
         console.error('Error al enviar actualizaciones o configurar mensaje útil:', error);
@@ -2746,57 +2759,69 @@ client.on('messageReactionAdd', async (reaction, user) => {
     const messageData = sentMessages.get(reaction.message.id);
     const userName = user.id === OWNER_ID ? 'Miguel' : 'Belén';
 
-    if (reaction.emoji.name === '❌') {
+    // Configuración de Google Gemini
+    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+
+    if (user.id === ALLOWED_USER_ID && (reaction.emoji.name === '✅' || reaction.emoji.name === '❌')) {
+        // Guardar la reacción de Belén
+        dataStore.utilMessageReactions[CHANNEL_ID] = Date.now();
+        dataStoreModified = true;
+        await saveDataStore();
+        console.log(`Belén reaccionó con ${reaction.emoji.name} - ${new Date().toLocaleString('es-AR')}`);
+
+        // Responder según la reacción
+        if (reaction.emoji.name === '✅') {
+            await reaction.message.channel.send({ embeds: [createEmbed('#55FFFF', '¡Genia, Belén!', 
+                '¡Gracias por el visto, grosa! Nos vemos mañana, ¿dale?', 'Con cariño, Oliver IA')] });
+        } else if (reaction.emoji.name === '❌') {
+            await reaction.message.channel.send({ embeds: [createEmbed('#FF5555', '¡Uy, Belén!', 
+                '¿No te copó, genia? Contame qué pasa, ¡dale!', 'Con cariño, Oliver IA')] });
+        }
+        sentMessages.delete(reaction.message.id); // Evitar procesar de nuevo
+    }
+
+    if (reaction.emoji.name === '❌' && messageData.originalQuestion) {
         const originalQuestion = messageData.originalQuestion;
-        const prompt = `Sos Oliver IA, creado por Miguel, un loco re piola. La primera respuesta a "${originalQuestion}" no le copó al usuario. Probá de nuevo con una respuesta más copada, detallada y útil, usando palabras argentinas como "copado", "joya", "boludo", "re", "dale", "posta" o "genial". Si es para Belén, hablale con cariño como "grosa" o "genia". Respondé solo lo que te piden, con info posta, sin chamuyo. Sé claro y relajado en español. Terminá con buena onda pa’ seguir la charla, tipo "¿Te cerró, ${userName}?".`;
+
+        const waitingEmbed = createEmbed('#55FFFF', `¡Aguantá un toque, ${userName}!`, 
+            'Estoy pensando una respuesta más copada...', 'Hecho con onda por Miguel IA | Reacciona con ✅ o ❌');
+        const waitingMessage = await reaction.message.channel.send({ embeds: [waitingEmbed] });
 
         try {
-            const response = await axios.post(
-                'https://api-inference.huggingface.co/models/mistralai/Mixtral-8x7B-Instruct-v0.1',
-                {
-                    inputs: prompt,
-                    parameters: {
-                        max_new_tokens: 550,
-                        return_full_text: false,
-                        temperature: 0.7
-                    }
-                },
-                {
-                    headers: {
-                        'Authorization': `Bearer ${process.env.HF_API_TOKEN}`,
-                        'Content-Type': 'application/json'
-                    },
-                    timeout: 90000
-                }
-            );
+            const prompt = `Sos Oliver IA, creado por Miguel, un loco re piola. La primera respuesta a "${originalQuestion}" no le copó al usuario. Probá de nuevo con una respuesta más copada, detallada y útil, usando palabras argentinas como "copado", "joya", "boludo", "re", "dale", "posta" o "genial". Si es para Belén, hablale con cariño como "grosa" o "genia". Respondé solo lo que te piden, con info posta, sin chamuyo. Sé claro y relajado en español. Terminá con buena onda pa’ seguir la charla, tipo "¿Te cerró, ${userName}?".`;
+            
+            const result = await model.generateContent(prompt);
+            let aiReply = result.response.text().trim();
 
-            let aiReply = response.data[0]?.generated_text?.trim() || 
-                `¡Epa, ${userName}! Se ve que la compliqué otra vez, loco. ¿Me das un poco más de data para sacarla bien, che?`;
+            if (aiReply.length > 2000) aiReply = aiReply.slice(0, 1990) + '... (seguí charlando pa’ más, loco)';
             aiReply += `\n\n¿Te cerró esta vez, ${userName}? ¿Seguimos charlando, loco?`;
 
-            const alternativeEmbed = createEmbed('#55FFFF', `¡Segunda chance, ${userName}!`, aiReply, 'Hecho con onda por Miguel IA | Reacciona con ✅ o ❌');
-            const newMessage = await reaction.message.channel.send({ embeds: [alternativeEmbed] });
+            const alternativeEmbed = createEmbed('#55FFFF', `¡Segunda chance, ${userName}!`, 
+                aiReply, 'Hecho con onda por Miguel IA | Reacciona con ✅ o ❌');
+            const newMessage = await waitingMessage.edit({ embeds: [alternativeEmbed] });
             await newMessage.react('✅');
             await newMessage.react('❌');
             sentMessages.set(newMessage.id, { content: aiReply, originalQuestion: originalQuestion, message: newMessage });
-            sentMessages.delete(reaction.message.id); // Borramos el mensaje anterior para no repetir
+            sentMessages.delete(reaction.message.id);
         } catch (error) {
-            console.error('Error al generar segunda respuesta:', error.message);
+            console.error('Error con Gemini:', error.message);
+            const fallbackReply = `¡Uy, ${userName}, qué cagada! Me mandé un moco, loco. Error: ${error.message}. ¿Me tirás más detalles para sacarla bien esta vez?`;
             const errorEmbed = createEmbed('#FF5555', '¡Qué cagada, che!', 
-                `¡Uy, ${userName}, la pifié otra vez! Error: ${error.message}. ¿Me tirás más detalles para sacarla bien esta vez, loco?`, 
+                `${fallbackReply}\n\n¿Te cerró esta vez, ${userName}? ¿Seguimos charlando, loco?]`, 
                 'Hecho con onda por Miguel IA | Reacciona con ✅ o ❌');
-            const newMessage = await reaction.message.channel.send({ embeds: [errorEmbed] });
-            await newMessage.react('✅');
-            await newMessage.react('❌');
-            sentMessages.set(newMessage.id, { content: errorEmbed.data.description, originalQuestion: originalQuestion, message: newMessage });
-            sentMessages.delete(reaction.message.id); // Borramos el anterior
+            const errorMessageSent = await waitingMessage.edit({ embeds: [errorEmbed] });
+            await errorMessageSent.react('✅');
+            await errorMessageSent.react('❌');
+            sentMessages.set(errorMessageSent.id, { content: fallbackReply, originalQuestion: originalQuestion, message: errorMessageSent });
+            sentMessages.delete(reaction.message.id);
         }
     }
 
     if (user.id === ALLOWED_USER_ID) {
         const owner = await client.users.fetch(OWNER_ID);
         const reactionEmbed = createEmbed('#FFD700', '¡Belén le puso pilas!', 
-            `Belén reaccionó con ${reaction.emoji} a: "${messageData.content}"\nPregunta original: "${messageData.originalQuestion}"\nMandado el: ${new Date(messageData.message.createdTimestamp).toLocaleString()}`);
+            `Belén reaccionó con ${reaction.emoji} a: "${messageData.content}"\nPregunta original: "${messageData.originalQuestion || 'Mensaje diario'}"\nMandado el: ${new Date(messageData.message.createdTimestamp).toLocaleString()}`);
         try {
             await owner.send({ embeds: [reactionEmbed] });
             console.log(`Notificación enviada a ${OWNER_ID}: Belén reaccionó con ${reaction.emoji}`);
