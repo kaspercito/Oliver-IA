@@ -219,5 +219,8 @@
     "¡Wiki Bot con !wiki! Busco resúmenes en Wikipedia pa’ que aprendas sin esfuerzo.",
     "¡Traductor piola con !traducí! Traduzco frases cortas a cualquier idioma, joya pa’ practicar.",
     "¡Oliver ahora se acuerda de las últimas 20 charlas, posta! Preguntale lo que sea con !chat y sigue la onda como amigo piola."
-  ]
+  ],
+  "utilMessageTimestamps": {
+    "1343749554905940058": 1741388542323
+  }
 }
