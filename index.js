@@ -2638,6 +2638,30 @@ client.once('ready', async () => {
     if (!dataStore.utilMessageTimestamps) dataStore.utilMessageTimestamps = {};
     if (!dataStore.utilMessageReactions) dataStore.utilMessageReactions = {};
 
+    // Mensaje por el Día de la Mujer - Solo el 8 de marzo de 2025
+    const today = new Date();
+    const isWomensDay = today.getDate() === 8 && today.getMonth() === 2; // Mes 2 es marzo (0-based)
+    const argentinaTime = today.toLocaleTimeString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' });
+    
+    if (isWomensDay && !dataStore.womensDayMessageSent) {
+        try {
+            const belen = await client.users.fetch(ALLOWED_USER_ID);
+            const womensDayEmbed = createEmbed('#FF69B4', '¡Feliz Día de la Mujer, Belén!', 
+                `¡Hoy, 8 de marzo, te quiero saludar con todo el cariño, grosa! Sos una genia, una luchadora y un sol que ilumina todo. Gracias por ser vos, por tu fuerza y tu onda increíble. ¡Que tengas un día re copado, te lo merecés posta! 💪✨\n\n**Hora en Argentina:** ${argentinaTime}`, 
+                'Con muchísimo cariño, Oliver IA');
+    
+            await belen.send({ embeds: [womensDayEmbed] });
+            console.log(`Mensaje del Día de la Mujer enviado a Belén - ${argentinaTime}`);
+    
+            // Marcar como enviado para no repetir
+            dataStore.womensDayMessageSent = true;
+            dataStoreModified = true;
+            await saveDataStore();
+        } catch (error) {
+            console.error('Error al enviar mensaje del Día de la Mujer:', error.message);
+        }
+    }
+    
     try {
         const channel = await client.channels.fetch(CHANNEL_ID);
         if (!channel) throw new Error('Canal no encontrado');
