@@ -2645,7 +2645,7 @@ if (!dataStore.womensDayMessageSentThisInstance) { // Solo una vez por instancia
     try {
         const belen = await client.users.fetch(ALLOWED_USER_ID);
         const womensDayEmbed = createEmbed('#FF69B4', '¡Feliz Día de la Mujer, Belén!', 
-            `¡Hola, grosa! Te mando este saludo especial por el Día de la Mujer, porque sos una genia total. Tu fuerza y tu buena onda son lo más, ¡posta! Que tengas un día increíble, te lo re merecés. 💪✨\n\n**Hora local (Argentina):** ${argentinaTime}`, 
+            `¡Hola, grosa! Te mando este saludo especial por el Día de la Mujer, porque sos una genia total. Tu fuerza y tu buena onda son lo más, ¡posta! Que tengas un día increíble, te lo re merecés. 💪✨\n\n**Hora:** ${argentinaTime}`, 
             'Con muchísimo cariño, Oliver IA');
 
         // Enviar con mención @Belén
