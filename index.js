@@ -2637,29 +2637,6 @@ client.once('ready', async () => {
     // Inicializar utilMessageTimestamps y utilMessageReactions si no existen
     if (!dataStore.utilMessageTimestamps) dataStore.utilMessageTimestamps = {};
     if (!dataStore.utilMessageReactions) dataStore.utilMessageReactions = {};
-
-// Mensaje inmediato por el Día de la Mujer al deploy con mención
-const argentinaTime = new Date().toLocaleTimeString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' });
-
-if (!dataStore.womensDayMessageSentThisInstance) { // Solo una vez por instancia del bot
-    try {
-        const belen = await client.users.fetch(ALLOWED_USER_ID);
-        const womensDayEmbed = createEmbed('#FF69B4', '¡Feliz Día de la Mujer, Belén!', 
-            `¡Hola, grosa! Te mando este saludo especial por el Día de la Mujer, porque sos una genia total. Tu fuerza y tu buena onda son lo más, ¡posta! Que tengas un día increíble, te lo re merecés. 💪✨\n\n**Hora:** ${argentinaTime}`, 
-            'Con muchísimo cariño, Oliver IA');
-
-        // Enviar con mención @Belén
-        await belen.send({ content: `<@${ALLOWED_USER_ID}>`, embeds: [womensDayEmbed] });
-        console.log(`Mensaje del Día de la Mujer enviado a Belén con mención al deploy - ${argentinaTime}`);
-
-        // Marcar como enviado para esta instancia
-        dataStore.womensDayMessageSentThisInstance = true;
-        dataStoreModified = true;
-        await saveDataStore();
-    } catch (error) {
-        console.error('Error al enviar mensaje del Día de la Mujer al deploy:', error.message);
-    }
-}
     
     try {
         const channel = await client.channels.fetch(CHANNEL_ID);
