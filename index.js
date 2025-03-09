@@ -2577,17 +2577,16 @@ async function listarIdiomas(message) {
     for (const idioma of idiomas) {
         const adicion = `${idioma}, `;
         if (mensajeActual.length + adicion.length > maxLength) {
-            await message.channel.send(mensajeActual.slice(0, -2)); // Elimina la última coma y espacio
+            await message.channel.send(mensajeActual.slice(0, -2));
             mensajeActual = 'Idiomas disponibles para traducir (continuación):\n';
         }
         mensajeActual += adicion;
     }
     
     if (mensajeActual.length > 0) {
-        await message.channel.send(mensajeActual.slice(0, -2)); // Envía el resto
+        await message.channel.send(mensajeActual.slice(0, -2));
     }
 }
-
 
 // Eventos de música con Erela.js
 manager.on('nodeConnect', node => console.log(`Nodo ${node.options.identifier} conectado.`));
