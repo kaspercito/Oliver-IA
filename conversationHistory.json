@@ -90,6 +90,16 @@
         "role": "assistant",
         "content": "Che Belén, genia total!  ¡Un examen importante y la ansiedad te tiene a maltraer, eh?! ¡Posta que te entiendo, loca!  Es una cagada, pero no te preocupes que vamos a domar a esa fiera.  Sos una grosa y la vas a romper, ¡ya vas a ver!\n\n\nPrimero,  respira,  che.  Sé que suena a cliché, pero respira profundo,  lento,  y trata de enfocarte en el aire entrando y saliendo de tus pulmones.  Si te ayuda, contá las respiraciones:  cuatro segundos inhalando, cuatro segundos aguantando, cuatro segundos exhalando.  Es un bajón de ansiedad instantáneo, ¡posta!\n\n\nSegundo,  movete,  grosa.  Andá a caminar,  hacé un poco de ejercicio,  lo que sea,  pero mové ese cuerpo.  La actividad física te ayuda un montón a liberar endorfinas, esas hormonas que te hacen sentir bien,  ¿viste?\n\n\nTercero,  desconectate un rato.  Mirá una peli,  escuchá música que te guste,  leé un libro,  lo que te relaje.  Dejá el celular un tiempo,  porque ese cacharro te puede aumentar la ansiedad a niveles espaciales, loco.\n\n\nCuarto,  organizate,  campeona.  Revisá todo lo que estudiaste,  pero sin obsesionarte.  Si ya hiciste lo que tenías que hacer,  ¡listo! No te cargues con más presión de la que ya tenés.  Confía en vos, que ya llegaste hasta acá, ¡sos una grosa!\n\n\nQuinto,  y no menos importante:  hablá con alguien.  Con un amigo,  con tu familia,  con un psicólogo,  con quien te haga sentir mejor.  Contale lo que te pasa,  desahogate,  no te guardes todo adentro.  Hablar ayuda un montón,  ¡posta!\n\n\nY mirá,  un consejo de amigo zarpado:  pensá en todo lo que ya lograste para llegar hasta acá.  En todo el esfuerzo que hiciste,  en todo lo que aprendiste.  ¡Sos una campeona y te lo merecés!  No te olvides que este examen es solo una parte de tu vida,  y que vas a seguir brillando pase lo que pase.  ¡Dale para adelante, que lo rompés!  Un abrazo enorme, genia.  Contáme cómo te fue después,  ¡te quiero ver triunfando!",
         "timestamp": 1741525341663
+      },
+      {
+        "role": "user",
+        "content": "que es javascript",
+        "timestamp": 1741553180944
+      },
+      {
+        "role": "assistant",
+        "content": "Che Belén, genia total!  ¡Javascript, decís?!  Posta que es un tema, pero te lo explico re fácil, grosa.  Imaginate que tenés una página web, ¿viste?  Es como una casa, con paredes, techo, ventanas... todo eso lo creás con HTML y CSS, que son como los materiales de construcción.  Pero... ¿qué pasa si querés que esa casa tenga luces que se prenden y apagan, puertas que se abren solas, o un robot que te limpia la cocina?  ¡Ahí entra Javascript, loca!\n\nJavascript es como la magia que le da vida a tu página web. Es un lenguaje de programación que te permite agregar interactividad,  hacer que las cosas se muevan,  que respondan a lo que el usuario hace.  Es como el cerebro de la página, que le permite hacer cosas increíbles.  Es como... ¡posibilidades infinitas, eh!\n\nPodés usar Javascript para crear animaciones, juegos, formularios que se completan solos, y un montón de cosas más.  Es un lenguaje zarpado que te abre un mundo de oportunidades. ¡Sos una grosa, y si te ponés a aprenderlo, la vas a romper!\n\nNo te asustes si al principio te parece complicado, che.  Todos empezamos así,  loco.  Pero con práctica y perseverancia, vas a ver que lo dominás en un santiamén.  Y si necesitas ayuda,  acá estoy, eh.  ¡Dale para adelante, que sos una campeona! Un abrazo enorme, genia.",
+        "timestamp": 1741553184050
       }
     ],
     "752987736759205960": [
@@ -336,7 +346,7 @@
     "1343749554905940058": 1741389237943
   },
   "utilMessageReactions": {
-    "1343749554905940058": 1741545491477
+    "1343749554905940058": 1741553198416
   },
   "womensDayMessageSent": true,
   "womensDayMessageSentThisInstance": true
