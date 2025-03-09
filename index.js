@@ -994,7 +994,7 @@ function cleanText(text) {
         .replace(/^(el|la|los|las)\s+/i, '');
 }
 
-// Generar imagen
+// Función para generar la imagen con Puppeteer
 async function generateImage(prompt) {
     try {
         console.log(`Generando imagen para: "${prompt}"`);
@@ -1016,12 +1016,12 @@ async function generateImage(prompt) {
         const url = `https://www.bing.com/images/create?q=${encodedPrompt}&rt=4&FORM=GENCRE`;
         await page.goto(url, { waitUntil: 'networkidle2' });
 
-        // Esperamos a que las imágenes carguen (selector actualizado)
-        await page.waitForSelector('.mimg', { timeout: 60000 }); // '.mimg' es la clase de las imágenes generadas
+        // Esperamos a que las imágenes carguen
+        await page.waitForSelector('.mimg', { timeout: 60000 }); // Selector de las imágenes generadas
 
-        // Extraemos las URLs de las imágenes generadas
+        // Extraemos las URLs de las imágenes
         const imageUrls = await page.evaluate(() => {
-            const images = Array.from(document.querySelectorAll('.mimg')); // Clase correcta para las imágenes
+            const images = Array.from(document.querySelectorAll('.mimg'));
             return images.map(img => img.src);
         });
 
@@ -1041,7 +1041,7 @@ async function generateImage(prompt) {
     }
 }
 
-// Integración con manejarImagen
+// Función manejarImagen para tu bot
 async function manejarImagen(message) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
     const args = message.content.startsWith('!imagen') ? message.content.slice(7).trim() : message.content.slice(3).trim();
@@ -1111,7 +1111,7 @@ async function manejarImagen(message) {
     }
 }
 
-// Exportar la función si estás usando módulos
+// Exportamos la función si usás módulos
 module.exports = { manejarImagen };
 
 // Comando !misimagenes para ver el historial
