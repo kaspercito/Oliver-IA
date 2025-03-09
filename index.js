@@ -1036,66 +1036,34 @@ async function generateImage(prompt, style) {
 
 async function manejarImagen(message) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
-    const args = message.content.startsWith('!imagen') ? message.content.slice(7).trim() : message.content.slice(3).trim();
+    const content = message.content.slice(3).trim().toLowerCase();
+    const [prompt, style = 'realista'] = content.split(',').map(s => s.trim());
 
-    if (!args) {
-        return sendError(message.channel, `¡Tirame algo después de "!imagen", ${userName}! Ejemplo: !imagen un mate [cartoon]`, 
-            '¿Qué querés ver, loco?', 'Hecho con onda por Oliver IA');
+    if (!prompt) {
+        return sendError(message.channel, `¡Tirame algo pa’ imaginar, ${userName}! Ej: !im un mate, realista`);
     }
 
-    const styleMatch = args.match(/\[(.*?)\]$/);
-    const style = styleMatch ? styleMatch[1].toLowerCase() : 'realista';
-    const prompt = styleMatch ? args.replace(styleMatch[0], '').trim() : args;
-
-    const confirmEmbed = createEmbed('#FFAA00', `¡Pará un cacho, ${userName}!`, 
-        `¿Querés una imagen de "${prompt}" en estilo ${style}? Reaccioná con ✅ o ❌.`, 
-        'Hecho con onda por Oliver IA');
-    const confirmMessage = await message.channel.send({ embeds: [confirmEmbed] });
-    await confirmMessage.react('✅');
-    await confirmMessage.react('❌');
-
-    const reactionFilter = (reaction, user) => ['✅', '❌'].includes(reaction.emoji.name) && user.id === message.author.id;
-    let reactions;
-    try {
-        reactions = await confirmMessage.awaitReactions({ filter: reactionFilter, max: 1, time: 30000, errors: ['time'] });
-    } catch {
-        return sendError(message.channel, `⏳ ¡Te dormiste, ${userName}!`, 
-            'No reaccionaste a tiempo. ¿Probamos de nuevo?', 'Hecho con onda por Oliver IA');
-    }
-
-    if (!reactions.size || reactions.first().emoji.name === '❌') {
-        return sendSuccess(message.channel, '🛑 ¡Nada de imagen!', `Tranqui, ${userName}, ¿qué más querés hacer?`);
-    }
-
-    const waitingEmbed = createEmbed('#55FFFF', `⌛ Generando, ${userName}...`, 
-        `Aguantá que te hago una imagen zarpada de "${prompt}" en estilo ${style}...`, 'Hecho con onda por Oliver IA');
+    const waitingEmbed = createEmbed('#55FFFF', `¡Pará un cacho, ${userName}!`, 
+        'Estoy generando tu imagen con onda...');
     const waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
 
     try {
-        const imageBase64 = await generateImage(prompt, style);
-        const imageAttachment = { attachment: Buffer.from(imageBase64.split(',')[1], 'base64'), name: `imagen_${userName}_${Date.now()}.png` };
+        let fullPrompt = prompt;
+        // Hacer el prompt súper específico y claro para todo
+        fullPrompt = `una imagen detallada y clara de ${prompt}, estilo ${style}, con resolución 4k, detalles nítidos y realistas, iluminación natural suave, sin marcas de agua, sin elementos distractivos o confusos, fondo limpio y minimalista que resalte el sujeto principal, con texturas bien definidas y colores vibrantes`;
 
-        if (!dataStore.imageHistory) dataStore.imageHistory = {};
-        if (!dataStore.imageHistory[userName]) dataStore.imageHistory[userName] = [];
-        const imageId = uuidv4();
-        dataStore.imageHistory[userName].push({
-            id: imageId,
-            prompt,
-            style,
-            base64: imageBase64,
-            timestamp: new Date().toISOString()
-        });
-        dataStoreModified = true;
-
-        const embed = createEmbed('#FFD700', `¡Acá tenés, ${userName}!`, 
+        const imageBase64 = await generateImage(fullPrompt, style);
+        const imageId = crypto.randomUUID();
+        const embed = createEmbed('#55FF55', `¡Acá tenés, ${userName}!`, 
             `Tu imagen de "${prompt}" en estilo ${style} quedó zarpada. ID: ${imageId}. ¿Te copa?`, 
-            'Hecho con onda por Oliver IA');
-        const sentMessage = await waitingMessage.edit({ embeds: [embed], files: [imageAttachment] });
-        sentMessages.set(sentMessage.id, { imageId, userName });
+            `Hecho con onda por Oliver IA • ${new Date().toLocaleString()}`);
+        await waitingMessage.edit({ embeds: [embed], files: [{ attachment: Buffer.from(imageBase64, 'base64'), name: `${imageId}.png` }] });
+        generatedImages.set(imageId, { base64: imageBase64, prompt: fullPrompt, style });
     } catch (error) {
+        console.error('Error generando imagen:', error.message);
         const errorEmbed = createEmbed('#FF5555', '¡Qué cagada!', 
-            `No pude generar la imagen de "${prompt}", ${userName}. Error: ${error.message}. ¿Probamos otra vez?`, 
-            'Hecho con onda por Oliver IA');
+            `No pude generar la imagen de "${prompt}", ${userName}. Error: ${error.message}. ¿Probamos más tarde o con otra cosa, loco?`, 
+            `Hecho con onda por Oliver IA • ${new Date().toLocaleString()}`);
         await waitingMessage.edit({ embeds: [errorEmbed] });
     }
 }
