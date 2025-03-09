@@ -2588,6 +2588,7 @@ async function listarIdiomas(message) {
     }
 }
 
+
 // Eventos de música con Erela.js
 manager.on('nodeConnect', node => console.log(`Nodo ${node.options.identifier} conectado.`));
 manager.on('nodeError', (node, error) => console.error(`Error en nodo ${node.options.identifier}: ${error.message}`));
@@ -2855,7 +2856,7 @@ async function manejarCommand(message) {
     else if (content.startsWith('!ansiedad') || content.startsWith('!an')) {
         await manejarAnsiedad(message);
     }
-    else if (content === '!languages') {
+    else if (content === '!lenguajes') {
         await listarIdiomas(message);
     }
 }
