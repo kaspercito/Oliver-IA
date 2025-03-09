@@ -1627,26 +1627,33 @@ async function manejarAutosave(message) {
 }
 
 async function generarDegradadoFucsiaVertical() {
-    console.log('Iniciando generación de imagen...');
-    const width = 50;
-    const height = 400;
-    const canvas = createCanvas(width, height);
-    const ctx = canvas.getContext('2d');
+    return new Promise((resolve, reject) => {
+        console.log('Iniciando generación de imagen...');
+        const width = 50;
+        const height = 400;
+        const canvas = createCanvas(width, height);
+        const ctx = canvas.getContext('2d');
 
-    const gradient = ctx.createLinearGradient(0, 0, 0, height);
-    gradient.addColorStop(0, '#FF00FF');
-    gradient.addColorStop(1, '#FF69B4');
+        const gradient = ctx.createLinearGradient(0, 0, 0, height);
+        gradient.addColorStop(0, '#FF00FF');
+        gradient.addColorStop(1, '#FF69B4');
 
-    ctx.fillStyle = gradient;
-    ctx.fillRect(0, 0, width, height);
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, width, height);
 
-    const buffer = canvas.toBuffer('image/png');
-    const filePath = './degradado_fucsia_vertical.png';
-    await fs.writeFile(filePath, buffer);
-    console.log('Imagen generada exitosamente en:', filePath);
-    return filePath;
+        const buffer = canvas.toBuffer('image/png');
+        const filePath = '/tmp/degradado_fucsia_vertical.png';
+
+        fs.writeFile(filePath, buffer, (err) => {
+            if (err) {
+                console.error('Error al escribir la imagen:', err);
+                return reject(err);
+            }
+            console.log('Imagen generada exitosamente en:', filePath);
+            resolve(filePath);
+        });
+    });
 }
-
 // PPM
 function obtenerFrasePPM() {
     return frasesPPM[Math.floor(Math.random() * frasesPPM.length)];
