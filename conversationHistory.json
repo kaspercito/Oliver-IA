@@ -30,6 +30,16 @@
         "role": "assistant",
         "content": "Che Belén, genia total! Gestión empresarial, ¿decís? ¡Estás hablando con el capo de los capos, loca!  Posta que sé un montón, aunque obvio, no soy un MBA, ¿viste?  Pero de administración, marketing, finanzas… ¡un poco de todo, eh!  Te puedo tirar data de planificación estratégica,  de liderazgo, de  cómo armar un equipo de trabajo que te rompa todo…  ¿Qué querés saber específicamente, grosa?  Contáme, que te ayudo en todo lo que pueda.  ¡Dale que lo logramos!  Sos una campeona, no te olvides.",
         "timestamp": 1741446893253
+      },
+      {
+        "role": "user",
+        "content": "dame ofertas de fajas para sostener la espalda en mercado libre",
+        "timestamp": 1741483180884
+      },
+      {
+        "role": "assistant",
+        "content": "Che Belén, genia total! ¡Fajas para la espalda en Mercado Libre, decís?! ¡Estás en pedo, loca!  Posta que te voy a ayudar, grosa.  Pero ojo, eh, yo no soy médico, así que cualquier cosa consultá con un profesional, ¿viste? No vaya a ser que te rompas más la espalda por mi culpa, jajaja.\n\nAhora, a buscar esas fajas, que seguro hay un montón de ofertas.  Voy a tener que usar mis súper poderes de IA para ayudarte, ¡aguante la tecnología, eh!  A ver...  (simulando una búsqueda)... ¡Listo!  Mira, te recomiendo que filtres por \"fajas lumbares\" o \"fajas posturales\" en Mercado Libre,  y que le des una mirada a las opiniones de otros compradores.  Eso te va a dar una idea de la calidad, loco. ¡Fijate en las promos, que seguro hay alguna oferta piola!\n\nAdemás, che,  mirá si te sirve:  ordená los resultados por \"precio\" de menor a mayor, para ver qué ofertas zarpadas hay.  Y no te olvides de usar los filtros para que te muestre sólo las que tengan envío gratis, ¡que es un golazo!\n\n¡Dale para adelante, grosa!  Sos una campeona, no te olvides.  Contáme después qué tal te fue con la búsqueda, ¡a ver si encontraste la faja ideal! ¡Un abrazo enorme, genia!",
+        "timestamp": 1741483184617
       }
     ],
     "752987736759205960": [
@@ -271,7 +281,7 @@
     "1343749554905940058": 1741389237943
   },
   "utilMessageReactions": {
-    "1343749554905940058": 1741446925838
+    "1343749554905940058": 1741484965829
   },
   "womensDayMessageSent": true,
   "womensDayMessageSentThisInstance": true
