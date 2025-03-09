@@ -2569,20 +2569,42 @@ async function manejarTraduci(message) {
 
 async function listarIdiomas(message) {
     const idiomas = Object.keys(langMap).sort();
-    const maxLength = 1900; // Margen seguro para Discord (< 2000 caracteres)
-    let mensajeActual = 'Idiomas disponibles para traducir:\n';
+    const maxLength = 4000; // Margen seguro para la descripción de un embed (< 4096 caracteres)
+    let descripcionActual = '';
+    const embeds = [];
     
+    // Crear el embed inicial
+    let embed = new EmbedBuilder()
+        .setTitle('Idiomas disponibles para traducir')
+        .setColor('#55FFFF') // Color celeste, puedes cambiarlo
+        .setFooter({ text: 'Oliver IA - Traducción con onda' });
+
     for (const idioma of idiomas) {
         const adicion = `${idioma}, `;
-        if (mensajeActual.length + adicion.length > maxLength) {
-            await message.channel.send(mensajeActual.slice(0, -2));
-            mensajeActual = 'Idiomas disponibles para traducir (continuación):\n';
+        if (descripcionActual.length + adicion.length > maxLength) {
+            // Si se pasa del límite, añadir el embed actual a la lista y empezar uno nuevo
+            embed.setDescription(descripcionActual.slice(0, -2)); // Elimina la última coma y espacio
+            embeds.push(embed);
+            
+            // Reiniciar para el siguiente embed
+            embed = new EmbedBuilder()
+                .setTitle('Idiomas disponibles para traducir (continuación)')
+                .setColor('#55FFFF')
+                .setFooter({ text: 'Oliver IA - Traducción con onda' });
+            descripcionActual = '';
         }
-        mensajeActual += adicion;
+        descripcionActual += adicion;
     }
     
-    if (mensajeActual.length > 0) {
-        await message.channel.send(mensajeActual.slice(0, -2));
+    // Añadir el último embed si queda contenido
+    if (descripcionActual.length > 0) {
+        embed.setDescription(descripcionActual.slice(0, -2));
+        embeds.push(embed);
+    }
+    
+    // Enviar todos los embeds
+    for (const embed of embeds) {
+        await message.channel.send({ embeds: [embed] });
     }
 }
 
