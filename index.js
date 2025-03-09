@@ -1221,11 +1221,12 @@ let autosavePausedByMusic = false;
 // Utilidades con tono argentino
 const createEmbed = (color, title, description, footer = 'Hecho con onda por Oliver IA') => {
     return new EmbedBuilder()
-        .setColor(color)
-        .setTitle(title)
-        .setDescription(description || ' ')
+        .setColor(color || '#FF00FF')
+        .setTitle(title && title.trim() !== '' ? title : 'Título no disponible')
+        .setDescription(safeDescription)
         .setFooter({ text: footer })
-        .setTimestamp();
+        .setTimestamp()
+        .setThumbnail('https://i.imgur.com/OBRtoSz.jpeg'); // Reemplazá con la URL de tu imagen
 };
 
 const sendError = async (channel, message, suggestion = '¿Probamos de nuevo, loco?', footer = 'Hecho con onda por Oliver IA') => {
@@ -2865,7 +2866,12 @@ async function manejarCommand(message) {
             `Listo, ${userName}, cortaste la trivia al toque. Puntuación parcial: ${channelProgress.score}/${channelProgress.currentQuestion}. ¿Arrancamos otra con !trivia?`);
         return; // Salimos para no procesar más
     } 
-    // Cancelar reacciones
+    
+    if (command === '!milagros') {
+        await manejarMilagros(message);
+        return;
+    } 
+        // Cancelar reacciones
     else if (content === '!reacciones cancelar' || content === '!rc') {
         if (message.author.id !== OWNER_ID && message.author.id !== ALLOWED_USER_ID) return;
 
@@ -3008,9 +3014,6 @@ async function manejarCommand(message) {
     }
     else if (content === '!lenguajes') {
         await listarIdiomas(message);
-    }
-    else if (content === '!milagros') {
-        await manejarMilagros(message);
     }
 }
 
