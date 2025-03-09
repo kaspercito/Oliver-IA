@@ -24,7 +24,8 @@ const client = new Client({
 const OWNER_ID = '752987736759205960'; // Tu ID
 const ALLOWED_USER_ID = '1023132788632862761'; // ID de Belén
 const CHANNEL_ID = '1343749554905940058'; // Canal principal
-const API_URL = 'https://ced2-34-87-48-223.ngrok-free.app/generate'; // Si es local
+const API_URL = 'https://api-inference.huggingface.co/models/runwayml/stable-diffusion-v1-5';
+const API_TOKEN = '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'; // Reemplazá con tu token
 
 // Configuración del administrador de música con Erela.js
 const manager = new Manager({
@@ -1000,21 +1001,30 @@ function cleanText(text) {
 async function generateImage(prompt, style) {
     try {
         console.log(`Generando imagen para: "${prompt}" en estilo ${style}`);
-        const response = await axios.post(API_URL, 
-            { prompt, style }, // Datos del request
-            {
-                headers: {
-                    'ngrok-skip-browser-warning': 'true' // Salta la advertencia
-                }
+        const fullPrompt = `Una imagen copada de ${prompt}, estilo ${style}, con onda argentina, 4k, detalles zarpados`;
+        const response = await axios.post(API_URL, {
+            inputs: fullPrompt,
+            parameters: {
+                negative_prompt: "borroso, feo, baja calidad, distorsionado",
+                num_inference_steps: 50,  // Más pasos = más calidad
+                guidance_scale: 7.5       // Fidelidad al prompt
             }
-        );
-        return response.data.image;
+        }, {
+            headers: {
+                'Authorization': `Bearer ${API_TOKEN}`,
+                'Content-Type': 'application/json'
+            },
+            responseType: 'arraybuffer' // La API devuelve la imagen como bytes
+        });
+
+        // Convertí los bytes a base64
+        const imageBase64 = `data:image/png;base64,${Buffer.from(response.data).toString('base64')}`;
+        return imageBase64;
     } catch (error) {
-        console.error('Error al generar imagen:', error.message);
+        console.error('Error al generar imagen:', error.response?.status, error.message);
         throw new Error(`No pude generar la imagen: ${error.message}`);
     }
 }
-
 
 async function manejarImagen(message) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
@@ -1050,7 +1060,7 @@ async function manejarImagen(message) {
     }
 
     const waitingEmbed = createEmbed('#55FFFF', `⌛ Generando, ${userName}...`, 
-        `Aguantá que te hago una imagen zarpada de "${prompt}" en estilo ${style}...`, 'Hecho con onda por Oliver IA');
+        `Aguantá que te hago una imagen zarpada de "${prompt}" en estilo ${style}...`, 'Hecho con onda por Grok de xAI');
     const waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
 
     try {
@@ -1071,13 +1081,13 @@ async function manejarImagen(message) {
 
         const embed = createEmbed('#FFD700', `¡Acá tenés, ${userName}!`, 
             `Tu imagen de "${prompt}" en estilo ${style} quedó zarpada. ID: ${imageId}. ¿Te copa?`, 
-            'Hecho con onda por Oliver IA');
+            'Hecho con onda por Grok de xAI');
         const sentMessage = await waitingMessage.edit({ embeds: [embed], files: [imageAttachment] });
         sentMessages.set(sentMessage.id, { imageId, userName });
     } catch (error) {
         const errorEmbed = createEmbed('#FF5555', '¡Qué cagada!', 
             `No pude generar la imagen de "${prompt}", ${userName}. Error: ${error.message}. ¿Probamos otra vez?`, 
-            'Hecho con onda por Oliver IA');
+            'Hecho con onda por Grok de xAI');
         await waitingMessage.edit({ embeds: [errorEmbed] });
     }
 }
