@@ -2387,7 +2387,6 @@ async function manejarTraduci(message) {
         const langMap = {
             'ingles': 'en',
             'español': 'es',
-            'espanol': 'es',
             'frances': 'fr',
             'italiano': 'it',
             'portugues': 'pt',
