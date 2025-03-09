@@ -2841,7 +2841,7 @@ async function manejarCommand(message) {
     else if (content.startsWith('!ansiedad') || content.startsWith('!an')) {
         await manejarAnsiedad(message);
     }
-    else if (content === '!idiomas') {
+    else if (content === '!languages') {
         return listarIdiomas();
     }
 }
