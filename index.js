@@ -994,9 +994,6 @@ function cleanText(text) {
 }
 
 // Generar imagen
-const axios = require('axios');
-require('dotenv').config();
-
 async function generateImage(prompt) {
     try {
         console.log(`Generando imagen para: "${prompt}"`);
