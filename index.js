@@ -994,24 +994,35 @@ function cleanText(text) {
 }
 
 // Generar imagen
-// Función para generar imagen (ya la tenés, pero la ajusto un poco)
+const axios = require('axios');
+require('dotenv').config();
+
 async function generateImage(prompt) {
     try {
         console.log(`Generando imagen para: "${prompt}"`);
         const response = await axios.post(
-            'https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-2-1',
-            { inputs: prompt },
+            'https://www.bing.com/images/create', // Endpoint de Bing Image Creator
+            {
+                q: prompt, // El prompt va como query
+                rt: '3', // Modo DALL-E 3
+                format: 'json'
+            },
             {
                 headers: {
-                    'Authorization': `Bearer ${process.env.HF_API_TOKEN}`,
+                    'Authorization': `Bearer ${process.env.BING_API_TOKEN}`, // Token de Bing
                     'Content-Type': 'application/json',
-                    'Accept': 'image/png'
+                    'Accept': 'application/json',
+                    'User-Agent': 'Mozilla/5.0' // Para simular un navegador
                 },
-                responseType: 'arraybuffer',
+                responseType: 'json',
                 timeout: 90000
             }
         );
-        const imageBase64 = Buffer.from(response.data, 'binary').toString('base64');
+
+        // Bing devuelve una URL temporal de la imagen generada
+        const imageUrl = response.data.result.imageUrl;
+        const imageResponse = await axios.get(imageUrl, { responseType: 'arraybuffer' });
+        const imageBase64 = Buffer.from(imageResponse.data, 'binary').toString('base64');
         return `data:image/png;base64,${imageBase64}`;
     } catch (error) {
         console.error('Error al generar imagen:', error.message);
@@ -1019,7 +1030,7 @@ async function generateImage(prompt) {
     }
 }
 
-// Comando !imagen con estilos personalizados
+// El resto (manejarImagen) queda casi igual, solo ajustamos el prompt
 async function manejarImagen(message) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
     const args = message.content.startsWith('!imagen') ? message.content.slice(7).trim() : message.content.slice(3).trim();
@@ -1029,12 +1040,10 @@ async function manejarImagen(message) {
             '¿Qué querés ver, loco?', 'Hecho con onda por Oliver IA');
     }
 
-    // Separar prompt y estilo (si hay)
     const styleMatch = args.match(/\[(.*?)\]$/);
     const style = styleMatch ? styleMatch[1].toLowerCase() : 'realista';
     const prompt = styleMatch ? args.replace(styleMatch[0], '').trim() : args;
 
-    // Confirmación antes de generar
     const confirmEmbed = createEmbed('#FFAA00', `¡Pará un cacho, ${userName}!`, 
         `¿Querés que te genere una imagen de "${prompt}" en estilo ${style}? Reaccioná con ✅ para confirmar, o ❌ para cancelar, loco.`, 
         'Hecho con onda por Oliver IA');
@@ -1057,7 +1066,6 @@ async function manejarImagen(message) {
         return;
     }
 
-    // Generar la imagen
     const waitingEmbed = createEmbed('#55FFFF', `⌛ Generando, ${userName}...`, 
         `Aguantá un toque que te hago una imagen re copada de "${prompt}" en estilo ${style}...`, 'Hecho con onda por Oliver IA');
     const waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
@@ -1066,7 +1074,6 @@ async function manejarImagen(message) {
         const imageBase64 = await generateImage(`Una imagen copada de ${prompt}, estilo ${style}, con onda argentina`);
         const imageAttachment = { attachment: Buffer.from(imageBase64.split(',')[1], 'base64'), name: `imagen_${userName}_${Date.now()}.png` };
         
-        // Guardar en dataStore
         if (!dataStore.imageHistory) dataStore.imageHistory = {};
         if (!dataStore.imageHistory[userName]) dataStore.imageHistory[userName] = [];
         const imageId = uuidv4();
