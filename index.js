@@ -998,10 +998,12 @@ function cleanText(text) {
 async function generateImage(prompt) {
     try {
         console.log(`Generando imagen para: "${prompt}"`);
-        const browser = await puppeteer.launch({ headless: true });
+        const browser = await puppeteer.launch({
+            headless: true,
+            args: ['--no-sandbox', '--disable-setuid-sandbox'] // Agregamos estas opciones
+        });
         const page = await browser.newPage();
 
-        // Seteamos la cookie _U con tu token
         await page.setCookie({
             name: '_U',
             value: process.env.BING_U_TOKEN,
@@ -1011,15 +1013,12 @@ async function generateImage(prompt) {
             secure: true
         });
 
-        // Vamos a la URL de creación con el prompt
         const encodedPrompt = encodeURIComponent(prompt);
         const url = `https://www.bing.com/images/create?q=${encodedPrompt}&rt=4&FORM=GENCRE`;
         await page.goto(url, { waitUntil: 'networkidle2' });
 
-        // Esperamos a que las imágenes carguen
-        await page.waitForSelector('.mimg', { timeout: 60000 }); // Selector de las imágenes generadas
+        await page.waitForSelector('.mimg', { timeout: 60000 });
 
-        // Extraemos las URLs de las imágenes
         const imageUrls = await page.evaluate(() => {
             const images = Array.from(document.querySelectorAll('.mimg'));
             return images.map(img => img.src);
@@ -1029,7 +1028,6 @@ async function generateImage(prompt) {
             throw new Error('No se encontraron imágenes generadas. Capaz que el prompt falló o Bing tardó demasiado.');
         }
 
-        // Descargamos la primera imagen como base64
         const imageResponse = await axios.get(imageUrls[0], { responseType: 'arraybuffer' });
         const imageBase64 = Buffer.from(imageResponse.data, 'binary').toString('base64');
 
@@ -1041,7 +1039,7 @@ async function generateImage(prompt) {
     }
 }
 
-// Función manejarImagen para tu bot
+// Resto del código (manejarImagen) sin cambios
 async function manejarImagen(message) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
     const args = message.content.startsWith('!imagen') ? message.content.slice(7).trim() : message.content.slice(3).trim();
@@ -1111,7 +1109,6 @@ async function manejarImagen(message) {
     }
 }
 
-// Exportamos la función si usás módulos
 module.exports = { manejarImagen };
 
 // Comando !misimagenes para ver el historial
