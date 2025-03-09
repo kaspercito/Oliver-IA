@@ -1220,13 +1220,17 @@ let autosavePausedByMusic = false;
 
 // Utilidades con tono argentino
 const createEmbed = (color, title, description, footer = 'Hecho con onda por Oliver IA') => {
+    const safeDescription = description && description.trim() !== '' 
+        ? description 
+        : 'Sin descripción disponible';
+
     return new EmbedBuilder()
         .setColor(color || '#FF00FF')
         .setTitle(title && title.trim() !== '' ? title : 'Título no disponible')
         .setDescription(safeDescription)
         .setFooter({ text: footer })
         .setTimestamp()
-        .setThumbnail('https://i.imgur.com/OBRtoSz.jpeg'); // Reemplazá con la URL de tu imagen
+        .setThumbnail('https://i.imgur.com/OBRtoSz.jpeg'); // Reemplazá con tu URL
 };
 
 const sendError = async (channel, message, suggestion = '¿Probamos de nuevo, loco?', footer = 'Hecho con onda por Oliver IA') => {
