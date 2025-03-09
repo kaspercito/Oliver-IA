@@ -162,8 +162,8 @@ const milagrosTranslations = {
     estonio: "Ime",
 
     // Idiomas de América Latina y Caribe
-    criollo haitiano: "Mirak",
-    quechua boliviano: "Milagru",
+    criollo: "Mirak",
+    quechua: "Milagru",
 
     // Otros idiomas y dialectos
     esperanto: "Mirakloj",
