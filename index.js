@@ -2333,7 +2333,7 @@ async function manejarIdea(message) {
     try {
         await owner.send({ embeds: [ideaEmbed] });
         await sendSuccess(message.channel, '✅ ¡Idea guardada!', 
-            `Ya la anoté y te la mandé por MD, ${userName}. ¡Buena esa!`);
+            `Ya la anoté y se la mandé por MD a Miguel, ${userName}. ¡Buena esa!`);
     } catch (error) {
         console.error('Error al enviar idea:', error);
         await sendError(message.channel, '❌ No pude mandar la idea', 
