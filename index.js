@@ -2569,9 +2569,23 @@ async function manejarTraduci(message) {
     }
 }
 
-function listarIdiomas() {
+async function listarIdiomas(message) {
     const idiomas = Object.keys(langMap).sort();
-    return `Idiomas disponibles para traducir: ${idiomas.join(', ')}`;
+    const maxLength = 1900; // Margen seguro para Discord (< 2000 caracteres)
+    let mensajeActual = 'Idiomas disponibles para traducir:\n';
+    
+    for (const idioma of idiomas) {
+        const adicion = `${idioma}, `;
+        if (mensajeActual.length + adicion.length > maxLength) {
+            await message.channel.send(mensajeActual.slice(0, -2)); // Elimina la última coma y espacio
+            mensajeActual = 'Idiomas disponibles para traducir (continuación):\n';
+        }
+        mensajeActual += adicion;
+    }
+    
+    if (mensajeActual.length > 0) {
+        await message.channel.send(mensajeActual.slice(0, -2)); // Envía el resto
+    }
 }
 
 // Eventos de música con Erela.js
@@ -2842,7 +2856,7 @@ async function manejarCommand(message) {
         await manejarAnsiedad(message);
     }
     else if (content === '!languages') {
-        return listarIdiomas();
+        await listarIdiomas(message);
     }
 }
 
