@@ -1627,6 +1627,7 @@ async function manejarAutosave(message) {
 }
 
 async function generarDegradadoFucsiaVertical() {
+    console.log('Iniciando generación de imagen...');
     const width = 50;
     const height = 400;
     const canvas = createCanvas(width, height);
@@ -1641,7 +1642,8 @@ async function generarDegradadoFucsiaVertical() {
 
     const buffer = canvas.toBuffer('image/png');
     const filePath = './degradado_fucsia_vertical.png';
-    await fs.promises.writeFile(filePath, buffer); // Usar fs.promises para writeFile
+    await fs.writeFile(filePath, buffer);
+    console.log('Imagen generada exitosamente en:', filePath);
     return filePath;
 }
 
