@@ -2413,7 +2413,7 @@ async function manejarTraduci(message) {
         }
 
         const embed = createEmbed('#FFD700', `✅ Traducción a ${targetLang.charAt(0).toUpperCase() + targetLang.slice(1)}`, 
-            `"${text}" → **${translated}**\n*Traducido con onda desde español, che.*`);
+            `"${text}" → **${translated}**\n*Traducido con onda por Oliver IA, che.*`);
         await waitingMessage.edit({ embeds: [embed] });
     } catch (error) {
         console.error(`Error traduciendo "${text}" a "${targetLang}": ${error.message}`);
