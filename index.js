@@ -24,7 +24,7 @@ const client = new Client({
 const OWNER_ID = '752987736759205960'; // Tu ID
 const ALLOWED_USER_ID = '1023132788632862761'; // ID de Belén
 const CHANNEL_ID = '1343749554905940058'; // Canal principal
-const API_URL = 'https://api-inference.huggingface.co/models/runwayml/stable-diffusion-v1-5';
+const API_URL = 'https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-2-1';
 const API_TOKEN = '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'; // Reemplazá con tu token
 
 // Configuración del administrador de música con Erela.js
