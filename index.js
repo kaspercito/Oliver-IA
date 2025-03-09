@@ -1089,13 +1089,13 @@ async function manejarImagen(message) {
 
         const embed = createEmbed('#FFD700', `¡Acá tenés, ${userName}!`, 
             `Tu imagen de "${prompt}" en estilo ${style} quedó zarpada. ID: ${imageId}. ¿Te copa?`, 
-            'Hecho con onda por Grok de xAI');
+            'Hecho con onda por Oliver IA');
         const sentMessage = await waitingMessage.edit({ embeds: [embed], files: [imageAttachment] });
         sentMessages.set(sentMessage.id, { imageId, userName });
     } catch (error) {
         const errorEmbed = createEmbed('#FF5555', '¡Qué cagada!', 
             `No pude generar la imagen de "${prompt}", ${userName}. Error: ${error.message}. ¿Probamos otra vez?`, 
-            'Hecho con onda por Grok de xAI');
+            'Hecho con onda por Oliver IA');
         await waitingMessage.edit({ embeds: [errorEmbed] });
     }
 }
