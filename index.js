@@ -6,7 +6,6 @@ const { Manager } = require('erela.js');
 const Spotify = require('erela.js-spotify');
 const puppeteer = require('puppeteer');
 const lyricsFinder = require('lyrics-finder');
-const crypto = require('crypto');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 require('dotenv').config();
 
@@ -1001,20 +1000,19 @@ function cleanText(text) {
 
 // Función para generar la imagen con Puppeteer
 async function generateImage(prompt, style) {
-    const maxRetries = 5; // Aumentamos a 5 intentos
+    const maxRetries = 3;
     let attempt = 0;
 
     while (attempt < maxRetries) {
         try {
             console.log(`Generando imagen para: "${prompt}" en estilo ${style} - Intento ${attempt + 1}`);
+            const fullPrompt = `Una imagen copada de ${prompt}, estilo ${style}, con onda argentina, 4k, detalles zarpados`;
             const response = await axios.post(API_URL, {
-                inputs: prompt,
+                inputs: fullPrompt,
                 parameters: {
-                    negative_prompt: "borroso, feo, baja calidad, distorsionado, marcas de agua, texto no deseado, elementos irrelevantes",
-                    num_inference_steps: 70,
-                    guidance_scale: 9.0,
-                    width: 512,
-                    height: 512
+                    negative_prompt: "borroso, feo, baja calidad, distorsionado",
+                    num_inference_steps: 50,
+                    guidance_scale: 7.5
                 }
             }, {
                 headers: {
@@ -1032,7 +1030,7 @@ async function generateImage(prompt, style) {
             if (attempt === maxRetries) {
                 throw new Error(`No pude generar la imagen después de ${maxRetries} intentos: ${error.message}`);
             }
-            await new Promise(resolve => setTimeout(resolve, 5000 * attempt)); // Delay de 5, 10, 15, 20 segundos
+            await new Promise(resolve => setTimeout(resolve, 2000 * attempt)); // Delay de 2, 4, 6 segundos
         }
     }
 }
@@ -2588,10 +2586,10 @@ async function manejarCommand(message) {
         }
         return;
     }
-    else if (content.startsWith('!traducí')) {
+    else if (content === '!traduci' || content === '!ts')) {
         await manejarTraduci(message);
     }
-    else if (content.startsWith('!trivia') || content.startsWith('!tr')) {
+    else if (content === '!trivia' || content === '!tc') {
         await manejarTrivia(message);
     } 
     else if (content.startsWith('!reacciones') || content.startsWith('!re')) {
