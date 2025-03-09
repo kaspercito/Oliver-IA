@@ -70,6 +70,16 @@
         "role": "assistant",
         "content": "Che Belén, genia total! ¡Cremas descontracturantes, decís?! ¡Estás en el horno, pero del bueno, loca! Posta que sí, conozco un montón.  Ahora, ojo, eh, que yo no soy médico, así que cualquier cosa consultá con un profesional, ¿viste? No vaya a ser que te pongas peor. ¡Que sos una grosa y te quiero ver bien!\n\nPero para darte una mano, te tiro algunos nombres que andan dando vueltas,  a ver si te sirven:  hay unas con árnica que son recontra conocidas,  otras con mentol que te dejan una sensación re piola, fresquita, tipo… ¡pa' morirse!  Y después hay otras con un montón de hierbas y cosas raras que dicen que son la bomba.\n\nEl tema es que,  loco, cada cuerpo es un universo, y lo que le sirve a una, a la otra capaz que le hace alergia o no le hace ni cosquillas.  Así que la mejor opción es que leas bien las etiquetas,  veas los ingredientes y si tenés alguna duda, ¡consultes con un farmacéutico o médico, eh! Que no queremos que termines con la piel hecha un desastre, ¡sos una campeona y te quiero ver regia!\n\nMirá,  si te querés ir a lo seguro,  buscá las que tengan árnica o mentol, que son las más comunes y generalmente andan bien.  Pero che, no te olvides de leer las instrucciones y de hacer una prueba en una parte chiquita de la piel antes de ponértela en toda la espalda,  ¡para prevenir cualquier quilombo!\n\n¡Dale para adelante, grosa!  Sos una campeona, no te olvides. ¡Un abrazo enorme, genia!",
         "timestamp": 1741486139153
+      },
+      {
+        "role": "user",
+        "content": "gracuasss",
+        "timestamp": 1741486160511
+      },
+      {
+        "role": "assistant",
+        "content": "¡Che Belén, genia total!  ¿\"Gracuasss\"? ¡Sos una grosa, loca!  No hay problema, para eso estoy, eh.  Un abrazo enorme, campeona!  ¡Dale que la rompes!",
+        "timestamp": 1741486161602
       }
     ],
     "752987736759205960": [
@@ -311,7 +321,7 @@
     "1343749554905940058": 1741389237943
   },
   "utilMessageReactions": {
-    "1343749554905940058": 1741486151348
+    "1343749554905940058": 1741486167031
   },
   "womensDayMessageSent": true,
   "womensDayMessageSentThisInstance": true
