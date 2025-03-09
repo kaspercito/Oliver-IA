@@ -77,6 +77,7 @@ const BOT_UPDATES = [
     '¡Historial de imágenes con !misimagenes / !mi! Mirá tus últimas 5 imágenes generadas con sus IDs, pa’ que no pierdas nada, che.',
     '¡Edición piola con !editarimagen / !ei! Modificá tus imágenes guardadas (ej. !editarimagen [ID] agregar un perro), solo las que hice yo, ¡posta!',
     '¡Solucionado el error con las imágenes, ahora sí funciona como la puta madre!'
+    '¡Nuevo !ansiedad / !an agregado! Consejos rápidos pa’ calmar la ansiedad, con un mensaje zarpado de Miguel pa’ darte pilas, ¡genia!'
 ];
 
 // Mensajes de ánimo para Belén
@@ -999,19 +1000,20 @@ function cleanText(text) {
 
 // Función para generar la imagen con Puppeteer
 async function generateImage(prompt, style) {
-    const maxRetries = 3;
+    const maxRetries = 5; // Aumentamos a 5 intentos
     let attempt = 0;
 
     while (attempt < maxRetries) {
         try {
             console.log(`Generando imagen para: "${prompt}" en estilo ${style} - Intento ${attempt + 1}`);
-            const fullPrompt = `Una imagen copada de ${prompt}, estilo ${style}, con onda argentina, 4k, detalles zarpados`;
             const response = await axios.post(API_URL, {
-                inputs: fullPrompt,
+                inputs: prompt,
                 parameters: {
-                    negative_prompt: "borroso, feo, baja calidad, distorsionado",
-                    num_inference_steps: 50,
-                    guidance_scale: 7.5
+                    negative_prompt: "borroso, feo, baja calidad, distorsionado, marcas de agua, texto no deseado, elementos irrelevantes",
+                    num_inference_steps: 70,
+                    guidance_scale: 9.0,
+                    width: 512,
+                    height: 512
                 }
             }, {
                 headers: {
@@ -1029,7 +1031,7 @@ async function generateImage(prompt, style) {
             if (attempt === maxRetries) {
                 throw new Error(`No pude generar la imagen después de ${maxRetries} intentos: ${error.message}`);
             }
-            await new Promise(resolve => setTimeout(resolve, 2000 * attempt)); // Delay de 2, 4, 6 segundos
+            await new Promise(resolve => setTimeout(resolve, 5000 * attempt)); // Delay de 5, 10, 15, 20 segundos
         }
     }
 }
@@ -1170,6 +1172,28 @@ async function manejarEditarImagen(message) {
         await waitingMessage.edit({ embeds: [errorEmbed] });
     }
 }
+
+// Función para manejar el comando !ansiedad
+async function manejarAnsiedad(message) {
+    const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
+    const tips = [
+        "Tomá aire profundo, loco: inhalá contando 4, aguantá 4, soltá en 4. Repetilo tres veces y vas a ver cómo afloja.",
+        "Movete un toque, genia: caminá, estirá las patas o bailá algo rápido. ¡Saca esa energía loca!",
+        "Tirate a escuchar un tema que te vuele la cabeza, grosa. Música pa’ desconectar.",
+        "Pensá en algo copado que hiciste esta semana, che. ¡Vos podés con todo!"
+    ];
+    const tip = tips[Math.floor(Math.random() * tips.length)];
+    const mensajeMiguel = "¡Ojo al dato, Belén! Miguel te manda un abrazo zarpado y te desea toda la suerte del mundo pa’ ese examen. Confiá en vos, genia, que sos una grosa y la vas a romper, ¡posta!";
+
+    const embed = createEmbed('#55FFFF', `¡Tranqui, ${userName}!`, 
+        `${tip}\n\n${mensajeMiguel}\n\n¿Querés charlar más o te tiro otro tip al toque?`, 
+        'Con cariño, Oliver IA | Reacciona con ✅ o ❌');
+    const sentMessage = await message.channel.send({ embeds: [embed] });
+    await sentMessage.react('✅');
+    await sentMessage.react('❌');
+    sentMessages.set(sentMessage.id, { content: `${tip} ${mensajeMiguel}`, message: sentMessage });
+}
+
 async function loadDataStore() {
     try {
         const response = await axios.get(
@@ -2637,6 +2661,9 @@ async function manejarCommand(message) {
     else if (content.startsWith('!editarimagen') || content.startsWith('!ei')) {
         await manejarEditarImagen(message);
     }
+    else if (content.startsWith('!ansiedad') || content.startsWith('!an')) {
+        await manejarAnsiedad(message);
+    }
 }
 
 client.on('messageCreate', async (message) => {
@@ -2761,6 +2788,7 @@ client.on('messageCreate', async (message) => {
             '- **!noticias**: Te traigo el último titular de Argentina, al toque.\n' +
             '- **!wiki [término]**: Busco un resumen en Wikipedia, ¡copado!\n' +
             '- **!traducí [frase] a [idioma]**: Traduzco frases cortas, joya pa’ practicar.\n' +
+            '- **!an / !ansiedad**: Tips rápidos pa’ calmar la ansiedad, con un mensaje especial de Miguel pa’ darte pilas.\n' +
             '- **!h / !help**: Esta lista, che.\n' +
             '- **!hm / !help musica**: Comandos para meterle música al día.\n' +
             '- **hola**: Te tiro un saludito con onda.');
