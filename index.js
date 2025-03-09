@@ -70,6 +70,9 @@ const BOT_UPDATES = [
     "¡Oliver ahora se acuerda de las últimas 20 charlas, posta! Preguntale lo que sea con !chat y sigue la onda como amigo piola.",
     "El mensaje diario a Belén ahora se envía una vez por día y respeta las reacciones ✅ o ❌ pa' no spamear. Si reacciona, no se repite hasta mañana, ¡posta!",
     "¡Arreglado la opción de segunda respuestas uando reaccionás con ❌! Más rápido y copado, loco.",
+    '¡Nuevo !imagen / !im agregado! Generá imágenes zarpadas con Stable Diffusion, pedí lo que quieras (ej. !imagen un mate [cartoon]) y confirmá con ✅, loco.',
+    '¡Historial de imágenes con !misimagenes / !mi! Mirá tus últimas 5 imágenes generadas con sus IDs, pa’ que no pierdas nada, che.',
+    '¡Edición piola con !editarimagen / !ei! Modificá tus imágenes guardadas (ej. !editarimagen [ID] agregar un perro), solo las que hice yo, ¡posta!'
 ];
 
 // Mensajes de ánimo para Belén
@@ -991,6 +994,7 @@ function cleanText(text) {
 }
 
 // Generar imagen
+// Función para generar imagen (ya la tenés, pero la ajusto un poco)
 async function generateImage(prompt) {
     try {
         console.log(`Generando imagen para: "${prompt}"`);
@@ -1015,6 +1019,180 @@ async function generateImage(prompt) {
     }
 }
 
+// Comando !imagen con estilos personalizados
+async function manejarImagen(message) {
+    const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
+    const args = message.content.startsWith('!imagen') ? message.content.slice(7).trim() : message.content.slice(3).trim();
+
+    if (!args) {
+        return sendError(message.channel, `¡Tirame algo después de "!imagen", ${userName}! Ejemplo: !imagen un mate [cartoon]`, 
+            '¿Qué querés ver, loco?', 'Hecho con onda por Oliver IA');
+    }
+
+    // Separar prompt y estilo (si hay)
+    const styleMatch = args.match(/\[(.*?)\]$/);
+    const style = styleMatch ? styleMatch[1].toLowerCase() : 'realista';
+    const prompt = styleMatch ? args.replace(styleMatch[0], '').trim() : args;
+
+    // Confirmación antes de generar
+    const confirmEmbed = createEmbed('#FFAA00', `¡Pará un cacho, ${userName}!`, 
+        `¿Querés que te genere una imagen de "${prompt}" en estilo ${style}? Reaccioná con ✅ para confirmar, o ❌ para cancelar, loco.`, 
+        'Hecho con onda por Oliver IA');
+    const confirmMessage = await message.channel.send({ embeds: [confirmEmbed] });
+    await confirmMessage.react('✅');
+    await confirmMessage.react('❌');
+
+    const reactionFilter = (reaction, user) => ['✅', '❌'].includes(reaction.emoji.name) && user.id === message.author.id;
+    let reactions;
+    try {
+        reactions = await confirmMessage.awaitReactions({ filter: reactionFilter, max: 1, time: 30000, errors: ['time'] });
+    } catch {
+        await sendError(message.channel, `⏳ ¡Te dormiste, ${userName}!`, 
+            'No reaccionaste a tiempo, loco. ¿Probamos de nuevo con !imagen?', 'Hecho con onda por Oliver IA');
+        return;
+    }
+
+    if (!reactions.size || reactions.first().emoji.name === '❌') {
+        await sendSuccess(message.channel, '🛑 ¡Nada de imagen!', `Tranqui, ${userName}, no pasa nada. ¿Qué más querés hacer, loco?`);
+        return;
+    }
+
+    // Generar la imagen
+    const waitingEmbed = createEmbed('#55FFFF', `⌛ Generando, ${userName}...`, 
+        `Aguantá un toque que te hago una imagen re copada de "${prompt}" en estilo ${style}...`, 'Hecho con onda por Oliver IA');
+    const waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
+
+    try {
+        const imageBase64 = await generateImage(`Una imagen copada de ${prompt}, estilo ${style}, con onda argentina`);
+        const imageAttachment = { attachment: Buffer.from(imageBase64.split(',')[1], 'base64'), name: `imagen_${userName}_${Date.now()}.png` };
+        
+        // Guardar en dataStore
+        if (!dataStore.imageHistory) dataStore.imageHistory = {};
+        if (!dataStore.imageHistory[userName]) dataStore.imageHistory[userName] = [];
+        const imageId = uuidv4();
+        dataStore.imageHistory[userName].push({
+            id: imageId,
+            prompt: prompt,
+            style: style,
+            base64: imageBase64,
+            timestamp: new Date().toISOString()
+        });
+        dataStoreModified = true;
+
+        const embed = createEmbed('#FFD700', `¡Acá tenés, ${userName}!`, 
+            `Tu imagen de "${prompt}" en estilo ${style}, ¡posta que quedó zarpada! Guardada con ID: ${imageId}. ¿Te copa, loco?`, 
+            'Hecho con onda por Oliver IA');
+        const sentMessage = await waitingMessage.edit({ embeds: [embed], files: [imageAttachment] });
+        sentMessages.set(sentMessage.id, { imageId: imageId, userName: userName });
+    } catch (error) {
+        console.error('Error generando imagen:', error.message);
+        const errorEmbed = createEmbed('#FF5555', '¡Qué cagada!', 
+            `No pude generar la imagen de "${prompt}", ${userName}. Error: ${error.message}. ¿Probamos otra vez, loco?`, 
+            'Hecho con onda por Oliver IA');
+        await waitingMessage.edit({ embeds: [errorEmbed] });
+    }
+}
+
+// Comando !misimagenes para ver el historial
+async function manejarMisImagenes(message) {
+    const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
+
+    if (!dataStore.imageHistory || !dataStore.imageHistory[userName] || dataStore.imageHistory[userName].length === 0) {
+        return sendError(message.channel, `¡No tenés imágenes guardadas, ${userName}!`, 
+            'Generá una con !imagen primero, loco.', 'Hecho con onda por Oliver IA');
+    }
+
+    const images = dataStore.imageHistory[userName];
+    const imageList = images.slice(-5).map(img => 
+        `ID: **${img.id}** - "${img.prompt}" (estilo ${img.style}) - ${new Date(img.timestamp).toLocaleString('es-AR')}`
+    ).join('\n');
+
+    const embed = createEmbed('#FFD700', `📸 Tus imágenes, ${userName}!`, 
+        `Acá tenés tus últimas imágenes (máximo 5):\n\n${imageList}\n\nUsá !editarimagen [ID] [cambio] para modificar una, loco.`, 
+        'Hecho con onda por Oliver IA');
+    await message.channel.send({ embeds: [embed] });
+}
+
+// Comando !editarimagen para editar imágenes previas
+async function manejarEditarImagen(message) {
+    const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
+    const args = message.content.startsWith('!editarimagen') ? message.content.slice(13).trim().split(' ') : message.content.slice(3).trim().split(' ');
+    
+    if (args.length < 2) {
+        return sendError(message.channel, `¡Usá "!editarimagen [ID] [cambio]", ${userName}!`, 
+            'Ejemplo: !editarimagen 1234 agregar un perro', 'Hecho con onda por Oliver IA');
+    }
+
+    const imageId = args[0];
+    const change = args.slice(1).join(' ').trim();
+
+    if (!dataStore.imageHistory || !dataStore.imageHistory[userName]) {
+        return sendError(message.channel, `¡No tenés imágenes para editar, ${userName}!`, 
+            'Generá una con !imagen primero, loco.', 'Hecho con onda por Oliver IA');
+    }
+
+    const image = dataStore.imageHistory[userName].find(img => img.id === imageId);
+    if (!image) {
+        return sendError(message.channel, `No encontré la imagen con ID ${imageId}, ${userName}.`, 
+            'Fijate tus IDs con !misimagenes, loco.', 'Hecho con onda por Oliver IA');
+    }
+
+    // Confirmación antes de editar
+    const confirmEmbed = createEmbed('#FFAA00', `¡Pará un cacho, ${userName}!`, 
+        `¿Querés editar la imagen "${image.prompt}" (ID: ${imageId}) para "${change}"? Reaccioná con ✅ o ❌, loco.`, 
+        'Hecho con onda por Oliver IA');
+    const confirmMessage = await message.channel.send({ embeds: [confirmEmbed] });
+    await confirmMessage.react('✅');
+    await confirmMessage.react('❌');
+
+    const reactionFilter = (reaction, user) => ['✅', '❌'].includes(reaction.emoji.name) && user.id === message.author.id;
+    let reactions;
+    try {
+        reactions = await confirmMessage.awaitReactions({ filter: reactionFilter, max: 1, time: 30000, errors: ['time'] });
+    } catch {
+        await sendError(message.channel, `⏳ ¡Te dormiste, ${userName}!`, 
+            'No reaccionaste a tiempo, loco. ¿Probamos de nuevo?', 'Hecho con onda por Oliver IA');
+        return;
+    }
+
+    if (!reactions.size || reactions.first().emoji.name === '❌') {
+        await sendSuccess(message.channel, '🛑 ¡Sin cambios!', `Tranqui, ${userName}, la imagen queda como está.`);
+        return;
+    }
+
+    // Editar la imagen
+    const waitingEmbed = createEmbed('#55FFFF', `⌛ Editando, ${userName}...`, 
+        `Aguantá que modifico "${image.prompt}" con "${change}"...`, 'Hecho con onda por Oliver IA');
+    const waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
+
+    try {
+        const newPrompt = `Una imagen copada de ${image.prompt}, modificada para ${change}, estilo ${image.style}, con onda argentina`;
+        const newImageBase64 = await generateImage(newPrompt);
+        const newImageAttachment = { attachment: Buffer.from(newImageBase64.split(',')[1], 'base64'), name: `imagen_editada_${userName}_${Date.now()}.png` };
+
+        // Guardar la nueva versión
+        const newImageId = uuidv4();
+        dataStore.imageHistory[userName].push({
+            id: newImageId,
+            prompt: `${image.prompt}, modificada para ${change}`,
+            style: image.style,
+            base64: newImageBase64,
+            timestamp: new Date().toISOString()
+        });
+        dataStoreModified = true;
+
+        const embed = createEmbed('#FFD700', `¡Listo, ${userName}!`, 
+            `Tu imagen editada: "${image.prompt}, ${change}" en estilo ${image.style}. Nuevo ID: ${newImageId}. ¿Te copa, loco?`, 
+            'Hecho con onda por Oliver IA');
+        await waitingMessage.edit({ embeds: [embed], files: [newImageAttachment] });
+    } catch (error) {
+        console.error('Error editando imagen:', error.message);
+        const errorEmbed = createEmbed('#FF5555', '¡Qué cagada!', 
+            `No pude editar la imagen, ${userName}. Error: ${error.message}. ¿Probamos otra vez, loco?`, 
+            'Hecho con onda por Oliver IA');
+        await waitingMessage.edit({ embeds: [errorEmbed] });
+    }
+}
 async function loadDataStore() {
     try {
         const response = await axios.get(
@@ -2472,7 +2650,16 @@ async function manejarCommand(message) {
     } 
     else if (content.startsWith('!wiki')) {
         await manejarWiki(message);
-    } 
+    }
+    else if (content.startsWith('!imagen') || content.startsWith('!im')) {
+        await manejarImagen(message);
+    }
+    else if (content.startsWith('!misimagenes') || content.startsWith('!mi')) {
+        await manejarMisImagenes(message);
+    }
+    else if (content.startsWith('!editarimagen') || content.startsWith('!ei')) {
+        await manejarEditarImagen(message);
+    }
 }
 
 client.on('messageCreate', async (message) => {
