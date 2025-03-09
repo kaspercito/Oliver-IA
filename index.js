@@ -1032,7 +1032,7 @@ async function manejarImagen(message) {
 
     if (!args) {
         return sendError(message.channel, `¡Tirame algo después de "!imagen", ${userName}! Ejemplo: !imagen un mate [cartoon]`, 
-            '¿Qué querés ver, loco?', 'Hecho con onda por Grok de xAI');
+            '¿Qué querés ver, loco?', 'Hecho con onda por Oliver IA');
     }
 
     const styleMatch = args.match(/\[(.*?)\]$/);
@@ -1052,7 +1052,7 @@ async function manejarImagen(message) {
         reactions = await confirmMessage.awaitReactions({ filter: reactionFilter, max: 1, time: 30000, errors: ['time'] });
     } catch {
         return sendError(message.channel, `⏳ ¡Te dormiste, ${userName}!`, 
-            'No reaccionaste a tiempo. ¿Probamos de nuevo?', 'Hecho con onda por Grok de xAI');
+            'No reaccionaste a tiempo. ¿Probamos de nuevo?', 'Hecho con onda por Oliver IA');
     }
 
     if (!reactions.size || reactions.first().emoji.name === '❌') {
@@ -1060,7 +1060,7 @@ async function manejarImagen(message) {
     }
 
     const waitingEmbed = createEmbed('#55FFFF', `⌛ Generando, ${userName}...`, 
-        `Aguantá que te hago una imagen zarpada de "${prompt}" en estilo ${style}...`, 'Hecho con onda por Grok de xAI');
+        `Aguantá que te hago una imagen zarpada de "${prompt}" en estilo ${style}...`, 'Hecho con onda por Oliver IA');
     const waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
 
     try {
