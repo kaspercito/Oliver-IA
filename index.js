@@ -1128,32 +1128,26 @@ let autosavePausedByMusic = false;
 
 // Utilidades con tono argentino
 const createEmbed = async (color, title, description, footer = 'Hecho con onda por Oliver IA') => {
-    // Generar la imagen si no existe
     const imagePath = './degradado_fucsia_vertical.png';
     if (!fs.existsSync(imagePath)) {
         await generarDegradadoFucsiaVertical();
     }
 
     return new EmbedBuilder()
-        .setColor('#FF00FF') // Borde fucsia oscuro como base
+        .setColor('#FF00FF')
         .setTitle(title)
         .setDescription(description || ' ')
         .setFooter({ text: footer })
         .setTimestamp()
-        .setThumbnail('attachment://degradado_fucsia_vertical.png'); // Degradado como thumbnail a la derecha
+        .setThumbnail('attachment://degradado_fucsia_vertical.png');
 };
 
 const sendError = async (channel, message, suggestion = '¿Probamos de nuevo, loco?', footer = 'Hecho con onda por Oliver IA') => {
-    const embed = await createEmbed('#FF5555', '¡Uh, qué cagada!', `${message}\n${suggestion}`, footer);
-    return await channel.send({ 
-        embeds: [embed], 
-        files: [{ attachment: './degradado_fucsia_vertical.png', name: 'degradado_fucsia_vertical.png' }] 
-    });
+    return await sendEmbed(channel, '#FF5555', '¡Uh, qué cagada!', `${message}\n${suggestion}`, footer);
 };
 
 const sendSuccess = async (channel, title, message, footer = 'Hecho con onda por Oliver IA') => {
-    const embed = createEmbed('#55FF55', title, message, footer);
-    return await channel.send({ embeds: [embed] });
+    return await sendEmbed(channel, '#55FF55', title, message, footer);
 };
 
 function cleanText(text) {
@@ -1650,21 +1644,6 @@ async function generarDegradadoFucsiaVertical() {
     await fs.promises.writeFile(filePath, buffer); // Usar fs.promises para writeFile
     return filePath;
 }
-
-const createEmbed = async (color, title, description, footer = 'Hecho con onda por Oliver IA') => {
-    const imagePath = './degradado_fucsia_vertical.png';
-    if (!fs.existsSync(imagePath)) {
-        await generarDegradadoFucsiaVertical();
-    }
-
-    return new EmbedBuilder()
-        .setColor('#FF00FF')
-        .setTitle(title)
-        .setDescription(description || ' ')
-        .setFooter({ text: footer })
-        .setTimestamp()
-        .setThumbnail('attachment://degradado_fucsia_vertical.png');
-};
 
 // PPM
 function obtenerFrasePPM() {
@@ -2567,51 +2546,49 @@ async function manejarWiki(message) {
 
 async function manejarTraduci(message) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
-    console.log(`Mensaje recibido en manejarTraduci: "${message.content}"`);
     const args = message.content.toLowerCase().startsWith('!traduci') 
         ? message.content.slice(8).trim().split(' a ') 
         : message.content.slice(3).trim().split(' a ');
     const text = args[0].trim();
-    console.log(`Texto a traducir: "${text}"`);
 
     if (args.length < 2) {
         return sendError(message.channel, `¡Escribí algo como "!traducí hola a inglés", ${userName}!`);
     }
 
     const targetLang = args[1].trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-    const waitingEmbed = createEmbed('#55FFFF', `✍️ Traduciendo, ${userName}...`, 
+    const waitingEmbed = await createEmbed('#55FFFF', `✍️ Traduciendo, ${userName}...`, 
         `Aguantá que traduzco "${text}" a ${targetLang}...`);
-    const waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
+    const waitingMessage = await message.channel.send({ 
+        embeds: [waitingEmbed], 
+        files: [{ attachment: './degradado_fucsia_vertical.png', name: 'degradado_fucsia_vertical.png' }] 
+    });
 
     try {
         const langCode = langMap[targetLang];
-
         if (!langCode) {
             throw new Error(`No sé traducir a "${targetLang}", ${userName}. Probá con "inglés", "ruso", "francés", etc.`);
         }
 
         const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${langCode}&dt=t&q=${encodeURIComponent(text)}`;
-        console.log(`Pidiendo traducción a Google Translate: ${url}`);
         const response = await axios.get(url);
-
-        console.log('Respuesta de Google Translate:', JSON.stringify(response.data, null, 2));
-
         const translated = response.data[0][0][0];
 
         if (!translated || translated.toLowerCase() === text.toLowerCase()) {
             throw new Error(`¡Qué boludo! La traducción salió igual que el original: "${translated}". ¿La API está rota o qué?`);
         }
 
-        const embed = createEmbed('#FFD700', `✅ Traducción a ${targetLang.charAt(0).toUpperCase() + targetLang.slice(1)}`, 
+        const embed = await createEmbed('#FFD700', `✅ Traducción a ${targetLang.charAt(0).toUpperCase() + targetLang.slice(1)}`, 
             `"${text}" → **${translated}**\n*Traducido con onda por Oliver IA, che.*`);
-        await waitingMessage.edit({ embeds: [embed] });
+        await waitingMessage.edit({ 
+            embeds: [embed], 
+            files: [{ attachment: './degradado_fucsia_vertical.png', name: 'degradado_fucsia_vertical.png' }] 
+        });
     } catch (error) {
-        console.error(`Error traduciendo "${text}" a "${targetLang}": ${error.message}`);
-        if (error.response) {
-            console.error(`Respuesta de la API: ${JSON.stringify(error.response.data)}`);
-        }
-        const errorEmbed = createEmbed('#FF5555', '¡Qué cagada!', `${error.message}`);
-        await waitingMessage.edit({ embeds: [errorEmbed] });
+        const errorEmbed = await createEmbed('#FF5555', '¡Qué cagada!', `${error.message}`);
+        await waitingMessage.edit({ 
+            embeds: [errorEmbed], 
+            files: [{ attachment: './degradado_fucsia_vertical.png', name: 'degradado_fucsia_vertical.png' }] 
+        });
     }
 }
 
