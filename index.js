@@ -999,30 +999,38 @@ function cleanText(text) {
 
 // Función para generar la imagen con Puppeteer
 async function generateImage(prompt, style) {
-    try {
-        console.log(`Generando imagen para: "${prompt}" en estilo ${style}`);
-        const fullPrompt = `Una imagen copada de ${prompt}, estilo ${style}, con onda argentina, 4k, detalles zarpados`;
-        const response = await axios.post(API_URL, {
-            inputs: fullPrompt,
-            parameters: {
-                negative_prompt: "borroso, feo, baja calidad, distorsionado",
-                num_inference_steps: 50,  // Más pasos = más calidad
-                guidance_scale: 7.5       // Fidelidad al prompt
-            }
-        }, {
-            headers: {
-                'Authorization': `Bearer ${API_TOKEN}`,
-                'Content-Type': 'application/json'
-            },
-            responseType: 'arraybuffer' // La API devuelve la imagen como bytes
-        });
+    const maxRetries = 3;
+    let attempt = 0;
 
-        // Convertí los bytes a base64
-        const imageBase64 = `data:image/png;base64,${Buffer.from(response.data).toString('base64')}`;
-        return imageBase64;
-    } catch (error) {
-        console.error('Error al generar imagen:', error.response?.status, error.message);
-        throw new Error(`No pude generar la imagen: ${error.message}`);
+    while (attempt < maxRetries) {
+        try {
+            console.log(`Generando imagen para: "${prompt}" en estilo ${style} - Intento ${attempt + 1}`);
+            const fullPrompt = `Una imagen copada de ${prompt}, estilo ${style}, con onda argentina, 4k, detalles zarpados`;
+            const response = await axios.post(API_URL, {
+                inputs: fullPrompt,
+                parameters: {
+                    negative_prompt: "borroso, feo, baja calidad, distorsionado",
+                    num_inference_steps: 50,
+                    guidance_scale: 7.5
+                }
+            }, {
+                headers: {
+                    'Authorization': `Bearer ${API_TOKEN}`,
+                    'Content-Type': 'application/json'
+                },
+                responseType: 'arraybuffer'
+            });
+
+            const imageBase64 = `data:image/png;base64,${Buffer.from(response.data).toString('base64')}`;
+            return imageBase64;
+        } catch (error) {
+            attempt++;
+            console.error(`Error al generar imagen (intento ${attempt}):`, error.response?.status, error.message);
+            if (attempt === maxRetries) {
+                throw new Error(`No pude generar la imagen después de ${maxRetries} intentos: ${error.message}`);
+            }
+            await new Promise(resolve => setTimeout(resolve, 2000 * attempt)); // Delay de 2, 4, 6 segundos
+        }
     }
 }
 
