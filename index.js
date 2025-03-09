@@ -1633,24 +1633,38 @@ async function manejarAutosave(message) {
 }
 
 async function generarDegradadoFucsiaVertical() {
-    const width = 50; // Ancho estrecho para simular un borde
-    const height = 400; // Alto suficiente para cubrir el embed
+    const width = 50;
+    const height = 400;
     const canvas = createCanvas(width, height);
     const ctx = canvas.getContext('2d');
 
-    // Degradado vertical de fucsia oscuro (#FF00FF) a fucsia claro (#FF69B4)
     const gradient = ctx.createLinearGradient(0, 0, 0, height);
-    gradient.addColorStop(0, '#FF00FF'); // Fucsia oscuro arriba
-    gradient.addColorStop(1, '#FF69B4'); // Fucsia claro abajo
+    gradient.addColorStop(0, '#FF00FF');
+    gradient.addColorStop(1, '#FF69B4');
 
     ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, width, height);
 
     const buffer = canvas.toBuffer('image/png');
     const filePath = './degradado_fucsia_vertical.png';
-    await fs.writeFile(filePath, buffer);
+    await fs.promises.writeFile(filePath, buffer); // Usar fs.promises para writeFile
     return filePath;
 }
+
+const createEmbed = async (color, title, description, footer = 'Hecho con onda por Oliver IA') => {
+    const imagePath = './degradado_fucsia_vertical.png';
+    if (!fs.existsSync(imagePath)) {
+        await generarDegradadoFucsiaVertical();
+    }
+
+    return new EmbedBuilder()
+        .setColor('#FF00FF')
+        .setTitle(title)
+        .setDescription(description || ' ')
+        .setFooter({ text: footer })
+        .setTimestamp()
+        .setThumbnail('attachment://degradado_fucsia_vertical.png');
+};
 
 // PPM
 function obtenerFrasePPM() {
