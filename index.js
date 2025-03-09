@@ -1219,27 +1219,26 @@ let autosaveEnabled = true;
 let autosavePausedByMusic = false;
 
 // Utilidades con tono argentino
-const createEmbed = (color, title, description, footer = 'Hecho con onda por Oliver IA') => {
+const createEmbed = (title, description, footer = 'Hecho con onda por Oliver IA') => {
     const safeDescription = description && description.trim() !== '' 
         ? description 
         : 'Sin descripción disponible';
 
     return new EmbedBuilder()
-        .setColor(color || '#FF00FF')
+        .setColor('#FF2A80') // Color fijo entre fucsia y naranja
         .setTitle(title && title.trim() !== '' ? title : 'Título no disponible')
         .setDescription(safeDescription)
         .setFooter({ text: footer })
         .setTimestamp()
-        .setThumbnail('https://i.imgur.com/OBRtoSz.jpeg'); // Reemplazá con tu URL
 };
 
 const sendError = async (channel, message, suggestion = '¿Probamos de nuevo, loco?', footer = 'Hecho con onda por Oliver IA') => {
-    const embed = createEmbed('#FF5555', '¡Uh, qué cagada!', `${message}\n${suggestion}`, footer);
+    const embed = createEmbed('#FF2A80', '¡Uh, qué cagada!', `${message}\n${suggestion}`, footer);
     return await channel.send({ embeds: [embed] });
 };
 
 const sendSuccess = async (channel, title, message, footer = 'Hecho con onda por Oliver IA') => {
-    const embed = createEmbed('#55FF55', title, message, footer);
+    const embed = createEmbed('#FF2A80', title, message, footer);
     return await channel.send({ embeds: [embed] });
 };
 
