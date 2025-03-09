@@ -24,7 +24,7 @@ const client = new Client({
 const OWNER_ID = '752987736759205960'; // Tu ID
 const ALLOWED_USER_ID = '1023132788632862761'; // ID de Belén
 const CHANNEL_ID = '1343749554905940058'; // Canal principal
-const API_URL = 'https://ced2-34-87-48-223.ngrok-free.app'; // Si es local
+const API_URL = 'https://ced2-34-87-48-223.ngrok-free.app/generate'; // Si es local
 
 // Configuración del administrador de música con Erela.js
 const manager = new Manager({
