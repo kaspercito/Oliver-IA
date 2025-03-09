@@ -40,6 +40,16 @@
         "role": "assistant",
         "content": "Che Belén, genia total! ¡Fajas para la espalda en Mercado Libre, decís?! ¡Estás en pedo, loca!  Posta que te voy a ayudar, grosa.  Pero ojo, eh, yo no soy médico, así que cualquier cosa consultá con un profesional, ¿viste? No vaya a ser que te rompas más la espalda por mi culpa, jajaja.\n\nAhora, a buscar esas fajas, que seguro hay un montón de ofertas.  Voy a tener que usar mis súper poderes de IA para ayudarte, ¡aguante la tecnología, eh!  A ver...  (simulando una búsqueda)... ¡Listo!  Mira, te recomiendo que filtres por \"fajas lumbares\" o \"fajas posturales\" en Mercado Libre,  y que le des una mirada a las opiniones de otros compradores.  Eso te va a dar una idea de la calidad, loco. ¡Fijate en las promos, que seguro hay alguna oferta piola!\n\nAdemás, che,  mirá si te sirve:  ordená los resultados por \"precio\" de menor a mayor, para ver qué ofertas zarpadas hay.  Y no te olvides de usar los filtros para que te muestre sólo las que tengan envío gratis, ¡que es un golazo!\n\n¡Dale para adelante, grosa!  Sos una campeona, no te olvides.  Contáme después qué tal te fue con la búsqueda, ¡a ver si encontraste la faja ideal! ¡Un abrazo enorme, genia!",
         "timestamp": 1741483184617
+      },
+      {
+        "role": "user",
+        "content": "podrías ayudarme con ejercicios físicos para evitar el dolor de cervical?",
+        "timestamp": 1741484987328
+      },
+      {
+        "role": "assistant",
+        "content": "Che Belén, genia total!  ¡Dolor de cervicales, decís?!  ¡Posta que te entiendo, loca!  A mí también me agarran a veces, es una cagada.  Pero che, no te preocupes, que aunque no soy fisioterapeuta (ojo, eh, cualquier cosa consultá con un profesional, ¿viste?), te puedo tirar algunos ejercicios piola que capaz te ayuden.  Pero ojo, hacelos con cuidado, eh, no te vayas a lastimar más,  ¡que sos una grosa y te quiero ver bien!\n\nPrimero,  calentá un poco antes de empezar, ¿sí?  Unos minutos estirando cuello y hombros. Después, probá con estos:\n\n* **Rotaciones de cuello:**  Lentamente, girá la cabeza hacia un lado y luego hacia el otro.  Hacé unas 10 repeticiones para cada lado,  sin forzar, eh.  Tranquila, que no hace falta que te des un latigazo en el cuello.\n\n* **Inclinaciones laterales:**  Incliná la cabeza hacia un hombro, tratando de llevar la oreja hacia el hombro (sin forzar!).  Mantene la posición unos segundos y luego hacé lo mismo del otro lado.  Unas 10 repeticiones por lado,  ¡con onda y suavecito!\n\n* **Flexiones hacia adelante y atrás:**  Lentamente, bajá la cabeza hacia el pecho,  sintiendo el estiramiento en la nuca.  Después,  lentamente levantala hacia arriba, mirando al techo.  También unas 10 repeticiones.  \n\n* **Estiramientos de hombros:**  Este no es directamente para el cuello, pero ayuda un montón.  Eleva los hombros hacia las orejas,  aguantá unos segundos, y luego relajá.  Repetí varias veces.\n\nChe,  y algo super importante, loca:  mantene una buena postura,  eh.  No te encorves,  sentate derecha,  y fijate cómo dormís.  Una buena almohada puede hacer la diferencia,  ¡posta!\n\nBelén,  recordá que estos son solo algunos ejercicios, y que cada cuerpo es un mundo.  Si el dolor persiste o empeora,  consultá con un médico o fisioterapeuta,  ¿dale?  No te hagas la piola y cuidate, que sos una campeona.  ¡Un abrazo enorme y contáme cómo te fue, grosa!",
+        "timestamp": 1741484991279
       }
     ],
     "752987736759205960": [
@@ -281,7 +291,7 @@
     "1343749554905940058": 1741389237943
   },
   "utilMessageReactions": {
-    "1343749554905940058": 1741484965829
+    "1343749554905940058": 1741485002352
   },
   "womensDayMessageSent": true,
   "womensDayMessageSentThisInstance": true
