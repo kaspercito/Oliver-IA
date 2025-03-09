@@ -2375,7 +2375,6 @@ async function manejarTraduci(message) {
         return sendError(message.channel, `¡Escribí algo como "!traducí hola a inglés", ${userName}!`);
     }
 
-    const text = args[0].trim();
     const targetLang = args[1].trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 
     const waitingEmbed = createEmbed('#55FFFF', `✍️ Traduciendo, ${userName}...`, 
