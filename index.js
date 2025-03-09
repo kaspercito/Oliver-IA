@@ -80,6 +80,99 @@ const BOT_UPDATES = [
     '¡Nuevo !ansiedad / !an agregado! Consejos rápidos pa’ calmar la ansiedad, con un mensaje zarpado de Miguel pa’ darte pilas, ¡genia!'
 ];
 
+const milagrosTranslations = {
+    // Idiomas europeos
+    español: "Milagros",
+    inglés: "Miracles",
+    francés: "Miracles",
+    italiano: "Miracoli",
+    alemán: "Wunder",
+    portugués: "Milagres",
+    ruso: "Чудеса (Chudesá)",
+    griego: "Θαύματα (Thávmata)",
+    sueco: "Mirakel",
+    neerlandés: "Wonderen",
+    polaco: "Cuda",
+    checo: "Zázraky",
+    húngaro: "Csodák",
+    finlandés: "Ihmeet",
+    danés: "Mirakler",
+    noruego: "Mirakler",
+    islandés: "Undur",
+    irlandés: "Míorúiltí",
+    galés: "Amdiffyniadau",
+    escocés: "Mìorbhailean",
+    catalán: "Miracles",
+    vasco: "Mirariak",
+    gallego: "Milagres",
+
+    // Idiomas asiáticos
+    chino: "奇迹 (Qíjì)",
+    japonés: "奇跡 (Kiseki)",
+    coreano: "기적 (Gijeok)",
+    hindi: "चमत्कार (Chamatkar)",
+    bengalí: "অলৌকিক (Oloukik)",
+    tailandés: "ปาฏิหาริย์ (Pātihān)",
+    vietnamita: "Phép màu",
+    turco: "Mucizeler",
+    persa: "معجزات (Mo'jezāt)",
+    árabe: "معجزات (Mu‘jizāt)",
+    hebreo: "נסים (Nissim)",
+    urdu: "معجزات (Mo'jezāt)",
+    malayo: "Keajaiban",
+    indonesio: "Keajaiban",
+    filipino: "Himala",
+    tamil: "கற்பனை (Kaṝpaṇai)",
+    telugu: "పరాకాష్ఠ (Parākāṣṭha)",
+    canarés: "ಅದ್ಭುತ (Adbhuta)",
+
+    // Idiomas africanos
+    swahili: "Miujiza",
+    yoruba: "Iyanu",
+    zulú: "Izimangaliso",
+    amhárico: "ተንስባክ (Tenesaḍlo)",
+    hausa: "Al'ajabi",
+
+    // Idiomas americanos y nativos
+    quechua: "Milagru",
+    guaraní: "Mba'epu'aty",
+    náhuatl: "Tlalticpacayotl",
+    maya: "K'uk'ulkan",
+
+    // Idiomas de Oceanía
+    maorí: "Mīharo",
+    hawaiano: "Kupua",
+
+    // Idiomas del Cáucaso y Oriente Medio
+    georgiano: "სასცაულები (Sasstaulebi)",
+    armenio: "Հրաշքներ (Hrashkner)",
+    kurdo: "Mîrac",
+
+    // Idiomas eslavos y del este europeo
+    ucraniano: "Диво (Divo)",
+    serbio: "Чуда (Chuda)",
+    croata: "Čudesa",
+    búlgaro: "Чудеса (Chudesa)",
+    eslovaco: "Zázraky",
+    esloveno: "Čudeži",
+
+    // Idiomas del norte de Europa y bálticos
+    letón: "Brīnumi",
+    lituano: "Stebuklai",
+    estonio: "Ime",
+
+    // Idiomas de América Latina y Caribe
+    criollo haitiano: "Mirak",
+    quechua boliviano: "Milagru",
+
+    // Otros idiomas y dialectos
+    esperanto: "Mirakloj",
+    latín: "Miracula",
+    sánscrito: "आश्चर्य (Āścarya)",
+    tibetano: "ཆོ་མ཯རོ (Cho'phrul)",
+    mongol: "Гайхамшиг (Gaikhamshig)"
+};
+
 const langMap = {
     'ingles': 'en',
     'español': 'es',
@@ -2608,6 +2701,44 @@ async function listarIdiomas(message) {
     }
 }
 
+async function manejarMilagros(message) {
+    const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
+    const maxLength = 4000; // Límite de caracteres por embed en Discord
+
+    // Convertir el objeto a un array de líneas para facilitar el manejo
+    const translationsArray = Object.entries(milagrosTranslations).map(([lang, translation]) => 
+        `${lang.charAt(0).toUpperCase() + lang.slice(1)}: **${translation}**`
+    );
+
+    let description = `¡Hola, ${userName}! Aquí tenés "Milagros" en diferentes idiomas:\n\n`;
+    const embeds = [];
+
+    for (const line of translationsArray) {
+        const newDescription = description + line + '\n';
+        if (newDescription.length > maxLength) {
+            embeds.push(await createEmbed('#FFD700', `Milagros en otros idiomas (Parte ${embeds.length + 1})`, description.trim()));
+            description = line + '\n';
+        } else {
+            description = newDescription;
+        }
+    }
+
+    // Agregar el último embed
+    if (description.length > 41) { // 41 es la longitud de la línea inicial sin traducciones
+        embeds.push(await createEmbed('#FFD700', `Milagros en otros idiomas (Parte ${embeds.length + 1})`, description.trim()));
+    }
+
+    // Enviar todos los embeds
+    for (const embed of embeds) {
+        try {
+            await message.channel.send({ embeds: [embed] });
+        } catch (error) {
+            console.error('Error al enviar embed de Milagros:', error);
+            await message.channel.send('¡Uy, algo falló al mostrar las traducciones, loco!');
+        }
+    }
+}
+
 // Eventos de música con Erela.js
 manager.on('nodeConnect', node => console.log(`Nodo ${node.options.identifier} conectado.`));
 manager.on('nodeError', (node, error) => console.error(`Error en nodo ${node.options.identifier}: ${error.message}`));
@@ -2877,6 +3008,9 @@ async function manejarCommand(message) {
     }
     else if (content === '!lenguajes') {
         await listarIdiomas(message);
+    }
+    else if (content === '!milagros') {
+        await manejarMilagros(message);
     }
 }
 
