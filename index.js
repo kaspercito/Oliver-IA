@@ -2587,7 +2587,7 @@ async function manejarCommand(message) {
         }
         return;
     }
-    else if (content.startsWith('!traduci') || content.startsWith('!ts')) {
+    else if (content.startsWith('!traduci')) {
         console.log(`Enviando a manejarTraduci: "${message.content}"`);
         await manejarTraduci(message);
     }
