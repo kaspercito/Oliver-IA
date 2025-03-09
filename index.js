@@ -2586,8 +2586,8 @@ async function manejarCommand(message) {
         }
         return;
     }
-    else if (content === '!traduci' || content === '!ts') {
-        await manejarTraduci(message);
+    else if (content.startsWith('!traduci') || content.startsWith('!ts')) {
+    await manejarTraduci(message);
     }
     else if (content === '!trivia' || content === '!tc') {
         await manejarTrivia(message);
@@ -2814,7 +2814,7 @@ client.on('messageCreate', async (message) => {
             '- **!clima [ciudad]**: Te digo el clima de cualquier ciudad, re útil.\n' +
             '- **!noticias**: Te traigo el último titular de Argentina, al toque.\n' +
             '- **!wiki [término]**: Busco un resumen en Wikipedia, ¡copado!\n' +
-            '- **!traducí [frase] a [idioma]**: Traduzco frases cortas, joya pa’ practicar.\n' +
+            '- **!traduci [frase] a [idioma]**: Traduzco frases cortas, joya pa’ practicar.\n' +
             '- **!an / !ansiedad**: Tips rápidos pa’ calmar la ansiedad, con un mensaje especial de Miguel pa’ darte pilas.\n' +
             '- **!h / !help**: Esta lista, che.\n' +
             '- **!hm / !help musica**: Comandos para meterle música al día.\n' +
