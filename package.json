@@ -18,7 +18,7 @@
     "lyrics-finder": "^21.7.0",
     "@google/generative-ai": "^0.12.0",
     "puppeteer": "^23.0.0",
-    "crypto": "^1.0.1" // Agregado
+    "crypto": "^1.0.1"
   },
   "author": "Miguel",
   "license": "ISC"
