@@ -999,16 +999,21 @@ function cleanText(text) {
 async function generateImage(prompt, style) {
     try {
         console.log(`Generando imagen para: "${prompt}" en estilo ${style}`);
-        const response = await axios.post(API_URL, {
-            prompt,
-            style
-        });
+        const response = await axios.post(API_URL, 
+            { prompt, style }, // Datos del request
+            {
+                headers: {
+                    'ngrok-skip-browser-warning': 'true' // Salta la advertencia
+                }
+            }
+        );
         return response.data.image;
     } catch (error) {
         console.error('Error al generar imagen:', error.message);
         throw new Error(`No pude generar la imagen: ${error.message}`);
     }
 }
+
 
 async function manejarImagen(message) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
