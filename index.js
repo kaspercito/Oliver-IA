@@ -2867,10 +2867,6 @@ async function manejarCommand(message) {
         return; // Salimos para no procesar más
     } 
     
-    if (command === '!milagros') {
-        await manejarMilagros(message);
-        return;
-    } 
         // Cancelar reacciones
     else if (content === '!reacciones cancelar' || content === '!rc') {
         if (message.author.id !== OWNER_ID && message.author.id !== ALLOWED_USER_ID) return;
@@ -2912,6 +2908,9 @@ async function manejarCommand(message) {
     }
     else if (content === '!trivia' || content === '!tc') {
         await manejarTrivia(message);
+    }     
+    else if (content === '!milagros') {
+        await manejarMilagros(message);
     } 
     else if (content.startsWith('!reacciones') || content.startsWith('!re')) {
         await manejarReacciones(message);
@@ -3003,7 +3002,7 @@ async function manejarCommand(message) {
     else if (content.startsWith('!imagen') || content.startsWith('!im')) {
         await manejarImagen(message);
     }
-    else if (content.startsWith('!misimagenes') || content.startsWith('!mi')) {
+    else if (content === '!misimagenes') {
         await manejarMisImagenes(message);
     }
     else if (content.startsWith('!editarimagen') || content.startsWith('!ei')) {
