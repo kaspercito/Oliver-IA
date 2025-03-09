@@ -2366,11 +2366,12 @@ async function manejarWiki(message) {
 
 async function manejarTraduci(message) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
+    console.log(`Mensaje recibido en manejarTraduci: "${message.content}"`);
     const args = message.content.toLowerCase().startsWith('!traducí') 
         ? message.content.slice(8).trim().split(' a ') 
         : message.content.slice(3).trim().split(' a ');
-        const text = args[0].trim();
-        console.log(`Texto a traducir: "${text}"`);
+    const text = args[0].trim();
+    console.log(`Texto a traducir: "${text}"`);
 
     if (args.length < 2) {
         return sendError(message.channel, `¡Escribí algo como "!traducí hola a inglés", ${userName}!`);
