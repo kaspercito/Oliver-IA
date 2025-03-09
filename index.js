@@ -997,29 +997,42 @@ function cleanText(text) {
 async function generateImage(prompt) {
     try {
         console.log(`Generando imagen para: "${prompt}"`);
-        const response = await axios.post(
-            'https://www.bing.com/images/create', // Endpoint de Bing Image Creator
-            {
-                q: prompt, // El prompt va como query
-                rt: '3', // Modo DALL-E 3
-                format: 'json'
-            },
-            {
-                headers: {
-                    'Authorization': `Bearer ${process.env.BING_API_TOKEN}`, // Token de Bing
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                    'User-Agent': 'Mozilla/5.0' // Para simular un navegador
-                },
-                responseType: 'json',
-                timeout: 90000
-            }
-        );
+        const browser = await puppeteer.launch({ headless: true });
+        const page = await browser.newPage();
 
-        // Bing devuelve una URL temporal de la imagen generada
-        const imageUrl = response.data.result.imageUrl;
-        const imageResponse = await axios.get(imageUrl, { responseType: 'arraybuffer' });
+        // Seteamos la cookie _U con tu token
+        await page.setCookie({
+            name: '_U',
+            value: process.env.BING_U_TOKEN,
+            domain: '.bing.com',
+            path: '/',
+            httpOnly: true,
+            secure: true
+        });
+
+        // Vamos a la URL de creación con el prompt
+        const encodedPrompt = encodeURIComponent(prompt);
+        const url = `https://www.bing.com/images/create?q=${encodedPrompt}&rt=4&FORM=GENCRE`;
+        await page.goto(url, { waitUntil: 'networkidle2' });
+
+        // Esperamos a que las imágenes carguen (selector actualizado)
+        await page.waitForSelector('.mimg', { timeout: 60000 }); // '.mimg' es la clase de las imágenes generadas
+
+        // Extraemos las URLs de las imágenes generadas
+        const imageUrls = await page.evaluate(() => {
+            const images = Array.from(document.querySelectorAll('.mimg')); // Clase correcta para las imágenes
+            return images.map(img => img.src);
+        });
+
+        if (!imageUrls.length) {
+            throw new Error('No se encontraron imágenes generadas. Capaz que el prompt falló o Bing tardó demasiado.');
+        }
+
+        // Descargamos la primera imagen como base64
+        const imageResponse = await axios.get(imageUrls[0], { responseType: 'arraybuffer' });
         const imageBase64 = Buffer.from(imageResponse.data, 'binary').toString('base64');
+
+        await browser.close();
         return `data:image/png;base64,${imageBase64}`;
     } catch (error) {
         console.error('Error al generar imagen:', error.message);
@@ -1027,7 +1040,7 @@ async function generateImage(prompt) {
     }
 }
 
-// El resto (manejarImagen) queda casi igual, solo ajustamos el prompt
+// Integración con manejarImagen
 async function manejarImagen(message) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
     const args = message.content.startsWith('!imagen') ? message.content.slice(7).trim() : message.content.slice(3).trim();
@@ -1096,6 +1109,9 @@ async function manejarImagen(message) {
         await waitingMessage.edit({ embeds: [errorEmbed] });
     }
 }
+
+// Exportar la función si estás usando módulos
+module.exports = { manejarImagen };
 
 // Comando !misimagenes para ver el historial
 async function manejarMisImagenes(message) {
