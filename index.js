@@ -2387,16 +2387,16 @@ async function manejarTraduci(message) {
     const langMap = {
         'ingles': 'en',
         'español': 'es',
-        'espanol': 'es', // Sin tilde para flexibilidad
+        'espanol': 'es',
         'frances': 'fr',
         'italiano': 'it',
         'portugues': 'pt',
         'aleman': 'de',
         'ruso': 'ru',
-        'hungaro': 'hu', // ¡Acá está el húngaro que pediste!
+        'hungaro': 'hu',
         'japones': 'ja',
         'coreano': 'ko',
-        'chino': 'zh', // Simplificado por defecto
+        'chino': 'zh',
         'chino simplificado': 'zh-CN',
         'chino tradicional': 'zh-TW',
         'arabe': 'ar',
@@ -2414,7 +2414,7 @@ async function manejarTraduci(message) {
         'hebreo': 'he',
         'bengali': 'bn',
         'urdu': 'ur',
-        'persa': 'fa', // Farsi
+        'persa': 'fa',
         'ucraniano': 'uk',
         'checo': 'cs',
         'eslovaco': 'sk',
@@ -2428,14 +2428,14 @@ async function manejarTraduci(message) {
         'estonio': 'et',
         'finlandes': 'fi',
         'islandes': 'is',
-        'irlandes': 'ga', // Gaélico irlandés
+        'irlandes': 'ga', 
         'galés': 'cy',
-        'escoces': 'gd', // Gaélico escocés
+        'escoces': 'gd', 
         'maltes': 'mt',
         'albanes': 'sq',
         'macedonio': 'mk',
         'bosnio': 'bs',
-        'montenegrino': 'me', // Usa 'sr-ME' en algunos casos, pero 'me' es válido
+        'montenegrino': 'me', 
         'armenio': 'hy',
         'georgiano': 'ka',
         'azerbaiyano': 'az',
@@ -2455,12 +2455,12 @@ async function manejarTraduci(message) {
         'marathi': 'mr',
         'gujarati': 'gu',
         'oriya': 'or',
-        'sinhala': 'si', // Cingalés
+        'sinhala': 'si',
         'malayo': 'ms',
         'indonesio': 'id',
         'filipino': 'tl',
         'lao': 'lo',
-        'camboyano': 'km', // Jemer
+        'camboyano': 'km', 
         'birmano': 'my',
         'nepali': 'ne',
         'sanskrito': 'sa',
@@ -2483,12 +2483,12 @@ async function manejarTraduci(message) {
         'shona': 'sn',
         'tswana': 'tn',
         'bielorruso': 'be',
-        'malgache': 'mg', // Madagascar
+        'malgache': 'mg',
         'javanes': 'jv',
         'sundanés': 'su',
         'cebuano': 'ceb',
         'kurdish': 'ku',
-        'pastún': 'ps', // Variante de pashto
+        'pastún': 'ps', 
         'tártaro': 'tt',
         'baskir': 'ba',
         'checheno': 'ce',
@@ -2496,46 +2496,45 @@ async function manejarTraduci(message) {
         'quechua': 'qu',
         'guaraní': 'gn',
         'aymara': 'ay',
-        'egipcio': 'ar-EG', // Árabe egipcio (variante regional de 'ar')
-        'copto': 'cop',     // Idioma litúrgico de los cristianos coptos en Egipto (histórico)
-        'swahili': 'sw',    // Variante en inglés de suajili (ya tienes 'suajili')
-        'basque': 'eu',     // Vasco (en español: 'vasco')
-        'catalan': 'ca',    // Catalán
-        'galician': 'gl',   // Gallego
-        'luxemburgues': 'lb', // Luxemburgués
-        'frisón': 'fy',     // Frisón (hablado en Países Bajos y Alemania)
-        'sami': 'se',       // Sami del norte (uno de los idiomas sami)
-        'inuktitut': 'iu',  // Lengua inuit
-        'navajo': 'nv',     // Navajo (lengua nativa americana)
-        'cherokee': 'chr',  // Cherokee (lengua nativa americana)
-        'mapuche': 'arn',   // Mapudungun (lengua mapuche)
-        'maya': 'yua',      // Yucateco (uno de los idiomas mayas)
-        'nauatl': 'nah',    // Náhuatl (familia de lenguas en México)
-        'tongan': 'to',     // Tongano (Polinesia)
-        'fiyiano': 'fj',    // Fiyiano (Fiyi)
-        'tahitiano': 'ty',  // Tahitiano (Polinesia)
-        ' groenlandés': 'kl', // Groenlandés (Kalaallisut)
-        'assames': 'as',    // Asamés (India)
-        'cachemiro': 'ks',  // Cachemiro (India/Pakistán)
-        'suaheli': 'sw',    // Otra variante de suajili (por si acaso)
-        'tigre': 'ti',      // Tigré (Eritrea/Etiopía)
-        'oromo': 'om',      // Oromo (Etiopía/Kenia)
-        'wolof': 'wo',      // Wolof (Senegal)
-        'akan': 'ak',       // Akan (Ghana/Costa de Marfil)
-        'twi': 'tw',        // Twi (dialecto del akan)
-        'gaélico': 'ga',    // Alias para irlandés (ya tienes 'irlandes')
-        'vasco': 'eu',      // Alias para 'basque'
-        'kursk': 'ku',      // Alias para kurdo (corrección de 'kurdish')
-        'baluchi': 'bal',   // Baluchi (Pakistán/Irán/Afganistán)
-        'sardo': 'sc',      // Sardo (Cerdeña, Italia)
-        'corso': 'co',      // Corso (Córcega, Francia)
-        'breton': 'br',     // Bretón (Bretaña, Francia)
-        'occitano': 'oc',   // Occitano (sur de Francia)
-        'ladino': 'lad',    // Ladino (judeoespañol)
-        'romani': 'rom',    // Romaní (lengua de los pueblos romaníes)
-        'sumerio': 'sux',   // Sumerio (antiguo, Mesopotamia, no vivo)
-        'acadio': 'akk',    // Acadio (antiguo, Mesopotamia, no vivo)
-        // ¡Más opciones si quieres seguir expandiendo!
+        'egipcio': 'ar-EG', 
+        'copto': 'cop',     
+        'swahili': 'sw',  
+        'basque': 'eu',  
+        'catalan': 'ca', 
+        'galician': 'gl',  
+        'luxemburgues': 'lb',
+        'frisón': 'fy',
+        'sami': 'se',  
+        'inuktitut': 'iu',
+        'navajo': 'nv', 
+        'cherokee': 'chr',
+        'mapuche': 'arn',
+        'maya': 'yua', 
+        'nauatl': 'nah',
+        'tongan': 'to',
+        'fiyiano': 'fj', 
+        'tahitiano': 'ty',
+        ' groenlandés': 'kl',
+        'assames': 'as',  
+        'cachemiro': 'ks',
+        'suaheli': 'sw', 
+        'tigre': 'ti',  
+        'oromo': 'om', 
+        'wolof': 'wo',
+        'akan': 'ak', 
+        'twi': 'tw', 
+        'gaélico': 'ga',  
+        'vasco': 'eu', 
+        'kursk': 'ku', 
+        'baluchi': 'bal',
+        'sardo': 'sc',  
+        'corso': 'co',  
+        'breton': 'br', 
+        'occitano': 'oc', 
+        'ladino': 'lad', 
+        'romani': 'rom', 
+        'sumerio': 'sux',   
+        'acadio': 'akk', 
     };
         const langCode = langMap[targetLang];
 
@@ -2568,6 +2567,11 @@ async function manejarTraduci(message) {
             `${error.message}`);
         await waitingMessage.edit({ embeds: [errorEmbed] });
     }
+}
+
+function listarIdiomas() {
+    const idiomas = Object.keys(langMap).sort();
+    return `Idiomas disponibles para traducir: ${idiomas.join(', ')}`;
 }
 
 // Eventos de música con Erela.js
@@ -2836,6 +2840,9 @@ async function manejarCommand(message) {
     }
     else if (content.startsWith('!ansiedad') || content.startsWith('!an')) {
         await manejarAnsiedad(message);
+    }
+    else if (content === '!idiomas') {
+        return listarIdiomas();
     }
 }
 
