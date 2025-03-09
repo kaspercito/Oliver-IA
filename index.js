@@ -1041,7 +1041,7 @@ async function manejarImagen(message) {
 
     const confirmEmbed = createEmbed('#FFAA00', `¡Pará un cacho, ${userName}!`, 
         `¿Querés una imagen de "${prompt}" en estilo ${style}? Reaccioná con ✅ o ❌.`, 
-        'Hecho con onda por Grok de xAI');
+        'Hecho con onda por Oliver IA');
     const confirmMessage = await message.channel.send({ embeds: [confirmEmbed] });
     await confirmMessage.react('✅');
     await confirmMessage.react('❌');
