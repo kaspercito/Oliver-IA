@@ -2586,7 +2586,7 @@ async function manejarCommand(message) {
         }
         return;
     }
-    else if (content === '!traduci' || content === '!ts')) {
+    else if (content === '!traduci' || content === '!ts') {
         await manejarTraduci(message);
     }
     else if (content === '!trivia' || content === '!tc') {
