@@ -2496,7 +2496,46 @@ async function manejarTraduci(message) {
         'quechua': 'qu',
         'guaraní': 'gn',
         'aymara': 'ay',
-        // ¡Podría seguir, pero esto ya es un montón!
+        'egipcio': 'ar-EG', // Árabe egipcio (variante regional de 'ar')
+        'copto': 'cop',     // Idioma litúrgico de los cristianos coptos en Egipto (histórico)
+        'swahili': 'sw',    // Variante en inglés de suajili (ya tienes 'suajili')
+        'basque': 'eu',     // Vasco (en español: 'vasco')
+        'catalan': 'ca',    // Catalán
+        'galician': 'gl',   // Gallego
+        'luxemburgues': 'lb', // Luxemburgués
+        'frisón': 'fy',     // Frisón (hablado en Países Bajos y Alemania)
+        'sami': 'se',       // Sami del norte (uno de los idiomas sami)
+        'inuktitut': 'iu',  // Lengua inuit
+        'navajo': 'nv',     // Navajo (lengua nativa americana)
+        'cherokee': 'chr',  // Cherokee (lengua nativa americana)
+        'mapuche': 'arn',   // Mapudungun (lengua mapuche)
+        'maya': 'yua',      // Yucateco (uno de los idiomas mayas)
+        'nauatl': 'nah',    // Náhuatl (familia de lenguas en México)
+        'tongan': 'to',     // Tongano (Polinesia)
+        'fiyiano': 'fj',    // Fiyiano (Fiyi)
+        'tahitiano': 'ty',  // Tahitiano (Polinesia)
+        ' groenlandés': 'kl', // Groenlandés (Kalaallisut)
+        'assames': 'as',    // Asamés (India)
+        'cachemiro': 'ks',  // Cachemiro (India/Pakistán)
+        'suaheli': 'sw',    // Otra variante de suajili (por si acaso)
+        'tigre': 'ti',      // Tigré (Eritrea/Etiopía)
+        'oromo': 'om',      // Oromo (Etiopía/Kenia)
+        'wolof': 'wo',      // Wolof (Senegal)
+        'akan': 'ak',       // Akan (Ghana/Costa de Marfil)
+        'twi': 'tw',        // Twi (dialecto del akan)
+        'gaélico': 'ga',    // Alias para irlandés (ya tienes 'irlandes')
+        'vasco': 'eu',      // Alias para 'basque'
+        'kursk': 'ku',      // Alias para kurdo (corrección de 'kurdish')
+        'baluchi': 'bal',   // Baluchi (Pakistán/Irán/Afganistán)
+        'sardo': 'sc',      // Sardo (Cerdeña, Italia)
+        'corso': 'co',      // Corso (Córcega, Francia)
+        'breton': 'br',     // Bretón (Bretaña, Francia)
+        'occitano': 'oc',   // Occitano (sur de Francia)
+        'ladino': 'lad',    // Ladino (judeoespañol)
+        'romani': 'rom',    // Romaní (lengua de los pueblos romaníes)
+        'sumerio': 'sux',   // Sumerio (antiguo, Mesopotamia, no vivo)
+        'acadio': 'akk',    // Acadio (antiguo, Mesopotamia, no vivo)
+        // ¡Más opciones si quieres seguir expandiendo!
     };
         const langCode = langMap[targetLang];
 
