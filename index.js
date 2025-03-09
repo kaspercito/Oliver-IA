@@ -7,7 +7,7 @@ const puppeteer = require('puppeteer');
 const lyricsFinder = require('lyrics-finder');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 const { createCanvas } = require('canvas');
-const fs = require('fs').promises;
+const fs = require('fs');
 require('dotenv').config();
 
 const client = new Client({
