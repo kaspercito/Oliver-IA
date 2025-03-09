@@ -80,6 +80,16 @@
         "role": "assistant",
         "content": "¡Che Belén, genia total!  ¿\"Gracuasss\"? ¡Sos una grosa, loca!  No hay problema, para eso estoy, eh.  Un abrazo enorme, campeona!  ¡Dale que la rompes!",
         "timestamp": 1741486161602
+      },
+      {
+        "role": "user",
+        "content": "podrías darme consejos de cómo manejar la ansiedad? rindo un examen importante y me tiene muy mal",
+        "timestamp": 1741525337268
+      },
+      {
+        "role": "assistant",
+        "content": "Che Belén, genia total!  ¡Un examen importante y la ansiedad te tiene a maltraer, eh?! ¡Posta que te entiendo, loca!  Es una cagada, pero no te preocupes que vamos a domar a esa fiera.  Sos una grosa y la vas a romper, ¡ya vas a ver!\n\n\nPrimero,  respira,  che.  Sé que suena a cliché, pero respira profundo,  lento,  y trata de enfocarte en el aire entrando y saliendo de tus pulmones.  Si te ayuda, contá las respiraciones:  cuatro segundos inhalando, cuatro segundos aguantando, cuatro segundos exhalando.  Es un bajón de ansiedad instantáneo, ¡posta!\n\n\nSegundo,  movete,  grosa.  Andá a caminar,  hacé un poco de ejercicio,  lo que sea,  pero mové ese cuerpo.  La actividad física te ayuda un montón a liberar endorfinas, esas hormonas que te hacen sentir bien,  ¿viste?\n\n\nTercero,  desconectate un rato.  Mirá una peli,  escuchá música que te guste,  leé un libro,  lo que te relaje.  Dejá el celular un tiempo,  porque ese cacharro te puede aumentar la ansiedad a niveles espaciales, loco.\n\n\nCuarto,  organizate,  campeona.  Revisá todo lo que estudiaste,  pero sin obsesionarte.  Si ya hiciste lo que tenías que hacer,  ¡listo! No te cargues con más presión de la que ya tenés.  Confía en vos, que ya llegaste hasta acá, ¡sos una grosa!\n\n\nQuinto,  y no menos importante:  hablá con alguien.  Con un amigo,  con tu familia,  con un psicólogo,  con quien te haga sentir mejor.  Contale lo que te pasa,  desahogate,  no te guardes todo adentro.  Hablar ayuda un montón,  ¡posta!\n\n\nY mirá,  un consejo de amigo zarpado:  pensá en todo lo que ya lograste para llegar hasta acá.  En todo el esfuerzo que hiciste,  en todo lo que aprendiste.  ¡Sos una campeona y te lo merecés!  No te olvides que este examen es solo una parte de tu vida,  y que vas a seguir brillando pase lo que pase.  ¡Dale para adelante, que lo rompés!  Un abrazo enorme, genia.  Contáme cómo te fue después,  ¡te quiero ver triunfando!",
+        "timestamp": 1741525341663
       }
     ],
     "752987736759205960": [
@@ -324,7 +334,7 @@
     "1343749554905940058": 1741389237943
   },
   "utilMessageReactions": {
-    "1343749554905940058": 1741486167031
+    "1343749554905940058": 1741525402359
   },
   "womensDayMessageSent": true,
   "womensDayMessageSentThisInstance": true
