@@ -1,3 +1,4 @@
+const fs = require('fs');
 const { Client, GatewayIntentBits, EmbedBuilder } = require('discord.js');
 const axios = require('axios');
 const { v4: uuidv4 } = require('uuid');
@@ -6,8 +7,6 @@ const Spotify = require('erela.js-spotify');
 const puppeteer = require('puppeteer');
 const lyricsFinder = require('lyrics-finder');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
-const { createCanvas } = require('canvas');
-const fs = require('fs');
 require('dotenv').config();
 
 const client = new Client({
@@ -1127,27 +1126,23 @@ let autosaveEnabled = true;
 let autosavePausedByMusic = false;
 
 // Utilidades con tono argentino
-const createEmbed = async (color, title, description, footer = 'Hecho con onda por Oliver IA') => {
-    const imagePath = './degradado_fucsia_vertical.png';
-    if (!fs.existsSync(imagePath)) {
-        await generarDegradadoFucsiaVertical();
-    }
-
+const createEmbed = (color, title, description, footer = 'Hecho con onda por Oliver IA') => {
     return new EmbedBuilder()
-        .setColor('#FF00FF')
+        .setColor(color)
         .setTitle(title)
         .setDescription(description || ' ')
         .setFooter({ text: footer })
-        .setTimestamp()
-        .setThumbnail('attachment://degradado_fucsia_vertical.png');
+        .setTimestamp();
 };
 
 const sendError = async (channel, message, suggestion = '¿Probamos de nuevo, loco?', footer = 'Hecho con onda por Oliver IA') => {
-    return await sendEmbed(channel, '#FF5555', '¡Uh, qué cagada!', `${message}\n${suggestion}`, footer);
+    const embed = createEmbed('#FF5555', '¡Uh, qué cagada!', `${message}\n${suggestion}`, footer);
+    return await channel.send({ embeds: [embed] });
 };
 
 const sendSuccess = async (channel, title, message, footer = 'Hecho con onda por Oliver IA') => {
-    return await sendEmbed(channel, '#55FF55', title, message, footer);
+    const embed = createEmbed('#55FF55', title, message, footer);
+    return await channel.send({ embeds: [embed] });
 };
 
 function cleanText(text) {
@@ -1370,13 +1365,10 @@ const tips = [
     const tip = tips[Math.floor(Math.random() * tips.length)];
     const mensajeMiguel = "¡Ojo al dato, Belén! Miguel te manda un abrazo zarpado y te desea toda la suerte del mundo pa’ ese examen. Confiá en vos, genia, que sos una grosa y la vas a romper, ¡posta!";
 
-    const embed = await createEmbed('#55FFFF', `¡Tranqui, ${userName}!`, 
+    const embed = createEmbed('#55FFFF', `¡Tranqui, ${userName}!`, 
         `${tip}\n\n${mensajeMiguel}\n\n¿Querés charlar más o te tiro otro tip al toque?`, 
         'Con cariño, Oliver IA | Reacciona con ✅ o ❌');
-    const sentMessage = await message.channel.send({ 
-        embeds: [embed], 
-        files: [{ attachment: './degradado_fucsia_vertical.png', name: 'degradado_fucsia_vertical.png' }] 
-    });
+    const sentMessage = await message.channel.send({ embeds: [embed] });
     await sentMessage.react('✅');
     await sentMessage.react('❌');
     sentMessages.set(sentMessage.id, { content: `${tip} ${mensajeMiguel}`, message: sentMessage });
@@ -1626,34 +1618,6 @@ async function manejarAutosave(message) {
     }
 }
 
-async function generarDegradadoFucsiaVertical() {
-    return new Promise((resolve, reject) => {
-        console.log('Iniciando generación de imagen...');
-        const width = 50;
-        const height = 400;
-        const canvas = createCanvas(width, height);
-        const ctx = canvas.getContext('2d');
-
-        const gradient = ctx.createLinearGradient(0, 0, 0, height);
-        gradient.addColorStop(0, '#FF00FF');
-        gradient.addColorStop(1, '#FF69B4');
-
-        ctx.fillStyle = gradient;
-        ctx.fillRect(0, 0, width, height);
-
-        const buffer = canvas.toBuffer('image/png');
-        const filePath = '/tmp/degradado_fucsia_vertical.png';
-
-        fs.writeFile(filePath, buffer, (err) => {
-            if (err) {
-                console.error('Error al escribir la imagen:', err);
-                return reject(err);
-            }
-            console.log('Imagen generada exitosamente en:', filePath);
-            resolve(filePath);
-        });
-    });
-}
 // PPM
 function obtenerFrasePPM() {
     return frasesPPM[Math.floor(Math.random() * frasesPPM.length)];
@@ -2555,49 +2519,51 @@ async function manejarWiki(message) {
 
 async function manejarTraduci(message) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
+    console.log(`Mensaje recibido en manejarTraduci: "${message.content}"`);
     const args = message.content.toLowerCase().startsWith('!traduci') 
         ? message.content.slice(8).trim().split(' a ') 
         : message.content.slice(3).trim().split(' a ');
     const text = args[0].trim();
+    console.log(`Texto a traducir: "${text}"`);
 
     if (args.length < 2) {
         return sendError(message.channel, `¡Escribí algo como "!traducí hola a inglés", ${userName}!`);
     }
 
     const targetLang = args[1].trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-    const waitingEmbed = await createEmbed('#55FFFF', `✍️ Traduciendo, ${userName}...`, 
+    const waitingEmbed = createEmbed('#55FFFF', `✍️ Traduciendo, ${userName}...`, 
         `Aguantá que traduzco "${text}" a ${targetLang}...`);
-    const waitingMessage = await message.channel.send({ 
-        embeds: [waitingEmbed], 
-        files: [{ attachment: './degradado_fucsia_vertical.png', name: 'degradado_fucsia_vertical.png' }] 
-    });
+    const waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
 
     try {
         const langCode = langMap[targetLang];
+
         if (!langCode) {
             throw new Error(`No sé traducir a "${targetLang}", ${userName}. Probá con "inglés", "ruso", "francés", etc.`);
         }
 
         const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${langCode}&dt=t&q=${encodeURIComponent(text)}`;
+        console.log(`Pidiendo traducción a Google Translate: ${url}`);
         const response = await axios.get(url);
+
+        console.log('Respuesta de Google Translate:', JSON.stringify(response.data, null, 2));
+
         const translated = response.data[0][0][0];
 
         if (!translated || translated.toLowerCase() === text.toLowerCase()) {
             throw new Error(`¡Qué boludo! La traducción salió igual que el original: "${translated}". ¿La API está rota o qué?`);
         }
 
-        const embed = await createEmbed('#FFD700', `✅ Traducción a ${targetLang.charAt(0).toUpperCase() + targetLang.slice(1)}`, 
+        const embed = createEmbed('#FFD700', `✅ Traducción a ${targetLang.charAt(0).toUpperCase() + targetLang.slice(1)}`, 
             `"${text}" → **${translated}**\n*Traducido con onda por Oliver IA, che.*`);
-        await waitingMessage.edit({ 
-            embeds: [embed], 
-            files: [{ attachment: './degradado_fucsia_vertical.png', name: 'degradado_fucsia_vertical.png' }] 
-        });
+        await waitingMessage.edit({ embeds: [embed] });
     } catch (error) {
-        const errorEmbed = await createEmbed('#FF5555', '¡Qué cagada!', `${error.message}`);
-        await waitingMessage.edit({ 
-            embeds: [errorEmbed], 
-            files: [{ attachment: './degradado_fucsia_vertical.png', name: 'degradado_fucsia_vertical.png' }] 
-        });
+        console.error(`Error traduciendo "${text}" a "${targetLang}": ${error.message}`);
+        if (error.response) {
+            console.error(`Respuesta de la API: ${JSON.stringify(error.response.data)}`);
+        }
+        const errorEmbed = createEmbed('#FF5555', '¡Qué cagada!', `${error.message}`);
+        await waitingMessage.edit({ embeds: [errorEmbed] });
     }
 }
 
