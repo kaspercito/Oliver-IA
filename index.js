@@ -2369,7 +2369,8 @@ async function manejarTraduci(message) {
     const args = message.content.toLowerCase().startsWith('!traducí') 
         ? message.content.slice(8).trim().split(' a ') 
         : message.content.slice(3).trim().split(' a ');
-    const text = args[0].trim(); // Asegurate de que no haya basura como "aduci"
+        const text = args[0].trim();
+        console.log(`Texto a traducir: "${text}"`);
 
     if (args.length < 2) {
         return sendError(message.channel, `¡Escribí algo como "!traducí hola a inglés", ${userName}!`);
@@ -2587,7 +2588,8 @@ async function manejarCommand(message) {
         return;
     }
     else if (content.startsWith('!traduci') || content.startsWith('!ts')) {
-    await manejarTraduci(message);
+        console.log(`Enviando a manejarTraduci: "${message.content}"`);
+        await manejarTraduci(message);
     }
     else if (content === '!trivia' || content === '!tc') {
         await manejarTrivia(message);
