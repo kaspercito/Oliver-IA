@@ -7,6 +7,8 @@ const Spotify = require('erela.js-spotify');
 const puppeteer = require('puppeteer');
 const lyricsFinder = require('lyrics-finder');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
+const { createCanvas } = require('canvas');
+const fs = require('fs').promises;
 require('dotenv').config();
 
 const client = new Client({
@@ -1126,18 +1128,28 @@ let autosaveEnabled = true;
 let autosavePausedByMusic = false;
 
 // Utilidades con tono argentino
-const createEmbed = (color, title, description, footer = 'Hecho con onda por Oliver IA') => {
+const createEmbed = async (color, title, description, footer = 'Hecho con onda por Oliver IA') => {
+    // Generar la imagen si no existe
+    const imagePath = './degradado_fucsia_vertical.png';
+    if (!fs.existsSync(imagePath)) {
+        await generarDegradadoFucsiaVertical();
+    }
+
     return new EmbedBuilder()
-        .setColor(color)
+        .setColor('#FF00FF') // Borde fucsia oscuro como base
         .setTitle(title)
         .setDescription(description || ' ')
         .setFooter({ text: footer })
-        .setTimestamp();
+        .setTimestamp()
+        .setThumbnail('attachment://degradado_fucsia_vertical.png'); // Degradado como thumbnail a la derecha
 };
 
 const sendError = async (channel, message, suggestion = '¿Probamos de nuevo, loco?', footer = 'Hecho con onda por Oliver IA') => {
-    const embed = createEmbed('#FF5555', '¡Uh, qué cagada!', `${message}\n${suggestion}`, footer);
-    return await channel.send({ embeds: [embed] });
+    const embed = await createEmbed('#FF5555', '¡Uh, qué cagada!', `${message}\n${suggestion}`, footer);
+    return await channel.send({ 
+        embeds: [embed], 
+        files: [{ attachment: './degradado_fucsia_vertical.png', name: 'degradado_fucsia_vertical.png' }] 
+    });
 };
 
 const sendSuccess = async (channel, title, message, footer = 'Hecho con onda por Oliver IA') => {
@@ -1365,10 +1377,13 @@ const tips = [
     const tip = tips[Math.floor(Math.random() * tips.length)];
     const mensajeMiguel = "¡Ojo al dato, Belén! Miguel te manda un abrazo zarpado y te desea toda la suerte del mundo pa’ ese examen. Confiá en vos, genia, que sos una grosa y la vas a romper, ¡posta!";
 
-    const embed = createEmbed('#55FFFF', `¡Tranqui, ${userName}!`, 
+    const embed = await createEmbed('#55FFFF', `¡Tranqui, ${userName}!`, 
         `${tip}\n\n${mensajeMiguel}\n\n¿Querés charlar más o te tiro otro tip al toque?`, 
         'Con cariño, Oliver IA | Reacciona con ✅ o ❌');
-    const sentMessage = await message.channel.send({ embeds: [embed] });
+    const sentMessage = await message.channel.send({ 
+        embeds: [embed], 
+        files: [{ attachment: './degradado_fucsia_vertical.png', name: 'degradado_fucsia_vertical.png' }] 
+    });
     await sentMessage.react('✅');
     await sentMessage.react('❌');
     sentMessages.set(sentMessage.id, { content: `${tip} ${mensajeMiguel}`, message: sentMessage });
@@ -1616,6 +1631,26 @@ async function manejarAutosave(message) {
         await sendSuccess(message.channel, '⏸️ ¡Autosave en pausa!', 
             `Paré el guardado automático, ${userName}. Usá !as para volver a prenderlo o !save para guardar ya.`);
     }
+}
+
+async function generarDegradadoFucsiaVertical() {
+    const width = 50; // Ancho estrecho para simular un borde
+    const height = 400; // Alto suficiente para cubrir el embed
+    const canvas = createCanvas(width, height);
+    const ctx = canvas.getContext('2d');
+
+    // Degradado vertical de fucsia oscuro (#FF00FF) a fucsia claro (#FF69B4)
+    const gradient = ctx.createLinearGradient(0, 0, 0, height);
+    gradient.addColorStop(0, '#FF00FF'); // Fucsia oscuro arriba
+    gradient.addColorStop(1, '#FF69B4'); // Fucsia claro abajo
+
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, width, height);
+
+    const buffer = canvas.toBuffer('image/png');
+    const filePath = './degradado_fucsia_vertical.png';
+    await fs.writeFile(filePath, buffer);
+    return filePath;
 }
 
 // PPM
