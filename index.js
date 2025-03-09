@@ -24,6 +24,7 @@ const client = new Client({
 const OWNER_ID = '752987736759205960'; // Tu ID
 const ALLOWED_USER_ID = '1023132788632862761'; // ID de Belén
 const CHANNEL_ID = '1343749554905940058'; // Canal principal
+const API_URL = 'https://3014-34-87-48-223.ngrok-free.app'; // Si es local
 
 // Configuración del administrador de música con Erela.js
 const manager = new Manager({
@@ -995,64 +996,27 @@ function cleanText(text) {
 }
 
 // Función para generar la imagen con Puppeteer
-async function generateImage(prompt) {
+async function generateImage(prompt, style) {
     try {
-        console.log(`Generando imagen para: "${prompt}"`);
-        const browser = await puppeteer.launch({
-            headless: true,
-            args: ['--no-sandbox', '--disable-setuid-sandbox']
+        console.log(`Generando imagen para: "${prompt}" en estilo ${style}`);
+        const response = await axios.post(API_URL, {
+            prompt,
+            style
         });
-        const page = await browser.newPage();
-
-        await page.setCookie({
-            name: '_U',
-            value: process.env.BING_U_TOKEN,
-            domain: '.bing.com',
-            path: '/',
-            httpOnly: true,
-            secure: true
-        });
-
-        const encodedPrompt = encodeURIComponent(prompt);
-        const url = `https://www.bing.com/images/create?q=${encodedPrompt}&rt=4&FORM=GENCRE`;
-        await page.goto(url, { waitUntil: 'networkidle2' });
-
-        // Esperamos las imágenes con clase .mimg
-        await page.waitForSelector('.mimg', { timeout: 120000 });
-
-        // Extraemos el blob y lo convertimos a base64
-        const imageBase64 = await page.evaluate(() => {
-            const img = document.querySelector('.mimg'); // Tomamos la primera imagen
-            return new Promise((resolve) => {
-                const canvas = document.createElement('canvas');
-                const ctx = canvas.getContext('2d');
-                canvas.width = img.width;
-                canvas.height = img.height;
-                ctx.drawImage(img, 0, 0);
-                resolve(canvas.toDataURL('image/png'));
-            });
-        });
-
-        if (!imageBase64) {
-            throw new Error('No se pudo convertir la imagen a base64.');
-        }
-
-        await browser.close();
-        return imageBase64; // Ya viene como data:image/png;base64,...
+        return response.data.image;
     } catch (error) {
         console.error('Error al generar imagen:', error.message);
-        throw error;
+        throw new Error(`No pude generar la imagen: ${error.message}`);
     }
 }
 
-// manejarImagen sin cambios
 async function manejarImagen(message) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
     const args = message.content.startsWith('!imagen') ? message.content.slice(7).trim() : message.content.slice(3).trim();
 
     if (!args) {
         return sendError(message.channel, `¡Tirame algo después de "!imagen", ${userName}! Ejemplo: !imagen un mate [cartoon]`, 
-            '¿Qué querés ver, loco?', 'Hecho con onda por Oliver IA');
+            '¿Qué querés ver, loco?', 'Hecho con onda por Grok de xAI');
     }
 
     const styleMatch = args.match(/\[(.*?)\]$/);
@@ -1060,8 +1024,8 @@ async function manejarImagen(message) {
     const prompt = styleMatch ? args.replace(styleMatch[0], '').trim() : args;
 
     const confirmEmbed = createEmbed('#FFAA00', `¡Pará un cacho, ${userName}!`, 
-        `¿Querés que te genere una imagen de "${prompt}" en estilo ${style}? Reaccioná con ✅ para confirmar, o ❌ para cancelar, loco.`, 
-        'Hecho con onda por Oliver IA');
+        `¿Querés una imagen de "${prompt}" en estilo ${style}? Reaccioná con ✅ o ❌.`, 
+        'Hecho con onda por Grok de xAI');
     const confirmMessage = await message.channel.send({ embeds: [confirmEmbed] });
     await confirmMessage.react('✅');
     await confirmMessage.react('❌');
@@ -1071,46 +1035,43 @@ async function manejarImagen(message) {
     try {
         reactions = await confirmMessage.awaitReactions({ filter: reactionFilter, max: 1, time: 30000, errors: ['time'] });
     } catch {
-        await sendError(message.channel, `⏳ ¡Te dormiste, ${userName}!`, 
-            'No reaccionaste a tiempo, loco. ¿Probamos de nuevo con !imagen?', 'Hecho con onda por Oliver IA');
-        return;
+        return sendError(message.channel, `⏳ ¡Te dormiste, ${userName}!`, 
+            'No reaccionaste a tiempo. ¿Probamos de nuevo?', 'Hecho con onda por Grok de xAI');
     }
 
     if (!reactions.size || reactions.first().emoji.name === '❌') {
-        await sendSuccess(message.channel, '🛑 ¡Nada de imagen!', `Tranqui, ${userName}, no pasa nada. ¿Qué más querés hacer, loco?`);
-        return;
+        return sendSuccess(message.channel, '🛑 ¡Nada de imagen!', `Tranqui, ${userName}, ¿qué más querés hacer?`);
     }
 
     const waitingEmbed = createEmbed('#55FFFF', `⌛ Generando, ${userName}...`, 
-        `Aguantá un toque que te hago una imagen re copada de "${prompt}" en estilo ${style}...`, 'Hecho con onda por Oliver IA');
+        `Aguantá que te hago una imagen zarpada de "${prompt}" en estilo ${style}...`, 'Hecho con onda por Grok de xAI');
     const waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
 
     try {
-        const imageBase64 = await generateImage(`Una imagen copada de ${prompt}, estilo ${style}, con onda argentina`);
+        const imageBase64 = await generateImage(prompt, style);
         const imageAttachment = { attachment: Buffer.from(imageBase64.split(',')[1], 'base64'), name: `imagen_${userName}_${Date.now()}.png` };
-        
+
         if (!dataStore.imageHistory) dataStore.imageHistory = {};
         if (!dataStore.imageHistory[userName]) dataStore.imageHistory[userName] = [];
         const imageId = uuidv4();
         dataStore.imageHistory[userName].push({
             id: imageId,
-            prompt: prompt,
-            style: style,
+            prompt,
+            style,
             base64: imageBase64,
             timestamp: new Date().toISOString()
         });
         dataStoreModified = true;
 
         const embed = createEmbed('#FFD700', `¡Acá tenés, ${userName}!`, 
-            `Tu imagen de "${prompt}" en estilo ${style}, ¡posta que quedó zarpada! Guardada con ID: ${imageId}. ¿Te copa, loco?`, 
-            'Hecho con onda por Oliver IA');
+            `Tu imagen de "${prompt}" en estilo ${style} quedó zarpada. ID: ${imageId}. ¿Te copa?`, 
+            'Hecho con onda por Grok de xAI');
         const sentMessage = await waitingMessage.edit({ embeds: [embed], files: [imageAttachment] });
-        sentMessages.set(sentMessage.id, { imageId: imageId, userName: userName });
+        sentMessages.set(sentMessage.id, { imageId, userName });
     } catch (error) {
-        console.error('Error generando imagen:', error.message);
         const errorEmbed = createEmbed('#FF5555', '¡Qué cagada!', 
-            `No pude generar la imagen de "${prompt}", ${userName}. Error: ${error.message}. ¿Probamos otra vez, loco?`, 
-            'Hecho con onda por Oliver IA');
+            `No pude generar la imagen de "${prompt}", ${userName}. Error: ${error.message}. ¿Probamos otra vez?`, 
+            'Hecho con onda por Grok de xAI');
         await waitingMessage.edit({ embeds: [errorEmbed] });
     }
 }
