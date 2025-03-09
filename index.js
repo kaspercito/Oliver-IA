@@ -2369,6 +2369,7 @@ async function manejarTraduci(message) {
     const args = message.content.toLowerCase().startsWith('!traducí') 
         ? message.content.slice(8).trim().split(' a ') 
         : message.content.slice(3).trim().split(' a ');
+    const text = args[0].trim(); // Asegurate de que no haya basura como "aduci"
 
     if (args.length < 2) {
         return sendError(message.channel, `¡Escribí algo como "!traducí hola a inglés", ${userName}!`);
@@ -2399,7 +2400,7 @@ async function manejarTraduci(message) {
         }
 
         // Usamos una API alternativa porque MyMemory está fallando
-        const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=es&tl=${langCode}&dt=t&q=${encodeURIComponent(text)}`;
+        const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${langCode}&dt=t&q=${encodeURIComponent(text)}`;
         console.log(`Pidiendo traducción a Google Translate: ${url}`);
         const response = await axios.get(url);
 
