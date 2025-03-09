@@ -4,6 +4,7 @@ const axios = require('axios');
 const { v4: uuidv4 } = require('uuid');
 const { Manager } = require('erela.js');
 const Spotify = require('erela.js-spotify');
+const puppeteer = require('puppeteer');
 const lyricsFinder = require('lyrics-finder');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 require('dotenv').config();
