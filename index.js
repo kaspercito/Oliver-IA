@@ -74,7 +74,8 @@ const BOT_UPDATES = [
     "¡Arreglado la opción de segunda respuestas uando reaccionás con ❌! Más rápido y copado, loco.",
     '¡Nuevo !imagen / !im agregado! Generá imágenes zarpadas con Stable Diffusion, pedí lo que quieras (ej. !imagen un mate [cartoon]) y confirmá con ✅, loco.',
     '¡Historial de imágenes con !misimagenes / !mi! Mirá tus últimas 5 imágenes generadas con sus IDs, pa’ que no pierdas nada, che.',
-    '¡Edición piola con !editarimagen / !ei! Modificá tus imágenes guardadas (ej. !editarimagen [ID] agregar un perro), solo las que hice yo, ¡posta!'
+    '¡Edición piola con !editarimagen / !ei! Modificá tus imágenes guardadas (ej. !editarimagen [ID] agregar un perro), solo las que hice yo, ¡posta!',
+    '¡Solucionado el error con las imágenes, ahora sí funciona como la puta madre!'
 ];
 
 // Mensajes de ánimo para Belén
