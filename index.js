@@ -1000,7 +1000,7 @@ async function generateImage(prompt) {
         console.log(`Generando imagen para: "${prompt}"`);
         const browser = await puppeteer.launch({
             headless: true,
-            args: ['--no-sandbox', '--disable-setuid-sandbox'] // Agregamos estas opciones
+            args: ['--no-sandbox', '--disable-setuid-sandbox']
         });
         const page = await browser.newPage();
 
@@ -1017,29 +1017,35 @@ async function generateImage(prompt) {
         const url = `https://www.bing.com/images/create?q=${encodedPrompt}&rt=4&FORM=GENCRE`;
         await page.goto(url, { waitUntil: 'networkidle2' });
 
-        await page.waitForSelector('.mimg', { timeout: 60000 });
+        // Esperamos las imágenes con clase .mimg
+        await page.waitForSelector('.mimg', { timeout: 120000 });
 
-        const imageUrls = await page.evaluate(() => {
-            const images = Array.from(document.querySelectorAll('.mimg'));
-            return images.map(img => img.src);
+        // Extraemos el blob y lo convertimos a base64
+        const imageBase64 = await page.evaluate(() => {
+            const img = document.querySelector('.mimg'); // Tomamos la primera imagen
+            return new Promise((resolve) => {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                canvas.width = img.width;
+                canvas.height = img.height;
+                ctx.drawImage(img, 0, 0);
+                resolve(canvas.toDataURL('image/png'));
+            });
         });
 
-        if (!imageUrls.length) {
-            throw new Error('No se encontraron imágenes generadas. Capaz que el prompt falló o Bing tardó demasiado.');
+        if (!imageBase64) {
+            throw new Error('No se pudo convertir la imagen a base64.');
         }
 
-        const imageResponse = await axios.get(imageUrls[0], { responseType: 'arraybuffer' });
-        const imageBase64 = Buffer.from(imageResponse.data, 'binary').toString('base64');
-
         await browser.close();
-        return `data:image/png;base64,${imageBase64}`;
+        return imageBase64; // Ya viene como data:image/png;base64,...
     } catch (error) {
         console.error('Error al generar imagen:', error.message);
         throw error;
     }
 }
 
-// Resto del código (manejarImagen) sin cambios
+// manejarImagen sin cambios
 async function manejarImagen(message) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
     const args = message.content.startsWith('!imagen') ? message.content.slice(7).trim() : message.content.slice(3).trim();
