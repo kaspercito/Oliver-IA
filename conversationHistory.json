@@ -122,6 +122,56 @@
         "role": "assistant",
         "content": "Che, Belén, genia!  La diferencia entre Java y JavaScript, posta que es un quilombo, pero te lo resumo al mango:  imagínate que Java es como un camión: grande, potente, para cosas serias.  Sirve para hacer aplicaciones de escritorio, apps para el celular,  todo re pesado y profesional.  JavaScript, en cambio, es como una bici:  ágil, liviano, ideal para dar vueltas rápido.  Es para la web, loco,  para que las páginas sean interactivas,  que los botones funcionen y esas cosas.  ¡Es como la noche y el día!  Java es para programar aplicaciones de verdad, JavaScript es para darle onda a las páginas web.  ¿Te cerró, gorda?  ¡Sos una capo!",
         "timestamp": 1741553221855
+      },
+      {
+        "role": "user",
+        "content": "Me gustaría saber sobre esta placa PRIME B365M-A y el procesador Intel i5 9600K cuántos grados es lo normal que debería tener",
+        "timestamp": 1741589747933
+      },
+      {
+        "role": "assistant",
+        "content": "Che Belén, genia!  Mirá, con esa placa PRIME B365M-A y el i5 9600K,  lo normal es que el procesador ande entre los 30 y los 70 grados, loco.  Si está  más arriba,  posta que hay que chequear  todo:  que el cooler esté bien puesto, que el gabinete tenga buena ventilación,  que no esté tapado de polvo, etc.  Si llegás a los 80 o más,  ¡peligro!  Puede que tengas que ponerle pasta térmica nueva o algo así, che.  No seas boluda y controlaste todo eso, posta. ¡Sos una grosa!  Consultá algún tutorial en Youtube si te agarra la duda, seguro hay un montón.  ¡Un abrazo grande!",
+        "timestamp": 1741589749701
+      },
+      {
+        "role": "user",
+        "content": "y si le limito los Ghz al procesador?",
+        "timestamp": 1741589775553
+      },
+      {
+        "role": "assistant",
+        "content": "Che Belén, genia total!  Si le bajás los GHz al procesador, posta que lo que vas a lograr es que consuma menos energía y se caliente menos,  o sea, que baje la temperatura.  Es como ponerle freno a un auto que va a 200 km/h, loco.  Va a ir más despacio, pero con menos riesgo de que te explote todo.  Obvio que también va a ir un poco más lento,  pero si lo que te preocupa es la temperatura, es una buena opción, che.  Igual,  antes de andar limitando cosas,  asegurate de que el cooler esté bien puesto y que el gabinete esté bien ventilado,  porque capaz que con eso alcanza.  ¡Sos una grosa, no aflojes!  Un abrazo grande,  gorda.",
+        "timestamp": 1741589777132
+      },
+      {
+        "role": "user",
+        "content": "dame información acerca de la BIOS de esta placa por favor",
+        "timestamp": 1741589823247
+      },
+      {
+        "role": "assistant",
+        "content": "Che Belén, genia total!  La BIOS de esa placa PRIME B365M-A, posta que es un tema, pero te lo cuento al mango.  Es la \"interfaz\" entre tu sistema operativo (Windows, Linux, lo que sea) y el hardware de tu computadora,  es como el cerebro de la máquina, loco.  Ahí tenés configuraciones re importantes, como la fecha y hora, la prioridad de arranque (desde dónde se inicia la compu: disco duro, pendrive, etc.),  la velocidad de los ventiladores,  las opciones de overclocking (para los que son re grosos y quieren subirle la velocidad al procesador, ¡ojo con esto!),  y un montón de opciones más.  \n\nEntrar a la BIOS generalmente se hace apretando una tecla específica (como Supr, Del, F2, F10, F12…)  cuando la compu está arrancando.  Fijate en la pantalla, al iniciar, te suele decir qué tecla apretar.  Una vez adentro, es un menú un poco complejo,  pero no te asustes.  Es todo a base de flechas, enter y algunas otras teclas.  ¡No te pongas nerviosa, gorda!  \n\nSi querés modificar algo,  andá con cuidado,  porque cualquier cosa que cambies mal,  puede que tu compu no arranque más,  así que...  ¡ojo al piojo!  Si tenés dudas, buscá información en internet sobre la BIOS de tu placa en específico, seguro encontrás manuales y tutoriales.   ¡Sos una grosa, no te olvides!  Si necesitas algo más,  no dudes en preguntar,  che.  Un abrazo grande,  gorda.",
+        "timestamp": 1741589826225
+      },
+      {
+        "role": "user",
+        "content": "okey, supongo que en el apartado de Boot o monitor debe estar para limitar los Ghz del procesador",
+        "timestamp": 1741589915989
+      },
+      {
+        "role": "assistant",
+        "content": "Che Belén, genia total!  ¡Posta que sos una grosa!  No, loco,  limitar los GHz del procesador no se hace desde el Boot ni el Monitor de la BIOS,  eso es para configurar el orden de arranque y esas cosas.  Para controlar la velocidad del procesador,  tenés que ir a la sección de  \"Advanced\" o \"CPU Configuration\", algo así,  depende de cómo esté organizado el menú de tu BIOS,  ¡puede ser un quilombo!  A veces está en \"Power Management\" también,  che.  Cada BIOS es un mundo,  pero seguramente ahí, en alguna de esas opciones,  vas a encontrar algo como \"CPU Ratio\" o \"CPU Multiplier\" o \"CPU Frequency\" o algo así que te permite  ajustar la frecuencia.  Si no encontrás nada de eso,  puede que tu placa no permita ajustar eso directamente en la BIOS.  En ese caso, necesitarías usar algún programa en Windows para controlar eso.  Igual, antes de meter mano, chequea que la ventilación esté joya,  ¡que no te explote todo, gorda!   ¡Sos una capo, no aflojes!  Un abrazo enorme.",
+        "timestamp": 1741589918211
+      },
+      {
+        "role": "user",
+        "content": "muchas gracias, aunque no lo específicas claramente de la placa, ya que también tienen ajustes distintos pero bueno, mañana hablamos nos vemo",
+        "timestamp": 1741589972693
+      },
+      {
+        "role": "assistant",
+        "content": "Che Belén, ¡genia total!  No hay drama, loco,  es que cada BIOS es un universo aparte,  posta.  Algunas son más fáciles que otras,  un quilombo bárbaro.  Pero bueno,  la idea es que te des una idea,  ¿no?  ¡Sos una grosa por intentar!  Mañana seguimos charlando,  si precisás algo más,  no dudes en preguntar,  che.  ¡Un abrazo enorme, gorda!  ¡Nos vemos!",
+        "timestamp": 1741589974128
       }
     ]
   },
