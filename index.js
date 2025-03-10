@@ -3111,53 +3111,56 @@ client.on('messageCreate', async (message) => {
     }
 
     // Otros comandos después
-await manejarCommand(message);
-if (content === '!ranking' || content === '!rk') {
-    const embed = getCombinedRankingEmbed(message.author.id, message.author.username);
-    await message.channel.send({ embeds: [embed] });
-} else if (content === '!help' || content === '!h') {
-    await sendGradientEmbed(message.channel, `¡Lista de comandos para vos, ${userName}!`,
-        '¡Acá tenés todo lo que puedo hacer por vos, loco!\n' +
-        '- **!ch / !chat [mensaje]**: Charlamos un rato, posta.\n' +
-        '- **!tr / !trivia [categoría] [n]**: Trivia copada por categoría (mínimo 20).\n' +
-        '- **!tc / !trivia cancelar**: Cancela la trivia que empezaste.\n' +             
-        '- **!pp / !ppm**: A ver qué tan rápido tipeás, ¡dale!\n' +
-        '- **!pc / !ppm cancelar**: Cancela el PPM si te arrepentís.\n' +
-        '- **!rk / !ranking**: Tus puntajes y estadísticas (récord más alto de PPM).\n' +
-        '- **!rppm / !rankingppm**: Todos tus intentos de PPM, loco.\n' +
-        '- **!re / !reacciones**: Juego para ver quién tipea más rápido.\n' +
-        '- **!rc / !reacciones cancelar**: Cancela las reacciones que empezaste.\n' +            
-        '- **!su / !sugerencias [sugerencia]**: Mandame tus sugerencias para hacer este bot más piola.\n' +
-        '- **!id / !idea [texto]**: Tirame una idea rápida pa’ mejorar el bot, ¡dale!\n' + 
-        '- **!ay / !ayuda [problema]**: Pedile una mano a Miguel.\n' +
-        '- **!save**: Guardo todo al toque, tranqui.\n' +
-        '- **!as / !autosave**: Paro o arranco el guardado automático.\n' +
-        '- **!act / !actualizaciones**: Mirá las últimas novedades del bot.\n' +
-        '- **!dt / !dato [pregunta]**: Te busco un dato rápido en la web o X, ¡posta!\n' +
-        '- **!clima [ciudad]**: Te digo el clima de cualquier ciudad, re útil.\n' +
-        '- **!noticias**: Te traigo el último titular de Argentina, al toque.\n' +
-        '- **!wiki [término]**: Busco un resumen en Wikipedia, ¡copado!\n' +
-        '- **!traduci [frase] a [idioma]**: Traduzco frases cortas, joya pa’ practicar.\n' +
-        '- **!an / !ansiedad**: Tips rápidos pa’ calmar la ansiedad, con un mensaje especial de Miguel pa’ darte pilas.\n' +
-        '- **!h / !help**: Esta lista, che.\n' +
-        '- **!hm / !help musica**: Comandos para meterle música al día.\n' +
-        '- **hola**: Te tiro un saludito con onda.');
-} else if (content === '!help musica' || content === '!hm') {
-    await sendGradientEmbed(message.channel, `¡Comandos de música para vos, ${userName}!`,
-        '¡Poné el ritmo con estos comandos, loco!\n' +
-        '- **!pl / !play [canción/URL]**: Tiro un tema para que suene.\n' +
-        '- **!pa / !pause**: Pauso o sigo la música, vos elegís.\n' +
-        '- **!sk / !skip**: Salto al próximo tema, al toque.\n' +
-        '- **!st / !stop**: Corto todo, silencio total.\n' +
-        '- **!qu / !queue**: Te muestro la lista de temas que vienen.\n' +
-        '- **!rp / !repeat [cola]**: Repito el tema o toda la cola, ¿qué querés?\n' +
-        '- **!bk / !back**: Vuelvo al tema anterior, como en los viejos tiempos.\n' +
-        '- **!ap / !autoplay**: Prendo o apago el autoplay, re práctico.\n' +
-        '- **!ly / !lyrics [canción]**: Te traigo la letra del tema que suena o uno que me digas.\n' +
-        '- **!hm / !help musica**: Esta guía de música, posta.');
-} else if (content === 'hola') {
-    await sendGradientEmbed(message.channel, `¡Qué lindo verte, ${userName}!`,
-        `¡Hola, loco! Soy Oliver IA, tu compañero piola, trayéndote buena onda como si estuviéramos tomando mate en la vereda. ¿Cómo estás hoy, che? Estoy listo para charlar, ayudarte o tirar unas pavadas para reírnos. ¿Qué tenés en mente? ¡Dale, arrancamos!`);
+    await manejarCommand(message);
+    if (content === '!ranking' || content === '!rk') {
+        const embed = getCombinedRankingEmbed(message.author.id, message.author.username);
+        await message.channel.send({ embeds: [embed] });
+    } else if (content === '!help' || content === '!h') {
+        const embed = createEmbed('#55FF55', `¡Lista de comandos para vos, ${userName}!`,
+            '¡Acá tenés todo lo que puedo hacer por vos, loco!\n' +
+            '- **!ch / !chat [mensaje]**: Charlamos un rato, posta.\n' +
+            '- **!tr / !trivia [categoría] [n]**: Trivia copada por categoría (mínimo 20).\n' +
+            '- **!tc / !trivia cancelar**: Cancela la trivia que empezaste.\n' +             
+            '- **!pp / !ppm**: A ver qué tan rápido tipeás, ¡dale!\n' +
+            '- **!pc / !ppm cancelar**: Cancela el PPM si te arrepentís.\n' +
+            '- **!rk / !ranking**: Tus puntajes y estadísticas (récord más alto de PPM).\n' +
+            '- **!rppm / !rankingppm**: Todos tus intentos de PPM, loco.\n' +
+            '- **!re / !reacciones**: Juego para ver quién tipea más rápido.\n' +
+            '- **!rc / !reacciones cancelar**: Cancela las reacciones que empezaste.\n' +            
+            '- **!su / !sugerencias [sugerencia]**: Mandame tus sugerencias para hacer este bot más piola.\n' +
+            '- **!id / !idea [texto]**: Tirame una idea rápida pa’ mejorar el bot, ¡dale!\n' + 
+            '- **!ay / !ayuda [problema]**: Pedile una mano a Miguel.\n' +
+            '- **!save**: Guardo todo al toque, tranqui.\n' +
+            '- **!as / !autosave**: Paro o arranco el guardado automático.\n' +
+            '- **!act / !actualizaciones**: Mirá las últimas novedades del bot.\n' +
+            '- **!dt / !dato [pregunta]**: Te busco un dato rápido en la web o X, ¡posta!\n' +
+            '- **!clima [ciudad]**: Te digo el clima de cualquier ciudad, re útil.\n' +
+            '- **!noticias**: Te traigo el último titular de Argentina, al toque.\n' +
+            '- **!wiki [término]**: Busco un resumen en Wikipedia, ¡copado!\n' +
+            '- **!traduci [frase] a [idioma]**: Traduzco frases cortas, joya pa’ practicar.\n' +
+            '- **!an / !ansiedad**: Tips rápidos pa’ calmar la ansiedad, con un mensaje especial de Miguel pa’ darte pilas.\n' +
+            '- **!h / !help**: Esta lista, che.\n' +
+            '- **!hm / !help musica**: Comandos para meterle música al día.\n' +
+            '- **hola**: Te tiro un saludito con onda.');
+        await message.channel.send({ embeds: [embed] });
+    } else if (content === '!help musica' || content === '!hm') {
+        const embed = createEmbed('#55FF55', `¡Comandos de música para vos, ${userName}!`,
+            '¡Poné el ritmo con estos comandos, loco!\n' +
+            '- **!pl / !play [canción/URL]**: Tiro un tema para que suene.\n' +
+            '- **!pa / !pause**: Pauso o sigo la música, vos elegís.\n' +
+            '- **!sk / !skip**: Salto al próximo tema, al toque.\n' +
+            '- **!st / !stop**: Corto todo, silencio total.\n' +
+            '- **!qu / !queue**: Te muestro la lista de temas que vienen.\n' +
+            '- **!rp / !repeat [cola]**: Repito el tema o toda la cola, ¿qué querés?\n' +
+            '- **!bk / !back**: Vuelvo al tema anterior, como en los viejos tiempos.\n' +
+            '- **!ap / !autoplay**: Prendo o apago el autoplay, re práctico.\n' +
+            '- **!ly / !lyrics [canción]**: Te traigo la letra del tema que suena o uno que me digas.\n' +
+            '- **!hm / !help musica**: Esta guía de música, posta.');
+        await message.channel.send({ embeds: [embed] });
+    } else if (content === 'hola') {
+        const embed = createEmbed('#55FFFF', `¡Qué lindo verte, ${userName}!`,
+            `¡Hola, loco! Soy Oliver IA, tu compañero piola, trayéndote buena onda como si estuviéramos tomando mate en la vereda. ¿Cómo estás hoy, che? Estoy listo para charlar, ayudarte o tirar unas pavadas para reírnos. ¿Qué tenés en mente? ¡Dale, arrancamos!`);
+        await message.channel.send({ embeds: [embed] });
     }
 });
 
