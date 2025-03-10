@@ -1487,37 +1487,58 @@ async function loadDataStore() {
         const loadedData = content ? JSON.parse(content) : { 
             conversationHistory: {}, 
             triviaRanking: {}, 
-            // ... (todos los campos vacíos pa’ empezar de cero si no hay nada)
-            musicSessions: {}, // Me aseguro que esté siempre
+            personalPPMRecords: {}, 
+            reactionStats: {}, 
+            reactionWins: {}, 
+            activeSessions: {}, 
+            triviaStats: {},
+            musicSessions: {}, // Asegurado en caso de JSON vacío
             updatesSent: false
         };
+        // Asegurar que musicSessions esté presente incluso si no está en el JSON cargado
         if (!loadedData.musicSessions) {
-            loadedData.musicSessions = {}; // Si no viene, lo pongo yo
+            loadedData.musicSessions = {};
         }
         console.log('Datos cargados desde GitHub con musicSessions asegurado');
         return loadedData;
     } catch (error) {
         console.error('Error al cargar datos desde GitHub:', error.message);
-        return { /* misma estructura vacía que arriba */ };
+        return { 
+            conversationHistory: {}, 
+            triviaRanking: {}, 
+            personalPPMRecords: {}, 
+            reactionStats: {}, 
+            reactionWins: {}, 
+            activeSessions: {}, 
+            triviaStats: {},
+            musicSessions: {}, // Asegurado en caso de error
+            updatesSent: false
+        };
     }
 }
 
-// Guardo todo en GitHub pa’ que quede seguro
 async function saveDataStore() {
-    if (!dataStoreModified) return false; // No guardo si no cambió nada
+    if (!dataStoreModified) return false;
     try {
         let sha;
         try {
-            const response = await axios.get(/* misma URL que loadDataStore */);
-            sha = response.data.sha; // Agarro el SHA pa’ actualizar
+            const response = await axios.get(
+                `https://api.github.com/repos/${process.env.GITHUB_REPO}/contents/${process.env.GITHUB_FILE_PATH}`,
+                { headers: { 'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`, 'Accept': 'application/vnd.github+json' } }
+            );
+            sha = response.data.sha;
         } catch (error) {
-            if (error.response?.status !== 404) throw error; // Si no existe, sigo igual
+            if (error.response?.status !== 404) throw error;
         }
-        await axios.put(/* URL pa’ guardar */, {
-            message: 'Actualizar historial y sesiones',
-            content: Buffer.from(JSON.stringify(dataStore, null, 2)).toString('base64'),
-            sha: sha || undefined,
-        }, { headers: /* mismos headers */ });
+        await axios.put(
+            `https://api.github.com/repos/${process.env.GITHUB_REPO}/contents/${process.env.GITHUB_FILE_PATH}`,
+            {
+                message: 'Actualizar historial y sesiones',
+                content: Buffer.from(JSON.stringify(dataStore, null, 2)).toString('base64'),
+                sha: sha || undefined,
+            },
+            { headers: { 'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`, 'Accept': 'application/vnd.github+json' } }
+        );
         console.log('Datos guardados en GitHub');
         return true;
     } catch (error) {
