@@ -1218,46 +1218,26 @@ let dataStoreModified = false;
 let autosaveEnabled = true;
 let autosavePausedByMusic = false;
 
-const sendGradientEmbed = async (channel, title, description, footer = 'Hecho con onda por Oliver IA') => {
-    const colors = ['#FF1493', '#B22222', '#2ECC71']; // Fucsia, rosa, naranja
-    const safeDescription = description && description.trim() !== '' 
-        ? description 
-        : 'Sin descripción disponible';
-    
-    for (const color of colors) {
-        const embed = new EmbedBuilder()
-            .setColor(color)
-            .setTitle(title && title.trim() !== '' ? title : 'Título no disponible')
-            .setDescription(safeDescription)
-            .setFooter({ text: footer })
-            .setTimestamp()
-        await channel.send({ embeds: [embed] });
-    }
-};
-
 // Utilidades con tono argentino
-const createEmbed = (title, description, footer = 'Hecho con onda por Oliver IA') => {
-    const safeDescription = description && description.trim() !== '' 
-        ? description 
-        : 'Sin descripción disponible';
-
+const createEmbed = (color, title, description, footer = 'Hecho con onda por Oliver IA') => {
     return new EmbedBuilder()
-        .setColor('#FF2A80') // Color fijo entre fucsia y naranja
-        .setTitle(title && title.trim() !== '' ? title : 'Título no disponible')
-        .setDescription(safeDescription)
+        .setColor('#FF1493')
+        .setTitle(title)
+        .setDescription(description || ' ')
         .setFooter({ text: footer })
-        .setTimestamp()
+        .setTimestamp();
 };
 
 const sendError = async (channel, message, suggestion = '¿Probamos de nuevo, loco?', footer = 'Hecho con onda por Oliver IA') => {
-    const embed = createEmbed('#FF2A80', '¡Uh, qué cagada!', `${message}\n${suggestion}`, footer);
+    const embed = createEmbed('#FF5555', '¡Uh, qué cagada!', `${message}\n${suggestion}`, footer);
     return await channel.send({ embeds: [embed] });
 };
 
 const sendSuccess = async (channel, title, message, footer = 'Hecho con onda por Oliver IA') => {
-    const embed = createEmbed('#FF2A80', title, message, footer);
+    const embed = createEmbed('#55FF55', title, message, footer);
     return await channel.send({ embeds: [embed] });
 };
+
 
 function cleanText(text) {
     return text.toLowerCase().trim()
