@@ -2938,11 +2938,10 @@ async function listarIdiomas(message) {
 
 // Milagros
 async function manejarMilagros(message) {
-    // Te muestro "Milagros" en un montón de idiomas, re lindo
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
-    const maxLength = 4000; // Límite pa’ los embeds
+    const maxLength = 4000; // Límite de caracteres por embed en Discord
 
-    // Convierto el objeto de traducciones en un array
+    // Convertir el objeto a un array de líneas para facilitar el manejo
     const translationsArray = Object.entries(milagrosTranslations).map(([lang, translation]) => 
         `${lang.charAt(0).toUpperCase() + lang.slice(1)}: **${translation}**`
     );
@@ -2950,7 +2949,6 @@ async function manejarMilagros(message) {
     let description = `¡Hola, ${userName}! Aquí tenés "Milagros" en diferentes idiomas:\n\n`;
     const embeds = [];
 
-    // Armo los embeds partiéndolo si es necesario
     for (const line of translationsArray) {
         const newDescription = description + line + '\n';
         if (newDescription.length > maxLength) {
@@ -2960,23 +2958,6 @@ async function manejarMilagros(message) {
             description = newDescription;
         }
     }
-
-    // Agrego el último si sobra algo
-    if (description.length > 41) { // 41 es la longitud del saludo inicial
-        embeds.push(await createEmbed('#FFD700', `Milagros en otros idiomas (Parte ${embeds.length + 1})`, description.trim()));
-    }
-
-    // Mando todos los embeds
-    for (const embed of embeds) {
-        try {
-            await message.channel.send({ embeds: [embed] });
-        } catch (error) {
-            console.error('Error al enviar embed de Milagros:', error);
-            await message.channel.send('¡Uy, algo falló al mostrar las traducciones, loco!');
-        }
-    }
-}
-
 
     // Agregar el último embed
     if (description.length > 41) { // 41 es la longitud de la línea inicial sin traducciones
