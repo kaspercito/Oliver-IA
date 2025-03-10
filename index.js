@@ -1229,12 +1229,12 @@ const createEmbed = (color, title, description, footer = 'Hecho con onda por Oli
 };
 
 const sendError = async (channel, message, suggestion = '¿Probamos de nuevo, loco?', footer = 'Hecho con onda por Oliver IA') => {
-    const embed = createEmbed('#FF5555', '¡Uh, qué cagada!', `${message}\n${suggestion}`, footer);
+    const embed = createEmbed('#FF1493', '¡Uh, qué cagada!', `${message}\n${suggestion}`, footer);
     return await channel.send({ embeds: [embed] });
 };
 
 const sendSuccess = async (channel, title, message, footer = 'Hecho con onda por Oliver IA') => {
-    const embed = createEmbed('#55FF55', title, message, footer);
+    const embed = createEmbed('#FF1493', title, message, footer);
     return await channel.send({ embeds: [embed] });
 };
 
