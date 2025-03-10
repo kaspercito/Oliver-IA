@@ -1219,7 +1219,7 @@ let autosaveEnabled = true;
 let autosavePausedByMusic = false;
 
 const sendGradientEmbed = async (channel, title, description, footer = 'Hecho con onda por Oliver IA') => {
-    const colors = ['#FF00FF', '#FF69B4', '#FF4500']; // Fucsia, rosa, naranja
+    const colors = ['#FF1493', '#FF9500', '#FF4681']; // Fucsia, rosa, naranja
     const safeDescription = description && description.trim() !== '' 
         ? description 
         : 'Sin descripción disponible';
