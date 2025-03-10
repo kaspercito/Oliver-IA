@@ -1231,7 +1231,6 @@ const sendGradientEmbed = async (channel, title, description, footer = 'Hecho co
             .setDescription(safeDescription)
             .setFooter({ text: footer })
             .setTimestamp()
-            .setThumbnail('https://i.imgur.com/OBRtoSz.jpeg'); // Tu thumbnail actual
         await channel.send({ embeds: [embed] });
     }
 };
