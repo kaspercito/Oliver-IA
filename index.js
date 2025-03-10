@@ -3595,111 +3595,87 @@ process.on('beforeExit', async () => {
 });
 
 client.on('messageReactionAdd', async (reaction, user) => {
-    // Escucho cuando alguien reacciona a un mensaje
-    // Si no es un mensaje que yo mandé, lo ignoro
     if (!sentMessages.has(reaction.message.id)) return;
-    // Solo me interesa si es Miguel o Belén, los demás chau
     if (![OWNER_ID, ALLOWED_USER_ID].includes(user.id)) return;
 
-    // Agarro los datos del mensaje reaccionado
     const messageData = sentMessages.get(reaction.message.id);
-    // Nombro al usuario según quién es
     const userName = user.id === OWNER_ID ? 'Miguel' : 'Belén';
 
-    // Configuro la IA pa’ generar respuestas copadas si hace falta
+    // Configuración de Google Gemini
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
     const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
-    // Si es Belén y reaccionó con ✅ o ❌, proceso su feedback
     if (user.id === ALLOWED_USER_ID && (reaction.emoji.name === '✅' || reaction.emoji.name === '❌')) {
-        // Guardo la hora de la reacción de Belén
+        // Guardar la reacción de Belén
         dataStore.utilMessageReactions[CHANNEL_ID] = Date.now();
-        dataStoreModified = true; // Marco que cambié algo
-        await saveDataStore(); // Guardo el cambio
-        // Logueo qué reaccionó Belén y cuándo
+        dataStoreModified = true;
+        await saveDataStore();
         console.log(`Belén reaccionó con ${reaction.emoji.name} - ${new Date().toLocaleString('es-AR')}`);
 
-        // Respondo según la reacción
+        // Responder según la reacción
         if (reaction.emoji.name === '✅') {
-            // Si le gustó, le agradezco en celeste con buena onda
             await reaction.message.channel.send({ embeds: [createEmbed('#55FFFF', '¡Genia, Belén!', 
                 '¡Gracias por el visto, grosa! Nos vemos mañana, ¿dale?', 'Con cariño, Oliver IA')] });
-        } else if (reaction.emoji.name === '❌')) {
-            // Si no le copó, le pregunto qué pasa en rojo con cariño
+        } else if (reaction.emoji.name === '❌') {
             await reaction.message.channel.send({ embeds: [createEmbed('#FF5555', '¡Uy, Belén!', 
                 '¿No te copó, genia? Contame qué pasa, ¡dale!', 'Con cariño, Oliver IA')] });
         }
-        // Borro el mensaje del mapa pa’ no procesarlo de nuevo
-        sentMessages.delete(reaction.message.id);
+        sentMessages.delete(reaction.message.id); // Evitar procesar de nuevo
     }
 
-    // Si reaccionaron con ❌ y hay una pregunta original, trato de mejorar la respuesta
     if (reaction.emoji.name === '❌' && messageData.originalQuestion) {
-        const originalQuestion = messageData.originalQuestion; // Agarro la pregunta original
+        const originalQuestion = messageData.originalQuestion;
 
-        // Te aviso en celeste que estoy pensando algo mejor
         const waitingEmbed = createEmbed('#55FFFF', `¡Aguantá un toque, ${userName}!`, 
             'Estoy pensando una respuesta más copada...', 'Hecho con onda por Miguel IA | Reacciona con ✅ o ❌');
         const waitingMessage = await reaction.message.channel.send({ embeds: [waitingEmbed] });
 
         try {
-            // Le pido a la IA una respuesta más piola con onda argentina
             const prompt = `Sos Oliver IA, creado por Miguel, un loco re piola. La primera respuesta a "${originalQuestion}" no le copó al usuario. Probá de nuevo con una respuesta más copada, detallada y útil, usando palabras argentinas como "copado", "joya", "boludo", "re", "dale", "posta" o "genial". Si es para Belén, hablale con cariño como "grosa" o "genia". Respondé solo lo que te piden, con info posta, sin chamuyo. Sé claro y relajado en español. Terminá con buena onda pa’ seguir la charla, tipo "¿Te cerró, ${userName}?".`;
             
-            const result = await model.generateContent(prompt); // Genero la nueva respuesta
-            let aiReply = result.response.text().trim(); // Saco espacios raros
+            const result = await model.generateContent(prompt);
+            let aiReply = result.response.text().trim();
 
-            // Si es muy larga, la corto pa’ que entre en Discord
             if (aiReply.length > 2000) aiReply = aiReply.slice(0, 1990) + '... (seguí charlando pa’ más, loco)';
-            // Le pongo un cierre copado
             aiReply += `\n\n¿Te cerró esta vez, ${userName}? ¿Seguimos charlando, loco?`;
 
-            // Armo un embed celeste con la nueva respuesta
             const alternativeEmbed = createEmbed('#55FFFF', `¡Segunda chance, ${userName}!`, 
                 aiReply, 'Hecho con onda por Miguel IA | Reacciona con ✅ o ❌');
-            const newMessage = await waitingMessage.edit({ embeds: [alternativeEmbed] }); // Edito el mensaje de espera
-            // Le pongo las reacciones pa’ que opinen
+            const newMessage = await waitingMessage.edit({ embeds: [alternativeEmbed] });
             await newMessage.react('✅');
             await newMessage.react('❌');
-            // Actualizo el mapa con el nuevo mensaje
             sentMessages.set(newMessage.id, { content: aiReply, originalQuestion: originalQuestion, message: newMessage });
-            sentMessages.delete(reaction.message.id); // Borro el viejo
+            sentMessages.delete(reaction.message.id);
         } catch (error) {
-            // Si la IA falla, te aviso en rojo con un plan B
             console.error('Error con Gemini:', error.message);
             const fallbackReply = `¡Uy, ${userName}, qué cagada! Me mandé un moco, loco. Error: ${error.message}. ¿Me tirás más detalles para sacarla bien esta vez?`;
             const errorEmbed = createEmbed('#FF5555', '¡Qué cagada, che!', 
                 `${fallbackReply}\n\n¿Te cerró esta vez, ${userName}? ¿Seguimos charlando, loco?]`, 
                 'Hecho con onda por Miguel IA | Reacciona con ✅ o ❌');
-            const errorMessageSent = await waitingMessage.edit({ embeds: [errorEmbed] }); // Edito con el error
-            await errorMessageSent.react('✅'); // Reacciones pa’ seguir
+            const errorMessageSent = await waitingMessage.edit({ embeds: [errorEmbed] });
+            await errorMessageSent.react('✅');
             await errorMessageSent.react('❌');
-            // Actualizo el mapa con el mensaje de error
             sentMessages.set(errorMessageSent.id, { content: fallbackReply, originalQuestion: originalQuestion, message: errorMessageSent });
-            sentMessages.delete(reaction.message.id); // Borro el viejo
+            sentMessages.delete(reaction.message.id);
         }
     }
 
-    // Si es Belén, le aviso a Miguel por DM qué reaccionó
     if (user.id === ALLOWED_USER_ID) {
-        const owner = await client.users.fetch(OWNER_ID); // Busco a Miguel
-        // Armo un embed dorado pa’ notificar
+        const owner = await client.users.fetch(OWNER_ID);
         const reactionEmbed = createEmbed('#FFD700', '¡Belén le puso pilas!', 
             `Belén reaccionó con ${reaction.emoji} a: "${messageData.content}"\nPregunta original: "${messageData.originalQuestion || 'Mensaje diario'}"\nMandado el: ${new Date(messageData.message.createdTimestamp).toLocaleString()}`);
         try {
-            await owner.send({ embeds: [reactionEmbed] }); // Le mando el DM a Miguel
-            console.log(`Notificación enviada a ${OWNER_ID}: Belén reaccionó con ${reaction.emoji}`); // Logueo pa’ debug
+            await owner.send({ embeds: [reactionEmbed] });
+            console.log(`Notificación enviada a ${OWNER_ID}: Belén reaccionó con ${reaction.emoji}`);
         } catch (error) {
-            // Si falla el DM, lo logueo
             console.error('Error al notificar al dueño:', error);
         }
     }
 });
 
 client.on('raw', (d) => {
-    // Escucho eventos crudos de Discord, pa’ que Erela.js maneje el audio
-    console.log('Evento raw recibido:', d.t); // Logueo qué evento llegó
-    manager.updateVoiceState(d); // Actualizo el estado de voz pa’ la música
+    console.log('Evento raw recibido:', d.t);
+    manager.updateVoiceState(d);
 });
 
 client.login(process.env.DISCORD_TOKEN);
