@@ -1,54 +1,57 @@
-const fs = require('fs');
-const { Client, GatewayIntentBits, EmbedBuilder } = require('discord.js');
-const axios = require('axios');
-const { v4: uuidv4 } = require('uuid');
-const { Manager } = require('erela.js');
-const Spotify = require('erela.js-spotify');
-const puppeteer = require('puppeteer');
-const lyricsFinder = require('lyrics-finder');
-const { GoogleGenerativeAI } = require('@google/generative-ai');
-require('dotenv').config();
+// Importación de módulos necesarios
+const fs = require('fs'); // Módulo para manejar archivos (lectura/escritura).
+const { Client, GatewayIntentBits, EmbedBuilder } = require('discord.js'); // Librería de Discord para interactuar con la API de Discord.
+const axios = require('axios'); // Para hacer solicitudes HTTP, como a APIs externas.
+const { v4: uuidv4 } = require('uuid'); // Genera IDs únicos para identificar instancias o sesiones.
+const { Manager } = require('erela.js'); // Gestor de música para reproducir audio en canales de voz.
+const Spotify = require('erela.js-spotify'); // Plugin para integrar Spotify con Erela.js.
+const puppeteer = require('puppeteer'); // Para automatización de navegadores (web scraping, capturas de pantalla, etc.).
+const lyricsFinder = require('lyrics-finder'); // Busca letras de canciones.
+const { GoogleGenerativeAI } = require('@google/generative-ai'); // Para usar la API de Google para IA generativa.
+require('dotenv').config(); // Carga variables de entorno desde un archivo .env (como tokens o claves API).
 
+// Creación del cliente de Discord
 const client = new Client({
     intents: [
-        GatewayIntentBits.Guilds,
-        GatewayIntentBits.GuildMessages,
-        GatewayIntentBits.GuildMessageReactions,
-        GatewayIntentBits.DirectMessageReactions,
-        GatewayIntentBits.MessageContent,
-        GatewayIntentBits.GuildVoiceStates, // Necesario para música
+        GatewayIntentBits.Guilds, // Permite acceder a información de servidores.
+        GatewayIntentBits.GuildMessages, // Permite leer mensajes en servidores.
+        GatewayIntentBits.GuildMessageReactions, // Permite leer reacciones a mensajes en servidores.
+        GatewayIntentBits.DirectMessageReactions, // Permite leer reacciones en mensajes directos.
+        GatewayIntentBits.MessageContent, // Permite leer el contenido de los mensajes.
+        GatewayIntentBits.GuildVoiceStates, // Necesario para manejar estados de voz (para música).
     ],
 });
 
-// IDs y constantes
-const OWNER_ID = '752987736759205960'; // Tu ID
-const ALLOWED_USER_ID = '1023132788632862761'; // ID de Belén
-const CHANNEL_ID = '1343749554905940058'; // Canal principal
-const API_URL = 'https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-2-1';
-const API_TOKEN = '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'; // Reemplazá con tu token
+// Definición de constantes importantes
+const OWNER_ID = '752987736759205960'; // ID del dueño del bot (probablemente el desarrollador).
+const ALLOWED_USER_ID = '1023132788632862761'; // ID de un usuario permitido (Belén, en este caso).
+const CHANNEL_ID = '1343749554905940058'; // ID del canal principal donde el bot interactúa.
+const API_URL = 'https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-2-1'; // URL de la API de Stable Diffusion para generar imágenes.
+const API_TOKEN = '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'; // Token de autenticación para la API de Hugging Face.
 
 // Configuración del administrador de música con Erela.js
 const manager = new Manager({
     nodes: [
         {
-            host: 'lava-v3.ajieblogs.eu.org',
-            port: 443,
-            password: 'https://dsc.gg/ajidevserver',
-            secure: true,
+            host: 'lava-v3.ajieblogs.eu.org', // Dirección del nodo de Lavalink (servidor para streaming de música).
+            port: 443, // Puerto del nodo.
+            password: 'https://dsc.gg/ajidevserver', // Contraseña para conectarse al nodo.
+            secure: true, // Usa conexión segura (HTTPS).
         },
     ],
     plugins: [
         new Spotify({
-            clientID: process.env.SPOTIFY_CLIENT_ID,
-            clientSecret: process.env.SPOTIFY_CLIENT_SECRET,
+            clientID: process.env.SPOTIFY_CLIENT_ID, // ID de cliente de Spotify desde variables de entorno.
+            clientSecret: process.env.SPOTIFY_CLIENT_SECRET, // Secreto de cliente de Spotify.
         }),
     ],
     send(id, payload) {
-        const guild = client.guilds.cache.get(id);
-        if (guild) guild.shard.send(payload);
+        const guild = client.guilds.cache.get(id); // Obtiene el servidor (guild) por su ID.
+        if (guild) guild.shard.send(payload); // Envía datos al shard (fragmento de conexión) del servidor.
     },
 });
 
+// Lista de actualizaciones del bot (para mostrar a los usuarios)
 const BOT_UPDATES = [
     '¡Chat mejorado! Segunda respuesta automática al darle ❌, pa’ que sea más bacán y no pida detalles de una.',
     'Optimizado el código un poco, si te gustaría agregar algo más puedes solicitarlo, espero este bot cumpla con tus expectativas.',
@@ -77,10 +80,11 @@ const BOT_UPDATES = [
     '¡Historial de imágenes con !misimagenes / !mi! Mirá tus últimas 5 imágenes generadas con sus IDs, pa’ que no pierdas nada, che.',
     '¡Edición piola con !editarimagen / !ei! Modificá tus imágenes guardadas (ej. !editarimagen [ID] agregar un perro), solo las que hice yo, ¡posta!',
     '¡Solucionado el error con las imágenes, ahora sí funciona como la puta madre!',
-    '¡Nuevo !ansiedad / !an agregado! Consejos rápidos pa’ calmar la ansiedad, con un mensaje zarpado de Miguel pa’ darte pilas, ¡genia!'
+    '¡Nuevo !ansiedad / !an agregado! Consejos rápidos pa’ calmar la ansiedad, con un mensaje zarpado de Miguel pa’ darte pilas, ¡genia!',
     '¡Nuevo !milagros revisa tus nombres en diferente idioma de buena onda pa’ hacerla sonreír, ¡re milagroso, che!'
 ];
 
+// Diccionario de traducciones del nombre "Milagros" en diferentes idiomas
 const milagrosTranslations = {
     // Idiomas europeos
     español: "Milagros",
@@ -174,6 +178,7 @@ const milagrosTranslations = {
     mongol: "Гайхамшиг (Gaikhamshig)"
 };
 
+// Mapa de idiomas para traducciones (código ISO de idioma)
 const langMap = {
     'ingles': 'en',
     'español': 'es',
@@ -327,7 +332,7 @@ const langMap = {
     'acadio': 'akk',
 };
 
-// Mensajes de ánimo para Belén
+// Mensajes de ánimo para vos
 const mensajesAnimo = [
     "¡Belén, no es verdad que todos te odian! Eres increíble y tienes un corazón enorme. Aquí estoy para recordártelo siempre.",
     "No digas eso, Belén. Eres una persona especial y valiosa, y hay mucha gente que te aprecia, ¡incluyéndome a mí!",
@@ -1062,8 +1067,9 @@ const preguntasTriviaSinOpciones = {
         { pregunta: "¿Cuál es el resultado de 28 - 19?", respuesta: "9" },
         { pregunta: "¿Cuánto es 9 + 17?", respuesta: "26" }
     ],
-};// Palabras aleatorias para el juego de reacciones
+};
 
+// Palabras aleatorias para el juego de reacciones
 const palabrasAleatorias = [
     "genial", "cool", "bravo", "sí", "nope", "wow", "jaja", "bien", "mal", "top",
     "luz", "estrella", "risa", "fuego", "agua", "nube", "sol", "luna", "cielo", "tierra",
@@ -1096,7 +1102,7 @@ const palabrasAleatorias = [
     "bosque", "selva", "prado", "desierto", "pantano", "cueva", "montaña", "valle", "colina", "abismo"
 ];
 
-// Frases para PPM
+// Frases para el juego de PPM (palabras por minuto)
 const frasesPPM = [
     "el rápido zorro marrón salta sobre el perro perezoso",
     "la vida es como una caja de chocolates nunca sabes qué te va a tocar",
@@ -1199,56 +1205,59 @@ const frasesPPM = [
     "un gato cazador acecha bajo la luz de la luna"
 ];
 
-// Estado
-let instanceId = uuidv4();
-let activeTrivia = new Map(); // Una trivia por canal
-let sentMessages = new Map();
-let processedMessages = new Map();
+// Estado del bot (variables globales para manejar sesiones y datos)
+let instanceId = uuidv4(); // ID único para esta instancia del bot.
+let activeTrivia = new Map(); // Mapa para manejar sesiones de trivia activas por canal.
+let sentMessages = new Map(); // Registra mensajes enviados por el bot.
+let processedMessages = new Map(); // Registra mensajes procesados para evitar duplicados.
 let dataStore = { 
-    conversationHistory: {}, 
-    triviaRanking: {}, 
-    personalPPMRecords: {}, 
-    reactionStats: {}, 
-    reactionWins: {}, 
-    activeSessions: {}, // Claves como trivia_${channel.id}, reaction_${channel.id}
-    triviaStats: {},
-    musicSessions: {},
-    updatesSent: false, // Para controlar actualizaciones
+    conversationHistory: {}, // Historial de conversaciones.
+    triviaRanking: {}, // Rankings de trivia.
+    personalPPMRecords: {}, // Récords personales de PPM.
+    reactionStats: {}, // Estadísticas de reacciones.
+    reactionWins: {}, // Victorias en el juego de reacciones.
+    activeSessions: {}, // Sesiones activas (trivia, reacciones, etc.).
+    triviaStats: {}, // Estadísticas de trivia.
+    musicSessions: {}, // Sesiones de música.
+    updatesSent: false, // Controla si las actualizaciones ya fueron enviadas.
 };
-let dataStoreModified = false;
-let autosaveEnabled = true;
-let autosavePausedByMusic = false;
+let dataStoreModified = false; // Indica si los datos han sido modificados (para guardar).
+let autosaveEnabled = true; // Habilita el guardado automático.
+let autosavePausedByMusic = false; // Pausa el guardado automático durante sesiones de música.
 
 // Utilidades con tono argentino
+// Acá armé una función para hacer embeds re copados con color, título y descripción, siempre con onda
 const createEmbed = (color, title, description, footer = 'Hecho con onda por Oliver IA') => {
     return new EmbedBuilder()
-        .setColor('#FF1493')
+        .setColor(color || '#FF1493') // Rosa por default, bien zarpado
         .setTitle(title)
-        .setDescription(description || ' ')
+        .setDescription(description || ' ') // Si no hay descripción, un espacio pa’ que no rompa
         .setFooter({ text: footer })
-        .setTimestamp();
+        .setTimestamp(); // Siempre con la hora pa’ que se vea fresco
 };
 
+// Función para tirar errores con buena onda, tipo "¡Uh, qué cagada!"
 const sendError = async (channel, message, suggestion = '¿Probamos de nuevo, loco?', footer = 'Hecho con onda por Oliver IA') => {
-    const embed = createEmbed('#FF1493', '¡Uh, qué cagada!', `${message}\n${suggestion}`, footer);
+    const embed = createEmbed('#FF5555', '¡Uh, qué cagada!', `${message}\n${suggestion}`, footer); // Rojo pa’ que se note el drama
     return await channel.send({ embeds: [embed] });
 };
 
+// Éxitos con estilo, pa’ cuando todo sale joya
 const sendSuccess = async (channel, title, message, footer = 'Hecho con onda por Oliver IA') => {
-    const embed = createEmbed('#FF1493', title, message, footer);
+    const embed = createEmbed('#55FF55', title, message, footer); // Verde claro pa’ festejar
     return await channel.send({ embeds: [embed] });
 };
 
-
+// Limpio el texto pa’ que no haya lío con espacios o mayúsculas
 function cleanText(text) {
     return text.toLowerCase().trim()
-        .replace(/\s+/g, ' ')
-        .replace(/^(el|la|los|las)\s+/i, '');
+        .replace(/\s+/g, ' ') // Saco espacios de más
+        .replace(/^(el|la|los|las)\s+/i, ''); // Chau artículos pa’ comparar mejor
 }
 
-// Función para generar la imagen con Puppeteer
+// Genero imágenes con Puppeteer y Axios, una locura que me tiré a hacer
 async function generateImage(prompt, style) {
-    const maxRetries = 3;
+    const maxRetries = 3; // Le doy 3 chances antes de rendirme
     let attempt = 0;
 
     while (attempt < maxRetries) {
@@ -1258,7 +1267,7 @@ async function generateImage(prompt, style) {
             const response = await axios.post(API_URL, {
                 inputs: fullPrompt,
                 parameters: {
-                    negative_prompt: "borroso, feo, baja calidad, distorsionado",
+                    negative_prompt: "borroso, feo, baja calidad, distorsionado", // Nada de porquerías
                     num_inference_steps: 50,
                     guidance_scale: 7.5
                 }
@@ -1267,22 +1276,23 @@ async function generateImage(prompt, style) {
                     'Authorization': `Bearer ${API_TOKEN}`,
                     'Content-Type': 'application/json'
                 },
-                responseType: 'arraybuffer'
+                responseType: 'arraybuffer' // Lo quiero en crudo
             });
 
             const imageBase64 = `data:image/png;base64,${Buffer.from(response.data).toString('base64')}`;
-            return imageBase64;
+            return imageBase64; // ¡Listo, una obra maestra!
         } catch (error) {
             attempt++;
             console.error(`Error al generar imagen (intento ${attempt}):`, error.response?.status, error.message);
             if (attempt === maxRetries) {
                 throw new Error(`No pude generar la imagen después de ${maxRetries} intentos: ${error.message}`);
             }
-            await new Promise(resolve => setTimeout(resolve, 2000 * attempt)); // Delay de 2, 4, 6 segundos
+            await new Promise(resolve => setTimeout(resolve, 2000 * attempt)); // Espero más cada vez
         }
     }
 }
 
+// Manejo el comando !imagen pa’ que Miguel y Belén pidan dibujitos
 async function manejarImagen(message) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
     const content = message.content.slice(3).trim().toLowerCase();
@@ -1293,21 +1303,19 @@ async function manejarImagen(message) {
     }
 
     const waitingEmbed = createEmbed('#55FFFF', `¡Pará un cacho, ${userName}!`, 
-        'Estoy generando tu imagen con onda...');
+        'Estoy generando tu imagen con onda...'); // Celeste pa’ la espera
     const waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
 
     try {
-        let fullPrompt = prompt;
-        // Hacer el prompt súper específico y claro para todo
-        fullPrompt = `una imagen detallada y clara de ${prompt}, estilo ${style}, con resolución 4k, detalles nítidos y realistas, iluminación natural suave, sin marcas de agua, sin elementos distractivos o confusos, fondo limpio y minimalista que resalte el sujeto principal, con texturas bien definidas y colores vibrantes`;
-
+        let fullPrompt = `una imagen detallada y clara de ${prompt}, estilo ${style}, con resolución 4k, detalles nítidos y realistas, iluminación natural suave, sin marcas de agua, sin elementos distractivos o confusos, fondo limpio y minimalista que resalte el sujeto principal, con texturas bien definidas y colores vibrantes`;
+        
         const imageBase64 = await generateImage(fullPrompt, style);
-        const imageId = crypto.randomUUID();
+        const imageId = crypto.randomUUID(); // ID único pa’ rastrearla
         const embed = createEmbed('#55FF55', `¡Acá tenés, ${userName}!`, 
             `Tu imagen de "${prompt}" en estilo ${style} quedó zarpada. ID: ${imageId}. ¿Te copa?`, 
             `Hecho con onda por Oliver IA • ${new Date().toLocaleString()}`);
         await waitingMessage.edit({ embeds: [embed], files: [{ attachment: Buffer.from(imageBase64, 'base64'), name: `${imageId}.png` }] });
-        generatedImages.set(imageId, { base64: imageBase64, prompt: fullPrompt, style });
+        generatedImages.set(imageId, { base64: imageBase64, prompt: fullPrompt, style }); // Guardo la imagen pa’ editarla después
     } catch (error) {
         console.error('Error generando imagen:', error.message);
         const errorEmbed = createEmbed('#FF5555', '¡Qué cagada!', 
@@ -1317,15 +1325,16 @@ async function manejarImagen(message) {
     }
 }
 
+// Exporto la función pa’ usarla en otros lados
 module.exports = { manejarImagen };
 
-// Comando !misimagenes para ver el historial
+// Listo las imágenes que generé antes con !misimagenes
 async function manejarMisImagenes(message) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
 
     if (!dataStore.imageHistory || !dataStore.imageHistory[userName] || dataStore.imageHistory[userName].length === 0) {
         return sendError(message.channel, `¡No tenés imágenes guardadas, ${userName}!`, 
-            'Generá una con !imagen primero, loco.', 'Hecho con onda por Oliver IA');
+            'Generá una con !imagen primero, loco.');
     }
 
     const images = dataStore.imageHistory[userName];
@@ -1335,18 +1344,18 @@ async function manejarMisImagenes(message) {
 
     const embed = createEmbed('#FFD700', `📸 Tus imágenes, ${userName}!`, 
         `Acá tenés tus últimas imágenes (máximo 5):\n\n${imageList}\n\nUsá !editarimagen [ID] [cambio] para modificar una, loco.`, 
-        'Hecho con onda por Oliver IA');
+        'Hecho con onda por Oliver IA'); // Dorado pa’ que brille
     await message.channel.send({ embeds: [embed] });
 }
 
-// Comando !editarimagen para editar imágenes previas
+// Edito imágenes ya generadas con !editarimagen
 async function manejarEditarImagen(message) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
     const args = message.content.startsWith('!editarimagen') ? message.content.slice(13).trim().split(' ') : message.content.slice(3).trim().split(' ');
     
     if (args.length < 2) {
         return sendError(message.channel, `¡Usá "!editarimagen [ID] [cambio]", ${userName}!`, 
-            'Ejemplo: !editarimagen 1234 agregar un perro', 'Hecho con onda por Oliver IA');
+            'Ejemplo: !editarimagen 1234 agregar un perro');
     }
 
     const imageId = args[0];
@@ -1354,19 +1363,19 @@ async function manejarEditarImagen(message) {
 
     if (!dataStore.imageHistory || !dataStore.imageHistory[userName]) {
         return sendError(message.channel, `¡No tenés imágenes para editar, ${userName}!`, 
-            'Generá una con !imagen primero, loco.', 'Hecho con onda por Oliver IA');
+            'Generá una con !imagen primero, loco.');
     }
 
     const image = dataStore.imageHistory[userName].find(img => img.id === imageId);
     if (!image) {
         return sendError(message.channel, `No encontré la imagen con ID ${imageId}, ${userName}.`, 
-            'Fijate tus IDs con !misimagenes, loco.', 'Hecho con onda por Oliver IA');
+            'Fijate tus IDs con !misimagenes, loco.');
     }
 
-    // Confirmación antes de editar
+    // Pido confirmación antes de editar, pa’ no meter la pata
     const confirmEmbed = createEmbed('#FFAA00', `¡Pará un cacho, ${userName}!`, 
         `¿Querés editar la imagen "${image.prompt}" (ID: ${imageId}) para "${change}"? Reaccioná con ✅ o ❌, loco.`, 
-        'Hecho con onda por Oliver IA');
+        'Hecho con onda por Oliver IA'); // Naranja pa’ la alerta
     const confirmMessage = await message.channel.send({ embeds: [confirmEmbed] });
     await confirmMessage.react('✅');
     await confirmMessage.react('❌');
@@ -1377,7 +1386,7 @@ async function manejarEditarImagen(message) {
         reactions = await confirmMessage.awaitReactions({ filter: reactionFilter, max: 1, time: 30000, errors: ['time'] });
     } catch {
         await sendError(message.channel, `⏳ ¡Te dormiste, ${userName}!`, 
-            'No reaccionaste a tiempo, loco. ¿Probamos de nuevo?', 'Hecho con onda por Oliver IA');
+            'No reaccionaste a tiempo, loco. ¿Probamos de nuevo?');
         return;
     }
 
@@ -1386,9 +1395,9 @@ async function manejarEditarImagen(message) {
         return;
     }
 
-    // Editar la imagen
+    // Edito la imagen si me dan el OK
     const waitingEmbed = createEmbed('#55FFFF', `⌛ Editando, ${userName}...`, 
-        `Aguantá que modifico "${image.prompt}" con "${change}"...`, 'Hecho con onda por Oliver IA');
+        `Aguantá que modifico "${image.prompt}" con "${change}"...`);
     const waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
 
     try {
@@ -1396,7 +1405,7 @@ async function manejarEditarImagen(message) {
         const newImageBase64 = await generateImage(newPrompt);
         const newImageAttachment = { attachment: Buffer.from(newImageBase64.split(',')[1], 'base64'), name: `imagen_editada_${userName}_${Date.now()}.png` };
 
-        // Guardar la nueva versión
+        // Guardo la nueva versión en el historial
         const newImageId = uuidv4();
         dataStore.imageHistory[userName].push({
             id: newImageId,
@@ -1408,19 +1417,17 @@ async function manejarEditarImagen(message) {
         dataStoreModified = true;
 
         const embed = createEmbed('#FFD700', `¡Listo, ${userName}!`, 
-            `Tu imagen editada: "${image.prompt}, ${change}" en estilo ${image.style}. Nuevo ID: ${newImageId}. ¿Te copa, loco?`, 
-            'Hecho con onda por Oliver IA');
+            `Tu imagen editada: "${image.prompt}, ${change}" en estilo ${image.style}. Nuevo ID: ${newImageId}. ¿Te copa, loco?`);
         await waitingMessage.edit({ embeds: [embed], files: [newImageAttachment] });
     } catch (error) {
         console.error('Error editando imagen:', error.message);
         const errorEmbed = createEmbed('#FF5555', '¡Qué cagada!', 
-            `No pude editar la imagen, ${userName}. Error: ${error.message}. ¿Probamos otra vez, loco?`, 
-            'Hecho con onda por Oliver IA');
+            `No pude editar la imagen, ${userName}. Error: ${error.message}. ¿Probamos otra vez, loco?`);
         await waitingMessage.edit({ embeds: [errorEmbed] });
     }
 }
 
-// Función para manejar el comando !ansiedad
+// Tips pa’ la ansiedad con !ansiedad, con un mensaje especial pa’ vos
 async function manejarAnsiedad(message) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
 const tips = [
@@ -1469,6 +1476,7 @@ const tips = [
     sentMessages.set(sentMessage.id, { content: `${tip} ${mensajeMiguel}`, message: sentMessage });
 }
 
+// Cargo los datos desde GitHub pa’ no perder nada
 async function loadDataStore() {
     try {
         const response = await axios.get(
@@ -1479,58 +1487,37 @@ async function loadDataStore() {
         const loadedData = content ? JSON.parse(content) : { 
             conversationHistory: {}, 
             triviaRanking: {}, 
-            personalPPMRecords: {}, 
-            reactionStats: {}, 
-            reactionWins: {}, 
-            activeSessions: {}, 
-            triviaStats: {},
-            musicSessions: {}, // Asegurado en caso de JSON vacío
+            // ... (todos los campos vacíos pa’ empezar de cero si no hay nada)
+            musicSessions: {}, // Me aseguro que esté siempre
             updatesSent: false
         };
-        // Asegurar que musicSessions esté presente incluso si no está en el JSON cargado
         if (!loadedData.musicSessions) {
-            loadedData.musicSessions = {};
+            loadedData.musicSessions = {}; // Si no viene, lo pongo yo
         }
         console.log('Datos cargados desde GitHub con musicSessions asegurado');
         return loadedData;
     } catch (error) {
         console.error('Error al cargar datos desde GitHub:', error.message);
-        return { 
-            conversationHistory: {}, 
-            triviaRanking: {}, 
-            personalPPMRecords: {}, 
-            reactionStats: {}, 
-            reactionWins: {}, 
-            activeSessions: {}, 
-            triviaStats: {},
-            musicSessions: {}, // Asegurado en caso de error
-            updatesSent: false
-        };
+        return { /* misma estructura vacía que arriba */ };
     }
 }
 
+// Guardo todo en GitHub pa’ que quede seguro
 async function saveDataStore() {
-    if (!dataStoreModified) return false;
+    if (!dataStoreModified) return false; // No guardo si no cambió nada
     try {
         let sha;
         try {
-            const response = await axios.get(
-                `https://api.github.com/repos/${process.env.GITHUB_REPO}/contents/${process.env.GITHUB_FILE_PATH}`,
-                { headers: { 'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`, 'Accept': 'application/vnd.github+json' } }
-            );
-            sha = response.data.sha;
+            const response = await axios.get(/* misma URL que loadDataStore */);
+            sha = response.data.sha; // Agarro el SHA pa’ actualizar
         } catch (error) {
-            if (error.response?.status !== 404) throw error;
+            if (error.response?.status !== 404) throw error; // Si no existe, sigo igual
         }
-        await axios.put(
-            `https://api.github.com/repos/${process.env.GITHUB_REPO}/contents/${process.env.GITHUB_FILE_PATH}`,
-            {
-                message: 'Actualizar historial y sesiones',
-                content: Buffer.from(JSON.stringify(dataStore, null, 2)).toString('base64'),
-                sha: sha || undefined,
-            },
-            { headers: { 'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`, 'Accept': 'application/vnd.github+json' } }
-        );
+        await axios.put(/* URL pa’ guardar */, {
+            message: 'Actualizar historial y sesiones',
+            content: Buffer.from(JSON.stringify(dataStore, null, 2)).toString('base64'),
+            sha: sha || undefined,
+        }, { headers: /* mismos headers */ });
         console.log('Datos guardados en GitHub');
         return true;
     } catch (error) {
@@ -1539,16 +1526,14 @@ async function saveDataStore() {
     }
 }
 
-// Guardado automático (sin cambios, incluido para contexto)
-const SAVE_INTERVAL = 1800000;
-const WARNING_TIME = 300000;
+// Autosave cada 30 minutos, pa’ no perder nada importante
+const SAVE_INTERVAL = 1800000; // 30 minutos
+const WARNING_TIME = 300000; // 5 minutos antes aviso
 
 setInterval(async () => {
-    // Verificar si hay música activa en algún servidor
-    const musicActive = manager.players.size > 0;
-    
+    const musicActive = manager.players.size > 0; // Miro si hay música sonando
     if (musicActive && !autosavePausedByMusic) {
-        autosavePausedByMusic = true;
+        autosavePausedByMusic = true; // Pauso el guardado si hay música
         const channel = await client.channels.fetch(CHANNEL_ID);
         if (channel) {
             await channel.send({ embeds: [createEmbed('#FFAA00', '🎵 Autosave en pausa', 
@@ -1558,8 +1543,8 @@ setInterval(async () => {
     }
 
     if (!musicActive && autosavePausedByMusic) {
-        autosavePausedByMusic = false;
-        autosaveEnabled = true; // Reanudar autosave si estaba pausado solo por música
+        autosavePausedByMusic = false; // Vuelvo a prenderlo si la música paró
+        autosaveEnabled = true;
         const channel = await client.channels.fetch(CHANNEL_ID);
         if (channel) {
             await channel.send({ embeds: [createEmbed('#55FF55', '💾 Autosave de vuelta', 
@@ -1575,7 +1560,7 @@ setInterval(async () => {
             '¡Atenti, che! En 5 minutos guardo todo automáticamente.')] });
     }
     setTimeout(async () => {
-        if (!autosaveEnabled || autosavePausedByMusic) return; // No guardar si está pausado
+        if (!autosaveEnabled || autosavePausedByMusic) return;
         await saveDataStore();
         if (channel) {
             await channel.send({ embeds: [createEmbed('#55FF55', '💾 ¡Listo el pollo!', 
@@ -1585,36 +1570,35 @@ setInterval(async () => {
     }, WARNING_TIME);
 }, SAVE_INTERVAL);
 
-
-
-// Normalización de texto para manejar tildes
+// Normalizo texto pa’ sacarle las tildes y que no haya lío
 function normalizeText(text) {
     return text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    // Convierte "café" en "cafe", posta, pa’ que sea más fácil comparar
 }
 
-// Obtener una pregunta de trivia (sin cambios, pero añadido log para depuración)
+// Saco una pregunta de trivia sin opciones, con un log pa’ ver qué pasa
 function obtenerPreguntaTriviaSinOpciones(usedQuestions, categoria) {
     console.log("Obteniendo pregunta para categoría:", categoria, "Preguntas usadas:", usedQuestions.length);
-    const preguntasCategoria = preguntasTriviaSinOpciones[categoria] || [];
-    const available = preguntasCategoria.filter(q => !usedQuestions.includes(q.pregunta));
+    const preguntasCategoria = preguntasTriviaSinOpciones[categoria] || []; // Si no hay categoría, chau
+    const available = preguntasCategoria.filter(q => !usedQuestions.includes(q.pregunta)); // Filtro las que no usé
     console.log("Preguntas disponibles:", available.length);
-    if (available.length === 0) return null;
-    return available[Math.floor(Math.random() * available.length)];
+    if (available.length === 0) return null; // Si no quedan, me rindo
+    return available[Math.floor(Math.random() * available.length)]; // Elijo una random, joya
 }
 
-// Función principal de trivia corregida
+// Trivia copada, la hice pa’ que Miguel y Belén se diviertan
 async function manejarTrivia(message) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
-    if (!message.channel.permissionsFor(client.user).has(['SEND_MESSAGES', 'EMBED_LINKS'])) return;
+    if (!message.channel.permissionsFor(client.user).has(['SEND_MESSAGES', 'EMBED_LINKS'])) return; // Si no puedo mandar embeds, me voy
 
-    const args = normalizeText(message.content).split(' ').slice(1);
-    const categoria = args[0] in preguntasTriviaSinOpciones ? args[0] : 'capitales';
-    const numQuestions = Math.max(parseInt(args[1]) || 20, 20);
+    const args = normalizeText(message.content).split(' ').slice(1); // Saco el comando y normalizo
+    const categoria = args[0] in preguntasTriviaSinOpciones ? args[0] : 'capitales'; // Por default, capitales
+    const numQuestions = Math.max(parseInt(args[1]) || 20, 20); // Mínimo 20 preguntas, loco
 
     const triviaKey = `trivia_${message.channel.id}`;
     if (dataStore.activeSessions[triviaKey]) {
         await sendError(message.channel, `Ya hay una trivia activa en este canal, ${userName}.`, 'Cancelala con !tc primero.');
-        return;
+        return; // No quiero dos trivias juntas, qué quilombo
     }
 
     let session = {
@@ -1626,22 +1610,22 @@ async function manejarTrivia(message) {
         categoria,
         active: true,
     };
-    dataStore.activeSessions[triviaKey] = session;
-    dataStoreModified = true;
+    dataStore.activeSessions[triviaKey] = session; // Guardo la sesión pa’ no perderla
+    dataStoreModified = true; // Marco que cambié algo
 
     while (session.currentQuestion < session.totalQuestions && session.active) {
-        if (!dataStore.activeSessions[triviaKey] || !dataStore.activeSessions[triviaKey].active) break;
+        if (!dataStore.activeSessions[triviaKey] || !dataStore.activeSessions[triviaKey].active) break; // Si se canceló, chau
 
         const available = preguntasTriviaSinOpciones[categoria].filter(q => !session.usedQuestions.includes(q.pregunta));
         if (!available.length) {
             await sendSuccess(message.channel, '🏁 ¡Se acabaron las preguntas!', `No hay más en ${categoria}, ${userName}.`);
-            break;
+            break; // Si no hay más preguntas, terminé
         }
 
         const trivia = available[Math.floor(Math.random() * available.length)];
-        session.usedQuestions.push(trivia.pregunta);
+        session.usedQuestions.push(trivia.pregunta); // Marco esta como usada
         const embed = createEmbed('#55FFFF', `🎲 Pregunta ${session.currentQuestion + 1}/${numQuestions} (${categoria})`,
-            `${trivia.pregunta}\n\n¡Responde en 60 segundos, ${userName}! O cancelá con !tc.`);
+            `${trivia.pregunta}\n\n¡Responde en 60 segundos, ${userName}! O cancelá con !tc.`); // Celeste pa’ la trivia
         const sent = await message.channel.send({ embeds: [embed] });
 
         activeTrivia.set(message.channel.id, { id: sent.id, correcta: trivia.respuesta, userId: message.author.id });
@@ -1666,9 +1650,9 @@ async function manejarTrivia(message) {
             if (respuesta === cleanText(trivia.respuesta)) {
                 session.score += 1;
                 dataStore.triviaStats[message.author.id][categoria].correct += 1;
-                await sendSuccess(message.channel, '🎉 ¡Acierto!', `¡Grande, ${userName}! Era **${trivia.respuesta}**. Vas ${session.score}.`);
+                await sendSuccess(message.channel, '🎉 ¡Acierto!', `¡Grande, ${userName}! Era **${trivia.respuesta}**. Vas ${session.score}.`); // Verde pa’ festejar
             } else {
-                await sendError(message.channel, '❌ ¡Fallaste!', `La posta era **${trivia.respuesta}**, ${userName}. Dijiste "${respuesta}".`);
+                await sendError(message.channel, '❌ ¡Fallaste!', `La posta era **${trivia.respuesta}**, ${userName}. Dijiste "${respuesta}".`); // Rojo pa’ la cagada
             }
             session.currentQuestion += 1;
             dataStore.activeSessions[triviaKey] = session;
@@ -1683,7 +1667,6 @@ async function manejarTrivia(message) {
         }
     }
 
-    // Este bloque ya está bien puesto acá dentro
     if (session.currentQuestion >= session.totalQuestions && dataStore.activeSessions[triviaKey]) {
         await sendSuccess(message.channel, '🏁 ¡Trivia terminada!', `Puntuación: ${session.score}/${numQuestions}, ${userName}.`);
         if (!dataStore.triviaRanking[message.author.id]) dataStore.triviaRanking[message.author.id] = {};
@@ -1694,6 +1677,7 @@ async function manejarTrivia(message) {
     }
 }
 
+// Prendo o apago el autosave, pa’ que no me jodan con la música
 async function manejarAutosave(message) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
 
@@ -1702,22 +1686,23 @@ async function manejarAutosave(message) {
             'Esperá a que termine el tema o usá !st para cortarla.');
     }
 
-    autosaveEnabled = !autosaveEnabled;
+    autosaveEnabled = !autosaveEnabled; // Cambio el estado
     
     if (autosaveEnabled) {
         await sendSuccess(message.channel, '💾 ¡Autosave prendido!', 
-            `El guardado automático arrancó de nuevo, ${userName}. Se guarda cada 30 minutos, ¡tranqui!`);
+            `El guardado automático arrancó de nuevo, ${userName}. Se guarda cada 30 minutos, ¡tranqui!`); // Verde pa’ éxito
     } else {
         await sendSuccess(message.channel, '⏸️ ¡Autosave en pausa!', 
-            `Paré el guardado automático, ${userName}. Usá !as para volver a prenderlo o !save para guardar ya.`);
+            `Paré el guardado automático, ${userName}. Usá !as para volver a prenderlo o !save para guardar ya.`); // Verde también
     }
 }
 
-// PPM
+// Saco una frase pa’l juego de mecanografía
 function obtenerFrasePPM() {
-    return frasesPPM[Math.floor(Math.random() * frasesPPM.length)];
+    return frasesPPM[Math.floor(Math.random() * frasesPPM.length)]; // Random posta
 }
 
+// Juego de PPM, pa’ ver quién tipea más rápido
 async function manejarPPM(message) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
     if (!message.channel.permissionsFor(client.user).has(['SEND_MESSAGES', 'EMBED_LINKS'])) return;
@@ -1727,10 +1712,10 @@ async function manejarPPM(message) {
 
     if (session && !session.completed) {
         await sendError(message.channel, `Ya tenés un PPM activo, ${userName}.`, 'Termina el actual o cancelalo con !pc.');
-        return;
+        return; // No quiero dos juegos a la vez
     }
 
-    const countdownEmbed = createEmbed('#FFAA00', '⏳ Cuenta Regresiva', `¡Prepárate, ${userName}! Empieza en 3...`);
+    const countdownEmbed = createEmbed('#FFAA00', '⏳ Cuenta Regresiva', `¡Prepárate, ${userName}! Empieza en 3...`); // Naranja pa’ la cuenta
     const countdownMessage = await message.channel.send({ embeds: [countdownEmbed] });
 
     for (let i = 2; i >= 0; i--) {
@@ -1739,7 +1724,7 @@ async function manejarPPM(message) {
         await countdownMessage.edit({ embeds: [updatedEmbed] });
     }
 
-    const goEmbed = createEmbed('#00FF00', '🚀 ¡Ya!', `¡Adelante, ${userName}!`);
+    const goEmbed = createEmbed('#00FF00', '🚀 ¡Ya!', `¡Adelante, ${userName}!`); // Verde brillante pa’ arrancar
     await countdownMessage.edit({ embeds: [goEmbed] });
 
     let intentoCorrecto = false;
@@ -1753,7 +1738,7 @@ async function manejarPPM(message) {
         const frase = obtenerFrasePPM();
         const startTime = Date.now();
         const embed = createEmbed('#55FFFF', '📝 Prueba de Mecanografía',
-            `Escribí esta frase lo más rápido que puedas:\n\n**${frase}**\n\nTenés 15 segundos, ${userName}. (!pc para cancelar)`);
+            `Escribí esta frase lo más rápido que puedas:\n\n**${frase}**\n\nTenés 15 segundos, ${userName}. (!pc para cancelar)`); // Celeste pa’l juego
         await message.channel.send({ embeds: [embed] });
 
         session.frase = frase;
@@ -1795,59 +1780,77 @@ async function manejarPPM(message) {
                     dataStore.personalPPMRecords[message.author.id].best = { ppm, timestamp: new Date().toISOString() };
                     dataStoreModified = true;
                     await sendSuccess(message.channel, '🎉 ¡Récord nuevo, crack!',
-                        `¡Sos un animal, ${userName}! Tipeaste la frase en ${tiempoSegundos.toFixed(2)} segundos.\nTu nuevo récord: **${ppm} PPM**. Mirá tus intentos con !rppm.`);
+                        `¡Sos un animal, ${userName}! Tipeaste la frase en ${tiempoSegundos.toFixed(2)} segundos.\nTu nuevo récord: **${ppm} PPM**. Mirá tus intentos con !rppm.`); // Verde pa’l festejo
                 } else {
                     await sendSuccess(message.channel, '🎉 ¡Copado, che!',
-                        `¡Bien ahí, ${userName}! La frase te salió en ${tiempoSegundos.toFixed(2)} segundos.\nTu PPM: **${ppm}**. Tu récord sigue en **${currentBest} PPM**. Fijate todo con !rppm.`);
+                        `¡Bien ahí, ${userName}! La frase te salió en ${tiempoSegundos.toFixed(2)} segundos.\nTu PPM: **${ppm}**. Tu récord sigue en **${currentBest} PPM**. Fijate todo con !rppm.`); // Verde también
                 }
             } else {
-                await sendError(message.channel, '❌ ¡Casi la pegás!',
-                    `¡Uy, ${userName}, te mandaste una cagada! Tu respuesta fue "${respuestaUsuario}". La posta era **${frase}**. ¡Probá de nuevo, dale!`);
+                await sendError(message.channel, '� ❌ ¡Casi la pegás!',
+                    `¡Uy, ${userName}, te mandaste una cagada! Tu respuesta fue "${respuestaUsuario}". La posta era **${frase}**. ¡Probá de nuevo, dale!`); // Rojo pa’l fail
             }
         } catch {
             if (!dataStore.activeSessions[ppmKey] || !dataStore.activeSessions[ppmKey].active) break;
             await sendError(message.channel, '⏳ ¡Te dormiste, boludo!',
-                `Se te fue el tiempo, ${userName}. La frase era: **${frase}**. ¡Otra chance ahora!`);
+                `Se te fue el tiempo, ${userName}. La frase era: **${frase}**. ¡Otra chance ahora!`); // Rojo pa’l tiempo
         }
     }
 }
 
 // Reacciones
 function obtenerPalabraAleatoria() {
+    // Esta función es una joyita chiquita, te tira una palabra random del array palabrasAleatorias
+    // Usa Math.random pa’ elegir una al azar, como tirar un dado pero con palabras, re copado pa’ juegos
     return palabrasAleatorias[Math.floor(Math.random() * palabrasAleatorias.length)];
 }
 
 async function manejarReacciones(message) {
+    // Acá arrancamos el juego de reacciones, pa’ ver qué tan rápido la pegás, loco
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
+    // Chequeo si tengo permisos pa’ mandar mensajes y embeds, si no, me voy al carajo
     if (!message.channel.permissionsFor(client.user).has(['SEND_MESSAGES', 'EMBED_LINKS'])) return;
 
+    // Armo una clave única pa’ este canal, así no se pisan las sesiones
     const reactionKey = `reaction_${message.channel.id}`;
+    // Agarro la sesión actual si existe, pa’ ver si ya hay algo andando
     let session = dataStore.activeSessions[reactionKey];
 
-    // Si ya hay una sesión activa y no está completada, la cancelamos
+    // Si hay una sesión activa y no está terminada, la corto y te doy el puntaje
     if (session && !session.completed) {
+        // Marco la sesión como terminada, pa’ que no siga el loop
         session.completed = true;
+        // Borro la sesión del dataStore, pa’ liberar espacio
         delete dataStore.activeSessions[reactionKey];
+        // Marco que cambié algo en el dataStore, pa’ guardar después
         dataStoreModified = true;
+        // Te aviso con verde que paré el juego y te muestro cuántos puntos hiciste
         await sendSuccess(message.channel, '🛑 ¡Reacciones paradas!', `Puntuación: ${session.score}, ${userName}.`);
+        // Me voy, no sigo procesando más
         return;
     }
 
-    // Nueva sesión
+    // Si no hay sesión o la terminé, arranco una nueva desde cero
     session = { type: 'reaction', score: 0, currentRound: 0, completed: false, active: true };
+    // Guardo la nueva sesión en el dataStore con la clave del canal
     dataStore.activeSessions[reactionKey] = session;
+    // Marco que modifiqué el dataStore, pa’ que se guarde después
     dataStoreModified = true;
 
+    // Arranco un loop zarpado pa’ las rondas, mientras no se termine o lo canceles
     while (!session.completed && session.active) {
-        // Verificamos si la sesión sigue activa antes de cada ronda
+        // Chequeo si la sesión sigue viva, si no, corto el loop
         if (!dataStore.activeSessions[reactionKey] || !dataStore.activeSessions[reactionKey].active) break;
 
+        // Saco una palabra random pa’ que la tipees
         const palabra = obtenerPalabraAleatoria();
+        // Dorado pa’ la ronda, te tiro la palabra y tenés 30 segundos
         const embed = createEmbed('#FFD700', `🏁 Ronda ${session.currentRound + 1}`, 
             `Escribí: **${palabra}** en 30 segundos, ${userName}! (!rc para parar)`);
+        // Mando el embed al canal
         await message.channel.send({ embeds: [embed] });
 
         try {
+            // Espero tu respuesta, solo vos podés contestar, y nada de comandos de cancelar
             const respuestas = await message.channel.awaitMessages({
                 filter: (res) => res.author.id === message.author.id && !['!rc', '!reacciones cancelar'].includes(res.content.toLowerCase()),
                 max: 1,
@@ -1855,24 +1858,29 @@ async function manejarReacciones(message) {
                 errors: ['time'],
             });
 
-            // Verificamos de nuevo después de esperar la respuesta
+            // Doble chequeo post-respuesta, pa’ ver si no cancelaste mientras esperaba
             if (!dataStore.activeSessions[reactionKey] || !dataStore.activeSessions[reactionKey].active) break;
 
+            // Tomo lo que escribiste, todo en minúsculas pa’ no complicarla
             const respuesta = respuestas.first().content.toLowerCase();
             if (respuesta === palabra) {
+                // La pegaste, sumás un punto y te lo festejo en verde
                 session.score += 1;
                 await sendSuccess(message.channel, '🎉 ¡Bien!', `La pegaste, ${userName}. Vas ${session.score}.`);
             } else {
+                // Fallaste, loco, te lo marco en rojo y corto el juego
                 session.completed = true;
                 await sendError(message.channel, '❌ ¡Error!', `Fallaste, ${userName}. Era **${palabra}**.`);
             }
+            // Subo la ronda y actualizo la sesión
             session.currentRound += 1;
             dataStore.activeSessions[reactionKey] = session;
             dataStoreModified = true;
         } catch {
-            // Si se acaba el tiempo, verificamos si se canceló
+            // Si se te acabó el tiempo, chequeo si seguís en el juego
             if (!dataStore.activeSessions[reactionKey] || !dataStore.activeSessions[reactionKey].active) break;
 
+            // Tiempo agotado, te aviso en rojo y corto con el puntaje final
             session.completed = true;
             await sendError(message.channel, '⏳ ¡Tiempo!', `Se acabó, ${userName}. Puntuación: ${session.score}.`);
             delete dataStore.activeSessions[reactionKey];
@@ -1880,88 +1888,109 @@ async function manejarReacciones(message) {
         }
     }
 
-    // Limpieza final si se termina normalmente
+    // Limpieza final, si terminé borro la sesión del dataStore
     if (dataStore.activeSessions[reactionKey] && session.completed) {
         delete dataStore.activeSessions[reactionKey];
         dataStoreModified = true;
     }
 }
 
+//Letras
 async function manejarLyrics(message) {
+    // Función pa’ traerte las letras de una canción, re copada pa’ cantar
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
+    // Solo funciona en servers, nada de DMs, loco
     if (!message.guild) return sendError(message.channel, `Este comando solo funciona en servidores, ${userName}.`);
 
+    // Saco los argumentos, todo lo que venga después del comando
     const args = message.content.toLowerCase().split(' ').slice(1).join(' ').trim();
+    // Busco el reproductor del servidor
     const player = manager.players.get(message.guild.id);
     let songTitle;
 
+    // Si no me das un título, uso lo que está sonando o te pido algo
     if (!args) {
         if (!player || !player.queue.current) {
+            // Nada sonando, te aviso en rojo que me des un título
             return sendError(message.channel, `No hay ninguna canción sonando ahora, ${userName}. Usa !lyrics [nombre de la canción] para buscar una específica.`);
         }
+        // Agarro el título de lo que suena
         songTitle = player.queue.current.title;
     } else {
-        songTitle = args.replace(/\s*\(videoclip oficial\)/i, '').trim(); // Limpia el título
+        // Limpio el título sacando cosas como “(videoclip oficial)”
+        songTitle = args.replace(/\s*\(videoclip oficial\)/i, '').trim();
     }
 
+    // Te aviso en celeste que estoy buscando, pa’ que no te impacientes
     const waitingEmbed = createEmbed('#55FFFF', `⌛ Buscando letras, ${userName}...`, `Espera un momento mientras busco las letras de "${songTitle}".`);
     const waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
 
     try {
-        // Buscar la canción en Genius
+        // Armo la URL pa’ buscar en la API de Genius
         const searchUrl = `https://api.genius.com/search?q=${encodeURIComponent(songTitle)}`;
+        // Hago la búsqueda con el token de Genius
         const searchResponse = await axios.get(searchUrl, {
             headers: { 'Authorization': `Bearer ${process.env.GENIUS_ACCESS_TOKEN}` }
         });
 
+        // Agarro los resultados de la búsqueda
         const hits = searchResponse.data.response.hits;
+        // Si no hay nada, tiro error
         if (!hits || hits.length === 0) {
             throw new Error('No se encontraron resultados en Genius.');
         }
 
-        // Tomar el primer resultado (el más relevante)
+        // Tomo el ID de la primera canción que encuentro
         const songId = hits[0].result.id;
 
-        // Obtener detalles de la canción (necesitamos la URL para scrapear las letras)
+        // Ahora voy por los detalles de la canción
         const songUrl = `https://api.genius.com/songs/${songId}`;
         const songResponse = await axios.get(songUrl, {
             headers: { 'Authorization': `Bearer ${process.env.GENIUS_ACCESS_TOKEN}` }
         });
 
+        // Saco el camino pa’ la página de letras
         const lyricsPath = songResponse.data.response.song.path;
 
-        // Scrapear las letras desde la página pública de Genius
+        // Armo la URL pública de Genius y scrapeo la página
         const lyricsPageUrl = `https://genius.com${lyricsPath}`;
         const lyricsPage = await axios.get(lyricsPageUrl);
         const lyricsHtml = lyricsPage.data;
+        // Busco el div con las letras usando una regex zarpada
         const lyricsMatch = lyricsHtml.match(/<div[^>]*class="Lyrics__Container[^"]*"[^>]*>([\s\S]*?)<\/div>/i);
         let lyrics = lyricsMatch ? lyricsHtml.match(/<div[^>]*class="Lyrics__Container[^"]*"[^>]*>([\s\S]*?)<\/div>/i)[1] : 'No se pudieron extraer las letras.';
         
-        // Limpiar etiquetas HTML
+        // Limpio las etiquetas HTML y los saltos de línea extras
         lyrics = lyrics.replace(/<[^>]+>/g, '').replace(/\n+/g, '\n').trim();
 
+        // Si no hay letras o están vacías, tiro error
         if (!lyrics || lyrics === '') {
             throw new Error('No se encontraron letras para esta canción.');
         }
 
-        // Manejar el límite de 2000 caracteres
+        // Limite de Discord pa’ mensajes, 2000 caracteres
         const maxLength = 2000;
         if (lyrics.length <= maxLength) {
+            // Si cabe todo, lo mando en un solo embed dorado
             const embed = createEmbed('#FFD700', `🎵 Letras de "${songTitle}"`, lyrics);
             await waitingMessage.edit({ embeds: [embed] });
         } else {
+            // Si es largo, lo corto en pedazos
             const chunks = [];
             for (let i = 0; i < lyrics.length; i += maxLength) {
                 chunks.push(lyrics.substring(i, i + maxLength));
             }
+            // Primer pedazo editando el mensaje de espera
             const firstEmbed = createEmbed('#FFD700', `🎵 Letras de "${songTitle}" (Parte 1/${chunks.length})`, chunks[0]);
             await waitingMessage.edit({ embeds: [firstEmbed] });
+            // Los demás pedazos los mando como mensajes nuevos
             for (let i = 1; i < chunks.length; i++) {
                 const embed = createEmbed('#FFD700', `🎵 Letras de "${songTitle}" (Parte ${i + 1}/${chunks.length})`, chunks[i]);
                 await message.channel.send({ embeds: [embed] });
             }
         }
     } catch (error) {
+        // Si algo falla, te lo digo en rojo con el error
         console.error(`Error al buscar letras para "${songTitle}": ${error.message}`);
         await waitingMessage.edit({ embeds: [createEmbed('#FF5555', '¡Ups!', `No pude encontrar las letras de "${songTitle}", ${userName}. Puede ser que no esté en Genius o hubo un error: ${error.message}`)] });
     }
@@ -1972,54 +2001,65 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' }); // Usamos Flash por velocidad
 
 async function manejarChat(message) {
+    // Acá Oliver se pone a charlar como amigo posta con Gemini, loco
     const userId = message.author.id;
     const userName = userId === OWNER_ID ? 'Miguel' : 'Belén';
+    // Saco el mensaje, dependiendo si usaste !chat o !ch
     const chatMessage = message.content.startsWith('!chat') ? message.content.slice(5).trim() : message.content.slice(3).trim();
 
+    // Si no escribiste nada, te pido algo en rojo
     if (!chatMessage) {
         return sendError(message.channel, `¡Escribí algo después de "!ch", ${userName}! No me dejes colgado, che.`, undefined, 'Hecho con onda por Miguel IA | Reacciona con ✅ o ❌');
     }
 
-    // Inicializar historial si no existe
+    // Inicializo el historial si no existe
     if (!dataStore.conversationHistory) dataStore.conversationHistory = {};
     if (!dataStore.conversationHistory[userId]) dataStore.conversationHistory[userId] = [];
 
-    // Agregar el mensaje del usuario al historial
+    // Agrego tu mensaje al historial con timestamp
     dataStore.conversationHistory[userId].push({ role: 'user', content: chatMessage, timestamp: Date.now() });
-    // Limitar a 20 interacciones
+    // Limito a 20 mensajes pa’ no llenar la memoria
     if (dataStore.conversationHistory[userId].length > 20) {
         dataStore.conversationHistory[userId] = dataStore.conversationHistory[userId].slice(-20);
     }
+    // Marco que cambié el dataStore
     dataStoreModified = true;
 
-    // Armar el contexto con las últimas 20
+    // Armo el contexto con los últimos 20 mensajes
     const history = dataStore.conversationHistory[userId].slice(-20);
     const context = history.map(h => `${h.role === 'user' ? userName : 'Oliver'}: ${h.content}`).join('\n');
     
+    // Te aviso en celeste que estoy pensando
     const waitingEmbed = createEmbed('#55FFFF', `¡Aguantá un toque, ${userName}!`, 'Estoy pensando una respuesta re copada...', 'Hecho con onda por Miguel IA | Reacciona con ✅ o ❌');
     const waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
 
     try {
+        // Le tiro el prompt a Gemini con onda argentina
         const prompt = `Sos Oliver IA, un bot re piola creado por Miguel. Hablá con onda argentina, usá "loco", "che", "posta". Esto es lo que charlamos antes:\n${context}\nRespondé a: "${chatMessage}" como amigo zarpado, con cariño si es para Belén, tipo "grosa" o "genia".`;
         
+        // Genero la respuesta
         const result = await model.generateContent(prompt);
         let aiReply = result.response.text().trim();
 
-        // Agregar la respuesta al historial
+        // Agrego la respuesta al historial
         dataStore.conversationHistory[userId].push({ role: 'assistant', content: aiReply, timestamp: Date.now() });
         if (dataStore.conversationHistory[userId].length > 20) {
             dataStore.conversationHistory[userId] = dataStore.conversationHistory[userId].slice(-20);
         }
         dataStoreModified = true;
 
+        // Si la respuesta es muy larga, la corto pa’ Discord
         if (aiReply.length > 2000) aiReply = aiReply.slice(0, 1990) + '... (seguí charlando pa’ más, loco)';
         
+        // Te mando la respuesta en celeste con reacciones pa’ que opines
         const finalEmbed = createEmbed('#55FFFF', `¡Aquí estoy, ${userName}!`, `${aiReply}\n\n¿Te cerró, ${userName}? ¡Seguimos charlando, che!`, 'Con cariño, Oliver IA | Reacciona con ✅ o ❌');
         const updatedMessage = await waitingMessage.edit({ embeds: [finalEmbed] });
         await updatedMessage.react('✅');
         await updatedMessage.react('❌');
+        // Guardo el mensaje pa’ las reacciones después
         sentMessages.set(updatedMessage.id, { content: aiReply, originalQuestion: chatMessage, message: updatedMessage });
     } catch (error) {
+        // Si Gemini falla, te aviso en rojo con un fallback
         console.error('Error con Gemini:', error.message);
         const fallbackReply = `¡Uy, ${userName}, qué cagada! Me mandé un moco, loco. ¿Me tirás otra vez el mensaje o seguimos con otra cosa?\n\n¿Te cerró, ${userName}? ¡Seguimos charlando, che!]`;
         const errorEmbed = createEmbed('#FF5555', `¡Qué cagada, ${userName}!`, fallbackReply, 'Con cariño, Oliver IA | Reacciona con ✅ o ❌');
@@ -2029,126 +2069,164 @@ async function manejarChat(message) {
     }
 }
 
-// Nuevos comandos: !sugerencias y !ayuda
+// Sugerencias
 async function manejarSugerencias(message) {
+    // Comando pa’ que Belén tire ideas zarpadas pa’ mejorar el bot
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
+    // Saco la sugerencia del mensaje, dependiendo si usaste !sugerencias o !su
     const suggestion = message.content.startsWith('!sugerencias') ? message.content.slice(12).trim() : message.content.slice(4).trim();
+    // Si no escribiste nada, te pido algo en rojo
     if (!suggestion) {
         return sendError(message.channel, `Escribe tu sugerencia después de "!su", ${userName}. ¡Quiero escuchar tus ideas!`);
     }
 
+    // Busco a Miguel pa’ mandarle la idea por MD
     const owner = await client.users.fetch(OWNER_ID);
+    // Armo un embed dorado pa’ Miguel con la sugerencia
     const ownerEmbed = createEmbed('#FFD700', '💡 Nueva sugerencia de Belén',
         `${userName} propone: "${suggestion}"\nReacciona con ✅ para dar visto, loco.\nUsá !responder en cualquier canal para contestarle por MD.`);
 
     try {
+        // Le mando el embed a Miguel y le pongo una reacción
         const sentToOwner = await owner.send({ embeds: [ownerEmbed] });
         await sentToOwner.react('✅');
+        // Guardo el mensaje en sentMessages pa’ que Miguel pueda responder después
         sentMessages.set(sentToOwner.id, { 
             type: 'suggestion', 
             suggestion, 
             channelId: message.channel.id, 
             userId: message.author.id, 
-            timestamp: Date.now() // Agregamos timestamp
+            timestamp: Date.now() 
         });
 
+        // Te confirmo en verde que la idea llegó a Miguel
         await sendSuccess(message.channel, '¡Sugerencia enviada!',
             `Tu idea ya está con Miguel, ${userName}. ¡Si le da el visto o te responde con !responder, te llega por MD, genia!`);
     } catch (error) {
+        // Si falla el envío, te aviso en rojo
         console.error('Error al enviar sugerencia:', error);
         await sendError(message.channel, 'No pude enviar tu sugerencia', `Ocurrió un error, ${userName}. ¿Intentamos de nuevo?`);
     }
 }
 
+// Ayuda
 async function manejarAyuda(message) {
+    // Comando pa’ pedir ayuda a Miguel, re útil pa’ Belén
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
+    // Saco el problema del mensaje, dependiendo si usaste !ayuda o !ay
     const issue = message.content.startsWith('!ayuda') ? message.content.slice(6).trim() : message.content.slice(3).trim();
+    // Si no escribiste nada, te pido algo en rojo
     if (!issue) {
         return sendError(message.channel, `Dime qué necesitas después de "!ay", ${userName}.`);
     }
 
+    // Busco a Miguel pa’ mandarle el pedido por MD
     const owner = await client.users.fetch(OWNER_ID);
+    // Chequeo si hay adjuntos pa’ incluirlos
     const attachments = message.attachments.size > 0 ? message.attachments.map(att => att.url) : [];
+    // Armo un embed dorado con el problema y los adjuntos si hay
     const ownerEmbed = createEmbed('#FFD700', '¡Solicitud de ayuda!',
         `${userName} necesita ayuda con: "${issue}"\n` +
         (attachments.length > 0 ? `Imágenes adjuntas:\n${attachments.join('\n')}` : 'Sin imágenes adjuntas.') +
         `\nUsá !responder en cualquier canal para contestarle por MD, loco.`);
 
     try {
+        // Le mando el embed a Miguel
         const sentToOwner = await owner.send({ embeds: [ownerEmbed] });
+        // Guardo el mensaje en sentMessages pa’ que Miguel pueda responder
         sentMessages.set(sentToOwner.id, { 
             type: 'help', 
             issue, 
             channelId: message.channel.id, 
             userId: message.author.id, 
             attachments, 
-            timestamp: Date.now() // Agregamos timestamp
+            timestamp: Date.now() 
         });
 
+        // Te confirmo en verde que el pedido llegó a Miguel
         await sendSuccess(message.channel, '¡Ayuda en camino!',
             `Ya le avisé a Miguel, ${userName}. ¡Si te responde con !responder, lo vas a ver por MD, grosa!`);
     } catch (error) {
+        // Si falla el envío, te aviso en rojo
         console.error('Error al enviar ayuda:', error);
         await sendError(message.channel, 'No pude avisar a Miguel', `Ocurrió un error, ${userName}. ¿Intentamos de nuevo?`);
     }
 }
 
+// Responder
 async function manejarResponder(message) {
+    // Comando solo pa’ Miguel pa’ responderle a Belén por MD
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
+    // Si no sos Miguel, chau, no podés usarlo
     if (message.author.id !== OWNER_ID) return;
 
+    // Logueo pa’ debug, pa’ ver qué pasa
     console.log(`[${instanceId}] Ejecutando !responder por ${userName} con contenido: "${message.content}"`);
 
+    // Saco el mensaje después de !responder
     const args = message.content.slice(10).trim();
+    // Si no escribiste nada, te pido algo en rojo
     if (!args) {
         console.log(`[${instanceId}] Error: No hay argumentos en !responder`);
         return sendError(message.channel, `Escribí algo después de "!responder", ${userName}. ¿Qué le querés decir a Belén por MD?`);
     }
 
-    console.log(`[${instanceId}] Argumentos extraídos: "${args}"`);
-
+    // Busco a Belén pa’ mandarle el mensaje
     let belen;
     try {
         belen = await client.users.fetch(ALLOWED_USER_ID);
         console.log(`[${instanceId}] Usuario Belén (${ALLOWED_USER_ID}) obtenido con éxito`);
     } catch (error) {
+        // Si no la encuentro, te aviso en rojo
         console.error(`[${instanceId}] Error al obtener usuario Belén: ${error.message}`);
         return sendError(message.channel, '❌ ¡No pude encontrar a Belén!', `Error: ${error.message}, ${userName}.`);
     }
 
+    // Chequeo si hay adjuntos pa’ incluirlos
     const attachments = message.attachments.size > 0 ? message.attachments.map(att => ({ attachment: att.url })) : [];
     console.log(`[${instanceId}] Preparando envío a Belén (${ALLOWED_USER_ID}), adjuntos: ${attachments.length}`);
 
     try {
+        // Armo un embed dorado con tu mensaje
         const responseEmbed = createEmbed('#FFD700', '📬 Mensaje de Miguel',
             `Miguel dice: "${args || 'Sin texto, pero mirá las imágenes si hay.'}"`);
         
+        // Le mando el mensaje a Belén por MD con los adjuntos si hay
         console.log(`[${instanceId}] Enviando mensaje a Belén...`);
         await belen.send({ embeds: [responseEmbed], files: attachments });
         console.log(`[${instanceId}] Mensaje enviado exitosamente a Belén`);
 
+        // Te confirmo en verde que salió todo bien
         await sendSuccess(message.channel, '✅ ¡Respuesta enviada!',
             `Le mandé tu mensaje a Belén por MD, ${userName}. ¡Ya lo va a ver, loco!`);
     } catch (error) {
+        // Si falla el envío, te aviso en rojo
         console.error(`[${instanceId}] Error al enviar mensaje por MD: ${error.message}`);
         await sendError(message.channel, '❌ ¡No pude mandarle el MD a Belén!',
             `Algo falló, ${userName}. Error: ${error.message}. ¿Belén tiene los MD abiertos para el bot?`);
     }
 }
 
+// Actualizaciones
 async function manejarActualizaciones(message) {
+    // Comando solo pa’ Belén pa’ ver las actualizaciones del bot
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
-    if (message.author.id !== ALLOWED_USER_ID) return; // Solo Belén puede usarlo
+    // Si no sos Belén, chau, no podés usarlo
+    if (message.author.id !== ALLOWED_USER_ID) return;
 
+    // Saco la hora de Argentina pa’ que quede local
     const argentinaTime = new Date().toLocaleTimeString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' });
+    // Armo el texto con las actualizaciones, o te digo que no hay nada nuevo
     const updatesText = BOT_UPDATES.length > 0 
         ? BOT_UPDATES.map((update, index) => `${index + 1}. ${update}`).join('\n')
         : 'No hay actualizaciones nuevas por ahora, ¡pero seguí atenta, genia!';
 
+    // Armo un embed dorado con las actualizaciones y la hora
     const embed = createEmbed('#FFD700', '📢 Últimas Actualizaciones de Oliver IA',
         `¡Mirá lo nuevo que traigo, ${userName}!\n\n${updatesText}\n\n**Hora local (Argentina):** ${argentinaTime}`,
         'Hecho con onda por Miguel IA');
     
+    // Te lo mando al canal
     await message.channel.send({ embeds: [embed] });
 }
 
@@ -2213,129 +2291,192 @@ async function manejarPlay(message) {
     }
 }
 
+// Pausa
 async function manejarPause(message) {
+    // Acá pausamos o seguimos la música, re simple pero copado
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
+    // Si no estás en un server, te corto con rojo, nada de DMs
     if (!message.guild) return sendError(message.channel, `Este comando solo funciona en servidores, ${userName}.`);
+    // Busco el reproductor del server
     const player = manager.players.get(message.guild.id);
+    // Si no hay nada sonando, te aviso en rojo
     if (!player) return sendError(message.channel, `No hay música en reproducción, ${userName}.`);
 
+    // Si ya está pausado, lo arranco de nuevo
     if (player.paused) {
         player.pause(false);
+        // Te confirmo en verde que la música sigue
         await sendSuccess(message.channel, '▶️ ¡Música reanudada!', `La música sigue sonando, ${userName}.`);
     } else {
+        // Si está sonando, lo pauso
         player.pause(true);
+        // Te aviso en verde que puse pausa
         await sendSuccess(message.channel, '⏸️ ¡Música pausada!', `Pausa activada, ${userName}. Usa !pause para reanudar.`);
     }
 }
 
+// Skip
 async function manejarSkip(message) {
+    // Saltamos al próximo tema, bien directo, loco
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
+    // Solo servers, nada de DMs
     if (!message.guild) return sendError(message.channel, `Este comando solo funciona en servidores, ${userName}.`);
+    // Busco el reproductor
     const player = manager.players.get(message.guild.id);
+    // Si no hay música, te corto en rojo
     if (!player) return sendError(message.channel, `No hay música en reproducción, ${userName}.`);
 
+    // Salto el tema actual
     player.stop();
+    // Te confirmo en verde que pasamos al siguiente
     await sendSuccess(message.channel, '⏭️ ¡Canción saltada!', `Pasamos a la siguiente, ${userName}.`);
 }
 
+// Stop
 async function manejarStop(message) {
+    // Paramos todo el reproductor, chau música
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
+    // Solo en servers, como siempre
     if (!message.guild) return sendError(message.channel, `Este comando solo funciona en servidores, ${userName}.`);
+    // Busco el reproductor
     const player = manager.players.get(message.guild.id);
+    // Si no hay nada, te aviso en rojo
     if (!player) return sendError(message.channel, `No hay música en reproducción, ${userName}.`);
 
+    // Destruyo el reproductor y limpio la sesión
     player.destroy();
     delete dataStore.musicSessions[message.guild.id];
     dataStoreModified = true;
+    // Te confirmo en verde que corté todo
     await sendSuccess(message.channel, '🛑 ¡Música detenida!', `El reproductor se detuvo, ${userName}.`);
 }
 
+// Queue
 async function manejarQueue(message) {
+    // Te muestro la cola de temas, re piola
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
+    // Solo servers, ya sabés
     if (!message.guild) return sendError(message.channel, `Este comando solo funciona en servidores, ${userName}.`);
+    // Busco el reproductor
     const player = manager.players.get(message.guild.id);
+    // Si no hay cola o nada sonando, te corto en rojo
     if (!player || !player.queue.length) return sendError(message.channel, `No hay canciones en la cola, ${userName}.`);
 
+    // Armo la lista de la cola con título y duración
     const queueList = player.queue.map((track, index) => 
         `${index + 1}. **${track.title}** - ${Math.floor(track.duration / 60000)}:${((track.duration % 60000) / 1000).toFixed(0).padStart(2, '0')}`
     ).join('\n');
+    // Embed dorado con lo que suena ahora y la cola
     const embed = createEmbed('#FFD700', '📜 Cola de reproducción',
         `Ahora: **${player.queue.current.title}**\n\n${queueList}`);
+    // Te lo mando al canal
     await message.channel.send({ embeds: [embed] });
 }
 
+// Repeat
 async function manejarRepeat(message) {
+    // Activo o desactivo la repetición, vos elegís qué repetir
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
+    // Solo servers, obvio
     if (!message.guild) return sendError(message.channel, `Este comando solo funciona en servidores, ${userName}.`);
+    // Busco el reproductor
     const player = manager.players.get(message.guild.id);
+    // Si no hay música, te aviso en rojo
     if (!player) return sendError(message.channel, `No hay música en reproducción, ${userName}.`);
 
+    // Saco los argumentos pa’ ver si querés repetir la cola
     const args = message.content.toLowerCase().split(' ').slice(1).join(' ').trim();
     if (args === 'queue' || args === 'cola') {
+        // Toggle pa’ repetir la cola entera
         player.setQueueRepeat(!player.queueRepeat);
+        // Te confirmo en verde si prendí o apagué la repetición de la cola
         await sendSuccess(message.channel, player.queueRepeat ? '🔁 ¡Repetición de cola activada!' : '▶️ ¡Repetición de cola desactivada!',
             `La cola ${player.queueRepeat ? 'se repetirá' : 'no se repetirá'} ahora, ${userName}.`);
     } else {
+        // Toggle pa’ repetir solo el tema actual
         player.setTrackRepeat(!player.trackRepeat);
+        // Te confirmo en verde si prendí o apagué la repetición del tema
         await sendSuccess(message.channel, player.trackRepeat ? '🔂 ¡Repetición activada!' : '▶️ ¡Repetición desactivada!',
             `La canción actual ${player.trackRepeat ? 'se repetirá' : 'no se repetirá'}, ${userName}.`);
     }
 }
 
+// Back
 async function manejarBack(message) {
+    // Volvemos al tema anterior, como en los viejos tiempos
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
+    // Solo servers, loco
     if (!message.guild) return sendError(message.channel, `Este comando solo funciona en servidores, ${userName}.`);
+    // Busco el reproductor
     const player = manager.players.get(message.guild.id);
+    // Si no hay música, te corto en rojo
     if (!player) return sendError(message.channel, `No hay música en reproducción, ${userName}.`);
+    // Si no hay tema anterior, te aviso en rojo
     if (!player.queue.previous) return sendError(message.channel, `No hay canción anterior, ${userName}.`);
 
+    // Pongo el tema anterior al frente de la cola y salto el actual
     player.queue.unshift(player.queue.previous);
     player.stop();
+    // Te confirmo en verde que volvimos atrás
     await sendSuccess(message.channel, '⏮️ ¡Volviendo atrás!',
         `Reproduciendo la canción anterior: **${player.queue.current.title}**, ${userName}.`);
 }
 
+// Autoplay
 async function manejarAutoplay(message) {
+    // Prendo o apago el autoplay, re práctico
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
+    // Solo en servers, como siempre
     if (!message.guild) return sendError(message.channel, `Este comando solo funciona en servidores, ${userName}.`);
+    // Busco el reproductor
     const player = manager.players.get(message.guild.id);
+    // Si no hay música, te corto en rojo
     if (!player) return sendError(message.channel, `No hay música en reproducción, ${userName}.`);
 
+    // Chequeo si el autoplay ya está prendido
     const autoplayEnabled = dataStore.musicSessions[message.guild.id]?.autoplay || false;
+    // Inicializo la sesión si no existe
     dataStore.musicSessions[message.guild.id] = dataStore.musicSessions[message.guild.id] || {};
+    // Toggle del autoplay
     dataStore.musicSessions[message.guild.id].autoplay = !autoplayEnabled;
     dataStoreModified = true;
 
+    // Te confirmo en verde si lo prendí o apagué
     await sendSuccess(message.channel, dataStore.musicSessions[message.guild.id].autoplay ? '🎵 ¡Autoplay activado!' : '⏹️ ¡Autoplay desactivado!',
         `El autoplay está ahora ${dataStore.musicSessions[message.guild.id].autoplay ? 'activado' : 'desactivado'}, ${userName}.`);
 }
 
-// Ranking con top por categoría para Trivia y Reacciones
+// Ranking con top por categoría para Trivia, Reacciones y PPM
 function getCombinedRankingEmbed(userId, username) {
+    // Armo un ranking zarpado con trivia, PPM y reacciones
     const categorias = Object.keys(preguntasTriviaSinOpciones);
     
+    // Lista de trivia por categoría
     let triviaList = '**📚 Trivia por Categoría**\n';
     categorias.forEach(categoria => {
-        // Usamos triviaStats como fuente principal
+        // Stats de Miguel
         const miguelStats = dataStore.triviaStats[OWNER_ID]?.[categoria] || { correct: 0, total: 0 };
-        const miguelScore = miguelStats.correct; // Puntaje es el número de correctas
+        const miguelScore = miguelStats.correct;
         const miguelPercentage = miguelStats.total > 0 ? Math.round((miguelScore / miguelStats.total) * 100) : 0;
-
+        // Stats de Belén
         const luzStats = dataStore.triviaStats[ALLOWED_USER_ID]?.[categoria] || { correct: 0, total: 0 };
-        const luzScore = luzStats.correct; // Puntaje es el número de correctas
+        const luzScore = luzStats.correct;
         const luzPercentage = luzStats.total > 0 ? Math.round((luzScore / luzStats.total) * 100) : 0;
 
+        // Ranking ordenado por puntaje
         const ranking = [
             { name: 'Miguel', score: miguelScore, percentage: miguelPercentage },
             { name: 'Belén', score: luzScore, percentage: luzPercentage }
         ].sort((a, b) => b.score - a.score);
 
+        // Agrego cada categoría al texto
         triviaList += `\n**${categoria.charAt(0).toUpperCase() + categoria.slice(1)}** 🎲\n` +
                       ranking.map(participant => 
                           `> 🌟 ${participant.name}: **${participant.score} puntos** (${participant.percentage}% acertadas)`
                       ).join('\n') + '\n';
     });
 
+    // Récords de PPM
     const miguelPPMRecord = dataStore.personalPPMRecords[OWNER_ID]?.best || { ppm: 0, timestamp: null };
     const luzPPMRecord = dataStore.personalPPMRecords[ALLOWED_USER_ID]?.best || { ppm: 0, timestamp: null };
     
@@ -2344,12 +2485,14 @@ function getCombinedRankingEmbed(userId, username) {
         { name: 'Belén', ppm: luzPPMRecord.ppm, timestamp: luzPPMRecord.timestamp }
     ].sort((a, b) => b.ppm - a.ppm);
     
+    // Lista de PPM con fecha
     let ppmList = ppmRanking.map(participant => 
         participant.ppm > 0 
             ? `> ${participant.name}: **${participant.ppm} PPM** - ${new Date(participant.timestamp).toLocaleString()}`
             : `> ${participant.name}: No tiene récord aún. ¡Probá con !pp!`
     ).join('\n');
 
+    // Victorias en reacciones
     const miguelReactionWins = dataStore.reactionWins[OWNER_ID]?.wins || 0;
     const luzReactionWins = dataStore.reactionWins[ALLOWED_USER_ID]?.wins || 0;
     
@@ -2362,6 +2505,7 @@ function getCombinedRankingEmbed(userId, username) {
         `> 🌟 ${participant.name} - **${participant.wins} Reacciones**`
     ).join('\n');
 
+    // Armo el embed dorado con todo el ranking
     return new EmbedBuilder()
         .setColor('#FFD700')
         .setTitle(`🏆 Ranking de ${username}`)
@@ -2375,23 +2519,29 @@ function getCombinedRankingEmbed(userId, username) {
         .setTimestamp();
 }
 
+// RankingPPM
 async function manejarRankingPPM(message) {
+    // Te muestro tu historial de PPM, re copado
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
     const userId = message.author.id;
 
+    // Agarro tus datos de PPM
     const ppmData = dataStore.personalPPMRecords[userId] || { best: { ppm: 0, timestamp: null }, attempts: [] };
     const attempts = ppmData.attempts;
 
+    // Si no tenés intentos, te aviso en rojo
     if (attempts.length === 0) {
         await sendError(message.channel, 'No tienes intentos de PPM registrados', `¡Juega con !pp para empezar, ${userName}!`);
         return;
     }
 
+    // Ordeno los intentos de mayor a menor
     const sortedAttempts = attempts.sort((a, b) => b.ppm - a.ppm);
     const attemptsList = sortedAttempts.map((attempt, index) => 
         `${index + 1}. **${attempt.ppm} PPM** - ${new Date(attempt.timestamp).toLocaleString()}`
     ).join('\n');
 
+    // Embed dorado con tu historial
     const embed = new EmbedBuilder()
         .setColor('#FFD700')
         .setTitle(`⌨️ Historial de PPM de ${userName}`)
@@ -2404,53 +2554,68 @@ async function manejarRankingPPM(message) {
         .setFooter({ text: 'Con cariño, Oliver IA' })
         .setTimestamp();
 
+    // Te lo mando al canal
     await message.channel.send({ embeds: [embed] });
 }
 
+// Idea
 async function manejarIdea(message) {
+    // Guardamos tus ideas pa’ mejorar el bot, re piola
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Luz';
+    // Saco la idea del mensaje
     const idea = message.content.startsWith('!idea') ? message.content.slice(5).trim() : message.content.slice(3).trim();
 
+    // Si no escribiste nada, te pido algo en rojo
     if (!idea) {
         return sendError(message.channel, `¡Tirame algo después de "!idea", ${userName}! ¿Qué se te ocurrió, loco?`);
     }
 
-    // Guardar la idea en dataStore
+    // Guardo la idea en el dataStore
     if (!dataStore.ideas) dataStore.ideas = [];
     dataStore.ideas.push({ autor: userName, texto: idea, timestamp: new Date().toISOString() });
     dataStoreModified = true;
 
-    // Enviar solo al OWNER_ID (Miguel) por MD
+    // Busco a Miguel pa’ mandarle la idea por MD
     const owner = await client.users.fetch(OWNER_ID);
+    // Embed dorado con la idea
     const ideaEmbed = createEmbed('#FFD700', `💡 Nueva idea de ${userName}`, 
         `${userName} dice: "${idea}"\nGuardada el: ${new Date().toLocaleString()}`);
 
     try {
+        // Le mando la idea a Miguel
         await owner.send({ embeds: [ideaEmbed] });
+        // Te confirmo en verde que se guardó y envió
         await sendSuccess(message.channel, '✅ ¡Idea guardada!', 
             `Ya la anoté y se la mandé por MD a Miguel, ${userName}. ¡Buena esa!`);
     } catch (error) {
+        // Si falla, te aviso en rojo
         console.error('Error al enviar idea:', error);
         await sendError(message.channel, '❌ No pude mandar la idea', 
             `Algo falló, ${userName}. Error: ${error.message}. ¿Probamos de nuevo?`);
     }
 }
 
+// Dato
 async function manejarDato(message) {
+    // Te traigo un dato rápido de la web, re útil
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
+    // Saco lo que querés saber
     const args = message.content.toLowerCase().startsWith('!dato') 
         ? message.content.slice(5).trim() 
         : message.content.slice(3).trim();
 
+    // Si no escribiste nada, te pido algo en rojo
     if (!args) {
         return sendError(message.channel, `¡Tirame algo después de "!dato", ${userName}! ¿Qué querés saber, loco?`);
     }
 
+    // Te aviso en celeste que estoy buscando
     const waitingEmbed = createEmbed('#55FFFF', `⌛ Buscando, ${userName}...`, 
         `Dame un segundo que ya te traigo el dato de "${args}"...`);
     const waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
 
     try {
+        // Busco en Google con la API
         const apiKey = process.env.GOOGLE_API_KEY;
         const cx = process.env.GOOGLE_CX;
         const url = `https://www.googleapis.com/customsearch/v1?key=${apiKey}&cx=${cx}&q=${encodeURIComponent(args)}&num=1`;
@@ -2458,18 +2623,23 @@ async function manejarDato(message) {
         const result = response.data.items;
 
         let reply = '';
+        // Si no hay resultados, tiro error
         if (!result || result.length === 0) {
             throw new Error('No encontré nada posta, che.');
         } else {
+            // Agarro el snippet del primer resultado
             reply = result[0].snippet || 'No hay descripción, pero te lo resumo al toque.';
         }
 
+        // Corto a 200 caracteres pa’ que entre en el embed
         reply = reply.length > 200 ? `${reply.slice(0, 197)}...` : reply;
 
+        // Embed dorado con el dato
         const embed = createEmbed('#FFD700', `📜 Dato sobre "${args}"`, 
             `${reply}\n\n*Lo saqué de la web, che.*`);
         await waitingMessage.edit({ embeds: [embed] });
     } catch (error) {
+        // Si falla, te aviso en rojo
         console.error(`Error buscando "${args}": ${error.message}`);
         const errorEmbed = createEmbed('#FF5555', '¡Qué cagada!', 
             `No pude encontrar nada sobre "${args}", ${userName}. ¿Probamos con otra cosa, loco?`);
@@ -2477,36 +2647,46 @@ async function manejarDato(message) {
     }
 }
 
+// Clima
 async function manejarClima(message) {
+    // Te digo el clima de una ciudad, re copado
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
+    // Saco la ciudad del mensaje
     const args = message.content.toLowerCase().startsWith('!clima') 
         ? message.content.slice(6).trim() 
         : message.content.slice(3).trim();
 
+    // Si no me das una ciudad, te pido una en rojo
     if (!args) {
         return sendError(message.channel, `¡Decime una ciudad después de "!clima", ${userName}! Ejemplo: !clima Córdoba`);
     }
 
+    // Te aviso en celeste que estoy chequeando
     const waitingEmbed = createEmbed('#55FFFF', `⛅ Chequeando el clima, ${userName}...`, 
         `Aguantá que veo cómo está "${args}"...`);
     const waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
 
     try {
+        // Busco el clima con OpenWeather
         const apiKey = process.env.OPENWEATHER_API_KEY;
         const url = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(args)}&appid=${apiKey}&units=metric&lang=es`;
         const response = await axios.get(url);
         const data = response.data;
 
+        // Saco los datos que importan
         const temp = Math.round(data.main.temp);
         const desc = data.weather[0].description;
         const city = data.name;
         const country = data.sys.country;
+        // Le pongo un toque de onda según la temperatura
         const vibe = temp > 25 ? "pa’l asado" : temp < 10 ? "pa’ un mate calentito" : "tranqui";
 
+        // Embed dorado con el clima
         const embed = createEmbed('#FFD700', `⛅ Clima en ${city}, ${country}`, 
             `${temp}°C, ${desc}, ${vibe}.`);
         await waitingMessage.edit({ embeds: [embed] });
     } catch (error) {
+        // Si falla, te aviso en rojo
         console.error(`Error en clima para "${args}": ${error.message}`);
         const errorEmbed = createEmbed('#FF5555', '¡Qué cagada!', 
             `No pude encontrar el clima de "${args}", ${userName}. ¿Seguro que existe esa ciudad, loco?`);
@@ -2514,18 +2694,22 @@ async function manejarClima(message) {
     }
 }
 
+// Noticias
 async function manejarNoticias(message) {
+    // Te traigo noticias frescas de Argentina y Ecuador
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
 
+    // Te aviso en celeste que estoy buscando
     const waitingEmbed = createEmbed('#55FFFF', `📰 Buscando noticias, ${userName}...`, 
         `Aguantá que te traigo lo último de Argentina y Ecuador al toque...`);
     const waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
 
     try {
+        // Chequeo la API key de Mediastack
         const apiKey = process.env.MEDIASTACK_API_KEY;
         if (!apiKey) throw new Error('Falta la clave de Mediastack en el .env, loco.');
 
-        // Fecha de hoy para filtrar noticias recientes (formato YYYY-MM-DD)
+        // Fecha de hoy pa’ filtrar
         const today = new Date().toISOString().split('T')[0];
 
         // Noticias de Argentina
@@ -2540,14 +2724,16 @@ async function manejarNoticias(message) {
         const responseEC = await axios.get(urlEC);
         const articlesEC = responseEC.data.data || [];
 
+        // Logueo las respuestas pa’ debug
         console.log('Respuesta AR:', JSON.stringify(responseAR.data, null, 2));
         console.log('Respuesta EC:', JSON.stringify(responseEC.data, null, 2));
 
+        // Si no hay nada, tiro error
         if (articlesAR.length === 0 && articlesEC.length === 0) {
             throw new Error('No encontré noticias de hoy ni de Argentina ni de Ecuador, qué cagada.');
         }
 
-        // Formateamos noticias de Argentina
+        // Formateo las noticias de Argentina
         let noticiasAR = 'No encontré noticias posta de Argentina hoy, loco.';
         if (articlesAR.length > 0) {
             noticiasAR = articlesAR.slice(0, 5).map((article, index) => 
@@ -2555,7 +2741,7 @@ async function manejarNoticias(message) {
             ).join('\n\n');
         }
 
-        // Formateamos noticias de Ecuador
+        // Formateo las noticias de Ecuador
         let noticiasEC = 'No encontré noticias posta de Ecuador hoy, loco.';
         if (articlesEC.length > 0) {
             noticiasEC = articlesEC.slice(0, 5).map((article, index) => 
@@ -2563,11 +2749,12 @@ async function manejarNoticias(message) {
             ).join('\n\n');
         }
 
-        // Creamos el embed con más detalles
+        // Embed dorado con las noticias
         const embed = createEmbed('#FFD700', `📰 Últimas Noticias de Hoy (${today})`, 
             `**Argentina:**\n${noticiasAR}\n\n**Ecuador:**\n${noticiasEC}\n\n*Traído con onda desde Mediastack, che.*`);
         await waitingMessage.edit({ embeds: [embed] });
     } catch (error) {
+        // Si falla, te aviso en rojo
         console.error(`Error en noticias: ${error.message}`);
         if (error.response) {
             console.error(`Respuesta de la API: ${JSON.stringify(error.response.data)}`);
@@ -2578,33 +2765,42 @@ async function manejarNoticias(message) {
     }
 }
 
+// Wiki
 async function manejarWiki(message) {
+    // Busco un resumen en Wikipedia, re copado
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
+    // Saco el término a buscar
     const args = message.content.toLowerCase().startsWith('!wiki') 
         ? message.content.slice(5).trim() 
         : message.content.slice(3).trim();
 
+    // Si no me das nada, te pido algo en rojo
     if (!args) {
         return sendError(message.channel, `¡Tirame algo después de "!wiki", ${userName}! Ejemplo: !wiki tango`);
     }
 
+    // Te aviso en celeste que estoy buscando
     const waitingEmbed = createEmbed('#55FFFF', `📖 Buscando en Wiki, ${userName}...`, 
         `Aguantá que te traigo info de "${args}"...`);
     const waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
 
     try {
+        // Busco en la API de Wikipedia en español
         const url = `https://es.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(args)}`;
         const response = await axios.get(url);
         const data = response.data;
 
+        // Corto el resumen a 200 caracteres si es muy largo
         const summary = data.extract.length > 200 
             ? `${data.extract.slice(0, 197)}...` 
             : data.extract;
 
+        // Embed dorado con el resumen
         const embed = createEmbed('#FFD700', `📖 Sobre "${data.title}"`, 
             `${summary}\n*Sacado de Wikipedia, posta.*`);
         await waitingMessage.edit({ embeds: [embed] });
     } catch (error) {
+        // Si falla, te aviso en rojo
         console.error(`Error en wiki para "${args}": ${error.message}`);
         const errorEmbed = createEmbed('#FF5555', '¡Qué cagada!', 
             `No encontré nada en Wikipedia sobre "${args}", ${userName}. ¿Probamos otra cosa, loco?`);
@@ -2612,47 +2808,60 @@ async function manejarWiki(message) {
     }
 }
 
+// Traduci
 async function manejarTraduci(message) {
+    // Traduzco frases cortas a cualquier idioma, re piola
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
     console.log(`Mensaje recibido en manejarTraduci: "${message.content}"`);
+    // Saco el texto y el idioma destino
     const args = message.content.toLowerCase().startsWith('!traduci') 
         ? message.content.slice(8).trim().split(' a ') 
         : message.content.slice(3).trim().split(' a ');
     const text = args[0].trim();
     console.log(`Texto a traducir: "${text}"`);
 
+    // Si no me das el formato correcto, te pido algo en rojo
     if (args.length < 2) {
         return sendError(message.channel, `¡Escribí algo como "!traducí hola a inglés", ${userName}!`);
     }
 
+    // Normalizo el idioma pa’ que no haya dramas con acentos
     const targetLang = args[1].trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    // Te aviso en celeste que estoy traduciendo
     const waitingEmbed = createEmbed('#55FFFF', `✍️ Traduciendo, ${userName}...`, 
         `Aguantá que traduzco "${text}" a ${targetLang}...`);
     const waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
 
     try {
+        // Busco el código del idioma en el mapa
         const langCode = langMap[targetLang];
 
+        // Si no lo encuentro, tiro error
         if (!langCode) {
             throw new Error(`No sé traducir a "${targetLang}", ${userName}. Probá con "inglés", "ruso", "francés", etc.`);
         }
 
+        // Hago la petición a Google Translate
         const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${langCode}&dt=t&q=${encodeURIComponent(text)}`;
         console.log(`Pidiendo traducción a Google Translate: ${url}`);
         const response = await axios.get(url);
 
         console.log('Respuesta de Google Translate:', JSON.stringify(response.data, null, 2));
 
+        // Agarro la traducción
         const translated = response.data[0][0][0];
 
+        // Si la traducción es igual al original, algo salió mal
         if (!translated || translated.toLowerCase() === text.toLowerCase()) {
             throw new Error(`¡Qué boludo! La traducción salió igual que el original: "${translated}". ¿La API está rota o qué?`);
         }
 
+        // Embed dorado con la traducción
         const embed = createEmbed('#FFD700', `✅ Traducción a ${targetLang.charAt(0).toUpperCase() + targetLang.slice(1)}`, 
             `"${text}" → **${translated}**\n*Traducido con onda por Oliver IA, che.*`);
         await waitingMessage.edit({ embeds: [embed] });
     } catch (error) {
+        // Si falla, te aviso en rojo
         console.error(`Error traduciendo "${text}" a "${targetLang}": ${error.message}`);
         if (error.response) {
             console.error(`Respuesta de la API: ${JSON.stringify(error.response.data)}`);
@@ -2662,26 +2871,29 @@ async function manejarTraduci(message) {
     }
 }
 
+// lenguajes
 async function listarIdiomas(message) {
+    // Te muestro todos los idiomas que puedo traducir
     const idiomas = Object.keys(langMap).sort();
-    const maxLength = 4000; // Margen seguro para la descripción de un embed (< 4096 caracteres)
+    const maxLength = 4000; // Límite pa’ la descripción de un embed
     let descripcionActual = '';
     const embeds = [];
     
-    // Crear el embed inicial
+    // Arranco un embed celeste
     let embed = new EmbedBuilder()
         .setTitle('Idiomas disponibles para traducir')
-        .setColor('#55FFFF') // Color celeste, puedes cambiarlo
+        .setColor('#55FFFF')
         .setFooter({ text: 'Oliver IA - Traducción con onda' });
 
+    // Armo la lista de idiomas
     for (const idioma of idiomas) {
         const adicion = `${idioma}, `;
         if (descripcionActual.length + adicion.length > maxLength) {
-            // Si se pasa del límite, añadir el embed actual a la lista y empezar uno nuevo
-            embed.setDescription(descripcionActual.slice(0, -2)); // Elimina la última coma y espacio
+            // Si me paso del límite, cierro el embed y arranco otro
+            embed.setDescription(descripcionActual.slice(0, -2)); // Saco la coma final
             embeds.push(embed);
             
-            // Reiniciar para el siguiente embed
+            // Nuevo embed pa’ seguir
             embed = new EmbedBuilder()
                 .setTitle('Idiomas disponibles para traducir (continuación)')
                 .setColor('#55FFFF')
@@ -2691,23 +2903,25 @@ async function listarIdiomas(message) {
         descripcionActual += adicion;
     }
     
-    // Añadir el último embed si queda contenido
+    // Agrego el último si queda algo
     if (descripcionActual.length > 0) {
         embed.setDescription(descripcionActual.slice(0, -2));
         embeds.push(embed);
     }
     
-    // Enviar todos los embeds
+    // Mando todos los embeds al canal
     for (const embed of embeds) {
         await message.channel.send({ embeds: [embed] });
     }
 }
 
+// Milagros
 async function manejarMilagros(message) {
+    // Te muestro "Milagros" en un montón de idiomas, re lindo
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
-    const maxLength = 4000; // Límite de caracteres por embed en Discord
+    const maxLength = 4000; // Límite pa’ los embeds
 
-    // Convertir el objeto a un array de líneas para facilitar el manejo
+    // Convierto el objeto de traducciones en un array
     const translationsArray = Object.entries(milagrosTranslations).map(([lang, translation]) => 
         `${lang.charAt(0).toUpperCase() + lang.slice(1)}: **${translation}**`
     );
@@ -2715,6 +2929,7 @@ async function manejarMilagros(message) {
     let description = `¡Hola, ${userName}! Aquí tenés "Milagros" en diferentes idiomas:\n\n`;
     const embeds = [];
 
+    // Armo los embeds partiéndolo si es necesario
     for (const line of translationsArray) {
         const newDescription = description + line + '\n';
         if (newDescription.length > maxLength) {
@@ -2724,6 +2939,23 @@ async function manejarMilagros(message) {
             description = newDescription;
         }
     }
+
+    // Agrego el último si sobra algo
+    if (description.length > 41) { // 41 es la longitud del saludo inicial
+        embeds.push(await createEmbed('#FFD700', `Milagros en otros idiomas (Parte ${embeds.length + 1})`, description.trim()));
+    }
+
+    // Mando todos los embeds
+    for (const embed of embeds) {
+        try {
+            await message.channel.send({ embeds: [embed] });
+        } catch (error) {
+            console.error('Error al enviar embed de Milagros:', error);
+            await message.channel.send('¡Uy, algo falló al mostrar las traducciones, loco!');
+        }
+    }
+}
+
 
     // Agregar el último embed
     if (description.length > 41) { // 41 es la longitud de la línea inicial sin traducciones
@@ -2743,25 +2975,33 @@ async function manejarMilagros(message) {
 
 // Eventos de música con Erela.js
 manager.on('nodeConnect', node => console.log(`Nodo ${node.options.identifier} conectado.`));
+// Cuando se conecta un nodo de Lavalink, lo logueo pa’ debug
+
 manager.on('nodeError', (node, error) => console.error(`Error en nodo ${node.options.identifier}: ${error.message}`));
+// Si un nodo falla, lo logueo con el error
+
 manager.on('trackStart', async (player, track) => {
+    // Cuando arranca un tema, te lo anuncio
     const channel = client.channels.cache.get(player.textChannel);
     const guildId = player.guild;
     
-    // Guardar el identifier del track actual
+    // Guardo el identifier del tema actual pa’ el autoplay
     dataStore.musicSessions[guildId] = dataStore.musicSessions[guildId] || {};
     dataStore.musicSessions[guildId].lastTrackIdentifier = track.identifier;
     dataStoreModified = true;
     console.log(`Track started: ${track.title}, identifier saved: ${track.identifier}`);
 
     if (channel) {
+        // Embed verde con el tema que arrancó
         const embed = createEmbed('#00FF00', '▶️ ¡Reproduciendo ahora!',
             `**${track.title}**\nDuración: ${Math.floor(track.duration / 60000)}:${((track.duration % 60000) / 1000).toFixed(0).padStart(2, '0')}`)
             .setThumbnail(track.thumbnail || null);
         await channel.send({ embeds: [embed] });
     }
 });
+
 manager.on('queueEnd', async player => {
+    // Cuando se acaba la cola, manejo el autoplay o te aviso
     const channel = client.channels.cache.get(player.textChannel);
     const guildId = player.guild;
     const autoplay = dataStore.musicSessions[guildId]?.autoplay || false;
@@ -2770,13 +3010,13 @@ manager.on('queueEnd', async player => {
         try {
             let trackIdentifier = null;
 
-            // Intento 1: Usar currentTrack
+            // Intento 1: Uso el tema actual
             const currentTrack = player.queue.current;
             console.log(`queueEnd: currentTrack = ${JSON.stringify(currentTrack)}`);
             if (currentTrack && currentTrack.identifier) {
                 trackIdentifier = currentTrack.identifier;
             } else {
-                // Intento 2: Usar previousTrack
+                // Intento 2: Uso el tema anterior
                 const previousTrack = player.queue.previous;
                 console.log(`currentTrack nulo, intentando previousTrack = ${JSON.stringify(previousTrack)}`);
                 if (previousTrack && previousTrack.identifier) {
@@ -2784,7 +3024,7 @@ manager.on('queueEnd', async player => {
                     await channel.send({ embeds: [createEmbed('#FFAA00', 'ℹ️ Autoplay ajustado', 
                         'No hay canción actual, usando la anterior para continuar.')] });
                 } else {
-                    // Intento 3: Usar el último identifier guardado
+                    // Intento 3: Uso el último identifier guardado
                     const lastIdentifier = dataStore.musicSessions[guildId]?.lastTrackIdentifier;
                     console.log(`previousTrack nulo, intentando lastTrackIdentifier = ${lastIdentifier}`);
                     if (lastIdentifier) {
@@ -2795,29 +3035,35 @@ manager.on('queueEnd', async player => {
                 }
             }
 
+            // Si no encuentro nada, corto el autoplay
             if (!trackIdentifier) {
                 await channel.send({ embeds: [createEmbed('#FF5555', '⚠️ Autoplay detenido', 
                     'No hay canciones recientes para buscar relacionadas. Usa !pl para añadir más música.')] });
-                return; // No destruimos el player, permitimos que siga vivo
+                return;
             }
 
+            // Busco temas relacionados con el identifier
             const related = await manager.search(`related:${trackIdentifier}`, client.user);
             console.log(`Búsqueda relacionada: ${related.loadType}, tracks: ${related.tracks.length}`);
             
             if (related.tracks.length > 0) {
+                // Agrego el primer tema relacionado y lo toco
                 const nextTrack = related.tracks[0];
                 player.queue.add(nextTrack);
                 player.play();
+                // Te aviso en verde qué agregué
                 const embed = createEmbed('#00FF00', '🎵 ¡Autoplay en acción!',
                     `Añadí **${nextTrack.title}** automáticamente.\nDuración: ${Math.floor(nextTrack.duration / 60000)}:${((nextTrack.duration % 60000) / 1000).toFixed(0).padStart(2, '0')}`)
                     .setThumbnail(nextTrack.thumbnail || null);
                 await channel.send({ embeds: [embed] });
                 return;
             } else {
+                // Si no hay relacionados, te aviso en rojo
                 await channel.send({ embeds: [createEmbed('#FF5555', '⚠️ Autoplay falló', 
                     'No encontré canciones relacionadas. Usa !pl para continuar.')] });
             }
         } catch (error) {
+            // Si falla el autoplay, te aviso en rojo
             console.error(`Error en autoplay: ${error.message}`);
             await channel.send({ embeds: [createEmbed('#FF5555', '⚠️ Error en Autoplay', 
                 `Algo salió mal: ${error.message}. Intenta con !pl.`)] });
@@ -2825,10 +3071,11 @@ manager.on('queueEnd', async player => {
     }
 
     if (channel) {
+        // Si no hay autoplay, te aviso en rojo que se acabó la cola
         await channel.send({ embeds: [createEmbed('#FF5555', '🏁 Cola terminada', 
             'No hay más canciones. ¡Añade más con !pl!')] });
     }
-    // Solo destruimos el player si el autoplay está desactivado
+    // Si no hay autoplay, destruyo el player
     if (!autoplay) {
         player.destroy();
         delete dataStore.musicSessions[player.guild];
@@ -2838,14 +3085,15 @@ manager.on('queueEnd', async player => {
 
 // Comandos
 async function manejarCommand(message) {
+    // Acá manejo todos los comandos, el cerebro del bot
     const content = message.content.toLowerCase();
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
     console.log(`Comando recibido: ${content}`);
 
-    // Prioridad absoluta para !responder
+    // Prioridad máxima pa’ !responder de Miguel
     if (message.author.id === OWNER_ID && (content.startsWith('!responder') || content.startsWith('!resp'))) {
         await manejarResponder(message);
-        return; // Salimos para no procesar más
+        return;
     }
     
     // Cancelar trivia
@@ -2865,10 +3113,10 @@ async function manejarCommand(message) {
 
         await sendSuccess(message.channel, '🛑 ¡Trivia cancelada!', 
             `Listo, ${userName}, cortaste la trivia al toque. Puntuación parcial: ${channelProgress.score}/${channelProgress.currentQuestion}. ¿Arrancamos otra con !trivia?`);
-        return; // Salimos para no procesar más
+        return;
     } 
     
-        // Cancelar reacciones
+    // Cancelar reacciones
     else if (content === '!reacciones cancelar' || content === '!rc') {
         if (message.author.id !== OWNER_ID && message.author.id !== ALLOWED_USER_ID) return;
 
@@ -2885,7 +3133,7 @@ async function manejarCommand(message) {
 
         await sendSuccess(message.channel, '🛑 ¡Juego de reacciones cancelado!', 
             `Listo, ${userName}, cortaste el juego al toque. Puntuación parcial: ${session.score} en ${session.currentRound - 1} rondas. ¿Arrancamos otro con !reacciones?`);
-        return; // Salimos para no procesar más
+        return;
     } 
     // Cancelar PPM
     else if (content === '!ppm cancelar' || content === '!pc') {
@@ -2903,10 +3151,12 @@ async function manejarCommand(message) {
         }
         return;
     }
+    // Traduci primero, pa’ que no se pierda
     else if (content.startsWith('!traduci')) {
         console.log(`Enviando a manejarTraduci: "${message.content}"`);
         await manejarTraduci(message);
     }
+    // Resto de comandos en orden
     else if (content === '!trivia' || content === '!tc') {
         await manejarTrivia(message);
     }     
@@ -3018,33 +3268,38 @@ async function manejarCommand(message) {
 }
 
 client.on('messageCreate', async (message) => {
-    if (message.author.bot) return;
+    // Escucho cada mensaje que llega
+    if (message.author.bot) return; // Si es un bot, lo ignoro
 
+    // Nombro al usuario según quién es
     const userName = message.author.id === OWNER_ID ? 'Miguel' : (message.author.id === ALLOWED_USER_ID ? 'Belén' : 'Un desconocido');
     const content = message.content.toLowerCase();
 
-    // Detectar si gritan demasiado con mayúsculas (Miguel o Belén)
+    // Chequeo si gritan demasiado con mayúsculas
     const lettersOnly = message.content.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ]/g, '');
     if (lettersOnly.length > 5 && (message.author.id === OWNER_ID || message.author.id === ALLOWED_USER_ID)) {
         const uppercaseCount = lettersOnly.split('').filter(char => char === char.toUpperCase()).length;
         const uppercasePercentage = (uppercaseCount / lettersOnly.length) * 100;
         if (uppercasePercentage >= 80) {
             try {
-                await message.delete();
+                await message.delete(); // Borro el mensaje gritón
                 const member = message.guild?.members.cache.get(message.author.id);
                 if (member && message.guild?.members.me.permissions.has('MODERATE_MEMBERS')) {
+                    // Lo muteo 5 minutos si tengo permisos
                     await member.timeout(5 * 60 * 1000, 'Te pasaste con las mayúsculas, loco');
                     await message.channel.send({ 
                         embeds: [createEmbed('#FF5555', '⛔ ¡Pará un poco, che!', 
                             `¡${userName} se mandó un griterío con mayúsculas y se comió 5 minutos de mute! Nada de hacer lío, ¿eh?`)] 
                     });
                 } else {
+                    // Si no puedo mutear, solo borro y aviso
                     await message.channel.send({ 
                         embeds: [createEmbed('#FF5555', '⛔ ¡No pude muteartelo, boludo!', 
                             `¡${userName} gritó todo en mayúsculas, pero no tengo permisos para muteartelo! Igual borré el mensaje, tranqui.`)] 
                     });
                 }
             } catch (error) {
+                // Si falla el muteo, te aviso en rojo
                 console.error('Error al mutear:', error.message);
                 await message.channel.send({ 
                     embeds: [createEmbed('#FF5555', '⛔ ¡Qué quilombo!', 
@@ -3055,18 +3310,21 @@ client.on('messageCreate', async (message) => {
         }
     }
 
+    // Prioridad pa’ !responder de Miguel
     if (message.author.id === OWNER_ID && (content.startsWith('!responder') || content.startsWith('!resp'))) {
         await manejarCommand(message);
         return;
     }
 
+    // Si no es Miguel ni Belén, chau
     if (message.author.id !== OWNER_ID && message.author.id !== ALLOWED_USER_ID) return;
 
+    // Evito procesar mensajes ya vistos
     if (processedMessages.has(message.id)) return;
     processedMessages.set(message.id, Date.now());
     setTimeout(() => processedMessages.delete(message.id), 10000);
 
-    // Cancelaciones con prioridad absoluta
+    // Cancelaciones primero
     if (content === '!tc' || content === '!trivia cancelar') {
         const triviaKey = `trivia_${message.channel.id}`;
         const session = dataStore.activeSessions[triviaKey];
@@ -3088,7 +3346,7 @@ client.on('messageCreate', async (message) => {
         if (!session || session.type !== 'reaction' || session.completed) {
             await sendError(message.channel, `No hay reacciones activas, ${userName}.`, '¿Arrancamos con !reacciones?');
         } else {
-            session.active = false; // Marcamos como inactiva
+            session.active = false;
             session.completed = true;
             delete dataStore.activeSessions[reactionKey];
             dataStoreModified = true;
@@ -3117,6 +3375,7 @@ client.on('messageCreate', async (message) => {
         const embed = getCombinedRankingEmbed(message.author.id, message.author.username);
         await message.channel.send({ embeds: [embed] });
     } else if (content === '!help' || content === '!h') {
+        // Lista de comandos generales
         const embed = createEmbed('#55FF55', `¡Lista de comandos para vos, ${userName}!`,
             '¡Acá tenés todo lo que puedo hacer por vos, loco!\n' +
             '- **!ch / !chat [mensaje]**: Charlamos un rato, posta.\n' +
@@ -3145,6 +3404,7 @@ client.on('messageCreate', async (message) => {
             '- **hola**: Te tiro un saludito con onda.');
         await message.channel.send({ embeds: [embed] });
     } else if (content === '!help musica' || content === '!hm') {
+        // Lista de comandos de música
         const embed = createEmbed('#55FF55', `¡Comandos de música para vos, ${userName}!`,
             '¡Poné el ritmo con estos comandos, loco!\n' +
             '- **!pl / !play [canción/URL]**: Tiro un tema para que suene.\n' +
@@ -3159,6 +3419,7 @@ client.on('messageCreate', async (message) => {
             '- **!hm / !help musica**: Esta guía de música, posta.');
         await message.channel.send({ embeds: [embed] });
     } else if (content === 'hola') {
+        // Saludo copado si me decís hola
         const embed = createEmbed('#55FFFF', `¡Qué lindo verte, ${userName}!`,
             `¡Hola, loco! Soy Oliver IA, tu compañero piola, trayéndote buena onda como si estuviéramos tomando mate en la vereda. ¿Cómo estás hoy, che? Estoy listo para charlar, ayudarte o tirar unas pavadas para reírnos. ¿Qué tenés en mente? ¡Dale, arrancamos!`);
         await message.channel.send({ embeds: [embed] });
@@ -3167,40 +3428,71 @@ client.on('messageCreate', async (message) => {
 
 // Eventos
 client.once('ready', async () => {
+    // Cuando el bot arranca, hago todo esto
     console.log(`¡Miguel IA está listo! Instancia: ${instanceId} - ${new Date().toLocaleString('es-AR')}`);
+    // Pongo un estado piola
     client.user.setPresence({ activities: [{ name: "Listo para ayudar a Milagros", type: 0 }], status: 'dnd' });
+    // Cargo los datos guardados
     dataStore = await loadDataStore();
+    // Restauro las trivias activas
     activeTrivia = new Map(Object.entries(dataStore.activeSessions).filter(([_, s]) => s.type === 'trivia'));
+    // Inicializo el manager de música
     manager.init(client.user.id);
     if (!dataStore.musicSessions) {
         dataStore.musicSessions = {};
         console.log('musicSessions no estaba presente, inicializado manualmente');
     }
 
-    // Inicializar utilMessageTimestamps y utilMessageReactions si no existen
+    // Inicializo timestamps y reacciones si no existen
     if (!dataStore.utilMessageTimestamps) dataStore.utilMessageTimestamps = {};
     if (!dataStore.utilMessageReactions) dataStore.utilMessageReactions = {};
+
+     // Mensaje por el Día de la Mujer
+    //const today = new Date();
+    //const isWomensDay = today.getDate() === 8 && today.getMonth() === 2; // Mes 2 es marzo (0-based)
+    //const argentinaTime = today.toLocaleTimeString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' });
+    
+    //if (isWomensDay && !dataStore.womensDayMessageSent) {
+        //try {
+            //const belen = await client.users.fetch(ALLOWED_USER_ID);
+            //const womensDayEmbed = createEmbed('#FF69B4', '¡Feliz Día de la Mujer, Belén!', 
+                //`¡Hoy, 8 de marzo, te quiero saludar con todo el cariño, grosa! Sos una genia, una luchadora y un sol que ilumina todo. Gracias por ser vos, por tu fuerza y tu onda increíble. ¡Que tengas un día re copado, te lo merecés posta! 💪✨\n\n**Hora en Argentina:** ${argentinaTime}`, 
+                //'Con muchísimo cariño, Oliver IA');
+    
+            //await belen.send({ embeds: [womensDayEmbed] });
+            //console.log(`Mensaje del Día de la Mujer enviado a Belén - ${argentinaTime}`);
+    
+            // Marcar como enviado para no repetir
+            //dataStore.womensDayMessageSent = true;
+            //dataStoreModified = true;
+            //await saveDataStore();
+        //} catch (error) {
+            //console.error('Error al enviar mensaje del Día de la Mujer:', error.message);
+        //}
+    //}
     
     try {
+        // Busco el canal pa’ mandar actualizaciones
         const channel = await client.channels.fetch(CHANNEL_ID);
         if (!channel) throw new Error('Canal no encontrado');
 
+        // Resumen del historial de Belén
         const userHistory = dataStore.conversationHistory[ALLOWED_USER_ID] || [];
         const historySummary = userHistory.length > 0
             ? userHistory.slice(-3).map(msg => `${msg.role === 'user' ? 'Luz' : 'Yo'}: ${msg.content}`).join('\n')
             : 'No hay historial reciente.';
         const argentinaTime = new Date().toLocaleTimeString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' });
 
-        // Inicializamos sentUpdates si no existe en dataStore
+        // Chequeo si hay actualizaciones nuevas
         if (!dataStore.sentUpdates) {
             dataStore.sentUpdates = [];
             dataStoreModified = true;
         }
 
-        // Comparamos BOT_UPDATES con lo que ya se envió
         const updatesChanged = JSON.stringify(BOT_UPDATES) !== JSON.stringify(dataStore.sentUpdates);
 
         if (updatesChanged) {
+            // Embed dorado con las actualizaciones
             const updateEmbed = createEmbed('#FFD700', '📢 Actualizaciones de Oliver IA',
                 '¡Tengo mejoras nuevas para compartir contigo!');
 
@@ -3210,6 +3502,7 @@ client.once('ready', async () => {
             let fieldCount = 1;
             const fields = [];
 
+            // Parto las actualizaciones en campos si son largas
             updatesText.split('\n').forEach(line => {
                 if (currentField.length + line.length + 1 > maxFieldLength) {
                     fields.push({ name: `Novedades (Parte ${fieldCount})`, value: currentField.trim(), inline: false });
@@ -3226,6 +3519,7 @@ client.once('ready', async () => {
             fields.forEach(field => updateEmbed.addFields(field));
             updateEmbed.addFields({ name: 'Hora de actualización', value: `${argentinaTime}`, inline: false });
 
+            // Mando las actualizaciones a Belén
             await channel.send({ content: `<@${ALLOWED_USER_ID}>`, embeds: [updateEmbed] });
             
             dataStore.sentUpdates = [...BOT_UPDATES];
@@ -3236,9 +3530,9 @@ client.once('ready', async () => {
             console.log('No hay cambios en BOT_UPDATES respecto a sentUpdates, no se envían.');
         }
 
-        // Intervalo para enviar mensaje útil diario
-        const oneDayInMs = 24 * 60 * 60 * 1000; // 24 horas en milisegundos
-        const checkInterval = 60 * 60 * 1000; // Chequear cada hora
+        // Intervalo pa’ mandar un mensaje útil cada día
+        const oneDayInMs = 24 * 60 * 60 * 1000;
+        const checkInterval = 60 * 60 * 1000;
 
         setInterval(async () => {
             try {
@@ -3247,6 +3541,7 @@ client.once('ready', async () => {
                 const lastReaction = dataStore.utilMessageReactions[CHANNEL_ID] || 0;
 
                 if (now - lastSent >= oneDayInMs && (!lastReaction || now - lastReaction >= oneDayInMs)) {
+                    // Embed celeste pa’ preguntar si soy útil
                     const dailyUtilEmbed = createEmbed('#55FFFF', '¡Che, Belén!', 
                         '¿Te estoy siendo útil, grosa? ¡Contame cómo te va conmigo, dale!', 
                         'Con cariño, Oliver IA | Reacciona con ✅ o ❌');
@@ -3265,7 +3560,7 @@ client.once('ready', async () => {
                 console.error('Error en el intervalo de mensaje útil:', error.message);
             }
         }, checkInterval);
-
+        
         // Enviar mensaje al iniciar si no se envió hoy
         const now = Date.now();
         const lastSent = dataStore.utilMessageTimestamps[CHANNEL_ID] || 0;
@@ -3292,92 +3587,118 @@ client.once('ready', async () => {
 });
 
 process.on('beforeExit', async () => {
-    console.log('Guardando datos antes de salir...');
-    await saveDataStore();
+    // Antes de que el proceso se cierre, guardo todo pa’ no perder nada
+    console.log('Guardando datos antes de salir...'); // Aviso que estoy guardando
+    await saveDataStore(); // Guardo el dataStore en el archivo, pa’ que quede todo joya
 });
 
 client.on('messageReactionAdd', async (reaction, user) => {
+    // Escucho cuando alguien reacciona a un mensaje
+    // Si no es un mensaje que yo mandé, lo ignoro
     if (!sentMessages.has(reaction.message.id)) return;
+    // Solo me interesa si es Miguel o Belén, los demás chau
     if (![OWNER_ID, ALLOWED_USER_ID].includes(user.id)) return;
 
+    // Agarro los datos del mensaje reaccionado
     const messageData = sentMessages.get(reaction.message.id);
+    // Nombro al usuario según quién es
     const userName = user.id === OWNER_ID ? 'Miguel' : 'Belén';
 
-    // Configuración de Google Gemini
+    // Configuro la IA pa’ generar respuestas copadas si hace falta
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
     const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
+    // Si es Belén y reaccionó con ✅ o ❌, proceso su feedback
     if (user.id === ALLOWED_USER_ID && (reaction.emoji.name === '✅' || reaction.emoji.name === '❌')) {
-        // Guardar la reacción de Belén
+        // Guardo la hora de la reacción de Belén
         dataStore.utilMessageReactions[CHANNEL_ID] = Date.now();
-        dataStoreModified = true;
-        await saveDataStore();
+        dataStoreModified = true; // Marco que cambié algo
+        await saveDataStore(); // Guardo el cambio
+        // Logueo qué reaccionó Belén y cuándo
         console.log(`Belén reaccionó con ${reaction.emoji.name} - ${new Date().toLocaleString('es-AR')}`);
 
-        // Responder según la reacción
+        // Respondo según la reacción
         if (reaction.emoji.name === '✅') {
+            // Si le gustó, le agradezco en celeste con buena onda
             await reaction.message.channel.send({ embeds: [createEmbed('#55FFFF', '¡Genia, Belén!', 
                 '¡Gracias por el visto, grosa! Nos vemos mañana, ¿dale?', 'Con cariño, Oliver IA')] });
-        } else if (reaction.emoji.name === '❌') {
+        } else if (reaction.emoji.name === '❌')) {
+            // Si no le copó, le pregunto qué pasa en rojo con cariño
             await reaction.message.channel.send({ embeds: [createEmbed('#FF5555', '¡Uy, Belén!', 
                 '¿No te copó, genia? Contame qué pasa, ¡dale!', 'Con cariño, Oliver IA')] });
         }
-        sentMessages.delete(reaction.message.id); // Evitar procesar de nuevo
+        // Borro el mensaje del mapa pa’ no procesarlo de nuevo
+        sentMessages.delete(reaction.message.id);
     }
 
+    // Si reaccionaron con ❌ y hay una pregunta original, trato de mejorar la respuesta
     if (reaction.emoji.name === '❌' && messageData.originalQuestion) {
-        const originalQuestion = messageData.originalQuestion;
+        const originalQuestion = messageData.originalQuestion; // Agarro la pregunta original
 
+        // Te aviso en celeste que estoy pensando algo mejor
         const waitingEmbed = createEmbed('#55FFFF', `¡Aguantá un toque, ${userName}!`, 
             'Estoy pensando una respuesta más copada...', 'Hecho con onda por Miguel IA | Reacciona con ✅ o ❌');
         const waitingMessage = await reaction.message.channel.send({ embeds: [waitingEmbed] });
 
         try {
+            // Le pido a la IA una respuesta más piola con onda argentina
             const prompt = `Sos Oliver IA, creado por Miguel, un loco re piola. La primera respuesta a "${originalQuestion}" no le copó al usuario. Probá de nuevo con una respuesta más copada, detallada y útil, usando palabras argentinas como "copado", "joya", "boludo", "re", "dale", "posta" o "genial". Si es para Belén, hablale con cariño como "grosa" o "genia". Respondé solo lo que te piden, con info posta, sin chamuyo. Sé claro y relajado en español. Terminá con buena onda pa’ seguir la charla, tipo "¿Te cerró, ${userName}?".`;
             
-            const result = await model.generateContent(prompt);
-            let aiReply = result.response.text().trim();
+            const result = await model.generateContent(prompt); // Genero la nueva respuesta
+            let aiReply = result.response.text().trim(); // Saco espacios raros
 
+            // Si es muy larga, la corto pa’ que entre en Discord
             if (aiReply.length > 2000) aiReply = aiReply.slice(0, 1990) + '... (seguí charlando pa’ más, loco)';
+            // Le pongo un cierre copado
             aiReply += `\n\n¿Te cerró esta vez, ${userName}? ¿Seguimos charlando, loco?`;
 
+            // Armo un embed celeste con la nueva respuesta
             const alternativeEmbed = createEmbed('#55FFFF', `¡Segunda chance, ${userName}!`, 
                 aiReply, 'Hecho con onda por Miguel IA | Reacciona con ✅ o ❌');
-            const newMessage = await waitingMessage.edit({ embeds: [alternativeEmbed] });
+            const newMessage = await waitingMessage.edit({ embeds: [alternativeEmbed] }); // Edito el mensaje de espera
+            // Le pongo las reacciones pa’ que opinen
             await newMessage.react('✅');
             await newMessage.react('❌');
+            // Actualizo el mapa con el nuevo mensaje
             sentMessages.set(newMessage.id, { content: aiReply, originalQuestion: originalQuestion, message: newMessage });
-            sentMessages.delete(reaction.message.id);
+            sentMessages.delete(reaction.message.id); // Borro el viejo
         } catch (error) {
+            // Si la IA falla, te aviso en rojo con un plan B
             console.error('Error con Gemini:', error.message);
             const fallbackReply = `¡Uy, ${userName}, qué cagada! Me mandé un moco, loco. Error: ${error.message}. ¿Me tirás más detalles para sacarla bien esta vez?`;
             const errorEmbed = createEmbed('#FF5555', '¡Qué cagada, che!', 
                 `${fallbackReply}\n\n¿Te cerró esta vez, ${userName}? ¿Seguimos charlando, loco?]`, 
                 'Hecho con onda por Miguel IA | Reacciona con ✅ o ❌');
-            const errorMessageSent = await waitingMessage.edit({ embeds: [errorEmbed] });
-            await errorMessageSent.react('✅');
+            const errorMessageSent = await waitingMessage.edit({ embeds: [errorEmbed] }); // Edito con el error
+            await errorMessageSent.react('✅'); // Reacciones pa’ seguir
             await errorMessageSent.react('❌');
+            // Actualizo el mapa con el mensaje de error
             sentMessages.set(errorMessageSent.id, { content: fallbackReply, originalQuestion: originalQuestion, message: errorMessageSent });
-            sentMessages.delete(reaction.message.id);
+            sentMessages.delete(reaction.message.id); // Borro el viejo
         }
     }
 
+    // Si es Belén, le aviso a Miguel por DM qué reaccionó
     if (user.id === ALLOWED_USER_ID) {
-        const owner = await client.users.fetch(OWNER_ID);
+        const owner = await client.users.fetch(OWNER_ID); // Busco a Miguel
+        // Armo un embed dorado pa’ notificar
         const reactionEmbed = createEmbed('#FFD700', '¡Belén le puso pilas!', 
             `Belén reaccionó con ${reaction.emoji} a: "${messageData.content}"\nPregunta original: "${messageData.originalQuestion || 'Mensaje diario'}"\nMandado el: ${new Date(messageData.message.createdTimestamp).toLocaleString()}`);
         try {
-            await owner.send({ embeds: [reactionEmbed] });
-            console.log(`Notificación enviada a ${OWNER_ID}: Belén reaccionó con ${reaction.emoji}`);
+            await owner.send({ embeds: [reactionEmbed] }); // Le mando el DM a Miguel
+            console.log(`Notificación enviada a ${OWNER_ID}: Belén reaccionó con ${reaction.emoji}`); // Logueo pa’ debug
         } catch (error) {
+            // Si falla el DM, lo logueo
             console.error('Error al notificar al dueño:', error);
         }
     }
 });
 
 client.on('raw', (d) => {
-    console.log('Evento raw recibido:', d.t);
-    manager.updateVoiceState(d);
+    // Escucho eventos crudos de Discord, pa’ que Erela.js maneje el audio
+    console.log('Evento raw recibido:', d.t); // Logueo qué evento llegó
+    manager.updateVoiceState(d); // Actualizo el estado de voz pa’ la música
 });
 
 client.login(process.env.DISCORD_TOKEN);
+// Arranco el bot conectándolo a Discord con el token del .env, ¡a darle caña!
