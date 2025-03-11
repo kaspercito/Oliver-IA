@@ -2775,7 +2775,7 @@ async function manejarNoticias(message) {
 
         // Embed con las noticias
         const embed = createEmbed('#FFD700', `📰 Últimas Noticias (${articlesAR.length > 0 || articlesEC.length > 0 ? today : 'Recientes'})`, 
-            `**Argentina:**\n${noticiasAR}\n\n**Ecuador:**\n${noticiasEC}\n\n*Traído con onda desde Mediastack, che.*`);
+            `**Argentina:**\n${noticiasAR}\n\n**Ecuador:**\n${noticiasEC}\n\n*Hecho con onda por Oliver IA, che.*`);
         await waitingMessage.edit({ embeds: [embed] });
     } catch (error) {
         console.error(`Error en noticias: ${error.message}`);
