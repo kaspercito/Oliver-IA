@@ -3,16 +3,6 @@
     "1023132788632862761": [
       {
         "role": "user",
-        "content": "podrías ayudarme con ejercicios físicos para evitar el dolor de cervical?",
-        "timestamp": 1741484987328
-      },
-      {
-        "role": "assistant",
-        "content": "Che Belén, genia total!  ¡Dolor de cervicales, decís?!  ¡Posta que te entiendo, loca!  A mí también me agarran a veces, es una cagada.  Pero che, no te preocupes, que aunque no soy fisioterapeuta (ojo, eh, cualquier cosa consultá con un profesional, ¿viste?), te puedo tirar algunos ejercicios piola que capaz te ayuden.  Pero ojo, hacelos con cuidado, eh, no te vayas a lastimar más,  ¡que sos una grosa y te quiero ver bien!\n\nPrimero,  calentá un poco antes de empezar, ¿sí?  Unos minutos estirando cuello y hombros. Después, probá con estos:\n\n* **Rotaciones de cuello:**  Lentamente, girá la cabeza hacia un lado y luego hacia el otro.  Hacé unas 10 repeticiones para cada lado,  sin forzar, eh.  Tranquila, que no hace falta que te des un latigazo en el cuello.\n\n* **Inclinaciones laterales:**  Incliná la cabeza hacia un hombro, tratando de llevar la oreja hacia el hombro (sin forzar!).  Mantene la posición unos segundos y luego hacé lo mismo del otro lado.  Unas 10 repeticiones por lado,  ¡con onda y suavecito!\n\n* **Flexiones hacia adelante y atrás:**  Lentamente, bajá la cabeza hacia el pecho,  sintiendo el estiramiento en la nuca.  Después,  lentamente levantala hacia arriba, mirando al techo.  También unas 10 repeticiones.  \n\n* **Estiramientos de hombros:**  Este no es directamente para el cuello, pero ayuda un montón.  Eleva los hombros hacia las orejas,  aguantá unos segundos, y luego relajá.  Repetí varias veces.\n\nChe,  y algo super importante, loca:  mantene una buena postura,  eh.  No te encorves,  sentate derecha,  y fijate cómo dormís.  Una buena almohada puede hacer la diferencia,  ¡posta!\n\nBelén,  recordá que estos son solo algunos ejercicios, y que cada cuerpo es un mundo.  Si el dolor persiste o empeora,  consultá con un médico o fisioterapeuta,  ¿dale?  No te hagas la piola y cuidate, que sos una campeona.  ¡Un abrazo enorme y contáme cómo te fue, grosa!",
-        "timestamp": 1741484991279
-      },
-      {
-        "role": "user",
         "content": "dame ideas de ejercicios de estiramiento para la espalda",
         "timestamp": 1741485695833
       },
@@ -100,6 +90,16 @@
         "role": "assistant",
         "content": "Che Belén, genia total! ¡Ansiedad a full, decís?! ¡Posta que te entiendo, loca! A mí también me agarra a veces, es una cagada. Pero tranquila, que aunque no soy psicólogo (ojo, eh, cualquier cosa consultá con un profesional, ¿viste?), te puedo tirar algunos ejercicios de respiración piola que capaz te ayuden a bajar un cambio. ¡Que sos una grosa y te quiero ver bien!\n\nPrimero, encontrá un lugar tranquilo donde puedas relajarte un poco, ¿sí?  Sentate cómoda, o acostada si te pinta.  Cerrá los ojos si te ayuda,  y ponete a tono con tu respiración natural. No te apures, eh.\n\n\nAhora, dale con estos ejercicios zarpados, pero con onda, sin forzar nada:\n\n\n* **Respiración diafragmática (o respiración abdominal):**  Este es un clásico, pero posta que funciona.  Colocá una mano en tu pecho y otra en tu panza.  Inhalá profundamente por la nariz,  sintiendo cómo se infla tu panza, mientras el pecho debería mantenerse relativamente quieto.  Exhalá lentamente por la boca,  sintiendo cómo tu panza se desinfla.  Hacelo unas 10 veces,  con onda,  sin apurarte.  Concentrate en la sensación del aire entrando y saliendo,  y en cómo se mueve tu panza.  Es como si estuvieras inflando y desinflando un globo.\n\n\n* **Respiración cuadrada:**  Esta es un poco más técnica,  pero también re buena.  Inhalá contando hasta cuatro,  aguanta la respiración contando hasta cuatro,  exhalá contando hasta cuatro,  y aguantá sin respirar contando hasta cuatro.  Repetí esto varias veces,  tranquila,  sin apurarte.  Es como un cuadradito de respiración,  ¡jaja!\n\n\n* **Respiración 4-7-8:** Inhalá profundamente por la nariz contando hasta cuatro.  Aguarda la respiración contando hasta siete.  Exhalá lentamente por la boca contando hasta ocho.  Repetí esto varias veces.  Es tipo un mantra de respiración, ¡posta!\n\n\nChe,  y algo super importante, loca:  si sentís que la ansiedad te gana,  no te quedes sola.  Habla con alguien,  con un amigo,  con tu familia,  o con un profesional.  Contale lo que te pasa,  desahogate,  que no te guardes todo adentro.  Hablar ayuda un montón,  ¡posta!\n\nBelén,  recordá que estos son solo algunos ejercicios,  y que cada cuerpo es un universo.  Si la ansiedad persiste o empeora,  consultá con un médico o psicólogo,  ¿dale?  No te hagas la piola y cuidate, que sos una campeona.  ¡Un abrazo enorme y contáme cómo te fue, grosa!  ¡Dale para adelante, que lo rompés!",
         "timestamp": 1741778224667
+      },
+      {
+        "role": "user",
+        "content": "plan de estudio",
+        "timestamp": 1741815604817
+      },
+      {
+        "role": "assistant",
+        "content": "Che Belén, genia total! ¡Plan de estudio, decís?! ¡Posta que te ayudo, grosa!  Prepárate porque te voy a tirar un plan zarpado, pero ojo, eh, hacelo a tu ritmo, sin forzar, que no quiero verte desmayada por estudiar, jajaja.  Adaptálo a tus necesidades, ¡que sos una campeona y te quiero ver triunfando!\n\n\nPrimero, **analicemos el terreno**: ¿Qué examen tenés? ¿Qué temas hay que estudiar? ¿Cuánto tiempo tenés hasta la fecha del examen?  Es fundamental que tengamos un panorama completo, ¿viste?  Sin eso es como querer armar un asado sin saber qué carne comprar, ¡un quilombo!\n\n\nSegundo, **fragmentemos la bestia**: dividamos la materia en partes más chicas, más fáciles de digerir.  Si es mucho, dividilo por semanas, por días, por temas… lo que te sirva para que no te sientas abrumada.  Cada pedacito que termines será un triunfo, ¡posta!\n\n\nTercero, **cronograma maestro**:  creá un cronograma realista,  sin hacerte la piola.  No te cargues de horas de estudio imposibles,  porque vas a terminar quemándote.  Incluí descansos, tiempo para hacer ejercicio, para ver una serie, para salir con amigos…  El descanso también es importante, eh,  que la mente necesita relajarse para rendir al máximo.\n\n\nCuarto, **técnicas de estudio**:  acá hay un montón de opciones,  loco: resúmenes, mapas mentales, fichas, ensayos, grupos de estudio…  Proba con diferentes técnicas y descubrí cuál te resulta más efectiva.   Y no te olvides de hacer prácticas y ejercicios,  ¡eso te va a ayudar un montón!\n\n\nQuinto, **ambiente propicio**: elegí un lugar tranquilo para estudiar,  donde te puedas concentrar sin distracciones.  Música relajante puede ayudar, pero nada de cumbia villera que te va a distraer ¡jaja!\n\n\nSexto, **la autocompasión es clave**:  Si un día no te da el cerebro, no te fustigues.  ¡Sos humana, loca!  Descansá,  revisá lo que te faltó y al día siguiente, ¡con todo!\n\n\nSéptimo, **recompensas zarpadas**:  cada vez que completes una etapa del plan,  regalate algo rico, una salida, un episodio de tu serie favorita…  ¡Hay que celebrar los triunfos, grosa!\n\n\nOcho, **y muy importante, che:** si te sentís muy estresada o ansiosa,  pedí ayuda.  Hablá con alguien de tu familia, tus amigos, un psicólogo o profesor…  ¡No te guardes nada, que sos una campeona y te quiero ver bien!\n\n\nEste es un plan general, Belén.  Adaptálo a tu estilo de vida,  a tu forma de estudiar, a tu personalidad.  ¡Confía en vos, que sos una grosa y la vas a romper!  Un abrazo enorme, genia.  ¡Dale que la rompes!  Contáme cómo te va,  ¡quiero saber que te está yendo genial!",
+        "timestamp": 1741815609732
       }
     ],
     "752987736759205960": [
@@ -409,7 +409,7 @@
     "reminder_1343749554905940058": 1741810967224
   },
   "utilMessageReactions": {
-    "1343749554905940058": 1741778237824
+    "1343749554905940058": 1741815615719
   },
   "womensDayMessageSent": true,
   "womensDayMessageSentThisInstance": true,
