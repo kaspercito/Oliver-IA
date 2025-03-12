@@ -3537,60 +3537,122 @@ client.once('ready', async () => {
             console.log('No hay cambios en BOT_UPDATES respecto a sentUpdates, no se envían.');
         }
 
-        // Intervalo pa’ mandar un mensaje útil cada día
-        const oneDayInMs = 24 * 60 * 60 * 1000;
-        const checkInterval = 60 * 60 * 1000;
+    const channel = await client.channels.fetch(CHANNEL_ID);
+    const oneDayInMs = 24 * 60 * 60 * 1000; // 24 horas
+    const fourHoursInMs = 4 * 60 * 60 * 1000; // 4 horas
+    const checkInterval = 60 * 60 * 1000; // Chequea cada hora
 
-        setInterval(async () => {
-            try {
-                const now = Date.now();
-                const lastSent = dataStore.utilMessageTimestamps[CHANNEL_ID] || 0;
-                const lastReaction = dataStore.utilMessageReactions[CHANNEL_ID] || 0;
+    // Si no hay timestamps o reacciones, inicializamos
+    if (!dataStore.utilMessageTimestamps) dataStore.utilMessageTimestamps = {};
+    if (!dataStore.utilMessageReactions) dataStore.utilMessageReactions = {};
 
-                if (now - lastSent >= oneDayInMs && (!lastReaction || now - lastReaction >= oneDayInMs)) {
-                    // Embed celeste pa’ preguntar si soy útil
-                    const dailyUtilEmbed = createEmbed('#FF1493', '¡Che, Belén!', 
-                        '¿Te estoy siendo útil, grosa? ¡Contame cómo te va conmigo, dale!', 
-                        'Con cariño, Oliver IA | Reacciona con ✅ o ❌');
-                    const sentMessage = await channel.send({ embeds: [dailyUtilEmbed] });
+    // Chequeo inicial al iniciar
+    const now = Date.now();
+    const lastSentUtil = dataStore.utilMessageTimestamps[`util_${CHANNEL_ID}`] || 0;
+    const lastSentPlan = dataStore.utilMessageTimestamps[`plan_${CHANNEL_ID}`] || 0;
+    const lastSentReminder = dataStore.utilMessageTimestamps[`reminder_${CHANNEL_ID}`] || 0;
+    const lastReaction = dataStore.utilMessageReactions[CHANNEL_ID] || 0;
 
-                    await sentMessage.react('✅');
-                    await sentMessage.react('❌');
-
-                    dataStore.utilMessageTimestamps[CHANNEL_ID] = now;
-                    sentMessages.set(sentMessage.id, { content: dailyUtilEmbed.description, message: sentMessage });
-                    dataStoreModified = true;
-                    await saveDataStore();
-                    console.log(`Mensaje útil diario enviado al canal ${CHANNEL_ID} - ${new Date().toLocaleString('es-AR')}`);
-                }
-            } catch (error) {
-                console.error('Error en el intervalo de mensaje útil:', error.message);
-            }
-        }, checkInterval);
-        
-        // Enviar mensaje al iniciar si no se envió hoy
-        const now = Date.now();
-        const lastSent = dataStore.utilMessageTimestamps[CHANNEL_ID] || 0;
-        const lastReaction = dataStore.utilMessageReactions[CHANNEL_ID] || 0;
-        if (now - lastSent >= oneDayInMs && (!lastReaction || now - lastReaction >= oneDayInMs)) {
-            const utilEmbed = createEmbed('#FF1493', '¡Che, Belén!', 
-                '¿Te estoy siendo útil, grosa? ¡Contame cómo te va conmigo, dale!', 
-                'Con cariño, Oliver IA | Reacciona con ✅ o ❌');
-            const sentMessage = await channel.send({ embeds: [utilEmbed] });
-
-            await sentMessage.react('✅');
-            await sentMessage.react('❌');
-
-            dataStore.utilMessageTimestamps[CHANNEL_ID] = now;
-            sentMessages.set(sentMessage.id, { content: utilEmbed.description, message: sentMessage });
-            dataStoreModified = true;
-            await saveDataStore();
-            console.log(`Mensaje útil enviado al iniciar - ${new Date().toLocaleString('es-AR')}`);
-        }
-
-    } catch (error) {
-        console.error('Error al enviar actualizaciones o configurar mensaje útil:', error);
+    // Mensaje útil al iniciar si no se envió hoy
+    if (now - lastSentUtil >= oneDayInMs && (!lastReaction || now - lastReaction >= oneDayInMs)) {
+        const utilEmbed = createEmbed('#FF1493', '¡Che, Belén!', 
+            '¿Te estoy siendo útil, grosa? ¡Contame cómo te va conmigo, dale!', 
+            'Con cariño, Oliver IA | Reacciona con ✅ o ❌');
+        const sentMessage = await channel.send({ embeds: [utilEmbed] });
+        await sentMessage.react('✅');
+        await sentMessage.react('❌');
+        dataStore.utilMessageTimestamps[`util_${CHANNEL_ID}`] = now;
+        sentMessages.set(sentMessage.id, { content: utilEmbed.description, message: sentMessage });
+        dataStoreModified = true;
+        await saveDataStore();
+        console.log(`Mensaje útil enviado al iniciar - ${new Date().toLocaleString('es-AR')}`);
     }
+
+    // Plan de estudio al iniciar si no se envió hoy
+    if (now - lastSentPlan >= oneDayInMs) {
+        const plan = [
+            "¡Belén, genia! Plan pa’ hoy pa’ el examen:",
+            "1) 13-14: Leer apuntes (1 hora).",
+            "2) 14-14:15: Pausa mate (15 min).",
+            "3) 14:15-15: Ejercicios prácticos (45 min).",
+            "4) 15-15:20: Repasar lo más jodido (20 min).",
+            "Ajustalo como quieras, grosa. ¡Marcá ✅ cuando termines algo!"
+        ].join('\n');
+        const embed = createEmbed('#55FFFF', '¡A organizar el tiempo, Belén!', 
+            `${plan}\n\n¡La vas a romper, loca! ¿Te sirve este plan? Reacciona con ✅ o ❌`, 
+            'Con cariño, Oliver IA');
+        const sentMessage = await channel.send({ embeds: [embed] });
+        await sentMessage.react('✅');
+        await sentMessage.react('❌');
+        dataStore.utilMessageTimestamps[`plan_${CHANNEL_ID}`] = now;
+        sentMessages.set(sentMessage.id, { content: plan, message: sentMessage });
+        dataStoreModified = true;
+        await saveDataStore();
+        console.log(`Plan de estudio enviado al iniciar - ${new Date().toLocaleString('es-AR')}`);
+    }
+
+    // Intervalo único para todo
+    setInterval(async () => {
+        try {
+            const now = Date.now();
+            const lastSentUtil = dataStore.utilMessageTimestamps[`util_${CHANNEL_ID}`] || 0;
+            const lastSentPlan = dataStore.utilMessageTimestamps[`plan_${CHANNEL_ID}`] || 0;
+            const lastSentReminder = dataStore.utilMessageTimestamps[`reminder_${CHANNEL_ID}`] || 0;
+            const lastReaction = dataStore.utilMessageReactions[CHANNEL_ID] || 0;
+
+            // 1. Mensaje útil diario
+            if (now - lastSentUtil >= oneDayInMs && (!lastReaction || now - lastReaction >= oneDayInMs)) {
+                const dailyUtilEmbed = createEmbed('#FF1493', '¡Che, Belén!', 
+                    '¿Te estoy siendo útil, grosa? ¡Contame cómo te va conmigo, dale!', 
+                    'Con cariño, Oliver IA | Reacciona con ✅ o ❌');
+                const sentMessage = await channel.send({ embeds: [dailyUtilEmbed] });
+                await sentMessage.react('✅');
+                await sentMessage.react('❌');
+                dataStore.utilMessageTimestamps[`util_${CHANNEL_ID}`] = now;
+                sentMessages.set(sentMessage.id, { content: dailyUtilEmbed.description, message: sentMessage });
+                dataStoreModified = true;
+                await saveDataStore();
+                console.log(`Mensaje útil diario enviado al canal ${CHANNEL_ID} - ${new Date().toLocaleString('es-AR')}`);
+            }
+
+            // 2. Plan de estudio diario
+            if (now - lastSentPlan >= oneDayInMs) {
+                const plan = [
+                    "¡Belén, genia! Plan pa’ hoy pa’ el examen:",
+                    "1) 13-14: Leer apuntes (1 hora).",
+                    "2) 14-14:15: Pausa mate (15 min).",
+                    "3) 14:15-15: Ejercicios prácticos (45 min).",
+                    "4) 15-15:20: Repasar lo más jodido (20 min).",
+                    "Ajustalo como quieras, grosa. ¡Marcá ✅ cuando termines algo!"
+                ].join('\n');
+                const embed = createEmbed('#55FFFF', '¡A organizar el tiempo, Belén!', 
+                    `${plan}\n\n¡La vas a romper, loca! ¿Te sirve este plan? Reacciona con ✅ o ❌`, 
+                    'Con cariño, Oliver IA');
+                const sentMessage = await channel.send({ embeds: [embed] });
+                await sentMessage.react('✅');
+                await sentMessage.react('❌');
+                dataStore.utilMessageTimestamps[`plan_${CHANNEL_ID}`] = now;
+                sentMessages.set(sentMessage.id, { content: plan, message: sentMessage });
+                dataStoreModified = true;
+                await saveDataStore();
+                console.log(`Plan de estudio enviado a Belén - ${new Date().toLocaleString('es-AR')}`);
+            }
+
+            // 3. Recordatorio cada 4 horas
+            if (now - lastSentReminder >= fourHoursInMs) {
+                const reminder = "¡Che, Belén! ¿Ya arrancaste con el estudio de hoy? Dividí el tiempo en bloques cortos y dale caña, genia. ¡Pedime un plan con !chat si querés!";
+                const embed = createEmbed('#FFAA00', '¡Ojo al tiempo, grosa!', 
+                    reminder, 'Con cariño, Oliver IA');
+                await channel.send({ embeds: [embed] });
+                dataStore.utilMessageTimestamps[`reminder_${CHANNEL_ID}`] = now;
+                dataStoreModified = true;
+                await saveDataStore();
+                console.log(`Recordatorio enviado a Belén - ${new Date().toLocaleString('es-AR')}`);
+            }
+        } catch (error) {
+            console.error('Error en el intervalo combinado:', error.message);
+        }
+    }, checkInterval);
 });
 
 process.on('beforeExit', async () => {
