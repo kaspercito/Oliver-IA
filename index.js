@@ -3480,7 +3480,6 @@ client.once('ready', async () => {
     
     try {
         // Busco el canal pa’ mandar actualizaciones
-        const channel = await client.channels.fetch(CHANNEL_ID);
         if (!channel) throw new Error('Canal no encontrado');
 
         // Resumen del historial de Belén
