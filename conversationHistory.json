@@ -3,16 +3,6 @@
     "1023132788632862761": [
       {
         "role": "user",
-        "content": "podrías darme consejos de cómo manejar la ansiedad? rindo un examen importante y me tiene muy mal",
-        "timestamp": 1741525337268
-      },
-      {
-        "role": "assistant",
-        "content": "Che Belén, genia total!  ¡Un examen importante y la ansiedad te tiene a maltraer, eh?! ¡Posta que te entiendo, loca!  Es una cagada, pero no te preocupes que vamos a domar a esa fiera.  Sos una grosa y la vas a romper, ¡ya vas a ver!\n\n\nPrimero,  respira,  che.  Sé que suena a cliché, pero respira profundo,  lento,  y trata de enfocarte en el aire entrando y saliendo de tus pulmones.  Si te ayuda, contá las respiraciones:  cuatro segundos inhalando, cuatro segundos aguantando, cuatro segundos exhalando.  Es un bajón de ansiedad instantáneo, ¡posta!\n\n\nSegundo,  movete,  grosa.  Andá a caminar,  hacé un poco de ejercicio,  lo que sea,  pero mové ese cuerpo.  La actividad física te ayuda un montón a liberar endorfinas, esas hormonas que te hacen sentir bien,  ¿viste?\n\n\nTercero,  desconectate un rato.  Mirá una peli,  escuchá música que te guste,  leé un libro,  lo que te relaje.  Dejá el celular un tiempo,  porque ese cacharro te puede aumentar la ansiedad a niveles espaciales, loco.\n\n\nCuarto,  organizate,  campeona.  Revisá todo lo que estudiaste,  pero sin obsesionarte.  Si ya hiciste lo que tenías que hacer,  ¡listo! No te cargues con más presión de la que ya tenés.  Confía en vos, que ya llegaste hasta acá, ¡sos una grosa!\n\n\nQuinto,  y no menos importante:  hablá con alguien.  Con un amigo,  con tu familia,  con un psicólogo,  con quien te haga sentir mejor.  Contale lo que te pasa,  desahogate,  no te guardes todo adentro.  Hablar ayuda un montón,  ¡posta!\n\n\nY mirá,  un consejo de amigo zarpado:  pensá en todo lo que ya lograste para llegar hasta acá.  En todo el esfuerzo que hiciste,  en todo lo que aprendiste.  ¡Sos una campeona y te lo merecés!  No te olvides que este examen es solo una parte de tu vida,  y que vas a seguir brillando pase lo que pase.  ¡Dale para adelante, que lo rompés!  Un abrazo enorme, genia.  Contáme cómo te fue después,  ¡te quiero ver triunfando!",
-        "timestamp": 1741525341663
-      },
-      {
-        "role": "user",
         "content": "que es javascript",
         "timestamp": 1741553180944
       },
@@ -100,6 +90,16 @@
         "role": "assistant",
         "content": "¡Che Belén, genia total! ¡Ya rendiste, eh! ¡Sos una grosa, loca!  ¡Dormí cien horas si hace falta, que te lo merecés!  Esa ansiedad después de un examen es una cagada, ¡posta!  Ahora a relajar, a desconectar y a esperar la nota con la mejor onda.  No te preocupes demasiado,  ya hiciste tu parte y la rompiste.  Confía en vos, que ya llegaste hasta acá.  ¡Un abrazo enorme, campeona! ¡Te quiero ver triunfando!  Después contame cómo te fue, eh.  ¡Sos una reina!",
         "timestamp": 1741889570640
+      },
+      {
+        "role": "user",
+        "content": "recién despierto y todavía ni han dado la nota, sigo durmiendo",
+        "timestamp": 1741906193670
+      },
+      {
+        "role": "assistant",
+        "content": "¡Che Belén, genia total! Recién despierto y todavía nada de nota, ¿eh? ¡Posta que es una cagada esa espera, loca!  Pero bueno, seguí durmiendo, gorda, que te lo merecés.  Ya hiciste lo que tenías que hacer, ahora solo queda esperar.  No te rompas la cabeza, que ya vas a ver que todo sale bien.  Sos una grosa y la rompiste en el examen, ¡ya vas a ver!  Un abrazo enorme, campeona.  Cuando tengas noticias, contáme, eh. ¡Te quiero ver triunfando! ¡Sos una reina!",
+        "timestamp": 1741906195226
       }
     ],
     "752987736759205960": [
@@ -409,7 +409,7 @@
     "reminder_1343749554905940058": 1741894038886
   },
   "utilMessageReactions": {
-    "1343749554905940058": 1741889581636
+    "1343749554905940058": 1741906209395
   },
   "womensDayMessageSent": true,
   "womensDayMessageSentThisInstance": true,
