@@ -3427,7 +3427,7 @@ client.on('messageCreate', async (message) => {
         await message.channel.send({ embeds: [embed] });
     } else if (content === 'hola') {
         // Saludo copado si me decís hola
-        const embed = createEmbed('#55FFFF', `¡Qué lindo verte, ${userName}!`,
+        const embed = createEmbed('#FF1493', `¡Qué lindo verte, ${userName}!`,
             `¡Hola, loco! Soy Oliver IA, tu compañero piola, trayéndote buena onda como si estuviéramos tomando mate en la vereda. ¿Cómo estás hoy, che? Estoy listo para charlar, ayudarte o tirar unas pavadas para reírnos. ¿Qué tenés en mente? ¡Dale, arrancamos!`);
         await message.channel.send({ embeds: [embed] });
     }
@@ -3565,7 +3565,7 @@ client.once('ready', async () => {
 
                 if (Object.keys(reminderTimes).includes(String(currentHour)) && now - lastSentReminder >= 4 * 60 * 60 * 1000) {
                     const reminder = reminderTimes[currentHour];
-                    const embed = createEmbed('#FFAA00', isPostExam ? '¡Post-examen, Belén!' : '¡Ojo al tiempo, grosa!', 
+                    const embed = createEmbed('#FF1493', isPostExam ? '¡Post-examen, Belén!' : '¡Ojo al tiempo, grosa!', 
                         reminder, 'Con cariño, Oliver IA');
                     await channel.send({ embeds: [embed] });
                     dataStore.utilMessageTimestamps[`reminder_${CHANNEL_ID}`] = now;
