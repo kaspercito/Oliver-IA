@@ -3434,7 +3434,6 @@ client.on('messageCreate', async (message) => {
 });
 
 // Eventos
-// Eventos
 client.once('ready', async () => {
     console.log(`¡Miguel IA está listo! Instancia: ${instanceId} - ${new Date().toLocaleString('es-AR')}`);
     client.user.setPresence({ activities: [{ name: "Listo para ayudar a Milagros", type: 0 }], status: 'dnd' });
@@ -3505,8 +3504,10 @@ client.once('ready', async () => {
 
         // Chequeo inicial al iniciar
         const now = Date.now();
+        const today = new Date();
+        const examDay = new Date(2025, 2, 13); // 13 de marzo de 2025
+        const isPostExam = today >= examDay; // Si es 13 de marzo o después
         const lastSentUtil = dataStore.utilMessageTimestamps[`util_${CHANNEL_ID}`] || 0;
-        const lastSentPlan = dataStore.utilMessageTimestamps[`plan_${CHANNEL_ID}`] || 0;
         const lastSentReminder = dataStore.utilMessageTimestamps[`reminder_${CHANNEL_ID}`] || 0;
         const lastReaction = dataStore.utilMessageReactions[CHANNEL_ID] || 0;
 
@@ -3524,35 +3525,15 @@ client.once('ready', async () => {
             console.log(`Mensaje útil enviado al iniciar - ${new Date().toLocaleString('es-AR')}`);
         }
 
-        if (now - lastSentPlan >= oneDayInMs) {
-            const plan = [
-                "¡Belén, genia! Plan pa’ hoy pa’ el examen:",
-                "1) 13-14: Leer apuntes (1 hora).",
-                "2) 14-14:15: Pausa mate (15 min).",
-                "3) 14:15-15: Ejercicios prácticos (45 min).",
-                "4) 15-15:20: Repasar lo más jodido (20 min).",
-                "Ajustalo como quieras, grosa. ¡Marcá ✅ cuando termines algo!"
-            ].join('\n');
-            const embed = createEmbed('#55FFFF', '¡A organizar el tiempo, Belén!', 
-                `${plan}\n\n¡La vas a romper, loca! ¿Te sirve este plan? Reacciona con ✅ o ❌`, 
-                'Con cariño, Oliver IA');
-            const sentMessage = await channel.send({ embeds: [embed] });
-            await sentMessage.react('✅');
-            await sentMessage.react('❌');
-            dataStore.utilMessageTimestamps[`plan_${CHANNEL_ID}`] = now;
-            sentMessages.set(sentMessage.id, { content: plan, message: sentMessage });
-            dataStoreModified = true;
-            await saveDataStore();
-            console.log(`Plan de estudio enviado al iniciar - ${new Date().toLocaleString('es-AR')}`);
-        }
-
         // Intervalo para mensajes diarios y recordatorios
         setInterval(async () => {
             try {
                 const now = Date.now();
                 const currentHour = new Date().getHours(); // Hora actual en Argentina
+                const today = new Date();
+                const examDay = new Date(2025, 2, 13); // 13 de marzo de 2025
+                const isPostExam = today >= examDay; // Si es 13 de marzo o después
                 const lastSentUtil = dataStore.utilMessageTimestamps[`util_${CHANNEL_ID}`] || 0;
-                const lastSentPlan = dataStore.utilMessageTimestamps[`plan_${CHANNEL_ID}`] || 0;
                 const lastSentReminder = dataStore.utilMessageTimestamps[`reminder_${CHANNEL_ID}`] || 0;
                 const lastReaction = dataStore.utilMessageReactions[CHANNEL_ID] || 0;
 
@@ -3571,31 +3552,12 @@ client.once('ready', async () => {
                     console.log(`Mensaje útil diario enviado al canal ${CHANNEL_ID} - ${new Date().toLocaleString('es-AR')}`);
                 }
 
-                // 2. Plan de estudio diario (solo una vez al día)
-                if (now - lastSentPlan >= oneDayInMs) {
-                    const plan = [
-                        "¡Belén, genia! Plan pa’ hoy pa’ el examen:",
-                        "1) 13-14: Leer apuntes (1 hora).",
-                        "2) 14-14:15: Pausa mate (15 min).",
-                        "3) 14:15-15: Ejercicios prácticos (45 min).",
-                        "4) 15-15:20: Repasar lo más jodido (20 min).",
-                        "Ajustalo como quieras, grosa. ¡Marcá ✅ cuando termines algo!"
-                    ].join('\n');
-                    const embed = createEmbed('#55FFFF', '¡A organizar el tiempo, Belén!', 
-                        `${plan}\n\n¡La vas a romper, loca! ¿Te sirve este plan? Reacciona con ✅ o ❌`, 
-                        'Con cariño, Oliver IA');
-                    const sentMessage = await channel.send({ embeds: [embed] });
-                    await sentMessage.react('✅');
-                    await sentMessage.react('❌');
-                    dataStore.utilMessageTimestamps[`plan_${CHANNEL_ID}`] = now;
-                    sentMessages.set(sentMessage.id, { content: plan, message: sentMessage });
-                    dataStoreModified = true;
-                    await saveDataStore();
-                    console.log(`Plan de estudio enviado a Belén - ${new Date().toLocaleString('es-AR')}`);
-                }
-
-                // 3. Recordatorios variados según la hora (máximo 3 por día)
-                const reminderTimes = {
+                // 2. Recordatorios según si es post-examen o no
+                const reminderTimes = isPostExam ? {
+                    9: "¡Buenos días, Belén, crack! ¡Ya rendiste, genia! Sos una grosa total, seguro la rockeaste ayer. Ahora a levantarte con calma, mate en mano, y a disfrutar que ya está. ¡Contame cómo te sentís hoy, loca!",
+                    14: "¡Che, Belén! ¿Cómo estás después del examen, reina? Seguro la rompiste, posta. ¿Qué te pinta hacer hoy para bajar revoluciones? Si querés charlar cómo salió, ¡dale con !chat, genia!",
+                    19: "¡Ey, Belén, grosa! Día tranqui post-examen, ¿eh? Ya hiciste un montón, loca, ahora a descansar o festejar como vos quieras. ¿Cómo te fue, che? ¡Contame cuando pinten ganas!"
+                } : {
                     9: "¡Buenos días, Belén, genia! ¿Ya tenés el mate listo pa’ arrancar el estudio? Dividí el tiempo en bloques y dale caña, grosa. ¡Pedime un plan con !chat si querés!",
                     14: "¡Che, Belén! ¿Cómo va esa tarde, loca? Si no arrancaste todavía, ahora es el momento, eh. Bloques cortos y a romperla. ¿Te pinto un plan? ¡Dale !chat!",
                     19: "¡Ey, Belén, grosa! ¿Qué tal el día? Si te queda energía, metele un último empujón al estudio, genia. Bloques tranquis y listo. ¿Querés un plan? ¡Con !chat te ayudo!"
@@ -3603,13 +3565,13 @@ client.once('ready', async () => {
 
                 if (Object.keys(reminderTimes).includes(String(currentHour)) && now - lastSentReminder >= 4 * 60 * 60 * 1000) {
                     const reminder = reminderTimes[currentHour];
-                    const embed = createEmbed('#FFAA00', '¡Ojo al tiempo, grosa!', 
+                    const embed = createEmbed('#FFAA00', isPostExam ? '¡Post-examen, Belén!' : '¡Ojo al tiempo, grosa!', 
                         reminder, 'Con cariño, Oliver IA');
                     await channel.send({ embeds: [embed] });
                     dataStore.utilMessageTimestamps[`reminder_${CHANNEL_ID}`] = now;
                     dataStoreModified = true;
                     await saveDataStore();
-                    console.log(`Recordatorio enviado a Belén (${currentHour}:00) - ${new Date().toLocaleString('es-AR')}`);
+                    console.log(`Recordatorio enviado a Belén (${currentHour}:00, ${isPostExam ? 'post-examen' : 'pre-examen'}) - ${new Date().toLocaleString('es-AR')}`);
                 }
             } catch (error) {
                 console.error('Error en el intervalo combinado:', error.message);
