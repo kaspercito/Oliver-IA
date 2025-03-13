@@ -3434,65 +3434,31 @@ client.on('messageCreate', async (message) => {
 });
 
 // Eventos
+// Eventos
 client.once('ready', async () => {
-    // Cuando el bot arranca, hago todo esto
     console.log(`¡Miguel IA está listo! Instancia: ${instanceId} - ${new Date().toLocaleString('es-AR')}`);
-    // Pongo un estado piola
     client.user.setPresence({ activities: [{ name: "Listo para ayudar a Milagros", type: 0 }], status: 'dnd' });
-    // Cargo los datos guardados
     dataStore = await loadDataStore();
-    // Restauro las trivias activas
     activeTrivia = new Map(Object.entries(dataStore.activeSessions).filter(([_, s]) => s.type === 'trivia'));
-    // Inicializo el manager de música
     manager.init(client.user.id);
     if (!dataStore.musicSessions) {
         dataStore.musicSessions = {};
         console.log('musicSessions no estaba presente, inicializado manualmente');
     }
 
-    // Inicializo timestamps y reacciones si no existen
     if (!dataStore.utilMessageTimestamps) dataStore.utilMessageTimestamps = {};
     if (!dataStore.utilMessageReactions) dataStore.utilMessageReactions = {};
 
-    // Mensaje por el Día de la Mujer (comentado, pero lo dejo bien cerrado por si lo usás)
-    /*
-    const today = new Date();
-    const isWomensDay = today.getDate() === 8 && today.getMonth() === 2; // Mes 2 es marzo (0-based)
-    const argentinaTime = today.toLocaleTimeString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' });
-    
-    if (isWomensDay && !dataStore.womensDayMessageSent) {
-        try {
-            const belen = await client.users.fetch(ALLOWED_USER_ID);
-            const womensDayEmbed = createEmbed('#FF69B4', '¡Feliz Día de la Mujer, Belén!', 
-                `¡Hoy, 8 de marzo, te quiero saludar con todo el cariño, grosa! Sos una genia, una luchadora y un sol que ilumina todo. Gracias por ser vos, por tu fuerza y tu onda increíble. ¡Que tengas un día re copado, te lo merecés posta! 💪✨\n\n**Hora en Argentina:** ${argentinaTime}`, 
-                'Con muchísimo cariño, Oliver IA');
-    
-            await belen.send({ embeds: [womensDayEmbed] });
-            console.log(`Mensaje del Día de la Mujer enviado a Belén - ${argentinaTime}`);
-    
-            // Marcar como enviado para no repetir
-            dataStore.womensDayMessageSent = true;
-            dataStoreModified = true;
-            await saveDataStore();
-        } catch (error) {
-            console.error('Error al enviar mensaje del Día de la Mujer:', error.message);
-        }
-    }
-    */
-
     try {
-        // Busco el canal pa’ mandar actualizaciones
         const channel = await client.channels.fetch(CHANNEL_ID);
         if (!channel) throw new Error('Canal no encontrado');
 
-        // Resumen del historial de Belén
         const userHistory = dataStore.conversationHistory[ALLOWED_USER_ID] || [];
         const historySummary = userHistory.length > 0
             ? userHistory.slice(-3).map(msg => `${msg.role === 'user' ? 'Luz' : 'Yo'}: ${msg.content}`).join('\n')
             : 'No hay historial reciente.';
         const argentinaTime = new Date().toLocaleTimeString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' });
 
-        // Chequeo si hay actualizaciones nuevas
         if (!dataStore.sentUpdates) {
             dataStore.sentUpdates = [];
             dataStoreModified = true;
@@ -3501,17 +3467,14 @@ client.once('ready', async () => {
         const updatesChanged = JSON.stringify(BOT_UPDATES) !== JSON.stringify(dataStore.sentUpdates);
 
         if (updatesChanged) {
-            // Embed dorado con las actualizaciones
             const updateEmbed = createEmbed('#FF1493', '📢 Actualizaciones de Oliver IA',
                 '¡Tengo mejoras nuevas para compartir contigo!');
-
             const updatesText = BOT_UPDATES.map(update => `- ${update}`).join('\n');
             const maxFieldLength = 1024;
             let currentField = '';
             let fieldCount = 1;
             const fields = [];
 
-            // Parto las actualizaciones en campos si son largas
             updatesText.split('\n').forEach(line => {
                 if (currentField.length + line.length + 1 > maxFieldLength) {
                     fields.push({ name: `Novedades (Parte ${fieldCount})`, value: currentField.trim(), inline: false });
@@ -3528,9 +3491,7 @@ client.once('ready', async () => {
             fields.forEach(field => updateEmbed.addFields(field));
             updateEmbed.addFields({ name: 'Hora de actualización', value: `${argentinaTime}`, inline: false });
 
-            // Mando las actualizaciones a Belén
             await channel.send({ content: `<@${ALLOWED_USER_ID}>`, embeds: [updateEmbed] });
-            
             dataStore.sentUpdates = [...BOT_UPDATES];
             dataStoreModified = true;
             await saveDataStore();
@@ -3539,9 +3500,7 @@ client.once('ready', async () => {
             console.log('No hay cambios en BOT_UPDATES respecto a sentUpdates, no se envían.');
         }
 
-        // Definimos constantes para el intervalo
         const oneDayInMs = 24 * 60 * 60 * 1000; // 24 horas
-        const fourHoursInMs = 4 * 60 * 60 * 1000; // 4 horas
         const checkInterval = 60 * 60 * 1000; // Chequea cada hora
 
         // Chequeo inicial al iniciar
@@ -3551,7 +3510,6 @@ client.once('ready', async () => {
         const lastSentReminder = dataStore.utilMessageTimestamps[`reminder_${CHANNEL_ID}`] || 0;
         const lastReaction = dataStore.utilMessageReactions[CHANNEL_ID] || 0;
 
-        // Mensaje útil al iniciar si no se envió hoy
         if (now - lastSentUtil >= oneDayInMs && (!lastReaction || now - lastReaction >= oneDayInMs)) {
             const utilEmbed = createEmbed('#FF1493', '¡Che, Belén!', 
                 '¿Te estoy siendo útil, grosa? ¡Contame cómo te va conmigo, dale!', 
@@ -3566,7 +3524,6 @@ client.once('ready', async () => {
             console.log(`Mensaje útil enviado al iniciar - ${new Date().toLocaleString('es-AR')}`);
         }
 
-        // Plan de estudio al iniciar si no se envió hoy
         if (now - lastSentPlan >= oneDayInMs) {
             const plan = [
                 "¡Belén, genia! Plan pa’ hoy pa’ el examen:",
@@ -3589,16 +3546,17 @@ client.once('ready', async () => {
             console.log(`Plan de estudio enviado al iniciar - ${new Date().toLocaleString('es-AR')}`);
         }
 
-        // Intervalo único para todo
+        // Intervalo para mensajes diarios y recordatorios
         setInterval(async () => {
             try {
                 const now = Date.now();
+                const currentHour = new Date().getHours(); // Hora actual en Argentina
                 const lastSentUtil = dataStore.utilMessageTimestamps[`util_${CHANNEL_ID}`] || 0;
                 const lastSentPlan = dataStore.utilMessageTimestamps[`plan_${CHANNEL_ID}`] || 0;
                 const lastSentReminder = dataStore.utilMessageTimestamps[`reminder_${CHANNEL_ID}`] || 0;
                 const lastReaction = dataStore.utilMessageReactions[CHANNEL_ID] || 0;
 
-                // 1. Mensaje útil diario
+                // 1. Mensaje útil diario (solo una vez al día)
                 if (now - lastSentUtil >= oneDayInMs && (!lastReaction || now - lastReaction >= oneDayInMs)) {
                     const dailyUtilEmbed = createEmbed('#FF1493', '¡Che, Belén!', 
                         '¿Te estoy siendo útil, grosa? ¡Contame cómo te va conmigo, dale!', 
@@ -3613,7 +3571,7 @@ client.once('ready', async () => {
                     console.log(`Mensaje útil diario enviado al canal ${CHANNEL_ID} - ${new Date().toLocaleString('es-AR')}`);
                 }
 
-                // 2. Plan de estudio diario
+                // 2. Plan de estudio diario (solo una vez al día)
                 if (now - lastSentPlan >= oneDayInMs) {
                     const plan = [
                         "¡Belén, genia! Plan pa’ hoy pa’ el examen:",
@@ -3636,16 +3594,22 @@ client.once('ready', async () => {
                     console.log(`Plan de estudio enviado a Belén - ${new Date().toLocaleString('es-AR')}`);
                 }
 
-                // 3. Recordatorio cada 4 horas
-                if (now - lastSentReminder >= fourHoursInMs) {
-                    const reminder = "¡Che, Belén! ¿Ya arrancaste con el estudio de hoy? Dividí el tiempo en bloques cortos y dale caña, genia. ¡Pedime un plan con !chat si querés!";
+                // 3. Recordatorios variados según la hora (máximo 3 por día)
+                const reminderTimes = {
+                    9: "¡Buenos días, Belén, genia! ¿Ya tenés el mate listo pa’ arrancar el estudio? Dividí el tiempo en bloques y dale caña, grosa. ¡Pedime un plan con !chat si querés!",
+                    14: "¡Che, Belén! ¿Cómo va esa tarde, loca? Si no arrancaste todavía, ahora es el momento, eh. Bloques cortos y a romperla. ¿Te pinto un plan? ¡Dale !chat!",
+                    19: "¡Ey, Belén, grosa! ¿Qué tal el día? Si te queda energía, metele un último empujón al estudio, genia. Bloques tranquis y listo. ¿Querés un plan? ¡Con !chat te ayudo!"
+                };
+
+                if (Object.keys(reminderTimes).includes(String(currentHour)) && now - lastSentReminder >= 4 * 60 * 60 * 1000) {
+                    const reminder = reminderTimes[currentHour];
                     const embed = createEmbed('#FFAA00', '¡Ojo al tiempo, grosa!', 
                         reminder, 'Con cariño, Oliver IA');
                     await channel.send({ embeds: [embed] });
                     dataStore.utilMessageTimestamps[`reminder_${CHANNEL_ID}`] = now;
                     dataStoreModified = true;
                     await saveDataStore();
-                    console.log(`Recordatorio enviado a Belén - ${new Date().toLocaleString('es-AR')}`);
+                    console.log(`Recordatorio enviado a Belén (${currentHour}:00) - ${new Date().toLocaleString('es-AR')}`);
                 }
             } catch (error) {
                 console.error('Error en el intervalo combinado:', error.message);
