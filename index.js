@@ -2178,13 +2178,7 @@ async function manejarAyuda(message) {
 
 // Cambiar el avatar del bot
 async function manejarAvatar(message) {
-    const userName = message.author.id === OWNER_ID ? 'Miguel' : (message.author.id === BELEN_ID ? 'Belén' : 'otro');
-
-    // Solo Miguel o Belén pueden cambiar el avatar
-    if (message.author.id !== OWNER_ID && message.author.id !== BELEN_ID) {
-        return sendError(message.channel, `¡Solo Miguel o Belén pueden cambiar mi foto, ${userName}!`, 
-            'Pediles a ellos si querés un cambio, loco.');
-    }
+    const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
 
     const args = message.content.toLowerCase().startsWith('!avatar') 
         ? message.content.slice(7).trim() 
