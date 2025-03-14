@@ -83,7 +83,43 @@ const BOT_UPDATES = [
     '¡Nuevo !ansiedad / !an agregado! Consejos rápidos pa’ calmar la ansiedad, con un mensaje zarpado de Miguel pa’ darte pilas, ¡genia!',
     '¡Nuevo !milagros revisa tus nombres en diferente idioma de buena onda pa’ hacerla sonreír, ¡re milagroso, che!',
     '¡Nuevo comando !avatar pa’ que Miguel y Belén me cambien la cara!',
-    'Agregué embeds copados pa’ que todo se vea más lindo.'    
+    'Agregué embeds copados pa’ que todo se vea más lindo.',
+    '¡Nuevo juego! Usá !jugar pa’ adivinar un número y sacarte el aburrimiento, loco.',           // Nuevo
+    '¡Memes al toque! Con !meme te traigo uno random pa’ reírte un rato.',                      // Nuevo
+    '¡Charla loca! Usá !pregunta y te tiro una pregunta random pa’ que nos copemos charlando.'
+];
+
+const preguntas = [
+    '¿Qué superpower te molaría tener?',
+    '¿Cuál es el peor chiste que sabés?',
+    '¿Qué harías con un millón de pesos ahora?',
+    '¿Cuál es tu comida favorita pa’ un día de bajón?',
+    '¿Qué película ves mil veces y no te cansas?',
+    '¿Si fueras un animal, cuál serías y por qué?',
+    '¿Qué hacés un domingo a la tarde cuando no hay nada que hacer?',
+    '¿Cuál es el tema más loco que googleaste últimamente?',
+    '¿Qué harías si te despertás siendo famoso de repente?',
+    '¿Cuál es tu ritual pa’ un viernes a la noche?',
+    '¿Qué invento boludo cambiaría tu vida?',
+    '¿Cuál es el mejor asado que te comiste ever?',
+    '¿Si pudieras viajar en el tiempo, pa’ dónde vas primero?',
+    '¿Qué canción te pone las pilas al toque?',
+    '¿Cuál es el lugar más raro donde te dormiste?',
+    '¿Qué harías si te toca organizar un feriado nacional?',
+    '¿Cuál es tu frase de película favorita pa’ tirar en una charla?',
+    '¿Qué comida te da vergüenza admitir que te gusta?',
+    '¿Si fueras presidente por un día, qué cambiás?',
+    '¿Qué harías si te encontrás un alien en el patio?',
+    '¿Cuál es el apodo más loco que te pusieron?',
+    '¿Qué serie te maratoneaste sin parar?',
+    '¿Qué hacés si llueve todo el finde y no podés salir?',
+    '¿Cuál es tu truco pa’ no quedarte dormido en algo aburrido?',
+    '¿Qué harías con un día libre sin celular ni internet?',
+    '¿Cuál es el peor consejo que te dieron y seguiste?',
+    '¿Qué plato argento defenderías a muerte?',
+    '¿Si pudieras hablar con tu yo de hace 10 años, qué le decís?',
+    '¿Cuál es el olor que más te transporta a algún recuerdo?',
+    '¿Qué harías si te ganás la lotería pero no podés contarle a nadie?'
 ];
 
 // Diccionario de traducciones del nombre "Milagros" en diferentes idiomas
@@ -3274,6 +3310,10 @@ async function manejarCommand(message) {
     else if (content.startsWith('!jugar')) {
         await manejarJugar(message);
     }
+    else if (content === '!pregunta') {
+    const pregunta = preguntas[Math.floor(Math.random() * preguntas.length)];
+    await message.channel.send(`¡Eh, ${userName}! ${pregunta}`);
+    }
     else if (content.startsWith('!avatar') || content.startsWith('!av')) {
         await manejarAvatar(message);
     }         
@@ -3513,7 +3553,10 @@ client.on('messageCreate', async (message) => {
             '- **!wiki [término]**: Busco un resumen en Wikipedia, ¡copado!\n' +
             '- **!traduci [frase] a [idioma]**: Traduzco frases cortas, joya pa’ practicar.\n' +
             '- **!an / !ansiedad**: Tips rápidos pa’ calmar la ansiedad, con un mensaje especial de Miguel pa’ darte pilas.\n' +
-            '- **!av / !avatar [URL o adjunto]**: Cambio mi foto de perfil.\n' +
+            '- **!av / !avatar [URL o adjunto]**: Cambio mi foto de perfil.\n' + //Nuevo
+            '- **!jugar**: Adivina un número del 1 al 10, ¡5 intentos pa’ ganarme, loco!\n' + // Nuevo
+            '- **!meme**: Te tiro un meme random pa’ sacarte una sonrisa.\n' +             // Nuevo
+            '- **!pregunta**: Te hago una pregunta loca pa’ charlar un rato.\n' +          // Nuevo
             '- **!h / !help**: Esta lista, che.\n' +
             '- **!hm / !help musica**: Comandos para meterle música al día.\n' +
             '- **hola**: Te tiro un saludito con onda.');
