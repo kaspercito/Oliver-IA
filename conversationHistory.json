@@ -3,16 +3,6 @@
     "1023132788632862761": [
       {
         "role": "user",
-        "content": "otro tip",
-        "timestamp": 1741908404857
-      },
-      {
-        "role": "assistant",
-        "content": "Che Belén, genia total!  Otro tip, decís? Dale, escuchá esto que te va a re ayudar:  **apuntes con olor a fernet.**  ¡Jajaja, posta!  No, mentira,  pero si te hacés apuntes,  probá usar diferentes colores,  dibujitos,  hasta algún aroma suavecito que te guste.  El cerebro asocia las cosas con los sentidos, y así te va a ser más fácil acordarte de todo.  Sos una grosa, y  este tip te va a ayudar a retener información como una esponja,  ¡dale que la rompes!",
-        "timestamp": 1741908406265
-      },
-      {
-        "role": "user",
         "content": "cómo le subo el brillo ami pantalla",
         "timestamp": 1741938943424
       },
@@ -100,6 +90,16 @@
         "role": "assistant",
         "content": "Che Belén, genia total!  Cambiar la foto de perfil de un bot de Discord, decís? ¡Posta que sí, grosa!  Es más fácil de lo que parece, aunque depende un poco de cómo esté hecho el bot.  Si es un bot que vos misma creaste,  la cosa es re sencilla,  pero si es uno de esos que bajás de internet,  puede ser un poquito más complicado, eh.\n\nSi lo programaste vos,  la mayoría de las librerías de Discord (como discord.py en Python o la que uses) tienen funciones para eso.  Tenés que buscar en la documentación de la librería algo como \"set avatar\" o \"cambiar foto de perfil\".  Es un tema de código,  pero no te asustes,  ¡sos una campeona y la vas a romper!\n\nSi es un bot que descargaste de internet,  la cosa se pone un poco más fea.  Muchos bots no permiten cambiarles la foto de perfil a menos que tengas acceso al código fuente, y  ni hablar si el creador lo puso medio encriptado.  En esos casos,  puede que tengas que buscar en la documentación del bot (si es que la hay) o en algún foro de soporte.  A veces,  los creadores te dejan instrucciones,  pero no siempre, eh.\n\nSi no encontrás nada,  gorda, no te desanimes.  Hay un montón de tutoriales en Youtube que te pueden ayudar,  buscá por \"cambiar foto de perfil bot Discord [nombre de la librería o bot que usas]\".  Seguro que hay algún video que te resuelve el problema,  ¡posta!\n\nNo te olvides,  Belén,  que sos una grosa y que vas a encontrar la solución.  Si después de todo este quilombo seguís sin poder hacerlo,  no dudes en preguntarme de nuevo,  que acá estoy para ayudarte,  ¡dale que la rompes!  Un abrazo enorme,  reina.  ¡Te quiero ver triunfando!",
         "timestamp": 1741976028124
+      },
+      {
+        "role": "user",
+        "content": "todavía no me han dado la nota, quiero morir de ansiedad",
+        "timestamp": 1741984154899
+      },
+      {
+        "role": "assistant",
+        "content": "Che Belén, genia total! ¡Todavía no te dieron la nota y estás re al horno, eh?! ¡Posta que te entiendo, loca!  Esa ansiedad es una verdadera cagada, te deja los nervios a flor de piel.  Pero pará un cacho, gorda,  ¡respirá profundo!  Ya va a salir,  ¿viste?  Sos una grosa,  te lo merecés, y hayas sacado lo que hayas sacado,  sabés que la rompiste igual.  \n\nNo te comas tanto el coco,  pensá en algo que te guste,  en algo que te relaje.  Una serie,  música,  un mate... lo que sea que te baje un cambio.  Y si la ansiedad te sigue comiendo,  no dudes en hablar con alguien,  ¿dale?  Un amigo,  un familiar,  hasta yo puedo ayudarte si querés,  no hay drama.\n\nConcentrate en las cosas buenas, en todo lo que estudiaste, en todo el esfuerzo que le metiste.  Eso sí que es un triunfo, ¡posta!  Y cuando te den la nota, sea lo que sea,  festejálo,  gorda.  ¡Porque sos una campeona y te lo merecés!  Un abrazo enorme,  reina. ¡Dale que la rompes igual!  ¡Te quiero ver triunfando!",
+        "timestamp": 1741984157425
       }
     ],
     "752987736759205960": [
@@ -425,7 +425,7 @@
     "reminder_1343749554905940058": 1741981974202
   },
   "utilMessageReactions": {
-    "1343749554905940058": 1741976129969
+    "1343749554905940058": 1741984216429
   },
   "womensDayMessageSent": true,
   "womensDayMessageSentThisInstance": true,
