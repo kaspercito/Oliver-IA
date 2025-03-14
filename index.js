@@ -81,7 +81,7 @@ const BOT_UPDATES = [
     '¡Edición piola con !editarimagen / !ei! Modificá tus imágenes guardadas (ej. !editarimagen [ID] agregar un perro), solo las que hice yo, ¡posta!',
     '¡Solucionado el error con las imágenes, ahora sí funciona como la puta madre!',
     '¡Nuevo !ansiedad / !an agregado! Consejos rápidos pa’ calmar la ansiedad, con un mensaje zarpado de Miguel pa’ darte pilas, ¡genia!',
-    '¡Nuevo !milagros revisa tus nombres en diferente idioma de buena onda pa’ hacerla sonreír, ¡re milagroso, che!'
+    '¡Nuevo !milagros revisa tus nombres en diferente idioma de buena onda pa’ hacerla sonreír, ¡re milagroso, che!',
     '¡Nuevo comando !avatar pa’ que Miguel y Belén me cambien la cara!',
     'Agregué embeds copados pa’ que todo se vea más lindo.'    
 ];
