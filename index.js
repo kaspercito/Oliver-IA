@@ -3227,7 +3227,10 @@ async function manejarCommand(message) {
     }     
     else if (content === '!milagros') {
         await manejarMilagros(message);
-    } 
+    }
+    else if (content.startsWith('!avatar') || content.startsWith('!av')) {
+        await manejarAvatar(message);
+    }         
     else if (content.startsWith('!reacciones') || content.startsWith('!re')) {
         await manejarReacciones(message);
     } 
