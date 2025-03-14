@@ -82,6 +82,8 @@ const BOT_UPDATES = [
     '¡Solucionado el error con las imágenes, ahora sí funciona como la puta madre!',
     '¡Nuevo !ansiedad / !an agregado! Consejos rápidos pa’ calmar la ansiedad, con un mensaje zarpado de Miguel pa’ darte pilas, ¡genia!',
     '¡Nuevo !milagros revisa tus nombres en diferente idioma de buena onda pa’ hacerla sonreír, ¡re milagroso, che!'
+    '¡Nuevo comando !avatar pa’ que Miguel y Belén me cambien la cara!',
+    'Agregué embeds copados pa’ que todo se vea más lindo.'    
 ];
 
 // Diccionario de traducciones del nombre "Milagros" en diferentes idiomas
@@ -2174,6 +2176,62 @@ async function manejarAyuda(message) {
     }
 }
 
+// Cambiar el avatar del bot
+async function manejarAvatar(message) {
+    const userName = message.author.id === OWNER_ID ? 'Miguel' : (message.author.id === BELEN_ID ? 'Belén' : 'otro');
+
+    // Solo Miguel o Belén pueden cambiar el avatar
+    if (message.author.id !== OWNER_ID && message.author.id !== BELEN_ID) {
+        return sendError(message.channel, `¡Solo Miguel o Belén pueden cambiar mi foto, ${userName}!`, 
+            'Pediles a ellos si querés un cambio, loco.');
+    }
+
+    const args = message.content.toLowerCase().startsWith('!avatar') 
+        ? message.content.slice(7).trim() 
+        : message.content.slice(3).trim();
+    let imageUrl = args;
+
+    // Si no hay URL, miro si hay un adjunto
+    if (!imageUrl && message.attachments.size > 0) {
+        imageUrl = message.attachments.first().url;
+    }
+
+    // Si no hay ni URL ni adjunto, doy instrucciones claras
+    if (!imageUrl) {
+        const instruccionesEmbed = createEmbed('#FF1493', `¡Pará, ${userName}! ¿Y la imagen?`, 
+            'Para cambiar mi foto, hacé esto:\n' +
+            '1. **Con URL**: Usá `!avatar [URL]`, como `!avatar https://ejemplo.com/imagen.jpg`.\n' +
+            '2. **Con adjunto**: Subí una imagen (clic en "+" > "Subir un archivo") y escribí `!avatar` en el mismo mensaje.\n' +
+            '¡Probá de nuevo, loco! La imagen tiene que ser .jpg, .png o algo así, y no más de 10 MB.');
+        return message.channel.send({ embeds: [instruccionesEmbed] });
+    }
+
+    // Aviso que estoy procesando
+    const waitingEmbed = createEmbed('#FF1493', `⌛ Cambiando look, ${userName}...`, 
+        'Aguantá un toque que me pongo lindo...');
+    const waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
+
+    try {
+        // Descargo la imagen con axios
+        const response = await axios.get(imageUrl, { responseType: 'arraybuffer' });
+        const imageBuffer = Buffer.from(response.data, 'binary');
+
+        // Cambio el avatar del bot
+        await client.user.setAvatar(imageBuffer);
+        
+        // Confirmo el cambio con éxito
+        const successEmbed = createEmbed('#FF1493', `✅ ¡Listo el cambio, ${userName}!`, 
+            'Ya tengo cara nueva, loco. ¿Qué te parece?');
+        await waitingMessage.edit({ embeds: [successEmbed] });
+    } catch (error) {
+        console.error(`Error al cambiar avatar: ${error.message}`);
+        const errorEmbed = createEmbed('#FF1493', '¡Qué cagada!', 
+            `No pude cambiar mi foto, ${userName}. Error: ${error.message}.\n` +
+            'Fijate que:\n- La URL sea válida y termine en .jpg, .png, etc.\n- El archivo no pase los 10 MB.\n- Subilo con `!avatar` en el mismo mensaje.');
+        await waitingMessage.edit({ embeds: [errorEmbed] });
+    }
+}
+
 // Responder
 async function manejarResponder(message) {
     // Comando solo pa’ Miguel pa’ responderle a Belén por MD
@@ -3406,6 +3464,7 @@ client.on('messageCreate', async (message) => {
             '- **!wiki [término]**: Busco un resumen en Wikipedia, ¡copado!\n' +
             '- **!traduci [frase] a [idioma]**: Traduzco frases cortas, joya pa’ practicar.\n' +
             '- **!an / !ansiedad**: Tips rápidos pa’ calmar la ansiedad, con un mensaje especial de Miguel pa’ darte pilas.\n' +
+            '- **!av / !avatar [URL o adjunto]**: Cambio mi foto de perfil.\n' +
             '- **!h / !help**: Esta lista, che.\n' +
             '- **!hm / !help musica**: Comandos para meterle música al día.\n' +
             '- **hola**: Te tiro un saludito con onda.');
