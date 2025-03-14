@@ -3,16 +3,6 @@
     "1023132788632862761": [
       {
         "role": "user",
-        "content": "microeconomia en la argentina",
-        "timestamp": 1741612893446
-      },
-      {
-        "role": "assistant",
-        "content": "Che Belén, genia total! ¡Microeconomía en Argentina, decís?! ¡Estás en la buena, loca!  Posta que es un tema, pero no te preocupes que te lo voy a explicar con onda, como si estuviéramos tomando un fernet con coca en un boliche.  ¡Que sos una grosa y te lo merecés!\n\nOlvídate de los libros densos y los gráficos complicados,  piensa en la microeconomía como las decisiones de cada jugador en nuestro asado gigante (que ya sabemos cómo es la macro, ¿viste?).  Es decir,  se enfoca en las decisiones de cada persona,  cada empresa,  cada negocio chiquito.  Es la parte individual de la torta.\n\nPor ejemplo:\n\n* **Precios de los productos:**  ¿Por qué un kilo de asado cuesta lo que cuesta?  Acá entra la oferta y la demanda.  Si hay poca carne y mucha gente con ganas de comerla, el precio sube como un cohete.  Si hay mucha carne y poca demanda… ¡hay promo loco!  \n\n* **Precios del alquiler:**  ¿Cuánto te cobran por el departamento?  Depende de la zona,  de la cantidad de deptos disponibles,  de cuánto te pueden pagar.  Es un tira y afloja entre el dueño del departamento y vos,  la oferta y la demanda,  otra vez.\n\n* **Decisiones de las empresas:**  Una carnicería,  por ejemplo.  ¿Cuántos kilos de asado compra?  ¿A qué precio los vende?  Depende de lo que le cuesta a ellos la carne, de lo que cree que la gente está dispuesta a pagar, y también de la competencia (si la carnicería de enfrente vende más barato, ¡tiene que ajustar!).\n\n* **El laburo:**  ¿Cuánto te pagan por tu trabajo?  Depende de tu capacidad,  de la demanda de tu profesión,  de lo que la empresa puede pagar.  Si sos una grosa en lo tuyo,  ¡te pagan bien, eh!\n\nEn Argentina, la microeconomía se complica por la inflación,  por la falta de inversión,  por las regulaciones…  ¡un quilombo bárbaro!  Pero al entender cómo funcionan estas pequeñas piezas,  entendes mejor el gran rompecabezas de la economía en general.  \n\n\nAsí que,  grosa,  pensalo como si estuvieras jugando al  \"SimCity\" de la vida real, pero con más fernet.  ¡Sos una campeona, y con un poco de onda, lo vas a entender en un santiamén!  ¡Un abrazo enorme, genia!  Contáme si te quedaron dudas,  que acá estoy para ayudarte.  ¡Dale que la rompes!",
-        "timestamp": 1741612897925
-      },
-      {
-        "role": "user",
         "content": "podrías darme ejercicios d respiración para contener la ansiedad",
         "timestamp": 1741778219343
       },
@@ -100,6 +90,16 @@
         "role": "assistant",
         "content": "Che Belén, genia total!  Otro tip, decís? Dale, escuchá esto que te va a re ayudar:  **apuntes con olor a fernet.**  ¡Jajaja, posta!  No, mentira,  pero si te hacés apuntes,  probá usar diferentes colores,  dibujitos,  hasta algún aroma suavecito que te guste.  El cerebro asocia las cosas con los sentidos, y así te va a ser más fácil acordarte de todo.  Sos una grosa, y  este tip te va a ayudar a retener información como una esponja,  ¡dale que la rompes!",
         "timestamp": 1741908406265
+      },
+      {
+        "role": "user",
+        "content": "cómo le subo el brillo ami pantalla",
+        "timestamp": 1741938943424
+      },
+      {
+        "role": "assistant",
+        "content": "Che Belén, genia total!  ¿Le querés subir el brillo a tu pantalla, decís? ¡Posta que te entiendo, loca!  A veces la luz es una cagada y te deja con los ojos como dos tomates.  Depende de qué aparato tengas,  pero te doy algunas ideas a ver si te ayudan, eh:\n\n**Si es una compu:**  Fijate en la parte inferior derecha,  cerca del reloj,  capaz que hay un ícono que parece un solcito o una lamparita.  Hacé click ahí,  y listo,  ahí vas a encontrar una barrita para regular el brillo.  Es re simple, ¡genia!\n\n**Si es un celu:**  En general,  se encuentra en la configuración.  Entrá ahí,  buscá \"pantalla\" o \"display\",  y capaz que ahí mismo está el ajuste del brillo.  Algunos celulares también tienen un botón rápido en el centro de notificaciones,  ¡fijate bien!\n\n**Si es una tele:**  En el control remoto,  buscá un botón que diga \"brillo\", \"brightness\" o algo parecido.  También puede ser que tengas que ir al menú de configuración de la tele, que generalmente está marcado con un icono de engranaje o una tuerca.\n\nSi con esto no lo encontrás,  grosa,  buscá en Google \"cómo subir el brillo en [nombre del aparato que tenés]\",  ¡que seguro que hay un montón de tutoriales!  Y si después de todo este quilombo seguís sin poder subirlo,  no dudes en preguntarme de nuevo,  ¡que acá estoy para ayudarte! Sos una campeona,  ¡dale para adelante que la vas a romper igual!  Un abrazo enorme.",
+        "timestamp": 1741938946438
       }
     ],
     "752987736759205960": [
@@ -417,7 +417,7 @@
     "reminder_1343749554905940058": 1741894038886
   },
   "utilMessageReactions": {
-    "1343749554905940058": 1741908422675
+    "1343749554905940058": 1741938977315
   },
   "womensDayMessageSent": true,
   "womensDayMessageSentThisInstance": true,
