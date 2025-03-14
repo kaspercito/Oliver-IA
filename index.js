@@ -89,6 +89,7 @@ const BOT_UPDATES = [
     '¡Charla loca! Usá !pregunta y te tiro una pregunta random pa’ que nos copemos charlando.'
 ];
 
+// Lista original de preguntas (no se modifica)
 const preguntas = [
     '¿Qué superpower te molaría tener?',
     '¿Cuál es el peor chiste que sabés?',
@@ -121,6 +122,18 @@ const preguntas = [
     '¿Cuál es el olor que más te transporta a algún recuerdo?',
     '¿Qué harías si te ganás la lotería pero no podés contarle a nadie?'
 ];
+
+// Array temporal para no repetir preguntas
+let preguntasDisponibles = [...preguntas]; // Copia inicial de todas las preguntas
+
+// Función para mezclar el array (Fisher-Yates shuffle)
+function shuffle(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+}
 
 // Diccionario de traducciones del nombre "Milagros" en diferentes idiomas
 const milagrosTranslations = {
@@ -3327,7 +3340,17 @@ async function manejarCommand(message) {
         await manejarJugar(message);
     }
     else if (content === '!pregunta') {
-    const pregunta = preguntas[Math.floor(Math.random() * preguntas.length)];
+    const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
+
+    // Si se acabaron las preguntas, recargamos y mezclamos
+    if (preguntasDisponibles.length === 0) {
+        preguntasDisponibles = [...preguntas]; // Recargamos desde la lista original
+        shuffle(preguntasDisponibles); // Las mezclamos para que no salgan en el mismo orden
+        console.log('Preguntas recargadas y mezcladas');
+    }
+
+    // Sacamos una pregunta del array temporal y la eliminamos
+    const pregunta = preguntasDisponibles.pop();
     const preguntaEmbed = createEmbed('#FF1493', `¡Pregunta pa’ vos, ${userName}!`, 
         `${pregunta} ¡Contame, loco, qué pensás!`);
     await message.channel.send({ embeds: [preguntaEmbed] });
