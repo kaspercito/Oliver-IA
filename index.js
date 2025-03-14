@@ -3305,11 +3305,20 @@ async function manejarCommand(message) {
     // Resto de comandos en orden
     else if (content === '!trivia' || content === '!tc') {
         await manejarTrivia(message);
-    } else if (content === '!meme') {
-    const response = await axios.get('https://meme-api.com/gimme');
-    const memeEmbed = createEmbed('#FF1493', `¡Meme pa’ vos, ${userName}!`, response.data.title)
-        .setImage(response.data.url);
-    await message.channel.send({ embeds: [memeEmbed] });
+    } 
+    else if (content === '!meme') {
+    try {
+        const response = await axios.get('https://meme-api.com/gimme/SpanishMemes');
+        const memeEmbed = createEmbed('#FF1493', `¡Meme pa’ vos, ${userName}!`, 
+            `${response.data.title}\n¡Un meme en español pa’ reírte, loco!`)
+            .setImage(response.data.url);
+        await message.channel.send({ embeds: [memeEmbed] });
+    } catch (error) {
+        console.error(`Error al buscar meme: ${error.message}`);
+        const errorEmbed = createEmbed('#FF1493', `¡Qué cagada, ${userName}!`, 
+            `No pude traer un meme, loco. Probá de nuevo, ¡dale!`);
+        await message.channel.send({ embeds: [errorEmbed] });
+    }
     }
     else if (content === '!milagros') {
         await manejarMilagros(message);
@@ -3319,7 +3328,9 @@ async function manejarCommand(message) {
     }
     else if (content === '!pregunta') {
     const pregunta = preguntas[Math.floor(Math.random() * preguntas.length)];
-    await message.channel.send(`¡Eh, ${userName}! ${pregunta}`);
+    const preguntaEmbed = createEmbed('#FF1493', `¡Pregunta pa’ vos, ${userName}!`, 
+        `${pregunta} ¡Contame, loco, qué pensás!`);
+    await message.channel.send({ embeds: [preguntaEmbed] });
     }
     else if (content.startsWith('!avatar') || content.startsWith('!av')) {
         await manejarAvatar(message);
