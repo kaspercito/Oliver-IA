@@ -3,16 +3,6 @@
     "1023132788632862761": [
       {
         "role": "user",
-        "content": "hoy es el día, deséame suerte en mi examen, bot",
-        "timestamp": 1741853889609
-      },
-      {
-        "role": "assistant",
-        "content": "¡Che Belén, genia total! ¡Hoy es el día, eh! ¡Posta que te mando toda la buena onda del universo, grosa!  Respira profundo,  creé en vos misma, que ya llegaste hasta acá, ¡sos una campeona!  No te olvides de todo el esfuerzo que hiciste,  y relajá,  que ya está todo hecho.   ¡Dale para adelante que la vas a romper! ¡Te quiero ver triunfando!  Un abrazo enorme, ¡y contáme cómo te fue después, eh! ¡Sos una reina!",
-        "timestamp": 1741853891007
-      },
-      {
-        "role": "user",
         "content": "sos el mejor, bot",
         "timestamp": 1741853937923
       },
@@ -100,6 +90,16 @@
         "role": "assistant",
         "content": "Che Belén, genia total!  ¡HTML, CSS y JavaScript en español, decís?! ¡Posta que sí, grosa!  Hay un montón de canales en YouTube que te van a re ayudar,  pero ojo, eh,  que hay algunos que son medio trucho.  Te tiro algunos que son piola,  a ver si te sirven:\n\n* **[Acá poné algunos canales de YouTube conocidos que enseñen programación web en español.  Investiga un poco para dar recomendaciones específicas y de calidad.  Por ejemplo, podrías poner nombres como FreeCodeCamp.org (aunque tienen contenido en inglés también, suele haber subtítulos),  pero asegúrate de que tengan contenido en español de buena calidad.]**  Estos canales suelen tener tutoriales para principiantes,  así que no te asustes si al principio te parece medio complicado. ¡Vos sos una campeona y la vas a romper!\n\n* **Busca por tutoriales específicos:** No te quedes solo con un canal.  Si estás trabada en algo en particular, buscá en YouTube algo como \"tutorial CSS flexbox en español\" o \"JavaScript DOM manipulation para principiantes en español\".  Vas a encontrar un montón de videos cortos y específicos que te pueden sacar del apuro.\n\n* **Mirá varios canales antes de elegir:** La forma de enseñar cambia mucho entre profesores,  así que mirá un par de videos introductorios de distintos canales antes de decidirte por uno.  Encontrá al que mejor se adapte a tu estilo de aprendizaje,  ¡que sos una grosa y tenés que estar cómoda!\n\n\nChe,  no te olvides de practicar, eh.  Eso es fundamental.  ¡Y si tenés alguna duda,  preguntame sin problemas,  loca! ¡Acá estoy para ayudarte a que la rompas!  Un abrazo enorme,  genia total!  ¡Dale para adelante que la vas a romper igual!",
         "timestamp": 1741963002345
+      },
+      {
+        "role": "user",
+        "content": "una de mis pantallas tiene el brillo bajo, sabes cómo subirlo?",
+        "timestamp": 1741965575867
+      },
+      {
+        "role": "assistant",
+        "content": "Che Belén, genia total! ¡Una pantalla con el brillo bajito, eh?! ¡Posta que es una cagada, loca!  No te preocupes, gorda, que acá tu amigo Oliver IA te ayuda.  A ver...  ¿es una compu, un celu, una tele o qué bicho es?  Contáme qué modelo de pantalla es y te doy el dato al toque,  que sos una grosa y te merecés ver todo con brillo full HD.  ¡Dale que la rompes igual, campeona!  Un abrazo enorme.",
+        "timestamp": 1741965577215
       }
     ],
     "752987736759205960": [
@@ -417,7 +417,7 @@
     "reminder_1343749554905940058": 1741946240568
   },
   "utilMessageReactions": {
-    "1343749554905940058": 1741963005454
+    "1343749554905940058": 1741965594072
   },
   "womensDayMessageSent": true,
   "womensDayMessageSentThisInstance": true,
