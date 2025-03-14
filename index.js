@@ -3142,6 +3142,50 @@ manager.on('queueEnd', async player => {
     }
 });
 
+async function manejarJugar(message) {
+    const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
+    console.log(`Iniciando juego para ${userName}`);
+
+    // Genero un número random entre 1 y 10
+    const numeroSecreto = Math.floor(Math.random() * 10) + 1;
+    let intentos = 0;
+    const maxIntentos = 5;
+
+    const inicioEmbed = createEmbed('#FF1493', `¡A jugar, ${userName}!`, 
+        'Adiviná un número entre 1 y 10, loco. Tenés 5 intentos. ¡Mandame tu primer número!');
+    await message.channel.send({ embeds: [inicioEmbed] });
+
+    // Creo un collector para esperar las respuestas
+    const filter = m => m.author.id === message.author.id && !isNaN(m.content) && m.content >= 1 && m.content <= 10;
+    const collector = message.channel.createMessageCollector({ filter, max: maxIntentos, time: 60000 }); // 1 minuto
+
+    collector.on('collect', async m => {
+        intentos++;
+        const guess = parseInt(m.content);
+
+        if (guess === numeroSecreto) {
+            const winEmbed = createEmbed('#FF1493', `¡Ganaste, ${userName}!`, 
+                `¡Lo clavaste en ${intentos} intentos, loco! El número era ${numeroSecreto}. ¿Querés otra ronda?`);
+            await message.channel.send({ embeds: [winEmbed] });
+            collector.stop();
+        } else if (guess < numeroSecreto) {
+            await message.channel.send(`Nah, ${userName}, más alto. Te quedan ${maxIntentos - intentos} intentos.`);
+        } else {
+            await message.channel.send(`No, ${userName}, más bajo. Te quedan ${maxIntentos - intentos} intentos.`);
+        }
+    });
+
+    collector.on('end', (collected, reason) => {
+        if (reason === 'time') {
+            message.channel.send(`¡Se acabó el tiempo, ${userName}! El número era ${numeroSecreto}. ¿Otra ronda?`);
+        } else if (collected.size < maxIntentos) {
+            return; // Ya ganó, no hace falta mensaje extra
+        } else {
+            message.channel.send(`¡Perdiste, ${userName}! El número era ${numeroSecreto}. Te quedaste sin intentos, loco.`);
+        }
+    });
+}
+
 // Comandos
 async function manejarCommand(message) {
     // Acá manejo todos los comandos, el cerebro del bot
@@ -3218,9 +3262,17 @@ async function manejarCommand(message) {
     // Resto de comandos en orden
     else if (content === '!trivia' || content === '!tc') {
         await manejarTrivia(message);
-    }     
+    } else if (content === '!meme') {
+    const response = await axios.get('https://meme-api.com/gimme');
+    const memeEmbed = createEmbed('#FF1493', `¡Meme pa’ vos, ${userName}!`, response.data.title)
+        .setImage(response.data.url);
+    await message.channel.send({ embeds: [memeEmbed] });
+    }
     else if (content === '!milagros') {
         await manejarMilagros(message);
+    } 
+    else if (content.startsWith('!jugar')) {
+        await manejarJugar(message);
     }
     else if (content.startsWith('!avatar') || content.startsWith('!av')) {
         await manejarAvatar(message);
