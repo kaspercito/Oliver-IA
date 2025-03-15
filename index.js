@@ -2078,104 +2078,80 @@ async function manejarReacciones(message) {
     }
 }
 
-//Letras
+// Función pa’ traerte las letras de una canción
 async function manejarLyrics(message) {
-    // Función pa’ traerte las letras de una canción, re copada pa’ cantar
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
-    // Solo funciona en servers, nada de DMs, loco
     if (!message.guild) return sendError(message.channel, `Este comando solo funciona en servidores, ${userName}.`);
 
-    // Saco los argumentos, todo lo que venga después del comando
-    const args = message.content.toLowerCase().split(' ').slice(1).join(' ').trim();
-    // Busco el reproductor del servidor
+    const args = message.content.split(' ').slice(1).join(' ').trim(); // Sin toLowerCase pa’ respetar el título
     const player = manager.players.get(message.guild.id);
     let songTitle;
 
-    // Si no me das un título, uso lo que está sonando o te pido algo
     if (!args) {
         if (!player || !player.queue.current) {
-            // Nada sonando, te aviso en rojo que me des un título
             return sendError(message.channel, `No hay ninguna canción sonando ahora, ${userName}. Usa !lyrics [nombre de la canción] para buscar una específica.`);
         }
-        // Agarro el título de lo que suena
         songTitle = player.queue.current.title;
     } else {
-        // Limpio el título sacando cosas como “(videoclip oficial)”
         songTitle = args.replace(/\s*\(videoclip oficial\)/i, '').trim();
     }
 
-    // Te aviso en celeste que estoy buscando, pa’ que no te impacientes
     const waitingEmbed = createEmbed('#55FFFF', `⌛ Buscando letras, ${userName}...`, `Espera un momento mientras busco las letras de "${songTitle}".`);
     const waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
 
     try {
-        // Armo la URL pa’ buscar en la API de Genius
+        // Busco en la API de Genius
         const searchUrl = `https://api.genius.com/search?q=${encodeURIComponent(songTitle)}`;
-        // Hago la búsqueda con el token de Genius
         const searchResponse = await axios.get(searchUrl, {
             headers: { 'Authorization': `Bearer ${process.env.GENIUS_ACCESS_TOKEN}` }
         });
 
-        // Agarro los resultados de la búsqueda
         const hits = searchResponse.data.response.hits;
-        // Si no hay nada, tiro error
         if (!hits || hits.length === 0) {
             throw new Error('No se encontraron resultados en Genius.');
         }
 
-        // Tomo el ID de la primera canción que encuentro
         const songId = hits[0].result.id;
-
-        // Ahora voy por los detalles de la canción
         const songUrl = `https://api.genius.com/songs/${songId}`;
         const songResponse = await axios.get(songUrl, {
             headers: { 'Authorization': `Bearer ${process.env.GENIUS_ACCESS_TOKEN}` }
         });
 
-        // Saco el camino pa’ la página de letras
         const lyricsPath = songResponse.data.response.song.path;
-
-        // Armo la URL pública de Genius y scrapeo la página
         const lyricsPageUrl = `https://genius.com${lyricsPath}`;
         const lyricsPage = await axios.get(lyricsPageUrl);
-        const lyricsHtml = lyricsPage.data;
-        // Busco el div con las letras usando una regex zarpada
-        const lyricsMatch = lyricsHtml.match(/<div[^>]*class="Lyrics__Container[^"]*"[^>]*>([\s\S]*?)<\/div>/i);
-        let lyrics = lyricsMatch ? lyricsHtml.match(/<div[^>]*class="Lyrics__Container[^"]*"[^>]*>([\s\S]*?)<\/div>/i)[1] : 'No se pudieron extraer las letras.';
-        
-        // Limpio las etiquetas HTML y los saltos de línea extras
-        lyrics = lyrics.replace(/<[^>]+>/g, '').replace(/\n+/g, '\n').trim();
+        const $ = cheerio.load(lyricsPage.data);
 
-        // Si no hay letras o están vacías, tiro error
-        if (!lyrics || lyrics === '') {
+        // Extraigo las letras con cheerio
+        let lyrics = '';
+        $('div[class*="Lyrics__Container"]').each((i, elem) => {
+            lyrics += $(elem).text() + '\n';
+        });
+
+        lyrics = lyrics.trim();
+        if (!lyrics) {
             throw new Error('No se encontraron letras para esta canción.');
         }
 
-        // Limite de Discord pa’ mensajes, 2000 caracteres
         const maxLength = 2000;
         if (lyrics.length <= maxLength) {
-            // Si cabe todo, lo mando en un solo embed dorado
             const embed = createEmbed('#FFD700', `🎵 Letras de "${songTitle}"`, lyrics);
             await waitingMessage.edit({ embeds: [embed] });
         } else {
-            // Si es largo, lo corto en pedazos
             const chunks = [];
             for (let i = 0; i < lyrics.length; i += maxLength) {
                 chunks.push(lyrics.substring(i, i + maxLength));
             }
-            // Primer pedazo editando el mensaje de espera
-            const firstEmbed = createEmbed('#FF1493', `🎵 Letras de "${songTitle}" (Parte 1/${chunks.length})`, chunks[0]);
+            const firstEmbed = createEmbed('#FFD700', `🎵 Letras de "${songTitle}" (Parte 1/${chunks.length})`, chunks[0]);
             await waitingMessage.edit({ embeds: [firstEmbed] });
-            // Los demás pedazos los mando como mensajes nuevos
             for (let i = 1; i < chunks.length; i++) {
-                const embed = createEmbed('#FF1493', `🎵 Letras de "${songTitle}" (Parte ${i + 1}/${chunks.length})`, chunks[i]);
+                const embed = createEmbed('#FFD700', `🎵 Letras de "${songTitle}" (Parte ${i + 1}/${chunks.length})`, chunks[i]);
                 await message.channel.send({ embeds: [embed] });
             }
         }
     } catch (error) {
-        // Si algo falla, te lo digo en rojo con el error
         console.error(`Error al buscar letras para "${songTitle}": ${error.message}`);
-        await waitingMessage.edit({ embeds: [createEmbed('#FF5555', '¡Ups!', `No pude encontrar las letras de "${songTitle}", ${userName}. Puede ser que no esté en Genius o hubo un error: ${error.message}`)] });
+        await waitingMessage.edit({ embeds: [createEmbed('#FF5555', '¡Ups!', `No pude encontrar las letras de "${songTitle}", ${userName}. Error: ${error.message}`)] });
     }
 }
 
@@ -2619,24 +2595,46 @@ async function manejarStop(message) {
 
 // Queue
 async function manejarQueue(message) {
-    // Te muestro la cola de temas, re piola
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
-    // Solo servers, ya sabés
     if (!message.guild) return sendError(message.channel, `Este comando solo funciona en servidores, ${userName}.`);
-    // Busco el reproductor
+    
     const player = manager.players.get(message.guild.id);
-    // Si no hay cola o nada sonando, te corto en rojo
-    if (!player || !player.queue.length) return sendError(message.channel, `No hay canciones en la cola, ${userName}.`);
+    if (!player || (!player.queue.length && !player.queue.current)) {
+        return sendError(message.channel, `No hay canciones en la cola, ${userName}.`);
+    }
 
-    // Armo la lista de la cola con título y duración
+    // Si no hay cola pero hay algo sonando, mostramos solo eso
+    if (!player.queue.length && player.queue.current) {
+        const embed = createEmbed('#FF1493', '📜 Cola de reproducción',
+            `Ahora: **${player.queue.current.title}** - ${Math.floor(player.queue.current.duration / 60000)}:${((player.queue.current.duration % 60000) / 1000).toFixed(0).padStart(2, '0')}\n\nNo hay más temas en la cola, ${userName}.`);
+        return await message.channel.send({ embeds: [embed] });
+    }
+
+    // Armo la lista de la cola
     const queueList = player.queue.map((track, index) => 
         `${index + 1}. **${track.title}** - ${Math.floor(track.duration / 60000)}:${((track.duration % 60000) / 1000).toFixed(0).padStart(2, '0')}`
-    ).join('\n');
-    // Embed dorado con lo que suena ahora y la cola
-    const embed = createEmbed('#FF1493', '📜 Cola de reproducción',
-        `Ahora: **${player.queue.current.title}**\n\n${queueList}`);
-    // Te lo mando al canal
-    await message.channel.send({ embeds: [embed] });
+    );
+
+    // Si es muy larga, la corto en pedazos
+    const maxLength = 1000; // Límite aproximado pa’ no pasarnos del embed
+    let currentMessage = `Ahora: **${player.queue.current.title}** - ${Math.floor(player.queue.current.duration / 60000)}:${((player.queue.current.duration % 60000) / 1000).toFixed(0).padStart(2, '0')}\n\n`;
+    const embeds = [];
+
+    for (let i = 0; i < queueList.length; i++) {
+        const line = queueList[i] + '\n';
+        if (currentMessage.length + line.length > maxLength) {
+            embeds.push(createEmbed('#FF1493', '📜 Cola de reproducción', currentMessage));
+            currentMessage = line;
+        } else {
+            currentMessage += line;
+        }
+    }
+    if (currentMessage) embeds.push(createEmbed('#FF1493', '📜 Cola de reproducción', currentMessage));
+
+    // Mando los embeds
+    for (const embed of embeds) {
+        await message.channel.send({ embeds: [embed] });
+    }
 }
 
 // Repeat
