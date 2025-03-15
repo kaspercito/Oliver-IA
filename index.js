@@ -2466,7 +2466,8 @@ async function manejarActualizaciones(message) {
 // Funciones de música
 async function manejarPlay(message) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
-    const args = message.content.toLowerCase().split(' ').slice(1).join(' ').trim();
+    // Sacamos toLowerCase() y solo tomamos lo que viene después del comando
+    const args = message.content.split(' ').slice(1).join(' ').trim();
     
     console.log(`Iniciando manejarPlay para ${userName} con args: "${args}"`);
     if (!args) return sendError(message.channel, `Dame una canción o un enlace después de "!pl", ${userName}. Ej: !pl https://open.spotify.com/playlist/xxx`);
@@ -2496,6 +2497,7 @@ async function manejarPlay(message) {
             return sendError(message.channel, `No encontré nada con "${args}", ${userName}. ¿Seguro que el enlace está bien?`);
         }
         if (res.loadType === 'LOAD_FAILED') {
+            console.log('Error completo al cargar:', res.exception); // Debug para ver más detalles
             throw new Error(`No pude cargar el enlace: ${res.exception?.message || 'Error desconocido'}`);
         }
 
