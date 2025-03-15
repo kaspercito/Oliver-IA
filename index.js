@@ -3442,11 +3442,25 @@ async function manejarCommand(message) {
             }
     
             const gifUrl = response.data.data.images.original.url;
-            const gifTitle = response.data.data.title || 'Un meme sin título, loco'; // Si no hay título, ponemos algo genérico
+            let gifTitle = response.data.data.title || 'Un meme sin título, loco';
     
-            // Embed del meme con onda argenta y contexto
+            // Limpiamos el "by Algo" y traducimos/adaptamos básico
+            gifTitle = gifTitle.replace(/ by .*$/, ''); // Sacamos el "by Travis" o lo que venga después
+            gifTitle = gifTitle.replace(/GIF$/i, '').trim(); // Sacamos "GIF" del final
+            // Traducción/adaptación manual de palabras comunes
+            gifTitle = gifTitle
+                .replace(/Spanish/i, 'Español')
+                .replace(/Funny/i, 'Gracioso')
+                .replace(/Reaction/i, 'Reacción')
+                .replace(/Cat/i, 'Gato')
+                .replace(/Dog/i, 'Perro')
+                .replace(/Dance/i, 'Baile')
+                .replace(/Fail/i, 'Fallo')
+                .replace(/Uf/i, '¡Uff!'); // Ejemplo con el "Uf" que te salió
+    
+            // Embed del meme con onda argenta y título adaptado
             const memeEmbed = createEmbed('#FF1493', `¡Meme pa’ vos, ${userName}!`, 
-                `${gifTitle}\n¡Tomá este meme bien zarpado, loco! ¿Qué te parece?`)
+                `¡Tomá este meme bien zarpado, loco! ¿Qué te parece?\n**${gifTitle}**`)
                 .setImage(gifUrl);
             await message.channel.send({ embeds: [memeEmbed] });
     
