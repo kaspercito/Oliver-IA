@@ -8,6 +8,7 @@ const Spotify = require('erela.js-spotify'); // Plugin para integrar Spotify con
 const puppeteer = require('puppeteer'); // Para automatización de navegadores (web scraping, capturas de pantalla, etc.).
 const lyricsFinder = require('lyrics-finder'); // Busca letras de canciones.
 const { GoogleGenerativeAI } = require('@google/generative-ai'); // Para usar la API de Google para IA generativa.
+const cheerio = require('cheerio');
 require('dotenv').config(); // Carga variables de entorno desde un archivo .env (como tokens o claves API).
 
 // Creación del cliente de Discord
@@ -3595,7 +3596,7 @@ async function manejarCommand(message) {
     else if (content === '!skip' || content === '!sk') {
         await manejarSkip(message);
     } 
-    else if (content === 'shuffle' || content === '!sh') {
+    else if (content === '!shuffle' || content === '!sh') {
         await manejarShuffle(message);
     }
     else if (content === '!stop' || content === '!st') {
