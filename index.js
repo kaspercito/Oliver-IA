@@ -3430,18 +3430,50 @@ async function manejarCommand(message) {
         await manejarTrivia(message);
     } 
     else if (content === '!meme') {
-    try {
-        const response = await axios.get('https://meme-api.com/gimme/SpanishMemes');
-        const memeEmbed = createEmbed('#FF1493', `¡Meme pa’ vos, ${userName}!`, 
-            `${response.data.title}\n¡Un meme en español pa’ reírte, loco!`)
-            .setImage(response.data.url);
-        await message.channel.send({ embeds: [memeEmbed] });
-    } catch (error) {
-        console.error(`Error al buscar meme: ${error.message}`);
-        const errorEmbed = createEmbed('#FF1493', `¡Qué cagada, ${userName}!`, 
-            `No pude traer un meme, loco. Probá de nuevo, ¡dale!`);
-        await message.channel.send({ embeds: [errorEmbed] });
-    }
+        const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
+        try {
+            // Usamos la API de Reddit pa’ sacar un meme random de r/SpanishMemes
+            const response = await axios.get('https://www.reddit.com/r/SpanishMemes/random.json', {
+                headers: { 'User-Agent': 'DiscordBot' } // Reddit pide un User-Agent
+            });
+            const post = response.data[0].data.children[0].data;
+    
+            // Chequeamos que sea una imagen
+            if (!post.url.match(/\.(jpg|jpeg|png|gif)$/)) {
+                throw new Error('El post no es una imagen, loco.');
+            }
+    
+            // Embed del meme con onda argenta
+            const memeEmbed = createEmbed('#FF1493', `¡Meme argento pa’ vos, ${userName}!`, 
+                `${post.title}\n¡Tomá este meme bien nuestro, loco! ¿Qué te parece?`)
+                .setImage(post.url);
+            await message.channel.send({ embeds: [memeEmbed] });
+    
+            // Lista de preguntas con onda argentina
+            const preguntasMeme = [
+                '¿Qué meme mandarías vos pa’ responderle a este, loco?',
+                '¿En qué situación de tu vida usarías este meme, posta?',
+                '¿Qué amigo tuyo se reiría a lo loco con esto?',
+                '¿Qué le dirías al que hizo este meme si lo cruzás en la calle?',
+                '¿Este meme te pega más pa’ un asado o pa’ un bondi aburrido?',
+                '¿Qué título argento le pondrías vos a este meme?',
+                '¿Qué cara pusiste cuando viste este meme, loco?',
+                '¿Qué harías si este meme se hace viral en tu grupo de WhatsApp?',
+                '¿Este meme te representa un lunes o un viernes a la noche?',
+                '¿Qué comida argenta le va perfecto a este meme pa’ compartirlo?'
+            ];
+    
+            // Pregunta random después del meme
+            const pregunta = preguntasMeme[Math.floor(Math.random() * preguntasMeme.length)];
+            const preguntaEmbed = createEmbed('#FF1493', `¡Eh, ${userName}, una yapa!`, 
+                `${pregunta} ¡Contame al toque, loco!`);
+            await message.channel.send({ embeds: [preguntaEmbed] });
+        } catch (error) {
+            console.error(`Error al buscar meme: ${error.message}`);
+            const errorEmbed = createEmbed('#FF1493', `¡Qué quilombo, ${userName}!`, 
+                `No pude traer un meme, loco. Algo falló: ${error.message}. ¿Probamos de nuevo, dale?`);
+            await message.channel.send({ embeds: [errorEmbed] });
+        }
     }
     else if (content === '!milagros') {
         await manejarMilagros(message);
