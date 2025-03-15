@@ -2569,15 +2569,13 @@ function parsearTiempo(texto) {
 
 async function manejarRecordatorio(message) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
-    const args = message.content.split(' ').slice(1).join(' ').trim(); // ¡Acá estaba el error!
+    const args = message.content.split(' ').slice(1).join(' ').trim();
 
     if (!args) return sendError(message.channel, `¡Mandame algo pa’ recordar, ${userName}! Ejemplo: "!rec comprar sanduche de miga en 1 hora".`);
 
-    // Separamos el tiempo del mensaje
     const palabras = args.split(' ');
     let tiempoIndex = -1;
 
-    // Buscamos dónde empieza el tiempo (miramos palabras clave como "en", "mañana", o fechas)
     for (let i = 0; i < palabras.length; i++) {
         if (
             palabras[i].toLowerCase() === 'en' ||
@@ -2591,7 +2589,6 @@ async function manejarRecordatorio(message) {
 
     if (tiempoIndex === -1) return sendError(message.channel, `No entendí el tiempo, ${userName}. Usá "en 5 minutos", "mañana 15:00" o "20/03 14:30".`);
 
-    // El mensaje es todo lo que está antes del tiempo, el tiempo es lo que sigue
     const mensaje = palabras.slice(0, tiempoIndex).join(' ').trim();
     const tiempoTexto = palabras.slice(tiempoIndex).join(' ').trim();
 
@@ -2606,7 +2603,7 @@ async function manejarRecordatorio(message) {
     const recordatorio = {
         id,
         userId: message.author.id,
-        channelId: message.channel.id,
+        channelId: message.channel.id, // Puedes mantener esto si necesitas referencia al canal original
         mensaje,
         timestamp: fechaObjetivo.getTime(),
         creado: new Date().getTime()
@@ -2614,27 +2611,33 @@ async function manejarRecordatorio(message) {
     dataStore.recordatorios.push(recordatorio);
     dataStoreModified = true;
 
-    // Calculamos el tiempo y formateamos la fecha
     const diferencia = fechaObjetivo.getTime() - Date.now();
     const fechaStr = fechaObjetivo.toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' });
 
-    // Confirmación
+    // Confirmación en el canal original
     await sendSuccess(message.channel, '⏰ ¡Recordatorio seteado!', 
-        `Te aviso "${mensaje}" el ${fechaStr}, ${userName}. ¡No te duermas, loco!`);
+        `Te aviso "${mensaje}" el ${fechaStr} por DM, ${userName}. ¡No te duermas, loco!`);
 
-    // Si es en menos de 24 horas, usamos setTimeout
+    // Enviar el recordatorio por DM
     if (diferencia < 24 * 60 * 60 * 1000) {
         setTimeout(async () => {
-            const canal = client.channels.cache.get(recordatorio.channelId);
-            if (canal) {
-                await canal.send({ embeds: [createEmbed('#FF1493', '⏰ ¡Recordatorio, loco!', 
-                    `<@${recordatorio.userId}>, acordate de: **${recordatorio.mensaje}**. ¡Ya es hora, ${userName}!`)] });
+            try {
+                // Obtener el usuario y enviar el mensaje por DM
+                const usuario = await client.users.fetch(recordatorio.userId);
+                if (usuario) {
+                    await usuario.send({ embeds: [createEmbed('#FF1493', '⏰ ¡Recordatorio, loco!', 
+                        `<@${recordatorio.userId}>, acordate de: **${recordatorio.mensaje}**. ¡Ya es hora, ${userName}!`)] });
+                }
+            } catch (error) {
+                console.error(`No pude enviar DM al usuario ${recordatorio.userId}: ${error}`);
             }
+            // Limpiar el recordatorio de la lista
             dataStore.recordatorios = dataStore.recordatorios.filter(r => r.id !== id);
             dataStoreModified = true;
         }, diferencia);
     }
 }
+
 // Responder
 async function manejarResponder(message) {
     // Comando solo pa’ Miguel pa’ responderle a Belén por MD
