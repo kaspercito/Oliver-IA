@@ -89,6 +89,7 @@ const BOT_UPDATES = [
     '¡Charla loca! Usá !pregunta y te tiro una pregunta random pa’ que nos copemos charlando.',
     '¡Preguntas a full! La lista de !pregunta pasó de 30 a 150, pa’ que no te aburras nunca, posta.',
     '¡Memes con yapa! Ahora con !meme te traigo puros memes en español pa’ que le des rosca.',
+    'Agregado !pr, Che.',
 ];
 
 const preguntas = [
