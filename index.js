@@ -76,7 +76,7 @@ const BOT_UPDATES = [
     '¡Traductor piola con !traducí! Traduzco frases cortas a cualquier idioma, joya pa’ practicar.',
     "¡Oliver ahora se acuerda de las últimas 20 charlas, posta! Preguntale lo que sea con !chat y sigue la onda como amigo piola.",
     "El mensaje diario a Belén ahora se envía una vez por día y respeta las reacciones ✅ o ❌ pa' no spamear. Si reacciona, no se repite hasta mañana, ¡posta!",
-    "¡Arreglado la opción de segunda respuestas uando reaccionás con ❌! Más rápido y copado, loco.",
+    "¡Arreglado la opción de segunda respuestas cuando reaccionás con ❌! Más rápido y copado, loco.",
     '¡Nuevo !imagen / !im agregado! Generá imágenes zarpadas con Stable Diffusion, pedí lo que quieras (ej. !imagen un mate [cartoon]) y confirmá con ✅, loco.',
     '¡Historial de imágenes con !misimagenes / !mi! Mirá tus últimas 5 imágenes generadas con sus IDs, pa’ que no pierdas nada, che.',
     '¡Edición piola con !editarimagen / !ei! Modificá tus imágenes guardadas (ej. !editarimagen [ID] agregar un perro), solo las que hice yo, ¡posta!',
@@ -84,17 +84,18 @@ const BOT_UPDATES = [
     '¡Nuevo !ansiedad / !an agregado! Consejos rápidos pa’ calmar la ansiedad, con un mensaje zarpado de Miguel pa’ darte pilas, ¡genia!',
     '¡Nuevo !milagros revisa tus nombres en diferente idioma de buena onda pa’ hacerla sonreír, ¡re milagroso, che!',
     '¡Nuevo comando !avatar pa’ que Miguel y Belén me cambien la cara!',
-    'Agregué embeds copados pa’ que todo se vea más lindo.',
-    '¡Nuevo juego! Usá !jugar pa’ adivinar un número y sacarte el aburrimiento, loco.',           // Nuevo
-    '¡Memes al toque! Con !meme te traigo uno random pa’ reírte un rato.',                      // Nuevo
+    'Agregado embeds copados pa’ que todo se vea más lindo.',
+    '¡Nuevo juego! Usá !jugar pa’ adivinar un número y sacarte el aburrimiento, loco.',
+    '¡Memes al toque! Con !meme te traigo uno random pa’ reírte un rato.',
     '¡Charla loca! Usá !pregunta y te tiro una pregunta random pa’ que nos copemos charlando.',
     '¡Preguntas a full! La lista de !pregunta pasó de 30 a 150, pa’ que no te aburras nunca, posta.',
     '¡Memes con yapa! Ahora con !meme te traigo puros memes en español pa’ que le des rosca.',
     'Agregado !pr, Che.',
     '¡Música a full! Mejoramos las funciones de música: ahora podés tirar enlaces de playlists de YouTube y Spotify sin drama, y sumamos el comando !shuffle pa’ revolver la cola como loco.',
-    '¡Le metimos pilas al bot, che! Ahora podés jugar Piedra, Papel o Tijera y romperla toda:',  
+    '¡Le metimos pilas al bot, che! Ahora podés jugar Piedra, Papel o Tijera y romperla toda:',
     '- !ppt [piedra/papel/tijera]: Jugá contra mí, el bot más grosso del condado. Elegí tu jugada y vemos quién la pica, ¡dale!',
     '- !ppt @alguien: Desafiá a un amigo a un duelo épico. Reacciona con ✅ pa’ aceptar, mandá tu elección por MD y que gane el mejor, ¡posta!',
+    '¡Nuevo !recordatorio / !rec agregado! Te hago acordar lo que sea cuando quieras. Ejemplo: "!rec \'comprar sanduche de miga\' en 1 hora" o "!rec \'llamar a Miguel\' mañana 14:30", ¡posta!',
 ];
 
 const opcionesPPT = ['piedra', 'papel', 'tijera'];
@@ -2533,6 +2534,91 @@ async function manejarAvatar(message) {
     }
 }
 
+function parsearTiempo(texto) {
+    const ahora = new Date();
+    let fechaObjetivo = new Date(ahora);
+
+    // Expresiones regulares pa’ capturar el tiempo
+    const enMinutos = texto.match(/en (\d+) minuto(s)?/i);
+    const enHoras = texto.match(/en (\d+) hora(s)?/i);
+    const enDias = texto.match(/en (\d+) día(s)?/i);
+    const mañana = texto.match(/mañana (?:a las )?(\d{1,2}):(\d{2})/i);
+    const fechaEspecifica = texto.match(/(\d{1,2})\/(\d{1,2})(?: a las (\d{1,2}):(\d{2}))?/i);
+
+    if (enMinutos) {
+        fechaObjetivo.setMinutes(ahora.getMinutes() + parseInt(enMinutos[1]));
+    } else if (enHoras) {
+        fechaObjetivo.setHours(ahora.getHours() + parseInt(enHoras[1]));
+    } else if (enDias) {
+        fechaObjetivo.setDate(ahora.getDate() + parseInt(enDias[1]));
+    } else if (mañana) {
+        fechaObjetivo.setDate(ahora.getDate() + 1);
+        fechaObjetivo.setHours(parseInt(mañana[1]), parseInt(mañana[2]), 0, 0);
+    } else if (fechaEspecifica) {
+        const dia = parseInt(fechaEspecifica[1]);
+        const mes = parseInt(fechaEspecifica[2]) - 1; // Meses en JS son 0-11
+        const hora = fechaEspecifica[3] ? parseInt(fechaEspecifica[3]) : 0;
+        const minutos = fechaEspecifica[4] ? parseInt(fechaEspecifica[4]) : 0;
+        fechaObjetivo = new Date(ahora.getFullYear(), mes, dia, hora, minutos);
+    } else {
+        return null; // Si no entiende, devolvemos null
+    }
+
+    return fechaObjetivo.getTime() > ahora.getTime() ? fechaObjetivo : null; // Solo futuro
+}
+
+async function manejarRecordatorio(message) {
+    const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
+    const args = message.content.split(' ').slice(1).join(' ').trim();
+
+    if (!args) return sendError(message.channel, `¡Mandame algo pa’ recordar, ${userName}! Ejemplo: "!rec comprar sanguche de miga en 1 hora".`);
+
+    // Separamos el mensaje del tiempo
+    const partes = args.split('"');
+    if (partes.length < 3 || !partes[1]) return sendError(message.channel, `¡Poné el recordatorio entre comillas, ${userName}! Ejemplo: "!rec \'llamar a Miguel\' mañana 14:30".`);
+    const mensaje = partes[1].trim();
+    const tiempoTexto = partes[2]?.trim() || '';
+
+    const fechaObjetivo = parsearTiempo(tiempoTexto);
+    if (!fechaObjetivo) return sendError(message.channel, `No entendí el tiempo, ${userName}. Usá "en 5 minutos", "en 1 hora", "mañana 15:00" o "20/03 14:30".`);
+
+    // Guardamos el recordatorio
+    dataStore.recordatorios = dataStore.recordatorios || [];
+    const id = uuidv4(); // ID único pa’ cada recordatorio
+    const recordatorio = {
+        id,
+        userId: message.author.id,
+        channelId: message.channel.id,
+        mensaje,
+        timestamp: fechaObjetivo.getTime(),
+        creado: new Date().getTime()
+    };
+    dataStore.recordatorios.push(recordatorio);
+    dataStoreModified = true;
+
+    // Calculamos el tiempo hasta el recordatorio
+    const diferencia = fechaObjetivo.getTime() - Date.now();
+    const fechaStr = fechaObjetivo.toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' });
+
+    // Mensaje de confirmación
+    await sendSuccess(message.channel, '⏰ ¡Recordatorio seteado!', 
+        `Te aviso "${mensaje}" el ${fechaStr}, ${userName}. ¡No te duermas, loco!`);
+
+    // Si es en menos de 24 horas, usamos setTimeout
+    if (diferencia < 24 * 60 * 60 * 1000) {
+        setTimeout(async () => {
+            const canal = client.channels.cache.get(recordatorio.channelId);
+            if (canal) {
+                await canal.send({ embeds: [createEmbed('#FF1493', '⏰ ¡Recordatorio, loco!', 
+                    `<@${recordatorio.userId}>, acordate de: **${recordatorio.mensaje}**. ¡Ya es hora, ${userName}!`)] });
+            }
+            // Borramos el recordatorio
+            dataStore.recordatorios = dataStore.recordatorios.filter(r => r.id !== id);
+            dataStoreModified = true;
+        }, diferencia);
+    }
+}
+
 // Responder
 async function manejarResponder(message) {
     // Comando solo pa’ Miguel pa’ responderle a Belén por MD
@@ -2610,11 +2696,20 @@ async function manejarActualizaciones(message) {
     await message.channel.send({ embeds: [embed] });
 }
 
+function crearBossBar(currentTime, duration) {
+    const progreso = Math.min(currentTime / duration, 1); // 0 a 1
+    const segmentos = 10; // Largo de la barra
+    const llenos = Math.floor(progreso * segmentos);
+    const vacios = segmentos - llenos;
+    const porcentaje = Math.round(progreso * 100);
+    return `[${'█'.repeat(llenos)}${'-'.repeat(vacios)}] ${porcentaje}%`;
+}
+
 // Funciones de música
 async function manejarPlay(message) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
     const args = message.content.split(' ').slice(1).join(' ').trim();
-    
+
     console.log(`Iniciando manejarPlay para ${userName} con args: "${args}"`);
     if (!message.guild) return sendError(message.channel, `Este comando solo va en servidores, ${userName}.`);
     if (!message.member || !message.member.voice.channel) return sendError(message.channel, `Metete en un canal de voz primero, ${userName}.`);
@@ -2662,15 +2757,48 @@ async function manejarPlay(message) {
         }
 
         // Embed con boss bar inicial
-        const duration = `${Math.floor(track.duration / 60000)}:${((track.duration % 60000) / 1000).toFixed(0).padStart(2, '0')}`;
-        const bossBar = '[----------]'; // 10 segmentos vacíos
-        const embed = createEmbed('#FF1493', '▶️ ¡Reproduciendo ahora!', `${track.title}\nDuración: ${duration}\nProgreso: ${bossBar} 0:00 / ${duration}`)
+        const durationStr = `${Math.floor(track.duration / 60000)}:${((track.duration % 60000) / 1000).toFixed(0).padStart(2, '0')}`;
+        const bossBar = crearBossBar(0, track.duration);
+        const embed = createEmbed('#FF1493', `🎶 ¡Música pa’ ${userName}!`, 
+            `▶️ ¡Sonando ahora, loco!  
+            **${track.title}**  
+            Duración: ${durationStr}  
+            Progreso: ${bossBar}  
+            ¡Que lo disfrutes, ${userName}! La rompo toda, che.`)
             .setThumbnail(track.thumbnail || null);
         const progressMessage = await message.channel.send({ embeds: [embed] });
 
         // Guardamos el mensaje y datos en el player
         player.set('progressMessage', progressMessage);
         player.set('currentTrack', track);
+
+        // Temporizador para actualizar la boss bar
+        const intervalo = setInterval(() => {
+            if (!player.playing || !player.queue.current) {
+                clearInterval(intervalo);
+                return;
+            }
+
+            const currentTime = player.position; // En milisegundos
+            const duration = track.duration; // En milisegundos
+            const currentStr = `${Math.floor(currentTime / 60000)}:${((currentTime % 60000) / 1000).toFixed(0).padStart(2, '0')}`;
+            const bossBar = crearBossBar(currentTime, duration);
+
+            const updatedEmbed = createEmbed('#FF1493', `🎶 ¡Música pa’ ${userName}!`, 
+                `▶️ ¡Sonando ahora, loco!  
+                **${track.title}**  
+                Duración: ${durationStr}  
+                Progreso: ${bossBar} ${currentStr} / ${durationStr}  
+                ¡Que lo disfrutes, ${userName}! La rompo toda, che.`)
+                .setThumbnail(track.thumbnail || null);
+            progressMessage.edit({ embeds: [updatedEmbed] }).catch(err => {
+                console.error('Error editando boss bar:', err);
+                clearInterval(intervalo);
+            });
+        }, 5000); // Actualiza cada 5 segundos
+
+        // Limpiamos el intervalo cuando el tema termina
+        player.once('trackEnd', () => clearInterval(intervalo));
 
     } catch (error) {
         console.error(`Error al buscar "${args}": ${error.message}`);
@@ -2837,49 +2965,80 @@ async function manejarRepeat(message) {
     }
 }
 
-// Back
 async function manejarBack(message) {
-    // Volvemos al tema anterior, como en los viejos tiempos
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
-    // Solo servers, loco
-    if (!message.guild) return sendError(message.channel, `Este comando solo funciona en servidores, ${userName}.`);
+
+    // Solo en servidores, como siempre
+    if (!message.guild) return sendError(message.channel, `Este comando solo va en servidores, ${userName}. ¡No me rompas las bolas!`);
+
     // Busco el reproductor
     const player = manager.players.get(message.guild.id);
-    // Si no hay música, te corto en rojo
-    if (!player) return sendError(message.channel, `No hay música en reproducción, ${userName}.`);
-    // Si no hay tema anterior, te aviso en rojo
-    if (!player.queue.previous) return sendError(message.channel, `No hay canción anterior, ${userName}.`);
+    if (!player) return sendError(message.channel, `No hay nada sonando, ${userName}. ¡Mandame un !play primero, loco!`);
 
-    // Pongo el tema anterior al frente de la cola y salto el actual
-    player.queue.unshift(player.queue.previous);
-    player.stop();
-    // Te confirmo en verde que volvimos atrás
-    await sendSuccess(message.channel, '⏮️ ¡Volviendo atrás!',
-        `Reproduciendo la canción anterior: **${player.queue.current.title}**, ${userName}.`);
+    // Chequeo si hay historial
+    dataStore.musicSessions[message.guild.id] = dataStore.musicSessions[message.guild.id] || {};
+    const historial = dataStore.musicSessions[message.guild.id].history || [];
+    if (historial.length === 0 && !player.queue.previous) return sendError(message.channel, `No hay canciones anteriores, ${userName}. ¡Es el principio del camino, che!`);
+
+    // Parseo el argumento (cuántas canciones retroceder)
+    const args = message.content.split(' ').slice(1).join(' ').trim();
+    const pasos = args ? parseInt(args) : 1; // Por defecto, 1 canción atrás
+    if (isNaN(pasos) || pasos < 1) return sendError(message.channel, `Mandame un número válido, ${userName}. Ejemplo: "!back 2", loco.`);
+
+    // Combinamos el historial guardado con el previous actual
+    const temasAnteriores = [...historial];
+    if (player.queue.previous) temasAnteriores.unshift(player.queue.previous);
+
+    // Si no hay suficientes temas para retroceder
+    if (pasos > temasAnteriores.length) return sendError(message.channel, `No hay tantas canciones atrás, ${userName}. Solo tengo ${temasAnteriores.length} en el historial.`);
+
+    // Tomamos el tema al que queremos volver
+    const temaObjetivo = temasAnteriores[pasos - 1]; // -1 porque el índice empieza en 0
+
+    // Agregamos el tema objetivo al frente de la cola
+    player.queue.unshift(temaObjetivo);
+    player.stop(); // Saltamos el tema actual para que suene el anterior
+
+    // Actualizamos el historial (el tema actual pasa al historial)
+    if (player.queue.current) {
+        dataStore.musicSessions[message.guild.id].history = [player.queue.current, ...temasAnteriores.slice(0, pasos - 1)];
+        dataStoreModified = true;
+    }
+
+    // Confirmación con onda
+    await sendSuccess(message.channel, '⏮️ ¡Volviendo en el tiempo!', 
+        `Ahora suena **${temaObjetivo.title}**, ${userName}. Retrocedí ${pasos} tema${pasos > 1 ? 's' : ''}, ¡una máquina del tiempo, che!`);
 }
 
 // Autoplay
 async function manejarAutoplay(message) {
-    // Prendo o apago el autoplay, re práctico
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
-    // Solo en servers, como siempre
-    if (!message.guild) return sendError(message.channel, `Este comando solo funciona en servidores, ${userName}.`);
+
+    // Solo en servidores, obvio
+    if (!message.guild) return sendError(message.channel, `Este comando solo va en servidores, ${userName}. ¡No me rompas las bolas!`);
+
+    // Chequeo si el usuario está en un canal de voz
+    if (!message.member || !message.member.voice.channel) return sendError(message.channel, `Metete en un canal de voz primero, ${userName}. ¿Qué querés que haga sin música?`);
+
     // Busco el reproductor
     const player = manager.players.get(message.guild.id);
-    // Si no hay música, te corto en rojo
-    if (!player) return sendError(message.channel, `No hay música en reproducción, ${userName}.`);
+    if (!player) return sendError(message.channel, `No hay nada sonando, ${userName}. ¡Mandame un !play primero, loco!`);
 
-    // Chequeo si el autoplay ya está prendido
-    const autoplayEnabled = dataStore.musicSessions[message.guild.id]?.autoplay || false;
     // Inicializo la sesión si no existe
     dataStore.musicSessions[message.guild.id] = dataStore.musicSessions[message.guild.id] || {};
+    const autoplayEnabled = dataStore.musicSessions[message.guild.id].autoplay || false;
+
     // Toggle del autoplay
     dataStore.musicSessions[message.guild.id].autoplay = !autoplayEnabled;
     dataStoreModified = true;
 
-    // Te confirmo en verde si lo prendí o apagué
-    await sendSuccess(message.channel, dataStore.musicSessions[message.guild.id].autoplay ? '🎵 ¡Autoplay activado!' : '⏹️ ¡Autoplay desactivado!',
-        `El autoplay está ahora ${dataStore.musicSessions[message.guild.id].autoplay ? 'activado' : 'desactivado'}, ${userName}.`);
+    // Mensaje copado según el estado
+    const estado = dataStore.musicSessions[message.guild.id].autoplay;
+    const mensaje = estado
+        ? `🎵 ¡Autoplay prendido, ${userName}! Ahora sigo poniendo temas sin parar, loco. ¡A romperla!`
+        : `⏹️ ¡Autoplay apagado, ${userName}! Cuando se acabe la cola, me callo la boca, che.`;
+    
+    await sendSuccess(message.channel, estado ? '🎵 ¡Autoplay activado!' : '⏹️ ¡Autoplay desactivado!', mensaje);
 }
 
 // Ranking con top por categoría para Trivia, Reacciones y PPM
@@ -3402,140 +3561,138 @@ manager.on('nodeConnect', node => console.log(`Nodo ${node.options.identifier} c
 manager.on('nodeError', (node, error) => console.error(`Error en nodo ${node.options.identifier}: ${error.message}`));
 // Si un nodo falla, lo logueo con el error
 
-manager.on('trackStart', async (player, track) => {
-    // Cuando arranca un tema, te lo anuncio
+manager.on('queueEnd', async player => {
     const channel = client.channels.cache.get(player.textChannel);
     const guildId = player.guild;
-    
-    // Guardo el identifier del tema actual pa’ el autoplay
+    const autoplay = dataStore.musicSessions[guildId]?.autoplay || false;
+    const userName = player.queue.current?.requester?.id === OWNER_ID ? 'Miguel' : 'Belén';
+
+    if (autoplay && channel) {
+        try {
+            let trackIdentifier = null;
+
+            // Paso 1: Intentamos con el tema actual, anterior o guardado
+            if (player.queue.current?.identifier) {
+                trackIdentifier = player.queue.current.identifier;
+                console.log(`Usando currentTrack identifier: ${trackIdentifier}`);
+            } else if (player.queue.previous?.identifier) {
+                trackIdentifier = player.queue.previous.identifier;
+                console.log(`Usando previousTrack identifier: ${trackIdentifier}`);
+                await channel.send({ embeds: [createEmbed('#FF1493', 'ℹ️ Autoplay ajustado', 
+                    `No hay tema actual, voy con el anterior, ${userName}.`)] });
+            } else if (dataStore.musicSessions[guildId]?.lastTrackIdentifier) {
+                trackIdentifier = dataStore.musicSessions[guildId].lastTrackIdentifier;
+                console.log(`Usando lastTrackIdentifier: ${trackIdentifier}`);
+                await channel.send({ embeds: [createEmbed('#FF1493', 'ℹ️ Autoplay ajustado', 
+                    `No hay temas recientes, uso el último guardado, ${userName}.`)] });
+            }
+
+            // Paso 2: Si no hay identifier, buscamos algo genérico como fallback
+            if (!trackIdentifier) {
+                console.log('Sin identifier, buscando algo genérico...');
+                const fallbackSearch = await manager.search('lofi beats', client.user); // O lo que quieras como default
+                if (fallbackSearch.tracks.length > 0) {
+                    const nextTrack = fallbackSearch.tracks[0];
+                    player.queue.add(nextTrack);
+                    player.play();
+                    await channel.send({ embeds: [createEmbed('#FF1493', '🎵 ¡Autoplay improvisado!', 
+                        `No encontré relacionados, pero te meto **${nextTrack.title}**, ${userName}. ¡Seguimos la fiesta, loco!`)] 
+                        .setThumbnail(nextTrack.thumbnail || null) });
+                    return;
+                } else {
+                    throw new Error('Ni el fallback funcionó, qué quilombo.');
+                }
+            }
+
+            // Paso 3: Buscamos temas relacionados
+            const related = await manager.search(`related:${trackIdentifier}`, client.user);
+            console.log(`Búsqueda relacionada: ${related.loadType}, tracks: ${related.tracks.length}`);
+
+            if (related.tracks.length > 0) {
+                const nextTrack = related.tracks[0];
+                player.queue.add(nextTrack);
+                player.play();
+                const durationStr = `${Math.floor(nextTrack.duration / 60000)}:${((nextTrack.duration % 60000) / 1000).toFixed(0).padStart(2, '0')}`;
+                await channel.send({ embeds: [createEmbed('#FF1493', '🎵 ¡Autoplay en acción!', 
+                    `Añadí **${nextTrack.title}** pa’ seguirla, ${userName}.  
+                    Duración: ${durationStr}  
+                    ¡A romperla toda, che!`)] 
+                    .setThumbnail(nextTrack.thumbnail || null) });
+                return;
+            } else {
+                // Paso 4: Si no hay relacionados, intentamos un fallback
+                console.log('Sin temas relacionados, buscando fallback...');
+                const fallbackSearch = await manager.search('lofi beats', client.user);
+                if (fallbackSearch.tracks.length > 0) {
+                    const nextTrack = fallbackSearch.tracks[0];
+                    player.queue.add(nextTrack);
+                    player.play();
+                    await channel.send({ embeds: [createEmbed('#FF1493', '🎵 ¡Autoplay improvisado!', 
+                        `No encontré relacionados, pero te meto **${nextTrack.title}**, ${userName}. ¡Seguimos, loco!`)] 
+                        .setThumbnail(nextTrack.thumbnail || null) });
+                    return;
+                }
+            }
+
+            // Si llegamos acá, no hay nada
+            throw new Error('No encontré ni relacionados ni fallback.');
+        } catch (error) {
+            console.error(`Error en autoplay: ${error.message}`);
+            await channel.send({ embeds: [createEmbed('#FF1493', '⚠️ Autoplay falló', 
+                `No pude encontrar temas, ${userName}. Error: ${error.message}. ¡Mandame algo con !play, che!`)] });
+            player.destroy();
+            delete dataStore.musicSessions[guildId];
+            dataStoreModified = true;
+        }
+    } else if (channel) {
+        await channel.send({ embeds: [createEmbed('#FF1493', '🏁 Cola terminada', 
+            `No hay más temas, ${userName}. ¡Añadí algo con !play o prendé el autoplay, loco!`)] });
+        player.destroy();
+        delete dataStore.musicSessions[guildId];
+        dataStoreModified = true;
+    }
+});
+
+manager.on('trackStart', async (player, track) => {
+    const channel = client.channels.cache.get(player.textChannel);
+    const guildId = player.guild;
+    const userName = player.queue.current.requester.id === OWNER_ID ? 'Miguel' : 'Belén';
+
     dataStore.musicSessions[guildId] = dataStore.musicSessions[guildId] || {};
     dataStore.musicSessions[guildId].lastTrackIdentifier = track.identifier;
     dataStoreModified = true;
     console.log(`Track started: ${track.title}, identifier saved: ${track.identifier}`);
 
     if (channel) {
-        // Embed verde con el tema que arrancó
-        const embed = createEmbed('#FF1493', '▶️ ¡Reproduciendo ahora!',
-            `**${track.title}**\nDuración: ${Math.floor(track.duration / 60000)}:${((track.duration % 60000) / 1000).toFixed(0).padStart(2, '0')}`)
+        const durationStr = `${Math.floor(track.duration / 60000)}:${((track.duration % 60000) / 1000).toFixed(0).padStart(2, '0')}`;
+        const embed = createEmbed('#FF1493', `🎶 ¡Música pa’ ${userName}!`,
+            `▶️ ¡Sonando ahora, loco!  
+            **${track.title}**  
+            Duración: ${durationStr}  
+            ¡A romperla, ${userName}!`)
             .setThumbnail(track.thumbnail || null);
         await channel.send({ embeds: [embed] });
     }
 });
 
-manager.on('queueEnd', async player => {
-    // Cuando se acaba la cola, manejo el autoplay o te aviso
-    const channel = client.channels.cache.get(player.textChannel);
-    const guildId = player.guild;
-    const autoplay = dataStore.musicSessions[guildId]?.autoplay || false;
-
-    if (autoplay && channel) {
-        try {
-            let trackIdentifier = null;
-
-            // Intento 1: Uso el tema actual
-            const currentTrack = player.queue.current;
-            console.log(`queueEnd: currentTrack = ${JSON.stringify(currentTrack)}`);
-            if (currentTrack && currentTrack.identifier) {
-                trackIdentifier = currentTrack.identifier;
-            } else {
-                // Intento 2: Uso el tema anterior
-                const previousTrack = player.queue.previous;
-                console.log(`currentTrack nulo, intentando previousTrack = ${JSON.stringify(previousTrack)}`);
-                if (previousTrack && previousTrack.identifier) {
-                    trackIdentifier = previousTrack.identifier;
-                    await channel.send({ embeds: [createEmbed('#FF1493', 'ℹ️ Autoplay ajustado', 
-                        'No hay canción actual, usando la anterior para continuar.')] });
-                } else {
-                    // Intento 3: Uso el último identifier guardado
-                    const lastIdentifier = dataStore.musicSessions[guildId]?.lastTrackIdentifier;
-                    console.log(`previousTrack nulo, intentando lastTrackIdentifier = ${lastIdentifier}`);
-                    if (lastIdentifier) {
-                        trackIdentifier = lastIdentifier;
-                        await channel.send({ embeds: [createEmbed('#FF1493', 'ℹ️ Autoplay ajustado', 
-                            'No hay canciones recientes, usando el último registro para continuar.')] });
-                    }
-                }
-            }
-
-            // Si no encuentro nada, corto el autoplay
-            if (!trackIdentifier) {
-                await channel.send({ embeds: [createEmbed('#FF1493', '⚠️ Autoplay detenido', 
-                    'No hay canciones recientes para buscar relacionadas. Usa !pl para añadir más música.')] });
-                return;
-            }
-
-            // Busco temas relacionados con el identifier
-            const related = await manager.search(`related:${trackIdentifier}`, client.user);
-            console.log(`Búsqueda relacionada: ${related.loadType}, tracks: ${related.tracks.length}`);
-            
-            if (related.tracks.length > 0) {
-                // Agrego el primer tema relacionado y lo toco
-                const nextTrack = related.tracks[0];
-                player.queue.add(nextTrack);
-                player.play();
-                // Te aviso en verde qué agregué
-                const embed = createEmbed('#FF1493', '🎵 ¡Autoplay en acción!',
-                    `Añadí **${nextTrack.title}** automáticamente.\nDuración: ${Math.floor(nextTrack.duration / 60000)}:${((nextTrack.duration % 60000) / 1000).toFixed(0).padStart(2, '0')}`)
-                    .setThumbnail(nextTrack.thumbnail || null);
-                await channel.send({ embeds: [embed] });
-                return;
-            } else {
-                // Si no hay relacionados, te aviso en rojo
-                await channel.send({ embeds: [createEmbed('#FF1493', '⚠️ Autoplay falló', 
-                    'No encontré canciones relacionadas. Usa !pl para continuar.')] });
-            }
-        } catch (error) {
-            // Si falla el autoplay, te aviso en rojo
-            console.error(`Error en autoplay: ${error.message}`);
-            await channel.send({ embeds: [createEmbed('#FF1493', '⚠️ Error en Autoplay', 
-                `Algo salió mal: ${error.message}. Intenta con !pl.`)] });
-        }
-    }
-
-    if (channel) {
-        // Si no hay autoplay, te aviso en rojo que se acabó la cola
-        await channel.send({ embeds: [createEmbed('#FF1493', '🏁 Cola terminada', 
-            'No hay más canciones. ¡Añade más con !pl!')] });
-    }
-    // Si no hay autoplay, destruyo el player
-    if (!autoplay) {
-        player.destroy();
-        delete dataStore.musicSessions[player.guild];
-        dataStoreModified = true;
-    }
-});
-
-manager.on('playerMove', (player) => {
-    const progressMessage = player.get('progressMessage');
-    const track = player.get('currentTrack');
-    if (!progressMessage || !track) return;
-
-    // Calculamos el progreso
-    const currentTime = player.position; // En milisegundos
-    const duration = track.duration; // En milisegundos
-    const progress = Math.min(currentTime / duration, 1); // 0 a 1
-    const segments = 10; // Cantidad de bloques en la barra
-    const filled = Math.floor(progress * segments); // Bloques llenos
-    const empty = segments - filled; // Bloques vacíos
-
-    // Armamos la barra
-    const bossBar = `[${'█'.repeat(filled)}${'-'.repeat(empty)}]`;
-
-    // Formateamos los tiempos
-    const currentStr = `${Math.floor(currentTime / 60000)}:${((currentTime % 60000) / 1000).toFixed(0).padStart(2, '0')}`;
-    const durationStr = `${Math.floor(duration / 60000)}:${((duration % 60000) / 1000).toFixed(0).padStart(2, '0')}`;
-
-    // Actualizamos el embed
-    const embed = createEmbed('#FF1493', '▶️ ¡Reproduciendo ahora!', `${track.title}\nDuración: ${durationStr}\nProgreso: ${bossBar} ${currentStr} / ${durationStr}`)
-        .setThumbnail(track.thumbnail || null);
-    progressMessage.edit({ embeds: [embed] }).catch(err => console.error('Error editando boss bar:', err));
-});
-
-manager.on('trackEnd', (player) => {
+manager.on('trackEnd', (player, track) => {
     const progressMessage = player.get('progressMessage');
     if (progressMessage) {
         progressMessage.delete().catch(err => console.error('Error borrando boss bar:', err));
-        player.set('progressMessage', null); // Limpiamos
+        player.set('progressMessage', null);
+    }
+
+    // Guardamos el tema que terminó en el historial
+    const guildId = player.guild;
+    dataStore.musicSessions[guildId] = dataStore.musicSessions[guildId] || {};
+    dataStore.musicSessions[guildId].history = dataStore.musicSessions[guildId].history || [];
+    if (track) {
+        dataStore.musicSessions[guildId].history.unshift(track); // Agregamos al principio
+        // Opcional: Limitamos el historial a, digamos, 50 temas pa’ no llenar memoria
+        if (dataStore.musicSessions[guildId].history.length > 50) {
+            dataStore.musicSessions[guildId].history.pop();
+        }
+        dataStoreModified = true;
     }
 });
 
@@ -3759,6 +3916,9 @@ async function manejarCommand(message) {
         } else {
             await manejarPPTBot(message);
         }
+    }
+    else if (content.startsWith('!recordatorio') || content.startsWith('!rec')) {
+        await manejarRecordatorio(message);
     }
     else if (content.startsWith('!reacciones') || content.startsWith('!re')) {
         await manejarReacciones(message);
@@ -4005,6 +4165,7 @@ client.on('messageCreate', async (message) => {
             '- **!jugar**: Adivina un número del 1 al 10, ¡5 intentos pa’ ganarme, loco!\n' + // Nuevo
             '- **!meme**: Te tiro un meme random pa’ sacarte una sonrisa.\n' +             // Nuevo
             '- **!pregunta**: Te hago una pregunta loca pa’ charlar un rato.\n' +          // Nuevo
+            '- **!recordatorio / !rec**: Te recuerdo algo en un rato. Ejemplo: "!rec \'comprar sanguche de miga\' en 1 hora" o "!rec \'llamar a Miguel\' mañana 14:30".\n' +
             '- **!h / !help**: Esta lista, che.\n' +
             '- **!hm / !help musica**: Comandos para meterle música al día.\n' +
             '- **hola**: Te tiro un saludito con onda.');
@@ -4274,4 +4435,20 @@ client.on('raw', (d) => {
 });
 
 client.login(process.env.DISCORD_TOKEN);
-// Arranco el bot conectándolo a Discord con el token del .env, ¡a darle caña!
+setInterval(() => {
+    const ahora = Date.now();
+    dataStore.recordatorios = dataStore.recordatorios || [];
+    dataStore.recordatorios.forEach(async (recordatorio, index) => {
+        if (ahora >= recordatorio.timestamp) {
+            const canal = client.channels.cache.get(recordatorio.channelId);
+            const userName = recordatorio.userId === OWNER_ID ? 'Miguel' : 'Belén';
+            if (canal) {
+                await canal.send({ embeds: [createEmbed('#FF1493', '⏰ ¡Recordatorio, loco!', 
+                    `<@${recordatorio.userId}>, acordate de: **${recordatorio.mensaje}**. ¡Ya es hora, ${userName}!`)] });
+            }
+            // Borramos el recordatorio
+            dataStore.recordatorios.splice(index, 1);
+            dataStoreModified = true;
+        }
+    });
+}, 60000); // Chequea cada minuto
