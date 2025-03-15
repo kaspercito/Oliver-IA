@@ -3650,10 +3650,15 @@ manager.on('trackStart', async (player, track) => {
     // Embed bonito y organizado
     const embed = createEmbed('#FF1493', `🎶 ¡Música pa’ ${userName}!`, 
         `▶️ **Sonando ahora, loco!**  
+        
         **${track.title}**  
+        
         **Duración:** ${durationStr}  
+        
         **Progreso:** ${bossBar}  
+        
         ¡A romperla toda, ${userName}!`)
+        
         .setThumbnail(track.thumbnail || 'https://i.imgur.com/defaultThumbnail.png')
         .setFooter({ text: 'Oliver IA - Música con onda', iconURL: client.user.avatarURL() })
         .setTimestamp();
@@ -3688,19 +3693,25 @@ manager.on('trackStart', async (player, track) => {
             console.error('Error editando boss bar:', err);
             clearInterval(intervalo);
         });
-    }, 5000); // Actualiza cada 5 segundos
+    }, 1000); // Actualiza cada 5 segundos
 
     // Guardamos el intervalo en el player
     player.set('progressInterval', intervalo);
 });
 
 manager.on('trackEnd', (player, track) => {
-    const progressMessage = player.get('progressMessage');
-    if (progressMessage) {
-        progressMessage.delete().catch(err => console.error('Error borrando boss bar:', err));
-        player.set('progressMessage', null);
+    const intervalo = player.get('progressInterval');
+
+    // Limpiamos el intervalo para que no siga actualizando
+    if (intervalo) {
+        clearInterval(intervalo);
+        player.set('progressInterval', null);
     }
 
+    // No borramos el progressMessage, lo dejamos en el canal
+    player.set('progressMessage', null); // Solo limpiamos la referencia para la próxima pista
+
+    // Guardamos el tema en el historial
     const guildId = player.guild;
     dataStore.musicSessions[guildId] = dataStore.musicSessions[guildId] || {};
     dataStore.musicSessions[guildId].history = dataStore.musicSessions[guildId].history || [];
