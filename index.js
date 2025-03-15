@@ -2501,14 +2501,10 @@ async function manejarPlay(message) {
 
         // Si es una playlist
         if (res.loadType === 'PLAYLIST_LOADED') {
-            const maxTracks = 50; // Límite pa’ no pasarnos de rosca
-            const tracksToAdd = res.tracks.slice(0, maxTracks); // Cortamos a 50 canciones
-            tracksToAdd.forEach(track => player.queue.add(track));
-
+            res.tracks.forEach(track => player.queue.add(track)); // Sin límite, carga todo
             const source = args.includes('spotify.com') ? 'Spotify' : args.includes('youtube.com') ? 'YouTube' : 'otro lado';
             const embed = createEmbed('#FF1493', '🎶 ¡Playlist en la cola!',
-                `**${res.playlist.name || 'Playlist sin nombre'}** (${tracksToAdd.length} canciones) cargada desde ${source}.\n` +
-                `${tracksToAdd.length < res.tracks.length ? `Corté a ${maxTracks} pa’ no abusar, loco.` : ''}\nSolicitada por: ${userName}`)
+                `**${res.playlist.name || 'Playlist sin nombre'}** (${res.tracks.length} canciones) cargada desde ${source}.\nSolicitada por: ${userName}`)
                 .setThumbnail(res.tracks[0].thumbnail || null);
             await message.channel.send({ embeds: [embed] });
         } 
@@ -2531,6 +2527,7 @@ async function manejarPlay(message) {
         return sendError(message.channel, `Algo falló con "${args}", ${userName}. Error: ${error.message}. ¿El enlace está roto o qué?`);
     }
 }
+
 // Pausa
 async function manejarPause(message) {
     // Acá pausamos o seguimos la música, re simple pero copado
