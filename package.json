@@ -1,7 +1,7 @@
 {
   "name": "miguel-ia",
   "version": "1.0.0",
-  "description": "Un bot de Discord exclusivo para ella, ahora con Gemini IA",
+  "description": "Un bot de Discord exclusivo para Milagros",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
@@ -19,7 +19,8 @@
     "@google/generative-ai": "^0.12.0",
     "puppeteer": "^23.0.0",
     "crypto": "^1.0.1",
-    "canvas": "^2.11.2"
+    "canvas": "^2.11.2",
+    "cheerio": "^1.0.0-rc.12"
   },
   "author": "Miguel",
   "license": "ISC"
