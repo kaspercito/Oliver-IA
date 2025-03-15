@@ -3496,7 +3496,7 @@ async function manejarCommand(message) {
     else if (content.startsWith('!jugar')) {
         await manejarJugar(message);
     }
-    else if (content === '!pregunta') {
+    else if (content === '!pregunta' || content === '!pr') {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
 
     // Si se acabaron las preguntas, recargamos y mezclamos
