@@ -3432,27 +3432,21 @@ async function manejarCommand(message) {
     else if (content === '!meme') {
         const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
         try {
-            // Usamos la API pública de Reddit con un User-Agent simple
-            const response = await axios.get('https://www.reddit.com/r/MemesESP/random.json', {
-                headers: { 'User-Agent': 'Mozilla/5.0 (compatible; DiscordBot/1.0)' }
-            });
+            // Usamos la API de Giphy pa’ sacar un meme random
+            const API_KEY = '05o0BdpN9d0PCHOPoP63morLbU6wuYyk'; // Reemplazá con tu key
+            const response = await axios.get(`https://api.giphy.com/v1/gifs/random?api_key=${API_KEY}&tag=meme+español&rating=pg-13`);
     
             // Chequeamos que haya datos
-            if (!response.data || !response.data[0]?.data?.children?.[0]?.data) {
-                throw new Error('No encontré nada en r/MemesESP, loco.');
+            if (!response.data || !response.data.data?.images?.original?.url) {
+                throw new Error('No encontré un meme en Giphy, loco.');
             }
     
-            const post = response.data[0].data.children[0].data;
-    
-            // Chequeamos que sea una imagen
-            if (!post.url.match(/\.(jpg|jpeg|png|gif)$/)) {
-                throw new Error('El post no es una imagen, loco.');
-            }
+            const gifUrl = response.data.data.images.original.url;
     
             // Embed del meme con onda argenta
             const memeEmbed = createEmbed('#FF1493', `¡Meme pa’ vos, ${userName}!`, 
-                `${post.title}\n¡Tomá este meme bien zarpado, loco! ¿Qué te parece?`)
-                .setImage(post.url);
+                `¡Tomá este meme bien zarpado, loco! ¿Qué te parece?`)
+                .setImage(gifUrl);
             await message.channel.send({ embeds: [memeEmbed] });
     
             // Lista de preguntas con onda argentina
