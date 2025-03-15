@@ -3647,20 +3647,15 @@ manager.on('trackStart', async (player, track) => {
     // Barra de progreso inicial
     const bossBar = crearBossBar(0, track.duration);
 
-    // Embed bonito y organizado
-    const embed = createEmbed('#FF1493', `🎶 ¡Música pa’ ${userName}!`, 
-        `▶️ **Sonando ahora, loco!**  
-        
-        **${track.title}**  
-        
-        **Duración:** ${durationStr}  
-        
-        **Progreso:** ${bossBar}  
-        
-        ¡A romperla toda, ${userName}!`)
-        
+    // Embed inicial organizado
+    const embed = createEmbed('#FF1493', `🎶 Música pa’ ${userName}`, '¡A romperla toda, che!')
+        .addFields(
+            { name: '▶️ Sonando ahora', value: `**${track.title}**`, inline: false },
+            { name: '⏳ Duración', value: durationStr, inline: true },
+            { name: '📊 Progreso', value: bossBar, inline: true }
+        )
         .setThumbnail(track.thumbnail || 'https://i.imgur.com/defaultThumbnail.png')
-        .setFooter({ text: 'Oliver IA - Música con onda', iconURL: client.user.avatarURL() })
+        .setFooter({ text: `Oliver IA - Música con onda | Pedido por ${userName}`, iconURL: client.user.avatarURL() })
         .setTimestamp();
 
     // Enviamos el mensaje y lo guardamos
@@ -3679,21 +3674,22 @@ manager.on('trackStart', async (player, track) => {
         const currentStr = `${Math.floor(currentTime / 60000)}:${((currentTime % 60000) / 1000).toFixed(0).padStart(2, '0')}`;
         const bossBar = crearBossBar(currentTime, duration);
 
-        const updatedEmbed = createEmbed('#FF1493', `🎶 ¡Música pa’ ${userName}!`, 
-            `▶️ **Sonando ahora, loco!**  
-            **${track.title}**  
-            **Duración:** ${durationStr}  
-            **Progreso:** ${bossBar} ${currentStr} / ${durationStr}  
-            ¡A romperla toda, ${userName}!`)
+        // Embed actualizado organizado
+        const updatedEmbed = createEmbed('#FF1493', `🎶 Música pa’ ${userName}`, '¡A romperla toda, che!')
+            .addFields(
+                { name: '▶️ Sonando ahora', value: `**${track.title}**`, inline: false },
+                { name: '⏳ Duración', value: durationStr, inline: true },
+                { name: '📊 Progreso', value: `${bossBar} ${currentStr} / ${durationStr}`, inline: true }
+            )
             .setThumbnail(track.thumbnail || 'https://i.imgur.com/defaultThumbnail.png')
-            .setFooter({ text: 'Oliver IA - Música con onda', iconURL: client.user.avatarURL() })
+            .setFooter({ text: `Oliver IA - Música con onda | Pedido por ${userName}`, iconURL: client.user.avatarURL() })
             .setTimestamp();
 
         progressMessage.edit({ embeds: [updatedEmbed] }).catch(err => {
             console.error('Error editando boss bar:', err);
             clearInterval(intervalo);
         });
-    }, 1000); // Actualiza cada 5 segundos
+    }, 1000); // Actualiza cada 1 segundo
 
     // Guardamos el intervalo en el player
     player.set('progressInterval', intervalo);
