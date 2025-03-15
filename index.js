@@ -2469,9 +2469,9 @@ async function manejarPlay(message) {
     const args = message.content.toLowerCase().split(' ').slice(1).join(' ').trim();
     
     console.log(`Iniciando manejarPlay para ${userName} con args: "${args}"`);
-    if (!args) return sendError(message.channel, `Dime qué reproducir después de "!pl", ${userName}.`);
-    if (!message.guild) return sendError(message.channel, `Este comando solo funciona en servidores, ${userName}.`);
-    if (!message.member || !message.member.voice.channel) return sendError(message.channel, `Debes estar en un canal de voz, ${userName}.`);
+    if (!args) return sendError(message.channel, `Dame una canción o un enlace después de "!pl", ${userName}. Ej: !pl https://open.spotify.com/playlist/xxx`);
+    if (!message.guild) return sendError(message.channel, `Este comando solo va en servidores, ${userName}.`);
+    if (!message.member || !message.member.voice.channel) return sendError(message.channel, `Metete en un canal de voz primero, ${userName}.`);
 
     const player = manager.create({
         guild: message.guild.id,
@@ -2493,23 +2493,31 @@ async function manejarPlay(message) {
 
         console.log(`Resultado de búsqueda: ${res.loadType}`);
         if (res.loadType === 'NO_MATCHES') {
-            return sendError(message.channel, `No encontré resultados para "${args}", ${userName}.`);
+            return sendError(message.channel, `No encontré nada con "${args}", ${userName}. ¿Seguro que el enlace está bien?`);
         }
         if (res.loadType === 'LOAD_FAILED') {
-            throw new Error(`No se pudo cargar: ${res.exception?.message || 'Error desconocido'}`);
+            throw new Error(`No pude cargar el enlace: ${res.exception?.message || 'Error desconocido'}`);
         }
 
+        // Si es una playlist
         if (res.loadType === 'PLAYLIST_LOADED') {
-            res.tracks.forEach(track => player.queue.add(track));
-            const embed = createEmbed('#FF1493', '🎶 ¡Playlist añadida!',
-                `**${res.playlist.name}** (${res.tracks.length} canciones) ha sido añadida a la cola.\nSolicitada por: ${userName}`)
+            const maxTracks = 50; // Límite pa’ no pasarnos de rosca
+            const tracksToAdd = res.tracks.slice(0, maxTracks); // Cortamos a 50 canciones
+            tracksToAdd.forEach(track => player.queue.add(track));
+
+            const source = args.includes('spotify.com') ? 'Spotify' : args.includes('youtube.com') ? 'YouTube' : 'otro lado';
+            const embed = createEmbed('#FF1493', '🎶 ¡Playlist en la cola!',
+                `**${res.playlist.name || 'Playlist sin nombre'}** (${tracksToAdd.length} canciones) cargada desde ${source}.\n` +
+                `${tracksToAdd.length < res.tracks.length ? `Corté a ${maxTracks} pa’ no abusar, loco.` : ''}\nSolicitada por: ${userName}`)
                 .setThumbnail(res.tracks[0].thumbnail || null);
             await message.channel.send({ embeds: [embed] });
-        } else {
+        } 
+        // Si es un tema solo
+        else {
             const track = res.tracks[0];
             player.queue.add(track);
-            const embed = createEmbed('#55FFFF', '🎶 ¡Música añadida!',
-                `**${track.title}** ha sido añadida a la cola.\nDuración: ${Math.floor(track.duration / 60000)}:${((track.duration % 60000) / 1000).toFixed(0).padStart(2, '0')}\nSolicitada por: ${userName}`)
+            const embed = createEmbed('#FF1493', '🎶 ¡Tema en la cola!',
+                `**${track.title}** agregado.\nDuración: ${Math.floor(track.duration / 60000)}:${((track.duration % 60000) / 1000).toFixed(0).padStart(2, '0')}\nSolicitada por: ${userName}`)
                 .setThumbnail(track.thumbnail || null);
             await message.channel.send({ embeds: [embed] });
         }
@@ -2520,10 +2528,9 @@ async function manejarPlay(message) {
         }
     } catch (error) {
         console.error(`Error al buscar "${args}": ${error.message}`);
-        return sendError(message.channel, `Hubo un problema al buscar "${args}", ${userName}. Error: ${error.message}`);
+        return sendError(message.channel, `Algo falló con "${args}", ${userName}. Error: ${error.message}. ¿El enlace está roto o qué?`);
     }
 }
-
 // Pausa
 async function manejarPause(message) {
     // Acá pausamos o seguimos la música, re simple pero copado
