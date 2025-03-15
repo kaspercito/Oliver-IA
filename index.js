@@ -3442,10 +3442,11 @@ async function manejarCommand(message) {
             }
     
             const gifUrl = response.data.data.images.original.url;
+            const gifTitle = response.data.data.title || 'Un meme sin título, loco'; // Si no hay título, ponemos algo genérico
     
-            // Embed del meme con onda argenta
+            // Embed del meme con onda argenta y contexto
             const memeEmbed = createEmbed('#FF1493', `¡Meme pa’ vos, ${userName}!`, 
-                `¡Tomá este meme bien zarpado, loco! ¿Qué te parece?`)
+                `${gifTitle}\n¡Tomá este meme bien zarpado, loco! ¿Qué te parece?`)
                 .setImage(gifUrl);
             await message.channel.send({ embeds: [memeEmbed] });
     
