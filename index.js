@@ -91,8 +91,13 @@ const BOT_UPDATES = [
     '¡Preguntas a full! La lista de !pregunta pasó de 30 a 150, pa’ que no te aburras nunca, posta.',
     '¡Memes con yapa! Ahora con !meme te traigo puros memes en español pa’ que le des rosca.',
     'Agregado !pr, Che.',
-    '¡Música a full! Mejoramos las funciones de música: ahora podés tirar enlaces de playlists de YouTube y Spotify sin drama, y sumamos el comando !shuffle pa’ revolver la cola como loco.'
+    '¡Música a full! Mejoramos las funciones de música: ahora podés tirar enlaces de playlists de YouTube y Spotify sin drama, y sumamos el comando !shuffle pa’ revolver la cola como loco.',
+    '¡Le metimos pilas al bot, che! Ahora podés jugar Piedra, Papel o Tijera y romperla toda:',  
+    '- !ppt [piedra/papel/tijera]: Jugá contra mí, el bot más grosso del condado. Elegí tu jugada y vemos quién la pica, ¡dale!',
+    '- !ppt @alguien: Desafiá a un amigo a un duelo épico. Reacciona con ✅ pa’ aceptar, mandá tu elección por MD y que gane el mejor, ¡posta!',
 ];
+
+const opcionesPPT = ['piedra', 'papel', 'tijera'];
 
 const preguntas = [
     '¿Qué superpower te molaría tener?',
@@ -2085,7 +2090,7 @@ async function manejarLyrics(message) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
     if (!message.guild) return sendError(message.channel, `Este comando solo funciona en servidores, ${userName}.`);
 
-    const args = message.content.split(' ').slice(1).join(' ').trim(); // Sin toLowerCase pa’ respetar el título
+    const args = message.content.split(' ').slice(1).join(' ').trim();
     const player = manager.players.get(message.guild.id);
     let songTitle;
 
@@ -2095,14 +2100,23 @@ async function manejarLyrics(message) {
         }
         songTitle = player.queue.current.title;
     } else {
-        songTitle = args.replace(/\s*\(videoclip oficial\)/i, '').trim();
+        songTitle = args;
     }
+
+    // Limpieza más agresiva del título
+    songTitle = songTitle
+        .replace(/\s*\(official music video\)/i, '')
+        .replace(/\s*\(videoclip oficial\)/i, '')
+        .replace(/\s*-\s*/g, ' ')
+        .replace(/\s*\[.*?\]/g, '') // Sacamos cualquier cosa entre corchetes
+        .trim();
+
+    console.log(`Buscando letras para: "${songTitle}"`);
 
     const waitingEmbed = createEmbed('#55FFFF', `⌛ Buscando letras, ${userName}...`, `Espera un momento mientras busco las letras de "${songTitle}".`);
     const waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
 
     try {
-        // Busco en la API de Genius
         const searchUrl = `https://api.genius.com/search?q=${encodeURIComponent(songTitle)}`;
         const searchResponse = await axios.get(searchUrl, {
             headers: { 'Authorization': `Bearer ${process.env.GENIUS_ACCESS_TOKEN}` }
@@ -2114,6 +2128,9 @@ async function manejarLyrics(message) {
         }
 
         const songId = hits[0].result.id;
+        const songTitleFound = hits[0].result.full_title; // Debug: qué canción encontró
+        console.log(`Canción encontrada en Genius: "${songTitleFound}" (ID: ${songId})`);
+
         const songUrl = `https://api.genius.com/songs/${songId}`;
         const songResponse = await axios.get(songUrl, {
             headers: { 'Authorization': `Bearer ${process.env.GENIUS_ACCESS_TOKEN}` }
@@ -2121,10 +2138,11 @@ async function manejarLyrics(message) {
 
         const lyricsPath = songResponse.data.response.song.path;
         const lyricsPageUrl = `https://genius.com${lyricsPath}`;
+        console.log(`Scrapeando letras desde: ${lyricsPageUrl}`);
+
         const lyricsPage = await axios.get(lyricsPageUrl);
         const $ = cheerio.load(lyricsPage.data);
 
-        // Extraigo las letras con cheerio
         let lyrics = '';
         $('div[class*="Lyrics__Container"]').each((i, elem) => {
             lyrics += $(elem).text() + '\n';
@@ -2132,8 +2150,10 @@ async function manejarLyrics(message) {
 
         lyrics = lyrics.trim();
         if (!lyrics) {
-            throw new Error('No se encontraron letras para esta canción.');
+            throw new Error('No se encontraron letras en la página.');
         }
+
+        console.log(`Letras encontradas (primeros 100 caracteres): "${lyrics.substring(0, 100)}..."`);
 
         const maxLength = 2000;
         if (lyrics.length <= maxLength) {
@@ -2154,6 +2174,155 @@ async function manejarLyrics(message) {
     } catch (error) {
         console.error(`Error al buscar letras para "${songTitle}": ${error.message}`);
         await waitingMessage.edit({ embeds: [createEmbed('#FF5555', '¡Ups!', `No pude encontrar las letras de "${songTitle}", ${userName}. Error: ${error.message}`)] });
+    }
+}
+
+function determinarGanador(jugador1, jugador2) {
+    if (jugador1 === jugador2) return 'empate';
+    if (
+        (jugador1 === 'piedra' && jugador2 === 'tijera') ||
+        (jugador1 === 'papel' && jugador2 === 'piedra') ||
+        (jugador1 === 'tijera' && jugador2 === 'papel')
+    ) return 'jugador1';
+    return 'jugador2';
+}
+
+// Elección random del bot
+function eleccionBot() {
+    return opcionesPPT[Math.floor(Math.random() * opcionesPPT.length)];
+}
+
+async function manejarPPTBot(message) {
+    const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
+    const args = message.content.slice(4).trim().toLowerCase();
+
+    if (!args || !opcionesPPT.includes(args)) {
+        return sendError(message.channel, `¡Escribí bien, ${userName}! Usá "!ppt piedra", "!ppt papel" o "!ppt tijera", loco.`);
+    }
+
+    const eleccionUsuario = args;
+    const eleccionIA = eleccionBot();
+    const resultado = determinarGanador(eleccionUsuario, eleccionIA);
+
+    let mensajeResultado;
+    if (resultado === 'empate') {
+        mensajeResultado = `¡Empate, ${userName}! Los dos sacamos **${eleccionUsuario}**. ¿Otra ronda, loco?`;
+    } else if (resultado === 'jugador1') {
+        mensajeResultado = `¡Ganaste, ${userName}! Tu **${eleccionUsuario}** le ganó a mi **${eleccionIA}**. ¡Sos un crack, che!`;
+    } else {
+        mensajeResultado = `¡Te gané, ${userName}! Mi **${eleccionIA}** le rompió el orto a tu **${eleccionUsuario}**. ¡Ja, boludo, otra pa’ la revancha!`;
+    }
+
+    const embed = createEmbed('#FF1493', `¡Piedra, Papel o Tijera con ${userName}!`, mensajeResultado);
+    await message.channel.send({ embeds: [embed] });
+}
+
+// Jugar contra otra persona
+async function manejarPPTPersona(message) {
+    const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
+    const args = message.content.slice(4).trim();
+    const mentionedUser = message.mentions.users.first();
+
+    if (!mentionedUser) {
+        return sendError(message.channel, `¡Mencioná a alguien, ${userName}! Usá "!ppt @alguien", loco.`);
+    }
+    if (mentionedUser.id === message.author.id) {
+        return sendError(message.channel, `¡No podés jugar contra vos mismo, ${userName}! Mencioná a otro, dale.`);
+    }
+    if (mentionedUser.bot) {
+        return sendError(message.channel, `¡No juego con bots, ${userName}! Elegí a un humano, che.`);
+    }
+
+    const desafiadoName = mentionedUser.id === OWNER_ID ? 'Miguel' : 'Belén';
+    const pptKey = `ppt_${message.author.id}_${mentionedUser.id}`;
+
+    if (dataStore.activeSessions[pptKey]) {
+        return sendError(message.channel, `Ya hay un desafío activo entre vos y ${desafiadoName}, ${userName}. ¡Terminá ese primero, loco!`);
+    }
+
+    // Crear sesión
+    dataStore.activeSessions[pptKey] = {
+        type: 'ppt_persona',
+        challenger: message.author.id,
+        challenged: mentionedUser.id,
+        challengerChoice: null,
+        challengedChoice: null,
+        accepted: false,
+        active: true
+    };
+    dataStoreModified = true;
+
+    // Enviar desafío
+    const desafioEmbed = createEmbed('#FF1493', `¡Desafío de ${userName}!`, 
+        `${userName} te desafió a Piedra, Papel o Tijera, ${desafiadoName}. Reaccioná con ✅ pa’ aceptar o ❌ pa’ rechazar, loco. Tenés 30 segundos.`);
+    const desafioMessage = await message.channel.send({ embeds: [desafioEmbed], content: `<@${mentionedUser.id}>` });
+    await desafioMessage.react('✅');
+    await desafioMessage.react('❌');
+
+    const reactionFilter = (reaction, user) => ['✅', '❌'].includes(reaction.emoji.name) && user.id === mentionedUser.id;
+    try {
+        const reactions = await desafioMessage.awaitReactions({ filter: reactionFilter, max: 1, time: 30000, errors: ['time'] });
+        if (reactions.first().emoji.name === '❌') {
+            delete dataStore.activeSessions[pptKey];
+            dataStoreModified = true;
+            return sendSuccess(message.channel, '🛑 ¡Desafío rechazado!', `${desafiadoName} dijo que no, ${userName}. ¡Buscate otro rival, loco!`);
+        }
+
+        // Aceptado
+        dataStore.activeSessions[pptKey].accepted = true;
+        dataStoreModified = true;
+        await sendSuccess(message.channel, '✅ ¡Desafío aceptado!', `${desafiadoName} dijo que sí, ${userName}. ¡A elegir en privado, locos!`);
+
+        // Pedir elecciones por MD
+        const instrucciones = `Mandame tu elección ("piedra", "papel" o "tijera") por acá, loco. ¡No hagas trampa, eh!`;
+        await message.author.send({ embeds: [createEmbed('#FF1493', '¡Tu turno!', instrucciones)] });
+        await mentionedUser.send({ embeds: [createEmbed('#FF1493', '¡Tu turno!', instrucciones)] });
+
+        // Escuchar elecciones en MD
+        const dmFilter = m => opcionesPPT.includes(m.content.toLowerCase());
+        const challengerCollector = message.author.dmChannel.createMessageCollector({ filter: dmFilter, max: 1, time: 60000 });
+        const challengedCollector = mentionedUser.dmChannel.createMessageCollector({ filter: dmFilter, max: 1, time: 60000 });
+
+        challengerCollector.on('collect', m => {
+            dataStore.activeSessions[pptKey].challengerChoice = m.content.toLowerCase();
+            dataStoreModified = true;
+            m.reply({ embeds: [createEmbed('#FF1493', '✅ ¡Elección guardada!', `Elegiste **${m.content}**, ${userName}. Esperando a ${desafiadoName}, loco.`)] });
+        });
+
+        challengedCollector.on('collect', m => {
+            dataStore.activeSessions[pptKey].challengedChoice = m.content.toLowerCase();
+            dataStoreModified = true;
+            m.reply({ embeds: [createEmbed('#FF1493', '✅ ¡Elección guardada!', `Elegiste **${m.content}**, ${desafiadoName}. Esperando a ${userName}, loco.`)] });
+        });
+
+        Promise.all([challengerCollector, challengedCollector].map(c => new Promise(resolve => c.on('end', resolve)))).then(async () => {
+            const session = dataStore.activeSessions[pptKey];
+            if (!session || !session.challengerChoice || !session.challengedChoice) {
+                delete dataStore.activeSessions[pptKey];
+                dataStoreModified = true;
+                return sendError(message.channel, '⏳ ¡Se acabó el tiempo!', `Uno de los dos no eligió a tiempo, ${userName}. ¡Otra vez será, loco!`);
+            }
+
+            const resultado = determinarGanador(session.challengerChoice, session.challengedChoice);
+            let mensajeResultado;
+            if (resultado === 'empate') {
+                mensajeResultado = `¡Empate, locos! ${userName} sacó **${session.challengerChoice}** y ${desafiadoName} sacó **${session.challengedChoice}**. ¿Revancha?`;
+            } else if (resultado === 'jugador1') {
+                mensajeResultado = `¡Ganó ${userName}! **${session.challengerChoice}** le ganó a **${session.challengedChoice}** de ${desafiadoName}. ¡Grande, loco!`;
+            } else {
+                mensajeResultado = `¡Ganó ${desafiadoName}! **${session.challengedChoice}** le ganó a **${session.challengerChoice}** de ${userName}. ¡La rompió, che!`;
+            }
+
+            const resultadoEmbed = createEmbed('#FF1493', '🏆 ¡Resultado del duelo!', mensajeResultado);
+            await message.channel.send({ embeds: [resultadoEmbed] });
+            delete dataStore.activeSessions[pptKey];
+            dataStoreModified = true;
+        });
+
+    } catch {
+        delete dataStore.activeSessions[pptKey];
+        dataStoreModified = true;
+        await sendError(message.channel, '⏳ ¡Tiempo agotado!', `${desafiadoName} no respondió, ${userName}. ¡Buscate otro rival, loco!`);
     }
 }
 
@@ -2450,28 +2619,24 @@ async function manejarPlay(message) {
     if (!message.guild) return sendError(message.channel, `Este comando solo va en servidores, ${userName}.`);
     if (!message.member || !message.member.voice.channel) return sendError(message.channel, `Metete en un canal de voz primero, ${userName}.`);
 
-    // Creamos o recuperamos el player
     let player = manager.players.get(message.guild.id);
     if (!player) {
         player = manager.create({
             guild: message.guild.id,
             voiceChannel: message.member.voice.channel.id,
             textChannel: message.channel.id,
-            selfDeafen: true, // Se queda sordo pa’ no hacer eco
+            selfDeafen: true,
         });
     }
 
-    // Nos aseguramos de que esté conectado siempre
     if (player.state !== 'CONNECTED') {
         console.log('Conectando player...');
         player.connect();
-        player.set('stayForever', true); // Marcamos que no se vaya nunca
+        player.set('stayForever', true);
     }
 
-    // Si no hay args, solo nos aseguramos de que se quede
     if (!args) {
-        const embed = createEmbed('#FF1493', '🎶 Bot en llamada',
-            `Ya estoy en el canal de voz, ${userName}. Mandame una canción con !play cuando quieras.`);
+        const embed = createEmbed('#FF1493', '🎶 Bot en llamada', `Ya estoy en el canal de voz, ${userName}. Mandame una canción con !play cuando quieras.`);
         return await message.channel.send({ embeds: [embed] });
     }
 
@@ -2480,34 +2645,33 @@ async function manejarPlay(message) {
         console.log(`Buscando "${args}"...`);
         res = await manager.search(args, message.author);
 
-        if (res.loadType === 'NO_MATCHES') {
-            return sendError(message.channel, `No encontré nada con "${args}", ${userName}. ¿Seguro que el enlace está bien?`);
-        }
-        if (res.loadType === 'LOAD_FAILED') {
-            console.log('Error completo al cargar:', res.exception);
-            throw new Error(`No pude cargar el enlace: ${res.exception?.message || 'Error desconocido'}`);
-        }
+        if (res.loadType === 'NO_MATCHES') return sendError(message.channel, `No encontré nada con "${args}", ${userName}. ¿Seguro que el enlace está bien?`);
+        if (res.loadType === 'LOAD_FAILED') throw new Error(`No pude cargar el enlace: ${res.exception?.message || 'Error desconocido'}`);
 
+        let track = res.tracks[0];
         if (res.loadType === 'PLAYLIST_LOADED') {
-            res.tracks.forEach(track => player.queue.add(track));
-            const source = args.includes('spotify.com') ? 'Spotify' : args.includes('youtube.com') ? 'YouTube' : 'otro lado';
-            const embed = createEmbed('#FF1493', '🎶 ¡Playlist en la cola!',
-                `**${res.playlist.name || 'Playlist sin nombre'}** (${res.tracks.length} canciones) cargada desde ${source}.\nSolicitada por: ${userName}`)
-                .setThumbnail(res.tracks[0].thumbnail || null);
-            await message.channel.send({ embeds: [embed] });
+            res.tracks.forEach(t => player.queue.add(t));
+            track = res.tracks[0]; // Usamos el primero pa’ la boss bar
         } else {
-            const track = res.tracks[0];
             player.queue.add(track);
-            const embed = createEmbed('#FF1493', '🎶 ¡Tema en la cola!',
-                `**${track.title}** agregado.\nDuración: ${Math.floor(track.duration / 60000)}:${((track.duration % 60000) / 1000).toFixed(0).padStart(2, '0')}\nSolicitada por: ${userName}`)
-                .setThumbnail(track.thumbnail || null);
-            await message.channel.send({ embeds: [embed] });
         }
 
         if (!player.playing && !player.paused) {
             console.log(`Reproduciendo...`);
             player.play();
         }
+
+        // Embed con boss bar inicial
+        const duration = `${Math.floor(track.duration / 60000)}:${((track.duration % 60000) / 1000).toFixed(0).padStart(2, '0')}`;
+        const bossBar = '[----------]'; // 10 segmentos vacíos
+        const embed = createEmbed('#FF1493', '▶️ ¡Reproduciendo ahora!', `${track.title}\nDuración: ${duration}\nProgreso: ${bossBar} 0:00 / ${duration}`)
+            .setThumbnail(track.thumbnail || null);
+        const progressMessage = await message.channel.send({ embeds: [embed] });
+
+        // Guardamos el mensaje y datos en el player
+        player.set('progressMessage', progressMessage);
+        player.set('currentTrack', track);
+
     } catch (error) {
         console.error(`Error al buscar "${args}": ${error.message}`);
         return sendError(message.channel, `Algo falló con "${args}", ${userName}. Error: ${error.message}. ¿El enlace está roto o qué?`);
@@ -3341,6 +3505,40 @@ manager.on('queueEnd', async player => {
     }
 });
 
+manager.on('playerMove', (player) => {
+    const progressMessage = player.get('progressMessage');
+    const track = player.get('currentTrack');
+    if (!progressMessage || !track) return;
+
+    // Calculamos el progreso
+    const currentTime = player.position; // En milisegundos
+    const duration = track.duration; // En milisegundos
+    const progress = Math.min(currentTime / duration, 1); // 0 a 1
+    const segments = 10; // Cantidad de bloques en la barra
+    const filled = Math.floor(progress * segments); // Bloques llenos
+    const empty = segments - filled; // Bloques vacíos
+
+    // Armamos la barra
+    const bossBar = `[${'█'.repeat(filled)}${'-'.repeat(empty)}]`;
+
+    // Formateamos los tiempos
+    const currentStr = `${Math.floor(currentTime / 60000)}:${((currentTime % 60000) / 1000).toFixed(0).padStart(2, '0')}`;
+    const durationStr = `${Math.floor(duration / 60000)}:${((duration % 60000) / 1000).toFixed(0).padStart(2, '0')}`;
+
+    // Actualizamos el embed
+    const embed = createEmbed('#FF1493', '▶️ ¡Reproduciendo ahora!', `${track.title}\nDuración: ${durationStr}\nProgreso: ${bossBar} ${currentStr} / ${durationStr}`)
+        .setThumbnail(track.thumbnail || null);
+    progressMessage.edit({ embeds: [embed] }).catch(err => console.error('Error editando boss bar:', err));
+});
+
+manager.on('trackEnd', (player) => {
+    const progressMessage = player.get('progressMessage');
+    if (progressMessage) {
+        progressMessage.delete().catch(err => console.error('Error borrando boss bar:', err));
+        player.set('progressMessage', null); // Limpiamos
+    }
+});
+
 async function manejarJugar(message) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
     console.log(`Iniciando juego para ${userName}`);
@@ -3554,7 +3752,14 @@ async function manejarCommand(message) {
     }
     else if (content.startsWith('!avatar') || content.startsWith('!av')) {
         await manejarAvatar(message);
-    }         
+    }
+    else if (content.startsWith('!ppt')) {
+        if (message.mentions.users.size > 0) {
+            await manejarPPTPersona(message);
+        } else {
+            await manejarPPTBot(message);
+        }
+    }
     else if (content.startsWith('!reacciones') || content.startsWith('!re')) {
         await manejarReacciones(message);
     } 
@@ -3779,6 +3984,8 @@ client.on('messageCreate', async (message) => {
             '- **!pp / !ppm**: A ver qué tan rápido tipeás, ¡dale!\n' +
             '- **!pc / !ppm cancelar**: Cancela el PPM si te arrepentís.\n' +
             '- **!rk / !ranking**: Tus puntajes y estadísticas (récord más alto de PPM).\n' +
+            '- **!ppt [piedra/papel/tijera]**: Jugá Piedra, Papel o Tijera contra mí, ¡dale!\n' +
+            '- **!ppt @alguien**: Desafiá a otro a Piedra, Papel o Tijera, ¡posta!\n' +
             '- **!rppm / !rankingppm**: Todos tus intentos de PPM, loco.\n' +
             '- **!re / !reacciones**: Juego para ver quién tipea más rápido.\n' +
             '- **!rc / !reacciones cancelar**: Cancela las reacciones que empezaste.\n' +            
