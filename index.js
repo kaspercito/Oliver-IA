@@ -3654,7 +3654,7 @@ manager.on('trackStart', async (player, track) => {
         **Duración:** ${durationStr}  
         **Progreso:** ${bossBar}  
         ¡A romperla toda, ${userName}!`)
-        .setThumbnail(track.thumbnail || 'https://i.imgur.com/defaultThumbnail.png') // Imagen por defecto si no hay thumbnail
+        .setThumbnail(track.thumbnail || 'https://i.imgur.com/defaultThumbnail.png')
         .setFooter({ text: 'Oliver IA - Música con onda', iconURL: client.user.avatarURL() })
         .setTimestamp();
 
@@ -3690,8 +3690,8 @@ manager.on('trackStart', async (player, track) => {
         });
     }, 5000); // Actualiza cada 5 segundos
 
-    // Limpiamos el intervalo cuando el tema termina
-    player.once('trackEnd', () => clearInterval(intervalo));
+    // Guardamos el intervalo en el player
+    player.set('progressInterval', intervalo);
 });
 
 manager.on('trackEnd', (player, track) => {
