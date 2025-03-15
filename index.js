@@ -3597,7 +3597,7 @@ async function manejarCommand(message) {
     else if (content === '!skip' || content === '!sk') {
         await manejarSkip(message);
     } 
-    else if (command === 'shuffle') {
+    else if (content === 'shuffle' || content === '!sh') {
         await manejarShuffle(message);
     }
     else if (content === '!stop' || content === '!st') {
