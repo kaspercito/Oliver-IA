@@ -91,6 +91,7 @@ const BOT_UPDATES = [
     '¡Preguntas a full! La lista de !pregunta pasó de 30 a 150, pa’ que no te aburras nunca, posta.',
     '¡Memes con yapa! Ahora con !meme te traigo puros memes en español pa’ que le des rosca.',
     'Agregado !pr, Che.',
+    '¡Música a full! Mejoramos las funciones de música: ahora podés tirar enlaces de playlists de YouTube y Spotify sin drama, y sumamos el comando !shuffle pa’ revolver la cola como loco.'
 ];
 
 const preguntas = [
@@ -2443,52 +2444,58 @@ async function manejarActualizaciones(message) {
 // Funciones de música
 async function manejarPlay(message) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
-    // Sacamos toLowerCase() y solo tomamos lo que viene después del comando
     const args = message.content.split(' ').slice(1).join(' ').trim();
     
     console.log(`Iniciando manejarPlay para ${userName} con args: "${args}"`);
-    if (!args) return sendError(message.channel, `Dame una canción o un enlace después de "!pl", ${userName}. Ej: !pl https://open.spotify.com/playlist/xxx`);
     if (!message.guild) return sendError(message.channel, `Este comando solo va en servidores, ${userName}.`);
     if (!message.member || !message.member.voice.channel) return sendError(message.channel, `Metete en un canal de voz primero, ${userName}.`);
 
-    const player = manager.create({
-        guild: message.guild.id,
-        voiceChannel: message.member.voice.channel.id,
-        textChannel: message.channel.id,
-        selfDeafen: true,
-    });
+    // Creamos o recuperamos el player
+    let player = manager.players.get(message.guild.id);
+    if (!player) {
+        player = manager.create({
+            guild: message.guild.id,
+            voiceChannel: message.member.voice.channel.id,
+            textChannel: message.channel.id,
+            selfDeafen: true, // Se queda sordo pa’ no hacer eco
+        });
+    }
 
+    // Nos aseguramos de que esté conectado siempre
     if (player.state !== 'CONNECTED') {
         console.log('Conectando player...');
         player.connect();
+        player.set('stayForever', true); // Marcamos que no se vaya nunca
+    }
+
+    // Si no hay args, solo nos aseguramos de que se quede
+    if (!args) {
+        const embed = createEmbed('#FF1493', '🎶 Bot en llamada',
+            `Ya estoy en el canal de voz, ${userName}. Mandame una canción con !play cuando quieras.`);
+        return await message.channel.send({ embeds: [embed] });
     }
 
     let res;
     try {
         console.log(`Buscando "${args}"...`);
-        const isUrl = args.startsWith('http://') || args.startsWith('https://');
         res = await manager.search(args, message.author);
 
-        console.log(`Resultado de búsqueda: ${res.loadType}`);
         if (res.loadType === 'NO_MATCHES') {
             return sendError(message.channel, `No encontré nada con "${args}", ${userName}. ¿Seguro que el enlace está bien?`);
         }
         if (res.loadType === 'LOAD_FAILED') {
-            console.log('Error completo al cargar:', res.exception); // Debug para ver más detalles
+            console.log('Error completo al cargar:', res.exception);
             throw new Error(`No pude cargar el enlace: ${res.exception?.message || 'Error desconocido'}`);
         }
 
-        // Si es una playlist
         if (res.loadType === 'PLAYLIST_LOADED') {
-            res.tracks.forEach(track => player.queue.add(track)); // Sin límite, carga todo
+            res.tracks.forEach(track => player.queue.add(track));
             const source = args.includes('spotify.com') ? 'Spotify' : args.includes('youtube.com') ? 'YouTube' : 'otro lado';
             const embed = createEmbed('#FF1493', '🎶 ¡Playlist en la cola!',
                 `**${res.playlist.name || 'Playlist sin nombre'}** (${res.tracks.length} canciones) cargada desde ${source}.\nSolicitada por: ${userName}`)
                 .setThumbnail(res.tracks[0].thumbnail || null);
             await message.channel.send({ embeds: [embed] });
-        } 
-        // Si es un tema solo
-        else {
+        } else {
             const track = res.tracks[0];
             player.queue.add(track);
             const embed = createEmbed('#FF1493', '🎶 ¡Tema en la cola!',
