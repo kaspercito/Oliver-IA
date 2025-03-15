@@ -3432,10 +3432,16 @@ async function manejarCommand(message) {
     else if (content === '!meme') {
         const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
         try {
-            // Usamos la API de Reddit pa’ sacar un meme random de r/SpanishMemes
-            const response = await axios.get('https://www.reddit.com/r/SpanishMemes/random.json', {
-                headers: { 'User-Agent': 'DiscordBot' } // Reddit pide un User-Agent
+            // Usamos la API de Reddit pa’ sacar un meme random de r/MemesESP
+            const response = await axios.get('https://www.reddit.com/r/MemesESP/random.json', {
+                headers: { 'User-Agent': 'DiscordBot/1.0 Kaspercito' } // User-Agent más específico
             });
+    
+            // Aseguramos que el post exista y tenga datos
+            if (!response.data || !response.data[0]?.data?.children?.[0]?.data) {
+                throw new Error('No encontré nada en r/MemesESP, loco.');
+            }
+    
             const post = response.data[0].data.children[0].data;
     
             // Chequeamos que sea una imagen
@@ -3444,8 +3450,8 @@ async function manejarCommand(message) {
             }
     
             // Embed del meme con onda argenta
-            const memeEmbed = createEmbed('#FF1493', `¡Meme argento pa’ vos, ${userName}!`, 
-                `${post.title}\n¡Tomá este meme bien nuestro, loco! ¿Qué te parece?`)
+            const memeEmbed = createEmbed('#FF1493', `¡Meme pa’ vos, ${userName}!`, 
+                `${post.title}\n¡Tomá este meme bien zarpado, loco! ¿Qué te parece?`)
                 .setImage(post.url);
             await message.channel.send({ embeds: [memeEmbed] });
     
