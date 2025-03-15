@@ -2765,7 +2765,7 @@ async function manejarPlay(message) {
         let track = res.tracks[0];
         if (res.loadType === 'PLAYLIST_LOADED') {
             res.tracks.forEach(t => player.queue.add(t));
-            track = res.tracks[0]; // Usamos el primero pa’ la boss bar
+            track = res.tracks[0];
         } else {
             player.queue.add(track);
         }
@@ -2775,49 +2775,7 @@ async function manejarPlay(message) {
             player.play();
         }
 
-        // Embed con boss bar inicial
-        const durationStr = `${Math.floor(track.duration / 60000)}:${((track.duration % 60000) / 1000).toFixed(0).padStart(2, '0')}`;
-        const bossBar = crearBossBar(0, track.duration);
-        const embed = createEmbed('#FF1493', `🎶 ¡Música pa’ ${userName}!`, 
-            `▶️ ¡Sonando ahora, loco!  
-            **${track.title}**  
-            Duración: ${durationStr}  
-            Progreso: ${bossBar}  
-            ¡Que lo disfrutes, ${userName}! La rompo toda, che.`)
-            .setThumbnail(track.thumbnail || null);
-        const progressMessage = await message.channel.send({ embeds: [embed] });
-
-        // Guardamos el mensaje y datos en el player
-        player.set('progressMessage', progressMessage);
         player.set('currentTrack', track);
-
-        // Temporizador para actualizar la boss bar
-        const intervalo = setInterval(() => {
-            if (!player.playing || !player.queue.current) {
-                clearInterval(intervalo);
-                return;
-            }
-
-            const currentTime = player.position; // En milisegundos
-            const duration = track.duration; // En milisegundos
-            const currentStr = `${Math.floor(currentTime / 60000)}:${((currentTime % 60000) / 1000).toFixed(0).padStart(2, '0')}`;
-            const bossBar = crearBossBar(currentTime, duration);
-
-            const updatedEmbed = createEmbed('#FF1493', `🎶 ¡Música pa’ ${userName}!`, 
-                `▶️ ¡Sonando ahora, loco!  
-                **${track.title}**  
-                Duración: ${durationStr}  
-                Progreso: ${bossBar} ${currentStr} / ${durationStr}  
-                ¡Que lo disfrutes, ${userName}! La rompo toda, che.`)
-                .setThumbnail(track.thumbnail || null);
-            progressMessage.edit({ embeds: [updatedEmbed] }).catch(err => {
-                console.error('Error editando boss bar:', err);
-                clearInterval(intervalo);
-            });
-        }, 5000); // Actualiza cada 5 segundos
-
-        // Limpiamos el intervalo cuando el tema termina
-        player.once('trackEnd', () => clearInterval(intervalo));
 
     } catch (error) {
         console.error(`Error al buscar "${args}": ${error.message}`);
@@ -3674,24 +3632,66 @@ manager.on('queueEnd', async player => {
 
 manager.on('trackStart', async (player, track) => {
     const channel = client.channels.cache.get(player.textChannel);
-    const guildId = player.guild;
     const userName = player.queue.current.requester.id === OWNER_ID ? 'Miguel' : 'Belén';
 
+    if (!channel) return;
+
+    const guildId = player.guild;
     dataStore.musicSessions[guildId] = dataStore.musicSessions[guildId] || {};
     dataStore.musicSessions[guildId].lastTrackIdentifier = track.identifier;
     dataStoreModified = true;
     console.log(`Track started: ${track.title}, identifier saved: ${track.identifier}`);
 
-    if (channel) {
-        const durationStr = `${Math.floor(track.duration / 60000)}:${((track.duration % 60000) / 1000).toFixed(0).padStart(2, '0')}`;
-        const embed = createEmbed('#FF1493', `🎶 ¡Música pa’ ${userName}!`,
-            `▶️ ¡Sonando ahora, loco!  
+    // Formateamos la duración
+    const durationStr = `${Math.floor(track.duration / 60000)}:${((track.duration % 60000) / 1000).toFixed(0).padStart(2, '0')}`;
+    // Barra de progreso inicial
+    const bossBar = crearBossBar(0, track.duration);
+
+    // Embed bonito y organizado
+    const embed = createEmbed('#FF1493', `🎶 ¡Música pa’ ${userName}!`, 
+        `▶️ **Sonando ahora, loco!**  
+        **${track.title}**  
+        **Duración:** ${durationStr}  
+        **Progreso:** ${bossBar}  
+        ¡A romperla toda, ${userName}!`)
+        .setThumbnail(track.thumbnail || 'https://i.imgur.com/defaultThumbnail.png') // Imagen por defecto si no hay thumbnail
+        .setFooter({ text: 'Oliver IA - Música con onda', iconURL: client.user.avatarURL() })
+        .setTimestamp();
+
+    // Enviamos el mensaje y lo guardamos
+    const progressMessage = await channel.send({ embeds: [embed] });
+    player.set('progressMessage', progressMessage);
+
+    // Temporizador para actualizar la boss bar
+    const intervalo = setInterval(() => {
+        if (!player.playing || !player.queue.current) {
+            clearInterval(intervalo);
+            return;
+        }
+
+        const currentTime = player.position;
+        const duration = track.duration;
+        const currentStr = `${Math.floor(currentTime / 60000)}:${((currentTime % 60000) / 1000).toFixed(0).padStart(2, '0')}`;
+        const bossBar = crearBossBar(currentTime, duration);
+
+        const updatedEmbed = createEmbed('#FF1493', `🎶 ¡Música pa’ ${userName}!`, 
+            `▶️ **Sonando ahora, loco!**  
             **${track.title}**  
-            Duración: ${durationStr}  
-            ¡A romperla, ${userName}!`)
-            .setThumbnail(track.thumbnail || null);
-        await channel.send({ embeds: [embed] });
-    }
+            **Duración:** ${durationStr}  
+            **Progreso:** ${bossBar} ${currentStr} / ${durationStr}  
+            ¡A romperla toda, ${userName}!`)
+            .setThumbnail(track.thumbnail || 'https://i.imgur.com/defaultThumbnail.png')
+            .setFooter({ text: 'Oliver IA - Música con onda', iconURL: client.user.avatarURL() })
+            .setTimestamp();
+
+        progressMessage.edit({ embeds: [updatedEmbed] }).catch(err => {
+            console.error('Error editando boss bar:', err);
+            clearInterval(intervalo);
+        });
+    }, 5000); // Actualiza cada 5 segundos
+
+    // Limpiamos el intervalo cuando el tema termina
+    player.once('trackEnd', () => clearInterval(intervalo));
 });
 
 manager.on('trackEnd', (player, track) => {
@@ -3701,13 +3701,11 @@ manager.on('trackEnd', (player, track) => {
         player.set('progressMessage', null);
     }
 
-    // Guardamos el tema que terminó en el historial
     const guildId = player.guild;
     dataStore.musicSessions[guildId] = dataStore.musicSessions[guildId] || {};
     dataStore.musicSessions[guildId].history = dataStore.musicSessions[guildId].history || [];
     if (track) {
-        dataStore.musicSessions[guildId].history.unshift(track); // Agregamos al principio
-        // Opcional: Limitamos el historial a, digamos, 50 temas pa’ no llenar memoria
+        dataStore.musicSessions[guildId].history.unshift(track);
         if (dataStore.musicSessions[guildId].history.length > 50) {
             dataStore.musicSessions[guildId].history.pop();
         }
