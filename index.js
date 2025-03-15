@@ -3432,12 +3432,12 @@ async function manejarCommand(message) {
     else if (content === '!meme') {
         const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
         try {
-            // Usamos la API de Reddit pa’ sacar un meme random de r/MemesESP
+            // Usamos la API pública de Reddit con un User-Agent simple
             const response = await axios.get('https://www.reddit.com/r/MemesESP/random.json', {
-                headers: { 'User-Agent': 'DiscordBot/1.0 Kaspercito' } // User-Agent más específico
+                headers: { 'User-Agent': 'Mozilla/5.0 (compatible; DiscordBot/1.0)' }
             });
     
-            // Aseguramos que el post exista y tenga datos
+            // Chequeamos que haya datos
             if (!response.data || !response.data[0]?.data?.children?.[0]?.data) {
                 throw new Error('No encontré nada en r/MemesESP, loco.');
             }
