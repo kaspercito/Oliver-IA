@@ -2569,9 +2569,9 @@ function parsearTiempo(texto) {
 
 async function manejarRecordatorio(message) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
-    const args.Concurrent = message.content.split(' ').slice(1).join(' ').trim();
+    const args = message.content.split(' ').slice(1).join(' ').trim(); // ¡Acá estaba el error!
 
-    if (!args) return sendError(message.channel, `¡Mandame algo pa’ recordar, ${userName}! Ejemplo: "!rec comprar milanga en 1 hora".`);
+    if (!args) return sendError(message.channel, `¡Mandame algo pa’ recordar, ${userName}! Ejemplo: "!rec comprar sanduche de miga en 1 hora".`);
 
     // Separamos el tiempo del mensaje
     const palabras = args.split(' ');
@@ -2595,7 +2595,7 @@ async function manejarRecordatorio(message) {
     const mensaje = palabras.slice(0, tiempoIndex).join(' ').trim();
     const tiempoTexto = palabras.slice(tiempoIndex).join(' ').trim();
 
-    if (!mensaje) return sendError(message.channel, `¡Decime qué recordar, ${userName}! Ejemplo: "!rec comprar milanga en 1 hora".`);
+    if (!mensaje) return sendError(message.channel, `¡Decime qué recordar, ${userName}! Ejemplo: "!rec comprar sanguche de miga en 1 hora".`);
 
     const fechaObjetivo = parsearTiempo(tiempoTexto);
     if (!fechaObjetivo) return sendError(message.channel, `No entendí el tiempo, ${userName}. Usá "en 5 minutos", "en 1 hora", "mañana 15:00" o "20/03 14:30".`);
@@ -2635,7 +2635,6 @@ async function manejarRecordatorio(message) {
         }, diferencia);
     }
 }
-
 // Responder
 async function manejarResponder(message) {
     // Comando solo pa’ Miguel pa’ responderle a Belén por MD
