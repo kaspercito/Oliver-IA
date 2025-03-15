@@ -2569,22 +2569,40 @@ function parsearTiempo(texto) {
 
 async function manejarRecordatorio(message) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
-    const args = message.content.split(' ').slice(1).join(' ').trim();
+    const args.Concurrent = message.content.split(' ').slice(1).join(' ').trim();
 
-    if (!args) return sendError(message.channel, `¡Mandame algo pa’ recordar, ${userName}! Ejemplo: "!rec comprar sanguche de miga en 1 hora".`);
+    if (!args) return sendError(message.channel, `¡Mandame algo pa’ recordar, ${userName}! Ejemplo: "!rec comprar milanga en 1 hora".`);
 
-    // Separamos el mensaje del tiempo
-    const partes = args.split('"');
-    if (partes.length < 3 || !partes[1]) return sendError(message.channel, `¡Poné el recordatorio entre comillas, ${userName}! Ejemplo: "!rec \'llamar a Miguel\' mañana 14:30".`);
-    const mensaje = partes[1].trim();
-    const tiempoTexto = partes[2]?.trim() || '';
+    // Separamos el tiempo del mensaje
+    const palabras = args.split(' ');
+    let tiempoIndex = -1;
+
+    // Buscamos dónde empieza el tiempo (miramos palabras clave como "en", "mañana", o fechas)
+    for (let i = 0; i < palabras.length; i++) {
+        if (
+            palabras[i].toLowerCase() === 'en' ||
+            palabras[i].toLowerCase() === 'mañana' ||
+            palabras[i].match(/\d{1,2}\/\d{1,2}/)
+        ) {
+            tiempoIndex = i;
+            break;
+        }
+    }
+
+    if (tiempoIndex === -1) return sendError(message.channel, `No entendí el tiempo, ${userName}. Usá "en 5 minutos", "mañana 15:00" o "20/03 14:30".`);
+
+    // El mensaje es todo lo que está antes del tiempo, el tiempo es lo que sigue
+    const mensaje = palabras.slice(0, tiempoIndex).join(' ').trim();
+    const tiempoTexto = palabras.slice(tiempoIndex).join(' ').trim();
+
+    if (!mensaje) return sendError(message.channel, `¡Decime qué recordar, ${userName}! Ejemplo: "!rec comprar milanga en 1 hora".`);
 
     const fechaObjetivo = parsearTiempo(tiempoTexto);
     if (!fechaObjetivo) return sendError(message.channel, `No entendí el tiempo, ${userName}. Usá "en 5 minutos", "en 1 hora", "mañana 15:00" o "20/03 14:30".`);
 
     // Guardamos el recordatorio
     dataStore.recordatorios = dataStore.recordatorios || [];
-    const id = uuidv4(); // ID único pa’ cada recordatorio
+    const id = uuidv4();
     const recordatorio = {
         id,
         userId: message.author.id,
@@ -2596,11 +2614,11 @@ async function manejarRecordatorio(message) {
     dataStore.recordatorios.push(recordatorio);
     dataStoreModified = true;
 
-    // Calculamos el tiempo hasta el recordatorio
+    // Calculamos el tiempo y formateamos la fecha
     const diferencia = fechaObjetivo.getTime() - Date.now();
     const fechaStr = fechaObjetivo.toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' });
 
-    // Mensaje de confirmación
+    // Confirmación
     await sendSuccess(message.channel, '⏰ ¡Recordatorio seteado!', 
         `Te aviso "${mensaje}" el ${fechaStr}, ${userName}. ¡No te duermas, loco!`);
 
@@ -2612,7 +2630,6 @@ async function manejarRecordatorio(message) {
                 await canal.send({ embeds: [createEmbed('#FF1493', '⏰ ¡Recordatorio, loco!', 
                     `<@${recordatorio.userId}>, acordate de: **${recordatorio.mensaje}**. ¡Ya es hora, ${userName}!`)] });
             }
-            // Borramos el recordatorio
             dataStore.recordatorios = dataStore.recordatorios.filter(r => r.id !== id);
             dataStoreModified = true;
         }, diferencia);
