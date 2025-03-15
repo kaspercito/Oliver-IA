@@ -2571,6 +2571,33 @@ async function manejarSkip(message) {
     await sendSuccess(message.channel, '⏭️ ¡Canción saltada!', `Pasamos a la siguiente, ${userName}.`);
 }
 
+// Función para manejar el comando !shuffle
+async function manejarShuffle(message) {
+    const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
+    
+    console.log(`Iniciando manejarShuffle para ${userName}`);
+    if (!message.guild) return sendError(message.channel, `Este comando solo va en servidores, ${userName}.`);
+    
+    const player = manager.players.get(message.guild.id);
+    if (!player) return sendError(message.channel, `No hay nada sonando ahora, ${userName}. ¡Poné algo primero!`);
+    if (!message.member || !message.member.voice.channel || message.member.voice.channel.id !== player.voiceChannel) {
+        return sendError(message.channel, `Tenés que estar en el mismo canal de voz que yo, ${userName}.`);
+    }
+    
+    if (player.queue.size < 2) {
+        return sendError(message.channel, `No hay suficientes canciones para mezclar, ${userName}. ¡Meté más temas!`);
+    }
+
+    // Mezclamos la cola
+    player.queue.shuffle();
+    console.log(`Cola mezclada por ${userName}`);
+    
+    const embed = createEmbed('#FF1493', '🔀 ¡Cola mezclada!',
+        `Las canciones en la cola ahora están todas revueltas, ${userName}. ¡A disfrutar el caos!`)
+        .setThumbnail('https://media.giphy.com/media/3o7TKz2b3wyk65bDZm/giphy.gif'); // Un GIF de mezcla, pa' darle onda
+    await message.channel.send({ embeds: [embed] });
+}
+
 // Stop
 async function manejarStop(message) {
     // Paramos todo el reproductor, chau música
@@ -3570,6 +3597,9 @@ async function manejarCommand(message) {
     else if (content === '!skip' || content === '!sk') {
         await manejarSkip(message);
     } 
+    else if (command === 'shuffle') {
+        await manejarShuffle(message);
+    }
     else if (content === '!stop' || content === '!st') {
         await manejarStop(message);
     } 
@@ -3772,6 +3802,7 @@ client.on('messageCreate', async (message) => {
             '¡Poné el ritmo con estos comandos, loco!\n' +
             '- **!pl / !play [canción/URL]**: Tiro un tema para que suene.\n' +
             '- **!pa / !pause**: Pauso o sigo la música, vos elegís.\n' +
+            '- **!sh / !shuffle**: Mezclo toda la lista de reproducción.\n' +
             '- **!sk / !skip**: Salto al próximo tema, al toque.\n' +
             '- **!st / !stop**: Corto todo, silencio total.\n' +
             '- **!qu / !queue**: Te muestro la lista de temas que vienen.\n' +
