@@ -3567,14 +3567,15 @@ manager.on('queueEnd', async player => {
             // Paso 2: Si no hay identifier, buscamos algo genérico como fallback
             if (!trackIdentifier) {
                 console.log('Sin identifier, buscando algo genérico...');
-                const fallbackSearch = await manager.search('lofi beats', client.user); // O lo que quieras como default
+                const fallbackSearch = await manager.search('lofi beats', client.user);
                 if (fallbackSearch.tracks.length > 0) {
                     const nextTrack = fallbackSearch.tracks[0];
                     player.queue.add(nextTrack);
                     player.play();
-                    await channel.send({ embeds: [createEmbed('#FF1493', '🎵 ¡Autoplay improvisado!', 
-                        `No encontré relacionados, pero te meto **${nextTrack.title}**, ${userName}. ¡Seguimos la fiesta, loco!`)] 
-                        .setThumbnail(nextTrack.thumbnail || null) });
+                    const embed = createEmbed('#FF1493', '🎵 ¡Autoplay improvisado!', 
+                        `No encontré relacionados, pero te meto **${nextTrack.title}**, ${userName}. ¡Seguimos la fiesta, loco!`)
+                        .setThumbnail(nextTrack.thumbnail || 'https://i.imgur.com/defaultThumbnail.png'); // Thumbnail corregido
+                    await channel.send({ embeds: [embed] });
                     return;
                 } else {
                     throw new Error('Ni el fallback funcionó, qué quilombo.');
@@ -3590,33 +3591,35 @@ manager.on('queueEnd', async player => {
                 player.queue.add(nextTrack);
                 player.play();
                 const durationStr = `${Math.floor(nextTrack.duration / 60000)}:${((nextTrack.duration % 60000) / 1000).toFixed(0).padStart(2, '0')}`;
-                await channel.send({ embeds: [createEmbed('#FF1493', '🎵 ¡Autoplay en acción!', 
+                const embed = createEmbed('#FF1493', '🎵 ¡Autoplay en acción!', 
                     `Añadí **${nextTrack.title}** pa’ seguirla, ${userName}.  
                     Duración: ${durationStr}  
-                    ¡A romperla toda, che!`)] 
-                    .setThumbnail(nextTrack.thumbnail || null) });
+                    ¡A romperla toda, che!`)
+                    .setThumbnail(nextTrack.thumbnail || 'https://i.imgur.com/defaultThumbnail.png'); // Thumbnail corregido
+                await channel.send({ embeds: [embed] });
                 return;
             } else {
-                // Paso 4: Si no hay relacionados, intentamos un fallback
+                // Paso 4: Fallback si no hay relacionados
                 console.log('Sin temas relacionados, buscando fallback...');
                 const fallbackSearch = await manager.search('lofi beats', client.user);
                 if (fallbackSearch.tracks.length > 0) {
                     const nextTrack = fallbackSearch.tracks[0];
                     player.queue.add(nextTrack);
                     player.play();
-                    await channel.send({ embeds: [createEmbed('#FF1493', '🎵 ¡Autoplay improvisado!', 
-                        `No encontré relacionados, pero te meto **${nextTrack.title}**, ${userName}. ¡Seguimos, loco!`)] 
-                        .setThumbnail(nextTrack.thumbnail || null) });
+                    const embed = createEmbed('#FF1493', '🎵 ¡Autoplay improvisado!', 
+                        `No encontré relacionados, pero te meto **${nextTrack.title}**, ${userName}. ¡Seguimos, loco!`)
+                        .setThumbnail(nextTrack.thumbnail || 'https://i.imgur.com/defaultThumbnail.png'); // Thumbnail corregido
+                    await channel.send({ embeds: [embed] });
                     return;
                 }
             }
 
-            // Si llegamos acá, no hay nada
             throw new Error('No encontré ni relacionados ni fallback.');
         } catch (error) {
             console.error(`Error en autoplay: ${error.message}`);
-            await channel.send({ embeds: [createEmbed('#FF1493', '⚠️ Autoplay falló', 
-                `No pude encontrar temas, ${userName}. Error: ${error.message}. ¡Mandame algo con !play, che!`)] });
+            const embed = createEmbed('#FF1493', '⚠️ Autoplay falló', 
+                `No pude encontrar temas, ${userName}. Error: ${error.message}. ¡Mandame algo con !play, che!`);
+            await channel.send({ embeds: [embed] });
             player.destroy();
             delete dataStore.musicSessions[guildId];
             dataStoreModified = true;
