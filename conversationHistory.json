@@ -510,7 +510,16 @@
       "timestamp": "2025-03-15T23:27:33.098Z"
     }
   ],
-  "recordatorios": [],
+  "recordatorios": [
+    {
+      "id": "0b9c3cab-f65a-4fb5-aa6f-bedefd8dea03",
+      "userId": "1023132788632862761",
+      "channelId": "1343749554905940058",
+      "mensaje": "recuérdame la pastilla",
+      "timestamp": 1742145347084,
+      "creado": 1742143547085
+    }
+  ],
   "usedJokes": {
     "1023132788632862761": [
       117,
