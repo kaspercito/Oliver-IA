@@ -480,7 +480,10 @@
     "¡Datos randoms en !dato! Ahora si no le das argumentos, te tira un dato curioso al azar con onda, ¡re copado pa’ sorprenderte, loco!",
     "¡Nuevo !chiste agregado! Usá !chiste y te tiro un chiste random pa’ que te rías a lo grande, ¡posta que la rompés, che!",
     "¡Nuevo !adivinanza / !ad agregado! Te tiro adivinanzas copadas pa’ que le des al coco, con 30 segundos pa’ responder, ¡dale, genia!",
-    "¡Ranking con adivinanzas! Ahora en !rk se ven tus aciertos y porcentaje en adivinanzas, pa’ que veas quién la rompe más, ¡posta!"
+    "¡Ranking con adivinanzas! Ahora en !rk se ven tus aciertos y porcentaje en adivinanzas, pa’ que veas quién la rompe más, ¡posta!",
+    "¡Recordatorios a full! Ahora con !rec podés setear recordatorios diarios tipo !rec tomar mate todos los días 08:00, ¡posta que no me olvido, che!",
+    "¡Lista de recordatorios con !misrecordatorios / !mr! Mirá tus recordatorios activos al toque, re útil pa’ no perderte nada, loco.",
+    "¡Cancelación de recordatorios con !cancelarrecordatorio / !cr! Borra un recordatorio con su ID (lo ves en !mr), ¡al toque y sin drama!"
   ],
   "utilMessageTimestamps": {
     "1343749554905940058": 1741702502300,
@@ -543,6 +546,17 @@
       "esRecurrente": false,
       "hora": null,
       "minutos": null
+    },
+    {
+      "id": "b7f0dcf6-e308-4683-84ac-52e65809def0",
+      "userId": "752987736759205960",
+      "channelId": "1343749554905940058",
+      "mensaje": "hacer desayuno",
+      "timestamp": 1742198400000,
+      "creado": 1742160603970,
+      "esRecurrente": true,
+      "hora": 8,
+      "minutos": 0
     }
   ],
   "usedJokes": {
