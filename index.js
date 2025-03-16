@@ -4279,28 +4279,208 @@ async function manejarDato(message) {
     const waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
 
     // Lista de datos randoms copados
-    const randomFacts = [
-        {
-            title: '¡Caracoles centenarios!',
-            text: '¿Sabías que hay un caracol que puede vivir hasta 100 años? Se llama *Arctica islandica*, un bicho de agua fría que se la pasa tranqui en el fondo del mar. ¡Un campeón de la longevidad, loco! Casi tan increíble como vos, ' + userName + '.'
-        },
-        {
-            title: '¡Regeneración zarpada!',
-            text: 'Las estrellas de mar pueden regenerar sus brazos si los pierden. Si les cortás uno, no solo lo vuelven a crecer, ¡sino que el brazo cortado a veces se convierte en otra estrella! Una locura, ¿no, ' + userName + '? Sos tan gros' + (userName === "Miguel" ? "o" : "a") + ' que esto te queda chico.'
-        },
-        {
-            title: '¡Plantas carnívoras!',
-            text: 'Las plantas carnívoras, como la Venus atrapamoscas, comen insectos cerrando sus "bocas" en menos de un segundo. ¡Unas asesinas del reino vegetal! Igual, ' + userName + ', vos las superás en velocidad pa’ romperla toda.'
-        },
-        {
-            title: '¡Pingüinos románticos!',
-            text: 'Los pingüinos emperador buscan a su pareja entre miles en la Antártida y le regalan piedritas pa’ conquistarla. ¡Unos genios del amor! Casi tan geniales como vos, ' + userName + ', que siempre la rompés.'
-        },
-        {
-            title: '¡Pulpos escapistas!',
-            text: 'Los pulpos pueden cambiar de color pa’ camuflarse y son tan inteligentes que se escapan de acuarios. ¡Unos ninjas del mar! Vos, ' + userName + ', también tenés ese toque especial pa’ sorprender, che.'
-        }
-    ];
+const randomFacts = [
+    {
+        title: '¡Gatos saltarines!',
+        text: 'Los gatos pueden saltar hasta 6 veces su longitud en un solo brinco. ¡Unos atletas felinos! Igual que vos, ' + userName + ', siempre dando el salto zarpado, che.'
+    },
+    {
+        title: '¡Abejas bailarinas!',
+        text: 'Las abejas hacen un baile en forma de 8 pa’ decirle a sus compañeras dónde está la comida. ¡Unas coreógrafas del aire! Vos también tenés ese ritmo, ' + userName + ', pa’ romperla toda.'
+    },
+    {
+        title: '¡Elefantes memoriosos!',
+        text: 'Los elefantes nunca olvidan dónde dejaron el agua, incluso años después. ¡Una memoria bestial! Igual que vos, ' + userName + ', que no te perdés ni un asado, loco.'
+    },
+    {
+        title: '¡Canguros boxeadores!',
+        text: 'Los canguros macho se dan piñas pa’ impresionar a las hembras. ¡Unos campeones del ring! Vos, ' + userName + ', también la rompés con estilo, che.'
+    },
+    {
+        title: '¡Lobos cantores!',
+        text: 'Los lobos aúllan pa’ hablarse entre sí a kilómetros de distancia. ¡Unos rockeros de la naturaleza! Igual que vos, ' + userName + ', siempre con voz fuerte, posta.'
+    },
+    {
+        title: '¡Tiburones dormilones!',
+        text: 'Algunos tiburones duermen con los ojos abiertos y nadando pa’ no hundirse. ¡Unos genios multitasking! Como vos, ' + userName + ', que hacés todo al toque.'
+    },
+    {
+        title: '¡Ranas venenosas!',
+        text: 'La rana dardo venenoso tiene tanto veneno en su piel que puede matar a 10 personas con un toque. ¡Una mini asesina! Igual, ' + userName + ', vos matás con tu onda.'
+    },
+    {
+        title: '¡Camaleones artistas!',
+        text: 'Los camaleones cambian de color no solo pa’ camuflarse, sino también pa’ mostrar su humor. ¡Unos cracks expresivos! Vos, ' + userName + ', también tenés ese flow, che.'
+    },
+    {
+        title: '¡Delfines charlatanes!',
+        text: 'Los delfines tienen nombres propios que se silban entre ellos. ¡Unos capos de la comunicación! Igual que vos, ' + userName + ', siempre al pie del cañón.'
+    },
+    {
+        title: '¡Murciélagos ecológicos!',
+        text: 'Un murciélago puede comer hasta 1.000 mosquitos en una noche. ¡Un héroe nocturno! Vos, ' + userName + ', también limpiás la cancha, loco.'
+    },
+    {
+        title: '¡Arañas ingenieras!',
+        text: 'Las arañas tejen telas más fuertes que el acero, peso por peso. ¡Unas arquitectas zarpadas! Igual que vos, ' + userName + ', siempre construyendo algo grosso.'
+    },
+    {
+        title: '¡Koalas vagos!',
+        text: 'Los koalas duermen hasta 22 horas al día pa’ ahorrar energía. ¡Unos fiacas profesionales! Vos, ' + userName + ', sos puro motor en comparación, che.'
+    },
+    {
+        title: '¡Leones rugidores!',
+        text: 'El rugido de un león se escucha a 8 kilómetros de distancia. ¡Un parlante natural! Igual que vos, ' + userName + ', que hacés temblar el barrio.'
+    },
+    {
+        title: '¡Perezosos lentos!',
+        text: 'Un perezoso tarda un mes en digerir una hoja. ¡El rey de la pachorra! Vos, ' + userName + ', zumbás mucho más rápido, loco.'
+    },
+    {
+        title: '¡Avestruces velocistas!',
+        text: 'Un avestruz corre a 70 km/h, más rápido que un caballo. ¡Un bólido con plumas! Igual que vos, ' + userName + ', siempre a full gas.'
+    },
+    {
+        title: '¡Ballenas cantantes!',
+        text: 'Las ballenas jorobadas cantan canciones que duran horas y se copian entre ellas. ¡Unas rockstars del mar! Vos, ' + userName + ', también tenés tu hit, che.'
+    },
+    {
+        title: '¡Cocodrilos llorones!',
+        text: 'Los cocodrilos lloran mientras comen, pero no de tristeza, es pa’ lubricar los ojos. ¡Unos actores dramáticos! Igual que vos, ' + userName + ', siempre con onda.'
+    },
+    {
+        title: '¡Hormigas fuertes!',
+        text: 'Una hormiga puede cargar 50 veces su peso. ¡Una forzuda diminuta! Vos, ' + userName + ', también levantás lo que sea, loco.'
+    },
+    {
+        title: '¡Búhos giratorios!',
+        text: 'Los búhos pueden girar la cabeza 270 grados sin moverse. ¡Unos contorsionistas! Igual que vos, ' + userName + ', siempre mirando pa’ todos lados.'
+    },
+    {
+        title: '¡Pavos reales coquetos!',
+        text: 'El pavo real usa su cola pa’ conquistar, pero no vuela bien por el peso. ¡Un galán con estilo! Vos, ' + userName + ', también tenés tu charme, che.'
+    },
+    {
+        title: '¡Tortugas viajeras!',
+        text: 'Las tortugas marinas recorren miles de kilómetros pa’ volver a su playa natal. ¡Unas GPS vivientes! Igual que vos, ' + userName + ', siempre encontrás el camino.'
+    },
+    {
+        title: '¡Zorros astutos!',
+        text: 'Los zorros árticos cazan escuchando bajo la nieve y saltan pa’ atrapar presas. ¡Unos ninjas blancos! Vos, ' + userName + ', también tenés ese olfato, loco.'
+    },
+    {
+        title: '¡Flamencos equilibristas!',
+        text: 'Los flamencos duermen parados en una pata pa’ no gastar energía. ¡Unos cracks del balance! Igual que vos, ' + userName + ', siempre firme.'
+    },
+    {
+        title: '¡Serpientes mudadoras!',
+        text: 'Las serpientes cambian de piel hasta 4 veces al año pa’ crecer. ¡Unas reinas del makeover! Vos, ' + userName + ', también te renovás siempre, che.'
+    },
+    {
+        title: '¡Orcas estrategas!',
+        text: 'Las orcas cazan en equipo y usan olas pa’ tirar focas al agua. ¡Unas maestras del teamwork! Igual que vos, ' + userName + ', siempre jugando en equipo.'
+    },
+    {
+        title: '¡Ciervos cornudos!',
+        text: 'Los ciervos pierden y regeneran sus cuernos cada año. ¡Unos renovadores natos! Vos, ' + userName + ', también volvés más fuerte, loco.'
+    },
+    {
+        title: '¡Pandas glotones!',
+        text: 'Un panda come hasta 12 kilos de bambú al día pa’ sobrevivir. ¡Un campeón del morfi! Igual que vos, ' + userName + ', con el asado.'
+    },
+    {
+        title: '¡Halcones veloces!',
+        text: 'El halcón peregrino baja en picada a 300 km/h pa’ cazar. ¡Un misil con plumas! Vos, ' + userName + ', también zumbás a mil, che.'
+    },
+    {
+        title: '¡Medusas inmortales!',
+        text: 'La medusa *Turritopsis* puede volver a su estado juvenil después de vieja. ¡Una eterna joven! Igual que vos, ' + userName + ', siempre con pilas.'
+    },
+    {
+        title: '¡Peces payaso hogareños!',
+        text: 'Los peces payaso viven entre anémonas venenosas pa’ protegerse. ¡Unos cracks del barrio! Vos, ' + userName + ', también tenés tu lugar, loco.'
+    },
+    {
+        title: '¡Cucarachas sobrevivientes!',
+        text: 'Una cucaracha puede vivir semanas sin cabeza hasta que se muere de hambre. ¡Unas duras posta! Igual que vos, ' + userName + ', puro aguante.'
+    },
+    {
+        title: '¡Lémures fiesteros!',
+        text: 'Los lémures de Madagascar se juntan en grupos pa’ cantar y bailar. ¡Unos locos del vacile! Vos, ' + userName + ', también armás la joda, che.'
+    },
+    {
+        title: '¡Pingüinos nadadores!',
+        text: 'Los pingüinos pueden nadar a 36 km/h pa’ escapar de depredadores. ¡Unos torpedos con smoking! Igual que vos, ' + userName + ', siempre escapando con estilo.'
+    },
+    {
+        title: '¡Jirafas altas!',
+        text: 'Las jirafas tienen el cuello más largo del reino animal, pero solo 7 vértebras como nosotros. ¡Unas cracks del estirón! Vos, ' + userName + ', también destacás.'
+    },
+    {
+        title: '¡Osos dormilones!',
+        text: 'Los osos polares hibernan hasta 8 meses sin comer ni moverse mucho. ¡Unos fiacas zarpados! Vos, ' + userName + ', sos puro movimiento, loco.'
+    },
+    {
+        title: '¡Gorilas fuertes!',
+        text: 'Un gorila puede levantar hasta 800 kilos con una mano. ¡Un tanque de la selva! Igual que vos, ' + userName + ', siempre con fuerza, che.'
+    },
+    {
+        title: '¡Chitas rápidas!',
+        text: 'El chita corre a 100 km/h en 3 segundos, pero solo por ratos cortos. ¡Un bólido felino! Vos, ' + userName + ', también arrancás a mil.'
+    },
+    {
+        title: '¡Buitres olfativos!',
+        text: 'Los buitres encuentran comida podrida oliendo a kilómetros. ¡Unos detectives del aire! Igual que vos, ' + userName + ', siempre al tanto, loco.'
+    },
+    {
+        title: '¡Peces voladores!',
+        text: 'Los peces voladores planean hasta 200 metros pa’ escapar de predadores. ¡Unos aviadores marinos! Vos, ' + userName + ', también volás alto, che.'
+    },
+    {
+        title: '¡Hipopótamos pesados!',
+        text: 'Un hipopótamo pesa hasta 4 toneladas y corre más rápido que un humano. ¡Un tanque con patas! Igual que vos, ' + userName + ', puro poder.'
+    },
+    {
+        title: '¡Guacamayos coloridos!',
+        text: 'Los guacamayos usan sus plumas brillantes pa’ impresionar y comunicarse. ¡Unos artistas del aire! Vos, ' + userName + ', también tenés tu brillo, loco.'
+    },
+    {
+        title: '¡Rinocerontes blindados!',
+        text: 'La piel de un rinoceronte tiene 3 cm de grosor y lo hace casi impenetrable. ¡Un tanque natural! Igual que vos, ' + userName + ', puro aguante.'
+    },
+    {
+        title: '¡Cisnes fieles!',
+        text: 'Los cisnes se emparejan de por vida y defienden a su pareja a picotazos. ¡Unos románticos bravos! Vos, ' + userName + ', también tenés ese corazón, che.'
+    },
+    {
+        title: '¡Grillos cantores!',
+        text: 'Los grillos hacen música frotando sus alas pa’ atraer pareja. ¡Unos serenateros! Igual que vos, ' + userName + ', siempre con onda.'
+    },
+    {
+        title: '¡Armadillos bolita!',
+        text: 'El armadillo de tres bandas se hace bolita pa’ protegerse. ¡Un ninja blindado! Vos, ' + userName + ', también sabés defenderte, loco.'
+    },
+    {
+        title: '¡Suricatas guardianas!',
+        text: 'Las suricatas tienen vigías que avisan al grupo si viene peligro. ¡Unas centinelas zarpadas! Igual que vos, ' + userName + ', siempre alerta.'
+    },
+    {
+        title: '¡Tigres sigilosos!',
+        text: 'Un tigre puede acechar en silencio y saltar 10 metros de una. ¡Un cazador ninja! Vos, ' + userName + ', también tenés ese toque sigiloso, che.'
+    },
+    {
+        title: '¡Caballitos de mar papás!',
+        text: 'Los caballitos de mar macho llevan los huevos en una bolsa hasta que nacen. ¡Unos padres copados! Igual que vos, ' + userName + ', siempre bancando.'
+    },
+    {
+        title: '¡Bichos bola gigantes!',
+        text: 'El isópodo gigante del océano profundo mide hasta 50 cm y se enrolla como pelota. ¡Un tanque submarino! Vos, ' + userName + ', también sos gros${userName === "Miguel" ? "o" : "a"}, loco.'
+    },
+    {
+        title: '¡Águilas cazadoras!',
+        text: 'Un águila real puede ver un conejo a 3 kilómetros y bajar en picada a atraparlo. ¡Un sniper del cielo! Igual que vos, ' + userName + ', siempre con visión zarpada.'
+    }
+];
 
     try {
         let embed;
