@@ -3251,6 +3251,32 @@ async function manejarAutoplay(message) {
     await sendSuccess(message.channel, estado ? '🎵 ¡Autoplay activado!' : '⏹️ ¡Autoplay desactivado!', mensaje);
 }
 
+dataStore.triviaStats = {
+    "752987736759205960": {
+        capitales: { correct: 7, total: 20 },
+        matematicas: { correct: 14, total: 20 },
+        disney: { correct: 26, total: 36 }
+    },
+    "1023132788632862761": {
+        capitales: { correct: 70, total: 238 },
+        disney: { correct: 9, total: 21 },
+        matematicas: { correct: 16, total: 20 },
+        quimica: { correct: 5, total: 20 },
+        fisica: { correct: 5, total: 20 }
+    }
+};
+dataStore.personalPPMRecords = {
+    "752987736759205960": { best: { ppm: 110, timestamp: "2025-03-03T03:20:50.111Z" } },
+    "1023132788632862761": { best: { ppm: 117, timestamp: "2025-03-05T14:54:08.536Z" } }
+};
+dataStore.reactionWins = {
+    "752987736759205960": { wins: 58 },
+    "1023132788632862761": { wins: 82 }
+};
+
+const embed = getCombinedRankingEmbed("752987736759205960", "kaspercito");
+console.log(embed.data); // Revisá qué genera
+
 // Ranking con top por categoría para Trivia, Reacciones y PPM
 function getCombinedRankingEmbed(userId, username) {
     // Armo un ranking zarpado con trivia, PPM y reacciones
