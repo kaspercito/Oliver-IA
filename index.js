@@ -2714,34 +2714,39 @@ async function manejarResponder(message) {
 
 // Actualizaciones
 async function manejarActualizaciones(message) {
-    // Comando solo pa’ Belén pa’ ver las actualizaciones del bot
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
-    // Si no sos Belén, chau, no podés usarlo
     if (message.author.id !== ALLOWED_USER_ID) return;
 
-    // Saco la hora de Argentina pa’ que quede local
     const argentinaTime = new Date().toLocaleTimeString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' });
-    // Armo el texto con las actualizaciones, o te digo que no hay nada nuevo
-    const updatesText = BOT_UPDATES.length > 0 
-        ? BOT_UPDATES.map((update, index) => `${index + 1}. ${update}`).join('\n')
-        : 'No hay actualizaciones nuevas por ahora, ¡pero seguí atenta, genia!';
 
-    // Armo un embed dorado con las actualizaciones y la hora
-    const embed = createEmbed('#FF1493', '📢 Últimas Actualizaciones de Oliver IA',
-        `¡Mirá lo nuevo que traigo, ${userName}!\n\n${updatesText}\n\n**Hora local (Argentina):** ${argentinaTime}`,
-        'Hecho con onda por Miguel IA');
-    
-    // Te lo mando al canal
-    await message.channel.send({ embeds: [embed] });
-}
+    try {
+        // Validar BOT_UPDATES
+        if (!Array.isArray(BOT_UPDATES)) {
+            throw new Error('BOT_UPDATES no es un array, loco');
+        }
+        const validUpdates = BOT_UPDATES.filter(update => typeof update === 'string' && update.trim() !== '');
+        if (validUpdates.length === 0 && BOT_UPDATES.length > 0) {
+            console.warn('BOT_UPDATES tiene elementos inválidos:', BOT_UPDATES);
+        }
 
-function crearBossBar(currentTime, duration) {
-    const progreso = Math.min(currentTime / duration, 1); // 0 a 1
-    const segmentos = 10; // Largo de la barra
-    const llenos = Math.floor(progreso * segmentos);
-    const vacios = segmentos - llenos;
-    const porcentaje = Math.round(progreso * 100);
-    return `[${'█'.repeat(llenos)}${'-'.repeat(vacios)}] ${porcentaje}%`;
+        const updatesText = validUpdates.length > 0 
+            ? validUpdates.map((update, index) => `${index + 1}. ${update}`).join('\n')
+            : 'No hay actualizaciones nuevas por ahora, ¡pero seguí atenta, genia!';
+
+        const description = `¡Mirá lo nuevo que traigo, ${userName}!\n\n${updatesText}\n\n**Hora local (Argentina):** ${argentinaTime}`;
+        console.log('Descripción generada:', description); // Debug pa’ ver qué se pasa
+
+        const embed = createEmbed('#FF1493', '📢 Últimas Actualizaciones de Oliver IA', 
+            description, 'Hecho con onda por Miguel IA');
+        
+        await message.channel.send({ embeds: [embed] });
+    } catch (error) {
+        console.error('Error en manejarActualizaciones:', error.message);
+        const errorEmbed = createEmbed('#FF1493', '¡Qué cagada, Belén!', 
+            `No pude mostrar las actualizaciones, grosa. Error: ${error.message}. ¡Avisale a Miguel, dale!`, 
+            'Hecho con onda por Miguel IA');
+        await message.channel.send({ embeds: [errorEmbed] });
+    }
 }
 
 // Funciones de música
