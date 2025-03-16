@@ -3189,6 +3189,7 @@ async function manejarIdea(message) {
 
 async function manejarChiste(message) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
+    const userId = message.author.id;
 
     const waitingEmbed = createEmbed('#FF1493', `😂 Preparándome, ${userName}...`, 
         `Aguantá que te hago reír al toque, loco...`);
@@ -3215,12 +3216,230 @@ async function manejarChiste(message) {
         {
             setup: '¿Qué hace una abeja en el gimnasio?',
             punchline: '¡Zum-ba! Ja, ${userName}, vos zumbás de pura energía, che.'
-        }
+        },
+        {
+            setup: '¿Qué le dice un guayaco al arroz con menestra cuando está caro?',
+            punchline: '¡Tranquilo, ñaño, no te me pongas tan saladito! Vos sí que zumbás caro, ${userName}, ja.'
+        },
+        {
+            setup: '¿Por qué el man de Guayaquil no usa reloj?',
+            punchline: 'Porque vive en la hora guayaca, ¡cuando le da la gana, pues! Igual que vos, ${userName}, un crack pa’ la pachanga.'
+        },
+        {
+            setup: '¿Qué hace un guayaco cuando le cortan la luz?',
+            punchline: '¡Saca la vela y arma el vacile en la vereda! Vos también sos pura energía, ${userName}, che.'
+        },
+        {
+            setup: '¿Cómo llama un guayaco al tráfico de la 9 de Octubre?',
+            punchline: '¡Un vacilón de carros, pana! Igual de loco que vos cuando te embalás, ${userName}.'
+        },
+        {
+            setup: '¿Qué le dice el guayaco al calor de Guayaquil?',
+            punchline: '¡Ya, pelado, no me achicharrés más que ya estoy frito! Como vos, ${userName}, siempre al rojo vivo.'
+        },
+        { setup: '¿Qué le dice un guayaco al arroz con menestra cuando está caro?', punchline: '¡Tranquilo, ñaño, no te me pongas tan saladito! Vos sí que zumbás caro, ${userName}, ja.' },
+        { setup: '¿Por qué el man de Guayaquil no usa reloj?', punchline: 'Porque vive en la hora guayaca, ¡cuando le da la gana, pues! Igual que vos, ${userName}, un crack pa’ la pachanga.' },
+        { setup: '¿Qué hace un guayaco cuando le cortan la luz?', punchline: '¡Saca la vela y arma el vacile en la vereda! Vos también sos pura energía, ${userName}, che.' },
+        { setup: '¿Cómo llama un guayaco al tráfico de la 9 de Octubre?', punchline: '¡Un vacilón de carros, pana! Igual de loco que vos cuando te embalás, ${userName}.' },
+        { setup: '¿Qué le dice el guayaco al calor de Guayaquil?', punchline: '¡Ya, pana, no me achicharrés más que ya estoy frito! Como vos, ${userName}, siempre a full.' },
+        { setup: '¿Por qué el guayaco no se pierde en el Malecón?', punchline: '¡Porque siempre encuentra una chela pa’ guiarse, ñaño! Vos también tenés ese olfato, ${userName}.' },
+        { setup: '¿Qué hace un guayaco con un bolón quemado?', punchline: '¡Lo bautiza “carbón con queso” y se lo come igual! Vos sos igual de ingenios${userName === "Miguel" ? "o" : "a"}, ${userName}.' },
+        { setup: '¿Cómo pide un guayaco un aventón?', punchline: '¡“Llévame, pana, que estoy en la lona!” Igual que vos, ${userName}, siempre sacando el jugo.' },
+        { setup: '¿Qué le dice un guayaco al taxista que va lento?', punchline: '¡“Métele pata, man, que no estamos en procesión!” Vos sí que zumbás rápido, ${userName}.' },
+        { setup: '¿Por qué el guayaco no le tiene miedo al apagón?', punchline: '¡Porque tiene más pilas que linterna vieja! Igual que vos, ${userName}, siempre prendid${userName === "Miguel" ? "o" : "a"}.' },
+    
+        // 11-20
+        { setup: '¿Qué hace un guayaco cuando le suben el pasaje?', punchline: '¡“Mejor camino, ñaño, que esto está más saladito que encebollado!” Vos también sos vivo, ${userName}.' },
+        { setup: '¿Cómo sabe un guayaco que ya llegó el verano?', punchline: '¡Porque el sudor le hace olas en la frente! Igual que vos, ${userName}, puro calor.' },
+        { setup: '¿Qué le dice un guayaco al ventilador en julio?', punchline: '¡“Dale más duro, pana, que me estoy derritiendo!” Vos también sos un fenómeno, ${userName}.' },
+        { setup: '¿Por qué el guayaco no se preocupa por la lluvia?', punchline: '¡Porque ya está acostumbrado a nadar en el estero! Como vos, ${userName}, siempre a flote.' },
+        { setup: '¿Qué hace un guayaco cuando ve un billete en la calle?', punchline: '¡Lo agarra más rápido que iguana en bajada! Vos también tenés ese ojo, ${userName}.' },
+        { setup: '¿Cómo saluda un guayaco a su pana en el mercado?', punchline: '¡“Qué más, ñaño, cómo está el pescado hoy?” Igual que vos, ${userName}, siempre al día.' },
+        { setup: '¿Qué le dice un guayaco a la sopa fría?', punchline: '¡“Calentate, man, que no sos jugo!” Vos sí que traés calor, ${userName}.' },
+        { setup: '¿Por qué el guayaco no usa GPS?', punchline: '¡Porque se guía por el olor a fritada! Igual que vos, ${userName}, puro instinto.' },
+        { setup: '¿Qué hace un guayaco cuando se queda sin saldo?', punchline: '¡Le manda un “llámame” al pana más rápido que rayo! Vos también sos rapid${userName === "Miguel" ? "o" : "a"}, ${userName}.' },
+        { setup: '¿Cómo llama un guayaco a un día sin chelas?', punchline: '¡“Un día más seco que playa de Salinas!” Vos no dejás que pase eso, ${userName}, ja.' },
+    
+        // 21-30
+        { setup: '¿Qué le dice un guayaco al bus que no para?', punchline: '¡“Para, ñaño, que no soy Usain Bolt!” Igual que vos, ${userName}, siempre corriendo.' },
+        { setup: '¿Por qué el guayaco no se asusta del calor?', punchline: '¡Porque ya es amigo del sol desde chiquito! Como vos, ${userName}, puro fuego.' },
+        { setup: '¿Qué hace un guayaco con una bandera sin salsa?', punchline: '¡La devuelve y pide que le pongan actitud! Vos también tenés sabor, ${userName}.' },
+        { setup: '¿Cómo sabe un guayaco que el encebollado es bueno?', punchline: '¡Porque el ojo se le pone rojo de felicidad! Igual que vos, ${userName}, un crack.' },
+        { setup: '¿Qué le dice un guayaco al que pide prestado?', punchline: '¡“Devuelve, pana, que no soy banco!” Vos sos igual de clar${userName === "Miguel" ? "o" : "a"}, ${userName}.' },
+        { setup: '¿Por qué el guayaco no le teme a la Metrovía llena?', punchline: '¡Porque se cuelga del tubo como mono en liana! Igual que vos, ${userName}, puro talento.' },
+        { setup: '¿Qué hace un guayaco cuando le dan mal el cambio?', punchline: '¡“Ojo, ñaño, que no nací ayer!” Vos también tenés calle, ${userName}.' },
+        { setup: '¿Cómo llama un guayaco a un día sin sol?', punchline: '¡“Un milagro en Guayaquil, pana!” Igual que vos, ${userName}, una rareza copada.' },
+        { setup: '¿Qué le dice un guayaco al pana que no llega?', punchline: '¡“Apúrate, man, que la chela se calienta!” Vos sí que sos puntual, ${userName}.' },
+        { setup: '¿Por qué el guayaco no se rinde en el vacile?', punchline: '¡Porque lleva el ritmo en la sangre como tambor! Igual que vos, ${userName}, puro flow.' },
+    
+        // 31-40
+        { setup: '¿Qué hace un guayaco cuando se quema la lengua?', punchline: '¡“Este encebollado está que pica, ñaño!” Vos también sos fuertecito, ${userName}.' },
+        { setup: '¿Cómo sabe un guayaco que el partido es bueno?', punchline: '¡Porque grita más que vendedor de coco! Igual que vos, ${userName}, pura pasión.' },
+        { setup: '¿Qué le dice un guayaco al que le debe plata?', punchline: '¡“Calma, pana, que ya viene el vuelto!” Vos sos más confiable, ${userName}.' },
+        { setup: '¿Por qué el guayaco no se pierde en el mercado?', punchline: '¡Porque huele la fritada a dos cuadras! Igual que vos, ${userName}, puro olfato.' },
+        { setup: '¿Qué hace un guayaco con un dólar arrugado?', punchline: '¡Lo estira como si fuera plancha! Vos también sacás provecho, ${userName}.' },
+        { setup: '¿Cómo llama un guayaco al que habla mucho?', punchline: '¡“El loro del barrio, ñaño!” Vos sos más tranqui, ${userName}, ja.' },
+        { setup: '¿Qué le dice un guayaco al que no baila?', punchline: '¡“Movete, man, que no sos estatua del Malecón!” Igual que vos, ${userName}, puro ritmo.' },
+        { setup: '¿Por qué el guayaco no usa paraguas?', punchline: '¡Porque la lluvia es su ducha gratis! Vos también sos práctico, ${userName}.' },
+        { setup: '¿Qué hace un guayaco cuando le pica un mosquito?', punchline: '¡“Volá, pana, que esta sangre es mía!” Igual que vos, ${userName}, defendiendo lo tuyo.' },
+        { setup: '¿Cómo sabe un guayaco que llegó el viernes?', punchline: '¡Porque el vacile ya huele a chela y fritada! Vos también vivís el finde, ${userName}.' },
+    
+        // 41-50
+        { setup: '¿Qué le dice un guayaco al que no come bolón?', punchline: '¡“Estás perdiendo vida, ñaño!” Vos sí que aprovechás, ${userName}.' },
+        { setup: '¿Por qué el guayaco no se cansa del calor?', punchline: '¡Porque ya es socio del sudor! Igual que vos, ${userName}, puro aguante.' },
+        { setup: '¿Qué hace un guayaco cuando no hay luz en el partido?', punchline: '¡Saca el celular y grita desde la tribuna! Vos también sos recursiv${userName === "Miguel" ? "o" : "a"}, ${userName}.' },
+        { setup: '¿Cómo llama un guayaco al que llega tarde?', punchline: '¡“El rey de la hora guayaca, pana!” Vos sos más rapid${userName === "Miguel" ? "o" : "a"}, ${userName}.' },
+        { setup: '¿Qué le dice un guayaco al pana sin plata?', punchline: '¡“Tranquilo, ñaño, yo invito esta ronda!” Igual que vos, ${userName}, un capo.' },
+        { setup: '¿Por qué el guayaco no le teme al estero?', punchline: '¡Porque nada mejor que pez en el agua! Como vos, ${userName}, siempre a flote.' },
+        { setup: '¿Qué hace un guayaco con un mango verde?', punchline: '¡Lo corta con sal y se lo come feliz! Vos también tenés ese toque, ${userName}.' },
+        { setup: '¿Cómo sabe un guayaco que el ceviche es fresco?', punchline: '¡Porque el limón le hace cosquillas! Igual que vos, ${userName}, puro sabor.' },
+        { setup: '¿Qué le dice un guayaco al que no toma chela?', punchline: '¡“Viví un poco, man, que no muerde!” Vos sí que sabés disfrutar, ${userName}.' },
+        { setup: '¿Por qué el guayaco no usa aire acondicionado?', punchline: '¡Porque el ventilador es su pana de ley! Igual que vos, ${userName}, simple y efectivo.' },
+    
+        // 51-60
+        { setup: '¿Qué hace un guayaco cuando el bus está lleno?', punchline: '¡Se cuelga de la puerta como héroe! Vos también sos valiente, ${userName}.' },
+        { setup: '¿Cómo llama un guayaco al que no come encebollado?', punchline: '¡“Un turista perdido, ñaño!” Vos sos de pura cepa, ${userName}.' },
+        { setup: '¿Qué le dice un guayaco al sol a las 2 de la tarde?', punchline: '¡“Bajale el tono, pana, que estoy sudando tinta!” Igual que vos, ${userName}, puro calor.' },
+        { setup: '¿Por qué el guayaco no se aburre en el tráfico?', punchline: '¡Porque pone reggaetón y arma el vacile! Como vos, ${userName}, siempre con onda.' },
+        { setup: '¿Qué hace un guayaco con un coco caliente?', punchline: '¡Lo abre y le echa hielo pa’ sobrevivir! Vos también improvisás, ${userName}.' },
+        { setup: '¿Cómo sabe un guayaco que el partido está bravo?', punchline: '¡Porque hasta el árbitro suda de miedo! Igual que vos, ${userName}, puro nervio.' },
+        { setup: '¿Qué le dice un guayaco al pana que no llega al vacile?', punchline: '¡“Apúrate, man, que la fritada se enfría!” Vos sí que estás al toque, ${userName}.' },
+        { setup: '¿Por qué el guayaco no le teme a la subida del pasaje?', punchline: '¡Porque siempre tiene un pana que lo lleva! Igual que vos, ${userName}, bien conectad${userName === "Miguel" ? "o" : "a"}.' },
+        { setup: '¿Qué hace un guayaco cuando el equipo pierde?', punchline: '¡“La próxima, ñaño, que esto es puro amor!” Vos también sos fiel, ${userName}.' },
+        { setup: '¿Cómo llama un guayaco al que no sabe bailar salsa?', punchline: '¡“Un palo de mango, pana!” Vos tenés flow, ${userName}.' },
+    
+        // 61-70
+        { setup: '¿Qué le dice un guayaco al que le pide fiado?', punchline: '¡“Primero paga, man, que no soy ONG!” Vos sos más clar${userName === "Miguel" ? "o" : "a"}, ${userName}.' },
+        { setup: '¿Por qué el guayaco no se raja en el calor?', punchline: '¡Porque lleva el aire en la camisa abierta! Igual que vos, ${userName}, puro estilo.' },
+        { setup: '¿Qué hace un guayaco con una llanta pinchada?', punchline: '¡La empuja hasta el taller cantando! Vos también tenés actitud, ${userName}.' },
+        { setup: '¿Cómo sabe un guayaco que la fritada está lista?', punchline: '¡Porque el olor lo levanta de la cama! Igual que vos, ${userName}, puro instinto.' },
+        { setup: '¿Qué le dice un guayaco al que no come verde?', punchline: '¡“Estás negado pa’l bolón, ñaño!” Vos sí que le das, ${userName}.' },
+        { setup: '¿Por qué el guayaco no usa corbata?', punchline: '¡Porque el calor ya lo ahorca gratis! Como vos, ${userName}, siempre relajad${userName === "Miguel" ? "o" : "a"}.' },
+        { setup: '¿Qué hace un guayaco cuando no hay agua?', punchline: '¡Se baña con el sudor del día! Vos también sos sobreviviente, ${userName}.' },
+        { setup: '¿Cómo llama un guayaco al que no toma café?', punchline: '¡“Un zombie sin motor, pana!” Vos sí que tenés pila, ${userName}.' },
+        { setup: '¿Qué le dice un guayaco al que llega sin chela?', punchline: '¡“Traé algo, man, que no somos ONG!” Igual que vos, ${userName}, siempre aportás.' },
+        { setup: '¿Por qué el guayaco no se pierde en Las Peñas?', punchline: '¡Porque sigue el ritmo de la guitarra! Como vos, ${userName}, puro compás.' },
+    
+        // 71-80
+        { setup: '¿Qué hace un guayaco con un billete de 10 viejo?', punchline: '¡Lo usa pa’ abanicarse en el calor! Vos también improvisás, ${userName}.' },
+        { setup: '¿Cómo sabe un guayaco que el ceviche pica?', punchline: '¡Porque le hace saltar lágrimas de alegría! Igual que vos, ${userName}, puro sabor.' },
+        { setup: '¿Qué le dice un guayaco al pana que no corre?', punchline: '¡“Movete, ñaño, que el bus no espera!” Vos sí que zumbás, ${userName}.' },
+        { setup: '¿Por qué el guayaco no le teme al sol?', punchline: '¡Porque ya es negro como el café! Como vos, ${userName}, puro aguante.' },
+        { setup: '¿Qué hace un guayaco cuando el encebollado se acaba?', punchline: '¡“Otra ronda, pana, que esto es vida!” Vos también pedís más, ${userName}.' },
+        { setup: '¿Cómo llama un guayaco al que no canta en el vacile?', punchline: '¡“Un mute en la fiesta, man!” Vos tenés voz, ${userName}.' },
+        { setup: '¿Qué le dice un guayaco al que no come bandera?', punchline: '¡“Estás negado pa’ lo bueno, ñaño!” Vos sí que sabés, ${userName}.' },
+        { setup: '¿Por qué el guayaco no usa gorra?', punchline: '¡Porque el sol ya le tatuó la frente! Igual que vos, ${userName}, puro estilo.' },
+        { setup: '¿Qué hace un guayaco con un mango maduro?', punchline: '¡Lo chupa hasta el cuesco, pana! Vos también aprovechás, ${userName}.' },
+        { setup: '¿Cómo sabe un guayaco que el partido está bueno?', punchline: '¡Porque el grito se escucha hasta el estero! Igual que vos, ${userName}, pura pasión.' },
+    
+        // 81-90
+        { setup: '¿Qué le dice un guayaco al que no toma fresco?', punchline: '¡“Estás seco, man, hidratate con onda!” Vos sí que refrescás, ${userName}.' },
+        { setup: '¿Por qué el guayaco no se raja en el vacile?', punchline: '¡Porque lleva el tambor en el pecho! Como vos, ${userName}, puro ritmo.' },
+        { setup: '¿Qué hace un guayaco cuando no hay chela?', punchline: '¡Saca el agua con gas y le pone actitud! Vos también improvisás, ${userName}.' },
+        { setup: '¿Cómo llama un guayaco al que no come seco?', punchline: '¡“Un perdido en la Costa, ñaño!” Vos sos de ley, ${userName}.' },
+        { setup: '¿Qué le dice un guayaco al calor a mediodía?', punchline: '¡“Calma, pana, que ya estoy cocinado!” Igual que vos, ${userName}, puro fuego.' },
+        { setup: '¿Por qué el guayaco no usa reloj en el Malecón?', punchline: '¡Porque el tiempo lo marca la chela! Como vos, ${userName}, siempre en la onda.' },
+        { setup: '¿Qué hace un guayaco con un billete falso?', punchline: '¡Lo usa pa’ impresionar al pana! Vos sos más auténtic${userName === "Miguel" ? "o" : "a"}, ${userName}.' },
+        { setup: '¿Cómo sabe un guayaco que el bolón es casero?', punchline: '¡Porque lleva amor en cada mordida! Igual que vos, ${userName}, puro corazón.' },
+        { setup: '¿Qué le dice un guayaco al que no baila reggaetón?', punchline: '¡“Movete, man, que no sos poste!” Vos tenés swing, ${userName}.' },
+        { setup: '¿Por qué el guayaco no le teme a la lluvia fuerte?', punchline: '¡Porque ya sabe nadar desde el estero! Como vos, ${userName}, puro talento.' },
+    
+        // 91-100
+        { setup: '¿Qué hace un guayaco cuando le dan poco encebollado?', punchline: '¡“Echale más, ñaño, que no soy turista!” Vos también pedís lo justo, ${userName}.' },
+        { setup: '¿Cómo llama un guayaco al que no toma jugo?', punchline: '¡“Un seco sin remedio, pana!” Vos sos más refrescante, ${userName}.' },
+        { setup: '¿Qué le dice un guayaco al que llega sin fritada?', punchline: '¡“Traé algo, man, que esto no es buffet!” Igual que vos, ${userName}, siempre aportás.' },
+        { setup: '¿Por qué el guayaco no se quema con el sol?', punchline: '¡Porque ya es tostado de fábrica! Como vos, ${userName}, puro estilo.' },
+        { setup: '¿Qué hace un guayaco con un coco duro?', punchline: '¡Lo abre con machete y se lo toma orgulloso! Vos también tenés fuerza, ${userName}.' },
+        { setup: '¿Cómo sabe un guayaco que el partido es clásico?', punchline: '¡Porque el barrio entero tiembla de gritos! Igual que vos, ${userName}, pura pasión.' },
+        { setup: '¿Qué le dice un guayaco al que no come chifle?', punchline: '¡“Estás negado pa’ lo crocante, ñaño!” Vos sí que crujís, ${userName}.' },
+        { setup: '¿Por qué el guayaco no usa bufanda?', punchline: '¡Porque el calor ya lo abraza gratis! Igual que vos, ${userName}, puro calor humano.' },
+        { setup: '¿Qué hace un guayaco cuando el ventilador se apaga?', punchline: '¡Se abanica con la mano como campeón! Vos también sos recursiv${userName === "Miguel" ? "o" : "a"}, ${userName}.' },
+        { setup: '¿Cómo llama un guayaco al que no sabe el himno?', punchline: '¡“Un guayaco a media máquina, pana!” Vos sos complet${userName === "Miguel" ? "o" : "a"}, ${userName}.' },
+    
+        // 101-110
+        { setup: '¿Qué le dice un guayaco al que no come pescado?', punchline: '¡“Estás perdido en la Costa, ñaño!” Vos sí que tenés paladar, ${userName}.' },
+        { setup: '¿Por qué el guayaco no se raja en el calor?', punchline: '¡Porque ya es amigo del sudor desde siempre! Igual que vos, ${userName}, puro aguante.' },
+        { setup: '¿Qué hace un guayaco con una chela caliente?', punchline: '¡La enfría con hielo y le da vida! Vos también sabés arreglar todo, ${userName}.' },
+        { setup: '¿Cómo sabe un guayaco que el seco está listo?', punchline: '¡Porque el arroz le guiña el ojo! Igual que vos, ${userName}, puro ojo clínico.' },
+        { setup: '¿Qué le dice un guayaco al que no toma mate?', punchline: '¡“Probá, man, que esto es amistad!” Vos sí que compartís, ${userName}.' },
+        { setup: '¿Por qué el guayaco no usa despertador?', punchline: '¡Porque el sol lo levanta con un grito! Como vos, ${userName}, siempre al pie del cañón.' },
+        { setup: '¿Qué hace un guayaco cuando no hay fritada?', punchline: '¡Saca el verde y arma el bolón! Vos también improvisás, ${userName}.' },
+        { setup: '¿Cómo llama un guayaco al que no va al Malecón?', punchline: '¡“Un guayaco sin alma, pana!” Vos sos de pura cepa, ${userName}.' },
+        { setup: '¿Qué le dice un guayaco al que no come salsa?', punchline: '¡“Estás negado pa’l sabor, ñaño!” Vos sí que le ponés onda, ${userName}.' },
+        { setup: '¿Por qué el guayaco no se pierde en el estero?', punchline: '¡Porque nada como iguana en bajada! Igual que vos, ${userName}, puro talento.' },
+    
+        // 111-120
+        { setup: '¿Qué hace un guayaco con un billete roto?', punchline: '¡Lo pega con cinta y lo gasta feliz! Vos también sos ingenios${userName === "Miguel" ? "o" : "a"}, ${userName}.' },
+        { setup: '¿Cómo sabe un guayaco que el partido es bravo?', punchline: '¡Porque el grito se escucha hasta Samborondón! Igual que vos, ${userName}, pura pasión.' },
+        { setup: '¿Qué le dice un guayaco al que no toma fresco?', punchline: '¡“Estás seco, pana, refrescate con onda!” Vos sos más chévere, ${userName}.' },
+        { setup: '¿Por qué el guayaco no usa botas?', punchline: '¡Porque las chancletas son su ley! Como vos, ${userName}, puro estilo.' },
+        { setup: '¿Qué hace un guayaco cuando el ceviche no pica?', punchline: '¡Le echa ají pa’ que despierte! Vos también le ponés chispa, ${userName}.' },
+        { setup: '¿Cómo llama un guayaco al que no come bandera?', punchline: '¡“Un guayaco a dieta, ñaño!” Vos sí que le das, ${userName}.' },
+        { setup: '¿Qué le dice un guayaco al que no baila en el vacile?', punchline: '¡“Movete, man, que no sos palo!” Igual que vos, ${userName}, puro ritmo.' },
+        { setup: '¿Por qué el guayaco no le teme a la Metrovía?', punchline: '¡Porque se trepa como mono en rama! Como vos, ${userName}, puro talento.' },
+        { setup: '¿Qué hace un guayaco con un mango verde?', punchline: '¡Lo corta con sal y lo disfruta como rey! Vos también tenés ese toque, ${userName}.' },
+        { setup: '¿Cómo sabe un guayaco que el bolón es bueno?', punchline: '¡Porque el queso le hace ojitos! Igual que vos, ${userName}, puro paladar.' },
+    
+        // 121-130
+        { setup: '¿Qué le dice un guayaco al que no toma chela?', punchline: '¡“Viví un poco, pana, que esto es vida!” Vos sí que sabés, ${userName}.' },
+        { setup: '¿Por qué el guayaco no usa chamarra?', punchline: '¡Porque el calor ya lo abriga gratis! Igual que vos, ${userName}, puro calor humano.' },
+        { setup: '¿Qué hace un guayaco cuando el equipo gana?', punchline: '¡Grita más fuerte que corneta en la 9! Vos también celebrás, ${userName}.' },
+        { setup: '¿Cómo llama un guayaco al que no come seco?', punchline: '¡“Un guayaco sin raíces, ñaño!” Vos sos de pura cepa, ${userName}.' },
+        { setup: '¿Qué le dice un guayaco al sol de la tarde?', punchline: '¡“Bajale, pana, que ya estoy asado!” Igual que vos, ${userName}, puro fuego.' },
+        { setup: '¿Por qué el guayaco no se pierde en el mercado?', punchline: '¡Porque el olor a pescado lo guía! Como vos, ${userName}, puro instinto.' },
+        { setup: '¿Qué hace un guayaco con un billete de 5 viejo?', punchline: '¡Lo usa pa’ abanicarse en el calor! Vos también improvisás, ${userName}.' },
+        { setup: '¿Cómo sabe un guayaco que el encebollado pica?', punchline: '¡Porque le saca lágrimas de felicidad! Igual que vos, ${userName}, puro sabor.' },
+        { setup: '¿Qué le dice un guayaco al que no corre al bus?', punchline: '¡“Apúrate, man, que se va!” Vos sí que zumbás, ${userName}.' },
+        { setup: '¿Por qué el guayaco no usa reloj en la playa?', punchline: '¡Porque el sol le dice cuándo es hora de chela! Como vos, ${userName}, pura onda.' },
+    
+        // 131-140
+        { setup: '¿Qué hace un guayaco con un coco caliente?', punchline: '¡Lo enfría con hielo y lo goza! Vos también sabés arreglar, ${userName}.' },
+        { setup: '¿Cómo llama un guayaco al que no come chifle?', punchline: '¡“Un guayaco sin crujido, pana!” Vos sí que crujís, ${userName}.' },
+        { setup: '¿Qué le dice un guayaco al que no baila salsa?', punchline: '¡“Movete, ñaño, que no sos estatua!” Igual que vos, ${userName}, puro flow.' },
+        { setup: '¿Por qué el guayaco no le teme al apagón?', punchline: '¡Porque prende velas y arma el vacile! Como vos, ${userName}, siempre prendid${userName === "Miguel" ? "o" : "a"}.' },
+        { setup: '¿Qué hace un guayaco con un bolón frío?', punchline: '¡Lo calienta y le da vida otra vez! Vos también reciclás, ${userName}.' },
+        { setup: '¿Cómo sabe un guayaco que el partido es clásico?', punchline: '¡Porque el barrio se vuelve un carnaval! Igual que vos, ${userName}, pura fiesta.' },
+        { setup: '¿Qué le dice un guayaco al que no toma jugo?', punchline: '¡“Estás seco, man, hidratate con sabor!” Vos sos más refrescante, ${userName}.' },
+        { setup: '¿Por qué el guayaco no usa camisa cerrada?', punchline: '¡Porque el calor ya le abrió el pecho! Como vos, ${userName}, puro estilo.' },
+        { setup: '¿Qué hace un guayaco con un mango maduro?', punchline: '¡Lo chupa hasta el hueso, pana! Vos también aprovechás, ${userName}.' },
+        { setup: '¿Cómo sabe un guayaco que el seco es bueno?', punchline: '¡Porque el arroz baila con la carne! Igual que vos, ${userName}, puro ritmo.' },
+    
+        // 141-150
+        { setup: '¿Qué le dice un guayaco al que no come fritada?', punchline: '¡“Estás negado pa’ lo bueno, ñaño!” Vos sí que le das, ${userName}.' },
+        { setup: '¿Por qué el guayaco no usa reloj en el vacile?', punchline: '¡Porque la chela marca el tiempo! Como vos, ${userName}, siempre en la onda.' },
+        { setup: '¿Qué hace un guayaco con un billete falso?', punchline: '¡Lo usa pa’ abanicarse y vacilar! Vos sos más auténtic${userName === "Miguel" ? "o" : "a"}, ${userName}.' },
+        { setup: '¿Cómo sabe un guayaco que el ceviche es fresco?', punchline: '¡Porque el pescado le guiña el ojo! Igual que vos, ${userName}, puro ojo clínico.' },
+        { setup: '¿Qué le dice un guayaco al que no toma chela?', punchline: '¡“Viví un poco, pana, que esto es Guayaquil!” Vos sí que sabés, ${userName}.' },
+        { setup: '¿Por qué el guayaco no usa paraguas?', punchline: '¡Porque la lluvia es su aire acondicionado! Como vos, ${userName}, puro ingenio.' },
+        { setup: '¿Qué hace un guayaco cuando el equipo pierde?', punchline: '¡“La próxima, man, que el amor no se acaba!” Vos también sos fiel, ${userName}.' },
+        { setup: '¿Cómo llama un guayaco al que no baila reggaetón?', punchline: '¡“Un palo de mango, ñaño!” Vos tenés swing, ${userName}.' },
+        { setup: '¿Qué le dice un guayaco al sol de mediodía?', punchline: '¡“Bajale, pana, que ya estoy asado!” Igual que vos, ${userName}, puro calor.' },
+        { setup: '¿Por qué el guayaco no se pierde en el Malecón?', punchline: '¡Porque el río lo guía con su vacile! Como vos, ${userName}, puro rumbo.' }
     ];
 
     try {
-        // Elegimos un chiste random
-        const chiste = chistes[Math.floor(Math.random() * chistes.length)];
+        // Inicializamos el registro de chistes usados por usuario en dataStore
+        dataStore.usedJokes = dataStore.usedJokes || {};
+        dataStore.usedJokes[userId] = dataStore.usedJokes[userId] || [];
+
+        // Filtramos los chistes disponibles (los que no se han usado aún)
+        let availableChistes = chistes.filter((_, index) => !dataStore.usedJokes[userId].includes(index));
+
+        // Si no quedan chistes disponibles, reseteamos la lista
+        if (availableChistes.length === 0) {
+            dataStore.usedJokes[userId] = [];
+            availableChistes = chistes;
+            console.log(`Reiniciando chistes para ${userName} (${userId}), se agotaron los disponibles.`);
+        }
+
+        // Elegimos un chiste random de los disponibles
+        const randomIndex = Math.floor(Math.random() * availableChistes.length);
+        const chiste = availableChistes[randomIndex];
+        const chisteIndex = chistes.indexOf(chiste); // Obtenemos el índice original en la lista completa
+
+        // Guardamos el índice del chiste usado
+        dataStore.usedJokes[userId].push(chisteIndex);
+        dataStoreModified = true; // Marcamos que dataStore cambió para guardarlo después
 
         // Embed con el chiste
         const embed = createEmbed('#FF1493', `😂 ¡Chiste pa’ ${userName}!`, 
@@ -3237,7 +3456,6 @@ async function manejarChiste(message) {
         await waitingMessage.edit({ embeds: [errorEmbed] });
     }
 }
-
 // Dato
 async function manejarDato(message) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
