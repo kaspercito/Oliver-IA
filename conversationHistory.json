@@ -352,7 +352,32 @@
         "Me usás pa’ limpiar, soy amarillo y esponjoso, ¿qué soy, che?",
         "Soy grande, soy ruidoso, me ves en la obra, ¿qué soy, loco?",
         "Me usás pa’ coser, tengo un ojo pero no veo, ¿qué soy, che?",
-        "Soy rojo, soy dulce, me comés en el asado, ¿qué soy, amigo?"
+        "Soy rojo, soy dulce, me comés en el asado, ¿qué soy, amigo?",
+        "Soy un bicho que vuela, hago ruido en la noche, los pibes me cazan con linterna, ¿qué soy, che?",
+        "Soy verde, soy grande, me ves en el río, ¿qué soy, loco?",
+        "Me usás pa’ prender fuego, soy chiquito pero peligroso, ¿qué soy, che?",
+        "Me usás pa’ colgar, soy largo y fuerte, ¿qué soy, che?",
+        "Soy negro, soy caliente, me usás pa’l invierno, ¿qué soy, loco?",
+        "Me usás pa’ jugar, tengo cartas marcadas, ¿qué soy, che?",
+        "Me subís pa’ viajar, tengo alas pero no soy pájaro, ¿qué soy, posta?",
+        "Me ponés en la cabeza, me usás pa’l sueño, ¿qué soy, posta?",
+        "Soy dulce, soy redondo, me comés en el cumple, ¿qué soy, amigo?",
+        "Soy grande, soy frío, guardo la comida pa’ después, ¿qué soy, loco?",
+        "Me ponés en la pared, tengo colores zarpados, ¿qué soy, posta?",
+        "Soy negro, soy brillante, me usás pa’ ver tele, si me perdés te enojás, ¿qué soy, amigo?",
+        "Soy rápido, soy blanco, me ves en el cielo, ¿qué soy, loco?",
+        "Soy grande, soy verde, me subís pa’l campo, ¿qué soy, loco?",
+        "Soy chiquita, soy roja, me comés con el fernet, ¿qué soy, loco?",
+        "Soy chiquito, soy plateado, me usás pa’l cinturón, ¿qué soy, loco?",
+        "Me ponés en el brazo, me usás pa’l reloj, ¿qué soy, posta?",
+        "Me usás pa’ cortar, tengo filo zarpado, en la cocina soy el rey, ¿qué soy, posta?",
+        "Soy blanco, soy cuadrado, me usás pa’l dibujo, ¿qué soy, amigo?",
+        "Me ponés en la cabeza, me usás pa’l calor, ¿qué soy, posta?",
+        "Soy amarillo, soy brillante, me ves en la noche, ¿qué soy, amigo?",
+        "Soy blanco y negro, camino tranqui por el campo, no soy caballo ni vaca, pero igual me quieren mucho, ¿qué soy, loco?",
+        "Soy rápido, soy ruidoso, me ves en el cielo, ¿qué soy, loco?",
+        "Me ponés en el dedo, brillo en la oscuridad, ¿qué soy, posta?",
+        "Estoy en el cielo, brillo de día, no soy estrella ni luna, pero caliento el asado, ¿qué soy, loco?"
       ]
     }
   },
@@ -460,7 +485,8 @@
   "utilMessageTimestamps": {
     "1343749554905940058": 1741702502300,
     "plan_1343749554905940058": 1741879435793,
-    "reminder_1343749554905940058": 1742136091968
+    "reminder_1343749554905940058": 1742136091968,
+    "util_1343749554905940058": 1742138274670
   },
   "utilMessageReactions": {
     "1343749554905940058": 1742051418073
@@ -502,8 +528,8 @@
       "total": 3
     },
     "1023132788632862761": {
-      "correct": 2,
-      "total": 4
+      "correct": 11,
+      "total": 29
     }
   }
 }
