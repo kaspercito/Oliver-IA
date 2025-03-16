@@ -434,7 +434,10 @@
     "¡Le metimos pilas al bot, che! Ahora podés jugar Piedra, Papel o Tijera y romperla toda:",
     "- !ppt [piedra/papel/tijera]: Jugá contra mí, el bot más grosso del condado. Elegí tu jugada y vemos quién la pica, ¡dale!",
     "- !ppt @alguien: Desafiá a un amigo a un duelo épico. Reacciona con ✅ pa’ aceptar, mandá tu elección por MD y que gane el mejor, ¡posta!",
-    "¡Nuevo !recordatorio / !rec agregado! Te hago acordar lo que sea cuando quieras. Ejemplo: \"!rec 'comprar sanduche de miga' en 1 hora\" o \"!rec 'llamar a Miguel' mañana 14:30\", ¡posta!"
+    "¡Nuevo !recordatorio / !rec agregado! Te hago acordar lo que sea cuando quieras. Ejemplo: \"!rec 'comprar sanduche de miga' en 1 hora\" o \"!rec 'llamar a Miguel' mañana 14:30\", ¡posta!",
+    "¡Boss bar al 100%! Arreglamos la barra de progreso pa’ que llegue al final posta y se vea zarpada cuando termina el tema, ¡a romperla, che!",
+    "¡Datos randoms en !dato! Ahora si no le das argumentos, te tira un dato curioso al azar con onda, ¡re copado pa’ sorprenderte, loco!",
+    "¡Nuevo !chiste agregado! Usá !chiste y te tiro un chiste random pa’ que te rías a lo grande, ¡posta que la rompés, che!"
   ],
   "utilMessageTimestamps": {
     "1343749554905940058": 1741702502300,
