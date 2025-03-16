@@ -1,3 +1,10 @@
+// Reacciones
+function obtenerPalabraAleatoria() {
+    // Esta función es una joyita chiquita, te tira una palabra random del array palabrasAleatorias
+    // Usa Math.random pa’ elegir una al azar, como tirar un dado pero con palabras, re copado pa’ juegos
+    return palabrasAleatorias[Math.floor(Math.random() * palabrasAleatorias.length)];
+}
+
 async function manejarReacciones(message) {
     // Acá arrancamos el juego de reacciones, pa’ ver qué tan rápido la pegás, loco
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
