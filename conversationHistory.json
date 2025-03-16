@@ -339,7 +339,15 @@
       "wins": 58
     }
   },
-  "activeSessions": {},
+  "activeSessions": {
+    "752987736759205960": {
+      "usedAdivinanzas": [
+        "Soy amarillo, soy brillante, me ves en la noche, ¿qué soy, amigo?",
+        "Me usás pa’ freír, soy caliente y aceitoso, ¿qué soy, che?",
+        "Me usás pa’ peinarte, tengo dientes pero no muerdo, ¿qué soy, che?"
+      ]
+    }
+  },
   "triviaStats": {
     "1023132788632862761": {
       "correct": 25,
@@ -437,7 +445,9 @@
     "¡Nuevo !recordatorio / !rec agregado! Te hago acordar lo que sea cuando quieras. Ejemplo: \"!rec 'comprar sanduche de miga' en 1 hora\" o \"!rec 'llamar a Miguel' mañana 14:30\", ¡posta!",
     "¡Boss bar al 100%! Arreglamos la barra de progreso pa’ que llegue al final posta y se vea zarpada cuando termina el tema, ¡a romperla, che!",
     "¡Datos randoms en !dato! Ahora si no le das argumentos, te tira un dato curioso al azar con onda, ¡re copado pa’ sorprenderte, loco!",
-    "¡Nuevo !chiste agregado! Usá !chiste y te tiro un chiste random pa’ que te rías a lo grande, ¡posta que la rompés, che!"
+    "¡Nuevo !chiste agregado! Usá !chiste y te tiro un chiste random pa’ que te rías a lo grande, ¡posta que la rompés, che!",
+    "¡Nuevo !adivinanza / !ad agregado! Te tiro adivinanzas copadas pa’ que le des al coco, con 30 segundos pa’ responder, ¡dale, genia!",
+    "¡Ranking con adivinanzas! Ahora en !rk se ven tus aciertos y porcentaje en adivinanzas, pa’ que veas quién la rompe más, ¡posta!"
   ],
   "utilMessageTimestamps": {
     "1343749554905940058": 1741702502300,
@@ -475,14 +485,14 @@
       "timestamp": 1742106229327,
       "creado": 1742091829328
     },
-  {
-    "id": "8bc95228-33db-42d6-873f-9be6c3ebb6d7",
-    "userId": "1023132788632862761",
-    "channelId": "1008091220544851970",
-    "mensaje": "despiertame",
-    "timestamp": 1742117550572,
-    "creado": 1742099550573
-  }
+    {
+      "id": "8bc95228-33db-42d6-873f-9be6c3ebb6d7",
+      "userId": "1023132788632862761",
+      "channelId": "1008091220544851970",
+      "mensaje": "despiertame",
+      "timestamp": 1742117550572,
+      "creado": 1742099550573
+    }
   ],
   "usedJokes": {
     "1023132788632862761": [
@@ -494,5 +504,11 @@
       104,
       123
     ]
+  },
+  "adivinanzaStats": {
+    "752987736759205960": {
+      "correct": 1,
+      "total": 3
+    }
   }
 }
