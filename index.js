@@ -1831,10 +1831,9 @@ const SAVE_INTERVAL = 1800000; // 30 minutos
 const WARNING_TIME = 300000; // 5 minutos antes aviso
 
 setInterval(async () => {
-    const musicActive = manager.players.size > 0;
-
+    const musicActive = manager.players.size > 0; // Miro si hay música sonando
     if (musicActive && !autosavePausedByMusic) {
-        autosavePausedByMusic = true;
+        autosavePausedByMusic = true; // Pauso el guardado si hay música
         const channel = await client.channels.fetch(CHANNEL_ID);
         if (channel) {
             await channel.send({ embeds: [createEmbed('#FF1493', '🎵 Autosave en pausa', 
@@ -1844,7 +1843,7 @@ setInterval(async () => {
     }
 
     if (!musicActive && autosavePausedByMusic) {
-        autosavePausedByMusic = false;
+        autosavePausedByMusic = false; // Vuelvo a prenderlo si la música paró
         autosaveEnabled = true;
         const channel = await client.channels.fetch(CHANNEL_ID);
         if (channel) {
@@ -1862,20 +1861,12 @@ setInterval(async () => {
     }
     setTimeout(async () => {
         if (!autosaveEnabled || autosavePausedByMusic) return;
-        try {
-            await saveDataStore();
-            if (channel) {
-                await channel.send({ embeds: [createEmbed('#FF1493', '💾 ¡Listo el pollo!', 
-                    'Datos guardados al toque, ¡tranqui!')] });
-            }
-            dataStoreModified = false;
-        } catch (error) {
-            console.error(`Error en autosave: ${error.message}`);
-            if (channel) {
-                await channel.send({ embeds: [createEmbed('#FF1493', '¡Qué cagada!', 
-                    'No pude guardar los datos en GitHub, loco. Error: ' + error.message)] });
-            }
+        await saveDataStore();
+        if (channel) {
+            await channel.send({ embeds: [createEmbed('#FF1493', '💾 ¡Listo el pollo!', 
+                'Datos guardados al toque, ¡tranqui!')] });
         }
+        dataStoreModified = false;
     }, WARNING_TIME);
 }, SAVE_INTERVAL);
 
@@ -2715,7 +2706,7 @@ async function manejarRecordatorio(message) {
     const fechaObjetivo = parsearTiempo(tiempoTexto);
     if (!fechaObjetivo) return sendError(message.channel, `No entendí el tiempo, ${userName}. Usá "en 5 minutos", "en 1 hora", "mañana 15:00" o "20/03 14:30".`);
 
-    // Guardamos el recordatorio en memoria
+    // Guardamos el recordatorio
     dataStore.recordatorios = dataStore.recordatorios || [];
     const id = uuidv4();
     const recordatorio = {
@@ -2734,27 +2725,20 @@ async function manejarRecordatorio(message) {
 
     console.log(`Recordatorio seteado: "${mensaje}" para ${userName} (ID: ${id}) el ${fechaStr}`);
 
-    // Chequeamos si hay música activa
-    const musicActive = manager.players.size > 0;
-    let guardadoMsg = '';
-
-    if (musicActive) {
-        guardadoMsg = `\n⚠️ Hay música sonando, así que no guardo ahora pa’ no cortar el vibe. Se guarda en 30 min (autosave) o cuando pare la música. Si reinicio antes, se pierde, loco.`;
-    } else {
-        try {
-            await saveDataStore();
-            console.log(`Datos guardados en GitHub tras setear recordatorio para ${userName}`);
-            dataStoreModified = false; // Reseteamos el flag después de guardar
-            guardadoMsg = `\n💾 Guardado en GitHub al toque, ¡tranqui!`;
-        } catch (error) {
-            console.error(`Error al guardar recordatorio en GitHub: ${error.message}`);
-            guardadoMsg = `\n⚠️ No pude guardar en GitHub, ${userName}. Error: ${error.message}. Se pierde si reinicio antes del autosave.`;
-        }
-    }
-
     // Confirmación en el canal original
     await sendSuccess(message.channel, '⏰ ¡Recordatorio seteado!', 
-        `Te aviso "${mensaje}" el ${fechaStr} por DM, ${userName}. ¡No te duermas, loco!${guardadoMsg}`);
+        `Te aviso "${mensaje}" el ${fechaStr} por DM, ${userName}. ¡No te duermas, loco!`);
+
+    // Guardamos inmediatamente en GitHub
+    try {
+        await saveDataStore();
+        console.log(`Datos guardados en GitHub tras setear recordatorio para ${userName}`);
+        dataStoreModified = false; // Reseteamos el flag después de guardar
+    } catch (error) {
+        console.error(`Error al guardar recordatorio en GitHub: ${error.message}`);
+        await sendError(message.channel, `¡Qué cagada, ${userName}!`, 
+            `Seteé el recordatorio, pero no pude guardarlo en GitHub. Si reinicio, se pierde. Error: ${error.message}`);
+    }
 
     // Programar el recordatorio
     programarRecordatorio(recordatorio);
@@ -4739,6 +4723,7 @@ client.once('ready', async () => {
     client.user.setPresence({ activities: [{ name: "Listo para ayudar a Milagros", type: 0 }], status: 'dnd' });
     dataStore = await loadDataStore();
 
+   // Restaurar recordatorios pendientes
     if (dataStore.recordatorios && dataStore.recordatorios.length > 0) {
         const ahora = Date.now();
         dataStore.recordatorios.forEach(recordatorio => {
@@ -4749,9 +4734,10 @@ client.once('ready', async () => {
                 console.log(`Descartando recordatorio vencido: "${recordatorio.mensaje}" (ID: ${recordatorio.id})`);
             }
         });
+        // Limpiamos los vencidos
         dataStore.recordatorios = dataStore.recordatorios.filter(r => r.timestamp > ahora);
         dataStoreModified = true;
-        await saveDataStore();
+        await saveDataStore(); // Guardamos después de limpiar
         console.log('Recordatorios restaurados y vencidos limpiados');
     } else {
         console.log('No hay recordatorios para restaurar');
