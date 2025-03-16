@@ -99,6 +99,8 @@ const BOT_UPDATES = [
     '¡Boss bar al 100%! Arreglamos la barra de progreso pa’ que llegue al final posta y se vea zarpada cuando termina el tema, ¡a romperla, che!',
     '¡Datos randoms en !dato! Ahora si no le das argumentos, te tira un dato curioso al azar con onda, ¡re copado pa’ sorprenderte, loco!',
     '¡Nuevo !chiste agregado! Usá !chiste y te tiro un chiste random pa’ que te rías a lo grande, ¡posta que la rompés, che!'
+    '¡Nuevo !adivinanza / !ad agregado! Te tiro adivinanzas copadas pa’ que le des al coco, con 30 segundos pa’ responder, ¡dale, genia!',
+    '¡Ranking con adivinanzas! Ahora en !rk se ven tus aciertos y porcentaje en adivinanzas, pa’ que veas quién la rompe más, ¡posta!'
 ];
 
 const opcionesPPT = ['piedra', 'papel', 'tijera'];
@@ -114,7 +116,7 @@ const adivinanzas = [
     },
     {
         pregunta: "Soy blanco y negro, camino tranqui por el campo, no soy caballo ni vaca, pero igual me quieren mucho, ¿qué soy, loco?",
-        respuesta: "pingüino" // O "cebra" si querés, pero pingüino pega más con el humor
+        respuesta: "pingüino"
     },
     {
         pregunta: "En la parrilla soy la estrella, me comen con chimichurri, soy jugosa y re sabrosa, ¿qué soy, posta?",
@@ -126,11 +128,544 @@ const adivinanzas = [
     },
     {
         pregunta: "Soy un bicho que vuela, hago ruido en la noche, los pibes me cazan con linterna, ¿qué soy, che?",
-        respuesta: "cucaracha" // O "mosquito", según el tono que quieras
+        respuesta: "cucaracha"
     },
     {
         pregunta: "Estoy en el cielo, brillo de día, no soy estrella ni luna, pero caliento el asado, ¿qué soy, loco?",
         respuesta: "sol"
+    },
+    // 150 nuevas
+    {
+        pregunta: "Soy chiquito, soy de papel, me usás pa’ pagar el bondi, ¿qué soy, loco?",
+        respuesta: "boleto"
+    },
+    {
+        pregunta: "Me ponés en la cabeza, me querés cuando llueve, si me perdés te mojás, ¿qué soy, che?",
+        respuesta: "paraguas"
+    },
+    {
+        pregunta: "Soy blanco, soy frío, en el verano me chupás, ¿qué soy, amigo?",
+        respuesta: "helado"
+    },
+    {
+        pregunta: "Me subís y me bajás, te llevo a tu piso, en el edificio vivo, ¿qué soy, posta?",
+        respuesta: "ascensor"
+    },
+    {
+        pregunta: "Soy largo, soy verde, en el río me encontrás, no soy pez ni rana, ¿qué soy, loco?",
+        respuesta: "yacaré"
+    },
+    {
+        pregunta: "Me usás pa’ escribir, tengo tinta adentro, si me apretás mucho me rompo, ¿qué soy, che?",
+        respuesta: "birome"
+    },
+    {
+        pregunta: "Soy redonda, soy finita, me comés con la pizza, ¿qué soy, amigo?",
+        respuesta: "aceituna"
+    },
+    {
+        pregunta: "Me gritás en la cancha, me querés cuando ganás, soy alegría pura, ¿qué soy, posta?",
+        respuesta: "gol"
+    },
+    {
+        pregunta: "Soy chiquita, soy dulce, en la panadería me comprás, ¿qué soy, loco?",
+        respuesta: "factura"
+    },
+    {
+        pregunta: "Me ponés en los pies, me atás con cordones, si corro mucho me gastás, ¿qué soy, che?",
+        respuesta: "zapatilla"
+    },
+    {
+        pregunta: "Soy marrón, soy calentito, en el desayuno me tomás, ¿qué soy, amigo?",
+        respuesta: "café"
+    },
+    {
+        pregunta: "Me usás pa’ cortar, tengo filo zarpado, en la cocina soy el rey, ¿qué soy, posta?",
+        respuesta: "cuchillo"
+    },
+    {
+        pregunta: "Soy alto, soy verde, en el campo me ves, no soy árbol ni arbusto, ¿qué soy, loco?",
+        respuesta: "maíz"
+    },
+    {
+        pregunta: "Me escuchás en la radio, me bailás en la fiesta, soy puro ritmo, ¿qué soy, che?",
+        respuesta: "música"
+    },
+    {
+        pregunta: "Soy negro, soy brillante, me usás pa’ ver tele, si me perdés te enojás, ¿qué soy, amigo?",
+        respuesta: "control"
+    },
+    {
+        pregunta: "Me comés en el cine, soy salado y crujiente, si me tirás al piso te retan, ¿qué soy, posta?",
+        respuesta: "pochoclo"
+    },
+    {
+        pregunta: "Soy rápido, soy ruidoso, en la calle me encontrás, no soy auto ni moto, ¿qué soy, loco?",
+        respuesta: "colectivo"
+    },
+    {
+        pregunta: "Me usás pa’ dormir, soy blandita y cómoda, en la cama estoy, ¿qué soy, che?",
+        respuesta: "almohada"
+    },
+    {
+        pregunta: "Soy blanco, soy líquido, me echás en el arroz, si me falta no hay comida, ¿qué soy, amigo?",
+        respuesta: "leche"
+    },
+    {
+        pregunta: "Me colgás en la pared, te digo la hora, si me atraso te enojás, ¿qué soy, posta?",
+        respuesta: "reloj"
+    },
+    {
+        pregunta: "Soy dulce, soy pegajoso, me untás en el pan, ¿qué soy, loco?",
+        respuesta: "dulce de leche"
+    },
+    {
+        pregunta: "Me usás pa’ lavar, hago espuma zarpada, en el baño estoy, ¿qué soy, che?",
+        respuesta: "jabón"
+    },
+    {
+        pregunta: "Soy grande, soy de madera, te sentás con la familia, ¿qué soy, amigo?",
+        respuesta: "mesa"
+    },
+    {
+        pregunta: "Me ponés en la oreja, me hablás bajito, si me cortás no escuchás, ¿qué soy, posta?",
+        respuesta: "teléfono"
+    },
+    {
+        pregunta: "Soy chiquito, soy brillante, me das a tu novia, ¿qué soy, loco?",
+        respuesta: "anillo"
+    },
+    {
+        pregunta: "Me usás pa’ peinarte, tengo dientes pero no muerdo, ¿qué soy, che?",
+        respuesta: "peine"
+    },
+    {
+        pregunta: "Soy rojo, soy picante, me ponés en la empanada, ¿qué soy, amigo?",
+        respuesta: "ají"
+    },
+    {
+        pregunta: "Me subís pa’ viajar, tengo alas pero no soy pájaro, ¿qué soy, posta?",
+        respuesta: "avión"
+    },
+    {
+        pregunta: "Soy negro, soy caliente, me tomás en la oficina, ¿qué soy, loco?",
+        respuesta: "té"
+    },
+    {
+        pregunta: "Me usás pa’ leer, tengo hojas pero no soy árbol, ¿qué soy, che?",
+        respuesta: "libro"
+    },
+    {
+        pregunta: "Soy largo, soy finito, me fumás en el recreo, ¿qué soy, amigo?",
+        respuesta: "cigarrillo"
+    },
+    {
+        pregunta: "Me ponés en la espalda, llevo tus cosas al colegio, ¿qué soy, posta?",
+        respuesta: "mochila"
+    },
+    {
+        pregunta: "Soy blanco, soy suave, me usás pa’ limpiarte, ¿qué soy, loco?",
+        respuesta: "papel"
+    },
+    {
+        pregunta: "Me usás pa’ sentarte, tengo patas pero no camino, ¿qué soy, che?",
+        respuesta: "silla"
+    },
+    {
+        pregunta: "Soy dulce, soy redondo, me comés en el cumple, ¿qué soy, amigo?",
+        respuesta: "caramelo"
+    },
+    {
+        pregunta: "Me mirás pa’ verte, si me rompés son siete años de yeta, ¿qué soy, posta?",
+        respuesta: "espejo"
+    },
+    {
+        pregunta: "Soy grande, soy frío, guardo la comida pa’ después, ¿qué soy, loco?",
+        respuesta: "heladera"
+    },
+    {
+        pregunta: "Me usás pa’ prender fuego, soy chiquito pero peligroso, ¿qué soy, che?",
+        respuesta: "fósforo"
+    },
+    {
+        pregunta: "Soy amarillo, soy ácido, me exprimís pa’l jugo, ¿qué soy, amigo?",
+        respuesta: "limón"
+    },
+    {
+        pregunta: "Me ponés en el dedo, brillo en la oscuridad, ¿qué soy, posta?",
+        respuesta: "pulsera"
+    },
+    {
+        pregunta: "Soy verde, soy crocante, me comés en la ensalada, ¿qué soy, loco?",
+        respuesta: "lechuga"
+    },
+    {
+        pregunta: "Me usás pa’ abrir, giro en la cerradura, ¿qué soy, che?",
+        respuesta: "llave"
+    },
+    {
+        pregunta: "Soy marrón, soy duro, me encontrás en el bosque, ¿qué soy, amigo?",
+        respuesta: "tronco"
+    },
+    {
+        pregunta: "Me escuchás en la tormenta, retumbo bien fuerte, ¿qué soy, posta?",
+        respuesta: "trueno"
+    },
+    {
+        pregunta: "Soy blanco, soy esponjoso, me comés con la sopa, ¿qué soy, loco?",
+        respuesta: "pan"
+    },
+    {
+        pregunta: "Me usás pa’ coser, tengo un ojo pero no veo, ¿qué soy, che?",
+        respuesta: "aguja"
+    },
+    {
+        pregunta: "Soy largo, soy plateado, me usás pa’l guiso, ¿qué soy, amigo?",
+        respuesta: "cuchara"
+    },
+    {
+        pregunta: "Me ponés en la cara, me usás pa’ ver mejor, ¿qué soy, posta?",
+        respuesta: "anteojos"
+    },
+    {
+        pregunta: "Soy rojo, soy dulce, me comés en el postre, ¿qué soy, loco?",
+        respuesta: "frutilla"
+    },
+    {
+        pregunta: "Me usás pa’ barrer, tengo pelos pero no soy perro, ¿qué soy, che?",
+        respuesta: "escoba"
+    },
+    {
+        pregunta: "Soy negro, soy rápido, corro por la casa, ¿qué soy, amigo?",
+        respuesta: "gato"
+    },
+    {
+        pregunta: "Me ponés en la mesa, soy fino y transparente, ¿qué soy, posta?",
+        respuesta: "vaso"
+    },
+    {
+        pregunta: "Soy chiquita, soy roja, me comés con el fernet, ¿qué soy, loco?",
+        respuesta: "cereza"
+    },
+    {
+        pregunta: "Me usás pa’ nadar, estoy llena de agua, ¿qué soy, che?",
+        respuesta: "pileta"
+    },
+    {
+        pregunta: "Soy largo, soy amarillo, me comés en el verano, ¿qué soy, amigo?",
+        respuesta: "choclo"
+    },
+    {
+        pregunta: "Me subís pa’l balcón, tengo ruedas pero no soy auto, ¿qué soy, posta?",
+        respuesta: "bicicleta"
+    },
+    {
+        pregunta: "Soy blanco, soy cuadrado, me usás pa’l mate, ¿qué soy, loco?",
+        respuesta: "azucarero"
+    },
+    {
+        pregunta: "Me usás pa’ jugar, tengo cartas marcadas, ¿qué soy, che?",
+        respuesta: "mazo"
+    },
+    {
+        pregunta: "Soy verde, soy brillante, me encontrás en el césped, ¿qué soy, amigo?",
+        respuesta: "grillo"
+    },
+    {
+        pregunta: "Me ponés en el cuello, me usás pa’l frío, ¿qué soy, posta?",
+        respuesta: "bufanda"
+    },
+    {
+        pregunta: "Soy grande, soy ruidoso, me ves en la obra, ¿qué soy, loco?",
+        respuesta: "camión"
+    },
+    {
+        pregunta: "Me usás pa’ planchar, me enchufás y quemo, ¿qué soy, che?",
+        respuesta: "plancha"
+    },
+    {
+        pregunta: "Soy dulce, soy marrón, me derretís pa’l helado, ¿qué soy, amigo?",
+        respuesta: "chocolate"
+    },
+    {
+        pregunta: "Me ponés en la pared, tengo colores zarpados, ¿qué soy, posta?",
+        respuesta: "cuadro"
+    },
+    {
+        pregunta: "Soy chiquito, soy plateado, me usás pa’l cinturón, ¿qué soy, loco?",
+        respuesta: "botón"
+    },
+    {
+        pregunta: "Me usás pa’ volar, soy de papel y subo alto, ¿qué soy, che?",
+        respuesta: "barrilete"
+    },
+    {
+        pregunta: "Soy naranja, soy jugosa, me comés en el desayuno, ¿qué soy, amigo?",
+        respuesta: "naranja"
+    },
+    {
+        pregunta: "Me ponés en la mano, me usás pa’l sol, ¿qué soy, posta?",
+        respuesta: "remera"
+    },
+    {
+        pregunta: "Soy blanco, soy caliente, me tomás en la merienda, ¿qué soy, loco?",
+        respuesta: "leche"
+    },
+    {
+        pregunta: "Me usás pa’ mirar, tengo vidrio y agrando, ¿qué soy, che?",
+        respuesta: "lupa"
+    },
+    {
+        pregunta: "Soy largo, soy finito, me usás pa’l pelo, ¿qué soy, amigo?",
+        respuesta: "lazo"
+    },
+    {
+        pregunta: "Me ponés en el pie, soy duro y te protejo, ¿qué soy, posta?",
+        respuesta: "zapato"
+    },
+    {
+        pregunta: "Soy verde, soy grande, me ves en el río, ¿qué soy, loco?",
+        respuesta: "lagarto"
+    },
+    {
+        pregunta: "Me usás pa’ pintar, tengo pelos suaves, ¿qué soy, che?",
+        respuesta: "pincel"
+    },
+    {
+        pregunta: "Soy blanco, soy frío, caigo en el invierno, ¿qué soy, amigo?",
+        respuesta: "nieve"
+    },
+    {
+        pregunta: "Me ponés en la cabeza, me usás pa’l sol, ¿qué soy, posta?",
+        respuesta: "gorra"
+    },
+    {
+        pregunta: "Soy rojo, soy caliente, me usás pa’l locro, ¿qué soy, loco?",
+        respuesta: "chorizo"
+    },
+    {
+        pregunta: "Me usás pa’ guardar, soy de tela y cierro, ¿qué soy, che?",
+        respuesta: "bolso"
+    },
+    {
+        pregunta: "Soy amarillo, soy brillante, me ves en la noche, ¿qué soy, amigo?",
+        respuesta: "estrella"
+    },
+    {
+        pregunta: "Me ponés en la cara, me usás pa’l carnaval, ¿qué soy, posta?",
+        respuesta: "máscara"
+    },
+    {
+        pregunta: "Soy grande, soy verde, me subís pa’l campo, ¿qué soy, loco?",
+        respuesta: "tractor"
+    },
+    {
+        pregunta: "Me usás pa’ prender, soy eléctrico y zarpado, ¿qué soy, che?",
+        respuesta: "encendedor"
+    },
+    {
+        pregunta: "Soy dulce, soy finito, me chupás despacito, ¿qué soy, amigo?",
+        respuesta: "chupetín"
+    },
+    {
+        pregunta: "Me ponés en el brazo, me usás pa’l reloj, ¿qué soy, posta?",
+        respuesta: "manga"
+    },
+    {
+        pregunta: "Soy negro, soy suave, me encontrás en la calle, ¿qué soy, loco?",
+        respuesta: "perro"
+    },
+    {
+        pregunta: "Me usás pa’ medir, soy largo y flexible, ¿qué soy, che?",
+        respuesta: "metro"
+    },
+    {
+        pregunta: "Soy blanco, soy cuadrado, me usás pa’l dibujo, ¿qué soy, amigo?",
+        respuesta: "hoja"
+    },
+    {
+        pregunta: "Me ponés en la mesa, soy caliente y humeante, ¿qué soy, posta?",
+        respuesta: "sopa"
+    },
+    {
+        pregunta: "Soy rápido, soy plateado, me ves en el río, ¿qué soy, loco?",
+        respuesta: "pez"
+    },
+    {
+        pregunta: "Me usás pa’ envolver, soy finito y transparente, ¿qué soy, che?",
+        respuesta: "film"
+    },
+    {
+        pregunta: "Soy dulce, soy blanco, me echás en el café, ¿qué soy, amigo?",
+        respuesta: "crema"
+    },
+    {
+        pregunta: "Me ponés en la oreja, me usás pa’l ruido, ¿qué soy, posta?",
+        respuesta: "auricular"
+    },
+    {
+        pregunta: "Soy grande, soy pesado, me usás pa’l campo, ¿qué soy, loco?",
+        respuesta: "arado"
+    },
+    {
+        pregunta: "Me usás pa’ freír, soy caliente y aceitoso, ¿qué soy, che?",
+        respuesta: "sartén"
+    },
+    {
+        pregunta: "Soy rojo, soy brillante, me encontrás en el árbol, ¿qué soy, amigo?",
+        respuesta: "manzana"
+    },
+    {
+        pregunta: "Me ponés en la espalda, me usás pa’l viaje, ¿qué soy, posta?",
+        respuesta: "valija"
+    },
+    {
+        pregunta: "Soy negro, soy caliente, me usás pa’l invierno, ¿qué soy, loco?",
+        respuesta: "abrigo"
+    },
+    {
+        pregunta: "Me usás pa’ soplar, soy finito y redondo, ¿qué soy, che?",
+        respuesta: "globo"
+    },
+    {
+        pregunta: "Soy blanco, soy dulce, me comés en la torta, ¿qué soy, amigo?",
+        respuesta: "merengue"
+    },
+    {
+        pregunta: "Me ponés en la mano, me usás pa’l frío, ¿qué soy, posta?",
+        respuesta: "guante"
+    },
+    {
+        pregunta: "Soy rápido, soy ruidoso, me ves en el cielo, ¿qué soy, loco?",
+        respuesta: "rayo"
+    },
+    {
+        pregunta: "Me usás pa’ guardar, soy duro y cuadrado, ¿qué soy, che?",
+        respuesta: "caja"
+    },
+    {
+        pregunta: "Soy amarillo, soy dulce, me comés en el pan, ¿qué soy, amigo?",
+        respuesta: "miel"
+    },
+    {
+        pregunta: "Me ponés en la cara, me usás pa’l sol, ¿qué soy, posta?",
+        respuesta: "lente"
+    },
+    {
+        pregunta: "Soy grande, soy blanco, me ves en la playa, ¿qué soy, loco?",
+        respuesta: "ola"
+    },
+    {
+        pregunta: "Me usás pa’ escribir, soy negro y finito, ¿qué soy, che?",
+        respuesta: "lápiz"
+    },
+    {
+        pregunta: "Soy verde, soy ácido, me comés en el verano, ¿qué soy, amigo?",
+        respuesta: "uva"
+    },
+    {
+        pregunta: "Me ponés en la cabeza, me usás pa’l sueño, ¿qué soy, posta?",
+        respuesta: "sombrero"
+    },
+    {
+        pregunta: "Soy rojo, soy caliente, me usás pa’l guiso, ¿qué soy, loco?",
+        respuesta: "pimentón"
+    },
+    {
+        pregunta: "Me usás pa’ lavar, soy líquido y azul, ¿qué soy, che?",
+        respuesta: "detergente"
+    },
+    {
+        pregunta: "Soy blanco, soy suave, me usás pa’l baño, ¿qué soy, amigo?",
+        respuesta: "toalla"
+    },
+    {
+        pregunta: "Me ponés en la mesa, soy grande y redondo, ¿qué soy, posta?",
+        respuesta: "plato"
+    },
+    {
+        pregunta: "Soy rápido, soy verde, me ves en el campo, ¿qué soy, loco?",
+        respuesta: "saltamontes"
+    },
+    {
+        pregunta: "Me usás pa’ prender, soy rojo y brillante, ¿qué soy, che?",
+        respuesta: "cerilla"
+    },
+    {
+        pregunta: "Soy dulce, soy finito, me comés en el cine, ¿qué soy, amigo?",
+        respuesta: "gominola"
+    },
+    {
+        pregunta: "Me ponés en el cuello, me usás pa’l traje, ¿qué soy, posta?",
+        respuesta: "corbata"
+    },
+    {
+        pregunta: "Soy grande, soy ruidoso, me ves en el puerto, ¿qué soy, loco?",
+        respuesta: "barco"
+    },
+    {
+        pregunta: "Me usás pa’ enfriar, soy blanco y zumbador, ¿qué soy, che?",
+        respuesta: "ventilador"
+    },
+    {
+        pregunta: "Soy rojo, soy dulce, me comés en el asado, ¿qué soy, amigo?",
+        respuesta: "morron"
+    },
+    {
+        pregunta: "Me ponés en la mano, me usás pa’l juego, ¿qué soy, posta?",
+        respuesta: "pelota"
+    },
+    {
+        pregunta: "Soy negro, soy brillante, me usás pa’l pelo, ¿qué soy, loco?",
+        respuesta: "gel"
+    },
+    {
+        pregunta: "Me usás pa’ limpiar, soy amarillo y esponjoso, ¿qué soy, che?",
+        respuesta: "esponja"
+    },
+    {
+        pregunta: "Soy blanco, soy caliente, me comés en el invierno, ¿qué soy, amigo?",
+        respuesta: "caldo"
+    },
+    {
+        pregunta: "Me ponés en la oreja, me usás pa’l show, ¿qué soy, posta?",
+        respuesta: "arete"
+    },
+    {
+        pregunta: "Soy grande, soy lento, me ves en la ruta, ¿qué soy, loco?",
+        respuesta: "ómnibus"
+    },
+    {
+        pregunta: "Me usás pa’ calentar, soy rojo y brillante, ¿qué soy, che?",
+        respuesta: "brasero"
+    },
+    {
+        pregunta: "Soy dulce, soy marrón, me comés en la plaza, ¿qué soy, amigo?",
+        respuesta: "alfajor"
+    },
+    {
+        pregunta: "Me ponés en la mesa, soy finito y plateado, ¿qué soy, posta?",
+        respuesta: "tenedor"
+    },
+    {
+        pregunta: "Soy rápido, soy blanco, me ves en el cielo, ¿qué soy, loco?",
+        respuesta: "nube"
+    },
+    {
+        pregunta: "Me usás pa’ colgar, soy largo y fuerte, ¿qué soy, che?",
+        respuesta: "soga"
+    },
+    {
+        pregunta: "Soy verde, soy dulce, me comés en la fruta, ¿qué soy, amigo?",
+        respuesta: "pera"
+    },
+    {
+        pregunta: "Me ponés en la cabeza, me usás pa’l calor, ¿qué soy, posta?",
+        respuesta: "pañuelo"
+    },
+    {
+        pregunta: "Soy grande, soy marrón, me ves en el campo, ¿qué soy, loco?",
+        respuesta: "vaca"
     }
 ];
 
@@ -1892,8 +2427,26 @@ async function manejarAdivinanza(message) {
         dataStore.adivinanzaStats[userId] = { correct: 0, total: 0 };
     }
 
-    // Elegimos una adivinanza random
-    const adivinanza = adivinanzas[Math.floor(Math.random() * adivinanzas.length)];
+    // Inicializamos las adivinanzas usadas en la sesión si no existen
+    if (!dataStore.activeSessions[userId]) {
+        dataStore.activeSessions[userId] = { usedAdivinanzas: [] };
+    }
+    const usedAdivinanzas = dataStore.activeSessions[userId].usedAdivinanzas;
+
+    // Filtramos las adivinanzas disponibles (las que no se usaron)
+    const availableAdivinanzas = adivinanzas.filter(a => !usedAdivinanzas.includes(a.pregunta));
+    if (availableAdivinanzas.length === 0) {
+        // Si se usaron todas, reiniciamos la lista
+        usedAdivinanzas.length = 0;
+        const resetEmbed = createEmbed('#FF1493', `¡Volvemos al principio, ${userName}!`, 
+            'Ya usamos todas las adivinanzas, loco. ¡Arrancamos de nuevo, dale!');
+        await message.channel.send({ embeds: [resetEmbed] });
+    }
+
+    // Elegimos una adivinanza random de las disponibles
+    const adivinanza = availableAdivinanzas[Math.floor(Math.random() * availableAdivinanzas.length)];
+    usedAdivinanzas.push(adivinanza.pregunta); // La marcamos como usada
+    dataStoreModified = true;
 
     // Embed inicial con la adivinanza
     const adivinanzaEmbed = createEmbed('#FF1493', `¡Adivinanza pa’ vos, ${userName}!`, 
@@ -1908,18 +2461,15 @@ async function manejarAdivinanza(message) {
         const respuestaUsuario = cleanText(m.content);
         const respuestaCorrecta = cleanText(adivinanza.respuesta);
 
-        // Sumamos al total de intentos
         dataStore.adivinanzaStats[userId].total++;
-
         if (respuestaUsuario === respuestaCorrecta) {
-            // Sumamos un acierto
             dataStore.adivinanzaStats[userId].correct++;
-            dataStoreModified = true; // Marcamos que hay cambios para guardar
+            dataStoreModified = true;
             const winEmbed = createEmbed('#FF1493', `¡La pegaste, ${userName}!`, 
                 `¡Sos un crack, loco! La respuesta era **${adivinanza.respuesta}**. ¿Querés otra, che?`);
             await message.channel.send({ embeds: [winEmbed] });
         } else {
-            dataStoreModified = true; // Marcamos cambios aunque falle
+            dataStoreModified = true;
             const loseEmbed = createEmbed('#FF1493', `¡Nah, ${userName}!`, 
                 `Te fuiste al pasto, loco. Era **${adivinanza.respuesta}**, no "${respuestaUsuario}". ¿Probás otra, dale?`);
             await message.channel.send({ embeds: [loseEmbed] });
@@ -1928,7 +2478,6 @@ async function manejarAdivinanza(message) {
 
     collector.on('end', (collected, reason) => {
         if (reason === 'time') {
-            // Sumamos al total si se pasa el tiempo (intento fallido)
             dataStore.adivinanzaStats[userId].total++;
             dataStoreModified = true;
             const timeoutEmbed = createEmbed('#FF1493', `¡Se acabó el tiempo, ${userName}!`, 
