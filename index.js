@@ -1761,72 +1761,174 @@ const tips = [
 // Cargo los datos desde GitHub pa’ no perder nada
 async function loadDataStore() {
     try {
-        const response = await axios.get(
-            `https://api.github.com/repos/${process.env.GITHUB_REPO}/contents/${process.env.GITHUB_FILE_PATH}`,
+        // Cargar conversationhistory.json
+        const convoResponse = await axios.get(
+            `https://api.github.com/repos/${process.env.GITHUB_REPO}/contents/conversationhistory.json`,
             { headers: { 'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`, 'Accept': 'application/vnd.github+json' } }
         );
-        const content = Buffer.from(response.data.content, 'base64').toString('utf8');
-        const loadedData = content ? JSON.parse(content) : { 
-            conversationHistory: {}, 
-            triviaRanking: {}, 
-            personalPPMRecords: {}, 
-            reactionStats: {}, 
-            reactionWins: {}, 
-            activeSessions: {}, 
-            triviaStats: {},
+        const convoContent = Buffer.from(convoResponse.data.content, 'base64').toString('utf8');
+        const convoData = convoContent ? JSON.parse(convoContent) : {
+            conversationHistory: {},
+            activeSessions: {},
             musicSessions: {},
-            recordatorios: [], // Aseguramos que esté en el esquema por defecto
-            updatesSent: false
+            recordatorios: [],
+            updatesSent: false,
+            sentUpdates: [],
+            utilMessageTimestamps: {},
+            utilMessageReactions: {},
+            womensDayMessageSent: false,
+            womensDayMessageSentThisInstance: false,
+            ideas: [],
+            usedJokes: {}
         };
+
+        // Cargar ranking.json
+        let rankingData;
+        try {
+            const rankingResponse = await axios.get(
+                `https://api.github.com/repos/${process.env.GITHUB_REPO}/contents/ranking.json`,
+                { headers: { 'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`, 'Accept': 'application/vnd.github+json' } }
+            );
+            const rankingContent = Buffer.from(rankingResponse.data.content, 'base64').toString('utf8');
+            rankingData = rankingContent ? JSON.parse(rankingContent) : {
+                triviaRanking: {},
+                personalPPMRecords: {},
+                reactionWins: {},
+                triviaStats: {}
+            };
+        } catch (error) {
+            if (error.response?.status === 404) {
+                console.log('ranking.json no existe todavía, inicializando vacío.');
+                rankingData = {
+                    triviaRanking: {},
+                    personalPPMRecords: {},
+                    reactionWins: {},
+                    triviaStats: {}
+                };
+            } else {
+                throw error;
+            }
+        }
+
+        // Combinar datos en dataStore
+        const loadedData = {
+            ...convoData,
+            ...rankingData
+        };
+
+        // Asegurar campos por defecto
         if (!loadedData.musicSessions) loadedData.musicSessions = {};
         if (!loadedData.recordatorios) loadedData.recordatorios = [];
-        console.log('Datos cargados desde GitHub con musicSessions y recordatorios asegurados');
+        console.log('Datos cargados desde GitHub: conversationhistory.json y ranking.json');
         return loadedData;
     } catch (error) {
         console.error('Error al cargar datos desde GitHub:', error.message);
-        return { 
-            conversationHistory: {}, 
-            triviaRanking: {}, 
-            personalPPMRecords: {}, 
-            reactionStats: {}, 
-            reactionWins: {}, 
-            activeSessions: {}, 
+        return {
+            conversationHistory: {},
+            triviaRanking: {},
+            personalPPMRecords: {},
+            reactionStats: {},
+            reactionWins: {},
+            activeSessions: {},
             triviaStats: {},
             musicSessions: {},
-            recordatorios: [], // Aseguramos que esté en el esquema por defecto
-            updatesSent: false
+            recordatorios: [],
+            updatesSent: false,
+            sentUpdates: [],
+            utilMessageTimestamps: {},
+            utilMessageReactions: {},
+            womensDayMessageSent: false,
+            womensDayMessageSentThisInstance: false,
+            ideas: [],
+            usedJokes: {}
         };
     }
 }
 
 // Guardo los datos en GitHub
-async function saveDataStore() {
-    if (!dataStoreModified) return false;
+async function loadDataStore() {
     try {
-        let sha;
-        try {
-            const response = await axios.get(
-                `https://api.github.com/repos/${process.env.GITHUB_REPO}/contents/${process.env.GITHUB_FILE_PATH}`,
-                { headers: { 'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`, 'Accept': 'application/vnd.github+json' } }
-            );
-            sha = response.data.sha;
-        } catch (error) {
-            if (error.response?.status !== 404) throw error;
-        }
-        await axios.put(
-            `https://api.github.com/repos/${process.env.GITHUB_REPO}/contents/${process.env.GITHUB_FILE_PATH}`,
-            {
-                message: 'Actualizar historial y sesiones',
-                content: Buffer.from(JSON.stringify(dataStore, null, 2)).toString('base64'),
-                sha: sha || undefined,
-            },
+        // Cargar conversationhistory.json
+        const convoResponse = await axios.get(
+            `https://api.github.com/repos/${process.env.GITHUB_REPO}/contents/conversationhistory.json`,
             { headers: { 'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`, 'Accept': 'application/vnd.github+json' } }
         );
-        console.log('Datos guardados en GitHub');
-        return true;
+        const convoContent = Buffer.from(convoResponse.data.content, 'base64').toString('utf8');
+        const convoData = convoContent ? JSON.parse(convoContent) : {
+            conversationHistory: {},
+            activeSessions: {},
+            musicSessions: {},
+            recordatorios: [],
+            updatesSent: false,
+            sentUpdates: [],
+            utilMessageTimestamps: {},
+            utilMessageReactions: {},
+            womensDayMessageSent: false,
+            womensDayMessageSentThisInstance: false,
+            ideas: [],
+            usedJokes: {}
+        };
+
+        // Cargar ranking.json
+        let rankingData;
+        try {
+            const rankingResponse = await axios.get(
+                `https://api.github.com/repos/${process.env.GITHUB_REPO}/contents/ranking.json`,
+                { headers: { 'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`, 'Accept': 'application/vnd.github+json' } }
+            );
+            const rankingContent = Buffer.from(rankingResponse.data.content, 'base64').toString('utf8');
+            rankingData = rankingContent ? JSON.parse(rankingContent) : {
+                triviaRanking: {},
+                personalPPMRecords: {},
+                reactionWins: {},
+                triviaStats: {}
+            };
+        } catch (error) {
+            if (error.response?.status === 404) {
+                console.log('ranking.json no existe todavía, inicializando vacío.');
+                rankingData = {
+                    triviaRanking: {},
+                    personalPPMRecords: {},
+                    reactionWins: {},
+                    triviaStats: {}
+                };
+            } else {
+                throw error;
+            }
+        }
+
+        // Combinar datos en dataStore
+        const loadedData = {
+            ...convoData,
+            ...rankingData
+        };
+
+        // Asegurar campos por defecto
+        if (!loadedData.musicSessions) loadedData.musicSessions = {};
+        if (!loadedData.recordatorios) loadedData.recordatorios = [];
+        console.log('Datos cargados desde GitHub: conversationhistory.json y ranking.json');
+        return loadedData;
     } catch (error) {
-        console.error('Error al guardar datos en GitHub:', error.message);
-        throw error;
+        console.error('Error al cargar datos desde GitHub:', error.message);
+        return {
+            conversationHistory: {},
+            triviaRanking: {},
+            personalPPMRecords: {},
+            reactionStats: {},
+            reactionWins: {},
+            activeSessions: {},
+            triviaStats: {},
+            musicSessions: {},
+            recordatorios: [],
+            updatesSent: false,
+            sentUpdates: [],
+            utilMessageTimestamps: {},
+            utilMessageReactions: {},
+            womensDayMessageSent: false,
+            womensDayMessageSentThisInstance: false,
+            ideas: [],
+            usedJokes: {}
+        };
     }
 }
 
