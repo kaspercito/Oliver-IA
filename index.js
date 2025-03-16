@@ -4280,10 +4280,10 @@ async function manejarCommand(message) {
             `Listo, ${userName}, cortaste la trivia al toque. Puntuación parcial: ${channelProgress.score}/${channelProgress.currentQuestion}. ¿Arrancamos otra con !trivia?`);
         return;
     }  
-    else if (content === 'chiste') {
-        return manejarChiste(message);
+    else if (content === '!chiste') {
+        await manejarChiste(message); // Cambié return por await pa’ consistencia
+        return;
     }
-    
     // Cancelar reacciones
     else if (content === '!reacciones cancelar' || content === '!rc') {
         if (message.author.id !== OWNER_ID && message.author.id !== ALLOWED_USER_ID) return;
