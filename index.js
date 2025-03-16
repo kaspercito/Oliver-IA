@@ -103,7 +103,7 @@ const BOT_UPDATES = [
     '¡Ranking con adivinanzas! Ahora en !rk se ven tus aciertos y porcentaje en adivinanzas, pa’ que veas quién la rompe más, ¡posta!',
     '¡Recordatorios a full! Ahora con !rec podés setear recordatorios diarios tipo "!rec \'tomar mate\' todos los días 08:00", ¡posta que no me olvido, che!',
     '¡Lista de recordatorios con !misrecordatorios / !mr! Mirá tus recordatorios activos al toque, re útil pa’ no perderte nada, loco.',
-    '¡Cancelación de recordatorios con !cancelarrecordatorio / !cr! Borra un recordatorio con su ID (lo ves en !mr), ¡al toque y sin drama, ${userName}!'
+    '¡Cancelación de recordatorios con !cancelarrecordatorio / !cr! Borra un recordatorio con su ID (lo ves en !mr), ¡al toque y sin drama!'
 ];
 
 const opcionesPPT = ['piedra', 'papel', 'tijera'];
@@ -2077,6 +2077,7 @@ const WARNING_TIME = 300000; // 5 minutos antes aviso
 let autosaveEnabled = true;
 let autosavePausedByMusic = false;
 let dataStoreModified = false;
+let ultimoDatoRandom = null;
 
 // Utilidades con tono argentino
 // Acá armé una función para hacer embeds re copados con color, título y descripción, siempre con onda
@@ -4281,23 +4282,23 @@ async function manejarDato(message) {
     const randomFacts = [
         {
             title: '¡Caracoles centenarios!',
-            text: '¿Sabías que hay un caracol que puede vivir hasta 100 años? Se llama *Arctica islandica*, un bicho de agua fría que se la pasa tranqui en el fondo del mar. ¡Un campeón de la longevidad, loco! Casi tan increíble como vos, ${userName}.'
+            text: '¿Sabías que hay un caracol que puede vivir hasta 100 años? Se llama *Arctica islandica*, un bicho de agua fría que se la pasa tranqui en el fondo del mar. ¡Un campeón de la longevidad, loco! Casi tan increíble como vos, ' + userName + '.'
         },
         {
             title: '¡Regeneración zarpada!',
-            text: 'Las estrellas de mar pueden regenerar sus brazos si los pierden. Si les cortás uno, no solo lo vuelven a crecer, ¡sino que el brazo cortado a veces se convierte en otra estrella! Una locura, ¿no, ${userName}? Sos tan gros${userName === "Miguel" ? "o" : "a"} que esto te queda chico.'
+            text: 'Las estrellas de mar pueden regenerar sus brazos si los pierden. Si les cortás uno, no solo lo vuelven a crecer, ¡sino que el brazo cortado a veces se convierte en otra estrella! Una locura, ¿no, ' + userName + '? Sos tan gros' + (userName === "Miguel" ? "o" : "a") + ' que esto te queda chico.'
         },
         {
             title: '¡Plantas carnívoras!',
-            text: 'Las plantas carnívoras, como la Venus atrapamoscas, comen insectos cerrando sus "bocas" en menos de un segundo. ¡Unas asesinas del reino vegetal! Igual, ${userName}, vos las superás en velocidad pa’ romperla toda.'
+            text: 'Las plantas carnívoras, como la Venus atrapamoscas, comen insectos cerrando sus "bocas" en menos de un segundo. ¡Unas asesinas del reino vegetal! Igual, ' + userName + ', vos las superás en velocidad pa’ romperla toda.'
         },
         {
             title: '¡Pingüinos románticos!',
-            text: 'Los pingüinos emperador buscan a su pareja entre miles en la Antártida y le regalan piedritas pa’ conquistarla. ¡Unos genios del amor! Casi tan geniales como vos, ${userName}, que siempre la rompés.'
+            text: 'Los pingüinos emperador buscan a su pareja entre miles en la Antártida y le regalan piedritas pa’ conquistarla. ¡Unos genios del amor! Casi tan geniales como vos, ' + userName + ', que siempre la rompés.'
         },
         {
             title: '¡Pulpos escapistas!',
-            text: 'Los pulpos pueden cambiar de color pa’ camuflarse y son tan inteligentes que se escapan de acuarios. ¡Unos ninjas del mar! Vos, ${userName}, también tenés ese toque especial pa’ sorprender, che.'
+            text: 'Los pulpos pueden cambiar de color pa’ camuflarse y son tan inteligentes que se escapan de acuarios. ¡Unos ninjas del mar! Vos, ' + userName + ', también tenés ese toque especial pa’ sorprender, che.'
         }
     ];
 
@@ -4306,11 +4307,16 @@ async function manejarDato(message) {
 
         // Si no hay argumentos, tiramos un dato random
         if (!args) {
-            const randomFact = randomFacts[Math.floor(Math.random() * randomFacts.length)];
+            // Filtramos para no repetir el último dato
+            let availableFacts = randomFacts.filter(fact => fact.title !== ultimoDatoRandom?.title);
+            if (availableFacts.length === 0) availableFacts = randomFacts; // Si no hay más, usamos todos
+            const randomFact = availableFacts[Math.floor(Math.random() * availableFacts.length)];
+            ultimoDatoRandom = randomFact; // Guardamos el dato usado
+
             embed = createEmbed('#FF1493', `💡 ¡Dato copado pa’ ${userName}!`, 
-                `Che ${userName}, ¡posta que sí, loco! Preparate porque esto te va a volar la cabeza:\n\n` +
-                `${randomFact.text}\n\n` +
-                `¿Qué te parece, ${userName}? Si querés más datos zarpados o algo específico, pedime nomás. ¡Sos tan gros${userName === "Miguel" ? "o" : "a"} que cualquier curiosidad queda corta al lado tuyo, che!`)
+                'Che ' + userName + ', ¡posta que sí, loco! Preparate porque esto te va a volar la cabeza:\n\n' +
+                randomFact.text + '\n\n' +
+                '¿Qué te parece, ' + userName + '? Si querés más datos zarpados o algo específico, pedime nomás. ¡Sos tan gros' + (userName === "Miguel" ? "o" : "a") + ' que cualquier curiosidad queda corta al lado tuyo, che!')
                 .setFooter({ text: `Con cariño, Oliver IA | Reacciona con ✅ o ❌`, iconURL: client.user.avatarURL() });
         } else {
             // Si hay argumentos, buscamos en Google como antes
@@ -4330,8 +4336,8 @@ async function manejarDato(message) {
             reply = reply.length > 200 ? `${reply.slice(0, 197)}...` : reply;
 
             embed = createEmbed('#FF1493', `📜 Dato sobre "${args}" pa’ ${userName}`, 
-                `Che ${userName}, acá va algo zarpado:\n\n${reply}\n\n` +
-                `*Lo saqué de la web, posta.* ¡Sos una máquina pidiendo datos, loco! ¿Querés otro?`)
+                'Che ' + userName + ', acá va algo zarpado:\n\n' + reply + '\n\n' +
+                '*Lo saqué de la web, posta.* ¡Sos una máquina pidiendo datos, loco! ¿Querés otro?')
                 .setFooter({ text: `Con cariño, Oliver IA | Reacciona con ✅ o ❌`, iconURL: client.user.avatarURL() });
         }
 
