@@ -5130,6 +5130,9 @@ async function manejarCommand(message) {
     else if (content === '!lyrics' || content === '!ly') {
         await manejarLyrics(message);
     } 
+    else if (content === '!adivinanzas' || content === '!ad') {
+        await manejarAdivinanza(message);
+    } 
     else if (content.startsWith('!responder') || content.startsWith('!resp')) {
         await manejarResponder(message);
     }
@@ -5284,6 +5287,7 @@ client.on('messageCreate', async (message) => {
             '- **!rk / !ranking**: Tus puntajes y estadísticas (récord más alto de PPM).\n' +
             '- **!ppt [piedra/papel/tijera]**: Jugá Piedra, Papel o Tijera contra mí, ¡dale!\n' +
             '- **!ppt @alguien**: Desafiá a otro a Piedra, Papel o Tijera, ¡posta!\n' +
+            '- **!ad / !adivinanza**: Te tiro una adivinanza copada pa’ que le des al coco, ¡30 segundos pa’ responder, dale!\n' + // Nuevo
             '- **!rppm / !rankingppm**: Todos tus intentos de PPM, loco.\n' +
             '- **!re / !reacciones**: Juego para ver quién tipea más rápido.\n' +
             '- **!rc / !reacciones cancelar**: Cancela las reacciones que empezaste.\n' +            
