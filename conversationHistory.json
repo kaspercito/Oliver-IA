@@ -346,6 +346,14 @@
         "Me usás pa’ freír, soy caliente y aceitoso, ¿qué soy, che?",
         "Me usás pa’ peinarte, tengo dientes pero no muerdo, ¿qué soy, che?"
       ]
+    },
+    "1023132788632862761": {
+      "usedAdivinanzas": [
+        "Me usás pa’ limpiar, soy amarillo y esponjoso, ¿qué soy, che?",
+        "Soy grande, soy ruidoso, me ves en la obra, ¿qué soy, loco?",
+        "Me usás pa’ coser, tengo un ojo pero no veo, ¿qué soy, che?",
+        "Soy rojo, soy dulce, me comés en el asado, ¿qué soy, amigo?"
+      ]
     }
   },
   "triviaStats": {
@@ -452,7 +460,7 @@
   "utilMessageTimestamps": {
     "1343749554905940058": 1741702502300,
     "plan_1343749554905940058": 1741879435793,
-    "reminder_1343749554905940058": 1742048196048
+    "reminder_1343749554905940058": 1742117689480
   },
   "utilMessageReactions": {
     "1343749554905940058": 1742051418073
@@ -476,16 +484,7 @@
       "timestamp": "2025-03-15T23:27:33.098Z"
     }
   ],
-  "recordatorios": [
-    {
-      "id": "8bc95228-33db-42d6-873f-9be6c3ebb6d7",
-      "userId": "1023132788632862761",
-      "channelId": "1008091220544851970",
-      "mensaje": "despiertame",
-      "timestamp": 1742117550572,
-      "creado": 1742099550573
-    }
-  ],
+  "recordatorios": [],
   "usedJokes": {
     "1023132788632862761": [
       117,
@@ -501,6 +500,10 @@
     "752987736759205960": {
       "correct": 1,
       "total": 3
+    },
+    "1023132788632862761": {
+      "correct": 2,
+      "total": 4
     }
   }
 }
