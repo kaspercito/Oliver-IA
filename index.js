@@ -2729,6 +2729,17 @@ async function manejarRecordatorio(message) {
     await sendSuccess(message.channel, '⏰ ¡Recordatorio seteado!', 
         `Te aviso "${mensaje}" el ${fechaStr} por DM, ${userName}. ¡No te duermas, loco!`);
 
+    // Guardamos inmediatamente en GitHub
+    try {
+        await saveDataStore();
+        console.log(`Datos guardados en GitHub tras setear recordatorio para ${userName}`);
+        dataStoreModified = false; // Reseteamos el flag después de guardar
+    } catch (error) {
+        console.error(`Error al guardar recordatorio en GitHub: ${error.message}`);
+        await sendError(message.channel, `¡Qué cagada, ${userName}!`, 
+            `Seteé el recordatorio, pero no pude guardarlo en GitHub. Si reinicio, se pierde. Error: ${error.message}`);
+    }
+
     // Programar el recordatorio
     programarRecordatorio(recordatorio);
 }
@@ -4712,21 +4723,24 @@ client.once('ready', async () => {
     client.user.setPresence({ activities: [{ name: "Listo para ayudar a Milagros", type: 0 }], status: 'dnd' });
     dataStore = await loadDataStore();
 
-    // Restaurar recordatorios
+   // Restaurar recordatorios pendientes
     if (dataStore.recordatorios && dataStore.recordatorios.length > 0) {
-        console.log(`Restaurando ${dataStore.recordatorios.length} recordatorios...`);
+        const ahora = Date.now();
         dataStore.recordatorios.forEach(recordatorio => {
-            const ahora = Date.now();
             if (recordatorio.timestamp > ahora) {
+                console.log(`Restaurando recordatorio: "${recordatorio.mensaje}" (ID: ${recordatorio.id})`);
                 programarRecordatorio(recordatorio);
             } else {
-                console.log(`Eliminando recordatorio vencido: "${recordatorio.mensaje}" (ID: ${recordatorio.id})`);
-                dataStore.recordatorios = dataStore.recordatorios.filter(r => r.id !== recordatorio.id);
-                dataStoreModified = true;
+                console.log(`Descartando recordatorio vencido: "${recordatorio.mensaje}" (ID: ${recordatorio.id})`);
             }
         });
+        // Limpiamos los vencidos
+        dataStore.recordatorios = dataStore.recordatorios.filter(r => r.timestamp > ahora);
+        dataStoreModified = true;
+        await saveDataStore(); // Guardamos después de limpiar
+        console.log('Recordatorios restaurados y vencidos limpiados');
     } else {
-        console.log('No hay recordatorios para restaurar.');
+        console.log('No hay recordatorios para restaurar');
     }
     
     activeTrivia = new Map(Object.entries(dataStore.activeSessions).filter(([_, s]) => s.type === 'trivia'));
