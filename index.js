@@ -1500,9 +1500,12 @@ let dataStore = {
     musicSessions: {}, // Sesiones de música.
     updatesSent: false, // Controla si las actualizaciones ya fueron enviadas.
 };
-let dataStoreModified = false; // Indica si los datos han sido modificados (para guardar).
-let autosaveEnabled = true; // Habilita el guardado automático.
-let autosavePausedByMusic = false; // Pausa el guardado automático durante sesiones de música.
+let isPlayingMusic = false;
+const SAVE_INTERVAL = 1800000; // 30 minutos
+const WARNING_TIME = 300000; // 5 minutos antes aviso
+let autosaveEnabled = true;
+let autosavePausedByMusic = false;
+let dataStoreModified = false;
 
 // Utilidades con tono argentino
 // Acá armé una función para hacer embeds re copados con color, título y descripción, siempre con onda
@@ -1796,6 +1799,7 @@ async function loadDataStore() {
     }
 }
 
+// Guardo los datos en GitHub
 async function saveDataStore() {
     if (!dataStoreModified) return false;
     try {
@@ -1825,59 +1829,6 @@ async function saveDataStore() {
         throw error;
     }
 }
-
-// Autosave cada 30 minutos, pa’ no perder nada importante
-const SAVE_INTERVAL = 1800000; // 30 minutos
-const WARNING_TIME = 300000; // 5 minutos antes aviso
-
-setInterval(async () => {
-    const musicActive = manager.players.size > 0;
-
-    if (musicActive && !autosavePausedByMusic) {
-        autosavePausedByMusic = true;
-        const channel = await client.channels.fetch(CHANNEL_ID);
-        if (channel) {
-            await channel.send({ embeds: [createEmbed('#FF1493', '🎵 Autosave en pausa', 
-                '¡Pará un cacho! El guardado automático se frenó porque estás con la música a full.')] });
-        }
-        return;
-    }
-
-    if (!musicActive && autosavePausedByMusic) {
-        autosavePausedByMusic = false;
-        autosaveEnabled = true;
-        const channel = await client.channels.fetch(CHANNEL_ID);
-        if (channel) {
-            await channel.send({ embeds: [createEmbed('#FF1493', '💾 Autosave de vuelta', 
-                'La música paró, así que el guardado automático arrancó de nuevo, ¡dale!')] });
-        }
-    }
-
-    if (!dataStoreModified || !autosaveEnabled || autosavePausedByMusic) return;
-
-    const channel = await client.channels.fetch(CHANNEL_ID);
-    if (channel) {
-        await channel.send({ embeds: [createEmbed('#FF1493', '⏰ Ojo al dato', 
-            '¡Atenti, che! En 5 minutos guardo todo automáticamente.')] });
-    }
-    setTimeout(async () => {
-        if (!autosaveEnabled || autosavePausedByMusic) return;
-        try {
-            await saveDataStore();
-            if (channel) {
-                await channel.send({ embeds: [createEmbed('#FF1493', '💾 ¡Listo el pollo!', 
-                    'Datos guardados al toque, ¡tranqui!')] });
-            }
-            dataStoreModified = false;
-        } catch (error) {
-            console.error(`Error en autosave: ${error.message}`);
-            if (channel) {
-                await channel.send({ embeds: [createEmbed('#FF1493', '¡Qué cagada!', 
-                    'No pude guardar los datos en GitHub, loco. Error: ' + error.message)] });
-            }
-        }
-    }, WARNING_TIME);
-}, SAVE_INTERVAL);
 
 // Normalizo texto pa’ sacarle las tildes y que no haya lío
 function normalizeText(text) {
@@ -4499,6 +4450,9 @@ async function manejarCommand(message) {
     } 
     else if (content.startsWith('!play') || content.startsWith('!pl')) {
         await manejarPlay(message);
+        isPlayingMusic = true; // Música empieza
+        autosavePausedByMusic = true; // Pausamos guardado
+        console.log('Música arrancó, autosave pausado.');
     } 
     else if (content === '!pause' || content === '!pa') {
         await manejarPause(message);
@@ -4511,6 +4465,9 @@ async function manejarCommand(message) {
     }
     else if (content === '!stop' || content === '!st') {
         await manejarStop(message);
+        isPlayingMusic = false; // Música para
+        autosavePausedByMusic = false; // Reanudamos guardado
+        console.log('Música parada, autosave reanudado.');
     } 
     else if (content === '!queue' || content === '!qu') {
         await manejarQueue(message);
@@ -4749,9 +4706,11 @@ client.once('ready', async () => {
                 console.log(`Descartando recordatorio vencido: "${recordatorio.mensaje}" (ID: ${recordatorio.id})`);
             }
         });
+        const originalLength = dataStore.recordatorios.length;
         dataStore.recordatorios = dataStore.recordatorios.filter(r => r.timestamp > ahora);
-        dataStoreModified = true;
-        await saveDataStore();
+        if (dataStore.recordatorios.length < originalLength) {
+            dataStoreModified = true;
+        }
         console.log('Recordatorios restaurados y vencidos limpiados');
     } else {
         console.log('No hay recordatorios para restaurar');
@@ -4762,6 +4721,7 @@ client.once('ready', async () => {
     if (!dataStore.musicSessions) {
         dataStore.musicSessions = {};
         console.log('musicSessions no estaba presente, inicializado manualmente');
+        dataStoreModified = true;
     }
 
     if (!dataStore.utilMessageTimestamps) dataStore.utilMessageTimestamps = {};
@@ -4812,20 +4772,18 @@ client.once('ready', async () => {
             await channel.send({ content: `<@${ALLOWED_USER_ID}>`, embeds: [updateEmbed] });
             dataStore.sentUpdates = [...BOT_UPDATES];
             dataStoreModified = true;
-            await saveDataStore();
             console.log('Actualizaciones enviadas y guardadas en sentUpdates.');
         } else {
             console.log('No hay cambios en BOT_UPDATES respecto a sentUpdates, no se envían.');
         }
 
-        const oneDayInMs = 24 * 60 * 60 * 1000; // 24 horas
-        const checkInterval = 60 * 60 * 1000; // Chequea cada hora
+        const oneDayInMs = 24 * 60 * 60 * 1000;
+        const checkInterval = 60 * 60 * 1000;
 
-        // Chequeo inicial al iniciar
         const now = Date.now();
         const today = new Date();
-        const examDay = new Date(2025, 2, 13); // 13 de marzo de 2025
-        const isPostExam = today >= examDay; // Si es 13 de marzo o después
+        const examDay = new Date(2025, 2, 13);
+        const isPostExam = today >= examDay;
         const lastSentUtil = dataStore.utilMessageTimestamps[`util_${CHANNEL_ID}`] || 0;
         const lastSentReminder = dataStore.utilMessageTimestamps[`reminder_${CHANNEL_ID}`] || 0;
         const lastReaction = dataStore.utilMessageReactions[CHANNEL_ID] || 0;
@@ -4840,23 +4798,20 @@ client.once('ready', async () => {
             dataStore.utilMessageTimestamps[`util_${CHANNEL_ID}`] = now;
             sentMessages.set(sentMessage.id, { content: utilEmbed.description, message: sentMessage });
             dataStoreModified = true;
-            await saveDataStore();
             console.log(`Mensaje útil enviado al iniciar - ${new Date().toLocaleString('es-AR')}`);
         }
 
-        // Intervalo para mensajes diarios y recordatorios
         setInterval(async () => {
             try {
                 const now = Date.now();
-                const currentHour = new Date().getHours(); // Hora actual en Argentina
+                const currentHour = new Date().getHours();
                 const today = new Date();
-                const examDay = new Date(2025, 2, 13); // 13 de marzo de 2025
-                const isPostExam = today >= examDay; // Si es 13 de marzo o después
+                const examDay = new Date(2025, 2, 13);
+                const isPostExam = today >= examDay;
                 const lastSentUtil = dataStore.utilMessageTimestamps[`util_${CHANNEL_ID}`] || 0;
                 const lastSentReminder = dataStore.utilMessageTimestamps[`reminder_${CHANNEL_ID}`] || 0;
                 const lastReaction = dataStore.utilMessageReactions[CHANNEL_ID] || 0;
 
-                // 1. Mensaje útil diario (solo una vez al día)
                 if (now - lastSentUtil >= oneDayInMs && (!lastReaction || now - lastReaction >= oneDayInMs)) {
                     const dailyUtilEmbed = createEmbed('#FF1493', '¡Che, Belén!', 
                         '¿Te estoy siendo útil, grosa? ¡Contame cómo te va conmigo, dale!', 
@@ -4867,11 +4822,9 @@ client.once('ready', async () => {
                     dataStore.utilMessageTimestamps[`util_${CHANNEL_ID}`] = now;
                     sentMessages.set(sentMessage.id, { content: dailyUtilEmbed.description, message: sentMessage });
                     dataStoreModified = true;
-                    await saveDataStore();
                     console.log(`Mensaje útil diario enviado al canal ${CHANNEL_ID} - ${new Date().toLocaleString('es-AR')}`);
                 }
 
-                // 2. Recordatorios según si es post-examen o no
                 const reminderTimes = isPostExam ? {
                     9: "¡Buenos días, Belén, crack! ¡Ya rendiste, genia! Sos una grosa total, seguro la rockeaste ayer. Ahora a levantarte con calma, mate en mano, y a disfrutar que ya está. ¡Contame cómo te sentís hoy, loca!",
                     14: "¡Che, Belén! ¿Cómo estás después del examen, reina? Seguro la rompiste, posta. ¿Qué te pinta hacer hoy para bajar revoluciones? Si querés charlar cómo salió, ¡dale con !chat, genia!",
@@ -4889,13 +4842,74 @@ client.once('ready', async () => {
                     await channel.send({ embeds: [embed] });
                     dataStore.utilMessageTimestamps[`reminder_${CHANNEL_ID}`] = now;
                     dataStoreModified = true;
-                    await saveDataStore();
                     console.log(`Recordatorio enviado a Belén (${currentHour}:00, ${isPostExam ? 'post-examen' : 'pre-examen'}) - ${new Date().toLocaleString('es-AR')}`);
                 }
             } catch (error) {
                 console.error('Error en el intervalo combinado:', error.message);
             }
         }, checkInterval);
+
+        // Autosave cada 30 minutos
+        setInterval(async () => {
+            const musicActive = manager.players.size > 0 || isPlayingMusic; // Chequeamos manager y bandera
+
+            if (musicActive && !autosavePausedByMusic) {
+                autosavePausedByMusic = true;
+                console.log('Música sonando, pauso el guardado.');
+                if (channel) {
+                    await channel.send({ embeds: [createEmbed('#FF1493', '🎵 Autosave en pausa', 
+                        '¡Pará un cacho! El guardado automático se frenó porque estás con la música a full.')] });
+                }
+                return;
+            }
+
+            if (!musicActive && autosavePausedByMusic) {
+                autosavePausedByMusic = false;
+                console.log('Música parada, reanudo el guardado.');
+                if (channel) {
+                    await channel.send({ embeds: [createEmbed('#FF1493', '💾 Autosave de vuelta', 
+                        'La música paró, así que el guardado automático arrancó de nuevo, ¡dale!')] });
+                }
+            }
+
+            if (!autosaveEnabled) {
+                console.log('Autosave desactivado, no guardo.');
+                return;
+            }
+
+            if (!dataStoreModified || autosavePausedByMusic) {
+                console.log('Nada que guardar o guardado pausado, tranqui.');
+                return;
+            }
+
+            console.log('Avisando que voy a guardar en 5 minutos...');
+            if (channel) {
+                await channel.send({ embeds: [createEmbed('#FF1493', '⏰ Ojo al dato', 
+                    '¡Atenti, che! En 5 minutos guardo todo automáticamente.')] });
+            }
+
+            setTimeout(async () => {
+                if (!autosaveEnabled || autosavePausedByMusic) {
+                    console.log('Guardado cancelado: autosave off o música on.');
+                    return;
+                }
+                try {
+                    await saveDataStore();
+                    console.log('Datos guardados en GitHub');
+                    if (channel) {
+                        await channel.send({ embeds: [createEmbed('#FF1493', '💾 ¡Listo el pollo!', 
+                            'Datos guardados al toque, ¡tranqui!')] });
+                    }
+                    dataStoreModified = false;
+                } catch (error) {
+                    console.error(`Error en autosave: ${error.message}`);
+                    if (channel) {
+                        await channel.send({ embeds: [createEmbed('#FF1493', '¡Qué cagada!', 
+                            'No pude guardar los datos en GitHub, loco. Error: ' + error.message)] });
+                    }
+                }
+            }, WARNING_TIME);
+        }, SAVE_INTERVAL);
 
     } catch (error) {
         console.error('Error al enviar actualizaciones o configurar el bot:', error.message);
@@ -4915,18 +4929,14 @@ client.on('messageReactionAdd', async (reaction, user) => {
     const messageData = sentMessages.get(reaction.message.id);
     const userName = user.id === OWNER_ID ? 'Miguel' : 'Belén';
 
-    // Configuración de Google Gemini
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
     const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
     if (user.id === ALLOWED_USER_ID && (reaction.emoji.name === '✅' || reaction.emoji.name === '❌')) {
-        // Guardar la reacción de Belén
         dataStore.utilMessageReactions[CHANNEL_ID] = Date.now();
-        dataStoreModified = true;
-        await saveDataStore();
+        dataStoreModified = true; // Marcamos cambios
         console.log(`Belén reaccionó con ${reaction.emoji.name} - ${new Date().toLocaleString('es-AR')}`);
 
-        // Responder según la reacción
         if (reaction.emoji.name === '✅') {
             await reaction.message.channel.send({ embeds: [createEmbed('#FF1493', '¡Genia, Belén!', 
                 '¡Gracias por el visto, grosa! Nos vemos mañana, ¿dale?', 'Con cariño, Oliver IA')] });
@@ -4934,7 +4944,7 @@ client.on('messageReactionAdd', async (reaction, user) => {
             await reaction.message.channel.send({ embeds: [createEmbed('#FF1493', '¡Uy, Belén!', 
                 '¿No te copó, genia? Contame qué pasa, ¡dale!', 'Con cariño, Oliver IA')] });
         }
-        sentMessages.delete(reaction.message.id); // Evitar procesar de nuevo
+        sentMessages.delete(reaction.message.id);
     }
 
     if (reaction.emoji.name === '❌' && messageData.originalQuestion) {
