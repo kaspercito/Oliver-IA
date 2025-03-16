@@ -18,6 +18,17 @@
       "esRecurrente": false,
       "hora": null,
       "minutos": null
+    },
+    {
+      "id": "eeee86d5-4cef-4d91-9e0b-f04fbb95fde0",
+      "userId": "1023132788632862761",
+      "channelId": "1343749554905940058",
+      "mensaje": "recuérdame ir a la farmacia",
+      "timestamp": 1742163104955,
+      "creado": 1742159504956,
+      "esRecurrente": false,
+      "hora": null,
+      "minutos": null
     }
   ],
   "updatesSent": false,
