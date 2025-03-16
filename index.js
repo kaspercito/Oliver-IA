@@ -3332,6 +3332,7 @@ async function manejarIdea(message) {
 async function manejarChiste(message) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
     const userId = message.author.id;
+    const genderSuffix = userName === 'Miguel' ? 'o' : 'a'; // Definimos el sufijo acá
 
     const waitingEmbed = createEmbed('#FF1493', `😂 Preparándome, ${userName}...`, 
         `Aguantá que te hago reír al toque, loco...`);
@@ -3583,12 +3584,14 @@ async function manejarChiste(message) {
         dataStore.usedJokes[userId].push(chisteIndex);
         dataStoreModified = true; // Marcamos que dataStore cambió para guardarlo después
 
-        // Embed con el chiste
+        // Reemplazamos el sufijo de género en el punchline dinámicamente
+        const punchlineFixed = chiste.punchline.replace(/\${userName === "Miguel" \? "o" : "a"}/, genderSuffix);
+
         const embed = createEmbed('#FF1493', `😂 ¡Chiste pa’ ${userName}!`, 
             `Che ${userName}, ¡posta que te vas a reír, loco! Acá va:\n\n` +
-            `**${chiste.setup}**\n${chiste.punchline}\n\n` +
-            `¿Qué tal, ${userName}? Si querés otro, pedímelo nomás. ¡Sos tan copad${userName === "Miguel" ? "o" : "a"} que te merecés reír todo el día, che!`)
-            .setFooter({ text: `Con cariño, Oliver IA | Reacciona con ✅ o ❌`, iconURL: client.user.avatarURL() });
+            `**${chiste.setup}**\n${punchlineFixed}\n\n` +
+            `¿Qué tal, ${userName}? Si querés otro, pedímelo nomás. ¡Sos tan copad${genderSuffix} que te merecés reír todo el día, che!`)
+            .setFooter({ text: `Con cariño, Oliver IA`, iconURL: client.user.avatarURL() });
 
         await waitingMessage.edit({ embeds: [embed] });
     } catch (error) {
@@ -3598,6 +3601,7 @@ async function manejarChiste(message) {
         await waitingMessage.edit({ embeds: [errorEmbed] });
     }
 }
+
 // Dato
 async function manejarDato(message) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
