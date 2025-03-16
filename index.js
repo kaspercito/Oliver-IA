@@ -1763,7 +1763,7 @@ async function loadDataStore() {
     try {
         // Cargar conversationhistory.json
         const convoResponse = await axios.get(
-            `https://api.github.com/repos/${process.env.GITHUB_REPO}/contents/conversationhistory.json`,
+            `https://api.github.com/repos/${process.env.GITHUB_REPO}/contents/${process.env.GITHUB_CONVO_FILE_PATH}`,
             { headers: { 'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`, 'Accept': 'application/vnd.github+json' } }
         );
         const convoContent = Buffer.from(convoResponse.data.content, 'base64').toString('utf8');
@@ -1786,7 +1786,7 @@ async function loadDataStore() {
         let rankingData;
         try {
             const rankingResponse = await axios.get(
-                `https://api.github.com/repos/${process.env.GITHUB_REPO}/contents/ranking.json`,
+                `https://api.github.com/repos/${process.env.GITHUB_REPO}/contents/${process.env.GITHUB_RANKING_FILE_PATH}`,
                 { headers: { 'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`, 'Accept': 'application/vnd.github+json' } }
             );
             const rankingContent = Buffer.from(rankingResponse.data.content, 'base64').toString('utf8');
@@ -1846,89 +1846,80 @@ async function loadDataStore() {
 }
 
 // Guardo los datos en GitHub
-async function loadDataStore() {
-    try {
-        // Cargar conversationhistory.json
-        const convoResponse = await axios.get(
-            `https://api.github.com/repos/${process.env.GITHUB_REPO}/contents/conversationhistory.json`,
-            { headers: { 'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`, 'Accept': 'application/vnd.github+json' } }
-        );
-        const convoContent = Buffer.from(convoResponse.data.content, 'base64').toString('utf8');
-        const convoData = convoContent ? JSON.parse(convoContent) : {
-            conversationHistory: {},
-            activeSessions: {},
-            musicSessions: {},
-            recordatorios: [],
-            updatesSent: false,
-            sentUpdates: [],
-            utilMessageTimestamps: {},
-            utilMessageReactions: {},
-            womensDayMessageSent: false,
-            womensDayMessageSentThisInstance: false,
-            ideas: [],
-            usedJokes: {}
-        };
+async function saveDataStore() {
+    if (!dataStoreModified) return false;
 
-        // Cargar ranking.json
-        let rankingData;
+    const convoData = {
+        conversationHistory: dataStore.conversationHistory,
+        activeSessions: dataStore.activeSessions,
+        musicSessions: dataStore.musicSessions,
+        recordatorios: dataStore.recordatorios,
+        updatesSent: dataStore.updatesSent,
+        sentUpdates: dataStore.sentUpdates,
+        utilMessageTimestamps: dataStore.utilMessageTimestamps,
+        utilMessageReactions: dataStore.utilMessageReactions,
+        womensDayMessageSent: dataStore.womensDayMessageSent,
+        womensDayMessageSentThisInstance: dataStore.womensDayMessageSentThisInstance,
+        ideas: dataStore.ideas,
+        usedJokes: dataStore.usedJokes
+    };
+
+    const rankingData = {
+        triviaRanking: dataStore.triviaRanking,
+        personalPPMRecords: dataStore.personalPPMRecords,
+        reactionWins: dataStore.reactionWins,
+        triviaStats: dataStore.triviaStats
+    };
+
+    try {
+        // Guardar conversationhistory.json
+        let convoSha;
         try {
-            const rankingResponse = await axios.get(
-                `https://api.github.com/repos/${process.env.GITHUB_REPO}/contents/ranking.json`,
+            const convoResponse = await axios.get(
+                `https://api.github.com/repos/${process.env.GITHUB_REPO}/contents/${process.env.GITHUB_CONVO_FILE_PATH}`,
                 { headers: { 'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`, 'Accept': 'application/vnd.github+json' } }
             );
-            const rankingContent = Buffer.from(rankingResponse.data.content, 'base64').toString('utf8');
-            rankingData = rankingContent ? JSON.parse(rankingContent) : {
-                triviaRanking: {},
-                personalPPMRecords: {},
-                reactionWins: {},
-                triviaStats: {}
-            };
+            convoSha = convoResponse.data.sha;
         } catch (error) {
-            if (error.response?.status === 404) {
-                console.log('ranking.json no existe todavía, inicializando vacío.');
-                rankingData = {
-                    triviaRanking: {},
-                    personalPPMRecords: {},
-                    reactionWins: {},
-                    triviaStats: {}
-                };
-            } else {
-                throw error;
-            }
+            if (error.response?.status !== 404) throw error;
         }
+        await axios.put(
+            `https://api.github.com/repos/${process.env.GITHUB_REPO}/contents/${process.env.GITHUB_CONVO_FILE_PATH}`,
+            {
+                message: 'Actualizar historial y sesiones',
+                content: Buffer.from(JSON.stringify(convoData, null, 2)).toString('base64'),
+                sha: convoSha || undefined
+            },
+            { headers: { 'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`, 'Accept': 'application/vnd.github+json' } }
+        );
+        console.log('conversationhistory.json guardado en GitHub');
 
-        // Combinar datos en dataStore
-        const loadedData = {
-            ...convoData,
-            ...rankingData
-        };
+        // Guardar ranking.json
+        let rankingSha;
+        try {
+            const rankingResponse = await axios.get(
+                `https://api.github.com/repos/${process.env.GITHUB_REPO}/contents/${process.env.GITHUB_RANKING_FILE_PATH}`,
+                { headers: { 'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`, 'Accept': 'application/vnd.github+json' } }
+            );
+            rankingSha = rankingResponse.data.sha;
+        } catch (error) {
+            if (error.response?.status !== 404) throw error;
+        }
+        await axios.put(
+            `https://api.github.com/repos/${process.env.GITHUB_REPO}/contents/${process.env.GITHUB_RANKING_FILE_PATH}`,
+            {
+                message: 'Actualizar rankings y estadísticas',
+                content: Buffer.from(JSON.stringify(rankingData, null, 2)).toString('base64'),
+                sha: rankingSha || undefined
+            },
+            { headers: { 'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`, 'Accept': 'application/vnd.github+json' } }
+        );
+        console.log('ranking.json guardado en GitHub');
 
-        // Asegurar campos por defecto
-        if (!loadedData.musicSessions) loadedData.musicSessions = {};
-        if (!loadedData.recordatorios) loadedData.recordatorios = [];
-        console.log('Datos cargados desde GitHub: conversationhistory.json y ranking.json');
-        return loadedData;
+        return true;
     } catch (error) {
-        console.error('Error al cargar datos desde GitHub:', error.message);
-        return {
-            conversationHistory: {},
-            triviaRanking: {},
-            personalPPMRecords: {},
-            reactionStats: {},
-            reactionWins: {},
-            activeSessions: {},
-            triviaStats: {},
-            musicSessions: {},
-            recordatorios: [],
-            updatesSent: false,
-            sentUpdates: [],
-            utilMessageTimestamps: {},
-            utilMessageReactions: {},
-            womensDayMessageSent: false,
-            womensDayMessageSentThisInstance: false,
-            ideas: [],
-            usedJokes: {}
-        };
+        console.error('Error al guardar datos en GitHub:', error.message);
+        throw error;
     }
 }
 
