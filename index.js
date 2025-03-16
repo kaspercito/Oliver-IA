@@ -2733,12 +2733,43 @@ async function manejarActualizaciones(message) {
             ? validUpdates.map((update, index) => `${index + 1}. ${update}`).join('\n')
             : 'No hay actualizaciones nuevas por ahora, ¡pero seguí atenta, genia!';
 
-        const description = `¡Mirá lo nuevo que traigo, ${userName}!\n\n${updatesText}\n\n**Hora local (Argentina):** ${argentinaTime}`;
-        console.log('Descripción generada:', description); // Debug pa’ ver qué se pasa
-
+        // Armar embed con descripción corta y campos
         const embed = createEmbed('#FF1493', '📢 Últimas Actualizaciones de Oliver IA', 
-            description, 'Hecho con onda por Miguel IA');
-        
+            `¡Mirá lo nuevo que traigo, ${userName}! Acá tenés todo lo que se viene:`, 
+            'Hecho con onda por Miguel IA');
+
+        // Dividir updatesText en campos de máximo 1024 caracteres
+        const maxFieldLength = 1024;
+        let currentField = '';
+        let fieldCount = 1;
+        const fields = [];
+
+        updatesText.split('\n').forEach(line => {
+            if (line.trim() === '') return; // Saltar líneas vacías
+            if (currentField.length + line.length + 1 > maxFieldLength) {
+                fields.push({ name: `Novedades (Parte ${fieldCount})`, value: currentField.trim(), inline: false });
+                currentField = line;
+                fieldCount++;
+            } else {
+                currentField += (currentField ? '\n' : '') + line;
+            }
+        });
+        if (currentField) {
+            fields.push({ name: `Novedades (Parte ${fieldCount})`, value: currentField.trim(), inline: false });
+        }
+
+        // Agregar campos al embed
+        fields.forEach(field => {
+            if (field.value.length > 1024) {
+                console.warn(`Campo ${field.name} excede 1024 caracteres, recortando...`);
+                field.value = field.value.slice(0, 1018) + '...';
+            }
+            embed.addFields(field);
+        });
+        embed.addFields({ name: 'Hora local (Argentina)', value: argentinaTime, inline: false });
+
+        console.log('Campos generados:', fields); // Debug
+
         await message.channel.send({ embeds: [embed] });
     } catch (error) {
         console.error('Error en manejarActualizaciones:', error.message);
