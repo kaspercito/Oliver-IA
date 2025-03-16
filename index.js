@@ -103,6 +103,37 @@ const BOT_UPDATES = [
 
 const opcionesPPT = ['piedra', 'papel', 'tijera'];
 
+const adivinanzas = [
+    {
+        pregunta: "Soy redondo, soy de cuero, en la cancha soy el rey, los pibes me patean con ganas, ¿qué soy, che?",
+        respuesta: "pelota"
+    },
+    {
+        pregunta: "Estoy en el mate, estoy en el té, sin mí no hay gusto, ¿qué soy, qué sé?",
+        respuesta: "azúcar"
+    },
+    {
+        pregunta: "Soy blanco y negro, camino tranqui por el campo, no soy caballo ni vaca, pero igual me quieren mucho, ¿qué soy, loco?",
+        respuesta: "pingüino" // O "cebra" si querés, pero pingüino pega más con el humor
+    },
+    {
+        pregunta: "En la parrilla soy la estrella, me comen con chimichurri, soy jugosa y re sabrosa, ¿qué soy, posta?",
+        respuesta: "asado"
+    },
+    {
+        pregunta: "Me toman en la plaza, soy verde y amargo, con agua caliente me quieren, ¿qué soy, amigo?",
+        respuesta: "mate"
+    },
+    {
+        pregunta: "Soy un bicho que vuela, hago ruido en la noche, los pibes me cazan con linterna, ¿qué soy, che?",
+        respuesta: "cucaracha" // O "mosquito", según el tono que quieras
+    },
+    {
+        pregunta: "Estoy en el cielo, brillo de día, no soy estrella ni luna, pero caliento el asado, ¿qué soy, loco?",
+        respuesta: "sol"
+    }
+];
+
 const preguntas = [
     '¿Qué hacés si te encontrás 500 pesos en la calle y nadie mira?',
     '¿Cuál es el mejor invento pa’ sobrevivir un día sin luz?',
@@ -1490,15 +1521,17 @@ let activeTrivia = new Map(); // Mapa para manejar sesiones de trivia activas po
 let sentMessages = new Map(); // Registra mensajes enviados por el bot.
 let processedMessages = new Map(); // Registra mensajes procesados para evitar duplicados.
 let dataStore = { 
-    conversationHistory: {}, // Historial de conversaciones.
-    triviaRanking: {}, // Rankings de trivia.
-    personalPPMRecords: {}, // Récords personales de PPM.
-    reactionStats: {}, // Estadísticas de reacciones.
-    reactionWins: {}, // Victorias en el juego de reacciones.
-    activeSessions: {}, // Sesiones activas (trivia, reacciones, etc.).
-    triviaStats: {}, // Estadísticas de trivia.
-    musicSessions: {}, // Sesiones de música.
-    updatesSent: false, // Controla si las actualizaciones ya fueron enviadas.
+    conversationHistory: {},
+    triviaRanking: {},
+    personalPPMRecords: {},
+    reactionStats: {},
+    reactionWins: {},
+    activeSessions: {},
+    triviaStats: {},
+    musicSessions: {},
+    updatesSent: false,
+    adivinanzaStats: {}, // Nueva propiedad para adivinanzas
+    recordatorios: [] // Ya lo tenías, lo dejo por completitud
 };
 let isPlayingMusic = false;
 const SAVE_INTERVAL = 1800000; // 30 minutos
@@ -1775,12 +1808,14 @@ async function loadDataStore() {
             activeSessions: {}, 
             triviaStats: {},
             musicSessions: {},
-            recordatorios: [], // Aseguramos que esté en el esquema por defecto
-            updatesSent: false
+            recordatorios: [],
+            updatesSent: false,
+            adivinanzaStats: {} // Aseguramos que esté por defecto
         };
         if (!loadedData.musicSessions) loadedData.musicSessions = {};
         if (!loadedData.recordatorios) loadedData.recordatorios = [];
-        console.log('Datos cargados desde GitHub con musicSessions y recordatorios asegurados');
+        if (!loadedData.adivinanzaStats) loadedData.adivinanzaStats = {}; // Aseguramos que exista
+        console.log('Datos cargados desde GitHub con adivinanzaStats asegurado');
         return loadedData;
     } catch (error) {
         console.error('Error al cargar datos desde GitHub:', error.message);
@@ -1793,8 +1828,9 @@ async function loadDataStore() {
             activeSessions: {}, 
             triviaStats: {},
             musicSessions: {},
-            recordatorios: [], // Aseguramos que esté en el esquema por defecto
-            updatesSent: false
+            recordatorios: [],
+            updatesSent: false,
+            adivinanzaStats: {} // Por defecto si falla
         };
     }
 }
@@ -1844,6 +1880,62 @@ function obtenerPreguntaTriviaSinOpciones(usedQuestions, categoria) {
     console.log("Preguntas disponibles:", available.length);
     if (available.length === 0) return null; // Si no quedan, me rindo
     return available[Math.floor(Math.random() * available.length)]; // Elijo una random, joya
+}
+
+async function manejarAdivinanza(message) {
+    const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
+    const userId = message.author.id;
+    console.log(`Arrancando adivinanza para ${userName}`);
+
+    // Inicializamos las stats del usuario si no existen
+    if (!dataStore.adivinanzaStats[userId]) {
+        dataStore.adivinanzaStats[userId] = { correct: 0, total: 0 };
+    }
+
+    // Elegimos una adivinanza random
+    const adivinanza = adivinanzas[Math.floor(Math.random() * adivinanzas.length)];
+
+    // Embed inicial con la adivinanza
+    const adivinanzaEmbed = createEmbed('#FF1493', `¡Adivinanza pa’ vos, ${userName}!`, 
+        `${adivinanza.pregunta}\n\n¡Mandame tu respuesta, loco! Tenés 30 segundos, dale caña.`);
+    await message.channel.send({ embeds: [adivinanzaEmbed] });
+
+    // Filtro para aceptar solo mensajes del usuario y que no sean vacíos
+    const filter = m => m.author.id === message.author.id && m.content.trim().length > 0;
+    const collector = message.channel.createMessageCollector({ filter, max: 1, time: 30000 });
+
+    collector.on('collect', async m => {
+        const respuestaUsuario = cleanText(m.content);
+        const respuestaCorrecta = cleanText(adivinanza.respuesta);
+
+        // Sumamos al total de intentos
+        dataStore.adivinanzaStats[userId].total++;
+
+        if (respuestaUsuario === respuestaCorrecta) {
+            // Sumamos un acierto
+            dataStore.adivinanzaStats[userId].correct++;
+            dataStoreModified = true; // Marcamos que hay cambios para guardar
+            const winEmbed = createEmbed('#FF1493', `¡La pegaste, ${userName}!`, 
+                `¡Sos un crack, loco! La respuesta era **${adivinanza.respuesta}**. ¿Querés otra, che?`);
+            await message.channel.send({ embeds: [winEmbed] });
+        } else {
+            dataStoreModified = true; // Marcamos cambios aunque falle
+            const loseEmbed = createEmbed('#FF1493', `¡Nah, ${userName}!`, 
+                `Te fuiste al pasto, loco. Era **${adivinanza.respuesta}**, no "${respuestaUsuario}". ¿Probás otra, dale?`);
+            await message.channel.send({ embeds: [loseEmbed] });
+        }
+    });
+
+    collector.on('end', (collected, reason) => {
+        if (reason === 'time') {
+            // Sumamos al total si se pasa el tiempo (intento fallido)
+            dataStore.adivinanzaStats[userId].total++;
+            dataStoreModified = true;
+            const timeoutEmbed = createEmbed('#FF1493', `¡Se acabó el tiempo, ${userName}!`, 
+                `Te dormiste, loco. Era **${adivinanza.respuesta}**. ¿Otra ronda, che?`);
+            message.channel.send({ embeds: [timeoutEmbed] });
+        }
+    });
 }
 
 // Trivia copada, la hice pa’ que Miguel y Belén se diviertan
@@ -3160,28 +3252,23 @@ async function manejarAutoplay(message) {
 
 // Ranking con top por categoría para Trivia, Reacciones y PPM
 function getCombinedRankingEmbed(userId, username) {
-    // Armo un ranking zarpado con trivia, PPM y reacciones
     const categorias = Object.keys(preguntasTriviaSinOpciones);
     
     // Lista de trivia por categoría
     let triviaList = '**📚 Trivia por Categoría**\n';
     categorias.forEach(categoria => {
-        // Stats de Miguel
         const miguelStats = dataStore.triviaStats[OWNER_ID]?.[categoria] || { correct: 0, total: 0 };
         const miguelScore = miguelStats.correct;
         const miguelPercentage = miguelStats.total > 0 ? Math.round((miguelScore / miguelStats.total) * 100) : 0;
-        // Stats de Belén
         const luzStats = dataStore.triviaStats[ALLOWED_USER_ID]?.[categoria] || { correct: 0, total: 0 };
         const luzScore = luzStats.correct;
         const luzPercentage = luzStats.total > 0 ? Math.round((luzScore / luzStats.total) * 100) : 0;
 
-        // Ranking ordenado por puntaje
         const ranking = [
             { name: 'Miguel', score: miguelScore, percentage: miguelPercentage },
             { name: 'Belén', score: luzScore, percentage: luzPercentage }
         ].sort((a, b) => b.score - a.score);
 
-        // Agrego cada categoría al texto
         triviaList += `\n**${categoria.charAt(0).toUpperCase() + categoria.slice(1)}** 🎲\n` +
                       ranking.map(participant => 
                           `> 🌟 ${participant.name}: **${participant.score} puntos** (${participant.percentage}% acertadas)`
@@ -3191,13 +3278,10 @@ function getCombinedRankingEmbed(userId, username) {
     // Récords de PPM
     const miguelPPMRecord = dataStore.personalPPMRecords[OWNER_ID]?.best || { ppm: 0, timestamp: null };
     const luzPPMRecord = dataStore.personalPPMRecords[ALLOWED_USER_ID]?.best || { ppm: 0, timestamp: null };
-    
     const ppmRanking = [
         { name: 'Miguel', ppm: miguelPPMRecord.ppm, timestamp: miguelPPMRecord.timestamp },
         { name: 'Belén', ppm: luzPPMRecord.ppm, timestamp: luzPPMRecord.timestamp }
     ].sort((a, b) => b.ppm - a.ppm);
-    
-    // Lista de PPM con fecha
     let ppmList = ppmRanking.map(participant => 
         participant.ppm > 0 
             ? `> ${participant.name}: **${participant.ppm} PPM** - ${new Date(participant.timestamp).toLocaleString()}`
@@ -3207,17 +3291,26 @@ function getCombinedRankingEmbed(userId, username) {
     // Victorias en reacciones
     const miguelReactionWins = dataStore.reactionWins[OWNER_ID]?.wins || 0;
     const luzReactionWins = dataStore.reactionWins[ALLOWED_USER_ID]?.wins || 0;
-    
     const reactionRanking = [
         { name: 'Miguel', wins: miguelReactionWins },
         { name: 'Belén', wins: luzReactionWins }
     ].sort((a, b) => b.wins - a.wins);
-    
     const reactionList = reactionRanking.map(participant => 
         `> 🌟 ${participant.name} - **${participant.wins} Reacciones**`
     ).join('\n');
 
-    // Armo el embed dorado con todo el ranking
+    // Adivinanzas
+    const miguelAdivinanzaStats = dataStore.adivinanzaStats[OWNER_ID] || { correct: 0, total: 0 };
+    const luzAdivinanzaStats = dataStore.adivinanzaStats[ALLOWED_USER_ID] || { correct: 0, total: 0 };
+    const adivinanzaRanking = [
+        { name: 'Miguel', correct: miguelAdivinanzaStats.correct, percentage: miguelAdivinanzaStats.total > 0 ? Math.round((miguelAdivinanzaStats.correct / miguelAdivinanzaStats.total) * 100) : 0 },
+        { name: 'Belén', correct: luzAdivinanzaStats.correct, percentage: luzAdivinanzaStats.total > 0 ? Math.round((luzAdivinanzaStats.correct / luzAdivinanzaStats.total) * 100) : 0 }
+    ].sort((a, b) => b.correct - a.correct);
+    const adivinanzaList = adivinanzaRanking.map(participant => 
+        `> 🌟 ${participant.name}: **${participant.correct} aciertos** (${participant.percentage}% acertadas)`
+    ).join('\n');
+
+    // Armo el embed con todo
     return new EmbedBuilder()
         .setColor('#FF1493')
         .setTitle(`🏆 Ranking de ${username}`)
@@ -3225,7 +3318,8 @@ function getCombinedRankingEmbed(userId, username) {
         .addFields(
             { name: '📊 Trivia', value: triviaList, inline: false },
             { name: '⌨️ PPM (Récord Más Rápido)', value: ppmList, inline: false },
-            { name: '⚡ Victorias en Reacciones', value: reactionList, inline: false }
+            { name: '⚡ Victorias en Reacciones', value: reactionList, inline: false },
+            { name: '🧠 Adivinanzas', value: adivinanzaList, inline: false } // Nueva sección
         )
         .setFooter({ text: 'Hecho por Kasper, de Oliver IA' })
         .setTimestamp();
