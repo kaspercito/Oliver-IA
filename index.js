@@ -96,6 +96,9 @@ const BOT_UPDATES = [
     '- !ppt [piedra/papel/tijera]: Jugá contra mí, el bot más grosso del condado. Elegí tu jugada y vemos quién la pica, ¡dale!',
     '- !ppt @alguien: Desafiá a un amigo a un duelo épico. Reacciona con ✅ pa’ aceptar, mandá tu elección por MD y que gane el mejor, ¡posta!',
     '¡Nuevo !recordatorio / !rec agregado! Te hago acordar lo que sea cuando quieras. Ejemplo: "!rec \'comprar sanduche de miga\' en 1 hora" o "!rec \'llamar a Miguel\' mañana 14:30", ¡posta!',
+    '¡Boss bar al 100%! Arreglamos la barra de progreso pa’ que llegue al final posta y se vea zarpada cuando termina el tema, ¡a romperla, che!',
+    '¡Datos randoms en !dato! Ahora si no le das argumentos, te tira un dato curioso al azar con onda, ¡re copado pa’ sorprenderte, loco!',
+    '¡Nuevo !chiste agregado! Usá !chiste y te tiro un chiste random pa’ que te rías a lo grande, ¡posta que la rompés, che!'
 ];
 
 const opcionesPPT = ['piedra', 'papel', 'tijera'];
@@ -3167,54 +3170,131 @@ async function manejarIdea(message) {
     }
 }
 
+async function manejarChiste(message) {
+    const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
+
+    const waitingEmbed = createEmbed('#FF1493', `😂 Preparándome, ${userName}...`, 
+        `Aguantá que te hago reír al toque, loco...`);
+    const waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
+
+    // Lista de chistes randoms con onda
+    const chistes = [
+        {
+            setup: '¿Qué hace un perro con un taladro?',
+            punchline: '¡Taladrando! Ja, ${userName}, ¡un clásico pa’ vos que sos un crack!'
+        },
+        {
+            setup: '¿Por qué los pájaros no usan WhatsApp?',
+            punchline: 'Porque ya tienen Twitter, loco. ¡A vos te va más el Discord, ${userName}!'
+        },
+        {
+            setup: '¿Qué le dice una iguana a su hermana gemela?',
+            punchline: '¡Iguanita vos, che! Igual de gros${userName === "Miguel" ? "o" : "a"} que vos, ${userName}.'
+        },
+        {
+            setup: '¿Cómo se despiden los químicos?',
+            punchline: 'Ácido un placer, ${userName}. ¡Sos ácido de lo lindo, loco!'
+        },
+        {
+            setup: '¿Qué hace una abeja en el gimnasio?',
+            punchline: '¡Zum-ba! Ja, ${userName}, vos zumbás de pura energía, che.'
+        }
+    ];
+
+    try {
+        // Elegimos un chiste random
+        const chiste = chistes[Math.floor(Math.random() * chistes.length)];
+
+        // Embed con el chiste
+        const embed = createEmbed('#FF1493', `😂 ¡Chiste pa’ ${userName}!`, 
+            `Che ${userName}, ¡posta que te vas a reír, loco! Acá va:\n\n` +
+            `**${chiste.setup}**\n${chiste.punchline}\n\n` +
+            `¿Qué tal, ${userName}? Si querés otro, pedímelo nomás. ¡Sos tan copad${userName === "Miguel" ? "o" : "a"} que te merecés reír todo el día, che!`)
+            .setFooter({ text: `Con cariño, Oliver IA | Reacciona con ✅ o ❌`, iconURL: client.user.avatarURL() });
+
+        await waitingMessage.edit({ embeds: [embed] });
+    } catch (error) {
+        console.error(`Error tirando chiste: ${error.message}`);
+        const errorEmbed = createEmbed('#FF1493', '¡Qué cagada!', 
+            `No pude tirar el chiste, ${userName}. Algo se rompió, loco. ¿Probamos de nuevo?`);
+        await waitingMessage.edit({ embeds: [errorEmbed] });
+    }
+}
+
 // Dato
 async function manejarDato(message) {
-    // Te traigo un dato rápido de la web, re útil
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
-    // Saco lo que querés saber
     const args = message.content.toLowerCase().startsWith('!dato') 
         ? message.content.slice(5).trim() 
         : message.content.slice(3).trim();
 
-    // Si no escribiste nada, te pido algo en rojo
-    if (!args) {
-        return sendError(message.channel, `¡Tirame algo después de "!dato", ${userName}! ¿Qué querés saber, loco?`);
-    }
-
-    // Te aviso en celeste que estoy buscando
     const waitingEmbed = createEmbed('#FF1493', `⌛ Buscando, ${userName}...`, 
-        `Dame un segundo que ya te traigo el dato de "${args}"...`);
+        `Dame un segundo que te traigo algo copado${args ? ` sobre "${args}"` : ''}, loco...`);
     const waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
 
-    try {
-        // Busco en Google con la API
-        const apiKey = process.env.GOOGLE_API_KEY;
-        const cx = process.env.GOOGLE_CX;
-        const url = `https://www.googleapis.com/customsearch/v1?key=${apiKey}&cx=${cx}&q=${encodeURIComponent(args)}&num=1`;
-        const response = await axios.get(url);
-        const result = response.data.items;
+    // Lista de datos randoms copados
+    const randomFacts = [
+        {
+            title: '¡Caracoles centenarios!',
+            text: '¿Sabías que hay un caracol que puede vivir hasta 100 años? Se llama *Arctica islandica*, un bicho de agua fría que se la pasa tranqui en el fondo del mar. ¡Un campeón de la longevidad, loco! Casi tan increíble como vos, ${userName}.'
+        },
+        {
+            title: '¡Regeneración zarpada!',
+            text: 'Las estrellas de mar pueden regenerar sus brazos si los pierden. Si les cortás uno, no solo lo vuelven a crecer, ¡sino que el brazo cortado a veces se convierte en otra estrella! Una locura, ¿no, ${userName}? Sos tan gros${userName === "Miguel" ? "o" : "a"} que esto te queda chico.'
+        },
+        {
+            title: '¡Plantas carnívoras!',
+            text: 'Las plantas carnívoras, como la Venus atrapamoscas, comen insectos cerrando sus "bocas" en menos de un segundo. ¡Unas asesinas del reino vegetal! Igual, ${userName}, vos las superás en velocidad pa’ romperla toda.'
+        },
+        {
+            title: '¡Pingüinos románticos!',
+            text: 'Los pingüinos emperador buscan a su pareja entre miles en la Antártida y le regalan piedritas pa’ conquistarla. ¡Unos genios del amor! Casi tan geniales como vos, ${userName}, que siempre la rompés.'
+        },
+        {
+            title: '¡Pulpos escapistas!',
+            text: 'Los pulpos pueden cambiar de color pa’ camuflarse y son tan inteligentes que se escapan de acuarios. ¡Unos ninjas del mar! Vos, ${userName}, también tenés ese toque especial pa’ sorprender, che.'
+        }
+    ];
 
-        let reply = '';
-        // Si no hay resultados, tiro error
-        if (!result || result.length === 0) {
-            throw new Error('No encontré nada posta, che.');
+    try {
+        let embed;
+
+        // Si no hay argumentos, tiramos un dato random
+        if (!args) {
+            const randomFact = randomFacts[Math.floor(Math.random() * randomFacts.length)];
+            embed = createEmbed('#FF1493', `💡 ¡Dato copado pa’ ${userName}!`, 
+                `Che ${userName}, ¡posta que sí, loco! Preparate porque esto te va a volar la cabeza:\n\n` +
+                `${randomFact.text}\n\n` +
+                `¿Qué te parece, ${userName}? Si querés más datos zarpados o algo específico, pedime nomás. ¡Sos tan gros${userName === "Miguel" ? "o" : "a"} que cualquier curiosidad queda corta al lado tuyo, che!`)
+                .setFooter({ text: `Con cariño, Oliver IA | Reacciona con ✅ o ❌`, iconURL: client.user.avatarURL() });
         } else {
-            // Agarro el snippet del primer resultado
-            reply = result[0].snippet || 'No hay descripción, pero te lo resumo al toque.';
+            // Si hay argumentos, buscamos en Google como antes
+            const apiKey = process.env.GOOGLE_API_KEY;
+            const cx = process.env.GOOGLE_CX;
+            const url = `https://www.googleapis.com/customsearch/v1?key=${apiKey}&cx=${cx}&q=${encodeURIComponent(args)}&num=1`;
+            const response = await axios.get(url);
+            const result = response.data.items;
+
+            let reply = '';
+            if (!result || result.length === 0) {
+                throw new Error('No encontré nada posta, che.');
+            } else {
+                reply = result[0].snippet || 'No hay descripción, pero te lo resumo al toque.';
+            }
+
+            reply = reply.length > 200 ? `${reply.slice(0, 197)}...` : reply;
+
+            embed = createEmbed('#FF1493', `📜 Dato sobre "${args}" pa’ ${userName}`, 
+                `Che ${userName}, acá va algo zarpado:\n\n${reply}\n\n` +
+                `*Lo saqué de la web, posta.* ¡Sos una máquina pidiendo datos, loco! ¿Querés otro?`)
+                .setFooter({ text: `Con cariño, Oliver IA | Reacciona con ✅ o ❌`, iconURL: client.user.avatarURL() });
         }
 
-        // Corto a 200 caracteres pa’ que entre en el embed
-        reply = reply.length > 200 ? `${reply.slice(0, 197)}...` : reply;
-
-        // Embed dorado con el dato
-        const embed = createEmbed('#FF1493', `📜 Dato sobre "${args}"`, 
-            `${reply}\n\n*Lo saqué de la web, che.*`);
         await waitingMessage.edit({ embeds: [embed] });
     } catch (error) {
-        // Si falla, te aviso en rojo
-        console.error(`Error buscando "${args}": ${error.message}`);
+        console.error(`Error buscando "${args || 'dato random'}": ${error.message}`);
         const errorEmbed = createEmbed('#FF1493', '¡Qué cagada!', 
-            `No pude encontrar nada sobre "${args}", ${userName}. ¿Probamos con otra cosa, loco?`);
+            `No pude encontrar nada${args ? ` sobre "${args}"` : ''}, ${userName}. ¿Probamos con otra cosa, loco?`);
         await waitingMessage.edit({ embeds: [errorEmbed] });
     }
 }
@@ -3700,17 +3780,34 @@ manager.on('trackStart', async (player, track) => {
 
 manager.on('trackEnd', (player, track) => {
     const intervalo = player.get('progressInterval');
+    const progressMessage = player.get('progressMessage');
+    const userName = track.requester.id === OWNER_ID ? 'Miguel' : 'Belén';
 
-    // Limpiamos el intervalo para que no siga actualizando
+    // Actualizamos el embed al 100%
+    if (progressMessage && track) {
+        const durationStr = `${Math.floor(track.duration / 60000)}:${((track.duration % 60000) / 1000).toFixed(0).padStart(2, '0')}`;
+        const bossBar = crearBossBar(track.duration, track.duration); // Barra llena
+
+        const finalEmbed = createEmbed('#FF1493', `🎶 Tema terminado pa’ ${userName}`, '¡Ya fue, che!')
+            .addFields(
+                { name: '⏹️ Terminado', value: `**${track.title}**`, inline: false },
+                { name: '⏳ Duración', value: durationStr, inline: true },
+                { name: '📊 Progreso', value: `${bossBar} ${durationStr} / ${durationStr}`, inline: true }
+            )
+            .setThumbnail(track.thumbnail || 'https://i.imgur.com/defaultThumbnail.png')
+            .setFooter({ text: `Oliver IA - Música con onda | Pedido por ${userName}`, iconURL: client.user.avatarURL() })
+            .setTimestamp();
+
+        progressMessage.edit({ embeds: [finalEmbed] }).catch(err => console.error('Error editando embed final:', err));
+    }
+
     if (intervalo) {
         clearInterval(intervalo);
         player.set('progressInterval', null);
     }
 
-    // No borramos el progressMessage, lo dejamos en el canal
-    player.set('progressMessage', null); // Solo limpiamos la referencia para la próxima pista
+    player.set('progressMessage', null);
 
-    // Guardamos el tema en el historial
     const guildId = player.guild;
     dataStore.musicSessions[guildId] = dataStore.musicSessions[guildId] || {};
     dataStore.musicSessions[guildId].history = dataStore.musicSessions[guildId].history || [];
@@ -3936,6 +4033,9 @@ async function manejarCommand(message) {
     }
     else if (content.startsWith('!avatar') || content.startsWith('!av')) {
         await manejarAvatar(message);
+    }
+    else if (content === 'chiste') {
+        return manejarChiste(message);
     }
     else if (content.startsWith('!ppt')) {
         if (message.mentions.users.size > 0) {
@@ -4188,6 +4288,7 @@ client.on('messageCreate', async (message) => {
             '- **!wiki [término]**: Busco un resumen en Wikipedia, ¡copado!\n' +
             '- **!traduci [frase] a [idioma]**: Traduzco frases cortas, joya pa’ practicar.\n' +
             '- **!an / !ansiedad**: Tips rápidos pa’ calmar la ansiedad, con un mensaje especial de Miguel pa’ darte pilas.\n' +
+            '- **!chiste**: Te tiro un chiste random pa’ sacarte una carcajada, ¡re copado!\n' + // Nuevo
             '- **!av / !avatar [URL o adjunto]**: Cambio mi foto de perfil.\n' + //Nuevo
             '- **!jugar**: Adivina un número del 1 al 10, ¡5 intentos pa’ ganarme, loco!\n' + // Nuevo
             '- **!meme**: Te tiro un meme random pa’ sacarte una sonrisa.\n' +             // Nuevo
