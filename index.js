@@ -1665,14 +1665,13 @@ async function loadDataStore() {
             reactionWins: {}, 
             activeSessions: {}, 
             triviaStats: {},
-            musicSessions: {}, // Asegurado en caso de JSON vacío
+            musicSessions: {},
+            recordatorios: [], // Aseguramos que esté en el esquema por defecto
             updatesSent: false
         };
-        // Asegurar que musicSessions esté presente incluso si no está en el JSON cargado
-        if (!loadedData.musicSessions) {
-            loadedData.musicSessions = {};
-        }
-        console.log('Datos cargados desde GitHub con musicSessions asegurado');
+        if (!loadedData.musicSessions) loadedData.musicSessions = {};
+        if (!loadedData.recordatorios) loadedData.recordatorios = [];
+        console.log('Datos cargados desde GitHub con musicSessions y recordatorios asegurados');
         return loadedData;
     } catch (error) {
         console.error('Error al cargar datos desde GitHub:', error.message);
@@ -1684,7 +1683,8 @@ async function loadDataStore() {
             reactionWins: {}, 
             activeSessions: {}, 
             triviaStats: {},
-            musicSessions: {}, // Asegurado en caso de error
+            musicSessions: {},
+            recordatorios: [], // Aseguramos que esté en el esquema por defecto
             updatesSent: false
         };
     }
@@ -2606,7 +2606,7 @@ async function manejarRecordatorio(message) {
     const recordatorio = {
         id,
         userId: message.author.id,
-        channelId: message.channel.id, // Puedes mantener esto si necesitas referencia al canal original
+        channelId: message.channel.id,
         mensaje,
         timestamp: fechaObjetivo.getTime(),
         creado: new Date().getTime()
@@ -2617,28 +2617,45 @@ async function manejarRecordatorio(message) {
     const diferencia = fechaObjetivo.getTime() - Date.now();
     const fechaStr = fechaObjetivo.toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' });
 
+    console.log(`Recordatorio seteado: "${mensaje}" para ${userName} (ID: ${id}) el ${fechaStr}`);
+
     // Confirmación en el canal original
     await sendSuccess(message.channel, '⏰ ¡Recordatorio seteado!', 
         `Te aviso "${mensaje}" el ${fechaStr} por DM, ${userName}. ¡No te duermas, loco!`);
 
-    // Enviar el recordatorio por DM
-    if (diferencia < 24 * 60 * 60 * 1000) {
-        setTimeout(async () => {
-            try {
-                // Obtener el usuario y enviar el mensaje por DM
-                const usuario = await client.users.fetch(recordatorio.userId);
-                if (usuario) {
-                    await usuario.send({ embeds: [createEmbed('#FF1493', '⏰ ¡Recordatorio, loco!', 
-                        `<@${recordatorio.userId}>, acordate de: **${recordatorio.mensaje}**. ¡Ya es hora, ${userName}!`)] });
-                }
-            } catch (error) {
-                console.error(`No pude enviar DM al usuario ${recordatorio.userId}: ${error}`);
-            }
-            // Limpiar el recordatorio de la lista
-            dataStore.recordatorios = dataStore.recordatorios.filter(r => r.id !== id);
-            dataStoreModified = true;
-        }, diferencia);
+    // Programar el recordatorio
+    programarRecordatorio(recordatorio);
+}
+
+// Nueva función para programar recordatorios
+function programarRecordatorio(recordatorio) {
+    const diferencia = recordatorio.timestamp - Date.now();
+    const userName = recordatorio.userId === OWNER_ID ? 'Miguel' : 'Belén';
+
+    if (diferencia <= 0) {
+        console.log(`Recordatorio "${recordatorio.mensaje}" (ID: ${recordatorio.id}) ya venció, no se programa.`);
+        dataStore.recordatorios = dataStore.recordatorios.filter(r => r.id !== recordatorio.id);
+        dataStoreModified = true;
+        return;
     }
+
+    console.log(`Programando recordatorio "${recordatorio.mensaje}" (ID: ${recordatorio.id}) en ${diferencia / 1000} segundos.`);
+
+    setTimeout(async () => {
+        try {
+            const usuario = await client.users.fetch(recordatorio.userId);
+            if (usuario) {
+                await usuario.send({ embeds: [createEmbed('#FF1493', '⏰ ¡Recordatorio, loco!', 
+                    `<@${recordatorio.userId}>, acordate de: **${recordatorio.mensaje}**. ¡Ya es hora, ${userName}!`)] });
+                console.log(`Recordatorio enviado a ${userName}: "${recordatorio.mensaje}" (ID: ${recordatorio.id})`);
+            }
+        } catch (error) {
+            console.error(`No pude enviar DM al usuario ${recordatorio.userId}: ${error.message}`);
+        }
+        // Limpiar el recordatorio de la lista
+        dataStore.recordatorios = dataStore.recordatorios.filter(r => r.id !== recordatorio.id);
+        dataStoreModified = true;
+    }, diferencia);
 }
 
 // Responder
@@ -4327,6 +4344,24 @@ client.once('ready', async () => {
     console.log(`¡Miguel IA está listo! Instancia: ${instanceId} - ${new Date().toLocaleString('es-AR')}`);
     client.user.setPresence({ activities: [{ name: "Listo para ayudar a Milagros", type: 0 }], status: 'dnd' });
     dataStore = await loadDataStore();
+
+    // Restaurar recordatorios
+    if (dataStore.recordatorios && dataStore.recordatorios.length > 0) {
+        console.log(`Restaurando ${dataStore.recordatorios.length} recordatorios...`);
+        dataStore.recordatorios.forEach(recordatorio => {
+            const ahora = Date.now();
+            if (recordatorio.timestamp > ahora) {
+                programarRecordatorio(recordatorio);
+            } else {
+                console.log(`Eliminando recordatorio vencido: "${recordatorio.mensaje}" (ID: ${recordatorio.id})`);
+                dataStore.recordatorios = dataStore.recordatorios.filter(r => r.id !== recordatorio.id);
+                dataStoreModified = true;
+            }
+        });
+    } else {
+        console.log('No hay recordatorios para restaurar.');
+    }
+    
     activeTrivia = new Map(Object.entries(dataStore.activeSessions).filter(([_, s]) => s.type === 'trivia'));
     manager.init(client.user.id);
     if (!dataStore.musicSessions) {
@@ -4563,20 +4598,3 @@ client.on('raw', (d) => {
 });
 
 client.login(process.env.DISCORD_TOKEN);
-setInterval(() => {
-    const ahora = Date.now();
-    dataStore.recordatorios = dataStore.recordatorios || [];
-    dataStore.recordatorios.forEach(async (recordatorio, index) => {
-        if (ahora >= recordatorio.timestamp) {
-            const canal = client.channels.cache.get(recordatorio.channelId);
-            const userName = recordatorio.userId === OWNER_ID ? 'Miguel' : 'Belén';
-            if (canal) {
-                await canal.send({ embeds: [createEmbed('#FF1493', '⏰ ¡Recordatorio, loco!', 
-                    `<@${recordatorio.userId}>, acordate de: **${recordatorio.mensaje}**. ¡Ya es hora, ${userName}!`)] });
-            }
-            // Borramos el recordatorio
-            dataStore.recordatorios.splice(index, 1);
-            dataStoreModified = true;
-        }
-    });
-}, 60000); // Chequea cada minuto
