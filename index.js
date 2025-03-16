@@ -100,7 +100,10 @@ const BOT_UPDATES = [
     '¡Datos randoms en !dato! Ahora si no le das argumentos, te tira un dato curioso al azar con onda, ¡re copado pa’ sorprenderte, loco!',
     '¡Nuevo !chiste agregado! Usá !chiste y te tiro un chiste random pa’ que te rías a lo grande, ¡posta que la rompés, che!',
     '¡Nuevo !adivinanza / !ad agregado! Te tiro adivinanzas copadas pa’ que le des al coco, con 30 segundos pa’ responder, ¡dale, genia!',
-    '¡Ranking con adivinanzas! Ahora en !rk se ven tus aciertos y porcentaje en adivinanzas, pa’ que veas quién la rompe más, ¡posta!'
+    '¡Ranking con adivinanzas! Ahora en !rk se ven tus aciertos y porcentaje en adivinanzas, pa’ que veas quién la rompe más, ¡posta!',
+    '¡Recordatorios a full! Ahora con !rec podés setear recordatorios diarios tipo "!rec \'tomar mate\' todos los días 08:00", ¡posta que no me olvido, che!',
+    '¡Lista de recordatorios con !misrecordatorios / !mr! Mirá tus recordatorios activos al toque, re útil pa’ no perderte nada, loco.',
+    '¡Cancelación de recordatorios con !cancelarrecordatorio / !cr! Borra un recordatorio con su ID (lo ves en !mr), ¡al toque y sin drama, ${userName}!'
 ];
 
 const opcionesPPT = ['piedra', 'papel', 'tijera'];
@@ -3247,6 +3250,7 @@ async function manejarAvatar(message) {
 function parsearTiempo(texto) {
     const ahora = new Date();
     let fechaObjetivo = new Date(ahora);
+    let esRecurrente = false;
 
     // Expresiones regulares pa’ capturar el tiempo
     const enMinutos = texto.match(/en (\d+) minuto(s)?/i);
@@ -3254,6 +3258,7 @@ function parsearTiempo(texto) {
     const enDias = texto.match(/en (\d+) día(s)?/i);
     const mañana = texto.match(/mañana (?:a las )?(\d{1,2}):(\d{2})/i);
     const fechaEspecifica = texto.match(/(\d{1,2})\/(\d{1,2})(?: a las (\d{1,2}):(\d{2}))?/i);
+    const todosLosDias = texto.match(/todos los días (?:a las )?(\d{1,2}):(\d{2})/i);
 
     if (enMinutos) {
         fechaObjetivo.setMinutes(ahora.getMinutes() + parseInt(enMinutos[1]));
@@ -3270,11 +3275,25 @@ function parsearTiempo(texto) {
         const hora = fechaEspecifica[3] ? parseInt(fechaEspecifica[3]) : 0;
         const minutos = fechaEspecifica[4] ? parseInt(fechaEspecifica[4]) : 0;
         fechaObjetivo = new Date(ahora.getFullYear(), mes, dia, hora, minutos);
+    } else if (todosLosDias) {
+        esRecurrente = true;
+        const hora = parseInt(todosLosDias[1]);
+        const minutos = parseInt(todosLosDias[2]);
+        fechaObjetivo.setHours(hora, minutos, 0, 0);
+        // Si la hora ya pasó hoy, lo ponemos para mañana
+        if (fechaObjetivo.getTime() <= ahora.getTime()) {
+            fechaObjetivo.setDate(ahora.getDate() + 1);
+        }
     } else {
         return null; // Si no entiende, devolvemos null
     }
 
-    return fechaObjetivo.getTime() > ahora.getTime() ? fechaObjetivo : null; // Solo futuro
+    return {
+        timestamp: fechaObjetivo.getTime() > ahora.getTime() ? fechaObjetivo.getTime() : null,
+        esRecurrente: esRecurrente,
+        hora: esRecurrente ? fechaObjetivo.getHours() : null,
+        minutos: esRecurrente ? fechaObjetivo.getMinutes() : null
+    };
 }
 
 async function manejarRecordatorio(message) {
@@ -3290,22 +3309,23 @@ async function manejarRecordatorio(message) {
         if (
             palabras[i].toLowerCase() === 'en' ||
             palabras[i].toLowerCase() === 'mañana' ||
-            palabras[i].match(/\d{1,2}\/\d{1,2}/)
+            palabras[i].match(/\d{1,2}\/\d{1,2}/) ||
+            palabras[i].toLowerCase() === 'todos'
         ) {
             tiempoIndex = i;
             break;
         }
     }
 
-    if (tiempoIndex === -1) return sendError(message.channel, `No entendí el tiempo, ${userName}. Usá "en 5 minutos", "mañana 15:00" o "20/03 14:30".`);
+    if (tiempoIndex === -1) return sendError(message.channel, `No entendí el tiempo, ${userName}. Usá "en 5 minutos", "mañana 15:00", "20/03 14:30" o "todos los días 08:00".`);
 
     const mensaje = palabras.slice(0, tiempoIndex).join(' ').trim();
     const tiempoTexto = palabras.slice(tiempoIndex).join(' ').trim();
 
     if (!mensaje) return sendError(message.channel, `¡Decime qué recordar, ${userName}! Ejemplo: "!rec comprar sanguche de miga en 1 hora".`);
 
-    const fechaObjetivo = parsearTiempo(tiempoTexto);
-    if (!fechaObjetivo) return sendError(message.channel, `No entendí el tiempo, ${userName}. Usá "en 5 minutos", "en 1 hora", "mañana 15:00" o "20/03 14:30".`);
+    const tiempo = parsearTiempo(tiempoTexto);
+    if (!tiempo || (!tiempo.timestamp && !tiempo.esRecurrente)) return sendError(message.channel, `No entendí el tiempo, ${userName}. Usá "en 5 minutos", "en 1 hora", "mañana 15:00", "20/03 14:30" o "todos los días 08:00".`);
 
     // Guardamos el recordatorio en memoria
     dataStore.recordatorios = dataStore.recordatorios || [];
@@ -3315,28 +3335,32 @@ async function manejarRecordatorio(message) {
         userId: message.author.id,
         channelId: message.channel.id,
         mensaje,
-        timestamp: fechaObjetivo.getTime(),
-        creado: new Date().getTime()
+        timestamp: tiempo.timestamp,
+        creado: new Date().getTime(),
+        esRecurrente: tiempo.esRecurrente || false,
+        hora: tiempo.hora,
+        minutos: tiempo.minutos
     };
     dataStore.recordatorios.push(recordatorio);
     dataStoreModified = true;
 
-    const diferencia = fechaObjetivo.getTime() - Date.now();
-    const fechaStr = fechaObjetivo.toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' });
+    const diferencia = tiempo.timestamp ? tiempo.timestamp - Date.now() : null;
+    const fechaStr = tiempo.esRecurrente 
+        ? `todos los días a las ${tiempo.hora.toString().padStart(2, '0')}:${tiempo.minutos.toString().padStart(2, '0')}` 
+        : new Date(tiempo.timestamp).toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' });
 
-    console.log(`Recordatorio seteado: "${mensaje}" para ${userName} (ID: ${id}) el ${fechaStr}`);
+    console.log(`Recordatorio seteado: "${mensaje}" para ${userName} (ID: ${id}) ${fechaStr}`);
 
-    // Chequeamos si hay música activa
     const musicActive = manager.players.size > 0;
-    let guardadoMsg = '';
+    let guardadoMsg = musicActive 
+        ? `\n⚠️ Hay música sonando, así que no guardo ahora pa’ no cortar el vibe. Se guarda en 30 min (autosave) o cuando pare la música.` 
+        : '';
 
-    if (musicActive) {
-        guardadoMsg = `\n⚠️ Hay música sonando, así que no guardo ahora pa’ no cortar el vibe. Se guarda en 30 min (autosave) o cuando pare la música. Si reinicio antes, se pierde, loco.`;
-    } else {
+    if (!musicActive) {
         try {
             await saveDataStore();
             console.log(`Datos guardados en GitHub tras setear recordatorio para ${userName}`);
-            dataStoreModified = false; // Reseteamos el flag después de guardar
+            dataStoreModified = false;
             guardadoMsg = `\n💾 Guardado en GitHub al toque, ¡tranqui!`;
         } catch (error) {
             console.error(`Error al guardar recordatorio en GitHub: ${error.message}`);
@@ -3344,9 +3368,8 @@ async function manejarRecordatorio(message) {
         }
     }
 
-    // Confirmación en el canal original
     await sendSuccess(message.channel, '⏰ ¡Recordatorio seteado!', 
-        `Te aviso "${mensaje}" el ${fechaStr} por DM, ${userName}. ¡No te duermas, loco!${guardadoMsg}`);
+        `Te aviso "${mensaje}" ${fechaStr} por DM, ${userName}. ¡No te duermas, loco!${guardadoMsg}`);
 
     // Programar el recordatorio
     programarRecordatorio(recordatorio);
@@ -3354,16 +3377,19 @@ async function manejarRecordatorio(message) {
 
 // Nueva función para programar recordatorios
 function programarRecordatorio(recordatorio) {
-    const diferencia = recordatorio.timestamp - Date.now();
     const userName = recordatorio.userId === OWNER_ID ? 'Miguel' : 'Belén';
+    const ahora = Date.now();
 
-    if (diferencia <= 0) {
-        console.log(`Recordatorio "${recordatorio.mensaje}" (ID: ${recordatorio.id}) ya venció, no se programa.`);
-        dataStore.recordatorios = dataStore.recordatorios.filter(r => r.id !== recordatorio.id);
-        dataStoreModified = true;
+    if (!recordatorio.timestamp || recordatorio.timestamp <= ahora) {
+        console.log(`Recordatorio "${recordatorio.mensaje}" (ID: ${recordatorio.id}) ya venció o no tiene timestamp, no se programa.`);
+        if (!recordatorio.esRecurrente) {
+            dataStore.recordatorios = dataStore.recordatorios.filter(r => r.id !== recordatorio.id);
+            dataStoreModified = true;
+        }
         return;
     }
 
+    const diferencia = recordatorio.timestamp - ahora;
     console.log(`Programando recordatorio "${recordatorio.mensaje}" (ID: ${recordatorio.id}) en ${diferencia / 1000} segundos.`);
 
     setTimeout(async () => {
@@ -3377,10 +3403,64 @@ function programarRecordatorio(recordatorio) {
         } catch (error) {
             console.error(`No pude enviar DM al usuario ${recordatorio.userId}: ${error.message}`);
         }
-        // Limpiar el recordatorio de la lista
-        dataStore.recordatorios = dataStore.recordatorios.filter(r => r.id !== recordatorio.id);
-        dataStoreModified = true;
+
+        if (recordatorio.esRecurrente) {
+            // Si es recurrente, reprogramamos para el próximo día
+            const nuevoTimestamp = new Date();
+            nuevoTimestamp.setDate(nuevoTimestamp.getDate() + 1);
+            nuevoTimestamp.setHours(recordatorio.hora, recordatorio.minutos, 0, 0);
+            recordatorio.timestamp = nuevoTimestamp.getTime();
+            console.log(`Recordatorio recurrente reprogramado: "${recordatorio.mensaje}" (ID: ${recordatorio.id}) para ${nuevoTimestamp.toLocaleString('es-AR')}`);
+            dataStoreModified = true;
+            programarRecordatorio(recordatorio); // Reprogramamos
+        } else {
+            // Si no es recurrente, lo eliminamos
+            dataStore.recordatorios = dataStore.recordatorios.filter(r => r.id !== recordatorio.id);
+            dataStoreModified = true;
+        }
     }, diferencia);
+}
+
+async function manejarMisRecordatorios(message) {
+    const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
+    const userRecordatorios = dataStore.recordatorios.filter(r => r.userId === message.author.id);
+
+    if (userRecordatorios.length === 0) {
+        return sendError(message.channel, `No tenés recordatorios activos, ${userName}.`, 
+            '¡Seteá uno con !rec, loco!');
+    }
+
+    const embed = createEmbed('#FF1493', `¡Tus recordatorios, ${userName}!`, 
+        'Acá tenés la lista de lo que te tengo que recordar, ¡tranqui que no me olvido!');
+    userRecordatorios.forEach((r, index) => {
+        const fechaStr = r.esRecurrente 
+            ? `todos los días a las ${r.hora.toString().padStart(2, '0')}:${r.minutos.toString().padStart(2, '0')}` 
+            : new Date(r.timestamp).toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' });
+        embed.addFields({
+            name: `${index + 1}. ${r.mensaje}`,
+            value: `Cuándo: ${fechaStr}\nID: ${r.id}`,
+            inline: false
+        });
+    });
+
+    await message.channel.send({ embeds: [embed] });
+}
+
+async function manejarCancelarRecordatorio(message) {
+    const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
+    const args = message.content.split(' ').slice(1).join(' ').trim();
+
+    if (!args) return sendError(message.channel, `¡Mandame el ID del recordatorio, ${userName}! Ejemplo: "!cancelarrecordatorio 123e4567".`);
+
+    const recordatorio = dataStore.recordatorios.find(r => r.id === args && r.userId === message.author.id);
+    if (!recordatorio) return sendError(message.channel, `No encontré un recordatorio con ID "${args}", ${userName}.`, 
+        '¡Mirá tus recordatorios con !misrecordatorios!');
+
+    dataStore.recordatorios = dataStore.recordatorios.filter(r => r.id !== args);
+    dataStoreModified = true;
+
+    await sendSuccess(message.channel, '🛑 ¡Recordatorio cancelado!', 
+        `Listo, ${userName}, borré el recordatorio "${recordatorio.mensaje}". ¿Algo más pa’ setear con !rec?`);
 }
 
 // Responder
@@ -3960,226 +4040,186 @@ async function manejarChiste(message) {
     const waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
 
     // Lista de chistes randoms con onda
-    const chistes = [
-        {
-            setup: '¿Qué hace un perro con un taladro?',
-            punchline: '¡Taladrando! Ja, ${userName}, ¡un clásico pa’ vos que sos un crack!'
-        },
-        {
-            setup: '¿Por qué los pájaros no usan WhatsApp?',
-            punchline: 'Porque ya tienen Twitter, loco. ¡A vos te va más el Discord, ${userName}!'
-        },
-        {
-            setup: '¿Qué le dice una iguana a su hermana gemela?',
-            punchline: '¡Iguanita vos, che! Igual de gros${userName === "Miguel" ? "o" : "a"} que vos, ${userName}.'
-        },
-        {
-            setup: '¿Cómo se despiden los químicos?',
-            punchline: 'Ácido un placer, ${userName}. ¡Sos ácido de lo lindo, loco!'
-        },
-        {
-            setup: '¿Qué hace una abeja en el gimnasio?',
-            punchline: '¡Zum-ba! Ja, ${userName}, vos zumbás de pura energía, che.'
-        },
-        {
-            setup: '¿Qué le dice un guayaco al arroz con menestra cuando está caro?',
-            punchline: '¡Tranquilo, ñaño, no te me pongas tan saladito! Vos sí que zumbás caro, ${userName}, ja.'
-        },
-        {
-            setup: '¿Por qué el man de Guayaquil no usa reloj?',
-            punchline: 'Porque vive en la hora guayaca, ¡cuando le da la gana, pues! Igual que vos, ${userName}, un crack pa’ la pachanga.'
-        },
-        {
-            setup: '¿Qué hace un guayaco cuando le cortan la luz?',
-            punchline: '¡Saca la vela y arma el vacile en la vereda! Vos también sos pura energía, ${userName}, che.'
-        },
-        {
-            setup: '¿Cómo llama un guayaco al tráfico de la 9 de Octubre?',
-            punchline: '¡Un vacilón de carros, pana! Igual de loco que vos cuando te embalás, ${userName}.'
-        },
-        {
-            setup: '¿Qué le dice el guayaco al calor de Guayaquil?',
-            punchline: '¡Ya, pelado, no me achicharrés más que ya estoy frito! Como vos, ${userName}, siempre al rojo vivo.'
-        },
-        { setup: '¿Qué le dice un guayaco al arroz con menestra cuando está caro?', punchline: '¡Tranquilo, ñaño, no te me pongas tan saladito! Vos sí que zumbás caro, ${userName}, ja.' },
-        { setup: '¿Por qué el man de Guayaquil no usa reloj?', punchline: 'Porque vive en la hora guayaca, ¡cuando le da la gana, pues! Igual que vos, ${userName}, un crack pa’ la pachanga.' },
-        { setup: '¿Qué hace un guayaco cuando le cortan la luz?', punchline: '¡Saca la vela y arma el vacile en la vereda! Vos también sos pura energía, ${userName}, che.' },
-        { setup: '¿Cómo llama un guayaco al tráfico de la 9 de Octubre?', punchline: '¡Un vacilón de carros, pana! Igual de loco que vos cuando te embalás, ${userName}.' },
-        { setup: '¿Qué le dice el guayaco al calor de Guayaquil?', punchline: '¡Ya, pana, no me achicharrés más que ya estoy frito! Como vos, ${userName}, siempre a full.' },
-        { setup: '¿Por qué el guayaco no se pierde en el Malecón?', punchline: '¡Porque siempre encuentra una chela pa’ guiarse, ñaño! Vos también tenés ese olfato, ${userName}.' },
-        { setup: '¿Qué hace un guayaco con un bolón quemado?', punchline: '¡Lo bautiza “carbón con queso” y se lo come igual! Vos sos igual de ingenios${userName === "Miguel" ? "o" : "a"}, ${userName}.' },
-        { setup: '¿Cómo pide un guayaco un aventón?', punchline: '¡“Llévame, pana, que estoy en la lona!” Igual que vos, ${userName}, siempre sacando el jugo.' },
-        { setup: '¿Qué le dice un guayaco al taxista que va lento?', punchline: '¡“Métele pata, man, que no estamos en procesión!” Vos sí que zumbás rápido, ${userName}.' },
-        { setup: '¿Por qué el guayaco no le tiene miedo al apagón?', punchline: '¡Porque tiene más pilas que linterna vieja! Igual que vos, ${userName}, siempre prendid${userName === "Miguel" ? "o" : "a"}.' },
-    
-        // 11-20
-        { setup: '¿Qué hace un guayaco cuando le suben el pasaje?', punchline: '¡“Mejor camino, ñaño, que esto está más saladito que encebollado!” Vos también sos vivo, ${userName}.' },
-        { setup: '¿Cómo sabe un guayaco que ya llegó el verano?', punchline: '¡Porque el sudor le hace olas en la frente! Igual que vos, ${userName}, puro calor.' },
-        { setup: '¿Qué le dice un guayaco al ventilador en julio?', punchline: '¡“Dale más duro, pana, que me estoy derritiendo!” Vos también sos un fenómeno, ${userName}.' },
-        { setup: '¿Por qué el guayaco no se preocupa por la lluvia?', punchline: '¡Porque ya está acostumbrado a nadar en el estero! Como vos, ${userName}, siempre a flote.' },
-        { setup: '¿Qué hace un guayaco cuando ve un billete en la calle?', punchline: '¡Lo agarra más rápido que iguana en bajada! Vos también tenés ese ojo, ${userName}.' },
-        { setup: '¿Cómo saluda un guayaco a su pana en el mercado?', punchline: '¡“Qué más, ñaño, cómo está el pescado hoy?” Igual que vos, ${userName}, siempre al día.' },
-        { setup: '¿Qué le dice un guayaco a la sopa fría?', punchline: '¡“Calentate, man, que no sos jugo!” Vos sí que traés calor, ${userName}.' },
-        { setup: '¿Por qué el guayaco no usa GPS?', punchline: '¡Porque se guía por el olor a fritada! Igual que vos, ${userName}, puro instinto.' },
-        { setup: '¿Qué hace un guayaco cuando se queda sin saldo?', punchline: '¡Le manda un “llámame” al pana más rápido que rayo! Vos también sos rapid${userName === "Miguel" ? "o" : "a"}, ${userName}.' },
-        { setup: '¿Cómo llama un guayaco a un día sin chelas?', punchline: '¡“Un día más seco que playa de Salinas!” Vos no dejás que pase eso, ${userName}, ja.' },
-    
-        // 21-30
-        { setup: '¿Qué le dice un guayaco al bus que no para?', punchline: '¡“Para, ñaño, que no soy Usain Bolt!” Igual que vos, ${userName}, siempre corriendo.' },
-        { setup: '¿Por qué el guayaco no se asusta del calor?', punchline: '¡Porque ya es amigo del sol desde chiquito! Como vos, ${userName}, puro fuego.' },
-        { setup: '¿Qué hace un guayaco con una bandera sin salsa?', punchline: '¡La devuelve y pide que le pongan actitud! Vos también tenés sabor, ${userName}.' },
-        { setup: '¿Cómo sabe un guayaco que el encebollado es bueno?', punchline: '¡Porque el ojo se le pone rojo de felicidad! Igual que vos, ${userName}, un crack.' },
-        { setup: '¿Qué le dice un guayaco al que pide prestado?', punchline: '¡“Devuelve, pana, que no soy banco!” Vos sos igual de clar${userName === "Miguel" ? "o" : "a"}, ${userName}.' },
-        { setup: '¿Por qué el guayaco no le teme a la Metrovía llena?', punchline: '¡Porque se cuelga del tubo como mono en liana! Igual que vos, ${userName}, puro talento.' },
-        { setup: '¿Qué hace un guayaco cuando le dan mal el cambio?', punchline: '¡“Ojo, ñaño, que no nací ayer!” Vos también tenés calle, ${userName}.' },
-        { setup: '¿Cómo llama un guayaco a un día sin sol?', punchline: '¡“Un milagro en Guayaquil, pana!” Igual que vos, ${userName}, una rareza copada.' },
-        { setup: '¿Qué le dice un guayaco al pana que no llega?', punchline: '¡“Apúrate, man, que la chela se calienta!” Vos sí que sos puntual, ${userName}.' },
-        { setup: '¿Por qué el guayaco no se rinde en el vacile?', punchline: '¡Porque lleva el ritmo en la sangre como tambor! Igual que vos, ${userName}, puro flow.' },
-    
-        // 31-40
-        { setup: '¿Qué hace un guayaco cuando se quema la lengua?', punchline: '¡“Este encebollado está que pica, ñaño!” Vos también sos fuertecito, ${userName}.' },
-        { setup: '¿Cómo sabe un guayaco que el partido es bueno?', punchline: '¡Porque grita más que vendedor de coco! Igual que vos, ${userName}, pura pasión.' },
-        { setup: '¿Qué le dice un guayaco al que le debe plata?', punchline: '¡“Calma, pana, que ya viene el vuelto!” Vos sos más confiable, ${userName}.' },
-        { setup: '¿Por qué el guayaco no se pierde en el mercado?', punchline: '¡Porque huele la fritada a dos cuadras! Igual que vos, ${userName}, puro olfato.' },
-        { setup: '¿Qué hace un guayaco con un dólar arrugado?', punchline: '¡Lo estira como si fuera plancha! Vos también sacás provecho, ${userName}.' },
-        { setup: '¿Cómo llama un guayaco al que habla mucho?', punchline: '¡“El loro del barrio, ñaño!” Vos sos más tranqui, ${userName}, ja.' },
-        { setup: '¿Qué le dice un guayaco al que no baila?', punchline: '¡“Movete, man, que no sos estatua del Malecón!” Igual que vos, ${userName}, puro ritmo.' },
-        { setup: '¿Por qué el guayaco no usa paraguas?', punchline: '¡Porque la lluvia es su ducha gratis! Vos también sos práctico, ${userName}.' },
-        { setup: '¿Qué hace un guayaco cuando le pica un mosquito?', punchline: '¡“Volá, pana, que esta sangre es mía!” Igual que vos, ${userName}, defendiendo lo tuyo.' },
-        { setup: '¿Cómo sabe un guayaco que llegó el viernes?', punchline: '¡Porque el vacile ya huele a chela y fritada! Vos también vivís el finde, ${userName}.' },
-    
-        // 41-50
-        { setup: '¿Qué le dice un guayaco al que no come bolón?', punchline: '¡“Estás perdiendo vida, ñaño!” Vos sí que aprovechás, ${userName}.' },
-        { setup: '¿Por qué el guayaco no se cansa del calor?', punchline: '¡Porque ya es socio del sudor! Igual que vos, ${userName}, puro aguante.' },
-        { setup: '¿Qué hace un guayaco cuando no hay luz en el partido?', punchline: '¡Saca el celular y grita desde la tribuna! Vos también sos recursiv${userName === "Miguel" ? "o" : "a"}, ${userName}.' },
-        { setup: '¿Cómo llama un guayaco al que llega tarde?', punchline: '¡“El rey de la hora guayaca, pana!” Vos sos más rapid${userName === "Miguel" ? "o" : "a"}, ${userName}.' },
-        { setup: '¿Qué le dice un guayaco al pana sin plata?', punchline: '¡“Tranquilo, ñaño, yo invito esta ronda!” Igual que vos, ${userName}, un capo.' },
-        { setup: '¿Por qué el guayaco no le teme al estero?', punchline: '¡Porque nada mejor que pez en el agua! Como vos, ${userName}, siempre a flote.' },
-        { setup: '¿Qué hace un guayaco con un mango verde?', punchline: '¡Lo corta con sal y se lo come feliz! Vos también tenés ese toque, ${userName}.' },
-        { setup: '¿Cómo sabe un guayaco que el ceviche es fresco?', punchline: '¡Porque el limón le hace cosquillas! Igual que vos, ${userName}, puro sabor.' },
-        { setup: '¿Qué le dice un guayaco al que no toma chela?', punchline: '¡“Viví un poco, man, que no muerde!” Vos sí que sabés disfrutar, ${userName}.' },
-        { setup: '¿Por qué el guayaco no usa aire acondicionado?', punchline: '¡Porque el ventilador es su pana de ley! Igual que vos, ${userName}, simple y efectivo.' },
-    
-        // 51-60
-        { setup: '¿Qué hace un guayaco cuando el bus está lleno?', punchline: '¡Se cuelga de la puerta como héroe! Vos también sos valiente, ${userName}.' },
-        { setup: '¿Cómo llama un guayaco al que no come encebollado?', punchline: '¡“Un turista perdido, ñaño!” Vos sos de pura cepa, ${userName}.' },
-        { setup: '¿Qué le dice un guayaco al sol a las 2 de la tarde?', punchline: '¡“Bajale el tono, pana, que estoy sudando tinta!” Igual que vos, ${userName}, puro calor.' },
-        { setup: '¿Por qué el guayaco no se aburre en el tráfico?', punchline: '¡Porque pone reggaetón y arma el vacile! Como vos, ${userName}, siempre con onda.' },
-        { setup: '¿Qué hace un guayaco con un coco caliente?', punchline: '¡Lo abre y le echa hielo pa’ sobrevivir! Vos también improvisás, ${userName}.' },
-        { setup: '¿Cómo sabe un guayaco que el partido está bravo?', punchline: '¡Porque hasta el árbitro suda de miedo! Igual que vos, ${userName}, puro nervio.' },
-        { setup: '¿Qué le dice un guayaco al pana que no llega al vacile?', punchline: '¡“Apúrate, man, que la fritada se enfría!” Vos sí que estás al toque, ${userName}.' },
-        { setup: '¿Por qué el guayaco no le teme a la subida del pasaje?', punchline: '¡Porque siempre tiene un pana que lo lleva! Igual que vos, ${userName}, bien conectad${userName === "Miguel" ? "o" : "a"}.' },
-        { setup: '¿Qué hace un guayaco cuando el equipo pierde?', punchline: '¡“La próxima, ñaño, que esto es puro amor!” Vos también sos fiel, ${userName}.' },
-        { setup: '¿Cómo llama un guayaco al que no sabe bailar salsa?', punchline: '¡“Un palo de mango, pana!” Vos tenés flow, ${userName}.' },
-    
-        // 61-70
-        { setup: '¿Qué le dice un guayaco al que le pide fiado?', punchline: '¡“Primero paga, man, que no soy ONG!” Vos sos más clar${userName === "Miguel" ? "o" : "a"}, ${userName}.' },
-        { setup: '¿Por qué el guayaco no se raja en el calor?', punchline: '¡Porque lleva el aire en la camisa abierta! Igual que vos, ${userName}, puro estilo.' },
-        { setup: '¿Qué hace un guayaco con una llanta pinchada?', punchline: '¡La empuja hasta el taller cantando! Vos también tenés actitud, ${userName}.' },
-        { setup: '¿Cómo sabe un guayaco que la fritada está lista?', punchline: '¡Porque el olor lo levanta de la cama! Igual que vos, ${userName}, puro instinto.' },
-        { setup: '¿Qué le dice un guayaco al que no come verde?', punchline: '¡“Estás negado pa’l bolón, ñaño!” Vos sí que le das, ${userName}.' },
-        { setup: '¿Por qué el guayaco no usa corbata?', punchline: '¡Porque el calor ya lo ahorca gratis! Como vos, ${userName}, siempre relajad${userName === "Miguel" ? "o" : "a"}.' },
-        { setup: '¿Qué hace un guayaco cuando no hay agua?', punchline: '¡Se baña con el sudor del día! Vos también sos sobreviviente, ${userName}.' },
-        { setup: '¿Cómo llama un guayaco al que no toma café?', punchline: '¡“Un zombie sin motor, pana!” Vos sí que tenés pila, ${userName}.' },
-        { setup: '¿Qué le dice un guayaco al que llega sin chela?', punchline: '¡“Traé algo, man, que no somos ONG!” Igual que vos, ${userName}, siempre aportás.' },
-        { setup: '¿Por qué el guayaco no se pierde en Las Peñas?', punchline: '¡Porque sigue el ritmo de la guitarra! Como vos, ${userName}, puro compás.' },
-    
-        // 71-80
-        { setup: '¿Qué hace un guayaco con un billete de 10 viejo?', punchline: '¡Lo usa pa’ abanicarse en el calor! Vos también improvisás, ${userName}.' },
-        { setup: '¿Cómo sabe un guayaco que el ceviche pica?', punchline: '¡Porque le hace saltar lágrimas de alegría! Igual que vos, ${userName}, puro sabor.' },
-        { setup: '¿Qué le dice un guayaco al pana que no corre?', punchline: '¡“Movete, ñaño, que el bus no espera!” Vos sí que zumbás, ${userName}.' },
-        { setup: '¿Por qué el guayaco no le teme al sol?', punchline: '¡Porque ya es negro como el café! Como vos, ${userName}, puro aguante.' },
-        { setup: '¿Qué hace un guayaco cuando el encebollado se acaba?', punchline: '¡“Otra ronda, pana, que esto es vida!” Vos también pedís más, ${userName}.' },
-        { setup: '¿Cómo llama un guayaco al que no canta en el vacile?', punchline: '¡“Un mute en la fiesta, man!” Vos tenés voz, ${userName}.' },
-        { setup: '¿Qué le dice un guayaco al que no come bandera?', punchline: '¡“Estás negado pa’ lo bueno, ñaño!” Vos sí que sabés, ${userName}.' },
-        { setup: '¿Por qué el guayaco no usa gorra?', punchline: '¡Porque el sol ya le tatuó la frente! Igual que vos, ${userName}, puro estilo.' },
-        { setup: '¿Qué hace un guayaco con un mango maduro?', punchline: '¡Lo chupa hasta el cuesco, pana! Vos también aprovechás, ${userName}.' },
-        { setup: '¿Cómo sabe un guayaco que el partido está bueno?', punchline: '¡Porque el grito se escucha hasta el estero! Igual que vos, ${userName}, pura pasión.' },
-    
-        // 81-90
-        { setup: '¿Qué le dice un guayaco al que no toma fresco?', punchline: '¡“Estás seco, man, hidratate con onda!” Vos sí que refrescás, ${userName}.' },
-        { setup: '¿Por qué el guayaco no se raja en el vacile?', punchline: '¡Porque lleva el tambor en el pecho! Como vos, ${userName}, puro ritmo.' },
-        { setup: '¿Qué hace un guayaco cuando no hay chela?', punchline: '¡Saca el agua con gas y le pone actitud! Vos también improvisás, ${userName}.' },
-        { setup: '¿Cómo llama un guayaco al que no come seco?', punchline: '¡“Un perdido en la Costa, ñaño!” Vos sos de ley, ${userName}.' },
-        { setup: '¿Qué le dice un guayaco al calor a mediodía?', punchline: '¡“Calma, pana, que ya estoy cocinado!” Igual que vos, ${userName}, puro fuego.' },
-        { setup: '¿Por qué el guayaco no usa reloj en el Malecón?', punchline: '¡Porque el tiempo lo marca la chela! Como vos, ${userName}, siempre en la onda.' },
-        { setup: '¿Qué hace un guayaco con un billete falso?', punchline: '¡Lo usa pa’ impresionar al pana! Vos sos más auténtic${userName === "Miguel" ? "o" : "a"}, ${userName}.' },
-        { setup: '¿Cómo sabe un guayaco que el bolón es casero?', punchline: '¡Porque lleva amor en cada mordida! Igual que vos, ${userName}, puro corazón.' },
-        { setup: '¿Qué le dice un guayaco al que no baila reggaetón?', punchline: '¡“Movete, man, que no sos poste!” Vos tenés swing, ${userName}.' },
-        { setup: '¿Por qué el guayaco no le teme a la lluvia fuerte?', punchline: '¡Porque ya sabe nadar desde el estero! Como vos, ${userName}, puro talento.' },
-    
-        // 91-100
-        { setup: '¿Qué hace un guayaco cuando le dan poco encebollado?', punchline: '¡“Echale más, ñaño, que no soy turista!” Vos también pedís lo justo, ${userName}.' },
-        { setup: '¿Cómo llama un guayaco al que no toma jugo?', punchline: '¡“Un seco sin remedio, pana!” Vos sos más refrescante, ${userName}.' },
-        { setup: '¿Qué le dice un guayaco al que llega sin fritada?', punchline: '¡“Traé algo, man, que esto no es buffet!” Igual que vos, ${userName}, siempre aportás.' },
-        { setup: '¿Por qué el guayaco no se quema con el sol?', punchline: '¡Porque ya es tostado de fábrica! Como vos, ${userName}, puro estilo.' },
-        { setup: '¿Qué hace un guayaco con un coco duro?', punchline: '¡Lo abre con machete y se lo toma orgulloso! Vos también tenés fuerza, ${userName}.' },
-        { setup: '¿Cómo sabe un guayaco que el partido es clásico?', punchline: '¡Porque el barrio entero tiembla de gritos! Igual que vos, ${userName}, pura pasión.' },
-        { setup: '¿Qué le dice un guayaco al que no come chifle?', punchline: '¡“Estás negado pa’ lo crocante, ñaño!” Vos sí que crujís, ${userName}.' },
-        { setup: '¿Por qué el guayaco no usa bufanda?', punchline: '¡Porque el calor ya lo abraza gratis! Igual que vos, ${userName}, puro calor humano.' },
-        { setup: '¿Qué hace un guayaco cuando el ventilador se apaga?', punchline: '¡Se abanica con la mano como campeón! Vos también sos recursiv${userName === "Miguel" ? "o" : "a"}, ${userName}.' },
-        { setup: '¿Cómo llama un guayaco al que no sabe el himno?', punchline: '¡“Un guayaco a media máquina, pana!” Vos sos complet${userName === "Miguel" ? "o" : "a"}, ${userName}.' },
-    
-        // 101-110
-        { setup: '¿Qué le dice un guayaco al que no come pescado?', punchline: '¡“Estás perdido en la Costa, ñaño!” Vos sí que tenés paladar, ${userName}.' },
-        { setup: '¿Por qué el guayaco no se raja en el calor?', punchline: '¡Porque ya es amigo del sudor desde siempre! Igual que vos, ${userName}, puro aguante.' },
-        { setup: '¿Qué hace un guayaco con una chela caliente?', punchline: '¡La enfría con hielo y le da vida! Vos también sabés arreglar todo, ${userName}.' },
-        { setup: '¿Cómo sabe un guayaco que el seco está listo?', punchline: '¡Porque el arroz le guiña el ojo! Igual que vos, ${userName}, puro ojo clínico.' },
-        { setup: '¿Qué le dice un guayaco al que no toma mate?', punchline: '¡“Probá, man, que esto es amistad!” Vos sí que compartís, ${userName}.' },
-        { setup: '¿Por qué el guayaco no usa despertador?', punchline: '¡Porque el sol lo levanta con un grito! Como vos, ${userName}, siempre al pie del cañón.' },
-        { setup: '¿Qué hace un guayaco cuando no hay fritada?', punchline: '¡Saca el verde y arma el bolón! Vos también improvisás, ${userName}.' },
-        { setup: '¿Cómo llama un guayaco al que no va al Malecón?', punchline: '¡“Un guayaco sin alma, pana!” Vos sos de pura cepa, ${userName}.' },
-        { setup: '¿Qué le dice un guayaco al que no come salsa?', punchline: '¡“Estás negado pa’l sabor, ñaño!” Vos sí que le ponés onda, ${userName}.' },
-        { setup: '¿Por qué el guayaco no se pierde en el estero?', punchline: '¡Porque nada como iguana en bajada! Igual que vos, ${userName}, puro talento.' },
-    
-        // 111-120
-        { setup: '¿Qué hace un guayaco con un billete roto?', punchline: '¡Lo pega con cinta y lo gasta feliz! Vos también sos ingenios${userName === "Miguel" ? "o" : "a"}, ${userName}.' },
-        { setup: '¿Cómo sabe un guayaco que el partido es bravo?', punchline: '¡Porque el grito se escucha hasta Samborondón! Igual que vos, ${userName}, pura pasión.' },
-        { setup: '¿Qué le dice un guayaco al que no toma fresco?', punchline: '¡“Estás seco, pana, refrescate con onda!” Vos sos más chévere, ${userName}.' },
-        { setup: '¿Por qué el guayaco no usa botas?', punchline: '¡Porque las chancletas son su ley! Como vos, ${userName}, puro estilo.' },
-        { setup: '¿Qué hace un guayaco cuando el ceviche no pica?', punchline: '¡Le echa ají pa’ que despierte! Vos también le ponés chispa, ${userName}.' },
-        { setup: '¿Cómo llama un guayaco al que no come bandera?', punchline: '¡“Un guayaco a dieta, ñaño!” Vos sí que le das, ${userName}.' },
-        { setup: '¿Qué le dice un guayaco al que no baila en el vacile?', punchline: '¡“Movete, man, que no sos palo!” Igual que vos, ${userName}, puro ritmo.' },
-        { setup: '¿Por qué el guayaco no le teme a la Metrovía?', punchline: '¡Porque se trepa como mono en rama! Como vos, ${userName}, puro talento.' },
-        { setup: '¿Qué hace un guayaco con un mango verde?', punchline: '¡Lo corta con sal y lo disfruta como rey! Vos también tenés ese toque, ${userName}.' },
-        { setup: '¿Cómo sabe un guayaco que el bolón es bueno?', punchline: '¡Porque el queso le hace ojitos! Igual que vos, ${userName}, puro paladar.' },
-    
-        // 121-130
-        { setup: '¿Qué le dice un guayaco al que no toma chela?', punchline: '¡“Viví un poco, pana, que esto es vida!” Vos sí que sabés, ${userName}.' },
-        { setup: '¿Por qué el guayaco no usa chamarra?', punchline: '¡Porque el calor ya lo abriga gratis! Igual que vos, ${userName}, puro calor humano.' },
-        { setup: '¿Qué hace un guayaco cuando el equipo gana?', punchline: '¡Grita más fuerte que corneta en la 9! Vos también celebrás, ${userName}.' },
-        { setup: '¿Cómo llama un guayaco al que no come seco?', punchline: '¡“Un guayaco sin raíces, ñaño!” Vos sos de pura cepa, ${userName}.' },
-        { setup: '¿Qué le dice un guayaco al sol de la tarde?', punchline: '¡“Bajale, pana, que ya estoy asado!” Igual que vos, ${userName}, puro fuego.' },
-        { setup: '¿Por qué el guayaco no se pierde en el mercado?', punchline: '¡Porque el olor a pescado lo guía! Como vos, ${userName}, puro instinto.' },
-        { setup: '¿Qué hace un guayaco con un billete de 5 viejo?', punchline: '¡Lo usa pa’ abanicarse en el calor! Vos también improvisás, ${userName}.' },
-        { setup: '¿Cómo sabe un guayaco que el encebollado pica?', punchline: '¡Porque le saca lágrimas de felicidad! Igual que vos, ${userName}, puro sabor.' },
-        { setup: '¿Qué le dice un guayaco al que no corre al bus?', punchline: '¡“Apúrate, man, que se va!” Vos sí que zumbás, ${userName}.' },
-        { setup: '¿Por qué el guayaco no usa reloj en la playa?', punchline: '¡Porque el sol le dice cuándo es hora de chela! Como vos, ${userName}, pura onda.' },
-    
-        // 131-140
-        { setup: '¿Qué hace un guayaco con un coco caliente?', punchline: '¡Lo enfría con hielo y lo goza! Vos también sabés arreglar, ${userName}.' },
-        { setup: '¿Cómo llama un guayaco al que no come chifle?', punchline: '¡“Un guayaco sin crujido, pana!” Vos sí que crujís, ${userName}.' },
-        { setup: '¿Qué le dice un guayaco al que no baila salsa?', punchline: '¡“Movete, ñaño, que no sos estatua!” Igual que vos, ${userName}, puro flow.' },
-        { setup: '¿Por qué el guayaco no le teme al apagón?', punchline: '¡Porque prende velas y arma el vacile! Como vos, ${userName}, siempre prendid${userName === "Miguel" ? "o" : "a"}.' },
-        { setup: '¿Qué hace un guayaco con un bolón frío?', punchline: '¡Lo calienta y le da vida otra vez! Vos también reciclás, ${userName}.' },
-        { setup: '¿Cómo sabe un guayaco que el partido es clásico?', punchline: '¡Porque el barrio se vuelve un carnaval! Igual que vos, ${userName}, pura fiesta.' },
-        { setup: '¿Qué le dice un guayaco al que no toma jugo?', punchline: '¡“Estás seco, man, hidratate con sabor!” Vos sos más refrescante, ${userName}.' },
-        { setup: '¿Por qué el guayaco no usa camisa cerrada?', punchline: '¡Porque el calor ya le abrió el pecho! Como vos, ${userName}, puro estilo.' },
-        { setup: '¿Qué hace un guayaco con un mango maduro?', punchline: '¡Lo chupa hasta el hueso, pana! Vos también aprovechás, ${userName}.' },
-        { setup: '¿Cómo sabe un guayaco que el seco es bueno?', punchline: '¡Porque el arroz baila con la carne! Igual que vos, ${userName}, puro ritmo.' },
-    
-        // 141-150
-        { setup: '¿Qué le dice un guayaco al que no come fritada?', punchline: '¡“Estás negado pa’ lo bueno, ñaño!” Vos sí que le das, ${userName}.' },
-        { setup: '¿Por qué el guayaco no usa reloj en el vacile?', punchline: '¡Porque la chela marca el tiempo! Como vos, ${userName}, siempre en la onda.' },
-        { setup: '¿Qué hace un guayaco con un billete falso?', punchline: '¡Lo usa pa’ abanicarse y vacilar! Vos sos más auténtic${userName === "Miguel" ? "o" : "a"}, ${userName}.' },
-        { setup: '¿Cómo sabe un guayaco que el ceviche es fresco?', punchline: '¡Porque el pescado le guiña el ojo! Igual que vos, ${userName}, puro ojo clínico.' },
-        { setup: '¿Qué le dice un guayaco al que no toma chela?', punchline: '¡“Viví un poco, pana, que esto es Guayaquil!” Vos sí que sabés, ${userName}.' },
-        { setup: '¿Por qué el guayaco no usa paraguas?', punchline: '¡Porque la lluvia es su aire acondicionado! Como vos, ${userName}, puro ingenio.' },
-        { setup: '¿Qué hace un guayaco cuando el equipo pierde?', punchline: '¡“La próxima, man, que el amor no se acaba!” Vos también sos fiel, ${userName}.' },
-        { setup: '¿Cómo llama un guayaco al que no baila reggaetón?', punchline: '¡“Un palo de mango, ñaño!” Vos tenés swing, ${userName}.' },
-        { setup: '¿Qué le dice un guayaco al sol de mediodía?', punchline: '¡“Bajale, pana, que ya estoy asado!” Igual que vos, ${userName}, puro calor.' },
-        { setup: '¿Por qué el guayaco no se pierde en el Malecón?', punchline: '¡Porque el río lo guía con su vacile! Como vos, ${userName}, puro rumbo.' }
-    ];
+const chistes = [
+    { setup: '¿Qué hace un argentino cuando se corta la luz?', punchline: '¡Saca el mate y arma un fogón en el patio! Vos también sos puro ingenio, ${userName}.' },
+    { setup: '¿Por qué el argentino no usa reloj?', punchline: '¡Porque vive a horario de asado, cuando se prende el fuego! Igual que vos, ${userName}, un crack.' },
+    { setup: '¿Qué le dice un porteño al bondi que no para?', punchline: '¡“Pará, boludo, que no soy Usain Bolt!” Vos sí que zumbás, ${userName}.' },
+    { setup: '¿Cómo sabe un argentino que el mate está bueno?', punchline: '¡Porque la yerba le hace ojitos! Igual que vos, ${userName}, puro paladar.' },
+    { setup: '¿Qué hace un argentino con un billete roto?', punchline: '¡Lo pega con cinta y lo gasta en birra! Vos también sos recursiv${userName === "Miguel" ? "o" : "a"}, ${userName}.' },
+    { setup: '¿Por qué el argentino no se pierde en la 9 de Julio?', punchline: '¡Porque sigue el olor a choripán! Como vos, ${userName}, puro instinto.' },
+    { setup: '¿Qué le dice un cordobés al fernet caliente?', punchline: '¡“Enfriate, loco, que no sos sopa!” Vos traés el frío, ${userName}.' },
+    { setup: '¿Cómo llama un argentino al que no come asado?', punchline: '¡“Un turista en la parrilla, che!” Vos sos de pura cepa, ${userName}.' },
+    { setup: '¿Qué hace un argentino cuando llueve?', punchline: '¡Saca la guitarrita y hace un fogón adentro! Igual que vos, ${userName}, puro flow.' },
+    { setup: '¿Por qué el argentino no usa GPS?', punchline: '¡Porque se guía por el humo del asado! Como vos, ${userName}, siempre al toque.' },
+
+    // 11-20
+    { setup: '¿Qué le dice un argentino al que llega tarde al asado?', punchline: '¡“Apuráte, boludo, que el chori se enfría!” Vos sos puntual, ${userName}.' },
+    { setup: '¿Por qué el argentino no le teme al frío?', punchline: '¡Porque tiene más frazadas que almacén! Igual que vos, ${userName}, puro aguante.' },
+    { setup: '¿Qué hace un argentino con una pizza fría?', punchline: '¡La calienta y le pone fainá encima! Vos también le das vida, ${userName}.' },
+    { setup: '¿Cómo sabe un argentino que el partido está bravo?', punchline: '¡Porque el barrio grita más que Boca y River juntos! Igual que vos, ${userName}, pura pasión.' },
+    { setup: '¿Qué le dice un mendocino al vino caro?', punchline: '¡“Bajá un cambio, loco, que no soy millonario!” Vos sí que zumbás, ${userName}.' },
+    { setup: '¿Por qué el argentino no se raja en el calor?', punchline: '¡Porque se toma una birra helada y listo! Como vos, ${userName}, puro estilo.' },
+    { setup: '¿Qué hace un argentino con un mate lavado?', punchline: '¡Lo cambia más rápido que camiseta en la cancha! Vos también sos rapid${userName === "Miguel" ? "o" : "a"}, ${userName}.' },
+    { setup: '¿Cómo llama un argentino al que no toma mate?', punchline: '¡“Un extranjero en la ronda, che!” Vos sos de ley, ${userName}.' },
+    { setup: '¿Qué le dice un rosarino al río Paraná?', punchline: '¡“Quedate tranqui, loco, que ya traigo la birra!” Igual que vos, ${userName}, pura onda.' },
+    { setup: '¿Por qué el argentino no usa paraguas?', punchline: '¡Porque la lluvia es su excusa pa’ quedarse con el mate! Como vos, ${userName}, puro ingenio.' },
+
+    // 21-30
+    { setup: '¿Qué hace un argentino cuando el equipo pierde?', punchline: '¡“La próxima, che, que el amor no se negocia!” Vos también sos fiel, ${userName}.' },
+    { setup: '¿Cómo sabe un argentino que el asado está listo?', punchline: '¡Porque el olor lo levanta de la cama! Igual que vos, ${userName}, puro olfato.' },
+    { setup: '¿Qué le dice un porteño al subte lleno?', punchline: '¡“Movete, boludo, que no soy sardina!” Vos también tenés calle, ${userName}.' },
+    { setup: '¿Por qué el argentino no se pierde en el Obelisco?', punchline: '¡Porque el ruido lo guía como brújula! Como vos, ${userName}, siempre al día.' },
+    { setup: '¿Qué hace un argentino con un alfajor vencido?', punchline: '¡Se lo come igual y dice que está vintage! Vos también aprovechás, ${userName}.' },
+    { setup: '¿Cómo llama un argentino al que no come milanesa?', punchline: '¡“Un hereje de la cocina, loco!” Vos sos de pura cepa, ${userName}.' },
+    { setup: '¿Qué le dice un cordobés al fernet sin hielo?', punchline: '¡“Ponete las pilas, che, que esto no va!” Igual que vos, ${userName}, puro fuego.' },
+    { setup: '¿Por qué el argentino no usa despertador?', punchline: '¡Porque el mate lo saca de la cama! Como vos, ${userName}, siempre al pie del cañón.' },
+    { setup: '¿Qué hace un argentino con una factura seca?', punchline: '¡La moja en mate y la salva! Vos también tenés ese toque, ${userName}.' },
+    { setup: '¿Cómo sabe un argentino que el domingo es perfecto?', punchline: '¡Porque huele a asado y suena un partido! Igual que vos, ${userName}, pura pasión.' },
+
+    // 31-40
+    { setup: '¿Qué le dice un argentino al que no baila tango?', punchline: '¡“Movete, che, que no sos poste!” Vos tenés swing, ${userName}.' },
+    { setup: '¿Por qué el argentino no le teme al dólar?', punchline: '¡Porque siempre tiene un plan B en pesos! Como vos, ${userName}, puro talento.' },
+    { setup: '¿Qué hace un argentino con un choripán sin chimichurri?', punchline: '¡Lo devuelve y pide actitud! Vos también tenés sabor, ${userName}.' },
+    { setup: '¿Cómo sabe un argentino que la birra está helada?', punchline: '¡Porque el vaso llora de frío! Igual que vos, ${userName}, puro ojo.' },
+    { setup: '¿Qué le dice un santafesino al río?', punchline: '¡“Quedate tranqui, loco, que traigo el liso!” Vos también refrescás, ${userName}.' },
+    { setup: '¿Por qué el argentino no usa bufanda?', punchline: '¡Porque el mate ya le calienta el alma! Como vos, ${userName}, puro calor.' },
+    { setup: '¿Qué hace un argentino cuando no hay carne?', punchline: '¡Saca papas y hace una tortilla al toque! Vos también improvisás, ${userName}.' },
+    { setup: '¿Cómo llama un argentino al que no toma vino?', punchline: '¡“Un seco sin remedio, che!” Vos sos más copad${userName === "Miguel" ? "o" : "a"}, ${userName}.' },
+    { setup: '¿Qué le dice un argentino al que no come empanadas?', punchline: '¡“Estás negado pa’ lo bueno, boludo!” Vos sí que le das, ${userName}.' },
+    { setup: '¿Por qué el argentino no se pierde en la cancha?', punchline: '¡Porque el grito lo lleva al gol! Como vos, ${userName}, pura pasión.' },
+
+    // 41-50
+    { setup: '¿Qué hace un argentino con un mate frío?', punchline: '¡Lo calienta y le da vida otra vez! Vos también reciclás, ${userName}.' },
+    { setup: '¿Cómo sabe un argentino que el locro está listo?', punchline: '¡Porque el olor cruza la cuadra! Igual que vos, ${userName}, puro instinto.' },
+    { setup: '¿Qué le dice un porteño al que no usa mate?', punchline: '¡“Viví un poco, che, que esto es cultura!” Vos sí que sabés, ${userName}.' },
+    { setup: '¿Por qué el argentino no usa aire acondicionado?', punchline: '¡Porque el ventilador es su amigo de la infancia! Como vos, ${userName}, simple y efectivo.' },
+    { setup: '¿Qué hace un argentino cuando el bondi no viene?', punchline: '¡Se toma un mate y espera con onda! Vos también tenés paciencia, ${userName}.' },
+    { setup: '¿Cómo llama un argentino al que no come pizza?', punchline: '¡“Un perdido en la vida, loco!” Vos sos de ley, ${userName}.' },
+    { setup: '¿Qué le dice un cordobés al fernet sin soda?', punchline: '¡“Completate, boludo, que estás a medias!” Igual que vos, ${userName}, siempre complet${userName === "Miguel" ? "o" : "a"}.' },
+    { setup: '¿Por qué el argentino no le teme al apagón?', punchline: '¡Porque saca la guitarra y hace un fogón! Como vos, ${userName}, siempre prendid${userName === "Miguel" ? "o" : "a"}.' },
+    { setup: '¿Qué hace un argentino con un sánguche de miga viejo?', punchline: '¡Lo tuesta y lo hace milanesa! Vos también aprovechás, ${userName}.' },
+    { setup: '¿Cómo sabe un argentino que el viernes llegó?', punchline: '¡Porque el asado ya está en el aire! Igual que vos, ${userName}, pura fiesta.' },
+
+    // 51-60
+    { setup: '¿Qué le dice un argentino al que no toma café?', punchline: '¡“Estás dormido, che, despertate con algo!” Vos tenés pila, ${userName}.' },
+    { setup: '¿Por qué el argentino no usa gorra?', punchline: '¡Porque el sol ya le tatuó la frente! Como vos, ${userName}, puro estilo.' },
+    { setup: '¿Qué hace un argentino con un dulce de leche vencido?', punchline: '¡Lo come igual y dice que está curado! Vos también tenés ese toque, ${userName}.' },
+    { setup: '¿Cómo sabe un argentino que el tango es bueno?', punchline: '¡Porque el bandoneón le saca lágrimas! Igual que vos, ${userName}, puro sentimiento.' },
+    { setup: '¿Qué le dice un rosarino al que no come liso?', punchline: '¡“Estás negado pa’ lo nuestro, loco!” Vos sí que le das, ${userName}.' },
+    { setup: '¿Por qué el argentino no se pierde en la Costanera?', punchline: '¡Porque el río lo guía con su mate! Como vos, ${userName}, puro rumbo.' },
+    { setup: '¿Qué hace un argentino con una factura sin dulce?', punchline: '¡Le pone más y la hace épica! Vos también le ponés onda, ${userName}.' },
+    { setup: '¿Cómo llama un argentino al que no va al asado?', punchline: '¡“Un ausente sin excusa, che!” Vos sos de pura cepa, ${userName}.' },
+    { setup: '¿Qué le dice un mendocino al vino tibio?', punchline: '¡“Enfriate, loco, que no sos mate!” Igual que vos, ${userName}, puro frío.' },
+    { setup: '¿Por qué el argentino no usa botas en la lluvia?', punchline: '¡Porque las ojotas son su bandera! Como vos, ${userName}, puro estilo.' },
+
+    // 61-70
+    { setup: '¿Qué hace un argentino con un mate sin yerba?', punchline: '¡Lo llena al toque y no se rinde! Vos también tenés actitud, ${userName}.' },
+    { setup: '¿Cómo sabe un argentino que la milanesa es perfecta?', punchline: '¡Porque cruje como hinchada en la cancha! Igual que vos, ${userName}, puro ruido.' },
+    { setup: '¿Qué le dice un porteño al que no usa subte?', punchline: '¡“Caminá, boludo, que no sos turista!” Vos tenés calle, ${userName}.' },
+    { setup: '¿Por qué el argentino no le teme al frío?', punchline: '¡Porque el mate lo abraza desde adentro! Como vos, ${userName}, puro calor.' },
+    { setup: '¿Qué hace un argentino con una pizza sin muzzarella?', punchline: '¡La devuelve y pide una de verdad! Vos también tenés carácter, ${userName}.' },
+    { setup: '¿Cómo llama un argentino al que no come locro?', punchline: '¡“Un perdido en mayo, loco!” Vos sos de ley, ${userName}.' },
+    { setup: '¿Qué le dice un cordobés al fernet aguado?', punchline: '¡“Ponete fuerte, che, que esto es Córdoba!” Igual que vos, ${userName}, puro nervio.' },
+    { setup: '¿Por qué el argentino no usa despertador los domingos?', punchline: '¡Porque el asado lo llama solito! Como vos, ${userName}, siempre al pie.' },
+    { setup: '¿Qué hace un argentino con un choripán sin pan?', punchline: '¡Lo come con la mano y lo disfruta igual! Vos también improvisás, ${userName}.' },
+    { setup: '¿Cómo sabe un argentino que el partido es clásico?', punchline: '¡Porque el grito cruza el Riachuelo! Igual que vos, ${userName}, pura pasión.' },
+
+    // 71-80
+    { setup: '¿Qué le dice un argentino al que no toma birra?', punchline: '¡“Viví un poco, che, que esto es Argentina!” Vos sí que sabés, ${userName}.' },
+    { setup: '¿Por qué el argentino no usa camisa cerrada?', punchline: '¡Porque el calor ya le abrió el pecho! Como vos, ${userName}, puro estilo.' },
+    { setup: '¿Qué hace un argentino con un mate amargo?', punchline: '¡Lo toma igual y dice que es tradición! Vos también tenés aguante, ${userName}.' },
+    { setup: '¿Cómo sabe un argentino que el asado es caro?', punchline: '¡Porque la vaca le guiña el ojo desde el precio! Igual que vos, ${userName}, puro ojo.' },
+    { setup: '¿Qué le dice un rosarino al que no come pescado?', punchline: '¡“Estás negado pa’l río, loco!” Vos sí que le das, ${userName}.' },
+    { setup: '¿Por qué el argentino no se pierde en la Patagonia?', punchline: '¡Porque el viento lo empuja al mate! Como vos, ${userName}, puro rumbo.' },
+    { setup: '¿Qué hace un argentino con un alfajor sin dulce?', punchline: '¡Le pone más y lo hace rey! Vos también le ponés chispa, ${userName}.' },
+    { setup: '¿Cómo llama un argentino al que no baila cuarteto?', punchline: '¡“Un palo de escoba, che!” Vos tenés flow, ${userName}.' },
+    { setup: '¿Qué le dice un mendocino al vino dulce?', punchline: '¡“Ponete serio, loco, que esto es Mendoza!” Igual que vos, ${userName}, puro carácter.' },
+    { setup: '¿Por qué el argentino no usa gorra en verano?', punchline: '¡Porque el sol ya le dio color! Como vos, ${userName}, puro estilo.' },
+
+    // 81-90
+    { setup: '¿Qué hace un argentino con una empanada fría?', punchline: '¡La calienta y la hace épica! Vos también tenés ese toque, ${userName}.' },
+    { setup: '¿Cómo sabe un argentino que el tango es puro?', punchline: '¡Porque el bandoneón le pone piel de gallina! Igual que vos, ${userName}, puro sentimiento.' },
+    { setup: '¿Qué le dice un porteño al que no usa mate?', punchline: '¡“Estás seco, boludo, sumate a la ronda!” Vos sos más copad${userName === "Miguel" ? "o" : "a"}, ${userName}.' },
+    { setup: '¿Por qué el argentino no le teme a la inflación?', punchline: '¡Porque siempre tiene un mango pa’l asado! Como vos, ${userName}, puro talento.' },
+    { setup: '¿Qué hace un argentino con un sánguche sin miga?', punchline: '¡Lo llena de milanesa y lo salva! Vos también improvisás, ${userName}.' },
+    { setup: '¿Cómo llama un argentino al que no come fainá?', punchline: '¡“Un perdido en la pizzería, che!” Vos sos de pura cepa, ${userName}.' },
+    { setup: '¿Qué le dice un cordobés al fernet sin coca?', punchline: '¡“Completate, loco, que esto no es juego!” Igual que vos, ${userName}, siempre al toque.' },
+    { setup: '¿Por qué el argentino no usa reloj en la cancha?', punchline: '¡Porque el gol marca el tiempo! Como vos, ${userName}, pura pasión.' },
+    { setup: '¿Qué hace un argentino con un mate sin bombilla?', punchline: '¡Lo toma con cucharita y no se raja! Vos también tenés actitud, ${userName}.' },
+    { setup: '¿Cómo sabe un argentino que la birra es buena?', punchline: '¡Porque el frío le hace cosquillas! Igual que vos, ${userName}, puro paladar.' },
+
+    // 91-100
+    { setup: '¿Qué le dice un argentino al que no come choripán?', punchline: '¡“Estás negado pa’ lo nuestro, boludo!” Vos sí que le das, ${userName}.' },
+    { setup: '¿Por qué el argentino no usa paraguas en invierno?', punchline: '¡Porque el mate lo cubre del frío! Como vos, ${userName}, puro calor.' },
+    { setup: '¿Qué hace un argentino con un locro aguado?', punchline: '¡Le pone más zapallo y lo hace rey! Vos también le ponés onda, ${userName}.' },
+    { setup: '¿Cómo sabe un argentino que el partido es bravo?', punchline: '¡Porque el grito cruza la General Paz! Igual que vos, ${userName}, pura pasión.' },
+    { setup: '¿Qué le dice un rosarino al que no toma liso?', punchline: '¡“Estás seco, loco, refrescate con algo!” Vos sos más refrescante, ${userName}.' },
+    { setup: '¿Por qué el argentino no se pierde en el campo?', punchline: '¡Porque el mate lo trae de vuelta! Como vos, ${userName}, puro rumbo.' },
+    { setup: '¿Qué hace un argentino con una pizza sin fainá?', punchline: '¡La pide al toque y la completa! Vos también tenés carácter, ${userName}.' },
+    { setup: '¿Cómo llama un argentino al que no canta en la hinchada?', punchline: '¡“Un mute en la tribuna, che!” Vos tenés voz, ${userName}.' },
+    { setup: '¿Qué le dice un mendocino al vino blanco?', punchline: '¡“Ponete fresco, loco, que esto es verano!” Igual que vos, ${userName}, puro frío.' },
+    { setup: '¿Por qué el argentino no usa botas en la ciudad?', punchline: '¡Porque las zapas son su bandera! Como vos, ${userName}, puro estilo.' },
+
+    // 101-110
+    { setup: '¿Qué hace un argentino con un mate sin azúcar?', punchline: '¡Lo toma amargo y dice que es de hombre! Vos también tenés aguante, ${userName}.' },
+    { setup: '¿Cómo sabe un argentino que la milanesa es casera?', punchline: '¡Porque lleva amor en cada rebozado! Igual que vos, ${userName}, puro corazón.' },
+    { setup: '¿Qué le dice un porteño al que no usa bondi?', punchline: '¡“Subite, boludo, que no sos de Palermo!” Vos tenés calle, ${userName}.' },
+    { setup: '¿Por qué el argentino no le teme al calor?', punchline: '¡Porque la birra helada lo salva siempre! Como vos, ${userName}, puro talento.' },
+    { setup: '¿Qué hace un argentino con un sánguche de milanesa frío?', punchline: '¡Lo calienta y le pone tomate! Vos también improvisás, ${userName}.' },
+    { setup: '¿Cómo llama un argentino al que no come asado?', punchline: '¡“Un vegetariano perdido, che!” Vos sos de pura cepa, ${userName}.' },
+    { setup: '¿Qué le dice un cordobés al fernet tibio?', punchline: '¡“Enfriate, loco, que esto es serio!” Igual que vos, ${userName}, puro nervio.' },
+    { setup: '¿Por qué el argentino no usa despertador en verano?', punchline: '¡Porque el mate lo saca de la siesta! Como vos, ${userName}, siempre al toque.' },
+    { setup: '¿Qué hace un argentino con un choripán sin chimichurri?', punchline: '¡Lo pide al toque y lo hace épico! Vos también tenés sabor, ${userName}.' },
+    { setup: '¿Cómo sabe un argentino que el tango es clásico?', punchline: '¡Porque el compás te lleva al alma! Igual que vos, ${userName}, puro ritmo.' },
+
+    // 111-120
+    { setup: '¿Qué le dice un argentino al que no toma vino?', punchline: '¡“Estás seco, che, hidratate con clase!” Vos sos más copad${userName === "Miguel" ? "o" : "a"}, ${userName}.' },
+    { setup: '¿Por qué el argentino no usa corbata?', punchline: '¡Porque el asado ya lo viste de gala! Como vos, ${userName}, puro estilo.' },
+    { setup: '¿Qué hace un argentino con un mate lavado?', punchline: '¡Lo cambia más rápido que River en el descenso! Vos también zumbás, ${userName}.' },
+    { setup: '¿Cómo sabe un argentino que el locro es bueno?', punchline: '¡Porque te calienta hasta el alma! Igual que vos, ${userName}, puro calor.' },
+    { setup: '¿Qué le dice un rosarino al que no come pescado?', punchline: '¡“Estás negado pa’l Paraná, loco!” Vos sí que le das, ${userName}.' },
+    { setup: '¿Por qué el argentino no se pierde en la Pampa?', punchline: '¡Porque el mate lo guía como faro! Como vos, ${userName}, puro rumbo.' },
+    { setup: '¿Qué hace un argentino con una pizza sin oliva?', punchline: '¡Le pone más y la hace reina! Vos también le ponés chispa, ${userName}.' },
+    { setup: '¿Cómo llama un argentino al que no baila chamamé?', punchline: '¡“Un palo del litoral, che!” Vos tenés flow, ${userName}.' },
+    { setup: '¿Qué le dice un mendocino al vino tinto?', punchline: '¡“Ponete serio, loco, que esto es Mendoza!” Igual que vos, ${userName}, puro carácter.' },
+    { setup: '¿Por qué el argentino no usa gorra en invierno?', punchline: '¡Porque el mate ya le calienta la cabeza! Como vos, ${userName}, puro calor.' },
+
+    // 121-130
+    { setup: '¿Qué hace un argentino con una empanada sin carne?', punchline: '¡La rellena y la hace épica! Vos también tenés ese toque, ${userName}.' },
+    { setup: '¿Cómo sabe un argentino que el partido es épico?', punchline: '¡Porque el grito cruza la Cordillera! Igual que vos, ${userName}, pura pasión.' },
+    { setup: '¿Qué le dice un porteño al que no usa mate?', punchline: '¡“Estás seco, boludo, sumate a la ronda!” Vos sos más refrescante, ${userName}.' },
+    { setup: '¿Por qué el argentino no le teme al frío patagónico?', punchline: '¡Porque el mate lo abriga como frazada! Como vos, ${userName}, puro calor.' },
+    { setup: '¿Qué hace un argentino con un sánguche sin fiambre?', punchline: '¡Lo llena de milanesa y lo salva! Vos también improvisás, ${userName}.' },
+    { setup: '¿Cómo llama un argentino al que no come fainá?', punchline: '¡“Un perdido en la pizzería, loco!” Vos sos de pura cepa, ${userName}.' },
+    { setup: '¿Qué le dice un cordobés al fernet sin hielo?', punchline: '¡“Ponete las pilas, che, que esto es Córdoba!” Igual que vos, ${userName}, puro nervio.' },
+    { setup: '¿Por qué el argentino no usa reloj en el asado?', punchline: '¡Porque el hambre marca el tiempo! Como vos, ${userName}, pura pasión.' },
+    { setup: '¿Qué hace un argentino con un mate sin yerba?', punchline: '¡Lo llena al toque y no se raja! Vos también tenés actitud, ${userName}.' },
+    { setup: '¿Cómo sabe un argentino que la birra es perfecta?', punchline: '¡Porque el frío le saca una sonrisa! Igual que vos, ${userName}, puro paladar.' },
+
+    // 131-140
+    { setup: '¿Qué le dice un argentino al que no come choripán?', punchline: '¡“Estás negado pa’ lo nuestro, che!” Vos sí que le das, ${userName}.' },
+    { setup: '¿Por qué el argentino no usa paraguas en verano?', punchline: '¡Porque la birra lo refresca desde adentro! Como vos, ${userName}, puro talento.' },
+    { setup: '¿Qué hace un argentino con un locro frío?', punchline: '¡Lo calienta y lo hace rey otra vez! Vos también reciclás, ${userName}.' },
+    { setup: '¿Cómo sabe un argentino que el tango es puro?', punchline: '¡Porque el bandoneón te lleva al barrio! Igual que vos, ${userName}, puro sentimiento.' },
+    { setup: '¿Qué le dice un rosarino al que no toma liso?', punchline: '¡“Estás seco, loco, hidratate con onda!” Vos sos más copad${userName === "Miguel" ? "o" : "a"}, ${userName}.' },
+    { setup: '¿Por qué el argentino no se pierde en la ciudad?', punchline: '¡Porque el mate lo guía como GPS! Como vos, ${userName}, puro rumbo.' },
+    { setup: '¿Qué hace un argentino con una pizza sin muzzarella?', punchline: '¡La devuelve y pide una de verdad! Vos también tenés carácter, ${userName}.' },
+    { setup: '¿Cómo llama un argentino al que no canta en la cancha?', punchline: '¡“Un mute en la popular, che!” Vos tenés voz, ${userName}.' },
+    { setup: '¿Qué le dice un mendocino al vino caliente?', punchline: '¡“Enfriate, loco, que esto es serio!” Igual que vos, ${userName}, puro frío.' },
+    { setup: '¿Por qué el argentino no usa botas en el campo?', punchline: '¡Porque las zapas son su orgullo! Como vos, ${userName}, puro estilo.' },
+
+    // 141-150
+    { setup: '¿Qué hace un argentino con un mate sin bombilla?', punchline: '¡Lo toma con cucharita y sigue el vacile! Vos también tenés actitud, ${userName}.' },
+    { setup: '¿Cómo sabe un argentino que el asado es épico?', punchline: '¡Porque el humo cruza el Río de la Plata! Igual que vos, ${userName}, pura pasión.' },
+    { setup: '¿Qué le dice un porteño al que no usa subte?', punchline: '¡“Bajá, boludo, que no sos de Recoleta!” Vos tenés calle, ${userName}.' },
+    { setup: '¿Por qué el argentino no le teme al invierno?', punchline: '¡Porque el mate lo calienta como estufa! Como vos, ${userName}, puro calor.' },
+    { setup: '¿Qué hace un argentino con un sánguche sin milanesa?', punchline: '¡Lo rellena y lo hace rey! Vos también le ponés chispa, ${userName}.' },
+    { setup: '¿Cómo llama un argentino al que no come empanadas?', punchline: '¡“Un perdido en la mesa, che!” Vos sos de pura cepa, ${userName}.' },
+    { setup: '¿Qué le dice un cordobés al fernet sin soda?', punchline: '¡“Completate, loco, que esto es cuarteto!” Igual que vos, ${userName}, puro ritmo.' },
+    { setup: '¿Por qué el argentino no usa reloj en la siesta?', punchline: '¡Porque el mate marca la hora! Como vos, ${userName}, pura onda.' },
+    { setup: '¿Qué hace un argentino con un choripán sin salsa?', punchline: '¡Le pone chimichurri y lo hace épico! Vos también tenés sabor, ${userName}.' },
+    { setup: '¿Cómo sabe un argentino que el partido es clásico?', punchline: '¡Porque el grito se escucha hasta el Obelisco! Igual que vos, ${userName}, pura pasión.' }
+];
 
     try {
         // Inicializamos el registro de chistes usados por usuario en dataStore
@@ -5052,6 +5092,12 @@ async function manejarCommand(message) {
     else if (content.startsWith('!recordatorio') || content.startsWith('!rec')) {
         await manejarRecordatorio(message);
     }
+    else if (content === '!misrecordatorios' || content === '!mr') {
+        await manejarMisRecordatorios(message);
+    }  
+    else if (content.startsWith('!cancelarrecordatorio') || content.startsWith('!cr')) {
+        await manejarCancelarRecordatorio(message);
+    } 
     else if (content.startsWith('!reacciones') || content.startsWith('!re')) {
         await manejarReacciones(message);
     } 
@@ -5308,7 +5354,9 @@ client.on('messageCreate', async (message) => {
             '- **!jugar**: Adivina un número del 1 al 10, ¡5 intentos pa’ ganarme, loco!\n' + // Nuevo
             '- **!meme**: Te tiro un meme random pa’ sacarte una sonrisa.\n' +             // Nuevo
             '- **!pregunta**: Te hago una pregunta loca pa’ charlar un rato.\n' +          // Nuevo
-            '- **!recordatorio / !rec**: Te recuerdo algo en un rato. Ejemplo: "!rec \'comprar sanguche de miga\' en 1 hora" o "!rec \'llamar a Miguel\' mañana 14:30".\n' +
+            '- **!rec / !recordatorio [mensaje] [tiempo]**: Te recuerdo algo. Ejemplo: "!rec \'comprar sanguche\' en 1 hora" o "!rec \'tomar mate\' todos los días 08:00".\n' +
+            '- **!mr / !misrecordatorios**: Te muestro tus recordatorios activos.\n' +
+            '- **!cr / !cancelarrecordatorio [ID]**: Cancelás un recordatorio con su ID (lo ves con !mr).\n' +
             '- **!h / !help**: Esta lista, che.\n' +
             '- **!hm / !help musica**: Comandos para meterle música al día.\n' +
             '- **hola**: Te tiro un saludito con onda.');
@@ -5343,24 +5391,33 @@ client.once('ready', async () => {
     client.user.setPresence({ activities: [{ name: "Listo para ayudar a Milagros", type: 0 }], status: 'dnd' });
     dataStore = await loadDataStore();
 
+
     if (dataStore.recordatorios && dataStore.recordatorios.length > 0) {
         const ahora = Date.now();
         dataStore.recordatorios.forEach(recordatorio => {
-            if (recordatorio.timestamp > ahora) {
+            if (recordatorio.timestamp > ahora || recordatorio.esRecurrente) {
                 console.log(`Restaurando recordatorio: "${recordatorio.mensaje}" (ID: ${recordatorio.id})`);
+                if (recordatorio.esRecurrente && recordatorio.timestamp <= ahora) {
+                    // Si es recurrente y ya pasó, lo ajustamos al próximo día
+                    const nuevoTimestamp = new Date();
+                    nuevoTimestamp.setHours(recordatorio.hora, recordatorio.minutos, 0, 0);
+                    if (nuevoTimestamp.getTime() <= ahora) {
+                        nuevoTimestamp.setDate(nuevoTimestamp.getDate() + 1);
+                    }
+                    recordatorio.timestamp = nuevoTimestamp.getTime();
+                    dataStoreModified = true;
+                }
                 programarRecordatorio(recordatorio);
             } else {
                 console.log(`Descartando recordatorio vencido: "${recordatorio.mensaje}" (ID: ${recordatorio.id})`);
             }
         });
         const originalLength = dataStore.recordatorios.length;
-        dataStore.recordatorios = dataStore.recordatorios.filter(r => r.timestamp > ahora);
+        dataStore.recordatorios = dataStore.recordatorios.filter(r => r.timestamp > ahora || r.esRecurrente);
         if (dataStore.recordatorios.length < originalLength) {
             dataStoreModified = true;
         }
         console.log('Recordatorios restaurados y vencidos limpiados');
-    } else {
-        console.log('No hay recordatorios para restaurar');
     }
     
     activeTrivia = new Map(Object.entries(dataStore.activeSessions).filter(([_, s]) => s.type === 'trivia'));
