@@ -510,7 +510,16 @@
       "timestamp": "2025-03-15T23:27:33.098Z"
     }
   ],
-  "recordatorios": [],
+  "recordatorios": [
+    {
+      "id": "87b5d5cf-0a2f-45d3-84f6-576c2af0c0f0",
+      "userId": "1023132788632862761",
+      "channelId": "1343749554905940058",
+      "mensaje": "recuérdame retirar una torta",
+      "timestamp": 1742160714528,
+      "creado": 1742157114529
+    }
+  ],
   "usedJokes": {
     "1023132788632862761": [
       117,
