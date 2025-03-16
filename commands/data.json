@@ -1,0 +1,76 @@
+// Cargo los datos desde GitHub pa’ no perder nada
+async function loadDataStore() {
+    try {
+        const response = await axios.get(
+            `https://api.github.com/repos/${process.env.GITHUB_REPO}/contents/${process.env.GITHUB_FILE_PATH}`,
+            { headers: { 'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`, 'Accept': 'application/vnd.github+json' } }
+        );
+        const content = Buffer.from(response.data.content, 'base64').toString('utf8');
+        const loadedData = content ? JSON.parse(content) : { 
+            conversationHistory: {}, 
+            triviaRanking: {}, 
+            personalPPMRecords: {}, 
+            reactionStats: {}, 
+            reactionWins: {}, 
+            activeSessions: {}, 
+            triviaStats: {},
+            musicSessions: {},
+            recordatorios: [],
+            updatesSent: false,
+            adivinanzaStats: {} // Aseguramos que esté por defecto
+        };
+        if (!loadedData.musicSessions) loadedData.musicSessions = {};
+        if (!loadedData.recordatorios) loadedData.recordatorios = [];
+        if (!loadedData.adivinanzaStats) loadedData.adivinanzaStats = {}; // Aseguramos que exista
+        console.log('Datos cargados desde GitHub con adivinanzaStats asegurado');
+        return loadedData;
+    } catch (error) {
+        console.error('Error al cargar datos desde GitHub:', error.message);
+        return { 
+            conversationHistory: {}, 
+            triviaRanking: {}, 
+            personalPPMRecords: {}, 
+            reactionStats: {}, 
+            reactionWins: {}, 
+            activeSessions: {}, 
+            triviaStats: {},
+            musicSessions: {},
+            recordatorios: [],
+            updatesSent: false,
+            adivinanzaStats: {} // Por defecto si falla
+        };
+    }
+}
+
+// Guardo los datos en GitHub
+async function saveDataStore() {
+    if (!dataStoreModified) return false;
+    try {
+        let sha;
+        try {
+            const response = await axios.get(
+                `https://api.github.com/repos/${process.env.GITHUB_REPO}/contents/${process.env.GITHUB_FILE_PATH}`,
+                { headers: { 'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`, 'Accept': 'application/vnd.github+json' } }
+            );
+            sha = response.data.sha;
+        } catch (error) {
+            if (error.response?.status !== 404) throw error;
+        }
+        await axios.put(
+            `https://api.github.com/repos/${process.env.GITHUB_REPO}/contents/${process.env.GITHUB_FILE_PATH}`,
+            {
+                message: 'Actualizar historial y sesiones',
+                content: Buffer.from(JSON.stringify(dataStore, null, 2)).toString('base64'),
+                sha: sha || undefined,
+            },
+            { headers: { 'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`, 'Accept': 'application/vnd.github+json' } }
+        );
+        console.log('Datos guardados en GitHub');
+        return true;
+    } catch (error) {
+        console.error('Error al guardar datos en GitHub:', error.message);
+        throw error;
+    }
+}
+
+module.exports = { manejarTrivia };
