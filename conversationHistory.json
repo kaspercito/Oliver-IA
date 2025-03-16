@@ -614,6 +614,17 @@
       "esRecurrente": false,
       "hora": null,
       "minutos": null
+    },
+    {
+      "id": "e3738552-ebd2-4b8f-ab63-90c42b93f618",
+      "userId": "1023132788632862761",
+      "channelId": "1343749554905940058",
+      "mensaje": "recuérdame comprar insecticida al llegar a casa",
+      "timestamp": 1742171640620,
+      "creado": 1742168040621,
+      "esRecurrente": false,
+      "hora": null,
+      "minutos": null
     }
   ],
   "usedJokes": {
