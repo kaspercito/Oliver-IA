@@ -623,6 +623,17 @@
       "esRecurrente": false,
       "hora": null,
       "minutos": null
+    },
+    {
+      "id": "aed57a04-a558-4f09-91ac-77e1c96de5bf",
+      "userId": "1023132788632862761",
+      "channelId": "1343749554905940058",
+      "mensaje": "pedir comida",
+      "timestamp": 1742256348258,
+      "creado": 1742241948258,
+      "esRecurrente": false,
+      "hora": null,
+      "minutos": null
     }
   ],
   "usedJokes": {
