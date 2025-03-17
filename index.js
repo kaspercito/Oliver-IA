@@ -5538,13 +5538,16 @@ client.on('messageCreate', async (message) => {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : (message.author.id === ALLOWED_USER_ID ? 'Belén' : 'Un desconocido');
     const content = message.content.toLowerCase();
 
-    // Detectar llegada desde IFTTT
+    // Detectar mensajes de IFTTT
     if (content.startsWith('@jefe') || content.startsWith('@jefa')) {
         const esJefe = content.startsWith('@jefe');
         const userId = esJefe ? ALLOWED_USER_ID : OWNER_ID; // @jefe = Belén, @jefa = Miguel
         const targetName = esJefe ? 'Belén' : 'Miguel';
 
-        if (content.includes('llegó a su casa')) {
+        const canal = message.channel;
+
+        // Cuando alguien llega a casa
+        if (content.includes('entered a su casa')) {
             // Borramos el mensaje de IFTTT
             try {
                 await message.delete();
@@ -5553,7 +5556,6 @@ client.on('messageCreate', async (message) => {
                 console.error(`No pude borrar el mensaje de IFTTT: ${error.message}`);
             }
 
-            const canal = message.channel;
             const ahora = Date.now();
             const recordatoriosPendientes = dataStore.recordatorios.filter(r => r.cuandoLlegue && r.userId === userId);
             let avisos = [];
@@ -5568,36 +5570,48 @@ client.on('messageCreate', async (message) => {
                         pendientes.push(r);
                     }
                 });
-                // Eliminamos los recordatorios mostrados de dataStore
                 if (avisos.length > 0) {
                     dataStore.recordatorios = dataStore.recordatorios.filter(r => !r.cuandoLlegue || r.userId !== userId || pendientes.includes(r));
                     autoModified = true;
                 }
             }
 
-            // Mensajes TTS en el canal con recordatorios incluidos
+            // Mensaje TTS combinado para llegada
             if (targetName === 'Belén') {
-                await canal.send(`tts: ¡Qué lindo, Belén, llegaste a casa! Soy Oliver IA, tu bot piola, dándote la bienvenida con toda la onda. 🏠`);
-                await canal.send(`tts: El clima en San Luis está así: ${(await manejarCommand({ content: '!clima Buenos Aires', channel: canal, author: { id: OWNER_ID } }, true)).embeds[0].description}. 🌤️`);
-                await canal.send(`tts: Noticias frescas: ${(await manejarCommand({ content: '!noticias', channel: canal, author: { id: OWNER_ID } }, true)).embeds[0].description}. 📰`);
-                await canal.send(`tts: Che, Belén, en Argentina son las ${new Date().toLocaleTimeString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires', hour: '2-digit', minute: '2-digit' })} ahora mismo. ⏰`);
-                if (avisos.length > 0) {
-                    await canal.send(`tts: Belén, acá van tus recordatorios, escuchá bien, genia: ${avisos.join(', ')}. 📋`);
-                } else {
-                    await canal.send(`tts: No tenés recordatorios ahora, Belén, ¿querés que te tire un chiste pa’ festejar que llegaste? 😄`);
-                }
+                const clima = (await manejarCommand({ content: '!clima San Luis', channel: canal, author: { id: OWNER_ID } }, true)).embeds[0].description;
+                const noticias = (await manejarCommand({ content: '!noticias', channel: canal, author: { id: OWNER_ID } }, true)).embeds[0].description;
+                const hora = new Date().toLocaleTimeString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires', hour: '2-digit', minute: '2-digit' });
+                const recordatoriosText = avisos.length > 0 ? `Acá van tus recordatorios, escuchá bien, genia: ${avisos.join(', ')}. 📋` : 'No tenés recordatorios ahora, ¿querés que te tire un chiste pa’ festejar que llegaste? 😄';
+                await canal.send(`tts: ¡Qué lindo, Belén, llegaste a casa! Soy Oliver IA, tu bot piola, dándote la bienvenida con toda la onda. 🏠 El clima en San Luis está así: ${clima}. 🌤️ Noticias frescas: ${noticias}. 📰 Che, en Argentina son las ${hora} ahora mismo. ⏰ ${recordatoriosText}`);
             } else if (targetName === 'Miguel') {
-                await canal.send(`tts: ¡Grande, Miguel, ya estás en casa! Soy Oliver IA, tu compañero fiel, dándote la bienvenida como se merece el capo. 🏠`);
-                await canal.send(`tts: El clima en Guayaquil está así: ${(await manejarCommand({ content: '!clima Guayaquil', channel: canal, author: { id: ALLOWED_USER_ID } }, true)).embeds[0].description}. 🌤️`);
-                await canal.send(`tts: Noticias del día: ${(await manejarCommand({ content: '!noticias', channel: canal, author: { id: ALLOWED_USER_ID } }, true)).embeds[0].description}. 📰`);
-                await canal.send(`tts: Che, Miguel, en Ecuador son las ${new Date().toLocaleTimeString('es-EC', { timeZone: 'America/Guayaquil', hour: '2-digit', minute: '2-digit' })} ahora. ⏰`);
-                if (avisos.length > 0) {
-                    await canal.send(`tts: Miguel, acá van tus recordatorios, prestá atención, loco: ${avisos.join(', ')}. 📋`);
-                } else {
-                    await canal.send(`tts: No hay recordatorios pa’ vos ahora, Miguel, ¿querés mate o algo pa’ relajarte? 😎`);
-                }
+                const clima = (await manejarCommand({ content: '!clima Guayaquil', channel: canal, author: { id: ALLOWED_USER_ID } }, true)).embeds[0].description;
+                const noticias = (await manejarCommand({ content: '!noticias', channel: canal, author: { id: ALLOWED_USER_ID } }, true)).embeds[0].description;
+                const hora = new Date().toLocaleTimeString('es-EC', { timeZone: 'America/Guayaquil', hour: '2-digit', minute: '2-digit' });
+                const recordatoriosText = avisos.length > 0 ? `Acá van tus recordatorios, prestá atención, loco: ${avisos.join(', ')}. 📋` : 'No hay recordatorios pa’ vos ahora, ¿querés cola o algo pa’ relajarte? 😎';
+                await canal.send(`tts: ¡Grande, Miguel, ya estás en casa! Soy Oliver IA, tu compañero fiel, dándote la bienvenida como se merece el capo. 🏠 El clima en Guayaquil está así: ${clima}. 🌤️ Noticias del día: ${noticias}. 📰 Che, en Ecuador son las ${hora} ahora. ⏰ ${recordatoriosText}`);
             }
-            return; // Salimos después de manejar IFTTT
+            return; // Salimos después de manejar llegada
+        }
+
+        // Cuando alguien sale de casa
+        if (content.includes('exited a su casa')) {
+            // Borramos el mensaje de IFTTT
+            try {
+                await message.delete();
+                console.log(`Mensaje de IFTTT borrado: ${content}`);
+            } catch (error) {
+                console.error(`No pude borrar el mensaje de IFTTT: ${error.message}`);
+            }
+
+            // Mensaje TTS combinado para salida
+            if (targetName === 'Miguel') {
+                const hora = new Date().toLocaleTimeString('es-EC', { timeZone: 'America/Guayaquil', hour: '2-digit', minute: '2-digit' });
+                await canal.send(`tts: ¡Ojo, Miguel salió de casa! Soy Oliver IA, tu bot copado, avisando que el capo ya está en marcha. Son las ${hora} en Ecuador, ¡a romperla donde vayas, loco! 🚀`);
+            } else if (targetName === 'Belén') {
+                const hora = new Date().toLocaleTimeString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires', hour: '2-digit', minute: '2-digit' });
+                await canal.send(`tts: ¡Atenti, Belén salió de casa! Soy Oliver IA, tu bot fiel, avisando que la genia ya está en acción. Son las ${hora} en Argentina, ¡a darle con todo, reina! 🌸`);
+            }
+            return; // Salimos después de manejar salida
         }
     }
 
