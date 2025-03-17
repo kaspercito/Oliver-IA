@@ -3647,6 +3647,19 @@ async function manejarPlay(message) {
     }
 }
 
+function crearBossBar(currentTime, duration) {
+    const barLength = 20; // Longitud de la barra
+    const progress = Math.min(currentTime / duration, 1); // Proporción (0 a 1)
+    const filled = Math.floor(barLength * progress); // Segmentos llenos
+    const empty = barLength - filled; // Segmentos vacíos
+
+    const filledBar = '▬'.repeat(filled);
+    const emptyBar = '▬'.repeat(empty);
+    const cursor = filled > 0 && filled < barLength ? '🔘' : '';
+
+    return `${filledBar}${cursor}${emptyBar}`;
+}
+
 // Pausa
 async function manejarPause(message) {
     // Acá pausamos o seguimos la música, re simple pero copado
