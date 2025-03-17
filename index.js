@@ -4580,77 +4580,71 @@ const randomFacts = [
 }
 
 // Clima
-async function manejarClima(message) {
-    // Te digo el clima de una ciudad, re copado
+async function manejarClima(message, silent = false) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
-    // Saco la ciudad del mensaje
     const args = message.content.toLowerCase().startsWith('!clima') 
         ? message.content.slice(6).trim() 
         : message.content.slice(3).trim();
 
-    // Si no me das una ciudad, te pido una en rojo
     if (!args) {
-        return sendError(message.channel, `¡Decime una ciudad después de "!clima", ${userName}! Ejemplo: !clima Córdoba`);
+        const errorEmbed = createEmbed('#FF5555', '¡Pará, loco!', 
+            `¡Decime una ciudad después de "!clima", ${userName}! Ejemplo: !clima Córdoba`);
+        if (!silent) await message.channel.send({ embeds: [errorEmbed] });
+        return errorEmbed;
     }
 
-    // Te aviso en celeste que estoy chequeando
     const waitingEmbed = createEmbed('#FF1493', `⛅ Chequeando el clima, ${userName}...`, 
         `Aguantá que veo cómo está "${args}"...`);
-    const waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
+    let waitingMessage;
+    if (!silent) waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
 
     try {
-        // Busco el clima con OpenWeather
         const apiKey = process.env.OPENWEATHER_API_KEY;
         const url = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(args)}&appid=${apiKey}&units=metric&lang=es`;
         const response = await axios.get(url);
         const data = response.data;
 
-        // Saco los datos que importan
         const temp = Math.round(data.main.temp);
         const desc = data.weather[0].description;
         const city = data.name;
         const country = data.sys.country;
-        // Le pongo un toque de onda según la temperatura
         const vibe = temp > 25 ? "pa’l asado" : temp < 10 ? "pa’ un mate calentito" : "tranqui";
 
-        // Embed dorado con el clima
         const embed = createEmbed('#FF1493', `⛅ Clima en ${city}, ${country}`, 
             `${temp}°C, ${desc}, ${vibe}.`);
-        await waitingMessage.edit({ embeds: [embed] });
+        if (!silent && waitingMessage) await waitingMessage.edit({ embeds: [embed] });
+        return embed;
     } catch (error) {
-        // Si falla, te aviso en rojo
         console.error(`Error en clima para "${args}": ${error.message}`);
-        const errorEmbed = createEmbed('#FF1493', '¡Qué cagada!', 
+        const errorEmbed = createEmbed('#FF5555', '¡Qué cagada!', 
             `No pude encontrar el clima de "${args}", ${userName}. ¿Seguro que existe esa ciudad, loco?`);
-        await waitingMessage.edit({ embeds: [errorEmbed] });
+        if (!silent && waitingMessage) await waitingMessage.edit({ embeds: [errorEmbed] });
+        return errorEmbed;
     }
 }
 
 // Noticias
-async function manejarNoticias(message) {
+async function manejarNoticias(message, silent = false) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
 
     const waitingEmbed = createEmbed('#55FFFF', `📰 Buscando noticias, ${userName}...`, 
         `Aguantá que te traigo lo último de Argentina y Ecuador al toque...`);
-    const waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
+    let waitingMessage;
+    if (!silent) waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
 
     try {
         const apiKey = process.env.MEDIASTACK_API_KEY;
         if (!apiKey) throw new Error('Falta la clave de Mediastack en el .env, loco.');
 
-        // Fecha de hoy en formato YYYY-MM-DD, ajustada a la zona horaria de Argentina (UTC-3)
         const today = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Argentina/Buenos_Aires' });
         console.log(`Fecha calculada: ${today}`);
 
-        // Función para obtener noticias
         const fetchNews = async (country) => {
-            // Primero intentamos con la fecha de hoy
             let url = `http://api.mediastack.com/v1/news?access_key=${apiKey}&countries=${country}&languages=es&limit=5&date=${today}&sort=published_desc`;
             console.log(`Pidiendo noticias de ${country} a: ${url}`);
             let response = await axios.get(url);
             let articles = response.data.data || [];
 
-            // Si no hay noticias para hoy, reintentamos sin fecha
             if (articles.length === 0) {
                 url = `http://api.mediastack.com/v1/news?access_key=${apiKey}&countries=${country}&languages=es&limit=5&sort=published_desc`;
                 console.log(`Sin noticias de hoy para ${country}, probando sin fecha: ${url}`);
@@ -4661,19 +4655,16 @@ async function manejarNoticias(message) {
             return articles;
         };
 
-        // Obtenemos noticias de Argentina y Ecuador
         const articlesAR = await fetchNews('ar');
         const articlesEC = await fetchNews('ec');
 
         console.log('Respuesta AR:', JSON.stringify({ data: articlesAR }, null, 2));
         console.log('Respuesta EC:', JSON.stringify({ data: articlesEC }, null, 2));
 
-        // Si no hay noticias en absoluto, lanzamos error
         if (articlesAR.length === 0 && articlesEC.length === 0) {
             throw new Error('No encontré noticias copadas de Argentina ni de Ecuador, qué cagada.');
         }
 
-        // Función para formatear las noticias
         const formatNews = (articles, country) => {
             if (articles.length === 0) return `No encontré noticias posta de ${country} hoy, loco.`;
             return articles.slice(0, 5).map((article, index) => 
@@ -4684,23 +4675,19 @@ async function manejarNoticias(message) {
         const noticiasAR = formatNews(articlesAR, 'Argentina');
         const noticiasEC = formatNews(articlesEC, 'Ecuador');
 
-        // Embed con las noticias
         const embed = createEmbed('#FFD700', `📰 Últimas Noticias (${articlesAR.length > 0 || articlesEC.length > 0 ? today : 'Recientes'})`, 
             `**Argentina:**\n${noticiasAR}\n\n**Ecuador:**\n${noticiasEC}`);
-        await waitingMessage.edit({ embeds: [embed] });
+        if (!silent && waitingMessage) await waitingMessage.edit({ embeds: [embed] });
+        return embed;
     } catch (error) {
         console.error(`Error en noticias: ${error.message}`);
-        if (error.response) {
-            console.error(`Respuesta de la API: ${JSON.stringify(error.response.data)}`);
-        }
+        if (error.response) console.error(`Respuesta de la API: ${JSON.stringify(error.response.data)}`);
         const errorEmbed = createEmbed('#FF5555', '¡Qué quilombo!', 
             `No pude traer noticias copadas, ${userName}. Error: ${error.message}. ¿Probamos de nuevo, loco?`);
-        await waitingMessage.edit({ embeds: [errorEmbed] });
+        if (!silent && waitingMessage) await waitingMessage.edit({ embeds: [errorEmbed] });
+        return errorEmbed;
     }
 }
-
-// Exportamos la función si estás usando módulos
-module.exports = { manejarNoticias };
 
 // Wiki
 async function manejarWiki(message) {
@@ -5507,11 +5494,11 @@ async function manejarCommand(message) {
         await manejarDato(message);
     } 
     else if (content.startsWith('!clima')) {
-        await manejarClima(message);
+        return await manejarClima(message, silent);
     } 
     else if (content === '!noticias') {
-        await manejarNoticias(message);
-    } 
+        return await manejarNoticias(message, silent);
+    }
     else if (content.startsWith('!wiki')) {
         await manejarWiki(message);
     }
@@ -5544,21 +5531,21 @@ client.on('messageCreate', async (message) => {
     const content = message.content.trim().toLowerCase();
     console.log(`Contenido limpio: ${content}`);
 
-    // IDs de los roles @JEFE y @JEFA (ajustá según tu servidor)
     const jefeRoleId = '1154946840454762496'; // Reemplazá con el ID real de @JEFE si lo usás
-    const jefaRoleId = '1139744529428271187'; // Este parece ser @JEFA según los logs
+    const jefaRoleId = '1139744529428271187';
 
     const hasJefeMention = content.includes(`<@&${jefeRoleId}>`);
     const hasJefaMention = content.includes(`<@&${jefaRoleId}>`);
 
     if (hasJefeMention || hasJefaMention) {
         console.log(`Detectado mensaje IFTTT con mención: ${content}`);
-        const esJefe = hasJefeMention; // Si tiene mención a @JEFE, es para Belén
-        const userId = esJefe ? ALLOWED_USER_ID : OWNER_ID; // @JEFE = Belén, @JEFA = Miguel
+        const esJefe = hasJefeMention;
+        const userId = esJefe ? ALLOWED_USER_ID : OWNER_ID;
         const targetName = esJefe ? 'Belén' : 'Miguel';
         const canal = message.channel;
 
         if (content.includes('entered a su casa')) {
+            console.log(`Procesando llegada de ${targetName}`);
             try {
                 await message.delete();
                 console.log(`Mensaje de IFTTT borrado: ${content}`);
@@ -5585,23 +5572,36 @@ client.on('messageCreate', async (message) => {
                 }
             }
 
-            if (targetName === 'Belén') {
-                const clima = (await manejarCommand({ content: '!clima San Luis', channel: canal, author: { id: OWNER_ID } }, true)).embeds[0].description;
-                const noticias = (await manejarCommand({ content: '!noticias', channel: canal, author: { id: OWNER_ID } }, true)).embeds[0].description;
-                const hora = new Date().toLocaleTimeString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires', hour: '2-digit', minute: '2-digit' });
-                const recordatoriosText = avisos.length > 0 ? `Acá van tus recordatorios, escuchá bien, genia: ${avisos.join(', ')}. 📋` : 'No tenés recordatorios ahora, ¿querés que te tire un chiste pa’ festejar que llegaste? 😄';
-                await canal.send(`tts: ¡Qué lindo, Belén, llegaste a casa! Soy Oliver IA, tu bot piola, dándote la bienvenida con toda la onda. 🏠 El clima en San Luis está así: ${clima}. 🌤️ Noticias frescas: ${noticias}. 📰 Che, en Argentina son las ${hora} ahora mismo. ⏰ ${recordatoriosText}`);
-            } else if (targetName === 'Miguel') {
-                const clima = (await manejarCommand({ content: '!clima Guayaquil', channel: canal, author: { id: ALLOWED_USER_ID } }, true)).embeds[0].description;
-                const noticias = (await manejarCommand({ content: '!noticias', channel: canal, author: { id: ALLOWED_USER_ID } }, true)).embeds[0].description;
-                const hora = new Date().toLocaleTimeString('es-EC', { timeZone: 'America/Guayaquil', hour: '2-digit', minute: '2-digit' });
-                const recordatoriosText = avisos.length > 0 ? `Acá van tus recordatorios, prestá atención, loco: ${avisos.join(', ')}. 📋` : 'No hay recordatorios pa’ vos ahora, ¿querés cola o algo pa’ relajarte? 😎';
-                await canal.send(`tts: ¡Grande, Miguel, ya estás en casa! Soy Oliver IA, tu compañero fiel, dándote la bienvenida como se merece el capo. 🏠 El clima en Guayaquil está así: ${clima}. 🌤️ Noticias del día: ${noticias}. 📰 Che, en Ecuador son las ${hora} ahora. ⏰ ${recordatoriosText}`);
+            try {
+                let clima = 'No pude traer el clima, che.';
+                let noticias = 'No hay noticias frescas ahora, loco.';
+                
+                const climaResult = await manejarCommand({ content: targetName === 'Belén' ? '!clima San Luis' : '!clima Guayaquil', channel: canal, author: { id: userId } }, true);
+                if (climaResult?.description) clima = climaResult.description;
+                console.log(`Clima obtenido para ${targetName}: ${clima}`);
+
+                const noticiasResult = await manejarCommand({ content: '!noticias', channel: canal, author: { id: userId } }, true);
+                if (noticiasResult?.description) noticias = noticiasResult.description;
+                console.log(`Noticias obtenidas para ${targetName}: ${noticias}`);
+
+                if (targetName === 'Belén') {
+                    const hora = new Date().toLocaleTimeString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires', hour: '2-digit', minute: '2-digit' });
+                    const recordatoriosText = avisos.length > 0 ? `Acá van tus recordatorios, escuchá bien, genia: ${avisos.join(', ')}. 📋` : 'No tenés recordatorios ahora, ¿querés que te tire un chiste pa’ festejar que llegaste? 😄';
+                    await canal.send(`tts: ¡Qué lindo, Belén, llegaste a casa! Soy Oliver IA, tu bot piola, dándote la bienvenida con toda la onda. 🏠 El clima en San Luis está así: ${clima}. 🌤️ Noticias frescas: ${noticias}. 📰 Che, en Argentina son las ${hora} ahora mismo. ⏰ ${recordatoriosText}`);
+                } else if (targetName === 'Miguel') {
+                    const hora = new Date().toLocaleTimeString('es-EC', { timeZone: 'America/Guayaquil', hour: '2-digit', minute: '2-digit' });
+                    const recordatoriosText = avisos.length > 0 ? `Acá van tus recordatorios, prestá atención, loco: ${avisos.join(', ')}. 📋` : 'No hay recordatorios pa’ vos ahora, ¿querés cola o algo pa’ relajarte? 😎';
+                    await canal.send(`tts: ¡Grande, Miguel, ya estás en casa! Soy Oliver IA, tu compañero fiel, dándote la bienvenida como se merece el capo. 🏠 El clima en Guayaquil está así: ${clima}. 🌤️ Noticias del día: ${noticias}. 📰 Che, en Ecuador son las ${hora} ahora. ⏰ ${recordatoriosText}`);
+                }
+                console.log(`TTS enviado para llegada de ${targetName}`);
+            } catch (error) {
+                console.error(`Error procesando llegada de ${targetName}: ${error.message}`);
             }
             return;
         }
 
         if (content.includes('exited a su casa')) {
+            console.log(`Procesando salida de ${targetName}`);
             try {
                 await message.delete();
                 console.log(`Mensaje de IFTTT borrado: ${content}`);
@@ -5609,12 +5609,17 @@ client.on('messageCreate', async (message) => {
                 console.error(`No pude borrar el mensaje de IFTTT: ${error.message}`);
             }
 
-            if (targetName === 'Miguel') {
-                const hora = new Date().toLocaleTimeString('es-EC', { timeZone: 'America/Guayaquil', hour: '2-digit', minute: '2-digit' });
-                await canal.send(`tts: ¡Ojo, Miguel salió de casa! Soy Oliver IA, tu bot copado, avisando que el capo ya está en marcha. Son las ${hora} en Ecuador, ¡a romperla donde vayas, loco! 🚀`);
-            } else if (targetName === 'Belén') {
-                const hora = new Date().toLocaleTimeString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires', hour: '2-digit', minute: '2-digit' });
-                await canal.send(`tts: ¡Atenti, Belén salió de casa! Soy Oliver IA, tu bot fiel, avisando que la genia ya está en acción. Son las ${hora} en Argentina, ¡a darle con todo, reina! 🌸`);
+            try {
+                if (targetName === 'Miguel') {
+                    const hora = new Date().toLocaleTimeString('es-EC', { timeZone: 'America/Guayaquil', hour: '2-digit', minute: '2-digit' });
+                    await canal.send(`tts: ¡Ojo, Miguel salió de casa! Soy Oliver IA, tu bot copado, avisando que el capo ya está en marcha. Son las ${hora} en Ecuador, ¡a romperla donde vayas, loco! 🚀`);
+                } else if (targetName === 'Belén') {
+                    const hora = new Date().toLocaleTimeString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires', hour: '2-digit', minute: '2-digit' });
+                    await canal.send(`tts: ¡Atenti, Belén salió de casa! Soy Oliver IA, tu bot fiel, avisando que la genia ya está en acción. Son las ${hora} en Argentina, ¡a darle con todo, reina! 🌸`);
+                }
+                console.log(`TTS enviado para salida de ${targetName}`);
+            } catch (error) {
+                console.error(`Error procesando salida de ${targetName}: ${error.message}`);
             }
             return;
         }
