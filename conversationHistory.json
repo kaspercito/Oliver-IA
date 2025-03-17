@@ -594,15 +594,6 @@
       "minutos": 0
     },
     {
-      "id": "342c96a0-75c2-4239-a897-729f7ab7683c",
-      "userId": "1023132788632862761",
-      "channelId": "1328170231008464958",
-      "mensaje": "comprar agua mineral y artículos de limpieza al llegar a casa",
-      "cuandoLlegue": true,
-      "timestamp": 1742248800000,
-      "creado": 1742234421552
-    },
-    {
       "id": "8be7043d-cd26-4f8d-851d-8f87cdf538c5",
       "userId": "1023132788632862761",
       "channelId": "1343749554905940058",
@@ -631,6 +622,17 @@
       "mensaje": "pedir comida",
       "timestamp": 1742256348258,
       "creado": 1742241948258,
+      "esRecurrente": false,
+      "hora": null,
+      "minutos": null
+    },
+    {
+      "id": "d7840e0f-a525-437d-97f6-0f9b942f2b92",
+      "userId": "752987736759205960",
+      "channelId": "1343749554905940058",
+      "mensaje": "retirar la comida por el negocio",
+      "timestamp": 1742261291101,
+      "creado": 1742254091102,
       "esRecurrente": false,
       "hora": null,
       "minutos": null
@@ -667,6 +669,11 @@
       {
         "action": "mentiroso",
         "timestamp": 1742188023084,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "sigo en la clínica",
+        "timestamp": 1742253788569,
         "userId": "1023132788632862761"
       }
     ],
