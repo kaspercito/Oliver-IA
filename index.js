@@ -5544,10 +5544,17 @@ client.on('messageCreate', async (message) => {
     const content = message.content.trim().toLowerCase();
     console.log(`Contenido limpio: ${content}`);
 
-    if (content.startsWith('@jefe') || content.startsWith('@jefa')) {
-        console.log(`Detectado mensaje IFTTT: ${content}`);
-        const esJefe = content.startsWith('@jefe');
-        const userId = esJefe ? ALLOWED_USER_ID : OWNER_ID;
+    // IDs de los roles @JEFE y @JEFA (ajustá según tu servidor)
+    const jefeRoleId = '1154946840454762496'; // Reemplazá con el ID real de @JEFE si lo usás
+    const jefaRoleId = '1139744529428271187'; // Este parece ser @JEFA según los logs
+
+    const hasJefeMention = content.includes(`<@&${jefeRoleId}>`);
+    const hasJefaMention = content.includes(`<@&${jefaRoleId}>`);
+
+    if (hasJefeMention || hasJefaMention) {
+        console.log(`Detectado mensaje IFTTT con mención: ${content}`);
+        const esJefe = hasJefeMention; // Si tiene mención a @JEFE, es para Belén
+        const userId = esJefe ? ALLOWED_USER_ID : OWNER_ID; // @JEFE = Belén, @JEFA = Miguel
         const targetName = esJefe ? 'Belén' : 'Miguel';
         const canal = message.channel;
 
@@ -5564,7 +5571,6 @@ client.on('messageCreate', async (message) => {
             let avisos = [];
             let pendientes = [];
 
-            // Procesar recordatorios
             if (recordatoriosPendientes.length > 0) {
                 recordatoriosPendientes.forEach(r => {
                     if (!r.timestamp || ahora >= r.timestamp) {
@@ -5579,7 +5585,6 @@ client.on('messageCreate', async (message) => {
                 }
             }
 
-            // Mensaje TTS combinado para llegada
             if (targetName === 'Belén') {
                 const clima = (await manejarCommand({ content: '!clima San Luis', channel: canal, author: { id: OWNER_ID } }, true)).embeds[0].description;
                 const noticias = (await manejarCommand({ content: '!noticias', channel: canal, author: { id: OWNER_ID } }, true)).embeds[0].description;
@@ -5593,12 +5598,10 @@ client.on('messageCreate', async (message) => {
                 const recordatoriosText = avisos.length > 0 ? `Acá van tus recordatorios, prestá atención, loco: ${avisos.join(', ')}. 📋` : 'No hay recordatorios pa’ vos ahora, ¿querés cola o algo pa’ relajarte? 😎';
                 await canal.send(`tts: ¡Grande, Miguel, ya estás en casa! Soy Oliver IA, tu compañero fiel, dándote la bienvenida como se merece el capo. 🏠 El clima en Guayaquil está así: ${clima}. 🌤️ Noticias del día: ${noticias}. 📰 Che, en Ecuador son las ${hora} ahora. ⏰ ${recordatoriosText}`);
             }
-            return; // Salimos después de manejar llegada
+            return;
         }
 
-        // Cuando alguien sale de casa
         if (content.includes('exited a su casa')) {
-            // Borramos el mensaje de IFTTT
             try {
                 await message.delete();
                 console.log(`Mensaje de IFTTT borrado: ${content}`);
@@ -5606,7 +5609,6 @@ client.on('messageCreate', async (message) => {
                 console.error(`No pude borrar el mensaje de IFTTT: ${error.message}`);
             }
 
-            // Mensaje TTS combinado para salida
             if (targetName === 'Miguel') {
                 const hora = new Date().toLocaleTimeString('es-EC', { timeZone: 'America/Guayaquil', hour: '2-digit', minute: '2-digit' });
                 await canal.send(`tts: ¡Ojo, Miguel salió de casa! Soy Oliver IA, tu bot copado, avisando que el capo ya está en marcha. Son las ${hora} en Ecuador, ¡a romperla donde vayas, loco! 🚀`);
@@ -5614,7 +5616,7 @@ client.on('messageCreate', async (message) => {
                 const hora = new Date().toLocaleTimeString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires', hour: '2-digit', minute: '2-digit' });
                 await canal.send(`tts: ¡Atenti, Belén salió de casa! Soy Oliver IA, tu bot fiel, avisando que la genia ya está en acción. Son las ${hora} en Argentina, ¡a darle con todo, reina! 🌸`);
             }
-            return; // Salimos después de manejar salida
+            return;
         }
     }
 
