@@ -5531,7 +5531,7 @@ client.on('messageCreate', async (message) => {
     const content = message.content.trim().toLowerCase();
     console.log(`Contenido limpio: ${content}`);
 
-    const jefeRoleId = '1154946840454762496'; // Reemplazá con el ID real de @JEFE si lo usás
+    const jefeRoleId = '1154946840454762496';
     const jefaRoleId = '1139744529428271187';
 
     const hasJefeMention = content.includes(`<@&${jefeRoleId}>`);
@@ -5544,132 +5544,129 @@ client.on('messageCreate', async (message) => {
         const targetName = esJefe ? 'Belén' : 'Miguel';
         const canal = message.channel;
 
-    if (content.includes('entered a su casa')) {
-    console.log(`Procesando llegada de ${targetName}`);
-    try {
-        await message.delete();
-        console.log(`Mensaje de IFTTT borrado: ${content}`);
-    } catch (error) {
-        console.error(`No pude borrar el mensaje: ${error.message}`);
-    }
-
-    const ahora = Date.now();
-    const recordatoriosPendientes = dataStore.recordatorios.filter(r => r.cuandoLlegue && r.userId === userId);
-    let avisos = [];
-    let pendientes = [];
-
-    if (recordatoriosPendientes.length > 0) {
-        recordatoriosPendientes.forEach(r => {
-            if (!r.timestamp || ahora >= r.timestamp) {
-                avisos.push(`- ${r.mensaje} ${r.timestamp ? `(seteado para las ${new Date(r.timestamp).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })})` : ''}`);
-            } else {
-                pendientes.push(r);
+        if (content.includes('entered a su casa')) {
+            console.log(`Procesando llegada de ${targetName}`);
+            try {
+                await message.delete();
+                console.log(`Mensaje de IFTTT borrado: ${content}`);
+            } catch (error) {
+                console.error(`No pude borrar el mensaje: ${error.message}`);
             }
-        });
-        if (avisos.length > 0) {
-            dataStore.recordatorios = dataStore.recordatorios.filter(r => !r.cuandoLlegue || r.userId !== userId || pendientes.includes(r));
-            autoModified = true;
+
+            const ahora = Date.now();
+            const recordatoriosPendientes = dataStore.recordatorios.filter(r => r.cuandoLlegue && r.userId === userId);
+            let avisos = [];
+            let pendientes = [];
+
+            if (recordatoriosPendientes.length > 0) {
+                recordatoriosPendientes.forEach(r => {
+                    if (!r.timestamp || ahora >= r.timestamp) {
+                        avisos.push(`- ${r.mensaje} ${r.timestamp ? `(seteado para las ${new Date(r.timestamp).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })})` : ''}`);
+                    } else {
+                        pendientes.push(r);
+                    }
+                });
+                if (avisos.length > 0) {
+                    dataStore.recordatorios = dataStore.recordatorios.filter(r => !r.cuandoLlegue || r.userId !== userId || pendientes.includes(r));
+                    autoModified = true;
+                }
+            }
+
+            try {
+                let clima = 'No pude traer el clima, che.';
+                let noticias = 'No hay noticias frescas ahora, loco.';
+                
+                const climaResult = await manejarCommand({ content: targetName === 'Belén' ? '!clima San Luis' : '!clima Guayaquil', channel: canal, author: { id: userId } }, true);
+                if (climaResult?.description) clima = climaResult.description;
+                console.log(`Clima obtenido para ${targetName}: ${clima}`);
+
+                const noticiasResult = await manejarCommand({ content: '!noticias', channel: canal, author: { id: userId } }, true);
+                if (noticiasResult?.description) noticias = noticiasResult.description;
+                console.log(`Noticias obtenidas para ${targetName}: ${noticias}`);
+
+                if (targetName === 'Belén') {
+                    const hora = new Date().toLocaleTimeString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires', hour: '2-digit', minute: '2-digit' });
+                    const recordatoriosText = avisos.length > 0 ? `Acá van tus recordatorios, escuchá bien, genia: ${avisos.join(', ')}. 📋` : 'No tenés recordatorios ahora, ¿querés que te tire un chiste pa’ festejar que llegaste? 😄';
+                    await canal.send(`tts: ¡Qué lindo, Belén, llegaste a casa! Soy Oliver IA, tu bot piola, dándote la bienvenida con toda la onda. 🏠 El clima en San Luis está así: ${clima}. 🌤️ Noticias frescas: ${noticias}. 📰 Che, en Argentina son las ${hora} ahora mismo. ⏰ ${recordatoriosText}`);
+                    
+                    const embed = createEmbed('#FF1493', `¡Bienvenida a casa, Belén! 🏠`, 
+                        `¡Qué lindo tenerte de vuelta, genia! Acá va todo lo que necesitás saber al toque`)
+                        .addFields(
+                            { name: '🌤️ Clima en San Luis', value: clima, inline: false },
+                            { name: '📰 Noticias frescas', value: noticias.split('\n\n')[0] || noticias, inline: false },
+                            { name: '⏰ Hora en Argentina', value: hora, inline: true },
+                            { name: '📋 Recordatorios', value: avisos.length > 0 ? avisos.join('\n') : 'No tenés recordatorios ahora, ¡descansá tranqui!', inline: false }
+                        )
+                        .setFooter({ text: 'Con cariño, Oliver IA' });
+                    await canal.send({ embeds: [embed] });
+                } else if (targetName === 'Miguel') {
+                    const hora = new Date().toLocaleTimeString('es-EC', { timeZone: 'America/Guayaquil', hour: '2-digit', minute: '2-digit' });
+                    const recordatoriosText = avisos.length > 0 ? `Acá van tus recordatorios, prestá atención, loco: ${avisos.join(', ')}. 📋` : 'No hay recordatorios pa’ vos ahora, ¿querés cola o algo pa’ relajarte? 😎';
+                    await canal.send(`tts: ¡Grande, Miguel, ya estás en casa! Soy Oliver IA, tu compañero fiel, dándote la bienvenida como se merece el capo. 🏠 El clima en Guayaquil está así: ${clima}. 🌤️ Noticias del día: ${noticias}. 📰 Che, en Ecuador son las ${hora} ahora. ⏰ ${recordatoriosText}`);
+                    
+                    const embed = createEmbed('#FF1493', `¡Bienvenido a casa, Miguel! 🏠`, 
+                        `¡Grande, capo! Acá tenés todo lo que precisás saber ahora mismo`)
+                        .addFields(
+                            { name: '🌤️ Clima en Guayaquil', value: clima, inline: false },
+                            { name: '📰 Noticias del día', value: noticias.split('\n\n')[0] || noticias, inline: false },
+                            { name: '⏰ Hora en Ecuador', value: hora, inline: true },
+                            { name: '📋 Recordatorios', value: avisos.length > 0 ? avisos.join('\n') : 'No hay recordatorios pa’ vos, ¡a relajarse, loco!', inline: false }
+                        )
+                        .setFooter({ text: 'Con onda, Oliver IA' });
+                    await canal.send({ embeds: [embed] });
+                }
+                console.log(`TTS y embed enviados para llegada de ${targetName}`);
+            } catch (error) {
+                console.error(`Error procesando llegada de ${targetName}: ${error.message}`);
+            }
+            return;
+        }
+
+        if (content.includes('exited a su casa')) {
+            console.log(`Procesando salida de ${targetName}`);
+            try {
+                await message.delete();
+                console.log(`Mensaje de IFTTT borrado: ${content}`);
+            } catch (error) {
+                console.error(`No pude borrar el mensaje de IFTTT: ${error.message}`);
+            }
+
+            try {
+                if (targetName === 'Miguel') {
+                    const hora = new Date().toLocaleTimeString('es-EC', { timeZone: 'America/Guayaquil', hour: '2-digit', minute: '2-digit' });
+                    await canal.send(`tts: ¡Ojo, Miguel salió de casa! Soy Oliver IA, tu bot copado, avisando que el capo ya está en marcha. Son las ${hora} en Ecuador, ¡a romperla donde vayas, loco! 🚀`);
+                    
+                    const embed = createEmbed('#FF1493', `¡A la calle, Miguel! 🚪`, 
+                        `¡Grande, capo! Saliste a comerte el mundo, ¿eh?`)
+                        .addFields(
+                            { name: '⏰ Hora en Ecuador', value: hora, inline: true },
+                            { name: '💪 Mensaje del día', value: '¡A meterle pilas, loco! Que nada te pare hoy.', inline: false }
+                        )
+                        .setFooter({ text: 'Con onda, Oliver IA' });
+                    await canal.send({ embeds: [embed] });
+                } else if (targetName === 'Belén') {
+                    const hora = new Date().toLocaleTimeString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires', hour: '2-digit', minute: '2-digit' });
+                    await canal.send(`tts: ¡Atenti, Belén salió de casa! Soy Oliver IA, tu bot fiel, avisando que la genia ya está en acción. Son las ${hora} en Argentina, ¡a darle con todo, reina! 🌸`);
+                    
+                    const embed = createEmbed('#FF1493', `¡A la calle, Belén! 🚪`, 
+                        `¡Ey, genia! Saliste a romperla toda, ¿no?`)
+                        .addFields(
+                            { name: '⏰ Hora en Argentina', value: hora, inline: true },
+                            { name: '💪 Mensaje del día', value: '¡A brillar, grosa! Que el día sea tuyo.', inline: false }
+                        )
+                        .setFooter({ text: 'Con cariño, Oliver IA' });
+                    await canal.send({ embeds: [embed] });
+                }
+                console.log(`TTS y embed enviados para salida de ${targetName}`);
+            } catch (error) {
+                console.error(`Error procesando salida de ${targetName}: ${error.message}`);
+            }
+            return;
         }
     }
 
-    try {
-        let clima = 'No pude traer el clima, che.';
-        let noticias = 'No hay noticias frescas ahora, loco.';
-        
-        const climaResult = await manejarCommand({ content: targetName === 'Belén' ? '!clima San Luis' : '!clima Guayaquil', channel: canal, author: { id: userId } }, true);
-        if (climaResult?.description) clima = climaResult.description;
-        console.log(`Clima obtenido para ${targetName}: ${clima}`);
-
-        const noticiasResult = await manejarCommand({ content: '!noticias', channel: canal, author: { id: userId } }, true);
-        if (noticiasResult?.description) noticias = noticiasResult.description;
-        console.log(`Noticias obtenidas para ${targetName}: ${noticias}`);
-
-        // TTS como estaba
-        if (targetName === 'Belén') {
-            const hora = new Date().toLocaleTimeString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires', hour: '2-digit', minute: '2-digit' });
-            const recordatoriosText = avisos.length > 0 ? `Acá van tus recordatorios, escuchá bien, genia: ${avisos.join(', ')}. 📋` : 'No tenés recordatorios ahora, ¿querés que te tire un chiste pa’ festejar que llegaste? 😄';
-            await canal.send(`tts: ¡Qué lindo, Belén, llegaste a casa! Soy Oliver IA, tu bot piola, dándote la bienvenida con toda la onda. 🏠 El clima en San Luis está así: ${clima}. 🌤️ Noticias frescas: ${noticias}. 📰 Che, en Argentina son las ${hora} ahora mismo. ⏰ ${recordatoriosText}`);
-            
-            // Embed bonito para Belén con recordatorios
-            const embed = createEmbed('#FF1493', `¡Bienvenida a casa, Belén! 🏠`, 
-                `¡Qué lindo tenerte de vuelta, genia! Acá va todo lo que necesitás saber al toque`)
-                .addFields(
-                    { name: '🌤️ Clima en San Luis', value: clima, inline: false },
-                    { name: '📰 Noticias frescas', value: noticias.split('\n\n')[0] || noticias, inline: false }, // Solo la primera noticia para no saturar
-                    { name: '⏰ Hora en Argentina', value: hora, inline: true },
-                    { name: '📋 Recordatorios', value: avisos.length > 0 ? avisos.join('\n') : 'No tenés recordatorios ahora, ¡descansá tranqui!', inline: false }
-                )
-                .setFooter({ text: 'Con cariño, Oliver IA' });
-            await canal.send({ embeds: [embed] });
-        } else if (targetName === 'Miguel') {
-            const hora = new Date().toLocaleTimeString('es-EC', { timeZone: 'America/Guayaquil', hour: '2-digit', minute: '2-digit' });
-            const recordatoriosText = avisos.length > 0 ? `Acá van tus recordatorios, prestá atención, loco: ${avisos.join(', ')}. 📋` : 'No hay recordatorios pa’ vos ahora, ¿querés cola o algo pa’ relajarte? 😎';
-            await canal.send(`tts: ¡Grande, Miguel, ya estás en casa! Soy Oliver IA, tu compañero fiel, dándote la bienvenida como se merece el capo. 🏠 El clima en Guayaquil está así: ${clima}. 🌤️ Noticias del día: ${noticias}. 📰 Che, en Ecuador son las ${hora} ahora. ⏰ ${recordatoriosText}`);
-            
-            // Embed bonito para Miguel con recordatorios
-            const embed = createEmbed('#FF1493', `¡Bienvenido a casa, Miguel! 🏠`, 
-                `¡Grande, capo! Acá tenés todo lo que precisás saber ahora mismo`)
-                .addFields(
-                    { name: '🌤️ Clima en Guayaquil', value: clima, inline: false },
-                    { name: '📰 Noticias del día', value: noticias.split('\n\n')[0] || noticias, inline: false }, // Solo la primera noticia para no saturar
-                    { name: '⏰ Hora en Ecuador', value: hora, inline: true },
-                    { name: '📋 Recordatorios', value: avisos.length > 0 ? avisos.join('\n') : 'No hay recordatorios pa’ vos, ¡a relajarse, loco!', inline: false }
-                )
-                .setFooter({ text: 'Con onda, Oliver IA' });
-            await canal.send({ embeds: [embed] });
-        }
-        console.log(`TTS y embed enviados para llegada de ${targetName}`);
-    } catch (error) {
-        console.error(`Error procesando llegada de ${targetName}: ${error.message}`);
-    }
-    return;
-}
-if (content.includes('exited a su casa')) {
-    console.log(`Procesando salida de ${targetName}`);
-    try {
-        await message.delete();
-        console.log(`Mensaje de IFTTT borrado: ${content}`);
-    } catch (error) {
-        console.error(`No pude borrar el mensaje de IFTTT: ${error.message}`);
-    }
-
-    try {
-        if (targetName === 'Miguel') {
-            const hora = new Date().toLocaleTimeString('es-EC', { timeZone: 'America/Guayaquil', hour: '2-digit', minute: '2-digit' });
-            await canal.send(`tts: ¡Ojo, Miguel salió de casa! Soy Oliver IA, tu bot copado, avisando que el capo ya está en marcha. Son las ${hora} en Ecuador, ¡a romperla donde vayas, loco! 🚀`);
-            
-            // Embed bonito para Miguel
-            const embed = createEmbed('#FF1493', `¡A la calle, Miguel! 🚪`, 
-                `¡Grande, capo! Saliste a comerte el mundo, ¿eh?`)
-                .addFields(
-                    { name: '⏰ Hora en Ecuador', value: hora, inline: true },
-                    { name: '💪 Mensaje del día', value: '¡A meterle pilas, loco! Que nada te pare hoy.', inline: false }
-                )
-                .setFooter({ text: 'Con onda, Oliver IA' });
-            await canal.send({ embeds: [embed] });
-        } else if (targetName === 'Belén') {
-            const hora = new Date().toLocaleTimeString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires', hour: '2-digit', minute: '2-digit' });
-            await canal.send(`tts: ¡Atenti, Belén salió de casa! Soy Oliver IA, tu bot fiel, avisando que la genia ya está en acción. Son las ${hora} en Argentina, ¡a darle con todo, reina! 🌸`);
-            
-            // Embed bonito para Belén
-            const embed = createEmbed('#FF1493', `¡A la calle, Belén! 🚪`, 
-                `¡Ey, genia! Saliste a romperla toda, ¿no?`)
-                .addFields(
-                    { name: '⏰ Hora en Argentina', value: hora, inline: true },
-                    { name: '💪 Mensaje del día', value: '¡A brillar, grosa! Que el día sea tuyo.', inline: false }
-                )
-                .setFooter({ text: 'Con cariño, Oliver IA' });
-            await canal.send({ embeds: [embed] });
-        }
-        console.log(`TTS y embed enviados para salida de ${targetName}`);
-    } catch (error) {
-        console.error(`Error procesando salida de ${targetName}: ${error.message}`);
-    }
-    return;
-}
     if (message.author.bot) return;
 
-    // Resto del código sin cambios (mayúsculas, comandos, etc.)
     const lettersOnly = message.content.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ]/g, '');
     if (lettersOnly.length > 5 && (message.author.id === OWNER_ID || message.author.id === ALLOWED_USER_ID)) {
         const uppercaseCount = lettersOnly.split('').filter(char => char === char.toUpperCase()).length;
@@ -5712,7 +5709,6 @@ if (content.includes('exited a su casa')) {
     processedMessages.set(message.id, Date.now());
     setTimeout(() => processedMessages.delete(message.id), 10000);
 
-    // Cancelaciones y comandos (sin cambios)
     if (content === '!tc' || content === '!trivia cancelar') {
         const triviaKey = `trivia_${message.channel.id}`;
         const session = dataStore.activeSessions[triviaKey];
@@ -5757,13 +5753,75 @@ if (content.includes('exited a su casa')) {
         return;
     }
 
-    // Otros comandos después
+    // Comandos integrados del primer bloque
+    if (content === '!stop' || content === '!st') {
+        await manejarStop(message);
+        isPlayingMusic = false;
+        autosavePausedByMusic = false;
+        console.log('Música parada, autosave reanudado.');
+        return;
+    } else if (content === '!queue' || content === '!qu') {
+        await manejarQueue(message);
+        return;
+    } else if (content === '!repeat' || content === '!rp') {
+        await manejarRepeat(message);
+        return;
+    } else if (content === '!back' || content === '!bk') {
+        await manejarBack(message);
+        return;
+    } else if (content === '!autoplay' || content === '!ap') {
+        await manejarAutoplay(message);
+        return;
+    } else if (content === '!autosave' || content === '!as') {
+        await manejarAutosave(message);
+        return;
+    } else if (content === '!lyrics' || content === '!ly') {
+        await manejarLyrics(message);
+        return;
+    } else if (content === '!adivinanzas' || content === '!ad') {
+        await manejarAdivinanza(message);
+        return;
+    } else if (content.startsWith('!responder') || content.startsWith('!resp')) {
+        await manejarResponder(message);
+        return;
+    } else if (content.startsWith('!idea') || content.startsWith('!id')) {
+        await manejarIdea(message);
+        return;
+    } else if (content.startsWith('!dato') || content.startsWith('!dt')) {
+        await manejarDato(message);
+        return;
+    } else if (content.startsWith('!clima')) {
+        await manejarClima(message);
+        return;
+    } else if (content === '!noticias') {
+        await manejarNoticias(message);
+        return;
+    } else if (content.startsWith('!wiki')) {
+        await manejarWiki(message);
+        return;
+    } else if (content.startsWith('!imagen') || content.startsWith('!im')) {
+        await manejarImagen(message);
+        return;
+    } else if (content === '!misimagenes') {
+        await manejarMisImagenes(message);
+        return;
+    } else if (content.startsWith('!editarimagen') || content.startsWith('!ei')) {
+        await manejarEditarImagen(message);
+        return;
+    } else if (content.startsWith('!ansiedad') || content.startsWith('!an')) {
+        await manejarAnsiedad(message);
+        return;
+    } else if (content === '!lenguajes') {
+        await listarIdiomas(message);
+        return;
+    }
+
+    // Resto de los comandos originales
     await manejarCommand(message);
     if (content === '!ranking' || content === '!rk') {
         const embed = getCombinedRankingEmbed(message.author.id, message.author.username);
         await message.channel.send({ embeds: [embed] });
     } else if (content === '!help' || content === '!h') {
-        // Lista de comandos generales
         const embed = createEmbed('#FF1493', `¡Lista de comandos para vos, ${userName}!`,
             '¡Acá tenés todo lo que puedo hacer por vos, loco!\n' +
             '- **!ch / !chat [mensaje]**: Charlamos un rato, posta.\n' +
@@ -5774,7 +5832,7 @@ if (content.includes('exited a su casa')) {
             '- **!rk / !ranking**: Tus puntajes y estadísticas (récord más alto de PPM).\n' +
             '- **!ppt [piedra/papel/tijera]**: Jugá Piedra, Papel o Tijera contra mí, ¡dale!\n' +
             '- **!ppt @alguien**: Desafiá a otro a Piedra, Papel o Tijera, ¡posta!\n' +
-            '- **!ad / !adivinanza**: Te tiro una adivinanza copada pa’ que le des al coco, ¡30 segundos pa’ responder, dale!\n' + // Nuevo
+            '- **!ad / !adivinanza**: Te tiro una adivinanza copada pa’ que le des al coco, ¡30 segundos pa’ responder, dale!\n' +
             '- **!rppm / !rankingppm**: Todos tus intentos de PPM, loco.\n' +
             '- **!re / !reacciones**: Juego para ver quién tipea más rápido.\n' +
             '- **!rc / !reacciones cancelar**: Cancela las reacciones que empezaste.\n' +            
@@ -5790,12 +5848,12 @@ if (content.includes('exited a su casa')) {
             '- **!wiki [término]**: Busco un resumen en Wikipedia, ¡copado!\n' +
             '- **!traduci [frase] a [idioma]**: Traduzco frases cortas, joya pa’ practicar.\n' +
             '- **!an / !ansiedad**: Tips rápidos pa’ calmar la ansiedad, con un mensaje especial de Miguel pa’ darte pilas.\n' +
-            '- **!chiste**: Te tiro un chiste random pa’ sacarte una carcajada, ¡re copado!\n' + // Nuevo
-            '- **!av / !avatar [URL o adjunto]**: Cambio mi foto de perfil.\n' + //Nuevo
-            '- **!jugar**: Adivina un número del 1 al 10, ¡5 intentos pa’ ganarme, loco!\n' + // Nuevo
-            '- **!meme**: Te tiro un meme random pa’ sacarte una sonrisa.\n' +             // Nuevo
-            '- **!pregunta**: Te hago una pregunta loca pa’ charlar un rato.\n' +          // Nuevo
-            '- **!wt / !watchtogether**: Mirá videos de YouTube conmigo en un canal de voz, ¡re copado!\n' + // Nuevo
+            '- **!chiste**: Te tiro un chiste random pa’ sacarte una carcajada, ¡re copado!\n' +
+            '- **!av / !avatar [URL o adjunto]**: Cambio mi foto de perfil.\n' +
+            '- **!jugar**: Adivina un número del 1 al 10, ¡5 intentos pa’ ganarme, loco!\n' +
+            '- **!meme**: Te tiro un meme random pa’ sacarte una sonrisa.\n' +
+            '- **!pregunta**: Te hago una pregunta loca pa’ charlar un rato.\n' +
+            '- **!wt / !watchtogether**: Mirá videos de YouTube conmigo en un canal de voz, ¡re copado!\n' +
             '- **!rec / !recordatorio [mensaje] [tiempo]**: Te recuerdo algo. Ejemplo: "!rec \'comprar sanguche\' en 1 hora" o "!rec \'tomar mate\' todos los días 08:00".\n' +
             '- **!mr / !misrecordatorios**: Te muestro tus recordatorios activos.\n' +
             '- **!cr / !cancelarrecordatorio [ID]**: Cancelás un recordatorio con su ID (lo ves con !mr).\n' +
@@ -5806,7 +5864,6 @@ if (content.includes('exited a su casa')) {
             '- **hola**: Te tiro un saludito con onda.');
         await message.channel.send({ embeds: [embed] });
     } else if (content === '!help musica' || content === '!hm') {
-        // Lista de comandos de música
         const embed = createEmbed('#FF1493', `¡Comandos de música para vos, ${userName}!`,
             '¡Poné el ritmo con estos comandos, loco!\n' +
             '- **!pl / !play [canción/URL]**: Tiro un tema para que suene.\n' +
@@ -5822,7 +5879,6 @@ if (content.includes('exited a su casa')) {
             '- **!hm / !help musica**: Esta guía de música, posta.');
         await message.channel.send({ embeds: [embed] });
     } else if (content === 'hola') {
-        // Saludo copado si me decís hola
         const embed = createEmbed('#FF1493', `¡Qué lindo verte, ${userName}!`,
             `¡Hola, loco! Soy Oliver IA, tu compañero piola, trayéndote buena onda como si estuviéramos tomando mate en la vereda. ¿Cómo estás hoy, che? Estoy listo para charlar, ayudarte o tirar unas pavadas para reírnos. ¿Qué tenés en mente? ¡Dale, arrancamos!`);
         await message.channel.send({ embeds: [embed] });
