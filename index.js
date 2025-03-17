@@ -3301,20 +3301,21 @@ function parsearTiempo(texto) {
 }
 
 async function manejarRecordatorio(message) {
-    const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Aurora'; // Ajustá según quién es ella
+    const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Aurora'; // Ajustá según ALLOWED_USER_ID
     const args = message.content.split(' ').slice(1).join(' ').trim();
 
-    if (!args) return sendError(message.channel, `¡Mandame algo pa’ recordar, ${userName}! Ejemplo: "!rec comprar agua al llegar a casa"`);
+    if (!args) return sendError(message.channel, `¡Mandame algo pa’ recordar, ${userName}! Ejemplo: "!rec comprar agua al llegar a casa a las 22:00"`);
 
     const palabras = args.toLowerCase().split(' ');
     let tiempoIndex = -1;
     let esCuandoLlegue = false;
     let mensajeStart = 0;
+    let horaIndex = -1;
 
     // Ignoramos "recuérdame" o similares al principio
     if (palabras[0] === 'recuérdame' || palabras[0] === 'recordame') mensajeStart = 1;
 
-    // Buscamos el tiempo o "al llegar a casa"
+    // Buscamos "al llegar a casa" o tiempo
     for (let i = mensajeStart; i < palabras.length; i++) {
         if (palabras[i] === 'cuando' && palabras[i + 1] === 'llegue' && palabras[i + 2] === 'a' && palabras[i + 3] === 'casa') {
             tiempoIndex = i;
@@ -3330,31 +3331,43 @@ async function manejarRecordatorio(message) {
         }
     }
 
-    if (tiempoIndex === -1) return sendError(message.channel, `No entendí el tiempo, ${userName}. Usá "en 5 minutos", "mañana 15:00", o "al llegar a casa".`);
+    if (tiempoIndex === -1) return sendError(message.channel, `No entendí el tiempo, ${userName}. Usá "en 5 minutos", "mañana 15:00", o "al llegar a casa a las 22:00".`);
 
-    // Extraemos el mensaje antes del tiempo
-    const mensaje = args.split(' ').slice(mensajeStart, tiempoIndex).join(' ').trim();
-    const tiempoTexto = args.split(' ').slice(tiempoIndex).join(' ').trim();
+    // Si es "al llegar a casa", buscamos si hay un "a las" después
+    let tiempoTexto = args.split(' ').slice(tiempoIndex).join(' ').trim();
+    if (esCuandoLlegue) {
+        for (let i = tiempoIndex; i < palabras.length; i++) {
+            if (palabras[i] === 'a' && palabras[i + 1] === 'las') {
+                horaIndex = i;
+                break;
+            }
+        }
+    }
+
+    const mensaje = horaIndex !== -1 
+        ? args.split(' ').slice(mensajeStart, horaIndex).join(' ').trim() 
+        : args.split(' ').slice(mensajeStart, tiempoIndex).join(' ').trim();
 
     if (!mensaje) return sendError(message.channel, `¡Decime qué recordar, ${userName}!`);
 
     let recordatorio;
-    let respuestaExtra = '';
     if (esCuandoLlegue) {
-        // Recordatorio para cuando llegás
+        let timestamp = null;
+        if (horaIndex !== -1) {
+            const horaTexto = args.split(' ').slice(horaIndex).join(' ').trim();
+            const tiempo = parsearTiempo(horaTexto); // Aprovechamos parsearTiempo para "a las 22:00"
+            if (!tiempo || !tiempo.timestamp) return sendError(message.channel, `No entendí la hora, ${userName}. Usá "a las 22:00" bien clarito.`);
+            timestamp = tiempo.timestamp;
+        }
         recordatorio = {
             id: uuidv4(),
             userId: message.author.id,
             channelId: message.channel.id,
             mensaje,
             cuandoLlegue: true,
+            timestamp: timestamp, // Puede ser null si no hay hora
             creado: new Date().getTime()
         };
-        // Si hay un horario extra, lo mencionamos pero no lo usamos
-        if (tiempoTexto.includes('a las')) {
-            const horarioExtra = tiempoTexto.match(/a las (\d{1,2}:\d{2}|\d{1,2})/)?.[1] || 'no sé cuándo';
-            respuestaExtra = `\n( Dijiste "a las ${horarioExtra}", pero te aviso cuando llegues, ¿eh? )`;
-        }
     } else {
         const tiempo = parsearTiempo(tiempoTexto);
         if (!tiempo || (!tiempo.timestamp && !tiempo.esRecurrente)) return sendError(message.channel, `No entendí el tiempo, ${userName}.`);
@@ -3390,11 +3403,14 @@ async function manejarRecordatorio(message) {
     }
 
     const textoRespuesta = esCuandoLlegue 
-        ? `Te aviso "${mensaje}" cuando llegues a casa, ${userName}. ¡Copado!${respuestaExtra}`
+        ? recordatorio.timestamp 
+            ? `Te aviso "${mensaje}" cuando llegues a casa después de las ${new Date(recordatorio.timestamp).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })}, ${userName}. ¡Copado!`
+            : `Te aviso "${mensaje}" cuando llegues a casa, ${userName}. ¡Copado! (Sin hora específica, te aviso apenas llegues).`
         : `Te aviso "${mensaje}" ${new Date(recordatorio.timestamp).toLocaleString('es-AR')}, ${userName}.`;
     await sendSuccess(message.channel, '⏰ ¡Recordatorio seteado!', `${textoRespuesta}${guardadoMsg}`);
 
-    if (!esCuandoLlegue) programarRecordatorio(recordatorio);
+    // Si tiene timestamp pero no es "cuando llegue", lo programamos normalmente
+    if (recordatorio.timestamp && !esCuandoLlegue) programarRecordatorio(recordatorio);
 }
 
 // Nueva función para programar recordatorios
@@ -5510,12 +5526,56 @@ async function manejarCommand(message) {
 }
 
 client.on('messageCreate', async (message) => {
-    // Escucho cada mensaje que llega
-    if (message.author.bot) return; // Si es un bot, lo ignoro
+    if (message.author.bot && message.author.username !== 'IFTTT') return; // Solo IFTTT o usuarios
 
-    // Nombro al usuario según quién es
     const userName = message.author.id === OWNER_ID ? 'Miguel' : (message.author.id === ALLOWED_USER_ID ? 'Belén' : 'Un desconocido');
     const content = message.content.toLowerCase();
+
+    // Detectar llegada o salida desde IFTTT
+    if (content.startsWith('@jefa')) {
+        const targetName = content.includes('miguel') ? 'Miguel' : content.includes('belén') ? 'Belén' : null;
+        const userId = targetName === 'Miguel' ? OWNER_ID : targetName === 'Belén' ? ALLOWED_USER_ID : null;
+
+        if (!targetName || !userId) return;
+
+        if (content.includes('llegó a su casa')) {
+            const ahora = Date.now();
+            const recordatoriosPendientes = dataStore.recordatorios.filter(r => r.cuandoLlegue && r.userId === userId);
+            if (recordatoriosPendientes.length > 0) {
+                let texto = `¡Bienvenido/a, ${targetName}, loco/a! `;
+                let avisos = [];
+                let pendientes = [];
+
+                recordatoriosPendientes.forEach(r => {
+                    if (!r.timestamp || ahora >= r.timestamp) {
+                        avisos.push(`- ${r.mensaje}`);
+                    } else {
+                        pendientes.push(r);
+                    }
+                });
+
+                if (avisos.length > 0) {
+                    texto += `Acá tenés tus recordatorios:\n${avisos.join('\n')}`;
+                    await message.channel.send({ embeds: [createEmbed('#FF1493', '🏠 ¡Llegaste, genio/a!', texto)] });
+                    dataStore.recordatorios = dataStore.recordatorios.filter(r => !r.cuandoLlegue || r.userId !== userId || pendientes.includes(r));
+                    autoModified = true;
+                } else {
+                    texto += `No hay recordatorios pa’ ahora, ${targetName}. Te aviso cuando sea la hora de los que faltan.`;
+                    await message.channel.send({ embeds: [createEmbed('#FF1493', '🏠 ¡Llegaste, genio/a!', texto)] });
+                }
+            } else {
+                await message.channel.send({ embeds: [createEmbed('#FF1493', '🏠 ¡Bienvenido/a, loco/a!', 
+                    `¡Qué lindo llegar, ${targetName}! No tenés recordatorios, ¿querés mate o algo?`)] });
+            }
+            return; // Salimos después de manejar IFTTT
+        } else if (content.includes('exited a su casa')) {
+            await message.channel.send({ embeds: [createEmbed('#FF1493', '🚪 ¡A romperla, genio/a!', 
+                `¡Dale, ${targetName}, a comerte el mundo! Nos vemos cuando vuelvas, loco/a.`)] });
+            return;
+        }
+    }
+
+    if (message.author.bot) return;
 
     // Chequeo si gritan demasiado con mayúsculas
     const lettersOnly = message.content.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ]/g, '');
@@ -5524,24 +5584,21 @@ client.on('messageCreate', async (message) => {
         const uppercasePercentage = (uppercaseCount / lettersOnly.length) * 100;
         if (uppercasePercentage >= 80) {
             try {
-                await message.delete(); // Borro el mensaje gritón
+                await message.delete();
                 const member = message.guild?.members.cache.get(message.author.id);
                 if (member && message.guild?.members.me.permissions.has('MODERATE_MEMBERS')) {
-                    // Lo muteo 5 minutos si tengo permisos
                     await member.timeout(5 * 60 * 1000, 'Te pasaste con las mayúsculas, loco');
                     await message.channel.send({ 
                         embeds: [createEmbed('#FF1493', '⛔ ¡Pará un poco, che!', 
                             `¡${userName} se mandó un griterío con mayúsculas y se comió 5 minutos de mute! Nada de hacer lío, ¿eh?`)] 
                     });
                 } else {
-                    // Si no puedo mutear, solo borro y aviso
                     await message.channel.send({ 
                         embeds: [createEmbed('#FF1493', '⛔ ¡No pude muteartelo, boludo!', 
                             `¡${userName} gritó todo en mayúsculas, pero no tengo permisos para muteartelo! Igual borré el mensaje, tranqui.`)] 
                     });
                 }
             } catch (error) {
-                // Si falla el muteo, te aviso en rojo
                 console.error('Error al mutear:', error.message);
                 await message.channel.send({ 
                     embeds: [createEmbed('#FF1493', '⛔ ¡Qué quilombo!', 
@@ -5916,6 +5973,22 @@ client.once('ready', async () => {
                 }
             }, WARNING_TIME);
         }, SAVE_INTERVAL);
+
+        // Chequeo periódico para recordatorios con timestamp y llegada
+        setInterval(async () => {
+            const ahora = Date.now();
+            const channel = await client.channels.fetch(CHANNEL_ID);
+            if (!channel) return;
+
+            const recordatoriosPendientes = dataStore.recordatorios.filter(r => r.cuandoLlegue && r.timestamp && ahora >= r.timestamp);
+            for (const r of recordatoriosPendientes) {
+                const userName = r.userId === OWNER_ID ? 'Miguel' : 'Belén';
+                await channel.send({ embeds: [createEmbed('#FF1493', '⏰ ¡Ojo, loco/a!', 
+                    `Che, ${userName}, te iba a avisar "${r.mensaje}" al llegar a casa a las ${new Date(r.timestamp).toLocaleTimeString('es-AR')}, pero no sé si llegaste. ¿Estás en casa ya?`)] });
+                dataStore.recordatorios = dataStore.recordatorios.filter(rec => rec.id !== r.id);
+                autoModified = true;
+            }
+        }, 60000); // Cada minuto
 
     } catch (error) {
         console.error('Error al enviar actualizaciones o configurar el bot:', error.message);
