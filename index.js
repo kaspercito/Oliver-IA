@@ -3263,6 +3263,7 @@ function parsearTiempo(texto) {
     const mañana = texto.match(/mañana (?:a las )?(\d{1,2}):(\d{2})/i);
     const fechaEspecifica = texto.match(/(\d{1,2})\/(\d{1,2})(?: a las (\d{1,2}):(\d{2}))?/i);
     const todosLosDias = texto.match(/todos los días (?:a las )?(\d{1,2}):(\d{2})/i);
+    const aLas = texto.match(/a las (\d{1,2}):(\d{2})/i); // Nueva regla para "a las 22:00"
 
     if (enMinutos) {
         fechaObjetivo.setMinutes(ahora.getMinutes() + parseInt(enMinutos[1]));
@@ -3284,9 +3285,15 @@ function parsearTiempo(texto) {
         const hora = parseInt(todosLosDias[1]);
         const minutos = parseInt(todosLosDias[2]);
         fechaObjetivo.setHours(hora, minutos, 0, 0);
-        // Si la hora ya pasó hoy, lo ponemos para mañana
         if (fechaObjetivo.getTime() <= ahora.getTime()) {
             fechaObjetivo.setDate(ahora.getDate() + 1);
+        }
+    } else if (aLas) { // Manejo de "a las 22:00"
+        const hora = parseInt(aLas[1]);
+        const minutos = parseInt(aLas[2]);
+        fechaObjetivo.setHours(hora, minutos, 0, 0);
+        if (fechaObjetivo.getTime() <= ahora.getTime()) {
+            fechaObjetivo.setDate(ahora.getDate() + 1); // Si ya pasó, lo ponemos para mañana
         }
     } else {
         return null; // Si no entiende, devolvemos null
