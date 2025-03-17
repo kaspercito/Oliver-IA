@@ -2056,10 +2056,10 @@ const frasesPPM = [
 ];
 
 // Estado del bot (variables globales para manejar sesiones y datos)
-let instanceId = uuidv4(); // ID único para esta instancia del bot.
-let activeTrivia = new Map(); // Mapa para manejar sesiones de trivia activas por canal.
-let sentMessages = new Map(); // Registra mensajes enviados por el bot.
-let processedMessages = new Map(); // Registra mensajes procesados para evitar duplicados.
+let instanceId = uuidv4();
+let activeTrivia = new Map();
+let sentMessages = new Map();
+let processedMessages = new Map();
 let dataStore = { 
     conversationHistory: {},
     triviaRanking: {},
@@ -2070,15 +2070,16 @@ let dataStore = {
     triviaStats: {},
     musicSessions: {},
     updatesSent: false,
-    adivinanzaStats: {}, // Nueva propiedad para adivinanzas
-    recordatorios: [] // Ya lo tenías, lo dejo por completitud
+    adivinanzaStats: {},
+    recordatorios: []
 };
 let isPlayingMusic = false;
 const SAVE_INTERVAL = 1800000; // 30 minutos
 const WARNING_TIME = 300000; // 5 minutos antes aviso
 let autosaveEnabled = true;
 let autosavePausedByMusic = false;
-let dataStoreModified = false;
+let userModified = false; // Cambios hechos por el usuario
+let autoModified = false; // Cambios automáticos del bot
 let ultimoDatoRandom = null;
 
 // Utilidades con tono argentino
@@ -2378,7 +2379,7 @@ async function loadDataStore() {
 
 // Guardo los datos en GitHub
 async function saveDataStore() {
-    if (!dataStoreModified) return false;
+    if (!userModified && !autoModified) return false; // Nada que guardar
     try {
         let sha;
         try {
@@ -3345,7 +3346,7 @@ async function manejarRecordatorio(message) {
         minutos: tiempo.minutos
     };
     dataStore.recordatorios.push(recordatorio);
-    dataStoreModified = true;
+    userModified = true; // Cambio por usuario
 
     const diferencia = tiempo.timestamp ? tiempo.timestamp - Date.now() : null;
     const fechaStr = tiempo.esRecurrente 
@@ -3363,7 +3364,8 @@ async function manejarRecordatorio(message) {
         try {
             await saveDataStore();
             console.log(`Datos guardados en GitHub tras setear recordatorio para ${userName}`);
-            dataStoreModified = false;
+            userModified = false; // Reseteamos después de guardar
+            autoModified = false; // Por si acaso
             guardadoMsg = `\n💾 Guardado en GitHub al toque, ¡tranqui!`;
         } catch (error) {
             console.error(`Error al guardar recordatorio en GitHub: ${error.message}`);
@@ -3387,7 +3389,7 @@ function programarRecordatorio(recordatorio) {
         console.log(`Recordatorio "${recordatorio.mensaje}" (ID: ${recordatorio.id}) ya venció o no tiene timestamp, no se programa.`);
         if (!recordatorio.esRecurrente) {
             dataStore.recordatorios = dataStore.recordatorios.filter(r => r.id !== recordatorio.id);
-            dataStoreModified = true;
+            autoModified = true; // Cambio automático
         }
         return;
     }
@@ -3414,12 +3416,12 @@ function programarRecordatorio(recordatorio) {
             nuevoTimestamp.setHours(recordatorio.hora, recordatorio.minutos, 0, 0);
             recordatorio.timestamp = nuevoTimestamp.getTime();
             console.log(`Recordatorio recurrente reprogramado: "${recordatorio.mensaje}" (ID: ${recordatorio.id}) para ${nuevoTimestamp.toLocaleString('es-AR')}`);
-            dataStoreModified = true;
+            autoModified = true; // Cambio automático
             programarRecordatorio(recordatorio); // Reprogramamos
         } else {
             // Si no es recurrente, lo eliminamos
             dataStore.recordatorios = dataStore.recordatorios.filter(r => r.id !== recordatorio.id);
-            dataStoreModified = true;
+            autoModified = true; // Cambio automático
         }
     }, diferencia);
 }
@@ -5670,21 +5672,19 @@ client.once('ready', async () => {
     client.user.setPresence({ activities: [{ name: "Listo para ayudar a Milagros", type: 0 }], status: 'dnd' });
     dataStore = await loadDataStore();
 
-
     if (dataStore.recordatorios && dataStore.recordatorios.length > 0) {
         const ahora = Date.now();
         dataStore.recordatorios.forEach(recordatorio => {
             if (recordatorio.timestamp > ahora || recordatorio.esRecurrente) {
                 console.log(`Restaurando recordatorio: "${recordatorio.mensaje}" (ID: ${recordatorio.id})`);
                 if (recordatorio.esRecurrente && recordatorio.timestamp <= ahora) {
-                    // Si es recurrente y ya pasó, lo ajustamos al próximo día
                     const nuevoTimestamp = new Date();
                     nuevoTimestamp.setHours(recordatorio.hora, recordatorio.minutos, 0, 0);
                     if (nuevoTimestamp.getTime() <= ahora) {
                         nuevoTimestamp.setDate(nuevoTimestamp.getDate() + 1);
                     }
                     recordatorio.timestamp = nuevoTimestamp.getTime();
-                    dataStoreModified = true;
+                    autoModified = true; // Cambio automático
                 }
                 programarRecordatorio(recordatorio);
             } else {
@@ -5694,7 +5694,7 @@ client.once('ready', async () => {
         const originalLength = dataStore.recordatorios.length;
         dataStore.recordatorios = dataStore.recordatorios.filter(r => r.timestamp > ahora || r.esRecurrente);
         if (dataStore.recordatorios.length < originalLength) {
-            dataStoreModified = true;
+            autoModified = true; // Cambio automático
         }
         console.log('Recordatorios restaurados y vencidos limpiados');
     }
@@ -5704,7 +5704,7 @@ client.once('ready', async () => {
     if (!dataStore.musicSessions) {
         dataStore.musicSessions = {};
         console.log('musicSessions no estaba presente, inicializado manualmente');
-        dataStoreModified = true;
+        autoModified = true; // Cambio automático
     }
 
     if (!dataStore.utilMessageTimestamps) dataStore.utilMessageTimestamps = {};
@@ -5722,7 +5722,7 @@ client.once('ready', async () => {
 
         if (!dataStore.sentUpdates) {
             dataStore.sentUpdates = [];
-            dataStoreModified = true;
+            autoModified = true; // Cambio automático
         }
 
         const updatesChanged = JSON.stringify(BOT_UPDATES) !== JSON.stringify(dataStore.sentUpdates);
@@ -5731,13 +5731,12 @@ client.once('ready', async () => {
             const updateEmbed = createEmbed('#FF1493', '📢 Actualizaciones de Oliver IA',
                 '¡Tengo mejoras nuevas para compartir contigo!');
             const updatesText = BOT_UPDATES.map(update => `- ${update}`).join('\n');
-            const maxFieldLength = 1024;
             let currentField = '';
             let fieldCount = 1;
             const fields = [];
 
             updatesText.split('\n').forEach(line => {
-                if (currentField.length + line.length + 1 > maxFieldLength) {
+                if (currentField.length + line.length + 1 > 1024) {
                     fields.push({ name: `Novedades (Parte ${fieldCount})`, value: currentField.trim(), inline: false });
                     currentField = line;
                     fieldCount++;
@@ -5754,7 +5753,7 @@ client.once('ready', async () => {
 
             await channel.send({ content: `<@${ALLOWED_USER_ID}>`, embeds: [updateEmbed] });
             dataStore.sentUpdates = [...BOT_UPDATES];
-            dataStoreModified = true;
+            autoModified = true; // Cambio automático
             console.log('Actualizaciones enviadas y guardadas en sentUpdates.');
         } else {
             console.log('No hay cambios en BOT_UPDATES respecto a sentUpdates, no se envían.');
@@ -5780,7 +5779,7 @@ client.once('ready', async () => {
             await sentMessage.react('❌');
             dataStore.utilMessageTimestamps[`util_${CHANNEL_ID}`] = now;
             sentMessages.set(sentMessage.id, { content: utilEmbed.description, message: sentMessage });
-            dataStoreModified = true;
+            autoModified = true; // Cambio automático
             console.log(`Mensaje útil enviado al iniciar - ${new Date().toLocaleString('es-AR')}`);
         }
 
@@ -5804,7 +5803,7 @@ client.once('ready', async () => {
                     await sentMessage.react('❌');
                     dataStore.utilMessageTimestamps[`util_${CHANNEL_ID}`] = now;
                     sentMessages.set(sentMessage.id, { content: dailyUtilEmbed.description, message: sentMessage });
-                    dataStoreModified = true;
+                    autoModified = true; // Cambio automático
                     console.log(`Mensaje útil diario enviado al canal ${CHANNEL_ID} - ${new Date().toLocaleString('es-AR')}`);
                 }
 
@@ -5824,7 +5823,7 @@ client.once('ready', async () => {
                         reminder, 'Con cariño, Oliver IA');
                     await channel.send({ embeds: [embed] });
                     dataStore.utilMessageTimestamps[`reminder_${CHANNEL_ID}`] = now;
-                    dataStoreModified = true;
+                    autoModified = true; // Cambio automático
                     console.log(`Recordatorio enviado a Belén (${currentHour}:00, ${isPostExam ? 'post-examen' : 'pre-examen'}) - ${new Date().toLocaleString('es-AR')}`);
                 }
             } catch (error) {
@@ -5834,7 +5833,7 @@ client.once('ready', async () => {
 
         // Autosave cada 30 minutos
         setInterval(async () => {
-            const musicActive = manager.players.size > 0 || isPlayingMusic; // Chequeamos manager y bandera
+            const musicActive = manager.players.size > 0 || isPlayingMusic;
 
             if (musicActive && !autosavePausedByMusic) {
                 autosavePausedByMusic = true;
@@ -5860,15 +5859,17 @@ client.once('ready', async () => {
                 return;
             }
 
-            if (!dataStoreModified || autosavePausedByMusic) {
-                console.log('Nada que guardar o guardado pausado, tranqui.');
+            if (!userModified && !autoModified) {
+                console.log('Nada que guardar, tranqui.');
                 return;
             }
 
-            console.log('Avisando que voy a guardar en 5 minutos...');
-            if (channel) {
-                await channel.send({ embeds: [createEmbed('#FF1493', '⏰ Ojo al dato', 
-                    '¡Atenti, che! En 5 minutos guardo todo automáticamente.')] });
+            if (userModified) { // Solo avisa si hay cambios del usuario
+                console.log('Avisando que voy a guardar en 5 minutos...');
+                if (channel) {
+                    await channel.send({ embeds: [createEmbed('#FF1493', '⏰ Ojo al dato', 
+                        '¡Atenti, che! En 5 minutos guardo todo automáticamente.')] });
+                }
             }
 
             setTimeout(async () => {
@@ -5876,14 +5877,19 @@ client.once('ready', async () => {
                     console.log('Guardado cancelado: autosave off o música on.');
                     return;
                 }
+                if (!userModified && !autoModified) {
+                    console.log('Nada que guardar en el timeout, tranqui.');
+                    return;
+                }
                 try {
                     await saveDataStore();
                     console.log('Datos guardados en GitHub');
-                    if (channel) {
+                    if (userModified && channel) { // Solo mensaje si fue por usuario
                         await channel.send({ embeds: [createEmbed('#FF1493', '💾 ¡Listo el pollo!', 
                             'Datos guardados al toque, ¡tranqui!')] });
                     }
-                    dataStoreModified = false;
+                    userModified = false;
+                    autoModified = false;
                 } catch (error) {
                     console.error(`Error en autosave: ${error.message}`);
                     if (channel) {
@@ -5917,7 +5923,7 @@ client.on('messageReactionAdd', async (reaction, user) => {
 
     if (user.id === ALLOWED_USER_ID && (reaction.emoji.name === '✅' || reaction.emoji.name === '❌')) {
         dataStore.utilMessageReactions[CHANNEL_ID] = Date.now();
-        dataStoreModified = true; // Marcamos cambios
+        autoModified = true; // Cambio automático
         console.log(`Belén reaccionó con ${reaction.emoji.name} - ${new Date().toLocaleString('es-AR')}`);
 
         if (reaction.emoji.name === '✅') {
