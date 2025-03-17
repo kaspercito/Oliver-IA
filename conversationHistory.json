@@ -539,17 +539,6 @@
   ],
   "recordatorios": [
     {
-      "id": "669caba8-0598-468e-9189-3c12b9eeb591",
-      "userId": "1023132788632862761",
-      "channelId": "1343749554905940058",
-      "mensaje": "recuérdame inflar las ruedas del auto antes de viajar",
-      "timestamp": 1742174021179,
-      "creado": 1742159621180,
-      "esRecurrente": false,
-      "hora": null,
-      "minutos": null
-    },
-    {
       "id": "b7f0dcf6-e308-4683-84ac-52e65809def0",
       "userId": "752987736759205960",
       "channelId": "1343749554905940058",
