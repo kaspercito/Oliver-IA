@@ -5488,7 +5488,7 @@ client.on('messageCreate', async (message) => {
         const targetName = esJefe ? 'Belén' : 'Miguel';
         const canal = message.channel;
 
-        if (content.includes('entered a su casa')) {
+           if (content.includes('entered a su casa')) {
             console.log(`Procesando llegada de ${targetName}`);
             try {
                 await message.delete();
@@ -5569,7 +5569,7 @@ client.on('messageCreate', async (message) => {
             }
             return;
         }
-
+    
     if (content.includes('exited a su casa')) {
     console.log(`Procesando salida de ${targetName}`);
     try {
@@ -5618,8 +5618,8 @@ client.on('messageCreate', async (message) => {
         console.error(`Error procesando salida de ${targetName}: ${error.message}`);
     }
     return;
+    }
 }
-
     if (message.author.bot) return;
 
     const lettersOnly = message.content.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ]/g, '');
