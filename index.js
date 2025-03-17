@@ -5531,8 +5531,10 @@ client.on('messageCreate', async (message) => {
                 if (targetName === 'Belén') {
                     const hora = new Date().toLocaleTimeString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires', hour: '2-digit', minute: '2-digit' });
                     const recordatoriosText = avisos.length > 0 ? `Acá van tus recordatorios, escuchá bien, genia: ${avisos.join(', ')}. 📋` : 'No tenés recordatorios ahora, ¿querés que te tire un chiste pa’ festejar que llegaste? 😄';
-                    await canal.send(`tts: ¡Qué lindo, Belén, llegaste a casa! Soy Oliver IA, tu bot piola, dándote la bienvenida con toda la onda. 🏠 El clima en San Luis está así: ${clima}. 🌤️ Noticias frescas: ${noticias}. 📰 Che, en Argentina son las ${hora} ahora mismo. ⏰ ${recordatoriosText}`);
-                    
+                    await canal.send({
+                    content: `¡Qué lindo, Belén, llegaste a casa! Soy Oliver IA, tu bot piola, dándote la bienvenida con toda la onda. 🏠 El clima en San Luis está así: ${clima}. 🌤️ Noticias frescas: ${noticias}. 📰 Che, en Argentina son las ${hora} ahora mismo. ⏰ ${recordatoriosText}`,
+                    tts: true
+                    });
                     const embed = createEmbed('#FF1493', `¡Bienvenida a casa, Belén! 🏠`, 
                         `¡Qué lindo tenerte de vuelta, genia! Acá va todo lo que necesitás saber al toque`)
                         .addFields(
@@ -5546,8 +5548,10 @@ client.on('messageCreate', async (message) => {
                 } else if (targetName === 'Miguel') {
                     const hora = new Date().toLocaleTimeString('es-EC', { timeZone: 'America/Guayaquil', hour: '2-digit', minute: '2-digit' });
                     const recordatoriosText = avisos.length > 0 ? `Acá van tus recordatorios, prestá atención, loco: ${avisos.join(', ')}. 📋` : 'No hay recordatorios pa’ vos ahora, ¿querés cola o algo pa’ relajarte? 😎';
-                    await canal.send(`tts: ¡Grande, Miguel, ya estás en casa! Soy Oliver IA, tu compañero fiel, dándote la bienvenida como se merece el capo. 🏠 El clima en Guayaquil está así: ${clima}. 🌤️ Noticias del día: ${noticias}. 📰 Che, en Ecuador son las ${hora} ahora. ⏰ ${recordatoriosText}`);
-                    
+                    await canal.send({
+                    content: `¡Grande, Miguel, ya estás en casa! Soy Oliver IA, tu compañero fiel, dándote la bienvenida como se merece el capo. 🏠 El clima en Guayaquil está así: ${clima}. 🌤️ Noticias del día: ${noticias}. 📰 Che, en Ecuador son las ${hora} ahora. ⏰ ${recordatoriosText}`,
+                    tts: true
+                    });
                     const embed = createEmbed('#FF1493', `¡Bienvenido a casa, Miguel! 🏠`, 
                         `¡Grande, capo! Acá tenés todo lo que precisás saber ahora mismo`)
                         .addFields(
@@ -5566,48 +5570,55 @@ client.on('messageCreate', async (message) => {
             return;
         }
 
-        if (content.includes('exited a su casa')) {
-            console.log(`Procesando salida de ${targetName}`);
-            try {
-                await message.delete();
-                console.log(`Mensaje de IFTTT borrado: ${content}`);
-            } catch (error) {
-                console.error(`No pude borrar el mensaje de IFTTT: ${error.message}`);
-            }
-
-            try {
-                if (targetName === 'Miguel') {
-                    const hora = new Date().toLocaleTimeString('es-EC', { timeZone: 'America/Guayaquil', hour: '2-digit', minute: '2-digit' });
-                    await canal.send(`tts: ¡Ojo, Miguel salió de casa! Soy Oliver IA, tu bot copado, avisando que el capo ya está en marcha. Son las ${hora} en Ecuador, ¡a romperla donde vayas, loco! 🚀`);
-                    
-                    const embed = createEmbed('#FF1493', `¡A la calle, Miguel! 🚪`, 
-                        `¡Grande, capo! Saliste a comerte el mundo, ¿eh?`)
-                        .addFields(
-                            { name: '⏰ Hora en Ecuador', value: hora, inline: true },
-                            { name: '💪 Mensaje del día', value: '¡A meterle pilas, loco! Que nada te pare hoy.', inline: false }
-                        )
-                        .setFooter({ text: 'Con onda, Oliver IA' });
-                    await canal.send({ embeds: [embed] });
-                } else if (targetName === 'Belén') {
-                    const hora = new Date().toLocaleTimeString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires', hour: '2-digit', minute: '2-digit' });
-                    await canal.send(`tts: ¡Atenti, Belén salió de casa! Soy Oliver IA, tu bot fiel, avisando que la genia ya está en acción. Son las ${hora} en Argentina, ¡a darle con todo, reina! 🌸`);
-                    
-                    const embed = createEmbed('#FF1493', `¡A la calle, Belén! 🚪`, 
-                        `¡Ey, genia! Saliste a romperla toda, ¿no?`)
-                        .addFields(
-                            { name: '⏰ Hora en Argentina', value: hora, inline: true },
-                            { name: '💪 Mensaje del día', value: '¡A brillar, grosa! Que el día sea tuyo.', inline: false }
-                        )
-                        .setFooter({ text: 'Con cariño, Oliver IA' });
-                    await canal.send({ embeds: [embed] });
-                }
-                console.log(`TTS y embed enviados para salida de ${targetName}`);
-            } catch (error) {
-                console.error(`Error procesando salida de ${targetName}: ${error.message}`);
-            }
-            return;
-        }
+    if (content.includes('exited a su casa')) {
+    console.log(`Procesando salida de ${targetName}`);
+    try {
+        await message.delete();
+        console.log(`Mensaje de IFTTT borrado: ${content}`);
+    } catch (error) {
+        console.error(`No pude borrar el mensaje de IFTTT: ${error.message}`);
     }
+
+    try {
+        if (targetName === 'Miguel') {
+            const hora = new Date().toLocaleTimeString('es-EC', { timeZone: 'America/Guayaquil', hour: '2-digit', minute: '2-digit' });
+            // Enviamos con TTS habilitado usando { tts: true }
+            await canal.send({
+                content: `¡Ojo, Miguel salió de casa! Soy Oliver IA, tu bot copado, avisando que el capo ya está en marcha. Son las ${hora} en Ecuador, ¡a romperla donde vayas, loco! 🚀`,
+                tts: true
+            });
+            
+            const embed = createEmbed('#FF1493', `¡A la calle, Miguel! 🚪`, 
+                `¡Grande, capo! Saliste a comerte el mundo, ¿eh?`)
+                .addFields(
+                    { name: '⏰ Hora en Ecuador', value: hora, inline: true },
+                    { name: '💪 Mensaje del día', value: '¡A meterle pilas, loco! Que nada te pare hoy.', inline: false }
+                )
+                .setFooter({ text: 'Con onda, Oliver IA' });
+            // Enviamos el embed correctamente
+            await canal.send({ embeds: [embed] });
+        } else if (targetName === 'Belén') {
+            const hora = new Date().toLocaleTimeString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires', hour: '2-digit', minute: '2-digit' });
+            await canal.send({
+                content: `¡Atenti, Belén salió de casa! Soy Oliver IA, tu bot fiel, avisando que la genia ya está en acción. Son las ${hora} en Argentina, ¡a darle con todo, reina! 🌸`,
+                tts: true
+            });
+            
+            const embed = createEmbed('#FF1493', `¡A la calle, Belén! 🚪`, 
+                `¡Ey, genia! Saliste a romperla toda, ¿no?`)
+                .addFields(
+                    { name: '⏰ Hora en Argentina', value: hora, inline: true },
+                    { name: '💪 Mensaje del día', value: '¡A brillar, grosa! Que el día sea tuyo.', inline: false }
+                )
+                .setFooter({ text: 'Con cariño, Oliver IA' });
+            await canal.send({ embeds: [embed] });
+        }
+        console.log(`TTS y embed enviados para salida de ${targetName}`);
+    } catch (error) {
+        console.error(`Error procesando salida de ${targetName}: ${error.message}`);
+    }
+    return;
+}
 
     if (message.author.bot) return;
 
