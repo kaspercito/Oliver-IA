@@ -658,5 +658,41 @@
       "correct": 11,
       "total": 29
     }
+  },
+  "actions": {
+    "1023132788632862761": [
+      {
+        "action": "a dormir",
+        "timestamp": 1742187827002,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "mentiroso",
+        "timestamp": 1742188023084,
+        "userId": "1023132788632862761"
+      }
+    ],
+    "752987736759205960": [
+      {
+        "action": "me iré a dormir",
+        "timestamp": 1742187953276,
+        "userId": "752987736759205960"
+      },
+      {
+        "action": "entre al baño, no estoy mintiendo, pero necesito",
+        "timestamp": 1742188099363,
+        "userId": "752987736759205960"
+      },
+      {
+        "action": "Nos vemos a dormir, gn",
+        "timestamp": 1742188324026,
+        "userId": "752987736759205960"
+      },
+      {
+        "action": "ahora sí iré a dormir, buenas noches mentirosa",
+        "timestamp": 1742189348666,
+        "userId": "752987736759205960"
+      }
+    ]
   }
 }
