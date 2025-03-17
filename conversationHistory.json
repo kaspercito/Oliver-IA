@@ -592,6 +592,14 @@
       "esRecurrente": true,
       "hora": 0,
       "minutos": 0
+    },
+    {
+      "id": "72f0d05b-aee0-441d-aff5-3e4a6c646f69",
+      "userId": "752987736759205960",
+      "channelId": "1328170231008464958",
+      "mensaje": "comprar agua mineral y artículos de limpieza",
+      "cuandoLlegue": true,
+      "creado": 1742232868980
     }
   ],
   "usedJokes": {
