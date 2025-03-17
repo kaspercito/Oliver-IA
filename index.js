@@ -4759,6 +4759,47 @@ async function manejarTraduci(message) {
     }
 }
 
+async function manejarWatchTogether(message) {
+    const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén'; // Seguimos tu convención
+
+    // Chequear si el usuario está en un canal de voz
+    const voiceChannel = message.member.voice.channel;
+    if (!voiceChannel) {
+        const embed = createEmbed('#FF1493', `¡Ey, ${userName}!`, 
+            'Tenés que estar en un canal de voz para usar esto, ¡sumate a uno, loco!');
+        return await message.channel.send({ embeds: [embed] });
+    }
+
+    // ID oficial de "Watch Together" en Discord
+    const watchTogetherAppId = '880218394199220334';
+
+    try {
+        // Crear la invitación a la actividad
+        const invite = await voiceChannel.createInvite({
+            maxAge: 86400, // 24 horas de validez
+            targetApplicationId: watchTogetherAppId,
+            targetType: 2, // Tipo 2 es para actividades
+            temporary: false
+        });
+
+        // Enviar el link con onda
+        const embed = createEmbed('#FF1493', `🎥 ¡Watch Together, ${userName}!`, 
+            `¡Listo, grosa! Hacé clic acá para ver YouTube juntos: ${invite.url}\n¡A romperla con videos, loco!`);
+        await message.channel.send({ embeds: [embed] });
+
+        // Opcional: DM a Belén si no es ella quien lo pidió
+        if (message.author.id !== ALLOWED_USER_ID) {
+            const belenUser = await client.users.fetch(ALLOWED_USER_ID);
+            await belenUser.send({ embeds: [embed] });
+        }
+    } catch (error) {
+        console.error(`Error al crear Watch Together: ${error.message}`);
+        const embed = createEmbed('#FF1493', `¡Ups, ${userName}!`, 
+            `Algo salió mal, loco. Error: ${error.message}. ¡Avisale a Miguel, che!`);
+        await message.channel.send({ embeds: [embed] });
+    }
+}
+
 // lenguajes
 async function listarIdiomas(message) {
     // Te muestro todos los idiomas que puedo traducir
@@ -5178,6 +5219,9 @@ async function manejarCommand(message) {
         console.log(`Enviando a manejarTraduci: "${message.content}"`);
         await manejarTraduci(message);
     }
+    else if (content === '!watchtogether' || content === '!wt') {
+        await manejarWatchTogether(message);
+    }
     // Resto de comandos en orden
     else if (content === '!trivia' || content === '!tc') {
         await manejarTrivia(message);
@@ -5540,6 +5584,7 @@ client.on('messageCreate', async (message) => {
             '- **!jugar**: Adivina un número del 1 al 10, ¡5 intentos pa’ ganarme, loco!\n' + // Nuevo
             '- **!meme**: Te tiro un meme random pa’ sacarte una sonrisa.\n' +             // Nuevo
             '- **!pregunta**: Te hago una pregunta loca pa’ charlar un rato.\n' +          // Nuevo
+            '- **!wt / !watchtogether**: Mirá videos de YouTube conmigo en un canal de voz, ¡re copado!\n' + // Nuevo
             '- **!rec / !recordatorio [mensaje] [tiempo]**: Te recuerdo algo. Ejemplo: "!rec \'comprar sanguche\' en 1 hora" o "!rec \'tomar mate\' todos los días 08:00".\n' +
             '- **!mr / !misrecordatorios**: Te muestro tus recordatorios activos.\n' +
             '- **!cr / !cancelarrecordatorio [ID]**: Cancelás un recordatorio con su ID (lo ves con !mr).\n' +
