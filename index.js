@@ -5212,7 +5212,7 @@ async function manejarJugar(message) {
 }
 
 // Comandos
-async function manejarCommand(message) {
+async function manejarCommand(message, silent = false) {
     // Acá manejo todos los comandos, el cerebro del bot
     const content = message.content.toLowerCase();
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
@@ -5244,7 +5244,7 @@ async function manejarCommand(message) {
         return;
     }  
     else if (content === '!chiste') {
-        await manejarChiste(message); // Cambié return por await pa’ consistencia
+        await manejarChiste(message);
         return;
     }
     // Cancelar reacciones
@@ -5295,7 +5295,7 @@ async function manejarCommand(message) {
         await manejarAccion(message);
     }
     else if (content === '!misacciones' || content === '!ma') {
-    await manejarMisAcciones(message);
+        await manejarMisAcciones(message);
     }
     // Resto de comandos en orden
     else if (content === '!trivia' || content === '!tc') {
@@ -5304,11 +5304,9 @@ async function manejarCommand(message) {
     else if (content === '!meme') {
         const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
         try {
-            // Usamos la API de Giphy pa’ sacar un meme random
-            const API_KEY = '05o0BdpN9d0PCHOPoP63morLbU6wuYyk'; // Reemplazá con tu key
+            const API_KEY = '05o0BdpN9d0PCHOPoP63morLbU6wuYyk';
             const response = await axios.get(`https://api.giphy.com/v1/gifs/random?api_key=${API_KEY}&tag=meme+español&rating=pg-13`);
     
-            // Chequeamos que haya datos
             if (!response.data || !response.data.data?.images?.original?.url) {
                 throw new Error('No encontré un meme en Giphy, loco.');
             }
@@ -5316,10 +5314,8 @@ async function manejarCommand(message) {
             const gifUrl = response.data.data.images.original.url;
             let gifTitle = response.data.data.title || 'Un meme sin título, loco';
     
-            // Limpiamos el "by Algo" y traducimos/adaptamos básico
-            gifTitle = gifTitle.replace(/ by .*$/, ''); // Sacamos el "by Travis" o lo que venga después
-            gifTitle = gifTitle.replace(/GIF$/i, '').trim(); // Sacamos "GIF" del final
-            // Traducción/adaptación manual de palabras comunes
+            gifTitle = gifTitle.replace(/ by .*$/, '');
+            gifTitle = gifTitle.replace(/GIF$/i, '').trim();
             gifTitle = gifTitle
                 .replace(/Spanish/i, 'Español')
                 .replace(/Funny/i, 'Gracioso')
@@ -5328,15 +5324,13 @@ async function manejarCommand(message) {
                 .replace(/Dog/i, 'Perro')
                 .replace(/Dance/i, 'Baile')
                 .replace(/Fail/i, 'Fallo')
-                .replace(/Uf/i, '¡Uff!'); // Ejemplo con el "Uf" que te salió
+                .replace(/Uf/i, '¡Uff!');
     
-            // Embed del meme con onda argenta y título adaptado
             const memeEmbed = createEmbed('#FF1493', `¡Meme pa’ vos, ${userName}!`, 
                 `¡Tomá este meme bien zarpado, loco! ¿Qué te parece?\n**${gifTitle}**`)
                 .setImage(gifUrl);
             await message.channel.send({ embeds: [memeEmbed] });
     
-            // Lista de preguntas con onda argentina
             const preguntasMeme = [
                 '¿Qué meme mandarías vos pa’ responderle a este, loco?',
                 '¿En qué situación de tu vida usarías este meme, posta?',
@@ -5350,7 +5344,6 @@ async function manejarCommand(message) {
                 '¿Qué comida argenta le va perfecto a este meme pa’ compartirlo?'
             ];
     
-            // Pregunta random después del meme
             const pregunta = preguntasMeme[Math.floor(Math.random() * preguntasMeme.length)];
             const preguntaEmbed = createEmbed('#FF1493', `¡Eh, ${userName}, una yapa!`, 
                 `${pregunta} ¡Contame al toque, loco!`);
@@ -5369,20 +5362,16 @@ async function manejarCommand(message) {
         await manejarJugar(message);
     }
     else if (content === '!pregunta' || content === '!pr') {
-    const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
-
-    // Si se acabaron las preguntas, recargamos y mezclamos
-    if (preguntasDisponibles.length === 0) {
-        preguntasDisponibles = [...preguntas]; // Recargamos desde la lista original
-        shuffle(preguntasDisponibles); // Las mezclamos para que no salgan en el mismo orden
-        console.log('Preguntas recargadas y mezcladas');
-    }
-
-    // Sacamos una pregunta del array temporal y la eliminamos
-    const pregunta = preguntasDisponibles.pop();
-    const preguntaEmbed = createEmbed('#FF1493', `¡Pregunta pa’ vos, ${userName}!`, 
-        `${pregunta} ¡Contame, loco, qué pensás!`);
-    await message.channel.send({ embeds: [preguntaEmbed] });
+        const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
+        if (preguntasDisponibles.length === 0) {
+            preguntasDisponibles = [...preguntas];
+            shuffle(preguntasDisponibles);
+            console.log('Preguntas recargadas y mezcladas');
+        }
+        const pregunta = preguntasDisponibles.pop();
+        const preguntaEmbed = createEmbed('#FF1493', `¡Pregunta pa’ vos, ${userName}!`, 
+            `${pregunta} ¡Contame, loco, qué pensás!`);
+        await message.channel.send({ embeds: [preguntaEmbed] });
     }
     else if (content.startsWith('!avatar') || content.startsWith('!av')) {
         await manejarAvatar(message);
@@ -5444,8 +5433,8 @@ async function manejarCommand(message) {
     } 
     else if (content.startsWith('!play') || content.startsWith('!pl')) {
         await manejarPlay(message);
-        isPlayingMusic = true; // Música empieza
-        autosavePausedByMusic = true; // Pausamos guardado
+        isPlayingMusic = true;
+        autosavePausedByMusic = true;
         console.log('Música arrancó, autosave pausado.');
     } 
     else if (content === '!pause' || content === '!pa') {
@@ -5459,8 +5448,8 @@ async function manejarCommand(message) {
     }
     else if (content === '!stop' || content === '!st') {
         await manejarStop(message);
-        isPlayingMusic = false; // Música para
-        autosavePausedByMusic = false; // Reanudamos guardado
+        isPlayingMusic = false;
+        autosavePausedByMusic = false;
         console.log('Música parada, autosave reanudado.');
     } 
     else if (content === '!queue' || content === '!qu') {
