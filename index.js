@@ -3301,83 +3301,100 @@ function parsearTiempo(texto) {
 }
 
 async function manejarRecordatorio(message) {
-    const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
+    const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Aurora'; // Ajustá según quién es ella
     const args = message.content.split(' ').slice(1).join(' ').trim();
 
-    if (!args) return sendError(message.channel, `¡Mandame algo pa’ recordar, ${userName}! Ejemplo: "!rec comprar sanduche de miga en 1 hora".`);
+    if (!args) return sendError(message.channel, `¡Mandame algo pa’ recordar, ${userName}! Ejemplo: "!rec comprar agua al llegar a casa"`);
 
-    const palabras = args.split(' ');
+    const palabras = args.toLowerCase().split(' ');
     let tiempoIndex = -1;
+    let esCuandoLlegue = false;
+    let mensajeStart = 0;
 
-    for (let i = 0; i < palabras.length; i++) {
-        if (
-            palabras[i].toLowerCase() === 'en' ||
-            palabras[i].toLowerCase() === 'mañana' ||
-            palabras[i].match(/\d{1,2}\/\d{1,2}/) ||
-            palabras[i].toLowerCase() === 'todos'
-        ) {
+    // Ignoramos "recuérdame" o similares al principio
+    if (palabras[0] === 'recuérdame' || palabras[0] === 'recordame') mensajeStart = 1;
+
+    // Buscamos el tiempo o "al llegar a casa"
+    for (let i = mensajeStart; i < palabras.length; i++) {
+        if (palabras[i] === 'cuando' && palabras[i + 1] === 'llegue' && palabras[i + 2] === 'a' && palabras[i + 3] === 'casa') {
+            tiempoIndex = i;
+            esCuandoLlegue = true;
+            break;
+        } else if (palabras[i] === 'al' && palabras[i + 1] === 'llegar' && palabras[i + 2] === 'a' && palabras[i + 3] === 'casa') {
+            tiempoIndex = i;
+            esCuandoLlegue = true;
+            break;
+        } else if (palabras[i] === 'en' || palabras[i] === 'mañana' || palabras[i].match(/\d{1,2}\/\d{1,2}/) || palabras[i] === 'todos' || (palabras[i] === 'a' && palabras[i + 1] === 'las')) {
             tiempoIndex = i;
             break;
         }
     }
 
-    if (tiempoIndex === -1) return sendError(message.channel, `No entendí el tiempo, ${userName}. Usá "en 5 minutos", "mañana 15:00", "20/03 14:30" o "todos los días 08:00".`);
+    if (tiempoIndex === -1) return sendError(message.channel, `No entendí el tiempo, ${userName}. Usá "en 5 minutos", "mañana 15:00", o "al llegar a casa".`);
 
-    const mensaje = palabras.slice(0, tiempoIndex).join(' ').trim();
-    const tiempoTexto = palabras.slice(tiempoIndex).join(' ').trim();
+    // Extraemos el mensaje antes del tiempo
+    const mensaje = args.split(' ').slice(mensajeStart, tiempoIndex).join(' ').trim();
+    const tiempoTexto = args.split(' ').slice(tiempoIndex).join(' ').trim();
 
-    if (!mensaje) return sendError(message.channel, `¡Decime qué recordar, ${userName}! Ejemplo: "!rec comprar sanguche de miga en 1 hora".`);
+    if (!mensaje) return sendError(message.channel, `¡Decime qué recordar, ${userName}!`);
 
-    const tiempo = parsearTiempo(tiempoTexto);
-    if (!tiempo || (!tiempo.timestamp && !tiempo.esRecurrente)) return sendError(message.channel, `No entendí el tiempo, ${userName}. Usá "en 5 minutos", "en 1 hora", "mañana 15:00", "20/03 14:30" o "todos los días 08:00".`);
+    let recordatorio;
+    let respuestaExtra = '';
+    if (esCuandoLlegue) {
+        // Recordatorio para cuando llegás
+        recordatorio = {
+            id: uuidv4(),
+            userId: message.author.id,
+            channelId: message.channel.id,
+            mensaje,
+            cuandoLlegue: true,
+            creado: new Date().getTime()
+        };
+        // Si hay un horario extra, lo mencionamos pero no lo usamos
+        if (tiempoTexto.includes('a las')) {
+            const horarioExtra = tiempoTexto.match(/a las (\d{1,2}:\d{2}|\d{1,2})/)?.[1] || 'no sé cuándo';
+            respuestaExtra = `\n( Dijiste "a las ${horarioExtra}", pero te aviso cuando llegues, ¿eh? )`;
+        }
+    } else {
+        const tiempo = parsearTiempo(tiempoTexto);
+        if (!tiempo || (!tiempo.timestamp && !tiempo.esRecurrente)) return sendError(message.channel, `No entendí el tiempo, ${userName}.`);
+        recordatorio = {
+            id: uuidv4(),
+            userId: message.author.id,
+            channelId: message.channel.id,
+            mensaje,
+            timestamp: tiempo.timestamp,
+            creado: new Date().getTime(),
+            esRecurrente: tiempo.esRecurrente || false,
+            hora: tiempo.hora,
+            minutos: tiempo.minutos
+        };
+    }
 
-    // Guardamos el recordatorio en memoria
     dataStore.recordatorios = dataStore.recordatorios || [];
-    const id = uuidv4();
-    const recordatorio = {
-        id,
-        userId: message.author.id,
-        channelId: message.channel.id,
-        mensaje,
-        timestamp: tiempo.timestamp,
-        creado: new Date().getTime(),
-        esRecurrente: tiempo.esRecurrente || false,
-        hora: tiempo.hora,
-        minutos: tiempo.minutos
-    };
     dataStore.recordatorios.push(recordatorio);
-    userModified = true; // Cambio por usuario
-
-    const diferencia = tiempo.timestamp ? tiempo.timestamp - Date.now() : null;
-    const fechaStr = tiempo.esRecurrente 
-        ? `todos los días a las ${tiempo.hora.toString().padStart(2, '0')}:${tiempo.minutos.toString().padStart(2, '0')}` 
-        : new Date(tiempo.timestamp).toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' });
-
-    console.log(`Recordatorio seteado: "${mensaje}" para ${userName} (ID: ${id}) ${fechaStr}`);
+    userModified = true;
 
     const musicActive = manager.players.size > 0;
-    let guardadoMsg = musicActive 
-        ? `\n⚠️ Hay música sonando, así que no guardo ahora pa’ no cortar el vibe. Se guarda en 30 min (autosave) o cuando pare la música.` 
-        : '';
+    let guardadoMsg = musicActive ? `\n⚠️ Hay música, no guardo ahora. Se guarda en 30 min o cuando pare.` : '';
 
     if (!musicActive) {
         try {
             await saveDataStore();
-            console.log(`Datos guardados en GitHub tras setear recordatorio para ${userName}`);
-            userModified = false; // Reseteamos después de guardar
-            autoModified = false; // Por si acaso
-            guardadoMsg = `\n💾 Guardado en GitHub al toque, ¡tranqui!`;
+            userModified = false;
+            autoModified = false;
+            guardadoMsg = `\n💾 Guardado al toque, ¡tranqui!`;
         } catch (error) {
-            console.error(`Error al guardar recordatorio en GitHub: ${error.message}`);
-            guardadoMsg = `\n⚠️ No pude guardar en GitHub, ${userName}. Error: ${error.message}. Se pierde si reinicio antes del autosave.`;
+            guardadoMsg = `\n⚠️ No pude guardar, ${userName}. Error: ${error.message}.`;
         }
     }
 
-    await sendSuccess(message.channel, '⏰ ¡Recordatorio seteado!', 
-        `Te aviso "${mensaje}" ${fechaStr} por DM, ${userName}. ¡No te duermas, loco!${guardadoMsg}`);
+    const textoRespuesta = esCuandoLlegue 
+        ? `Te aviso "${mensaje}" cuando llegues a casa, ${userName}. ¡Copado!${respuestaExtra}`
+        : `Te aviso "${mensaje}" ${new Date(recordatorio.timestamp).toLocaleString('es-AR')}, ${userName}.`;
+    await sendSuccess(message.channel, '⏰ ¡Recordatorio seteado!', `${textoRespuesta}${guardadoMsg}`);
 
-    // Programar el recordatorio
-    programarRecordatorio(recordatorio);
+    if (!esCuandoLlegue) programarRecordatorio(recordatorio);
 }
 
 // Nueva función para programar recordatorios
