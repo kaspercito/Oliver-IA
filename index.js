@@ -4579,7 +4579,6 @@ const randomFacts = [
     }
 }
 
-// Clima
 async function manejarClima(message, silent = false) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
     const args = message.content.toLowerCase().startsWith('!clima') 
@@ -4623,7 +4622,6 @@ async function manejarClima(message, silent = false) {
     }
 }
 
-// Noticias
 async function manejarNoticias(message, silent = false) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
 
@@ -4686,49 +4684,6 @@ async function manejarNoticias(message, silent = false) {
             `No pude traer noticias copadas, ${userName}. Error: ${error.message}. ¿Probamos de nuevo, loco?`);
         if (!silent && waitingMessage) await waitingMessage.edit({ embeds: [errorEmbed] });
         return errorEmbed;
-    }
-}
-
-// Wiki
-async function manejarWiki(message) {
-    // Busco un resumen en Wikipedia, re copado
-    const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
-    // Saco el término a buscar
-    const args = message.content.toLowerCase().startsWith('!wiki') 
-        ? message.content.slice(5).trim() 
-        : message.content.slice(3).trim();
-
-    // Si no me das nada, te pido algo en rojo
-    if (!args) {
-        return sendError(message.channel, `¡Tirame algo después de "!wiki", ${userName}! Ejemplo: !wiki tango`);
-    }
-
-    // Te aviso en celeste que estoy buscando
-    const waitingEmbed = createEmbed('#FF1493', `📖 Buscando en Wiki, ${userName}...`, 
-        `Aguantá que te traigo info de "${args}"...`);
-    const waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
-
-    try {
-        // Busco en la API de Wikipedia en español
-        const url = `https://es.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(args)}`;
-        const response = await axios.get(url);
-        const data = response.data;
-
-        // Corto el resumen a 200 caracteres si es muy largo
-        const summary = data.extract.length > 200 
-            ? `${data.extract.slice(0, 197)}...` 
-            : data.extract;
-
-        // Embed dorado con el resumen
-        const embed = createEmbed('#FF1493', `📖 Sobre "${data.title}"`, 
-            `${summary}\n*Sacado de Wikipedia, posta.*`);
-        await waitingMessage.edit({ embeds: [embed] });
-    } catch (error) {
-        // Si falla, te aviso en rojo
-        console.error(`Error en wiki para "${args}": ${error.message}`);
-        const errorEmbed = createEmbed('#FF1493', '¡Qué cagada!', 
-            `No encontré nada en Wikipedia sobre "${args}", ${userName}. ¿Probamos otra cosa, loco?`);
-        await waitingMessage.edit({ embeds: [errorEmbed] });
     }
 }
 
