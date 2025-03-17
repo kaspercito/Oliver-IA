@@ -4,6 +4,7 @@ const { Client, GatewayIntentBits, EmbedBuilder } = require('discord.js'); // Li
 const axios = require('axios'); // Para hacer solicitudes HTTP, como a APIs externas.
 const { v4: uuidv4 } = require('uuid'); // Genera IDs únicos para identificar instancias o sesiones.
 const { Manager } = require('erela.js'); // Gestor de música para reproducir audio en canales de voz.
+const { DiscordTogether } = require('discord-together');
 const Spotify = require('erela.js-spotify'); // Plugin para integrar Spotify con Erela.js.
 const puppeteer = require('puppeteer'); // Para automatización de navegadores (web scraping, capturas de pantalla, etc.).
 const lyricsFinder = require('lyrics-finder'); // Busca letras de canciones.
@@ -23,6 +24,7 @@ const client = new Client({
     ],
 });
 
+const discordTogether = new DiscordTogether(client);
 // Definición de constantes importantes
 const OWNER_ID = '752987736759205960'; // ID del dueño del bot (probablemente el desarrollador).
 const ALLOWED_USER_ID = '1023132788632862761'; // ID de un usuario permitido (Belén, en este caso).
@@ -4761,35 +4763,18 @@ async function manejarTraduci(message) {
 
 async function manejarWatchTogether(message) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
-
-    // Chequear si el usuario está en un canal de voz
     const voiceChannel = message.member.voice.channel;
+
     if (!voiceChannel) {
         const embed = createEmbed('#FF1493', `¡Ey, ${userName}!`, 
-            'Tenés que estar en un canal de voz para usar esto, ¡sumate a uno, loco!');
+            'Tenés que estar en un canal de voz, ¡sumate a uno, loco!');
         return await message.channel.send({ embeds: [embed] });
     }
 
-    // ID oficial de "Watch Together"
-    const watchTogetherAppId = '880218394199220334';
-
     try {
-        // Verificar permisos del bot en el canal
-        const botMember = message.guild.members.me;
-        if (!voiceChannel.permissionsFor(botMember).has(['CONNECT', 'SPEAK'])) {
-            throw new Error('No tengo permisos pa’ conectar o hablar en el canal, ¡arreglalo, loco!');
-        }
-
-        // Crear la invitación
-        const invite = await voiceChannel.createInvite({
-            maxAge: 86400, // 24 horas
-            targetApplicationId: watchTogetherAppId,
-            targetType: 2, // Actividad
-            temporary: false
-        });
-
+        const invite = await discordTogether.createTogetherCode(voiceChannel.id, 'youtube');
         const embed = createEmbed('#FF1493', `🎥 ¡Watch Together, ${userName}!`, 
-            `¡Listo, grosa! Hacé clic acá para ver YouTube juntos: ${invite.url}\n¡A romperla con videos, loco!`);
+            `¡Listo, grosa! Hacé clic: ${invite.code}\n¡A romperla con videos, loco!`);
         await message.channel.send({ embeds: [embed] });
 
         if (message.author.id !== ALLOWED_USER_ID) {
@@ -4797,10 +4782,9 @@ async function manejarWatchTogether(message) {
             await belenUser.send({ embeds: [embed] });
         }
     } catch (error) {
-        console.error(`Error en Watch Together: ${error.message}`);
-        const errorDetails = error.response ? JSON.stringify(error.response.data) : error.message;
+        console.error(`Error con discord-together: ${error.message}`);
         const embed = createEmbed('#FF1493', `¡Ups, ${userName}!`, 
-            `Algo salió mal, loco. Error: ${errorDetails}\nProbá sumarte a un canal de voz y chequeá mis permisos, ¡dale!`);
+            `No pude arrancar Watch Together, loco. Error: ${error.message}\nHacélo manual: "Actividades" > "Watch Together".`);
         await message.channel.send({ embeds: [embed] });
     }
 }
