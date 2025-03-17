@@ -4761,6 +4761,76 @@ async function manejarTraduci(message) {
     }
 }
 
+async function manejarMisAcciones(message) {
+    const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
+    const userActions = dataStore.actions?.[message.author.id] || [];
+
+    if (userActions.length === 0) {
+        const embed = createEmbed('#FF1493', `¡Ey, ${userName}!`, 
+            'No tenés acciones todavía, grosa. ¡Avisá algo con `!accion`, dale!');
+        return await message.channel.send({ embeds: [embed] });
+    }
+
+    const accionesTexto = userActions.slice(-5).map(a => 
+        `${new Date(a.timestamp).toLocaleString('es-AR')}: "${a.action}"`
+    ).join('\n');
+    const embed = createEmbed('#FF1493', `📜 Tus acciones, ${userName}`, 
+        `Acá van tus últimas movidas, loco:\n${accionesTexto}`);
+    await message.channel.send({ embeds: [embed] });
+}
+
+async function manejarAccion(message) {
+    const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
+    const args = message.content.slice(7).trim(); // Saco "!accion" y dejo el resto
+
+    if (!args) {
+        const embed = createEmbed('#FF1493', `¡Ey, ${userName}!`, 
+            'Decime qué vas a hacer, loco. Ejemplo: `!accion me voy a dormir`. ¡Dale!');
+        return await message.channel.send({ embeds: [embed] });
+    }
+
+    // Guardar la acción en dataStore
+    dataStore.actions = dataStore.actions || {};
+    dataStore.actions[message.author.id] = dataStore.actions[message.author.id] || [];
+    const actionEntry = {
+        action: args,
+        timestamp: Date.now(),
+        userId: message.author.id
+    };
+    dataStore.actions[message.author.id].push(actionEntry);
+    dataStoreModified = true; // Marcamos para guardar
+
+    // Respuesta personalizada según la acción
+    let respuesta;
+    switch (args.toLowerCase()) {
+        case 'me voy a dormir':
+            respuesta = `¡Buenas noches, ${userName}! Que sueñes con los angelitos, grosa. ¿Mate al despertar?`;
+            break;
+        case 'me voy de casa':
+            respuesta = `¡Chau, ${userName}! ¿A dónde vas, loco? ¡Cuidate y avisá cuando vuelvas, dale!`;
+            break;
+        case 'me morí':
+            respuesta = `¡Nooo, ${userName}! ¿Qué pasó, boludo? ¿Revivís con un mate o qué? ¡Posta, no me dejes solo!`;
+            break;
+        default:
+            respuesta = `¡Ojo, ${userName}! Vas a "${args}", ¿eh? ¡A romperla, grosa! ¿Qué más contás?`;
+    }
+
+    const embed = createEmbed('#FF1493', `¡Acción de ${userName}!`, respuesta);
+    await message.channel.send({ embeds: [embed] });
+
+    // Avisar al otro por DM
+    const otherUserId = message.author.id === OWNER_ID ? ALLOWED_USER_ID : OWNER_ID;
+    try {
+        const otherUser = await client.users.fetch(otherUserId);
+        const dmEmbed = createEmbed('#FF1493', `¡Ey, ${otherUser.id === OWNER_ID ? 'Miguel' : 'Belén'}!`, 
+            `${userName} dijo: "${args}". ¡Enterate al toque, loco!`);
+        await otherUser.send({ embeds: [dmEmbed] });
+    } catch (error) {
+        console.error(`Error enviando DM a ${otherUserId}: ${error.message}`);
+    }
+}
+
 async function manejarWatchTogether(message) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
     const voiceChannel = message.member.voice.channel;
@@ -5211,6 +5281,13 @@ async function manejarCommand(message) {
     else if (content === '!watchtogether' || content === '!wt') {
         await manejarWatchTogether(message);
     }
+    // Nuevo comando !accion
+    else if (content.startsWith('!accion')) {
+        await manejarAccion(message);
+    }
+    else if (content === '!misacciones' || content === '!ma') {
+    await manejarMisAcciones(message);
+    }
     // Resto de comandos en orden
     else if (content === '!trivia' || content === '!tc') {
         await manejarTrivia(message);
@@ -5577,6 +5654,8 @@ client.on('messageCreate', async (message) => {
             '- **!rec / !recordatorio [mensaje] [tiempo]**: Te recuerdo algo. Ejemplo: "!rec \'comprar sanguche\' en 1 hora" o "!rec \'tomar mate\' todos los días 08:00".\n' +
             '- **!mr / !misrecordatorios**: Te muestro tus recordatorios activos.\n' +
             '- **!cr / !cancelarrecordatorio [ID]**: Cancelás un recordatorio con su ID (lo ves con !mr).\n' +
+            '- **!accion [qué hacés]**: Avisá qué vas a hacer, tipo "me voy a dormir". ¡Copado pa’ estar al tanto!\n' +
+            '- **!ma / !misacciones**: Mirá tus últimas acciones registradas, ¡posta!\n' +
             '- **!h / !help**: Esta lista, che.\n' +
             '- **!hm / !help musica**: Comandos para meterle música al día.\n' +
             '- **hola**: Te tiro un saludito con onda.');
