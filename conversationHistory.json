@@ -512,7 +512,7 @@
   "utilMessageTimestamps": {
     "1343749554905940058": 1741702502300,
     "plan_1343749554905940058": 1741879435793,
-    "reminder_1343749554905940058": 1742136091968,
+    "reminder_1343749554905940058": 1742202980447,
     "util_1343749554905940058": 1742138274670
   },
   "utilMessageReactions": {
@@ -592,50 +592,6 @@
       "esRecurrente": true,
       "hora": 0,
       "minutos": 0
-    },
-    {
-      "id": "81707f0a-c7cc-411e-a201-3fe3d1c6b942",
-      "userId": "1023132788632862761",
-      "channelId": "1343749554905940058",
-      "mensaje": "despiértame",
-      "timestamp": 1742204829484,
-      "creado": 1742183229485,
-      "esRecurrente": false,
-      "hora": null,
-      "minutos": null
-    },
-    {
-      "id": "c3481073-ed45-43d6-9111-cb233a7e0b17",
-      "userId": "1023132788632862761",
-      "channelId": "1343749554905940058",
-      "mensaje": "despiertame",
-      "timestamp": 1742204845349,
-      "creado": 1742183245350,
-      "esRecurrente": false,
-      "hora": null,
-      "minutos": null
-    },
-    {
-      "id": "2418ddc2-a4ad-424c-b3d2-794a51569a9d",
-      "userId": "1023132788632862761",
-      "channelId": "1343749554905940058",
-      "mensaje": "despiértame",
-      "timestamp": 1742204853293,
-      "creado": 1742183253293,
-      "esRecurrente": false,
-      "hora": null,
-      "minutos": null
-    },
-    {
-      "id": "9e091453-65a1-49e8-8d75-2fd8cbf8fbcf",
-      "userId": "1023132788632862761",
-      "channelId": "1343749554905940058",
-      "mensaje": "despiértame",
-      "timestamp": 1742204864533,
-      "creado": 1742183264533,
-      "esRecurrente": false,
-      "hora": null,
-      "minutos": null
     }
   ],
   "usedJokes": {
