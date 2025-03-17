@@ -4760,7 +4760,7 @@ async function manejarTraduci(message) {
 }
 
 async function manejarWatchTogether(message) {
-    const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén'; // Seguimos tu convención
+    const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
 
     // Chequear si el usuario está en un canal de voz
     const voiceChannel = message.member.voice.channel;
@@ -4770,32 +4770,37 @@ async function manejarWatchTogether(message) {
         return await message.channel.send({ embeds: [embed] });
     }
 
-    // ID oficial de "Watch Together" en Discord
+    // ID oficial de "Watch Together"
     const watchTogetherAppId = '880218394199220334';
 
     try {
-        // Crear la invitación a la actividad
+        // Verificar permisos del bot en el canal
+        const botMember = message.guild.members.me;
+        if (!voiceChannel.permissionsFor(botMember).has(['CONNECT', 'SPEAK'])) {
+            throw new Error('No tengo permisos pa’ conectar o hablar en el canal, ¡arreglalo, loco!');
+        }
+
+        // Crear la invitación
         const invite = await voiceChannel.createInvite({
-            maxAge: 86400, // 24 horas de validez
+            maxAge: 86400, // 24 horas
             targetApplicationId: watchTogetherAppId,
-            targetType: 2, // Tipo 2 es para actividades
+            targetType: 2, // Actividad
             temporary: false
         });
 
-        // Enviar el link con onda
         const embed = createEmbed('#FF1493', `🎥 ¡Watch Together, ${userName}!`, 
             `¡Listo, grosa! Hacé clic acá para ver YouTube juntos: ${invite.url}\n¡A romperla con videos, loco!`);
         await message.channel.send({ embeds: [embed] });
 
-        // Opcional: DM a Belén si no es ella quien lo pidió
         if (message.author.id !== ALLOWED_USER_ID) {
             const belenUser = await client.users.fetch(ALLOWED_USER_ID);
             await belenUser.send({ embeds: [embed] });
         }
     } catch (error) {
-        console.error(`Error al crear Watch Together: ${error.message}`);
+        console.error(`Error en Watch Together: ${error.message}`);
+        const errorDetails = error.response ? JSON.stringify(error.response.data) : error.message;
         const embed = createEmbed('#FF1493', `¡Ups, ${userName}!`, 
-            `Algo salió mal, loco. Error: ${error.message}. ¡Avisale a Miguel, che!`);
+            `Algo salió mal, loco. Error: ${errorDetails}\nProbá sumarte a un canal de voz y chequeá mis permisos, ¡dale!`);
         await message.channel.send({ embeds: [embed] });
     }
 }
