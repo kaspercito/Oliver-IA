@@ -3589,61 +3589,53 @@ async function manejarActualizaciones(message) {
 }
 
 // Funciones de música
-async function manejarPlay(message) {
-    const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
-    const args = message.content.split(' ').slice(1).join(' ').trim();
+async function manejarPlay(message, args) {
+    const userName = message.author.username;
+    const guildId = message.guild.id;
+    const voiceChannel = message.member.voice.channel;
 
-    console.log(`Iniciando manejarPlay para ${userName} con args: "${args}"`);
-    if (!message.guild) return sendError(message.channel, `Este comando solo va en servidores, ${userName}.`);
-    if (!message.member || !message.member.voice.channel) return sendError(message.channel, `Metete en un canal de voz primero, ${userName}.`);
-
-    let player = manager.players.get(message.guild.id);
-    if (!player) {
-        player = manager.create({
-            guild: message.guild.id,
-            voiceChannel: message.member.voice.channel.id,
-            textChannel: message.channel.id,
-            selfDeafen: true,
-        });
-    }
-
-    if (player.state !== 'CONNECTED') {
-        console.log('Conectando player...');
-        player.connect();
-        player.set('stayForever', true);
-    }
-
-    if (!args) {
-        const embed = createEmbed('#FF1493', '🎶 Bot en llamada', `Ya estoy en el canal de voz, ${userName}. Mandame una canción con !play cuando quieras.`);
+    if (!voiceChannel) {
+        const embed = createEmbed('#FF1493', '⚠️ Unite a un canal', 
+            `Tenés que estar en un canal de voz primero, ${userName}.`);
         return await message.channel.send({ embeds: [embed] });
     }
 
-    let res;
-    try {
-        console.log(`Buscando "${args}"...`);
-        res = await manager.search(args, message.author);
+    if (!args) {
+        const embed = createEmbed('#FF1493', '🎶 Bot en llamada', 
+            `Ya estoy en el canal de voz, ${userName}. Mandame una canción con !play cuando quieras.`);
+        return await message.channel.send({ embeds: [embed] });
+    }
 
-        if (res.loadType === 'NO_MATCHES') return sendError(message.channel, `No encontré nada con "${args}", ${userName}. ¿Seguro que el enlace está bien?`);
-        if (res.loadType === 'LOAD_FAILED') throw new Error(`No pude cargar el enlace: ${res.exception?.message || 'Error desconocido'}`);
+    const player = manager.players.get(guildId) || manager.create({
+        guild: guildId,
+        voiceChannel: voiceChannel.id,
+        textChannel: message.channel.id,
+    });
 
-        let track = res.tracks[0];
-        if (res.loadType === 'PLAYLIST_LOADED') {
-            res.tracks.forEach(t => player.queue.add(t));
-            track = res.tracks[0];
-        } else {
-            player.queue.add(track);
-        }
+    if (player.voiceChannel !== voiceChannel.id) {
+        const embed = createEmbed('#FF1493', '⚠️ Canal equivocado', 
+            `Tenés que estar en mi mismo canal de voz, ${userName}.`);
+        return await message.channel.send({ embeds: [embed] });
+    }
 
-        if (!player.playing && !player.paused) {
-            console.log(`Reproduciendo...`);
-            player.play();
-        }
+    const searchQuery = args.join(' ');
+    const res = await manager.search(searchQuery, message.author);
 
-        player.set('currentTrack', track);
+    if (res.loadType === 'LOAD_FAILED' || res.loadType === 'NO_MATCHES') {
+        const embed = createEmbed('#FF1493', '⚠️ No encontré nada', 
+            `No pude encontrar "${searchQuery}", ${userName}. Probá otra cosa.`);
+        return await message.channel.send({ embeds: [embed] });
+    }
 
-    } catch (error) {
-        console.error(`Error al buscar "${args}": ${error.message}`);
-        return sendError(message.channel, `Algo falló con "${args}", ${userName}. Error: ${error.message}. ¿El enlace está roto o qué?`);
+    player.connect();
+    player.queue.add(res.tracks[0]);
+
+    const embed = createEmbed('#FF1493', '🎵 Agregado a la cola', 
+        `Puse **${res.tracks[0].title}** en la cola, ${userName}.`);
+    await message.channel.send({ embeds: [embed] });
+
+    if (!player.playing && !player.paused) {
+        player.play();
     }
 }
 
@@ -5059,66 +5051,41 @@ manager.on('queueEnd', async player => {
 
 manager.on('trackStart', async (player, track) => {
     const channel = client.channels.cache.get(player.textChannel);
-    const userName = player.queue.current.requester.id === OWNER_ID ? 'Miguel' : 'Belén';
+    const userName = client.users.cache.get(track.requester.id).username;
 
-    if (!channel) return;
+    const durationMs = track.duration;
+    const durationSeconds = Math.floor(durationMs / 1000);
+    const durationFormatted = `${Math.floor(durationSeconds / 60)}:${(durationSeconds % 60).toString().padStart(2, '0')}`;
 
-    const guildId = player.guild;
-    dataStore.musicSessions[guildId] = dataStore.musicSessions[guildId] || {};
-    dataStore.musicSessions[guildId].lastTrackIdentifier = track.identifier;
-    dataStoreModified = true;
-    console.log(`Track started: ${track.title}, identifier saved: ${track.identifier}`);
+    const updateBossBar = () => {
+        const positionMs = player.position;
+        const positionSeconds = Math.floor(positionMs / 1000);
+        const positionFormatted = `${Math.floor(positionSeconds / 60)}:${(positionSeconds % 60).toString().padStart(2, '0')}`;
+        
+        const totalBars = 20;
+        const progress = Math.min(positionMs / durationMs, 1);
+        const filledBars = Math.round(progress * totalBars);
+        const emptyBars = totalBars - filledBars;
+        const bossBar = '▬'.repeat(filledBars) + '🔘' + '▬'.repeat(emptyBars);
 
-    // Formateamos la duración
-    const durationStr = `${Math.floor(track.duration / 60000)}:${((track.duration % 60000) / 1000).toFixed(0).padStart(2, '0')}`;
-    // Barra de progreso inicial
-    const bossBar = crearBossBar(0, track.duration);
+        const embed = createEmbed('#FF1493', '▶️ Sonando ahora', 
+            `**${track.title}**\n⏳ Duración: ${durationFormatted}\n📊 Progreso: ${bossBar} ${positionFormatted} / ${durationFormatted}`)
+            .setThumbnail(track.thumbnail);
 
-    // Embed inicial organizado
-    const embed = createEmbed('#FF1493', `🎶 Música pa’ ${userName}`, '¡A romperla toda, che!')
-        .addFields(
-            { name: '▶️ Sonando ahora', value: `**${track.title}**`, inline: false },
-            { name: '⏳ Duración', value: durationStr, inline: true },
-            { name: '📊 Progreso', value: bossBar, inline: true }
-        )
-        .setThumbnail(track.thumbnail || 'https://i.imgur.com/defaultThumbnail.png')
-        .setFooter({ text: `Oliver IA - Música con onda | Pedido por ${userName}`, iconURL: client.user.avatarURL() })
-        .setTimestamp();
+        return embed;
+    };
 
-    // Enviamos el mensaje y lo guardamos
+    const embed = updateBossBar();
     const progressMessage = await channel.send({ embeds: [embed] });
-    player.set('progressMessage', progressMessage);
 
-    // Temporizador para actualizar la boss bar
     const intervalo = setInterval(() => {
-        if (!player.playing || !player.queue.current) {
-            clearInterval(intervalo);
-            return;
-        }
-
-        const currentTime = player.position;
-        const duration = track.duration;
-        const currentStr = `${Math.floor(currentTime / 60000)}:${((currentTime % 60000) / 1000).toFixed(0).padStart(2, '0')}`;
-        const bossBar = crearBossBar(currentTime, duration);
-
-        // Embed actualizado organizado
-        const updatedEmbed = createEmbed('#FF1493', `🎶 Música pa’ ${userName}`, '¡A romperla toda, che!')
-            .addFields(
-                { name: '▶️ Sonando ahora', value: `**${track.title}**`, inline: false },
-                { name: '⏳ Duración', value: durationStr, inline: true },
-                { name: '📊 Progreso', value: `${bossBar} ${currentStr} / ${durationStr}`, inline: true }
-            )
-            .setThumbnail(track.thumbnail || 'https://i.imgur.com/defaultThumbnail.png')
-            .setFooter({ text: `Oliver IA - Música con onda | Pedido por ${userName}`, iconURL: client.user.avatarURL() })
-            .setTimestamp();
-
+        const updatedEmbed = updateBossBar();
         progressMessage.edit({ embeds: [updatedEmbed] }).catch(err => {
             console.error('Error editando boss bar:', err);
             clearInterval(intervalo);
         });
-    }, 1000); // Actualiza cada 1 segundo
+    }, 1000);
 
-    // Guardamos el intervalo en el player
     player.set('progressInterval', intervalo);
 });
 
