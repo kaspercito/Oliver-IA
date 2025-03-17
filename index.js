@@ -5533,27 +5533,30 @@ async function manejarCommand(message) {
 }
 
 client.on('messageCreate', async (message) => {
-    if (message.author.bot && message.author.username !== 'IFTTT') return; // Solo IFTTT o usuarios
+    console.log(`Mensaje recibido - Autor: ${message.author.username}, Contenido: ${message.content}, Bot: ${message.author.bot}`);
+    
+    if (message.author.bot && message.author.username !== 'IFTTT') {
+        console.log(`Ignorado por filtro de bot: ${message.content} (Autor: ${message.author.username})`);
+        return;
+    }
 
     const userName = message.author.id === OWNER_ID ? 'Miguel' : (message.author.id === ALLOWED_USER_ID ? 'Belén' : 'Un desconocido');
-    const content = message.content.toLowerCase();
+    const content = message.content.trim().toLowerCase();
+    console.log(`Contenido limpio: ${content}`);
 
-    // Detectar mensajes de IFTTT
     if (content.startsWith('@jefe') || content.startsWith('@jefa')) {
+        console.log(`Detectado mensaje IFTTT: ${content}`);
         const esJefe = content.startsWith('@jefe');
-        const userId = esJefe ? ALLOWED_USER_ID : OWNER_ID; // @jefe = Belén, @jefa = Miguel
+        const userId = esJefe ? ALLOWED_USER_ID : OWNER_ID;
         const targetName = esJefe ? 'Belén' : 'Miguel';
-
         const canal = message.channel;
 
-        // Cuando alguien llega a casa
         if (content.includes('entered a su casa')) {
-            // Borramos el mensaje de IFTTT
             try {
                 await message.delete();
                 console.log(`Mensaje de IFTTT borrado: ${content}`);
             } catch (error) {
-                console.error(`No pude borrar el mensaje de IFTTT: ${error.message}`);
+                console.error(`No pude borrar el mensaje: ${error.message}`);
             }
 
             const ahora = Date.now();
