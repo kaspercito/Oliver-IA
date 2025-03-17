@@ -612,6 +612,17 @@
       "esRecurrente": false,
       "hora": null,
       "minutos": null
+    },
+    {
+      "id": "5b3f3370-940b-4dd4-9e54-5401db5dc10c",
+      "userId": "1023132788632862761",
+      "channelId": "1343749554905940058",
+      "mensaje": "comprar servilletas de papel",
+      "timestamp": 1742259925650,
+      "creado": 1742241925652,
+      "esRecurrente": false,
+      "hora": null,
+      "minutos": null
     }
   ],
   "usedJokes": {
