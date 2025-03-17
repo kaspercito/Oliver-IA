@@ -601,6 +601,17 @@
       "cuandoLlegue": true,
       "timestamp": 1742248800000,
       "creado": 1742234421552
+    },
+    {
+      "id": "8be7043d-cd26-4f8d-851d-8f87cdf538c5",
+      "userId": "1023132788632862761",
+      "channelId": "1343749554905940058",
+      "mensaje": "comprar un repelente para los mosquitos",
+      "timestamp": 1742259912297,
+      "creado": 1742241912298,
+      "esRecurrente": false,
+      "hora": null,
+      "minutos": null
     }
   ],
   "usedJokes": {
