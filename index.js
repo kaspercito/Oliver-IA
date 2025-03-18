@@ -3423,10 +3423,9 @@ async function manejarRecordatorio(message) {
 // Programar el recordatorio
 function programarRecordatorio(recordatorio) {
     const userName = recordatorio.userId === OWNER_ID ? 'Miguel' : 'Belén';
-    const ahora = Date.now();
-
-    if (!recordatorio.timestamp || recordatorio.timestamp <= ahora) {
-        console.log(`Recordatorio "${recordatorio.mensaje}" (ID: ${recordatorio.id}) ya venció o no tiene timestamp.`);
+    const ahora = Date.now(); // UTC
+    if (recordatorio.timestamp <= ahora) {
+        console.log(`Recordatorio "${recordatorio.mensaje}" (ID: ${recordatorio.id}) ya venció.`);
         if (!recordatorio.esRecurrente) {
             dataStore.recordatorios = dataStore.recordatorios.filter(r => r.id !== recordatorio.id);
             autoModified = true;
@@ -3438,24 +3437,18 @@ function programarRecordatorio(recordatorio) {
     console.log(`Programando recordatorio "${recordatorio.mensaje}" (ID: ${recordatorio.id}) en ${diferencia / 1000} segundos.`);
 
     setTimeout(async () => {
-        try {
-            const usuario = await client.users.fetch(recordatorio.userId);
-            if (usuario) {
-                await usuario.send({ embeds: [createEmbed('#FF1493', '⏰ ¡Recordatorio, loco!', 
-                    `<@${recordatorio.userId}>, acordate de: **${recordatorio.mensaje}**. ¡Ya es hora, ${userName}!`)] });
-                console.log(`Recordatorio enviado a ${userName}: "${recordatorio.mensaje}" (ID: ${recordatorio.id})`);
-            }
-        } catch (error) {
-            console.error(`No pude enviar DM al usuario ${recordatorio.userId}: ${error.message}`);
+        const usuario = await client.users.fetch(recordatorio.userId);
+        if (usuario) {
+            await usuario.send({ embeds: [createEmbed('#FF1493', '⏰ ¡Recordatorio, loco!', 
+                `<@${recordatorio.userId}>, acordate de: **${recordatorio.mensaje}**. ¡Ya es hora, ${userName}! - ${new Date(recordatorio.timestamp).toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })}`)] });
+            console.log(`Recordatorio enviado: "${recordatorio.mensaje}" (ID: ${recordatorio.id})`);
         }
-
         if (recordatorio.esRecurrente) {
-            const ahora = new Date();
-            const nuevoTimestamp = new Date(ahora);
-            nuevoTimestamp.setUTCDate(nuevoTimestamp.getUTCDate() + 1);
-            nuevoTimestamp.setUTCHours(recordatorio.hora, recordatorio.minutos, 0, 0);
-            recordatorio.timestamp = nuevoTimestamp.getTime();
-            console.log(`Recordatorio recurrente reprogramado: "${recordatorio.mensaje}" (ID: ${recordatorio.id}) para ${nuevoTimestamp.toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })}`);
+            const ahora = Date.now();
+            const proximo = new Date(ahora);
+            proximo.setUTCDate(proximo.getUTCDate() + 1);
+            proximo.setUTCHours(recordatorio.hora, recordatorio.minutos, 0, 0);
+            recordatorio.timestamp = proximo.getTime();
             autoModified = true;
             programarRecordatorio(recordatorio);
         } else {
@@ -5884,36 +5877,30 @@ client.on('messageCreate', async (message) => {
 
 // Eventos
 client.once('ready', async () => {
-    console.log(`¡Miguel IA está listo! Instancia: ${instanceId} - ${new Date().toLocaleString('es-AR')}`);
+    console.log(`¡Miguel IA está listo! Instancia: ${instanceId} - ${new Date().toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })}`);
     client.user.setPresence({ activities: [{ name: "Listo para ayudar a Milagros", type: 0 }], status: 'dnd' });
     dataStore = await loadDataStore();
 
     if (dataStore.recordatorios && dataStore.recordatorios.length > 0) {
-        const ahora = Date.now();
+        const ahora = Date.now(); // UTC
         const ahoraUTC = new Date(ahora);
         dataStore.recordatorios.forEach(recordatorio => {
             if (recordatorio.timestamp > ahora || recordatorio.esRecurrente) {
                 console.log(`Restaurando recordatorio: "${recordatorio.mensaje}" (ID: ${recordatorio.id})`);
                 if (recordatorio.esRecurrente) {
                     const proximo = new Date(ahoraUTC);
-                    proximo.setUTCDate(ahoraUTC.getUTCDate()); // Hoy
+                    proximo.setUTCDate(ahoraUTC.getUTCDate());
                     proximo.setUTCHours(recordatorio.hora, recordatorio.minutos, 0, 0);
                     if (proximo.getTime() <= ahora) {
-                        proximo.setUTCDate(proximo.getUTCDate() + 1); // Mañana
+                        proximo.setUTCDate(proximo.getUTCDate() + 1);
                     }
                     recordatorio.timestamp = proximo.getTime();
                     autoModified = true;
                 }
                 programarRecordatorio(recordatorio);
-            } else {
-                console.log(`Descartando recordatorio vencido: "${recordatorio.mensaje}" (ID: ${recordatorio.id})`);
             }
         });
-        const originalLength = dataStore.recordatorios.length;
         dataStore.recordatorios = dataStore.recordatorios.filter(r => r.timestamp > ahora || r.esRecurrente);
-        if (dataStore.recordatorios.length < originalLength) {
-            autoModified = true;
-        }
         console.log('Recordatorios restaurados y vencidos limpiados');
     }
     
