@@ -2135,37 +2135,53 @@ const obtenerResultados = async (message) => {
     const partidos = response.data.matches || [];
 
     if (partidos.length === 0) {
-      return message.channel.send('No hay partidos disponibles en este rango de fechas.');
+      const embed = new MessageEmbed()
+        .setColor('#FF0000')
+        .setTitle('Sin Datos')
+        .setDescription('No hay partidos disponibles en este rango de fechas.')
+        .setTimestamp();
+      return message.channel.send({ embeds: [embed] });
     }
 
     const embed = new MessageEmbed()
       .setColor('#FF1493')
-      .setTitle('Resultados Eliminatorias Sudamericanas - Marzo 2025')
-      .setDescription('Últimos resultados disponibles:')
+      .setTitle('Eliminatorias Sudamericanas - Marzo 2025')
+      .setDescription('Partidos terminados y próximos:')
       .setTimestamp();
 
     partidos
-      .filter((p) => p.status === 'FINISHED') // Solo partidos terminados
       .slice(0, 10) // Limita a 10 partidos
       .forEach((partido) => {
-        const resultado = `${partido.score.fullTime.home} - ${partido.score.fullTime.away}`;
+        const fechaUTC = new Date(partido.utcDate);
+        const horaArgentina = new Date(fechaUTC.getTime() - 3 * 60 * 60 * 1000); // UTC-3
+        const horaEcuador = new Date(fechaUTC.getTime() - 5 * 60 * 60 * 1000);  // UTC-5
+
+        const resultado = partido.score.fullTime.home !== null
+          ? `${partido.score.fullTime.home} - ${partido.score.fullTime.away}`
+          : 'Por jugarse';
+
         const banderaLocal = banderas[partido.homeTeam.name] || '';
         const banderaVisitante = banderas[partido.awayTeam.name] || '';
+
+        const horaArg = horaArgentina.toLocaleString('es-AR', { hour: '2-digit', minute: '2-digit', timeZone: 'UTC' });
+        const horaEc = horaEcuador.toLocaleString('es-EC', { hour: '2-digit', minute: '2-digit', timeZone: 'UTC' });
+
         embed.addField(
           `${banderaLocal} ${partido.homeTeam.name} vs ${partido.awayTeam.name} ${banderaVisitante}`,
-          `Resultado: ${resultado}`,
+          `Resultado: ${resultado}\nFecha: ${fechaUTC.toLocaleDateString('es-ES')} UTC\nHora Argentina: ${horaArg} (UTC-3)\nHora Ecuador: ${horaEc} (UTC-5)`,
           true
         );
       });
 
-    if (embed.fields.length > 0) {
-      message.channel.send({ embeds: [embed] });
-    } else {
-      message.channel.send('No hay resultados finalizados aún para estas fechas.');
-    }
+    message.channel.send({ embeds: [embed] });
   } catch (error) {
     console.error('Error al obtener datos de la API:', error.message);
-    message.channel.send('Hubo un error al obtener los resultados.');
+    const embed = new MessageEmbed()
+      .setColor('#FF0000')
+      .setTitle('Error')
+      .setDescription('Hubo un error al obtener los resultados de la API.')
+      .setTimestamp();
+    message.channel.send({ embeds: [embed] });
   }
 };
 
