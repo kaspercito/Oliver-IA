@@ -605,23 +605,12 @@
       "minutos": null
     },
     {
-      "id": "a7037e13-f0f0-4e38-9aa7-aababc3ab6fd",
+      "id": "004563e4-2650-457e-8725-97a1e49eed3b",
       "userId": "752987736759205960",
       "channelId": "1343749554905940058",
-      "mensaje": "Levantarme para viajar a Marcelino Maridueño",
-      "timestamp": 1742369400000,
-      "creado": 1742269505481,
-      "esRecurrente": false,
-      "hora": null,
-      "minutos": null
-    },
-    {
-      "id": "3d75fb17-163a-4137-950b-c493a0dc596d",
-      "userId": "752987736759205960",
-      "channelId": "1343749554905940058",
-      "mensaje": "Levantarme para viajar a Marcelino Maridueña",
-      "timestamp": 1742283000000,
-      "creado": 1742271115759,
+      "mensaje": "Hazme acuerdo de viajar",
+      "timestamp": 1742275800000,
+      "creado": 1742272793601,
       "esRecurrente": false,
       "hora": null,
       "minutos": null
