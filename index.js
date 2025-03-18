@@ -5465,6 +5465,8 @@ async function manejarCommand(message, silent = false) {
 
 const fetch = require('node-fetch'); // Asegurate de tener este módulo instalado (npm install node-fetch)
 
+const fetch = require('node-fetch'); // Asegurate de tenerlo importado arriba
+
 client.on('messageCreate', async (message) => {
     console.log(`Mensaje recibido - Autor: ${message.author.username}, Contenido: ${message.content}, Bot: ${message.author.bot}`);
     
@@ -5490,6 +5492,9 @@ client.on('messageCreate', async (message) => {
         const targetName = esJefe ? 'Belén' : 'Miguel';
         const canal = message.channel;
 
+        // Configuración común
+        const webhookUrl = process.env.WEBHOOK_URL || 'https://maker.ifttt.com/trigger/oliver_speak/with/key/TU_CLAVE_AQUI';
+
         if (content.includes('entered a su casa')) {
             console.log(`Procesando llegada de ${targetName}`);
             try {
@@ -5507,7 +5512,7 @@ client.on('messageCreate', async (message) => {
             if (recordatoriosPendientes.length > 0) {
                 recordatoriosPendientes.forEach(r => {
                     if (!r.timestamp || ahora >= r.timestamp) {
-                        avisos.push(`- ${r.mensaje} ${r.timestamp ? `(seteado para las ${new Date(r.timestamp).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })})` : ''}`);
+                        avisos.push(`- ${r.mensaje} ${r.timestamp ? `(a las ${new Date(r.timestamp).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })})` : ''}`);
                     } else {
                         pendientes.push(r);
                     }
@@ -5521,60 +5526,64 @@ client.on('messageCreate', async (message) => {
             try {
                 let clima = 'No pude traer el clima, che.';
                 let noticias = 'No hay noticias frescas ahora, loco.';
-                
                 const climaResult = await manejarCommand({ content: targetName === 'Belén' ? '!clima San Luis' : '!clima Guayaquil', channel: canal, author: { id: userId } }, true);
                 if (climaResult?.description) clima = climaResult.description;
                 console.log(`Clima obtenido para ${targetName}: ${clima}`);
 
                 const noticiasResult = await manejarCommand({ content: '!noticias', channel: canal, author: { id: userId } }, true);
-                if (noticiasResult?.description) noticias = noticiasResult.description;
+                if (noticiasResult?.description) noticias = noticiasResult.description.split('\n\n')[0] || noticias; // Solo el primer titular
                 console.log(`Noticias obtenidas para ${targetName}: ${noticias}`);
 
-                const webhookUrl = 'https://maker.ifttt.com/trigger/oliver_speak/with/key/TU_CLAVE_AQUI'; // Reemplazá con tu URL de IFTTT
+                let consejoClima = '';
+                if (clima.toLowerCase().includes('lluvia') || clima.toLowerCase().includes('tormenta')) {
+                    consejoClima = 'Si salís otra vez, llevá paraguas o piloto, ¡que no te agarre la lluvia! ☔';
+                } else if (clima.toLowerCase().includes('frío') || clima.toLowerCase().includes('nublado')) {
+                    consejoClima = 'Abrigate un toque si salís, ¡que está fresquito! 🧥';
+                } else if (clima.toLowerCase().includes('soleado') || clima.toLowerCase().includes('calor')) {
+                    consejoClima = 'Si salís, llevate agua, ¡que está para chamuyar al sol! ☀️';
+                }
 
                 if (targetName === 'Belén') {
                     const hora = new Date().toLocaleTimeString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires', hour: '2-digit', minute: '2-digit' });
-                    const recordatoriosText = avisos.length > 0 ? `Acá van tus recordatorios, escuchá bien, genia: ${avisos.join(', ')}. 📋` : 'No tenés recordatorios ahora, ¿querés que te tire un chiste pa’ festejar que llegaste? 😄';
-                    const mensajeTTS = `¡Qué lindo, Belén, llegaste a casa! Soy Oliver IA, tu bot piola, dándote la bienvenida con toda la onda. 🏠 El clima en San Luis está así: ${clima}. 🌤️ Noticias frescas: ${noticias}. 📰 Che, en Argentina son las ${hora} ahora mismo. ⏰ ${recordatoriosText}`;
+                    const recordatoriosText = avisos.length > 0 ? `Tenés estos recordatorios pa’ ahora, genia: ${avisos.join(', ')}. ¡No te olvides, eh! 📋` : 'No hay recordatorios pa’ cuando llegás, ¡a descansar tranqui! 😊';
+                    const mensajeTTS = `¡Qué lindo, Belén, llegaste a casa, genia! Son las ${hora} en Argentina. 🏠 El clima en San Luis está así: ${clima}. 🌤️ ${consejoClima} ${recordatoriosText} El titular del día: ${noticias}. 📰 ¡Qué bueno tenerte de vuelta, grosa, ahora a relajarte como reina!`;
                     
-                    // Enviar al webhook para que suene en el iPhone
                     await fetch(webhookUrl, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ text: mensajeTTS })
                     });
-                    console.log(`Mensaje TTS enviado al webhook para Belén`);
+                    console.log(`Mensaje TTS enviado al webhook para Belén (llegada)`);
 
                     const embed = createEmbed('#FF1493', `¡Bienvenida a casa, Belén! 🏠`, 
-                        `¡Qué lindo tenerte de vuelta, genia! Acá va todo lo que necesitás saber al toque`)
+                        `¡Qué lindo tenerte de vuelta, genia! Acá va todo lo importante`)
                         .addFields(
-                            { name: '🌤️ Clima en San Luis', value: clima, inline: false },
-                            { name: '📰 Noticias frescas', value: noticias.split('\n\n')[0] || noticias, inline: false },
                             { name: '⏰ Hora en Argentina', value: hora, inline: true },
-                            { name: '📋 Recordatorios', value: avisos.length > 0 ? avisos.join('\n') : 'No tenés recordatorios ahora, ¡descansá tranqui!', inline: false }
+                            { name: '🌤️ Clima en San Luis', value: `${clima}\n${consejoClima}`, inline: false },
+                            { name: '📋 Recordatorios', value: avisos.length > 0 ? avisos.join('\n') : 'Ninguno pa’ ahora, ¡a disfrutar!', inline: false },
+                            { name: '📰 Noticias', value: noticias, inline: false }
                         )
                         .setFooter({ text: 'Con cariño, Oliver IA' });
                     await canal.send({ embeds: [embed] });
                 } else if (targetName === 'Miguel') {
                     const hora = new Date().toLocaleTimeString('es-EC', { timeZone: 'America/Guayaquil', hour: '2-digit', minute: '2-digit' });
-                    const recordatoriosText = avisos.length > 0 ? `Acá van tus recordatorios, prestá atención, loco: ${avisos.join(', ')}. 📋` : 'No hay recordatorios pa’ vos ahora, ¿querés cola o algo pa’ relajarte? 😎';
-                    const mensajeTTS = `¡Grande, Miguel, ya estás en casa! Soy Oliver IA, tu compañero fiel, dándote la bienvenida como se merece el capo. 🏠 El clima en Guayaquil está así: ${clima}. 🌤️ Noticias del día: ${noticias}. 📰 Che, en Ecuador son las ${hora} ahora. ⏰ ${recordatoriosText}`;
+                    const recordatoriosText = avisos.length > 0 ? `Tenés estos recordatorios pa’ ahora, loco: ${avisos.join(', ')}. ¡No te cuelgues, eh! 📋` : 'No hay recordatorios pa’ cuando llegás, ¡a relajarse tranqui! 😎';
+                    const mensajeTTS = `¡Grande, Miguel, ya estás en casa, capo! Son las ${hora} en Ecuador. 🏠 El clima en Guayaquil está así: ${clima}. 🌤️ ${consejoClima} ${recordatoriosText} El titular del día: ${noticias}. 📰 ¡A descansar como se merece el jefe, loco!`;
                     
-                    // Enviar al webhook para que suene en el iPhone de Belén también
                     await fetch(webhookUrl, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ text: mensajeTTS })
                     });
-                    console.log(`Mensaje TTS enviado al webhook para Miguel`);
+                    console.log(`Mensaje TTS enviado al webhook para Miguel (llegada)`);
 
                     const embed = createEmbed('#FF1493', `¡Bienvenido a casa, Miguel! 🏠`, 
-                        `¡Grande, capo! Acá tenés todo lo que precisás saber ahora mismo`)
+                        `¡Grande, capo! Acá tenés todo lo que necesitás saber`)
                         .addFields(
-                            { name: '🌤️ Clima en Guayaquil', value: clima, inline: false },
-                            { name: '📰 Noticias del día', value: noticias.split('\n\n')[0] || noticias, inline: false },
                             { name: '⏰ Hora en Ecuador', value: hora, inline: true },
-                            { name: '📋 Recordatorios', value: avisos.length > 0 ? avisos.join('\n') : 'No hay recordatorios pa’ vos, ¡a relajarse, loco!', inline: false }
+                            { name: '🌤️ Clima en Guayaquil', value: `${clima}\n${consejoClima}`, inline: false },
+                            { name: '📋 Recordatorios', value: avisos.length > 0 ? avisos.join('\n') : 'Ninguno pa’ ahora, ¡a descansar!', inline: false },
+                            { name: '📰 Noticias', value: noticias, inline: false }
                         )
                         .setFooter({ text: 'Con onda, Oliver IA' });
                     await canal.send({ embeds: [embed] });
@@ -5596,43 +5605,71 @@ client.on('messageCreate', async (message) => {
             }
 
             try {
-                const webhookUrl = 'https://maker.ifttt.com/trigger/oliver_speak/with/key/TU_CLAVE_AQUI'; // Reemplazá con tu URL de IFTTT
+                // Obtener el clima
+                let clima = 'No pude traer el clima, che.';
+                const climaResult = await manejarCommand({ content: targetName === 'Belén' ? '!clima San Luis' : '!clima Guayaquil', channel: canal, author: { id: userId } }, true);
+                if (climaResult?.description) clima = climaResult.description;
+                console.log(`Clima obtenido para salida de ${targetName}: ${clima}`);
+
+                // Recordatorios del día
+                const hoy = new Date();
+                hoy.setHours(0, 0, 0, 0); // Inicio del día
+                const manana = new Date(hoy);
+                manana.setDate(hoy.getDate() + 1); // Fin del día
+                const recordatoriosHoy = dataStore.recordatorios.filter(r => 
+                    r.userId === userId && r.timestamp && r.timestamp >= hoy.getTime() && r.timestamp < manana.getTime()
+                );
+                const recordatoriosText = recordatoriosHoy.length > 0 
+                    ? `Tus recordatorios pa’ hoy son: ${recordatoriosHoy.map(r => `${r.mensaje} a las ${new Date(r.timestamp).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })}`).join(', ')}. ¡No te cuelgues, eh! 📋`
+                    : 'No tenés recordatorios pa’ hoy, ¡a romperla sin presiones!';
+
+                // Consejo según el clima
+                let consejoClima = '';
+                if (clima.toLowerCase().includes('lluvia') || clima.toLowerCase().includes('tormenta')) {
+                    consejoClima = 'Llevá paraguas o piloto, ¡que no te agarre la lluvia, loco! ☔';
+                } else if (clima.toLowerCase().includes('frío') || clima.toLowerCase().includes('nublado')) {
+                    consejoClima = 'Abrigate un toque, ¡que está fresquito pa’ salir! 🧥';
+                } else if (clima.toLowerCase().includes('soleado') || clima.toLowerCase().includes('calor')) {
+                    consejoClima = 'Llevate agua o un gorrito, ¡que el sol está a full! ☀️';
+                }
 
                 if (targetName === 'Miguel') {
                     const hora = new Date().toLocaleTimeString('es-EC', { timeZone: 'America/Guayaquil', hour: '2-digit', minute: '2-digit' });
-                    const mensajeTTS = `¡Ojo, Miguel salió de casa! Soy Oliver IA, tu bot copado, avisando que el capo ya está en marcha. Son las ${hora} en Ecuador, ¡a romperla donde vayas, loco! 🚀`;
+                    const mensajeTTS = `¡Ojo, Miguel, saliste de casa, capo! Son las ${hora} en Ecuador. 🚪 En Guayaquil está así: ${clima}. 🌤️ ${consejoClima} ${recordatoriosText} ¡A meterle pilas, loco, que el día es tuyo! 🚀`;
                     
                     await fetch(webhookUrl, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ text: mensajeTTS })
                     });
-                    console.log(`Mensaje TTS enviado al webhook para Miguel`);
+                    console.log(`Mensaje TTS enviado al webhook para Miguel (salida)`);
 
                     const embed = createEmbed('#FF1493', `¡A la calle, Miguel! 🚪`, 
-                        `¡Grande, capo! Saliste a comerte el mundo, ¿eh?`)
+                        `¡Grande, capo! Saliste a comerte el mundo`)
                         .addFields(
                             { name: '⏰ Hora en Ecuador', value: hora, inline: true },
-                            { name: '💪 Mensaje del día', value: '¡A meterle pilas, loco! Que nada te pare hoy.', inline: false }
+                            { name: '🌤️ Clima en Guayaquil', value: `${clima}\n${consejoClima}`, inline: false },
+                            { name: '📋 Recordatorios de hoy', value: recordatoriosHoy.length > 0 ? recordatoriosHoy.map(r => `${r.mensaje} (${new Date(r.timestamp).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })})`).join('\n') : 'Ninguno, ¡a full sin drama!', inline: false }
                         )
                         .setFooter({ text: 'Con onda, Oliver IA' });
                     await canal.send({ embeds: [embed] });
                 } else if (targetName === 'Belén') {
                     const hora = new Date().toLocaleTimeString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires', hour: '2-digit', minute: '2-digit' });
-                    const mensajeTTS = `¡Atenti, Belén salió de casa! Soy Oliver IA, tu bot fiel, avisando que la genia ya está en acción. Son las ${hora} en Argentina, ¡a darle con todo, reina! 🌸`;
+                    const mensajeTTS = `¡Atenti, Belén, saliste de casa, genia! Son las ${hora} en Argentina. 🚪 En San Luis está así: ${clima}. 🌤️ ${consejoClima} ${recordatoriosText} ¡A brillar, grosa, que el día te espera! 🌸`;
                     
                     await fetch(webhookUrl, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ text: mensajeTTS })
                     });
-                    console.log(`Mensaje TTS enviado al webhook para Belén`);
+                    console.log(`Mensaje TTS enviado al webhook para Belén (salida)`);
 
                     const embed = createEmbed('#FF1493', `¡A la calle, Belén! 🚪`, 
-                        `¡Ey, genia! Saliste a romperla toda, ¿no?`)
+                        `¡Ey, genia! Saliste a romperla toda`)
                         .addFields(
                             { name: '⏰ Hora en Argentina', value: hora, inline: true },
-                            { name: '💪 Mensaje del día', value: '¡A brillar, grosa! Que el día sea tuyo.', inline: false }
+                            { name: '🌤️ Clima en San Luis', value: `${clima}\n${consejoClima}`, inline: false },
+                            { name: '📋 Recordatorios de hoy', value: recordatoriosHoy.length > 0 ? recordatoriosHoy.map(r => `${r.mensaje} (${new Date(r.timestamp).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })})`).join('\n') : 'Ninguno, ¡a disfrutar tranqui!', inline: false }
                         )
                         .setFooter({ text: 'Con cariño, Oliver IA' });
                     await canal.send({ embeds: [embed] });
