@@ -5890,15 +5890,16 @@ client.once('ready', async () => {
 
     if (dataStore.recordatorios && dataStore.recordatorios.length > 0) {
         const ahora = Date.now();
+        const ahoraUTC = new Date(ahora);
         dataStore.recordatorios.forEach(recordatorio => {
             if (recordatorio.timestamp > ahora || recordatorio.esRecurrente) {
                 console.log(`Restaurando recordatorio: "${recordatorio.mensaje}" (ID: ${recordatorio.id})`);
                 if (recordatorio.esRecurrente) {
-                    const ahoraUTC = new Date(ahora);
                     const proximo = new Date(ahoraUTC);
+                    proximo.setUTCDate(ahoraUTC.getUTCDate()); // Hoy
                     proximo.setUTCHours(recordatorio.hora, recordatorio.minutos, 0, 0);
                     if (proximo.getTime() <= ahora) {
-                        proximo.setUTCDate(proximo.getUTCDate() + 1); // Siguiente día
+                        proximo.setUTCDate(proximo.getUTCDate() + 1); // Mañana
                     }
                     recordatorio.timestamp = proximo.getTime();
                     autoModified = true;
