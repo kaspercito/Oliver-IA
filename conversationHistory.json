@@ -539,18 +539,6 @@
   ],
 "recordatorios": [
     {
-      "id": "b7f0dcf6-e308-4683-84ac-52e65809def0",
-      "userId": "752987736759205960",
-      "channelId": "1343749554905940058",
-      "mensaje": "hacer desayuno",
-      "timestamp": 1742392800000,
-      "creado": 1742160603970,
-      "esRecurrente": true,
-      "hora": 8,
-      "minutos": 0,
-      "logSegundos": 27840
-    },
-    {
       "id": "6c8d9d08-d6a5-49f0-affb-b09b8fd2ae52",
       "userId": "1023132788632862761",
       "channelId": "1343749554905940058",
@@ -560,7 +548,7 @@
       "esRecurrente": true,
       "hora": 6,
       "minutos": 0,
-      "logSegundos": 20640
+      "logSegundos": 11554
     },
     {
       "id": "d33ba9b8-b233-4577-b3fb-022d32937bb2",
@@ -572,7 +560,7 @@
       "esRecurrente": true,
       "hora": 12,
       "minutos": 0,
-      "logSegundos": 42240
+      "logSegundos": 33154
     },
     {
       "id": "20ab1280-ba89-4610-bd69-258768217c57",
@@ -584,7 +572,7 @@
       "esRecurrente": true,
       "hora": 18,
       "minutos": 0,
-      "logSegundos": 63840
+      "logSegundos": 54754
     },
     {
       "id": "751b5d80-2f54-4e54-8716-055f3ec598ed",
@@ -596,55 +584,19 @@
       "esRecurrente": true,
       "hora": 0,
       "minutos": 0,
-      "logSegundos": 85440
+      "logSegundos": 76354
     },
     {
       "id": "9be2f1cd-db6d-485e-b9cc-cbceda12eee5",
       "userId": "1023132788632862761",
       "channelId": "1343749554905940058",
       "mensaje": "despiértame",
-      "timestamp": 1742387230874,
+      "timestamp": 1742473630000,
       "creado": 1742268430874,
       "esRecurrente": false,
       "hora": null,
       "minutos": null,
-      "logSegundos": 21829
-    },
-    {
-      "id": "ac6edeb1-2a5f-4ff4-bbec-5b0d853568e3",
-      "userId": "752987736759205960",
-      "channelId": "1343749554905940058",
-      "mensaje": "Hazme acuerdo de levantarme",
-      "timestamp": 1742373000000,
-      "creado": 1742274222582,
-      "esRecurrente": false,
-      "hora": null,
-      "minutos": null,
-      "logSegundos": 19140
-    },
-    {
-      "id": "9852edc1-74a6-45c4-bab3-ebc13dfd8780",
-      "userId": "752987736759205960",
-      "channelId": "1343749554905940058",
-      "mensaje": "Hazme acuerdo de levantarme para viajar a Marcelino Maridueña",
-      "timestamp": 1742373000000,
-      "creado": 1742275620000,
-      "esRecurrente": false,
-      "hora": null,
-      "minutos": null,
-      "logSegundos": 19140
-    },
-    {
-      "id": "7206e62c-8dad-4dd8-9ff5-8e26ec3a477d",
-      "userId": "752987736759205960",
-      "channelId": "1343749554905940058",
-      "mensaje": "test",
-      "timestamp": 1742286600000,
-      "creado": 1742274867481,
-      "esRecurrente": false,
-      "hora": null,
-      "minutos": null,
-      "logSegundos": 13440
+      "logSegundos": 9943
     }
 ],
   "usedJokes": {
