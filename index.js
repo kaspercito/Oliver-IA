@@ -2083,7 +2083,6 @@ let autosavePausedByMusic = false;
 let userModified = false; // Cambios hechos por el usuario
 let autoModified = false; // Cambios automáticos del bot
 let ultimoDatoRandom = null;
-const dataStore = { recordatorios: [] }; // Asegurate de que esto esté definido
 
 // Utilidades con tono argentino
 // Acá armé una función para hacer embeds re copados con color, título y descripción, siempre con onda
