@@ -587,7 +587,7 @@
       "userId": "1023132788632862761",
       "channelId": "1343749554905940058",
       "mensaje": "tomar pastilla rosada",
-      "timestamp": 1742256000000,
+      "timestamp": 1742342400000,
       "creado": 1742160771361,
       "esRecurrente": true,
       "hora": 0,
@@ -611,17 +611,6 @@
       "mensaje": "comprar servilletas de papel",
       "timestamp": 1742259925650,
       "creado": 1742241925652,
-      "esRecurrente": false,
-      "hora": null,
-      "minutos": null
-    },
-    {
-      "id": "aed57a04-a558-4f09-91ac-77e1c96de5bf",
-      "userId": "1023132788632862761",
-      "channelId": "1343749554905940058",
-      "mensaje": "pedir comida",
-      "timestamp": 1742256348258,
-      "creado": 1742241948258,
       "esRecurrente": false,
       "hora": null,
       "minutos": null
@@ -674,6 +663,11 @@
       {
         "action": "sigo en la clínica",
         "timestamp": 1742253788569,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "tratar de dormir",
+        "timestamp": 1742255064760,
         "userId": "1023132788632862761"
       }
     ],
