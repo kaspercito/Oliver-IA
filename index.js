@@ -3251,15 +3251,12 @@ async function manejarAvatar(message) {
     }
 }
 
-// Función para parsear tiempo, ajustada a hora Argentina
 function parsearTiempo(texto) {
-    const ahoraUTC = new Date(); // Fecha actual en UTC
-    const offsetArgentina = -3 * 60; // UTC-3 en minutos
-    const ahoraArgentina = new Date(ahoraUTC.getTime() + offsetArgentina * 60 * 1000); // Ajustamos a Argentina
-    let fechaObjetivo = new Date(ahoraArgentina);
+    const ahora = new Date(); // Fecha actual en UTC
+    let fechaObjetivo = new Date(ahora);
     let esRecurrente = false;
 
-    // Expresiones regulares para capturar el tiempo
+    // Expresiones regulares (sin cambios)
     const enMinutos = texto.match(/en (\d+) minuto(s)?/i);
     const enHoras = texto.match(/en (\d+) hora(s)?/i);
     const enDias = texto.match(/en (\d+) día(s)?/i);
@@ -3269,44 +3266,44 @@ function parsearTiempo(texto) {
     const aLas = texto.match(/a las (\d{1,2}):(\d{2})/i);
 
     if (enMinutos) {
-        fechaObjetivo.setMinutes(ahoraArgentina.getMinutes() + parseInt(enMinutos[1]));
+        fechaObjetivo.setUTCMinutes(ahora.getUTCMinutes() + parseInt(enMinutos[1]));
     } else if (enHoras) {
-        fechaObjetivo.setHours(ahoraArgentina.getHours() + parseInt(enHoras[1]));
+        fechaObjetivo.setUTCHours(ahora.getUTCHours() + parseInt(enHoras[1]));
     } else if (enDias) {
-        fechaObjetivo.setDate(ahoraArgentina.getDate() + parseInt(enDias[1]));
+        fechaObjetivo.setUTCDate(ahora.getUTCDate() + parseInt(enDias[1]));
     } else if (mañana) {
-        fechaObjetivo.setDate(ahoraArgentina.getDate() + 1);
-        fechaObjetivo.setHours(parseInt(mañana[1]), parseInt(mañana[2]), 0, 0);
+        fechaObjetivo.setUTCDate(ahora.getUTCDate() + 1);
+        fechaObjetivo.setUTCHours(parseInt(mañana[1]), parseInt(mañana[2]), 0, 0);
     } else if (fechaEspecifica) {
         const dia = parseInt(fechaEspecifica[1]);
         const mes = parseInt(fechaEspecifica[2]) - 1; // Meses en JS son 0-11
         const hora = fechaEspecifica[3] ? parseInt(fechaEspecifica[3]) : 0;
         const minutos = fechaEspecifica[4] ? parseInt(fechaEspecifica[4]) : 0;
-        fechaObjetivo = new Date(ahoraArgentina.getFullYear(), mes, dia, hora, minutos);
+        fechaObjetivo = new Date(Date.UTC(ahora.getUTCFullYear(), mes, dia, hora, minutos));
     } else if (todosLosDias) {
         esRecurrente = true;
         const hora = parseInt(todosLosDias[1]);
         const minutos = parseInt(todosLosDias[2]);
-        fechaObjetivo.setHours(hora, minutos, 0, 0);
-        if (fechaObjetivo.getTime() <= ahoraArgentina.getTime()) {
-            fechaObjetivo.setDate(ahoraArgentina.getDate() + 1);
+        fechaObjetivo.setUTCHours(hora, minutos, 0, 0);
+        if (fechaObjetivo.getTime() <= ahora.getTime()) {
+            fechaObjetivo.setUTCDate(ahora.getUTCDate() + 1);
         }
     } else if (aLas) {
         const hora = parseInt(aLas[1]);
         const minutos = parseInt(aLas[2]);
-        fechaObjetivo.setHours(hora, minutos, 0, 0);
-        if (fechaObjetivo.getTime() <= ahoraArgentina.getTime()) {
-            fechaObjetivo.setDate(ahoraArgentina.getDate() + 1);
+        fechaObjetivo.setUTCHours(hora, minutos, 0, 0);
+        if (fechaObjetivo.getTime() <= ahora.getTime()) {
+            fechaObjetivo.setUTCDate(ahora.getUTCDate() + 1);
         }
     } else {
         return null;
     }
 
     return {
-        timestamp: fechaObjetivo.getTime() > ahoraArgentina.getTime() ? fechaObjetivo.getTime() : null,
+        timestamp: fechaObjetivo.getTime() > ahora.getTime() ? fechaObjetivo.getTime() : null,
         esRecurrente: esRecurrente,
-        hora: esRecurrente ? fechaObjetivo.getHours() : null,
-        minutos: esRecurrente ? fechaObjetivo.getMinutes() : null
+        hora: esRecurrente ? fechaObjetivo.getUTCHours() : null,
+        minutos: esRecurrente ? fechaObjetivo.getUTCMinutes() : null
     };
 }
 
@@ -3449,11 +3446,10 @@ function programarRecordatorio(recordatorio) {
         }
 
         if (recordatorio.esRecurrente) {
-            const offsetArgentina = -3 * 60;
-            const ahoraArgentina = new Date(Date.now() + offsetArgentina * 60 * 1000);
-            const nuevoTimestamp = new Date(ahoraArgentina);
-            nuevoTimestamp.setDate(nuevoTimestamp.getDate() + 1);
-            nuevoTimestamp.setHours(recordatorio.hora, recordatorio.minutos, 0, 0);
+            const ahora = new Date();
+            const nuevoTimestamp = new Date(ahora);
+            nuevoTimestamp.setUTCDate(nuevoTimestamp.getUTCDate() + 1);
+            nuevoTimestamp.setUTCHours(recordatorio.hora, recordatorio.minutos, 0, 0);
             recordatorio.timestamp = nuevoTimestamp.getTime();
             console.log(`Recordatorio recurrente reprogramado: "${recordatorio.mensaje}" (ID: ${recordatorio.id}) para ${nuevoTimestamp.toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })}`);
             autoModified = true;
