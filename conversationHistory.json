@@ -537,7 +537,7 @@
       "timestamp": "2025-03-15T23:27:33.098Z"
     }
   ],
-"recordatorios": [
+  "recordatorios": [
     {
       "id": "b7f0dcf6-e308-4683-84ac-52e65809def0",
       "userId": "752987736759205960",
@@ -605,45 +605,12 @@
       "minutos": null
     },
     {
-      "id": "004563e4-2650-457e-8725-97a1e49eed3b",
+      "id": "ac6edeb1-2a5f-4ff4-bbec-5b0d853568e3",
       "userId": "752987736759205960",
       "channelId": "1343749554905940058",
-      "mensaje": "Hazme acuerdo de viajar",
-      "timestamp": 1742286600000,
-      "creado": 1742272793601,
-      "esRecurrente": false,
-      "hora": null,
-      "minutos": null
-    },
-    {
-      "id": "c54ac561-262e-4a0a-839a-5e0701bfa6a7",
-      "userId": "752987736759205960",
-      "channelId": "1343749554905940058",
-      "mensaje": "Despertarme",
-      "timestamp": 1742373000000,
-      "creado": 1742272949540,
-      "esRecurrente": false,
-      "hora": null,
-      "minutos": null
-    },
-    {
-      "id": "b54a8474-d47b-420a-99ac-c9e4947eaa0b",
-      "userId": "752987736759205960",
-      "channelId": "1343749554905940058",
-      "mensaje": "probando",
-      "timestamp": 1742286600000,
-      "creado": 1742273218062,
-      "esRecurrente": false,
-      "hora": null,
-      "minutos": null
-    },
-    {
-      "id": "3586af64-5578-484d-843e-ea3caa4fda41",
-      "userId": "752987736759205960",
-      "channelId": "1343749554905940058",
-      "mensaje": "Hazme acuerdo de viajar",
-      "timestamp": 1742286600000,
-      "creado": 1742273319262,
+      "mensaje": "Hazme acuerdo de levantarme",
+      "timestamp": 1742275800000,
+      "creado": 1742274222582,
       "esRecurrente": false,
       "hora": null,
       "minutos": null
