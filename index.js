@@ -2112,6 +2112,66 @@ function cleanText(text) {
         .replace(/^(el|la|los|las)\s+/i, ''); // Chau artículos pa’ comparar mejor
 }
 
+const { MessageEmbed } = require('discord.js');
+const axios = require('axios');
+
+// Mapa de banderas por país
+const banderas = {
+  'Paraguay': '🇵🇾',
+  'Chile': '🇨🇱',
+  'Brazil': '🇧🇷',
+  'Colombia': '🇨🇴',
+  'Peru': '🇵🇪',
+  'Bolivia': '🇧🇴',
+  'Ecuador': '🇪🇨',
+  'Venezuela': '🇻🇪',
+  'Uruguay': '🇺🇾',
+  'Argentina': '🇦🇷'
+};
+
+const obtenerResultados = async (message) => {
+  try {
+    const response = await axios.get('http://api.football-data.org/v4/competitions/CLI/matches', {
+      headers: { 'X-Auth-Token': process.env.FOOTBALL_API_KEY },
+      params: { dateFrom: '2025-03-20', dateTo: '2025-03-25' }, // Jornada 13 y 14
+    });
+    const partidos = response.data.matches || [];
+
+    if (partidos.length === 0) {
+      return message.channel.send('No hay partidos disponibles en este rango de fechas.');
+    }
+
+    const embed = new MessageEmbed()
+      .setColor('#FF1493')
+      .setTitle('Resultados Eliminatorias Sudamericanas - Marzo 2025')
+      .setDescription('Últimos resultados disponibles:')
+      .setTimestamp();
+
+    partidos
+      .filter((p) => p.status === 'FINISHED') // Solo partidos terminados
+      .slice(0, 10) // Limita a 10 partidos
+      .forEach((partido) => {
+        const resultado = `${partido.score.fullTime.home} - ${partido.score.fullTime.away}`;
+        const banderaLocal = banderas[partido.homeTeam.name] || '';
+        const banderaVisitante = banderas[partido.awayTeam.name] || '';
+        embed.addField(
+          `${banderaLocal} ${partido.homeTeam.name} vs ${partido.awayTeam.name} ${banderaVisitante}`,
+          `Resultado: ${resultado}`,
+          true
+        );
+      });
+
+    if (embed.fields.length > 0) {
+      message.channel.send({ embeds: [embed] });
+    } else {
+      message.channel.send('No hay resultados finalizados aún para estas fechas.');
+    }
+  } catch (error) {
+    console.error('Error al obtener datos de la API:', error.message);
+    message.channel.send('Hubo un error al obtener los resultados.');
+  }
+};
+
 // Genero imágenes con Puppeteer y Axios, una locura que me tiré a hacer
 async function generateImage(prompt, style) {
     const maxRetries = 3; // Le doy 3 chances antes de rendirme
@@ -5791,6 +5851,9 @@ client.on('messageCreate', async (message) => {
         return;
     } else if (content.startsWith('!clima')) {
         await manejarClima(message);
+        return;
+    } else if (content === '!resultados') { // Cambia el comando si quieres
+      await obtenerResultados(message);
         return;
     } else if (content === '!noticias') {
         await manejarNoticias(message);
