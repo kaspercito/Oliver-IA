@@ -3427,7 +3427,6 @@ function programarRecordatorio(recordatorio) {
     const userName = recordatorio.userId === OWNER_ID ? 'Miguel' : 'Belén';
     const ahoraUTC = Date.now(); // UTC actual
     const offsetArgentina = -3 * 60 * 60 * 1000; // -3 horas para Argentina
-    const ahoraArgentina = ahoraUTC + offsetArgentina;
 
     if (recordatorio.timestamp <= ahoraUTC) {
         console.log(`Recordatorio "${recordatorio.mensaje}" (ID: ${recordatorio.id}) ya venció.`);
@@ -3439,7 +3438,8 @@ function programarRecordatorio(recordatorio) {
     }
 
     const diferencia = recordatorio.timestamp - ahoraUTC; // Diferencia en milisegundos desde UTC
-    console.log(`Programando recordatorio "${recordatorio.mensaje}" (ID: ${recordatorio.id}) en ${diferencia / 1000} segundos (hora Argentina).`);
+    const tiempoRestanteSegundos = diferencia / 1000;
+    console.log(`Programando recordatorio "${recordatorio.mensaje}" (ID: ${recordatorio.id}) en ${tiempoRestanteSegundos} segundos (hora Argentina: ${new Date(recordatorio.timestamp).toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' }})).`);
 
     setTimeout(async () => {
         const usuario = await client.users.fetch(recordatorio.userId);
@@ -3448,8 +3448,8 @@ function programarRecordatorio(recordatorio) {
                 `<@${recordatorio.userId}>, acordate de: **${recordatorio.mensaje}**. ¡Ya es hora, ${userName}! - ${new Date(recordatorio.timestamp).toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })}`)] });
         }
         if (recordatorio.esRecurrente) {
-            const ahora = Date.now() + offsetArgentina; // Hora Argentina actual
-            const proximo = new Date(ahora);
+            const ahoraArgentina = Date.now() + offsetArgentina;
+            const proximo = new Date(ahoraArgentina);
             proximo.setDate(proximo.getDate() + 1);
             proximo.setHours(recordatorio.hora, recordatorio.minutos, 0, 0);
             recordatorio.timestamp = proximo.getTime() - offsetArgentina; // Convertimos a UTC
@@ -5913,23 +5913,7 @@ client.once('ready', async () => {
         dataStore.recordatorios = dataStore.recordatorios.filter(r => r.timestamp > ahoraUTC || r.esRecurrente);
         console.log('Recordatorios restaurados y vencidos limpiados');
 
-        // Ajustar los logs que vienen de Ecuador
-        console.log("Ajustando logs de Ecuador a Argentina:");
-        const logsAjustados = {
-            "b7f0dcf6-e308-4683-84ac-52e65809def0": ajustarLogEcuadorAArgentina(8630.866),  // hacer desayuno
-            "6c8d9d08-d6a5-49f0-affb-b09b8fd2ae52": ajustarLogEcuadorAArgentina(1430.865),  // tomar pastilla rosada (6:00)
-            "d33ba9b8-b233-4577-b3fb-022d32937bb2": ajustarLogEcuadorAArgentina(23030.865), // tomar pastilla rosada (12:00)
-            "20ab1280-ba89-4610-bd69-258768217c57": ajustarLogEcuadorAArgentina(44630.865), // tomar pastilla rosada (18:00)
-            "751b5d80-2f54-4e54-8716-055f3ec598ed": ajustarLogEcuadorAArgentina(66230.865), // tomar pastilla rosada (0:00)
-            "9be2f1cd-db6d-485e-b9cc-cbceda12eee5": ajustarLogEcuadorAArgentina(111061.739), // despiértame
-            "ac6edeb1-2a5f-4ff4-bbec-5b0d853568e3": ajustarLogEcuadorAArgentina(96830.865), // Hazme acuerdo de levantarme
-            "9852edc1-74a6-45c4-bab3-ebc13dfd8780": ajustarLogEcuadorAArgentina(96830.865), // Hazme acuerdo de levantarme para viajar
-            "7206e62c-8dad-4dd8-9ff5-8e26ec3a477d": ajustarLogEcuadorAArgentina(10430.865)  // test
-        };
-
-        Object.entries(logsAjustados).forEach(([id, segundos]) => {
-            console.log(`Programando recordatorio ajustado "${dataStore.recordatorios.find(r => r.id === id).mensaje}" (ID: ${id}) en ${segundos} segundos (hora Argentina).`);
-        });
+        // No ajustamos logs viejos de Ecuador, porque Railway usa UTC y los tiempos ya están bien
     }
     
     activeTrivia = new Map(Object.entries(dataStore.activeSessions).filter(([_, s]) => s.type === 'trivia'));
