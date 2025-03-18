@@ -584,7 +584,7 @@
       "userId": "1023132788632862761",
       "channelId": "1343749554905940058",
       "mensaje": "tomar pastilla rosada",
-      "timestamp": 1742310000000,
+      "timestamp": 1742396400000,
       "creado": 1742277583076,
       "esRecurrente": true,
       "hora": 12,
@@ -682,6 +682,11 @@
         "action": "estoy viva",
         "timestamp": 1742308704482,
         "userId": "1023132788632862761"
+      },
+      {
+        "action": "yendo a casa",
+        "timestamp": 1742310204849,
+        "userId": "1023132788632862761"
       }
     ],
     "752987736759205960": [
@@ -728,6 +733,11 @@
       {
         "action": "yendo para el terminal saliendo de la clínica",
         "timestamp": 1742309061564,
+        "userId": "752987736759205960"
+      },
+      {
+        "action": "comprando flores para el velorio",
+        "timestamp": 1742310222257,
         "userId": "752987736759205960"
       }
     ]
