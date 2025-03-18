@@ -592,6 +592,17 @@
       "esRecurrente": true,
       "hora": 0,
       "minutos": 0
+    },
+    {
+      "id": "c1ea87a9-4af0-407d-81c1-120ae993d1c6",
+      "userId": "752987736759205960",
+      "channelId": "1343749554905940058",
+      "mensaje": "despiértame",
+      "timestamp": 1742286366184,
+      "creado": 1742268366185,
+      "esRecurrente": false,
+      "hora": null,
+      "minutos": null
     }
   ],
   "usedJokes": {
