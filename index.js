@@ -10,6 +10,7 @@ const puppeteer = require('puppeteer'); // Para automatización de navegadores (
 const lyricsFinder = require('lyrics-finder'); // Busca letras de canciones.
 const { GoogleGenerativeAI } = require('@google/generative-ai'); // Para usar la API de Google para IA generativa.
 const cheerio = require('cheerio');
+const fetch = require('node-fetch');
 require('dotenv').config(); // Carga variables de entorno desde un archivo .env (como tokens o claves API).
 
 // Creación del cliente de Discord
@@ -5463,9 +5464,6 @@ async function manejarCommand(message, silent = false) {
     }
 }
 
-const fetch = require('node-fetch'); // Asegurate de tener este módulo instalado (npm install node-fetch)
-
-const fetch = require('node-fetch'); // Asegurate de tenerlo importado arriba
 
 client.on('messageCreate', async (message) => {
     console.log(`Mensaje recibido - Autor: ${message.author.username}, Contenido: ${message.content}, Bot: ${message.author.bot}`);
