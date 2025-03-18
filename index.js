@@ -3425,8 +3425,8 @@ async function manejarRecordatorio(message) {
 // Programar el recordatorio, ajustado a Argentina
 function programarRecordatorio(recordatorio) {
     const userName = recordatorio.userId === OWNER_ID ? 'Miguel' : 'Belén';
-    const ahoraUTC = Date.now(); // UTC actual
-    const offsetArgentina = -3 * 60 * 60 * 1000; // -3 horas para Argentina
+    const ahoraUTC = Date.now();
+    const offsetArgentina = -3 * 60 * 60 * 1000;
 
     if (recordatorio.timestamp <= ahoraUTC) {
         console.log(`Recordatorio "${recordatorio.mensaje}" (ID: ${recordatorio.id}) ya venció.`);
@@ -3437,9 +3437,9 @@ function programarRecordatorio(recordatorio) {
         return;
     }
 
-    const diferencia = recordatorio.timestamp - ahoraUTC; // Diferencia en milisegundos desde UTC
+    const diferencia = recordatorio.timestamp - ahoraUTC;
     const tiempoRestanteSegundos = diferencia / 1000;
-    console.log(`Programando recordatorio "${recordatorio.mensaje}" (ID: ${recordatorio.id}) en ${tiempoRestanteSegundos} segundos (hora Argentina: ${new Date(recordatorio.timestamp).toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' }})).`);
+    console.log(`Programando recordatorio "${recordatorio.mensaje}" (ID: ${recordatorio.id}) en ${tiempoRestanteSegundos} segundos (hora Argentina: ${new Date(recordatorio.timestamp).toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })}).`);
 
     setTimeout(async () => {
         const usuario = await client.users.fetch(recordatorio.userId);
@@ -3452,7 +3452,7 @@ function programarRecordatorio(recordatorio) {
             const proximo = new Date(ahoraArgentina);
             proximo.setDate(proximo.getDate() + 1);
             proximo.setHours(recordatorio.hora, recordatorio.minutos, 0, 0);
-            recordatorio.timestamp = proximo.getTime() - offsetArgentina; // Convertimos a UTC
+            recordatorio.timestamp = proximo.getTime() - offsetArgentina;
             autoModified = true;
             programarRecordatorio(recordatorio);
         } else {
