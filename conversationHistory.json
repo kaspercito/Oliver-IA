@@ -614,6 +614,17 @@
       "esRecurrente": false,
       "hora": null,
       "minutos": null
+    },
+    {
+      "id": "3d75fb17-163a-4137-950b-c493a0dc596d",
+      "userId": "752987736759205960",
+      "channelId": "1343749554905940058",
+      "mensaje": "Levantarme para viajar a Marcelino Maridueña",
+      "timestamp": 1742283000000,
+      "creado": 1742271115759,
+      "esRecurrente": false,
+      "hora": null,
+      "minutos": null
     }
   ],
   "usedJokes": {
