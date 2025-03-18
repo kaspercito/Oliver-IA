@@ -3818,35 +3818,6 @@ async function manejarQueue(message) {
     }
 }
 
-function corregirRecordatoriosExistentes() {
-    const offsetArgentina = 3 * 60 * 60 * 1000; // 3 horas en milisegundos para sumar
-    dataStore.recordatorios = dataStore.recordatorios.map(recordatorio => {
-        if (recordatorio.timestamp) {
-            // Sumamos 3 horas al timestamp para corregir el desfase
-            recordatorio.timestamp += offsetArgentina;
-            console.log(`Corrigiendo recordatorio "${recordatorio.mensaje}" (ID: ${recordatorio.id}) - Nuevo timestamp: ${new Date(recordatorio.timestamp).toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })}`);
-        }
-        return recordatorio;
-    });
-    autoModified = true; // Marcar que hubo cambios
-    saveDataStore(); // Guardar los cambios
-}
-
-// Ejecutar esto una vez después de actualizar el código
-corregirRecordatoriosExistentes();
-
-function reprogramarRecordatoriosExistentes() {
-    dataStore.recordatorios.forEach(recordatorio => {
-        if (recordatorio.timestamp && !recordatorio.cuandoLlegue) {
-            programarRecordatorio(recordatorio); // Reprograma con el timestamp corregido
-        }
-    });
-}
-
-// Ejecutar después de corregir los timestamps
-corregirRecordatoriosExistentes();
-reprogramarRecordatoriosExistentes();
-
 // Repeat
 async function manejarRepeat(message) {
     // Activo o desactivo la repetición, vos elegís qué repetir
@@ -5512,17 +5483,6 @@ async function manejarCommand(message) {
     else if (content.startsWith('!idea') || content.startsWith('!id')) {
         await manejarIdea(message);
     }    
-    // Comando !fixrecordatorios integrado aquí
-    else if (content === '!fixrecordatorios' && message.author.id === OWNER_ID) {
-        try {
-            corregirRecordatoriosExistentes();
-            await sendSuccess(message.channel, '✅ ¡Recordatorios corregidos!', 
-                `Sumé 3 horas a los timestamps, ${userName}. Chequeá con !misrecordatorios pa’ ver cómo quedó todo, loco.`);
-        } catch (error) {
-            await sendError(message.channel, '⚠️ ¡Qué quilombo, Miguel!', 
-                `No pude corregir los recordatorios, loco. Error: ${error.message}. ¿Probamos de nuevo?`);
-        }
-    }
     else if (content.startsWith('!dato') || content.startsWith('!dt')) {
         await manejarDato(message);
     } 
