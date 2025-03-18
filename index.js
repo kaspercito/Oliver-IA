@@ -4587,7 +4587,7 @@ async function manejarClima(message, silent = false) {
         ? message.content.slice(6).trim() 
         : message.content.slice(3).trim();
 
-    if (!args) return { description: 'No puse ciudad, loco.' };
+    if (!args) return { description: 'Decime una ciudad después de !clima, loco. Ej: !clima Guayaquil' };
 
     try {
         const apiKey = process.env.OPENWEATHER_API_KEY;
@@ -5416,6 +5416,16 @@ client.on('messageCreate', async (message) => {
     const hasJefeMention = content.includes(`<@&${jefeRoleId}>`);
     const hasJefaMention = content.includes(`<@&${jefaRoleId}>`);
 
+    // Comando independiente !clima y !noticias
+    if (!hasJefeMention && !hasJefaMention && !message.author.bot) {
+        const result = await manejarCommand(message);
+        if (!result.silent && result.description) {
+            const embed = createEmbed('#FF1493', `📡 ${result.description.startsWith('No') ? 'Ups' : 'Info'}`, result.description);
+            await message.channel.send({ embeds: [embed] });
+        }
+        return;
+    }
+
     if (hasJefeMention || hasJefaMention) {
         console.log(`Detectado mensaje IFTTT con mención: ${content}`);
         const esJefe = hasJefeMention;
@@ -5436,7 +5446,6 @@ client.on('messageCreate', async (message) => {
             const recordatoriosPendientes = dataStore.recordatorios.filter(r => r.cuandoLlegue && r.userId === userId);
             let avisos = [];
             let pendientes = [];
-
             recordatoriosPendientes.forEach(r => {
                 if (!r.timestamp || ahora >= r.timestamp) {
                     avisos.push(`- ${r.mensaje} ${r.timestamp ? `(a las ${new Date(r.timestamp).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })})` : ''}`);
@@ -5477,8 +5486,12 @@ client.on('messageCreate', async (message) => {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ chat_id: 'CHAT_ID_BELEN', text: mensajeTTS }) // Reemplazá con el chat ID de Belén
                 });
-                if (!response.ok) console.error(`Error Telegram Belén (llegada): ${response.statusText}`);
-                else console.log(`Enviado a Telegram para Belén (llegada)`);
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error(`Error Telegram Belén (llegada): ${response.statusText} - ${errorText}`);
+                } else {
+                    console.log(`Enviado a Telegram para Belén (llegada)`);
+                }
 
                 const embed = createEmbed('#FF1493', `¡Bienvenida a casa, Belén! 🏠`, 
                     `¡Qué lindo tenerte de vuelta, genia! Acá va todo lo importante`)
@@ -5498,10 +5511,14 @@ client.on('messageCreate', async (message) => {
                 const response = await fetch(webhookUrl, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ chat_id: '5965566827', text: mensajeTTS }) // Tu chat ID
+                    body: JSON.stringify({ chat_id: '5965566827', text: mensajeTTS })
                 });
-                if (!response.ok) console.error(`Error Telegram Miguel (llegada): ${response.statusText}`);
-                else console.log(`Enviado a Telegram para Miguel (llegada)`);
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error(`Error Telegram Miguel (llegada): ${response.statusText} - ${errorText}`);
+                } else {
+                    console.log(`Enviado a Telegram para Miguel (llegada)`);
+                }
 
                 const embed = createEmbed('#FF1493', `¡Bienvenido a casa, Miguel! 🏠`, 
                     `¡Grande, capo! Acá tenés todo lo que necesitás saber`)
@@ -5555,14 +5572,19 @@ client.on('messageCreate', async (message) => {
                     ? `Tus recordatorios pa’ hoy son: ${recordatoriosHoy.map(r => `${r.mensaje} a las ${new Date(r.timestamp).toLocaleTimeString('es-EC', { hour: '2-digit', minute: '2-digit' })}`).join(', ')}. ¡No te cuelgues, eh! 📋`
                     : 'No tenés recordatorios pa’ hoy, ¡a romperla sin presiones!';
                 const mensajeTTS = `¡Ojo, Miguel, saliste de casa, capo! Son las ${hora} en Ecuador. 🚪 En Guayaquil está así: ${clima}. 🌤️ ${consejoClima} ${recordatoriosText} ¡A meterle pilas, loco, que el día es tuyo! 🚀`;
+                console.log(`Mensaje TTS a enviar (salida): ${mensajeTTS}`); // Depuración
                 
                 const response = await fetch(webhookUrl, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ chat_id: '5965566827', text: mensajeTTS })
                 });
-                if (!response.ok) console.error(`Error Telegram Miguel (salida): ${response.statusText}`);
-                else console.log(`Enviado a Telegram para Miguel (salida)`);
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error(`Error Telegram Miguel (salida): ${response.statusText} - ${errorText}`);
+                } else {
+                    console.log(`Enviado a Telegram para Miguel (salida)`);
+                }
 
                 const embed = createEmbed('#FF1493', `¡A la calle, Miguel! 🚪`, 
                     `¡Grande, capo! Saliste a comerte el mundo`)
@@ -5585,8 +5607,12 @@ client.on('messageCreate', async (message) => {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ chat_id: 'CHAT_ID_BELEN', text: mensajeTTS })
                 });
-                if (!response.ok) console.error(`Error Telegram Belén (salida): ${response.statusText}`);
-                else console.log(`Enviado a Telegram para Belén (salida)`);
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error(`Error Telegram Belén (salida): ${response.statusText} - ${errorText}`);
+                } else {
+                    console.log(`Enviado a Telegram para Belén (salida)`);
+                }
 
                 const embed = createEmbed('#FF1493', `¡A la calle, Belén! 🚪`, 
                     `¡Ey, genia! Saliste a romperla toda`)
