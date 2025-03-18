@@ -592,39 +592,6 @@
       "esRecurrente": true,
       "hora": 0,
       "minutos": 0
-    },
-    {
-      "id": "8be7043d-cd26-4f8d-851d-8f87cdf538c5",
-      "userId": "1023132788632862761",
-      "channelId": "1343749554905940058",
-      "mensaje": "comprar un repelente para los mosquitos",
-      "timestamp": 1742259912297,
-      "creado": 1742241912298,
-      "esRecurrente": false,
-      "hora": null,
-      "minutos": null
-    },
-    {
-      "id": "5b3f3370-940b-4dd4-9e54-5401db5dc10c",
-      "userId": "1023132788632862761",
-      "channelId": "1343749554905940058",
-      "mensaje": "comprar servilletas de papel",
-      "timestamp": 1742259925650,
-      "creado": 1742241925652,
-      "esRecurrente": false,
-      "hora": null,
-      "minutos": null
-    },
-    {
-      "id": "d7840e0f-a525-437d-97f6-0f9b942f2b92",
-      "userId": "1023132788632862761",
-      "channelId": "1343749554905940058",
-      "mensaje": "retirar la comida por el negocio",
-      "timestamp": 1742261291101,
-      "creado": 1742254091102,
-      "esRecurrente": false,
-      "hora": null,
-      "minutos": null
     }
   ],
   "usedJokes": {
@@ -669,6 +636,21 @@
         "action": "tratar de dormir",
         "timestamp": 1742255064760,
         "userId": "1023132788632862761"
+      },
+      {
+        "action": "casa",
+        "timestamp": 1742261075709,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "dormir",
+        "timestamp": 1742261089633,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "ducha",
+        "timestamp": 1742261092398,
+        "userId": "1023132788632862761"
       }
     ],
     "752987736759205960": [
@@ -690,6 +672,11 @@
       {
         "action": "ahora sí iré a dormir, buenas noches mentirosa",
         "timestamp": 1742189348666,
+        "userId": "752987736759205960"
+      },
+      {
+        "action": "comer",
+        "timestamp": 1742261095066,
         "userId": "752987736759205960"
       }
     ]
