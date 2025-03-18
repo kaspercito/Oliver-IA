@@ -2135,7 +2135,7 @@ const obtenerResultados = async (message) => {
     const partidos = response.data.matches || [];
 
     if (partidos.length === 0) {
-      const embed = new MessageEmbed()
+      const embed = new EmbedBuilder()
         .setColor('#FF0000')
         .setTitle('Sin Datos')
         .setDescription('No hay partidos disponibles en este rango de fechas.')
@@ -2143,7 +2143,7 @@ const obtenerResultados = async (message) => {
       return message.channel.send({ embeds: [embed] });
     }
 
-    const embed = new MessageEmbed()
+    const embed = new EmbedBuilder()
       .setColor('#FF1493')
       .setTitle('Eliminatorias Sudamericanas - Marzo 2025')
       .setDescription('Partidos terminados y próximos:')
@@ -2166,17 +2166,17 @@ const obtenerResultados = async (message) => {
         const horaArg = horaArgentina.toLocaleString('es-AR', { hour: '2-digit', minute: '2-digit', timeZone: 'UTC' });
         const horaEc = horaEcuador.toLocaleString('es-EC', { hour: '2-digit', minute: '2-digit', timeZone: 'UTC' });
 
-        embed.addField(
-          `${banderaLocal} ${partido.homeTeam.name} vs ${partido.awayTeam.name} ${banderaVisitante}`,
-          `Resultado: ${resultado}\nFecha: ${fechaUTC.toLocaleDateString('es-ES')} UTC\nHora Argentina: ${horaArg} (UTC-3)\nHora Ecuador: ${horaEc} (UTC-5)`,
-          true
-        );
+        embed.addFields({
+          name: `${banderaLocal} ${partido.homeTeam.name} vs ${partido.awayTeam.name} ${banderaVisitante}`,
+          value: `Resultado: ${resultado}\nFecha: ${fechaUTC.toLocaleDateString('es-ES')} UTC\nHora Argentina: ${horaArg} (UTC-3)\nHora Ecuador: ${horaEc} (UTC-5)`,
+          inline: true
+        });
       });
 
     message.channel.send({ embeds: [embed] });
   } catch (error) {
     console.error('Error al obtener datos de la API:', error.message);
-    const embed = new MessageEmbed()
+    const embed = new EmbedBuilder()
       .setColor('#FF0000')
       .setTitle('Error')
       .setDescription('Hubo un error al obtener los resultados de la API.')
