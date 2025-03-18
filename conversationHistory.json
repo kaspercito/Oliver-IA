@@ -539,17 +539,6 @@
   ],
   "recordatorios": [
     {
-      "id": "d27b4673-06bd-4ad5-afc9-87ee2d0feb16",
-      "userId": "1023132788632862761",
-      "channelId": "1343749554905940058",
-      "mensaje": "despiértame",
-      "timestamp": 1742290020000,
-      "creado": 1742277285071,
-      "esRecurrente": false,
-      "hora": null,
-      "minutos": null
-    },
-    {
       "id": "b3fe8112-8c1f-4560-a08e-508712b77434",
       "userId": "1023132788632862761",
       "channelId": "1343749554905940058",
