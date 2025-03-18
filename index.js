@@ -2126,17 +2126,31 @@ const banderas = {
   'Argentina': '🇦🇷'
 };
 
+// Datos simulados basados en tu lista
+const partidosSimulados = [
+  { utcDate: '2025-03-20T23:00:00Z', homeTeam: { name: 'Paraguay' }, awayTeam: { name: 'Chile' }, score: { fullTime: { home: null, away: null } } },
+  { utcDate: '2025-03-21T00:45:00Z', homeTeam: { name: 'Brazil' }, awayTeam: { name: 'Colombia' }, score: { fullTime: { home: null, away: null } } },
+  { utcDate: '2025-03-21T01:30:00Z', homeTeam: { name: 'Peru' }, awayTeam: { name: 'Bolivia' }, score: { fullTime: { home: null, away: null } } },
+  { utcDate: '2025-03-21T21:00:00Z', homeTeam: { name: 'Ecuador' }, awayTeam: { name: 'Venezuela' }, score: { fullTime: { home: null, away: null } } },
+  { utcDate: '2025-03-21T23:30:00Z', homeTeam: { name: 'Uruguay' }, awayTeam: { name: 'Argentina' }, score: { fullTime: { home: null, away: null } } },
+  { utcDate: '2025-03-25T20:00:00Z', homeTeam: { name: 'Bolivia' }, awayTeam: { name: 'Uruguay' }, score: { fullTime: { home: null, away: null } } },
+  { utcDate: '2025-03-26T00:00:00Z', homeTeam: { name: 'Argentina' }, awayTeam: { name: 'Brazil' }, score: { fullTime: { home: null, away: null } } },
+  { utcDate: '2025-03-26T00:00:00Z', homeTeam: { name: 'Chile' }, awayTeam: { name: 'Ecuador' }, score: { fullTime: { home: null, away: null } } },
+  { utcDate: '2025-03-26T00:00:00Z', homeTeam: { name: 'Colombia' }, awayTeam: { name: 'Paraguay' }, score: { fullTime: { home: null, away: null } } },
+  { utcDate: '2025-03-26T00:00:00Z', homeTeam: { name: 'Venezuela' }, awayTeam: { name: 'Peru' }, score: { fullTime: { home: null, away: null } } },
+];
+
 const obtenerResultados = async (message) => {
   try {
     const response = await axios.get('http://api.football-data.org/v4/competitions/CLI/matches', {
       headers: { 'X-Auth-Token': process.env.FOOTBALL_API_KEY },
-      params: { dateFrom: '2025-03-20', dateTo: '2025-03-25' }, // Jornada 13 y 14
+      params: { dateFrom: '2025-03-20', dateTo: '2025-03-26' }, // Rango ajustado
     });
-    const partidos = response.data.matches || [];
+    const partidos = response.data.matches || partidosSimulados; // Usa simulados si la API falla
 
     if (partidos.length === 0) {
       const embed = new EmbedBuilder()
-        .setColor('#FF0000')
+        .setColor('#FF1493')
         .setTitle('Sin Datos')
         .setDescription('No hay partidos disponibles en este rango de fechas.')
         .setTimestamp();
@@ -2177,7 +2191,7 @@ const obtenerResultados = async (message) => {
   } catch (error) {
     console.error('Error al obtener datos de la API:', error.message);
     const embed = new EmbedBuilder()
-      .setColor('#FF0000')
+      .setColor('#FF1493')
       .setTitle('Error')
       .setDescription('Hubo un error al obtener los resultados de la API.')
       .setTimestamp();
