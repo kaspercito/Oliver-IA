@@ -5893,15 +5893,19 @@ client.once('ready', async () => {
         dataStore.recordatorios.forEach(recordatorio => {
             if (recordatorio.timestamp > ahora || recordatorio.esRecurrente) {
                 console.log(`Restaurando recordatorio: "${recordatorio.mensaje}" (ID: ${recordatorio.id})`);
-                if (recordatorio.esRecurrente && recordatorio.timestamp <= ahora) {
-                    const nuevoTimestamp = new Date();
-                    nuevoTimestamp.setHours(recordatorio.hora, recordatorio.minutos, 0, 0);
-                    if (nuevoTimestamp.getTime() <= ahora) {
-                        nuevoTimestamp.setDate(nuevoTimestamp.getDate() + 1);
+                if (recordatorio.esRecurrente) {
+                    // Para recurrentes, ajustar al próximo evento
+                    const ahoraUTC = new Date(ahora);
+                    const proximo = new Date(ahoraUTC);
+                    proximo.setUTCDate(ahoraUTC.getUTCDate());
+                    proximo.setUTCHours(recordatorio.hora, recordatorio.minutos, 0, 0);
+                    if (proximo.getTime() <= ahora) {
+                        proximo.setUTCDate(ahoraUTC.getUTCDate() + 1);
                     }
-                    recordatorio.timestamp = nuevoTimestamp.getTime();
-                    autoModified = true; // Cambio automático
+                    recordatorio.timestamp = proximo.getTime();
+                    autoModified = true;
                 }
+                // Para no recurrentes, usar el timestamp original del JSON
                 programarRecordatorio(recordatorio);
             } else {
                 console.log(`Descartando recordatorio vencido: "${recordatorio.mensaje}" (ID: ${recordatorio.id})`);
@@ -5910,7 +5914,7 @@ client.once('ready', async () => {
         const originalLength = dataStore.recordatorios.length;
         dataStore.recordatorios = dataStore.recordatorios.filter(r => r.timestamp > ahora || r.esRecurrente);
         if (dataStore.recordatorios.length < originalLength) {
-            autoModified = true; // Cambio automático
+            autoModified = true;
         }
         console.log('Recordatorios restaurados y vencidos limpiados');
     }
