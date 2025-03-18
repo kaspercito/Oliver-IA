@@ -548,7 +548,7 @@
       "esRecurrente": true,
       "hora": 6,
       "minutos": 0,
-      "logSegundos": 11554
+      "logSegundos": 11291
     },
     {
       "id": "d33ba9b8-b233-4577-b3fb-022d32937bb2",
@@ -560,7 +560,7 @@
       "esRecurrente": true,
       "hora": 12,
       "minutos": 0,
-      "logSegundos": 33154
+      "logSegundos": 32891
     },
     {
       "id": "20ab1280-ba89-4610-bd69-258768217c57",
@@ -572,7 +572,7 @@
       "esRecurrente": true,
       "hora": 18,
       "minutos": 0,
-      "logSegundos": 54754
+      "logSegundos": 54491
     },
     {
       "id": "751b5d80-2f54-4e54-8716-055f3ec598ed",
@@ -584,7 +584,7 @@
       "esRecurrente": true,
       "hora": 0,
       "minutos": 0,
-      "logSegundos": 76354
+      "logSegundos": 76091
     },
     {
       "id": "9be2f1cd-db6d-485e-b9cc-cbceda12eee5",
@@ -596,7 +596,7 @@
       "esRecurrente": false,
       "hora": null,
       "minutos": null,
-      "logSegundos": 9943
+      "logSegundos": 9932
     }
 ],
   "usedJokes": {
