@@ -596,23 +596,12 @@
       "logSegundos": 75379
     },
     {
-      "id": "487abe64-0a97-4d95-a97f-74bc5026fe9b",
-      "userId": "752987736759205960",
-      "channelId": "1343749554905940058",
-      "mensaje": "Hazme acuerdo de levantarme para viajar a Marcelino Maridueña",
-      "timestamp": 1742286600000,
-      "creado": 1742277756982,
-      "esRecurrente": false,
-      "hora": null,
-      "minutos": null
-    },
-    {
-      "id": "4bf97f1f-3088-4d3d-a465-b14babb6bd55",
+      "id": "668fdc9b-4fee-4fcb-94e0-9a5c8858f7db",
       "userId": "752987736759205960",
       "channelId": "1008091220544851970",
-      "mensaje": "hazme acuerdo de dormir",
-      "timestamp": 1742280000000,
-      "creado": 1742279153828,
+      "mensaje": "Hazme acuerdo de levantarme para viajar a Marcelino Maridueña",
+      "timestamp": 1742301000000,
+      "creado": 1742280085109,
       "esRecurrente": false,
       "hora": null,
       "minutos": null
