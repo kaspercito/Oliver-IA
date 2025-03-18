@@ -594,6 +594,17 @@
       "esRecurrente": false,
       "hora": null,
       "minutos": null
+    },
+    {
+      "id": "f99995e4-af8e-4f01-9b09-7cb61f3062c6",
+      "userId": "1023132788632862761",
+      "channelId": "1343749554905940058",
+      "mensaje": "retirar la medicina de los perros al salir al gimnasio",
+      "timestamp": 1742301865714,
+      "creado": 1742294665715,
+      "esRecurrente": false,
+      "hora": null,
+      "minutos": null
     }
   ],
   "usedJokes": {
