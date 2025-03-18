@@ -3299,8 +3299,12 @@ function parsearTiempo(texto) {
         return null;
     }
 
+    // Ajuste para Argentina (UTC-3): sumamos 3 horas al timestamp
+    const offsetArgentina = 3 * 60 * 60 * 1000; // 3 horas en milisegundos
+    const timestampAjustado = fechaObjetivo.getTime() + offsetArgentina;
+
     return {
-        timestamp: fechaObjetivo.getTime() > ahora.getTime() ? fechaObjetivo.getTime() : null,
+        timestamp: timestampAjustado > ahora.getTime() ? timestampAjustado : null,
         esRecurrente: esRecurrente,
         hora: esRecurrente ? fechaObjetivo.getUTCHours() : null,
         minutos: esRecurrente ? fechaObjetivo.getUTCMinutes() : null
