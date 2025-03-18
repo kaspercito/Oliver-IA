@@ -2083,6 +2083,7 @@ let autosavePausedByMusic = false;
 let userModified = false; // Cambios hechos por el usuario
 let autoModified = false; // Cambios automáticos del bot
 let ultimoDatoRandom = null;
+const dataStore = { recordatorios: [] }; // Asegurate de que esto esté definido
 
 // Utilidades con tono argentino
 // Acá armé una función para hacer embeds re copados con color, título y descripción, siempre con onda
@@ -4586,39 +4587,49 @@ async function manejarClima(message, silent = false) {
     const args = message.content.toLowerCase().startsWith('!clima') 
         ? message.content.slice(6).trim() 
         : message.content.slice(3).trim();
+    const ciudad = args || (userName === 'Belén' ? 'San Luis' : 'Guayaquil');
+    const pais = userName === 'Belén' ? 'AR' : 'EC';
 
-    if (!args) return { description: 'Decime una ciudad después de !clima, loco. Ej: !clima Guayaquil' };
+    if (!args && !silent) return { description: 'Decime una ciudad después de !clima, loco. Ej: !clima Guayaquil' };
 
     try {
         const apiKey = process.env.OPENWEATHER_API_KEY;
         if (!apiKey) throw new Error('Falta la clave de OpenWeatherMap en el .env');
-        const url = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(args)}&appid=${apiKey}&units=metric&lang=es`;
+        const url = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(ciudad)},${pais}&appid=${apiKey}&units=metric&lang=es`;
         const response = await fetch(url);
         const data = await response.json();
         if (data.cod !== 200) throw new Error(data.message);
-        return { description: `${data.weather[0].description}, ${Math.round(data.main.temp)}°C` };
+        const hora = new Date().toLocaleTimeString('es-' + (pais === 'AR' ? 'AR' : 'EC'), { hour: '2-digit', minute: '2-digit', timeZone: pais === 'AR' ? 'America/Argentina/Buenos_Aires' : 'America/Guayaquil' });
+        const climaTexto = `⛅ Clima en ${ciudad}, ${pais === 'AR' ? 'Argentina' : 'Ecuador'}\n${Math.round(data.main.temp)}°C, ${data.weather[0].description}, tranqui.\nHecho con onda por Oliver IA•hoy a las ${hora}`;
+        return { description: climaTexto };
     } catch (error) {
-        console.error(`Error en clima para "${args}": ${error.message}`);
-        return { description: 'No pude traer el clima, che.' };
+        console.error(`Error en clima para "${ciudad}": ${error.message}`);
+        const hora = new Date().toLocaleTimeString('es-' + (pais === 'AR' ? 'AR' : 'EC'), { hour: '2-digit', minute: '2-digit', timeZone: pais === 'AR' ? 'America/Argentina/Buenos_Aires' : 'America/Guayaquil' });
+        return { description: `⛅ Clima en ${ciudad}, ${pais === 'AR' ? 'Argentina' : 'Ecuador'}\nNo pude traer el clima, che.\nHecho con onda por Oliver IA•hoy a las ${hora}` };
     }
 }
 
 async function manejarNoticias(message, silent = false) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
+    const pais = userName === 'Belén' ? 'ar' : 'ec';
+    const fecha = new Date().toISOString().split('T')[0];
+    const hora = new Date().toLocaleTimeString('es-' + (pais === 'ar' ? 'AR' : 'EC'), { hour: '2-digit', minute: '2-digit', timeZone: pais === 'ar' ? 'America/Argentina/Buenos_Aires' : 'America/Guayaquil' });
+
     try {
         const apiKey = process.env.MEDIASTACK_API_KEY;
         if (!apiKey) throw new Error('Falta la clave de Mediastack en el .env');
-        const today = new Date().toISOString().split('T')[0];
-        const url = `http://api.mediastack.com/v1/news?access_key=${apiKey}&countries=ec,ar&languages=es&limit=1&date=${today}&sort=published_desc`;
+        const url = `http://api.mediastack.com/v1/news?access_key=${apiKey}&countries=${pais}&languages=es&limit=4&date=${fecha}&sort=published_desc`;
         const response = await fetch(url);
         const data = await response.json();
         const articles = data.data || [];
         if (articles.length === 0) throw new Error('No hay noticias de hoy');
-        const article = articles[0];
-        return { description: `${article.title} - ${article.source}` };
+        const noticiasTexto = `📰 Últimas Noticias (${fecha})\n${pais === 'ar' ? 'Argentina' : 'Ecuador'}:\n` + 
+            articles.map(a => `- ${a.title} - ${a.source}`).join('\n') + 
+            `\nHecho con onda por Oliver IA•${fecha} a las ${hora}`;
+        return { description: noticiasTexto };
     } catch (error) {
-        console.error(`Error en noticias: ${error.message}`);
-        return { description: 'No hay noticias frescas ahora, loco.' };
+        console.error(`Error en noticias para ${pais}: ${error.message}`);
+        return { description: `📰 Últimas Noticias (${fecha})\n${pais === 'ar' ? 'Argentina' : 'Ecuador'}:\n- No hay noticias frescas ahora, loco.\nHecho con onda por Oliver IA•${fecha} a las ${hora}` };
     }
 }
 
