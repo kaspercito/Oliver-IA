@@ -581,6 +581,17 @@
       "esRecurrente": true,
       "hora": 18,
       "minutos": 0
+    },
+    {
+      "id": "cb9b8fc2-639d-46ad-bbcc-7a419e889939",
+      "userId": "752987736759205960",
+      "channelId": "1343749554905940058",
+      "mensaje": "tomar pastilla rosada",
+      "timestamp": 1742353200000,
+      "creado": 1742277587860,
+      "esRecurrente": true,
+      "hora": 0,
+      "minutos": 0
     }
   ],
   "usedJokes": {
