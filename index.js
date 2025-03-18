@@ -3441,7 +3441,6 @@ function programarRecordatorio(recordatorio) {
         if (usuario) {
             await usuario.send({ embeds: [createEmbed('#FF1493', '⏰ ¡Recordatorio, loco!', 
                 `<@${recordatorio.userId}>, acordate de: **${recordatorio.mensaje}**. ¡Ya es hora, ${userName}! - ${new Date(recordatorio.timestamp).toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })}`)] });
-            console.log(`Recordatorio enviado: "${recordatorio.mensaje}" (ID: ${recordatorio.id})`);
         }
         if (recordatorio.esRecurrente) {
             const ahora = Date.now();
@@ -5888,8 +5887,7 @@ client.once('ready', async () => {
             if (recordatorio.timestamp > ahora || recordatorio.esRecurrente) {
                 console.log(`Restaurando recordatorio: "${recordatorio.mensaje}" (ID: ${recordatorio.id})`);
                 if (recordatorio.esRecurrente) {
-                    const proximo = new Date(ahoraUTC);
-                    proximo.setUTCDate(ahoraUTC.getUTCDate());
+                    const proximo = new Date(ahora);
                     proximo.setUTCHours(recordatorio.hora, recordatorio.minutos, 0, 0);
                     if (proximo.getTime() <= ahora) {
                         proximo.setUTCDate(proximo.getUTCDate() + 1);
