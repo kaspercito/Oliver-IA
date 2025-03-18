@@ -615,12 +615,12 @@
       "logSegundos": 75379
     },
     {
-      "id": "3c5ce09e-2986-456e-a7ce-8c2fa5d07599",
+      "id": "dffa4002-cbc1-4498-9738-8ff9e54dd33a",
       "userId": "752987736759205960",
       "channelId": "1343749554905940058",
-      "mensaje": "Hazme acuerdo de preguntar si la tienda de alado tiene linaza",
-      "timestamp": 1742324883655,
-      "creado": 1742324583656,
+      "mensaje": "Hazme acuerdo de cortarme la uniceja por favor",
+      "timestamp": 1742346968924,
+      "creado": 1742325368925,
       "esRecurrente": false,
       "hora": null,
       "minutos": null
@@ -708,6 +708,61 @@
         "action": "una vez hecho todo, me toca trabajar y estudiar",
         "timestamp": 1742321332975,
         "userId": "1023132788632862761"
+      },
+      {
+        "action": "hola",
+        "timestamp": 1742324733611,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "hola",
+        "timestamp": 1742324738350,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "hola",
+        "timestamp": 1742324738665,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "hola",
+        "timestamp": 1742324739033,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "hola",
+        "timestamp": 1742324740834,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "hola",
+        "timestamp": 1742324741297,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "hola",
+        "timestamp": 1742324741855,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "hola",
+        "timestamp": 1742324742316,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "hola",
+        "timestamp": 1742324742593,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "hola",
+        "timestamp": 1742324742898,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "deja el movil, mamiachi se enoja",
+        "timestamp": 1742324787626,
+        "userId": "1023132788632862761"
       }
     ],
     "752987736759205960": [
@@ -779,6 +834,16 @@
       {
         "action": "buscando algo de comer antes de morir de hambre, seguramente un arroz con menestra y pollo",
         "timestamp": 1742323069125,
+        "userId": "752987736759205960"
+      },
+      {
+        "action": "caminando",
+        "timestamp": 1742324793661,
+        "userId": "752987736759205960"
+      },
+      {
+        "action": "en el baño porque se me cae el mosquito",
+        "timestamp": 1742324947165,
         "userId": "752987736759205960"
       }
     ]
