@@ -537,13 +537,13 @@
       "timestamp": "2025-03-15T23:27:33.098Z"
     }
   ],
-"recordatorios": [
+  "recordatorios": [
     {
       "id": "6c8d9d08-d6a5-49f0-affb-b09b8fd2ae52",
       "userId": "1023132788632862761",
       "channelId": "1343749554905940058",
       "mensaje": "tomar pastilla rosada",
-      "timestamp": 1742385600000,
+      "timestamp": 1742288400000,
       "creado": 1742160729523,
       "esRecurrente": true,
       "hora": 6,
@@ -555,7 +555,7 @@
       "userId": "1023132788632862761",
       "channelId": "1343749554905940058",
       "mensaje": "tomar pastilla rosada",
-      "timestamp": 1742407200000,
+      "timestamp": 1742310000000,
       "creado": 1742160748896,
       "esRecurrente": true,
       "hora": 12,
@@ -567,7 +567,7 @@
       "userId": "1023132788632862761",
       "channelId": "1343749554905940058",
       "mensaje": "tomar pastilla rosada",
-      "timestamp": 1742428800000,
+      "timestamp": 1742331600000,
       "creado": 1742160760787,
       "esRecurrente": true,
       "hora": 18,
@@ -579,7 +579,7 @@
       "userId": "1023132788632862761",
       "channelId": "1343749554905940058",
       "mensaje": "tomar pastilla rosada",
-      "timestamp": 1742450400000,
+      "timestamp": 1742353200000,
       "creado": 1742160771361,
       "esRecurrente": true,
       "hora": 0,
@@ -597,8 +597,19 @@
       "hora": null,
       "minutos": null,
       "logSegundos": 9932
+    },
+    {
+      "id": "d27b4673-06bd-4ad5-afc9-87ee2d0feb16",
+      "userId": "752987736759205960",
+      "channelId": "1343749554905940058",
+      "mensaje": "despiértame",
+      "timestamp": 1742290020000,
+      "creado": 1742277285071,
+      "esRecurrente": false,
+      "hora": null,
+      "minutos": null
     }
-],
+  ],
   "usedJokes": {
     "1023132788632862761": [
       117,
