@@ -5234,104 +5234,114 @@ async function manejarCommand(message, silent = false) {
     // Prioridad máxima pa’ !responder de Miguel
     if (message.author.id === OWNER_ID && (content.startsWith('!responder') || content.startsWith('!resp'))) {
         await manejarResponder(message);
-        return;
+        return { silent: true, embed: null };
     }
-    
+
     // Cancelar trivia
     if (content === '!trivia cancelar' || content === '!tc') {
-        if (message.author.id !== OWNER_ID && message.author.id !== ALLOWED_USER_ID) return;
+        if (message.author.id !== OWNER_ID && message.author.id !== ALLOWED_USER_ID) return { silent: true, embed: null };
 
         const channelProgress = dataStore.activeSessions[`trivia_${message.channel.id}`];
         if (!channelProgress || channelProgress.type !== 'trivia') {
-            await sendError(message.channel, `No hay ninguna trivia activa para cancelar, ${userName}.`, 
-                '¿Querés arrancar una con !trivia?');
-            return;
+            const errorEmbed = createEmbed('#FF5555', '¡Pará, loco!', 
+                `No hay ninguna trivia activa para cancelar, ${userName}. ¿Querés arrancar una con !trivia?`);
+            if (!silent) await message.channel.send({ embeds: [errorEmbed] });
+            return { silent, embed: errorEmbed };
         }
 
         delete dataStore.activeSessions[`trivia_${message.channel.id}`];
         activeTrivia.delete(message.channel.id);
         dataStoreModified = true;
 
-        await sendSuccess(message.channel, '🛑 ¡Trivia cancelada!', 
+        const successEmbed = createEmbed('#00FF00', '🛑 ¡Trivia cancelada!', 
             `Listo, ${userName}, cortaste la trivia al toque. Puntuación parcial: ${channelProgress.score}/${channelProgress.currentQuestion}. ¿Arrancamos otra con !trivia?`);
-        return;
-    }  
+        if (!silent) await message.channel.send({ embeds: [successEmbed] });
+        return { silent, embed: successEmbed };
+    }
     else if (content === '!chiste') {
         await manejarChiste(message);
-        return;
+        return { silent: true, embed: null };
     }
     // Cancelar reacciones
     else if (content === '!reacciones cancelar' || content === '!rc') {
-        if (message.author.id !== OWNER_ID && message.author.id !== ALLOWED_USER_ID) return;
+        if (message.author.id !== OWNER_ID && message.author.id !== ALLOWED_USER_ID) return { silent: true, embed: null };
 
         const session = dataStore.activeSessions[`reaction_${message.channel.id}`];
         if (!session || session.type !== 'reaction' || session.completed) {
-            await sendError(message.channel, `No hay un juego de reacciones activo para cancelar, ${userName}.`, 
-                '¿Querés empezar uno con !reacciones?');
-            return;
+            const errorEmbed = createEmbed('#FF5555', '¡Pará, loco!', 
+                `No hay un juego de reacciones activo para cancelar, ${userName}. ¿Querés empezar uno con !reacciones?`);
+            if (!silent) await message.channel.send({ embeds: [errorEmbed] });
+            return { silent, embed: errorEmbed };
         }
 
         session.completed = true;
         delete dataStore.activeSessions[`reaction_${message.channel.id}`];
         dataStoreModified = true;
 
-        await sendSuccess(message.channel, '🛑 ¡Juego de reacciones cancelado!', 
+        const successEmbed = createEmbed('#00FF00', '🛑 ¡Juego de reacciones cancelado!', 
             `Listo, ${userName}, cortaste el juego al toque. Puntuación parcial: ${session.score} en ${session.currentRound - 1} rondas. ¿Arrancamos otro con !reacciones?`);
-        return;
-    } 
+        if (!silent) await message.channel.send({ embeds: [successEmbed] });
+        return { silent, embed: successEmbed };
+    }
     // Cancelar PPM
     else if (content === '!ppm cancelar' || content === '!pc') {
-        if (message.author.id !== OWNER_ID && message.author.id !== ALLOWED_USER_ID) return;
+        if (message.author.id !== OWNER_ID && message.author.id !== ALLOWED_USER_ID) return { silent: true, embed: null };
 
         const ppmKey = `ppm_${message.author.id}`;
         const session = dataStore.activeSessions[ppmKey];
         if (!session || session.type !== 'ppm' || session.completed) {
-            await sendError(message.channel, `No hay PPM activo, ${userName}.`, '¿Querés uno con !ppm?');
-        } else {
-            session.active = false;
-            delete dataStore.activeSessions[ppmKey];
-            dataStoreModified = true;
-            await sendSuccess(message.channel, '🛑 ¡PPM cancelado!', `Listo, ${userName}. Paraste antes de terminar.`);
+            const errorEmbed = createEmbed('#FF5555', '¡Pará, loco!', 
+                `No hay PPM activo, ${userName}. ¿Querés uno con !ppm?`);
+            if (!silent) await message.channel.send({ embeds: [errorEmbed] });
+            return { silent, embed: errorEmbed };
         }
-        return;
+
+        session.active = false;
+        delete dataStore.activeSessions[ppmKey];
+        dataStoreModified = true;
+
+        const successEmbed = createEmbed('#00FF00', '🛑 ¡PPM cancelado!', 
+            `Listo, ${userName}. Paraste antes de terminar.`);
+        if (!silent) await message.channel.send({ embeds: [successEmbed] });
+        return { silent, embed: successEmbed };
     }
     // Traduci primero, pa’ que no se pierda
     else if (content.startsWith('!traduci')) {
         console.log(`Enviando a manejarTraduci: "${message.content}"`);
         await manejarTraduci(message);
-        return;
+        return { silent: true, embed: null };
     }
     else if (content === '!watchtogether' || content === '!wt') {
         await manejarWatchTogether(message);
-        return;
+        return { silent: true, embed: null };
     }
     // Nuevo comando !accion
     else if (content.startsWith('!accion')) {
         await manejarAccion(message);
-        return;
+        return { silent: true, embed: null };
     }
     else if (content === '!misacciones' || content === '!ma') {
         await manejarMisAcciones(message);
-        return;
+        return { silent: true, embed: null };
     }
     // Resto de comandos en orden
-    else if (content === '!trivia' || content === '!tc') {
+    else if (content === '!trivia' || content === '!t') {
         await manejarTrivia(message);
-        return;
-    } 
+        return { silent: true, embed: null };
+    }
     else if (content === '!meme') {
         const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
         try {
             const API_KEY = '05o0BdpN9d0PCHOPoP63morLbU6wuYyk';
             const response = await axios.get(`https://api.giphy.com/v1/gifs/random?api_key=${API_KEY}&tag=meme+español&rating=pg-13`);
-    
+
             if (!response.data || !response.data.data?.images?.original?.url) {
                 throw new Error('No encontré un meme en Giphy, loco.');
             }
-    
+
             const gifUrl = response.data.data.images.original.url;
             let gifTitle = response.data.data.title || 'Un meme sin título, loco';
-    
+
             gifTitle = gifTitle.replace(/ by .*$/, '');
             gifTitle = gifTitle.replace(/GIF$/i, '').trim();
             gifTitle = gifTitle
@@ -5343,12 +5353,12 @@ async function manejarCommand(message, silent = false) {
                 .replace(/Dance/i, 'Baile')
                 .replace(/Fail/i, 'Fallo')
                 .replace(/Uf/i, '¡Uff!');
-    
+
             const memeEmbed = createEmbed('#FF1493', `¡Meme pa’ vos, ${userName}!`, 
                 `¡Tomá este meme bien zarpado, loco! ¿Qué te parece?\n**${gifTitle}**`)
                 .setImage(gifUrl);
             await message.channel.send({ embeds: [memeEmbed] });
-    
+
             const preguntasMeme = [
                 '¿Qué meme mandarías vos pa’ responderle a este, loco?',
                 '¿En qué situación de tu vida usarías este meme, posta?',
@@ -5361,26 +5371,27 @@ async function manejarCommand(message, silent = false) {
                 '¿Este meme te representa un lunes o un viernes a la noche?',
                 '¿Qué comida argenta le va perfecto a este meme pa’ compartirlo?'
             ];
-    
+
             const pregunta = preguntasMeme[Math.floor(Math.random() * preguntasMeme.length)];
             const preguntaEmbed = createEmbed('#FF1493', `¡Eh, ${userName}, una yapa!`, 
                 `${pregunta} ¡Contame al toque, loco!`);
             await message.channel.send({ embeds: [preguntaEmbed] });
+            return { silent: true, embed: null };
         } catch (error) {
             console.error(`Error al buscar meme: ${error.message}`);
             const errorEmbed = createEmbed('#FF1493', `¡Qué quilombo, ${userName}!`, 
                 `No pude traer un meme, loco. Algo falló: ${error.message}. ¿Probamos de nuevo, dale?`);
-            await message.channel.send({ embeds: [errorEmbed] });
+            if (!silent) await message.channel.send({ embeds: [errorEmbed] });
+            return { silent, embed: errorEmbed };
         }
-        return;
     }
     else if (content === '!milagros') {
         await manejarMilagros(message);
-        return;
-    } 
+        return { silent: true, embed: null };
+    }
     else if (content.startsWith('!jugar')) {
         await manejarJugar(message);
-        return;
+        return { silent: true, embed: null };
     }
     else if (content === '!pregunta' || content === '!pr') {
         const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
@@ -5392,12 +5403,12 @@ async function manejarCommand(message, silent = false) {
         const pregunta = preguntasDisponibles.pop();
         const preguntaEmbed = createEmbed('#FF1493', `¡Pregunta pa’ vos, ${userName}!`, 
             `${pregunta} ¡Contame, loco, qué pensás!`);
-        await message.channel.send({ embeds: [preguntaEmbed] });
-        return;
+        if (!silent) await message.channel.send({ embeds: [preguntaEmbed] });
+        return { silent, embed: preguntaEmbed };
     }
     else if (content.startsWith('!avatar') || content.startsWith('!av')) {
         await manejarAvatar(message);
-        return;
+        return { silent: true, embed: null };
     }
     else if (content.startsWith('!ppt')) {
         if (message.mentions.users.size > 0) {
@@ -5405,168 +5416,248 @@ async function manejarCommand(message, silent = false) {
         } else {
             await manejarPPTBot(message);
         }
-        return;
+        return { silent: true, embed: null };
     }
     else if (content.startsWith('!recordatorio') || content.startsWith('!rec')) {
         await manejarRecordatorio(message);
-        return;
+        return { silent: true, embed: null };
     }
     else if (content === '!misrecordatorios' || content === '!mr') {
         await manejarMisRecordatorios(message);
-        return;
-    }  
+        return { silent: true, embed: null };
+    }
     else if (content.startsWith('!cancelarrecordatorio') || content.startsWith('!cr')) {
         await manejarCancelarRecordatorio(message);
-        return;
-    } 
+        return { silent: true, embed: null };
+    }
     else if (content.startsWith('!reacciones') || content.startsWith('!re')) {
         await manejarReacciones(message);
-        return;
-    } 
+        return { silent: true, embed: null };
+    }
     else if (content.startsWith('!chat') || content.startsWith('!ch')) {
         await manejarChat(message);
-        return;
-    } 
+        return { silent: true, embed: null };
+    }
     else if (content === '!ppm' || content === '!pp') {
         await manejarPPM(message);
-        return;
-    } 
+        return { silent: true, embed: null };
+    }
     else if (content === '!actualizaciones' || content === '!act') {
         await manejarActualizaciones(message);
-        return;
-    } 
+        return { silent: true, embed: null };
+    }
     else if (content === '!luz') {
         const mensaje = mensajesAnimo[Math.floor(Math.random() * mensajesAnimo.length)];
         const embed = createEmbed('#FFAA00', `¡Ánimo, ${userName}!`, mensaje);
-        await message.channel.send({ embeds: [embed] });
-        return;
-    } 
+        if (!silent) await message.channel.send({ embeds: [embed] });
+        return { silent, embed: embed };
+    }
     else if (content === '!save') {
         try {
             const saved = await saveDataStore();
             if (saved) {
-                await sendSuccess(message.channel, '💾 ¡Guardado!', `Datos guardados exitosamente, ${userName}.`);
+                const successEmbed = createEmbed('#00FF00', '💾 ¡Guardado!', 
+                    `Datos guardados exitosamente, ${userName}.`);
+                if (!silent) await message.channel.send({ embeds: [successEmbed] });
                 dataStoreModified = false;
+                return { silent, embed: successEmbed };
             } else {
-                await sendSuccess(message.channel, '💾 Sin Cambios', `No hay cambios para guardar, ${userName}.`);
+                const noChangesEmbed = createEmbed('#00FF00', '💾 Sin Cambios', 
+                    `No hay cambios para guardar, ${userName}.`);
+                if (!silent) await message.channel.send({ embeds: [noChangesEmbed] });
+                return { silent, embed: noChangesEmbed };
             }
         } catch (error) {
-            await sendError(message.channel, '💾 Error al guardar', `No pude guardar los datos, ${userName}. Error: ${error.message}`);
+            const errorEmbed = createEmbed('#FF5555', '💾 Error al guardar', 
+                `No pude guardar los datos, ${userName}. Error: ${error.message}`);
+            if (!silent) await message.channel.send({ embeds: [errorEmbed] });
+            return { silent, embed: errorEmbed };
         }
-        return;
-    } 
+    }
     else if (content.startsWith('!sugerencias') || content.startsWith('!su')) {
         await manejarSugerencias(message);
-        return;
-    } 
+        return { silent: true, embed: null };
+    }
     else if (content.startsWith('!ayuda') || content.startsWith('!ay')) {
         await manejarAyuda(message);
-        return;
-    } 
+        return { silent: true, embed: null };
+    }
     else if (content === '!rankingppm' || content === '!rppm') {
         await manejarRankingPPM(message);
-        return;
-    } 
+        return { silent: true, embed: null };
+    }
     else if (content.startsWith('!play') || content.startsWith('!pl')) {
         await manejarPlay(message);
         isPlayingMusic = true;
         autosavePausedByMusic = true;
         console.log('Música arrancó, autosave pausado.');
-        return;
-    } 
+        return { silent: true, embed: null };
+    }
     else if (content === '!pause' || content === '!pa') {
         await manejarPause(message);
-        return;
-    } 
+        return { silent: true, embed: null };
+    }
     else if (content === '!skip' || content === '!sk') {
         await manejarSkip(message);
-        return;
-    } 
+        return { silent: true, embed: null };
+    }
     else if (content === '!shuffle' || content === '!sh') {
         await manejarShuffle(message);
-        return;
+        return { silent: true, embed: null };
     }
     else if (content === '!stop' || content === '!st') {
         await manejarStop(message);
         isPlayingMusic = false;
         autosavePausedByMusic = false;
         console.log('Música parada, autosave reanudado.');
-        return;
-    } 
+        return { silent: true, embed: null };
+    }
     else if (content === '!queue' || content === '!qu') {
         await manejarQueue(message);
-        return;
-    } 
+        return { silent: true, embed: null };
+    }
     else if (content === '!repeat' || content === '!rp') {
         await manejarRepeat(message);
-        return;
-    } 
+        return { silent: true, embed: null };
+    }
     else if (content === '!back' || content === '!bk') {
         await manejarBack(message);
-        return;
-    } 
+        return { silent: true, embed: null };
+    }
     else if (content === '!autoplay' || content === '!ap') {
         await manejarAutoplay(message);
-        return;
-    } 
+        return { silent: true, embed: null };
+    }
     else if (content === '!autosave' || content === '!as') {
         await manejarAutosave(message);
-        return;
-    } 
+        return { silent: true, embed: null };
+    }
     else if (content === '!lyrics' || content === '!ly') {
         await manejarLyrics(message);
-        return;
-    } 
+        return { silent: true, embed: null };
+    }
     else if (content === '!adivinanzas' || content === '!ad') {
         await manejarAdivinanza(message);
-        return;
-    } 
+        return { silent: true, embed: null };
+    }
     else if (content.startsWith('!responder') || content.startsWith('!resp')) {
         await manejarResponder(message);
-        return;
+        return { silent: true, embed: null };
     }
     else if (content.startsWith('!idea') || content.startsWith('!id')) {
         await manejarIdea(message);
-        return;
-    }    
+        return { silent: true, embed: null };
+    }
     else if (content.startsWith('!dato') || content.startsWith('!dt')) {
         await manejarDato(message);
-        return;
-    } 
+        return { silent: true, embed: null };
+    }
     else if (content.startsWith('!clima')) {
         return await manejarClima(message, silent);
-    } 
+    }
     else if (content === '!noticias') {
         return await manejarNoticias(message, silent);
     }
     else if (content.startsWith('!wiki')) {
         await manejarWiki(message);
-        return;
+        return { silent: true, embed: null };
     }
     else if (content.startsWith('!imagen') || content.startsWith('!im')) {
         await manejarImagen(message);
-        return;
+        return { silent: true, embed: null };
     }
     else if (content === '!misimagenes') {
         await manejarMisImagenes(message);
-        return;
+        return { silent: true, embed: null };
     }
     else if (content.startsWith('!editarimagen') || content.startsWith('!ei')) {
         await manejarEditarImagen(message);
-        return;
+        return { silent: true, embed: null };
     }
     else if (content.startsWith('!ansiedad') || content.startsWith('!an')) {
         await manejarAnsiedad(message);
-        return;
+        return { silent: true, embed: null };
     }
     else if (content === '!lenguajes') {
         await listarIdiomas(message);
-        return;
+        return { silent: true, embed: null };
     }
-    // Si no matchea ningún comando, no hacemos nada más
-    return;
+    // Agregamos !help, !help musica y hola
+    else if (content === '!help' || content === '!h') {
+        const embed = createEmbed('#FF1493', `¡Lista de comandos para vos, ${userName}!`,
+            '¡Acá tenés todo lo que puedo hacer por vos, loco!\n' +
+            '- **!ch / !chat [mensaje]**: Charlamos un rato, posta.\n' +
+            '- **!tr / !trivia [categoría] [n]**: Trivia copada por categoría (mínimo 20).\n' +
+            '- **!tc / !trivia cancelar**: Cancela la trivia que empezaste.\n' +
+            '- **!pp / !ppm**: A ver qué tan rápido tipeás, ¡dale!\n' +
+            '- **!pc / !ppm cancelar**: Cancela el PPM si te arrepentís.\n' +
+            '- **!rk / !ranking**: Tus puntajes y estadísticas (récord más alto de PPM).\n' +
+            '- **!ppt [piedra/papel/tijera]**: Jugá Piedra, Papel o Tijera contra mí, ¡dale!\n' +
+            '- **!ppt @alguien**: Desafiá a otro a Piedra, Papel o Tijera, ¡posta!\n' +
+            '- **!ad / !adivinanza**: Te tiro una adivinanza copada pa’ que le des al coco, ¡30 segundos pa’ responder, dale!\n' +
+            '- **!rppm / !rankingppm**: Todos tus intentos de PPM, loco.\n' +
+            '- **!re / !reacciones**: Juego para ver quién tipea más rápido.\n' +
+            '- **!rc / !reacciones cancelar**: Cancela las reacciones que empezaste.\n' +
+            '- **!su / !sugerencias [sugerencia]**: Mandame tus sugerencias para hacer este bot más piola.\n' +
+            '- **!id / !idea [texto]**: Tirame una idea rápida pa’ mejorar el bot, ¡dale!\n' +
+            '- **!ay / !ayuda [problema]**: Pedile una mano a Miguel.\n' +
+            '- **!save**: Guardo todo al toque, tranqui.\n' +
+            '- **!as / !autosave**: Paro o arranco el guardado automático.\n' +
+            '- **!act / !actualizaciones**: Mirá las últimas novedades del bot.\n' +
+            '- **!dt / !dato [pregunta]**: Te busco un dato rápido en la web o X, ¡posta!\n' +
+            '- **!clima [ciudad]**: Te digo el clima de cualquier ciudad, re útil.\n' +
+            '- **!noticias**: Te traigo el último titular de Argentina, al toque.\n' +
+            '- **!wiki [término]**: Busco un resumen en Wikipedia, ¡copado!\n' +
+            '- **!traduci [frase] a [idioma]**: Traduzco frases cortas, joya pa’ practicar.\n' +
+            '- **!an / !ansiedad**: Tips rápidos pa’ calmar la ansiedad, con un mensaje especial de Miguel pa’ darte pilas.\n' +
+            '- **!chiste**: Te tiro un chiste random pa’ sacarte una carcajada, ¡re copado!\n' +
+            '- **!av / !avatar [URL o adjunto]**: Cambio mi foto de perfil.\n' +
+            '- **!jugar**: Adivina un número del 1 al 10, ¡5 intentos pa’ ganarme, loco!\n' +
+            '- **!meme**: Te tiro un meme random pa’ sacarte una sonrisa.\n' +
+            '- **!pregunta**: Te hago una pregunta loca pa’ charlar un rato.\n' +
+            '- **!wt / !watchtogether**: Mirá videos de YouTube conmigo en un canal de voz, ¡re copado!\n' +
+            '- **!rec / !recordatorio [mensaje] [tiempo]**: Te recuerdo algo. Ejemplo: "!rec \'comprar sanguche\' en 1 hora" o "!rec \'tomar mate\' todos los días 08:00".\n' +
+            '- **!mr / !misrecordatorios**: Te muestro tus recordatorios activos.\n' +
+            '- **!cr / !cancelarrecordatorio [ID]**: Cancelás un recordatorio con su ID (lo ves con !mr).\n' +
+            '- **!accion [qué hacés]**: Avisá qué vas a hacer, tipo "me voy a dormir". ¡Copado pa’ estar al tanto!\n' +
+            '- **!ma / !misacciones**: Mirá tus últimas acciones registradas, ¡posta!\n' +
+            '- **!h / !help**: Esta lista, che.\n' +
+            '- **!hm / !help musica**: Comandos para meterle música al día.\n' +
+            '- **hola**: Te tiro un saludito con onda.');
+        if (!silent) await message.channel.send({ embeds: [embed] });
+        return { silent, embed };
+    }
+    else if (content === '!help musica' || content === '!hm') {
+        const embed = createEmbed('#FF1493', `¡Comandos de música para vos, ${userName}!`,
+            '¡Poné el ritmo con estos comandos, loco!\n' +
+            '- **!pl / !play [canción/URL]**: Tiro un tema para que suene.\n' +
+            '- **!pa / !pause**: Pauso o sigo la música, vos elegís.\n' +
+            '- **!sh / !shuffle**: Mezclo toda la lista de reproducción.\n' +
+            '- **!sk / !skip**: Salto al próximo tema, al toque.\n' +
+            '- **!st / !stop**: Corto todo, silencio total.\n' +
+            '- **!qu / !queue**: Te muestro la lista de temas que vienen.\n' +
+            '- **!rp / !repeat [cola]**: Repito el tema o toda la cola, ¿qué querés?\n' +
+            '- **!bk / !back**: Vuelvo al tema anterior, como en los viejos tiempos.\n' +
+            '- **!ap / !autoplay**: Prendo o apago el autoplay, re práctico.\n' +
+            '- **!ly / !lyrics [canción]**: Te traigo la letra del tema que suena o uno que me digas.\n' +
+            '- **!hm / !help musica**: Esta guía de música, posta.');
+        if (!silent) await message.channel.send({ embeds: [embed] });
+        return { silent, embed };
+    }
+    else if (content === 'hola') {
+        const embed = createEmbed('#FF1493', `¡Qué lindo verte, ${userName}!`,
+            `¡Hola, loco! Soy Oliver IA, tu compañero piola, trayéndote buena onda como si estuviéramos tomando mate en la vereda. ¿Cómo estás hoy, che? Estoy listo para charlar, ayudarte o tirar unas pavadas para reírnos. ¿Qué tenés en mente? ¡Dale, arrancamos!`);
+        if (!silent) await message.channel.send({ embeds: [embed] });
+        return { silent, embed };
+    }
+    else if (content === '!ranking' || content === '!rk') {
+        const embed = getCombinedRankingEmbed(message.author.id, message.author.username);
+        if (!silent) await message.channel.send({ embeds: [embed] });
+        return { silent, embed };
+    }
+    // Si no matchea ningún comando, retornamos un objeto por defecto
+    return { silent: true, embed: null };
 }
-
 
 client.on('messageCreate', async (message) => {
     console.log(`Mensaje recibido - Autor: ${message.author.username}, Contenido: ${message.content}, Bot: ${message.author.bot}`);
@@ -5787,12 +5878,12 @@ client.on('messageCreate', async (message) => {
         return; // Evitamos procesar más si es un mensaje IFTTT
     }
 
-    // Procesamos el comando solo una vez a través de manejarCommand
+    // Procesamos el comando solo si el usuario es autorizado
     if (message.author.id !== OWNER_ID && message.author.id !== ALLOWED_USER_ID) return;
-    await manejarCommand(message);
 
+    // Manejo de mayúsculas
     const lettersOnly = message.content.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ]/g, '');
-    if (lettersOnly.length > 5 && (message.author.id === OWNER_ID || message.author.id === ALLOWED_USER_ID)) {
+    if (lettersOnly.length > 5) {
         const uppercaseCount = lettersOnly.split('').filter(char => char === char.toUpperCase()).length;
         const uppercasePercentage = (uppercaseCount / lettersOnly.length) * 100;
         if (uppercasePercentage >= 80) {
@@ -5822,190 +5913,10 @@ client.on('messageCreate', async (message) => {
         }
     }
 
-    if (message.author.id === OWNER_ID && (content.startsWith('!responder') || content.startsWith('!resp'))) {
-        await manejarCommand(message);
-        return;
-    }
-
-    if (message.author.id !== OWNER_ID && message.author.id !== ALLOWED_USER_ID) return;
-
-    if (processedMessages.has(message.id)) return;
-    processedMessages.set(message.id, Date.now());
-    setTimeout(() => processedMessages.delete(message.id), 10000);
-
-    if (content === '!tc' || content === '!trivia cancelar') {
-        const triviaKey = `trivia_${message.channel.id}`;
-        const session = dataStore.activeSessions[triviaKey];
-        if (!session || session.type !== 'trivia') {
-            await sendError(message.channel, `No hay trivia activa, ${userName}.`, '¿Querés una con !trivia?');
-        } else {
-            session.active = false;
-            delete dataStore.activeSessions[triviaKey];
-            activeTrivia.delete(message.channel.id);
-            dataStoreModified = true;
-            await sendSuccess(message.channel, '🛑 ¡Trivia cancelada!', `Listo, ${userName}. Puntuación: ${session.score}/${session.currentQuestion}.`);
-        }
-        return;
-    }
-
-    if (content === '!rc' || content === '!reacciones cancelar') {
-        const reactionKey = `reaction_${message.channel.id}`;
-        const session = dataStore.activeSessions[reactionKey];
-        if (!session || session.type !== 'reaction' || session.completed) {
-            await sendError(message.channel, `No hay reacciones activas, ${userName}.`, '¿Arrancamos con !reacciones?');
-        } else {
-            session.active = false;
-            session.completed = true;
-            delete dataStore.activeSessions[reactionKey];
-            dataStoreModified = true;
-            await sendSuccess(message.channel, '🛑 ¡Reacciones canceladas!', `Listo, ${userName}. Puntuación: ${session.score}.`);
-        }
-        return;
-    }
-
-    if (content === '!pc' || content === '!ppm cancelar') {
-        const ppmKey = `ppm_${message.author.id}`;
-        const session = dataStore.activeSessions[ppmKey];
-        if (!session || session.type !== 'ppm' || session.completed) {
-            await sendError(message.channel, `No hay PPM activo, ${userName}.`, '¿Querés uno con !ppm?');
-        } else {
-            session.active = false;
-            delete dataStore.activeSessions[ppmKey];
-            dataStoreModified = true;
-            await sendSuccess(message.channel, '🛑 ¡PPM cancelado!', `Listo, ${userName}. Paraste antes de terminar.`);
-        }
-        return;
-    }
-
-    // Comandos integrados del primer bloque
-    if (content === '!stop' || content === '!st') {
-        await manejarStop(message);
-        isPlayingMusic = false;
-        autosavePausedByMusic = false;
-        console.log('Música parada, autosave reanudado.');
-        return;
-    } else if (content === '!queue' || content === '!qu') {
-        await manejarQueue(message);
-        return;
-    } else if (content === '!repeat' || content === '!rp') {
-        await manejarRepeat(message);
-        return;
-    } else if (content === '!back' || content === '!bk') {
-        await manejarBack(message);
-        return;
-    } else if (content === '!autoplay' || content === '!ap') {
-        await manejarAutoplay(message);
-        return;
-    } else if (content === '!autosave' || content === '!as') {
-        await manejarAutosave(message);
-        return;
-    } else if (content === '!lyrics' || content === '!ly') {
-        await manejarLyrics(message);
-        return;
-    } else if (content === '!adivinanzas' || content === '!ad') {
-        await manejarAdivinanza(message);
-        return;
-    } else if (content.startsWith('!responder') || content.startsWith('!resp')) {
-        await manejarResponder(message);
-        return;
-    } else if (content.startsWith('!idea') || content.startsWith('!id')) {
-        await manejarIdea(message);
-        return;
-    } else if (content.startsWith('!dato') || content.startsWith('!dt')) {
-        await manejarDato(message);
-        return;
-    } else if (content.startsWith('!clima')) {
-        await manejarClima(message);
-        return;
-    } else if (content === '!noticias') {
-        await manejarNoticias(message);
-        return;
-    } else if (content.startsWith('!wiki')) {
-        await manejarWiki(message);
-        return;
-    } else if (content.startsWith('!imagen') || content.startsWith('!im')) {
-        await manejarImagen(message);
-        return;
-    } else if (content === '!misimagenes') {
-        await manejarMisImagenes(message);
-        return;
-    } else if (content.startsWith('!editarimagen') || content.startsWith('!ei')) {
-        await manejarEditarImagen(message);
-        return;
-    } else if (content.startsWith('!ansiedad') || content.startsWith('!an')) {
-        await manejarAnsiedad(message);
-        return;
-    } else if (content === '!lenguajes') {
-        await listarIdiomas(message);
-        return;
-    }
-
-    // Resto de los comandos originales
-    await manejarCommand(message);
-    if (content === '!ranking' || content === '!rk') {
-        const embed = getCombinedRankingEmbed(message.author.id, message.author.username);
-        await message.channel.send({ embeds: [embed] });
-    } else if (content === '!help' || content === '!h') {
-        const embed = createEmbed('#FF1493', `¡Lista de comandos para vos, ${userName}!`,
-            '¡Acá tenés todo lo que puedo hacer por vos, loco!\n' +
-            '- **!ch / !chat [mensaje]**: Charlamos un rato, posta.\n' +
-            '- **!tr / !trivia [categoría] [n]**: Trivia copada por categoría (mínimo 20).\n' +
-            '- **!tc / !trivia cancelar**: Cancela la trivia que empezaste.\n' +             
-            '- **!pp / !ppm**: A ver qué tan rápido tipeás, ¡dale!\n' +
-            '- **!pc / !ppm cancelar**: Cancela el PPM si te arrepentís.\n' +
-            '- **!rk / !ranking**: Tus puntajes y estadísticas (récord más alto de PPM).\n' +
-            '- **!ppt [piedra/papel/tijera]**: Jugá Piedra, Papel o Tijera contra mí, ¡dale!\n' +
-            '- **!ppt @alguien**: Desafiá a otro a Piedra, Papel o Tijera, ¡posta!\n' +
-            '- **!ad / !adivinanza**: Te tiro una adivinanza copada pa’ que le des al coco, ¡30 segundos pa’ responder, dale!\n' +
-            '- **!rppm / !rankingppm**: Todos tus intentos de PPM, loco.\n' +
-            '- **!re / !reacciones**: Juego para ver quién tipea más rápido.\n' +
-            '- **!rc / !reacciones cancelar**: Cancela las reacciones que empezaste.\n' +            
-            '- **!su / !sugerencias [sugerencia]**: Mandame tus sugerencias para hacer este bot más piola.\n' +
-            '- **!id / !idea [texto]**: Tirame una idea rápida pa’ mejorar el bot, ¡dale!\n' + 
-            '- **!ay / !ayuda [problema]**: Pedile una mano a Miguel.\n' +
-            '- **!save**: Guardo todo al toque, tranqui.\n' +
-            '- **!as / !autosave**: Paro o arranco el guardado automático.\n' +
-            '- **!act / !actualizaciones**: Mirá las últimas novedades del bot.\n' +
-            '- **!dt / !dato [pregunta]**: Te busco un dato rápido en la web o X, ¡posta!\n' +
-            '- **!clima [ciudad]**: Te digo el clima de cualquier ciudad, re útil.\n' +
-            '- **!noticias**: Te traigo el último titular de Argentina, al toque.\n' +
-            '- **!wiki [término]**: Busco un resumen en Wikipedia, ¡copado!\n' +
-            '- **!traduci [frase] a [idioma]**: Traduzco frases cortas, joya pa’ practicar.\n' +
-            '- **!an / !ansiedad**: Tips rápidos pa’ calmar la ansiedad, con un mensaje especial de Miguel pa’ darte pilas.\n' +
-            '- **!chiste**: Te tiro un chiste random pa’ sacarte una carcajada, ¡re copado!\n' +
-            '- **!av / !avatar [URL o adjunto]**: Cambio mi foto de perfil.\n' +
-            '- **!jugar**: Adivina un número del 1 al 10, ¡5 intentos pa’ ganarme, loco!\n' +
-            '- **!meme**: Te tiro un meme random pa’ sacarte una sonrisa.\n' +
-            '- **!pregunta**: Te hago una pregunta loca pa’ charlar un rato.\n' +
-            '- **!wt / !watchtogether**: Mirá videos de YouTube conmigo en un canal de voz, ¡re copado!\n' +
-            '- **!rec / !recordatorio [mensaje] [tiempo]**: Te recuerdo algo. Ejemplo: "!rec \'comprar sanguche\' en 1 hora" o "!rec \'tomar mate\' todos los días 08:00".\n' +
-            '- **!mr / !misrecordatorios**: Te muestro tus recordatorios activos.\n' +
-            '- **!cr / !cancelarrecordatorio [ID]**: Cancelás un recordatorio con su ID (lo ves con !mr).\n' +
-            '- **!accion [qué hacés]**: Avisá qué vas a hacer, tipo "me voy a dormir". ¡Copado pa’ estar al tanto!\n' +
-            '- **!ma / !misacciones**: Mirá tus últimas acciones registradas, ¡posta!\n' +
-            '- **!h / !help**: Esta lista, che.\n' +
-            '- **!hm / !help musica**: Comandos para meterle música al día.\n' +
-            '- **hola**: Te tiro un saludito con onda.');
-        await message.channel.send({ embeds: [embed] });
-    } else if (content === '!help musica' || content === '!hm') {
-        const embed = createEmbed('#FF1493', `¡Comandos de música para vos, ${userName}!`,
-            '¡Poné el ritmo con estos comandos, loco!\n' +
-            '- **!pl / !play [canción/URL]**: Tiro un tema para que suene.\n' +
-            '- **!pa / !pause**: Pauso o sigo la música, vos elegís.\n' +
-            '- **!sh / !shuffle**: Mezclo toda la lista de reproducción.\n' +
-            '- **!sk / !skip**: Salto al próximo tema, al toque.\n' +
-            '- **!st / !stop**: Corto todo, silencio total.\n' +
-            '- **!qu / !queue**: Te muestro la lista de temas que vienen.\n' +
-            '- **!rp / !repeat [cola]**: Repito el tema o toda la cola, ¿qué querés?\n' +
-            '- **!bk / !back**: Vuelvo al tema anterior, como en los viejos tiempos.\n' +
-            '- **!ap / !autoplay**: Prendo o apago el autoplay, re práctico.\n' +
-            '- **!ly / !lyrics [canción]**: Te traigo la letra del tema que suena o uno que me digas.\n' +
-            '- **!hm / !help musica**: Esta guía de música, posta.');
-        await message.channel.send({ embeds: [embed] });
-    } else if (content === 'hola') {
-        const embed = createEmbed('#FF1493', `¡Qué lindo verte, ${userName}!`,
-            `¡Hola, loco! Soy Oliver IA, tu compañero piola, trayéndote buena onda como si estuviéramos tomando mate en la vereda. ¿Cómo estás hoy, che? Estoy listo para charlar, ayudarte o tirar unas pavadas para reírnos. ¿Qué tenés en mente? ¡Dale, arrancamos!`);
-        await message.channel.send({ embeds: [embed] });
+    // Llamada única a manejarCommand y procesamiento de la respuesta
+    const result = await manejarCommand(message);
+    if (result.embed && !result.silent) {
+        await message.channel.send({ embeds: [result.embed] });
     }
 });
 
