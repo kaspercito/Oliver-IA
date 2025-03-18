@@ -5894,18 +5894,15 @@ client.once('ready', async () => {
             if (recordatorio.timestamp > ahora || recordatorio.esRecurrente) {
                 console.log(`Restaurando recordatorio: "${recordatorio.mensaje}" (ID: ${recordatorio.id})`);
                 if (recordatorio.esRecurrente) {
-                    // Para recurrentes, ajustar al próximo evento
                     const ahoraUTC = new Date(ahora);
                     const proximo = new Date(ahoraUTC);
-                    proximo.setUTCDate(ahoraUTC.getUTCDate());
                     proximo.setUTCHours(recordatorio.hora, recordatorio.minutos, 0, 0);
                     if (proximo.getTime() <= ahora) {
-                        proximo.setUTCDate(ahoraUTC.getUTCDate() + 1);
+                        proximo.setUTCDate(proximo.getUTCDate() + 1); // Siguiente día
                     }
                     recordatorio.timestamp = proximo.getTime();
                     autoModified = true;
                 }
-                // Para no recurrentes, usar el timestamp original del JSON
                 programarRecordatorio(recordatorio);
             } else {
                 console.log(`Descartando recordatorio vencido: "${recordatorio.mensaje}" (ID: ${recordatorio.id})`);
