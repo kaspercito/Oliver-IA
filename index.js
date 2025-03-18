@@ -3253,13 +3253,9 @@ async function manejarAvatar(message) {
     }
 }
 
-function parsearTiempo(texto, userId) {
+function parsearTiempo(texto) {
     const ahora = new Date();
-    const zonaHoraria = userId === OWNER_ID ? 'America/Guayaquil' : 'America/Argentina/Buenos_Aires';
-    
-    // Ajustamos "ahora" a la zona horaria del usuario
-    const ahoraLocal = new Date(ahora.toLocaleString('en-US', { timeZone: zonaHoraria }));
-    let fechaObjetivo = new Date(ahoraLocal);
+    let fechaObjetivo = new Date(ahora);
     let esRecurrente = false;
 
     // Expresiones regulares pa’ capturar el tiempo
@@ -3269,46 +3265,44 @@ function parsearTiempo(texto, userId) {
     const mañana = texto.match(/mañana (?:a las )?(\d{1,2}):(\d{2})/i);
     const fechaEspecifica = texto.match(/(\d{1,2})\/(\d{1,2})(?: a las (\d{1,2}):(\d{2}))?/i);
     const todosLosDias = texto.match(/todos los días (?:a las )?(\d{1,2}):(\d{2})/i);
-    const aLas = texto.match(/a las (\d{1,2}):(\d{2})/i);
+    const aLas = texto.match(/a las (\d{1,2}):(\d{2})/i); // Nueva regla para "a las 22:00"
 
     if (enMinutos) {
-        fechaObjetivo.setMinutes(fechaObjetivo.getMinutes() + parseInt(enMinutos[1]));
+        fechaObjetivo.setMinutes(ahora.getMinutes() + parseInt(enMinutos[1]));
     } else if (enHoras) {
-        fechaObjetivo.setHours(fechaObjetivo.getHours() + parseInt(enHoras[1]));
+        fechaObjetivo.setHours(ahora.getHours() + parseInt(enHoras[1]));
     } else if (enDias) {
-        fechaObjetivo.setDate(fechaObjetivo.getDate() + parseInt(enDias[1]));
+        fechaObjetivo.setDate(ahora.getDate() + parseInt(enDias[1]));
     } else if (mañana) {
-        fechaObjetivo.setDate(fechaObjetivo.getDate() + 1);
+        fechaObjetivo.setDate(ahora.getDate() + 1);
         fechaObjetivo.setHours(parseInt(mañana[1]), parseInt(mañana[2]), 0, 0);
     } else if (fechaEspecifica) {
         const dia = parseInt(fechaEspecifica[1]);
-        const mes = parseInt(fechaEspecifica[2]) - 1;
+        const mes = parseInt(fechaEspecifica[2]) - 1; // Meses en JS son 0-11
         const hora = fechaEspecifica[3] ? parseInt(fechaEspecifica[3]) : 0;
         const minutos = fechaEspecifica[4] ? parseInt(fechaEspecifica[4]) : 0;
-        fechaObjetivo = new Date(ahoraLocal.getFullYear(), mes, dia, hora, minutos);
+        fechaObjetivo = new Date(ahora.getFullYear(), mes, dia, hora, minutos);
     } else if (todosLosDias) {
         esRecurrente = true;
         const hora = parseInt(todosLosDias[1]);
         const minutos = parseInt(todosLosDias[2]);
         fechaObjetivo.setHours(hora, minutos, 0, 0);
-        if (fechaObjetivo.getTime() <= ahoraLocal.getTime()) {
-            fechaObjetivo.setDate(fechaObjetivo.getDate() + 1);
+        if (fechaObjetivo.getTime() <= ahora.getTime()) {
+            fechaObjetivo.setDate(ahora.getDate() + 1);
         }
-    } else if (aLas) {
+    } else if (aLas) { // Manejo de "a las 22:00"
         const hora = parseInt(aLas[1]);
         const minutos = parseInt(aLas[2]);
         fechaObjetivo.setHours(hora, minutos, 0, 0);
-        if (fechaObjetivo.getTime() <= ahoraLocal.getTime()) {
-            fechaObjetivo.setDate(fechaObjetivo.getDate() + 1);
+        if (fechaObjetivo.getTime() <= ahora.getTime()) {
+            fechaObjetivo.setDate(ahora.getDate() + 1); // Si ya pasó, lo ponemos para mañana
         }
     } else {
-        return null;
+        return null; // Si no entiende, devolvemos null
     }
 
-    // Aseguramos que el timestamp sea válido y mayor a ahora
-    const timestamp = fechaObjetivo.getTime();
     return {
-        timestamp: timestamp > ahoraLocal.getTime() ? timestamp : null,
+        timestamp: fechaObjetivo.getTime() > ahora.getTime() ? fechaObjetivo.getTime() : null,
         esRecurrente: esRecurrente,
         hora: esRecurrente ? fechaObjetivo.getHours() : null,
         minutos: esRecurrente ? fechaObjetivo.getMinutes() : null
@@ -3316,8 +3310,7 @@ function parsearTiempo(texto, userId) {
 }
 
 async function manejarRecordatorio(message) {
-    const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Aurora';
-    const zonaHoraria = message.author.id === OWNER_ID ? 'America/Guayaquil' : 'America/Argentina/Buenos_Aires';
+    const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Aurora'; // Ajustá según ALLOWED_USER_ID
     const args = message.content.split(' ').slice(1).join(' ').trim();
 
     if (!args) return sendError(message.channel, `¡Mandame algo pa’ recordar, ${userName}! Ejemplo: "!rec comprar agua al llegar a casa a las 22:00"`);
@@ -3328,8 +3321,10 @@ async function manejarRecordatorio(message) {
     let mensajeStart = 0;
     let horaIndex = -1;
 
+    // Ignoramos "recuérdame" o similares al principio
     if (palabras[0] === 'recuérdame' || palabras[0] === 'recordame') mensajeStart = 1;
 
+    // Buscamos "al llegar a casa" o tiempo
     for (let i = mensajeStart; i < palabras.length; i++) {
         if (palabras[i] === 'cuando' && palabras[i + 1] === 'llegue' && palabras[i + 2] === 'a' && palabras[i + 3] === 'casa') {
             tiempoIndex = i;
@@ -3347,6 +3342,7 @@ async function manejarRecordatorio(message) {
 
     if (tiempoIndex === -1) return sendError(message.channel, `No entendí el tiempo, ${userName}. Usá "en 5 minutos", "mañana 15:00", o "al llegar a casa a las 22:00".`);
 
+    // Si es "al llegar a casa", buscamos si hay un "a las" después
     let tiempoTexto = args.split(' ').slice(tiempoIndex).join(' ').trim();
     if (esCuandoLlegue) {
         for (let i = tiempoIndex; i < palabras.length; i++) {
@@ -3368,7 +3364,7 @@ async function manejarRecordatorio(message) {
         let timestamp = null;
         if (horaIndex !== -1) {
             const horaTexto = args.split(' ').slice(horaIndex).join(' ').trim();
-            const tiempo = parsearTiempo(horaTexto, message.author.id);
+            const tiempo = parsearTiempo(horaTexto); // Aprovechamos parsearTiempo para "a las 22:00"
             if (!tiempo || !tiempo.timestamp) return sendError(message.channel, `No entendí la hora, ${userName}. Usá "a las 22:00" bien clarito.`);
             timestamp = tiempo.timestamp;
         }
@@ -3378,11 +3374,11 @@ async function manejarRecordatorio(message) {
             channelId: message.channel.id,
             mensaje,
             cuandoLlegue: true,
-            timestamp: timestamp,
+            timestamp: timestamp, // Puede ser null si no hay hora
             creado: new Date().getTime()
         };
     } else {
-        const tiempo = parsearTiempo(tiempoTexto, message.author.id);
+        const tiempo = parsearTiempo(tiempoTexto);
         if (!tiempo || (!tiempo.timestamp && !tiempo.esRecurrente)) return sendError(message.channel, `No entendí el tiempo, ${userName}.`);
         recordatorio = {
             id: uuidv4(),
@@ -3415,35 +3411,32 @@ async function manejarRecordatorio(message) {
         }
     }
 
-    const fechaFormateada = recordatorio.timestamp 
-        ? new Date(recordatorio.timestamp).toLocaleString('es-AR', { timeZone: zonaHoraria, day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' })
-        : 'cuando llegues a casa';
     const textoRespuesta = esCuandoLlegue 
         ? recordatorio.timestamp 
-            ? `Te aviso "${mensaje}" cuando llegues a casa después de las ${new Date(recordatorio.timestamp).toLocaleTimeString('es-AR', { timeZone: zonaHoraria, hour: '2-digit', minute: '2-digit' })}, ${userName}. ¡Copado!`
+            ? `Te aviso "${mensaje}" cuando llegues a casa después de las ${new Date(recordatorio.timestamp).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })}, ${userName}. ¡Copado!`
             : `Te aviso "${mensaje}" cuando llegues a casa, ${userName}. ¡Copado! (Sin hora específica, te aviso apenas llegues).`
-        : `Te aviso "${mensaje}" ${fechaFormateada}, ${userName}.`;
+        : `Te aviso "${mensaje}" ${new Date(recordatorio.timestamp).toLocaleString('es-AR')}, ${userName}.`;
     await sendSuccess(message.channel, '⏰ ¡Recordatorio seteado!', `${textoRespuesta}${guardadoMsg}`);
 
+    // Si tiene timestamp pero no es "cuando llegue", lo programamos normalmente
     if (recordatorio.timestamp && !esCuandoLlegue) programarRecordatorio(recordatorio);
 }
 
+// Nueva función para programar recordatorios
 function programarRecordatorio(recordatorio) {
     const userName = recordatorio.userId === OWNER_ID ? 'Miguel' : 'Belén';
-    const zonaHoraria = recordatorio.userId === OWNER_ID ? 'America/Guayaquil' : 'America/Argentina/Buenos_Aires';
-    const ahora = new Date();
-    const ahoraLocal = new Date(ahora.toLocaleString('en-US', { timeZone: zonaHoraria }));
+    const ahora = Date.now();
 
-    if (!recordatorio.timestamp || recordatorio.timestamp <= ahoraLocal.getTime()) {
+    if (!recordatorio.timestamp || recordatorio.timestamp <= ahora) {
         console.log(`Recordatorio "${recordatorio.mensaje}" (ID: ${recordatorio.id}) ya venció o no tiene timestamp, no se programa.`);
         if (!recordatorio.esRecurrente) {
             dataStore.recordatorios = dataStore.recordatorios.filter(r => r.id !== recordatorio.id);
-            autoModified = true;
+            autoModified = true; // Cambio automático
         }
         return;
     }
 
-    const diferencia = recordatorio.timestamp - ahora.getTime();
+    const diferencia = recordatorio.timestamp - ahora;
     console.log(`Programando recordatorio "${recordatorio.mensaje}" (ID: ${recordatorio.id}) en ${diferencia / 1000} segundos.`);
 
     setTimeout(async () => {
@@ -3459,24 +3452,24 @@ function programarRecordatorio(recordatorio) {
         }
 
         if (recordatorio.esRecurrente) {
+            // Si es recurrente, reprogramamos para el próximo día
             const nuevoTimestamp = new Date();
-            const nuevoTimestampLocal = new Date(nuevoTimestamp.toLocaleString('en-US', { timeZone: zonaHoraria }));
-            nuevoTimestampLocal.setDate(nuevoTimestampLocal.getDate() + 1);
-            nuevoTimestampLocal.setHours(recordatorio.hora, recordatorio.minutos, 0, 0);
-            recordatorio.timestamp = nuevoTimestampLocal.getTime();
-            console.log(`Recordatorio recurrente reprogramado: "${recordatorio.mensaje}" (ID: ${recordatorio.id}) para ${nuevoTimestampLocal.toLocaleString('es-AR')}`);
-            autoModified = true;
-            programarRecordatorio(recordatorio);
+            nuevoTimestamp.setDate(nuevoTimestamp.getDate() + 1);
+            nuevoTimestamp.setHours(recordatorio.hora, recordatorio.minutos, 0, 0);
+            recordatorio.timestamp = nuevoTimestamp.getTime();
+            console.log(`Recordatorio recurrente reprogramado: "${recordatorio.mensaje}" (ID: ${recordatorio.id}) para ${nuevoTimestamp.toLocaleString('es-AR')}`);
+            autoModified = true; // Cambio automático
+            programarRecordatorio(recordatorio); // Reprogramamos
         } else {
+            // Si no es recurrente, lo eliminamos
             dataStore.recordatorios = dataStore.recordatorios.filter(r => r.id !== recordatorio.id);
-            autoModified = true;
+            autoModified = true; // Cambio automático
         }
     }, diferencia);
 }
 
 async function manejarMisRecordatorios(message) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
-    const zonaHoraria = message.author.id === OWNER_ID ? 'America/Guayaquil' : 'America/Argentina/Buenos_Aires';
     const userRecordatorios = dataStore.recordatorios.filter(r => r.userId === message.author.id);
 
     if (userRecordatorios.length === 0) {
@@ -3489,7 +3482,7 @@ async function manejarMisRecordatorios(message) {
     userRecordatorios.forEach((r, index) => {
         const fechaStr = r.esRecurrente 
             ? `todos los días a las ${r.hora.toString().padStart(2, '0')}:${r.minutos.toString().padStart(2, '0')}` 
-            : new Date(r.timestamp).toLocaleString('es-AR', { timeZone: zonaHoraria });
+            : new Date(r.timestamp).toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' });
         embed.addFields({
             name: `${index + 1}. ${r.mensaje}`,
             value: `Cuándo: ${fechaStr}\nID: ${r.id}`,
@@ -4588,161 +4581,44 @@ const randomFacts = [
     }
 }
 
-// Mapa para evitar ejecuciones duplicadas (debounce)
-const commandCooldown = new Map();
-
 async function manejarClima(message, silent = false) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
     const args = message.content.toLowerCase().startsWith('!clima') 
         ? message.content.slice(6).trim() 
         : message.content.slice(3).trim();
-    const ciudad = args || (userName === 'Belén' ? 'San Luis' : 'Guayaquil');
 
-    // Debounce: evitar que el comando se ejecute dos veces en menos de 2 segundos
-    const commandKey = `${message.author.id}-clima`;
-    const lastCommandTime = commandCooldown.get(commandKey);
-    const now = Date.now();
-    if (lastCommandTime && now - lastCommandTime < 2000) {
-        console.log(`Comando !clima bloqueado por debounce para ${userName}`);
-        return;
-    }
-    commandCooldown.set(commandKey, now);
-
-    if (!args && !silent) {
-        const errorEmbed = createEmbed('#FF5555', '¡Pará, loco!', 
-            `¡Decime una ciudad después de "!clima", ${userName}! Ejemplo: !clima Córdoba`);
-        if (!silent) await message.channel.send({ embeds: [errorEmbed] });
-        return { embed: errorEmbed, description: 'Decime una ciudad después de !clima, loco. Ej: !clima Guayaquil' };
-    }
-
-    const waitingEmbed = createEmbed('#FF1493', `⛅ Chequeando el clima, ${userName}...`, 
-        `Aguantá que veo cómo está "${ciudad}"...`);
-    let waitingMessage;
-    if (!silent) waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
+    if (!args) return { description: 'Decime una ciudad después de !clima, loco. Ej: !clima Guayaquil' };
 
     try {
         const apiKey = process.env.OPENWEATHER_API_KEY;
-        const url = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(ciudad)}&appid=${apiKey}&units=metric&lang=es`;
-        const response = await axios.get(url);
-        const data = response.data;
-
-        const temp = Math.round(data.main.temp);
-        const desc = data.weather[0].description;
-        const city = data.name;
-        const countryCode = data.sys.country;
-        const countryMap = {
-            'AR': 'Argentina',
-            'EC': 'Ecuador',
-            'US': 'Estados Unidos',
-            'BR': 'Brasil',
-            'CO': 'Colombia',
-        };
-        const country = countryMap[countryCode] || countryCode;
-        const vibe = temp > 25 ? "pa’l asado" : temp < 10 ? "pa’ un mate calentito" : "tranqui";
-        const timeZone = countryCode === 'AR' ? 'America/Argentina/Buenos_Aires' : 
-                        countryCode === 'EC' ? 'America/Guayaquil' : 'UTC';
-        const hora = new Date().toLocaleTimeString('es-' + (countryCode || 'AR'), { 
-            hour: '2-digit', minute: '2-digit', timeZone 
-        });
-
-        const embed = createEmbed('#FF1493', `⛅ Clima en ${city}, ${country}`, 
-            `${temp}°C, ${desc}, ${vibe}.`);
-        const climaTexto = `⛅ Clima en ${city}, ${country}\n${temp}°C, ${desc}, ${vibe}.\nHecho con onda por Oliver IA•hoy a las ${hora}`;
-
-        if (!silent && waitingMessage) await waitingMessage.edit({ embeds: [embed] });
-        return { embed, description: climaTexto };
+        if (!apiKey) throw new Error('Falta la clave de OpenWeatherMap en el .env');
+        const url = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(args)}&appid=${apiKey}&units=metric&lang=es`;
+        const response = await fetch(url);
+        const data = await response.json();
+        if (data.cod !== 200) throw new Error(data.message);
+        return { description: `${data.weather[0].description}, ${Math.round(data.main.temp)}°C` };
     } catch (error) {
-        console.error(`Error en clima para "${ciudad}": ${error.message}`);
-        const hora = new Date().toLocaleTimeString('es-AR', { 
-            hour: '2-digit', minute: '2-digit', timeZone: 'America/Argentina/Buenos_Aires' 
-        });
-        const errorEmbed = createEmbed('#FF1493', '¡Qué cagada!', 
-            `No pude encontrar el clima de "${ciudad}", ${userName}. ¿Seguro que existe esa ciudad, loco?`);
-        const errorTexto = `⛅ Clima en ${ciudad}\nNo pude traer el clima, che.\nHecho con onda por Oliver IA•hoy a las ${hora}`;
-        
-        if (!silent && waitingMessage) await waitingMessage.edit({ embeds: [errorEmbed] });
-        return { embed: errorEmbed, description: errorTexto };
+        console.error(`Error en clima para "${args}": ${error.message}`);
+        return { description: 'No pude traer el clima, che.' };
     }
 }
 
 async function manejarNoticias(message, silent = false) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
-
-    // Debounce: evitar que el comando se ejecute dos veces en menos de 2 segundos
-    const commandKey = `${message.author.id}-noticias`;
-    const lastCommandTime = commandCooldown.get(commandKey);
-    const now = Date.now();
-    if (lastCommandTime && now - lastCommandTime < 2000) {
-        console.log(`Comando !noticias bloqueado por debounce para ${userName}`);
-        return;
-    }
-    commandCooldown.set(commandKey, now);
-
-    const waitingEmbed = createEmbed('#FF1493', `📰 Buscando noticias, ${userName}...`, 
-        `Aguantá que te traigo lo último de Argentina y Ecuador al toque...`);
-    let waitingMessage;
-    if (!silent) waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
-
     try {
         const apiKey = process.env.MEDIASTACK_API_KEY;
-        if (!apiKey) throw new Error('Falta la clave de Mediastack en el .env, loco.');
-
-        const today = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Argentina/Buenos_Aires' });
-        const hora = new Date().toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Argentina/Buenos_Aires' });
-
-        const fetchNews = async (country) => {
-            let url = `http://api.mediastack.com/v1/news?access_key=${apiKey}&countries=${country}&languages=es&limit=5&date=${today}&sort=published_desc`;
-            console.log(`Pidiendo noticias de ${country} a: ${url}`);
-            let response = await axios.get(url);
-            let articles = response.data.data || [];
-
-            if (articles.length === 0) {
-                url = `http://api.mediastack.com/v1/news?access_key=${apiKey}&countries=${country}&languages=es&limit=5&sort=published_desc`;
-                console.log(`Sin noticias de hoy para ${country}, probando sin fecha: ${url}`);
-                response = await axios.get(url);
-                articles = response.data.data || [];
-            }
-
-            return articles;
-        };
-
-        const articlesAR = await fetchNews('ar');
-        const articlesEC = await fetchNews('ec');
-
-        const formatNewsEmbed = (articles, country) => {
-            if (articles.length === 0) return `No encontré noticias posta de ${country} hoy, loco.`;
-            return articles.slice(0, 5).map((article, index) => 
-                `${index + 1}. **${article.title}**\n${article.description ? article.description.slice(0, 150) + '...' : 'Sin descripción.'}\n*Fuente: ${article.source}*`
-            ).join('\n\n');
-        };
-
-        const formatNewsTexto = (articles, country) => {
-            if (articles.length === 0) return `- No encontré noticias posta de ${country} hoy, loco.`;
-            return articles.slice(0, 5).map((article) => 
-                `- ${article.title} - ${article.source}`
-            ).join('\n');
-        };
-
-        const noticiasARTexto = formatNewsTexto(articlesAR, 'Argentina');
-        const noticiasECTexto = formatNewsTexto(articlesEC, 'Ecuador');
-        const noticiasTexto = `📰 Últimas Noticias (${today})\nArgentina:\n${noticiasARTexto}\n\nEcuador:\n${noticiasECTexto}\nHecho con onda por Oliver IA•hoy a las ${hora}`;
-
-        const embed = createEmbed('#FF1493', `📰 Últimas Noticias (${articlesAR.length > 0 || articlesEC.length > 0 ? today : 'Recientes'})`, 
-            `**Argentina:**\n${formatNewsEmbed(articlesAR, 'Argentina')}\n\n**Ecuador:**\n${formatNewsEmbed(articlesEC, 'Ecuador')}`);
-
-        if (!silent && waitingMessage) await waitingMessage.edit({ embeds: [embed] });
-        return { embed, description: noticiasTexto };
+        if (!apiKey) throw new Error('Falta la clave de Mediastack en el .env');
+        const today = new Date().toISOString().split('T')[0];
+        const url = `http://api.mediastack.com/v1/news?access_key=${apiKey}&countries=ec,ar&languages=es&limit=1&date=${today}&sort=published_desc`;
+        const response = await fetch(url);
+        const data = await response.json();
+        const articles = data.data || [];
+        if (articles.length === 0) throw new Error('No hay noticias de hoy');
+        const article = articles[0];
+        return { description: `${article.title} - ${article.source}` };
     } catch (error) {
         console.error(`Error en noticias: ${error.message}`);
-        if (error.response) console.error(`Respuesta de la API: ${JSON.stringify(error.response.data)}`);
-        const today = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Argentina/Buenos_Aires' });
-        const hora = new Date().toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Argentina/Buenos_Aires' });
-        const errorEmbed = createEmbed('#FF1493', '¡Qué quilombo!', 
-            `No pude traer noticias copadas, ${userName}. Error: ${error.message}. ¿Probamos de nuevo, loco?`);
-        const errorTexto = `📰 Últimas Noticias (${today})\nArgentina:\n- No encontré noticias copadas hoy, qué cagada.\nEcuador:\n- No encontré noticias copadas hoy, qué cagada.\nHecho con onda por Oliver IA•hoy a las ${hora}`;
-        
-        if (!silent && waitingMessage) await waitingMessage.edit({ embeds: [errorEmbed] });
-        return { embed: errorEmbed, description: errorTexto };
+        return { description: 'No hay noticias frescas ahora, loco.' };
     }
 }
 
@@ -5225,6 +5101,7 @@ async function manejarJugar(message) {
     });
 }
 
+// Comandos
 async function manejarCommand(message, silent = false) {
     // Acá manejo todos los comandos, el cerebro del bot
     const content = message.content.toLowerCase();
@@ -5234,114 +5111,99 @@ async function manejarCommand(message, silent = false) {
     // Prioridad máxima pa’ !responder de Miguel
     if (message.author.id === OWNER_ID && (content.startsWith('!responder') || content.startsWith('!resp'))) {
         await manejarResponder(message);
-        return { silent: true, embed: null };
+        return;
     }
-
+    
     // Cancelar trivia
     if (content === '!trivia cancelar' || content === '!tc') {
-        if (message.author.id !== OWNER_ID && message.author.id !== ALLOWED_USER_ID) return { silent: true, embed: null };
+        if (message.author.id !== OWNER_ID && message.author.id !== ALLOWED_USER_ID) return;
 
         const channelProgress = dataStore.activeSessions[`trivia_${message.channel.id}`];
         if (!channelProgress || channelProgress.type !== 'trivia') {
-            const errorEmbed = createEmbed('#FF5555', '¡Pará, loco!', 
-                `No hay ninguna trivia activa para cancelar, ${userName}. ¿Querés arrancar una con !trivia?`);
-            if (!silent) await message.channel.send({ embeds: [errorEmbed] });
-            return { silent, embed: errorEmbed };
+            await sendError(message.channel, `No hay ninguna trivia activa para cancelar, ${userName}.`, 
+                '¿Querés arrancar una con !trivia?');
+            return;
         }
 
         delete dataStore.activeSessions[`trivia_${message.channel.id}`];
         activeTrivia.delete(message.channel.id);
         dataStoreModified = true;
 
-        const successEmbed = createEmbed('#00FF00', '🛑 ¡Trivia cancelada!', 
+        await sendSuccess(message.channel, '🛑 ¡Trivia cancelada!', 
             `Listo, ${userName}, cortaste la trivia al toque. Puntuación parcial: ${channelProgress.score}/${channelProgress.currentQuestion}. ¿Arrancamos otra con !trivia?`);
-        if (!silent) await message.channel.send({ embeds: [successEmbed] });
-        return { silent, embed: successEmbed };
-    }
+        return;
+    }  
     else if (content === '!chiste') {
         await manejarChiste(message);
-        return { silent: true, embed: null };
+        return;
     }
     // Cancelar reacciones
     else if (content === '!reacciones cancelar' || content === '!rc') {
-        if (message.author.id !== OWNER_ID && message.author.id !== ALLOWED_USER_ID) return { silent: true, embed: null };
+        if (message.author.id !== OWNER_ID && message.author.id !== ALLOWED_USER_ID) return;
 
         const session = dataStore.activeSessions[`reaction_${message.channel.id}`];
         if (!session || session.type !== 'reaction' || session.completed) {
-            const errorEmbed = createEmbed('#FF5555', '¡Pará, loco!', 
-                `No hay un juego de reacciones activo para cancelar, ${userName}. ¿Querés empezar uno con !reacciones?`);
-            if (!silent) await message.channel.send({ embeds: [errorEmbed] });
-            return { silent, embed: errorEmbed };
+            await sendError(message.channel, `No hay un juego de reacciones activo para cancelar, ${userName}.`, 
+                '¿Querés empezar uno con !reacciones?');
+            return;
         }
 
         session.completed = true;
         delete dataStore.activeSessions[`reaction_${message.channel.id}`];
         dataStoreModified = true;
 
-        const successEmbed = createEmbed('#00FF00', '🛑 ¡Juego de reacciones cancelado!', 
+        await sendSuccess(message.channel, '🛑 ¡Juego de reacciones cancelado!', 
             `Listo, ${userName}, cortaste el juego al toque. Puntuación parcial: ${session.score} en ${session.currentRound - 1} rondas. ¿Arrancamos otro con !reacciones?`);
-        if (!silent) await message.channel.send({ embeds: [successEmbed] });
-        return { silent, embed: successEmbed };
-    }
+        return;
+    } 
     // Cancelar PPM
     else if (content === '!ppm cancelar' || content === '!pc') {
-        if (message.author.id !== OWNER_ID && message.author.id !== ALLOWED_USER_ID) return { silent: true, embed: null };
+        if (message.author.id !== OWNER_ID && message.author.id !== ALLOWED_USER_ID) return;
 
         const ppmKey = `ppm_${message.author.id}`;
         const session = dataStore.activeSessions[ppmKey];
         if (!session || session.type !== 'ppm' || session.completed) {
-            const errorEmbed = createEmbed('#FF5555', '¡Pará, loco!', 
-                `No hay PPM activo, ${userName}. ¿Querés uno con !ppm?`);
-            if (!silent) await message.channel.send({ embeds: [errorEmbed] });
-            return { silent, embed: errorEmbed };
+            await sendError(message.channel, `No hay PPM activo, ${userName}.`, '¿Querés uno con !ppm?');
+        } else {
+            session.active = false;
+            delete dataStore.activeSessions[ppmKey];
+            dataStoreModified = true;
+            await sendSuccess(message.channel, '🛑 ¡PPM cancelado!', `Listo, ${userName}. Paraste antes de terminar.`);
         }
-
-        session.active = false;
-        delete dataStore.activeSessions[ppmKey];
-        dataStoreModified = true;
-
-        const successEmbed = createEmbed('#00FF00', '🛑 ¡PPM cancelado!', 
-            `Listo, ${userName}. Paraste antes de terminar.`);
-        if (!silent) await message.channel.send({ embeds: [successEmbed] });
-        return { silent, embed: successEmbed };
+        return;
     }
     // Traduci primero, pa’ que no se pierda
     else if (content.startsWith('!traduci')) {
         console.log(`Enviando a manejarTraduci: "${message.content}"`);
         await manejarTraduci(message);
-        return { silent: true, embed: null };
     }
     else if (content === '!watchtogether' || content === '!wt') {
         await manejarWatchTogether(message);
-        return { silent: true, embed: null };
     }
     // Nuevo comando !accion
     else if (content.startsWith('!accion')) {
         await manejarAccion(message);
-        return { silent: true, embed: null };
     }
     else if (content === '!misacciones' || content === '!ma') {
         await manejarMisAcciones(message);
-        return { silent: true, embed: null };
     }
     // Resto de comandos en orden
-    else if (content === '!trivia' || content === '!t') {
+    else if (content === '!trivia' || content === '!tc') {
         await manejarTrivia(message);
-        return { silent: true, embed: null };
-    }
+    } 
     else if (content === '!meme') {
         const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
         try {
             const API_KEY = '05o0BdpN9d0PCHOPoP63morLbU6wuYyk';
             const response = await axios.get(`https://api.giphy.com/v1/gifs/random?api_key=${API_KEY}&tag=meme+español&rating=pg-13`);
-
+    
             if (!response.data || !response.data.data?.images?.original?.url) {
                 throw new Error('No encontré un meme en Giphy, loco.');
             }
-
+    
             const gifUrl = response.data.data.images.original.url;
             let gifTitle = response.data.data.title || 'Un meme sin título, loco';
-
+    
             gifTitle = gifTitle.replace(/ by .*$/, '');
             gifTitle = gifTitle.replace(/GIF$/i, '').trim();
             gifTitle = gifTitle
@@ -5353,12 +5215,12 @@ async function manejarCommand(message, silent = false) {
                 .replace(/Dance/i, 'Baile')
                 .replace(/Fail/i, 'Fallo')
                 .replace(/Uf/i, '¡Uff!');
-
+    
             const memeEmbed = createEmbed('#FF1493', `¡Meme pa’ vos, ${userName}!`, 
                 `¡Tomá este meme bien zarpado, loco! ¿Qué te parece?\n**${gifTitle}**`)
                 .setImage(gifUrl);
             await message.channel.send({ embeds: [memeEmbed] });
-
+    
             const preguntasMeme = [
                 '¿Qué meme mandarías vos pa’ responderle a este, loco?',
                 '¿En qué situación de tu vida usarías este meme, posta?',
@@ -5371,27 +5233,23 @@ async function manejarCommand(message, silent = false) {
                 '¿Este meme te representa un lunes o un viernes a la noche?',
                 '¿Qué comida argenta le va perfecto a este meme pa’ compartirlo?'
             ];
-
+    
             const pregunta = preguntasMeme[Math.floor(Math.random() * preguntasMeme.length)];
             const preguntaEmbed = createEmbed('#FF1493', `¡Eh, ${userName}, una yapa!`, 
                 `${pregunta} ¡Contame al toque, loco!`);
             await message.channel.send({ embeds: [preguntaEmbed] });
-            return { silent: true, embed: null };
         } catch (error) {
             console.error(`Error al buscar meme: ${error.message}`);
             const errorEmbed = createEmbed('#FF1493', `¡Qué quilombo, ${userName}!`, 
                 `No pude traer un meme, loco. Algo falló: ${error.message}. ¿Probamos de nuevo, dale?`);
-            if (!silent) await message.channel.send({ embeds: [errorEmbed] });
-            return { silent, embed: errorEmbed };
+            await message.channel.send({ embeds: [errorEmbed] });
         }
     }
     else if (content === '!milagros') {
         await manejarMilagros(message);
-        return { silent: true, embed: null };
-    }
+    } 
     else if (content.startsWith('!jugar')) {
         await manejarJugar(message);
-        return { silent: true, embed: null };
     }
     else if (content === '!pregunta' || content === '!pr') {
         const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
@@ -5403,12 +5261,10 @@ async function manejarCommand(message, silent = false) {
         const pregunta = preguntasDisponibles.pop();
         const preguntaEmbed = createEmbed('#FF1493', `¡Pregunta pa’ vos, ${userName}!`, 
             `${pregunta} ¡Contame, loco, qué pensás!`);
-        if (!silent) await message.channel.send({ embeds: [preguntaEmbed] });
-        return { silent, embed: preguntaEmbed };
+        await message.channel.send({ embeds: [preguntaEmbed] });
     }
     else if (content.startsWith('!avatar') || content.startsWith('!av')) {
         await manejarAvatar(message);
-        return { silent: true, embed: null };
     }
     else if (content.startsWith('!ppt')) {
         if (message.mentions.users.size > 0) {
@@ -5416,248 +5272,132 @@ async function manejarCommand(message, silent = false) {
         } else {
             await manejarPPTBot(message);
         }
-        return { silent: true, embed: null };
     }
     else if (content.startsWith('!recordatorio') || content.startsWith('!rec')) {
         await manejarRecordatorio(message);
-        return { silent: true, embed: null };
     }
     else if (content === '!misrecordatorios' || content === '!mr') {
         await manejarMisRecordatorios(message);
-        return { silent: true, embed: null };
-    }
+    }  
     else if (content.startsWith('!cancelarrecordatorio') || content.startsWith('!cr')) {
         await manejarCancelarRecordatorio(message);
-        return { silent: true, embed: null };
-    }
+    } 
     else if (content.startsWith('!reacciones') || content.startsWith('!re')) {
         await manejarReacciones(message);
-        return { silent: true, embed: null };
-    }
+    } 
     else if (content.startsWith('!chat') || content.startsWith('!ch')) {
         await manejarChat(message);
-        return { silent: true, embed: null };
-    }
+    } 
     else if (content === '!ppm' || content === '!pp') {
         await manejarPPM(message);
-        return { silent: true, embed: null };
-    }
+    } 
     else if (content === '!actualizaciones' || content === '!act') {
         await manejarActualizaciones(message);
-        return { silent: true, embed: null };
-    }
+    } 
     else if (content === '!luz') {
         const mensaje = mensajesAnimo[Math.floor(Math.random() * mensajesAnimo.length)];
         const embed = createEmbed('#FFAA00', `¡Ánimo, ${userName}!`, mensaje);
-        if (!silent) await message.channel.send({ embeds: [embed] });
-        return { silent, embed: embed };
-    }
+        await message.channel.send({ embeds: [embed] });
+    } 
     else if (content === '!save') {
         try {
             const saved = await saveDataStore();
             if (saved) {
-                const successEmbed = createEmbed('#00FF00', '💾 ¡Guardado!', 
-                    `Datos guardados exitosamente, ${userName}.`);
-                if (!silent) await message.channel.send({ embeds: [successEmbed] });
+                await sendSuccess(message.channel, '💾 ¡Guardado!', `Datos guardados exitosamente, ${userName}.`);
                 dataStoreModified = false;
-                return { silent, embed: successEmbed };
             } else {
-                const noChangesEmbed = createEmbed('#00FF00', '💾 Sin Cambios', 
-                    `No hay cambios para guardar, ${userName}.`);
-                if (!silent) await message.channel.send({ embeds: [noChangesEmbed] });
-                return { silent, embed: noChangesEmbed };
+                await sendSuccess(message.channel, '💾 Sin Cambios', `No hay cambios para guardar, ${userName}.`);
             }
         } catch (error) {
-            const errorEmbed = createEmbed('#FF5555', '💾 Error al guardar', 
-                `No pude guardar los datos, ${userName}. Error: ${error.message}`);
-            if (!silent) await message.channel.send({ embeds: [errorEmbed] });
-            return { silent, embed: errorEmbed };
+            await sendError(message.channel, '💾 Error al guardar', `No pude guardar los datos, ${userName}. Error: ${error.message}`);
         }
-    }
+    } 
     else if (content.startsWith('!sugerencias') || content.startsWith('!su')) {
         await manejarSugerencias(message);
-        return { silent: true, embed: null };
-    }
+    } 
     else if (content.startsWith('!ayuda') || content.startsWith('!ay')) {
         await manejarAyuda(message);
-        return { silent: true, embed: null };
-    }
+    } 
     else if (content === '!rankingppm' || content === '!rppm') {
         await manejarRankingPPM(message);
-        return { silent: true, embed: null };
-    }
+    } 
     else if (content.startsWith('!play') || content.startsWith('!pl')) {
         await manejarPlay(message);
         isPlayingMusic = true;
         autosavePausedByMusic = true;
         console.log('Música arrancó, autosave pausado.');
-        return { silent: true, embed: null };
-    }
+    } 
     else if (content === '!pause' || content === '!pa') {
         await manejarPause(message);
-        return { silent: true, embed: null };
-    }
+    } 
     else if (content === '!skip' || content === '!sk') {
         await manejarSkip(message);
-        return { silent: true, embed: null };
-    }
+    } 
     else if (content === '!shuffle' || content === '!sh') {
         await manejarShuffle(message);
-        return { silent: true, embed: null };
     }
     else if (content === '!stop' || content === '!st') {
         await manejarStop(message);
         isPlayingMusic = false;
         autosavePausedByMusic = false;
         console.log('Música parada, autosave reanudado.');
-        return { silent: true, embed: null };
-    }
+    } 
     else if (content === '!queue' || content === '!qu') {
         await manejarQueue(message);
-        return { silent: true, embed: null };
-    }
+    } 
     else if (content === '!repeat' || content === '!rp') {
         await manejarRepeat(message);
-        return { silent: true, embed: null };
-    }
+    } 
     else if (content === '!back' || content === '!bk') {
         await manejarBack(message);
-        return { silent: true, embed: null };
-    }
+    } 
     else if (content === '!autoplay' || content === '!ap') {
         await manejarAutoplay(message);
-        return { silent: true, embed: null };
-    }
+    } 
     else if (content === '!autosave' || content === '!as') {
         await manejarAutosave(message);
-        return { silent: true, embed: null };
-    }
+    } 
     else if (content === '!lyrics' || content === '!ly') {
         await manejarLyrics(message);
-        return { silent: true, embed: null };
-    }
+    } 
     else if (content === '!adivinanzas' || content === '!ad') {
         await manejarAdivinanza(message);
-        return { silent: true, embed: null };
-    }
+    } 
     else if (content.startsWith('!responder') || content.startsWith('!resp')) {
         await manejarResponder(message);
-        return { silent: true, embed: null };
     }
     else if (content.startsWith('!idea') || content.startsWith('!id')) {
         await manejarIdea(message);
-        return { silent: true, embed: null };
-    }
+    }    
     else if (content.startsWith('!dato') || content.startsWith('!dt')) {
         await manejarDato(message);
-        return { silent: true, embed: null };
-    }
+    } 
     else if (content.startsWith('!clima')) {
         return await manejarClima(message, silent);
-    }
+    } 
     else if (content === '!noticias') {
         return await manejarNoticias(message, silent);
     }
     else if (content.startsWith('!wiki')) {
         await manejarWiki(message);
-        return { silent: true, embed: null };
     }
     else if (content.startsWith('!imagen') || content.startsWith('!im')) {
         await manejarImagen(message);
-        return { silent: true, embed: null };
     }
     else if (content === '!misimagenes') {
         await manejarMisImagenes(message);
-        return { silent: true, embed: null };
     }
     else if (content.startsWith('!editarimagen') || content.startsWith('!ei')) {
         await manejarEditarImagen(message);
-        return { silent: true, embed: null };
     }
     else if (content.startsWith('!ansiedad') || content.startsWith('!an')) {
         await manejarAnsiedad(message);
-        return { silent: true, embed: null };
     }
     else if (content === '!lenguajes') {
         await listarIdiomas(message);
-        return { silent: true, embed: null };
     }
-    // Agregamos !help, !help musica y hola
-    else if (content === '!help' || content === '!h') {
-        const embed = createEmbed('#FF1493', `¡Lista de comandos para vos, ${userName}!`,
-            '¡Acá tenés todo lo que puedo hacer por vos, loco!\n' +
-            '- **!ch / !chat [mensaje]**: Charlamos un rato, posta.\n' +
-            '- **!tr / !trivia [categoría] [n]**: Trivia copada por categoría (mínimo 20).\n' +
-            '- **!tc / !trivia cancelar**: Cancela la trivia que empezaste.\n' +
-            '- **!pp / !ppm**: A ver qué tan rápido tipeás, ¡dale!\n' +
-            '- **!pc / !ppm cancelar**: Cancela el PPM si te arrepentís.\n' +
-            '- **!rk / !ranking**: Tus puntajes y estadísticas (récord más alto de PPM).\n' +
-            '- **!ppt [piedra/papel/tijera]**: Jugá Piedra, Papel o Tijera contra mí, ¡dale!\n' +
-            '- **!ppt @alguien**: Desafiá a otro a Piedra, Papel o Tijera, ¡posta!\n' +
-            '- **!ad / !adivinanza**: Te tiro una adivinanza copada pa’ que le des al coco, ¡30 segundos pa’ responder, dale!\n' +
-            '- **!rppm / !rankingppm**: Todos tus intentos de PPM, loco.\n' +
-            '- **!re / !reacciones**: Juego para ver quién tipea más rápido.\n' +
-            '- **!rc / !reacciones cancelar**: Cancela las reacciones que empezaste.\n' +
-            '- **!su / !sugerencias [sugerencia]**: Mandame tus sugerencias para hacer este bot más piola.\n' +
-            '- **!id / !idea [texto]**: Tirame una idea rápida pa’ mejorar el bot, ¡dale!\n' +
-            '- **!ay / !ayuda [problema]**: Pedile una mano a Miguel.\n' +
-            '- **!save**: Guardo todo al toque, tranqui.\n' +
-            '- **!as / !autosave**: Paro o arranco el guardado automático.\n' +
-            '- **!act / !actualizaciones**: Mirá las últimas novedades del bot.\n' +
-            '- **!dt / !dato [pregunta]**: Te busco un dato rápido en la web o X, ¡posta!\n' +
-            '- **!clima [ciudad]**: Te digo el clima de cualquier ciudad, re útil.\n' +
-            '- **!noticias**: Te traigo el último titular de Argentina, al toque.\n' +
-            '- **!wiki [término]**: Busco un resumen en Wikipedia, ¡copado!\n' +
-            '- **!traduci [frase] a [idioma]**: Traduzco frases cortas, joya pa’ practicar.\n' +
-            '- **!an / !ansiedad**: Tips rápidos pa’ calmar la ansiedad, con un mensaje especial de Miguel pa’ darte pilas.\n' +
-            '- **!chiste**: Te tiro un chiste random pa’ sacarte una carcajada, ¡re copado!\n' +
-            '- **!av / !avatar [URL o adjunto]**: Cambio mi foto de perfil.\n' +
-            '- **!jugar**: Adivina un número del 1 al 10, ¡5 intentos pa’ ganarme, loco!\n' +
-            '- **!meme**: Te tiro un meme random pa’ sacarte una sonrisa.\n' +
-            '- **!pregunta**: Te hago una pregunta loca pa’ charlar un rato.\n' +
-            '- **!wt / !watchtogether**: Mirá videos de YouTube conmigo en un canal de voz, ¡re copado!\n' +
-            '- **!rec / !recordatorio [mensaje] [tiempo]**: Te recuerdo algo. Ejemplo: "!rec \'comprar sanguche\' en 1 hora" o "!rec \'tomar mate\' todos los días 08:00".\n' +
-            '- **!mr / !misrecordatorios**: Te muestro tus recordatorios activos.\n' +
-            '- **!cr / !cancelarrecordatorio [ID]**: Cancelás un recordatorio con su ID (lo ves con !mr).\n' +
-            '- **!accion [qué hacés]**: Avisá qué vas a hacer, tipo "me voy a dormir". ¡Copado pa’ estar al tanto!\n' +
-            '- **!ma / !misacciones**: Mirá tus últimas acciones registradas, ¡posta!\n' +
-            '- **!h / !help**: Esta lista, che.\n' +
-            '- **!hm / !help musica**: Comandos para meterle música al día.\n' +
-            '- **hola**: Te tiro un saludito con onda.');
-        if (!silent) await message.channel.send({ embeds: [embed] });
-        return { silent, embed };
-    }
-    else if (content === '!help musica' || content === '!hm') {
-        const embed = createEmbed('#FF1493', `¡Comandos de música para vos, ${userName}!`,
-            '¡Poné el ritmo con estos comandos, loco!\n' +
-            '- **!pl / !play [canción/URL]**: Tiro un tema para que suene.\n' +
-            '- **!pa / !pause**: Pauso o sigo la música, vos elegís.\n' +
-            '- **!sh / !shuffle**: Mezclo toda la lista de reproducción.\n' +
-            '- **!sk / !skip**: Salto al próximo tema, al toque.\n' +
-            '- **!st / !stop**: Corto todo, silencio total.\n' +
-            '- **!qu / !queue**: Te muestro la lista de temas que vienen.\n' +
-            '- **!rp / !repeat [cola]**: Repito el tema o toda la cola, ¿qué querés?\n' +
-            '- **!bk / !back**: Vuelvo al tema anterior, como en los viejos tiempos.\n' +
-            '- **!ap / !autoplay**: Prendo o apago el autoplay, re práctico.\n' +
-            '- **!ly / !lyrics [canción]**: Te traigo la letra del tema que suena o uno que me digas.\n' +
-            '- **!hm / !help musica**: Esta guía de música, posta.');
-        if (!silent) await message.channel.send({ embeds: [embed] });
-        return { silent, embed };
-    }
-    else if (content === 'hola') {
-        const embed = createEmbed('#FF1493', `¡Qué lindo verte, ${userName}!`,
-            `¡Hola, loco! Soy Oliver IA, tu compañero piola, trayéndote buena onda como si estuviéramos tomando mate en la vereda. ¿Cómo estás hoy, che? Estoy listo para charlar, ayudarte o tirar unas pavadas para reírnos. ¿Qué tenés en mente? ¡Dale, arrancamos!`);
-        if (!silent) await message.channel.send({ embeds: [embed] });
-        return { silent, embed };
-    }
-    else if (content === '!ranking' || content === '!rk') {
-        const embed = getCombinedRankingEmbed(message.author.id, message.author.username);
-        if (!silent) await message.channel.send({ embeds: [embed] });
-        return { silent, embed };
-    }
-    // Si no matchea ningún comando, retornamos un objeto por defecto
-    return { silent: true, embed: null };
 }
+
 
 client.on('messageCreate', async (message) => {
     console.log(`Mensaje recibido - Autor: ${message.author.username}, Contenido: ${message.content}, Bot: ${message.author.bot}`);
@@ -5667,11 +5407,6 @@ client.on('messageCreate', async (message) => {
         return;
     }
 
-    // Chequeo de mensajes procesados para evitar duplicados
-    if (processedMessages.has(message.id)) return;
-    processedMessages.set(message.id, Date.now());
-    setTimeout(() => processedMessages.delete(message.id), 10000);
-
     const userName = message.author.id === OWNER_ID ? 'Miguel' : (message.author.id === ALLOWED_USER_ID ? 'Belén' : 'Un desconocido');
     const content = message.content.trim().toLowerCase();
     console.log(`Contenido limpio: ${content}`);
@@ -5680,6 +5415,16 @@ client.on('messageCreate', async (message) => {
     const jefaRoleId = '1139744529428271187';
     const hasJefeMention = content.includes(`<@&${jefeRoleId}>`);
     const hasJefaMention = content.includes(`<@&${jefaRoleId}>`);
+
+    // Comando independiente !clima y !noticias
+    if (!hasJefeMention && !hasJefaMention && !message.author.bot) {
+        const result = await manejarCommand(message);
+        if (!result.silent && result.description) {
+            const embed = createEmbed('#FF1493', `📡 ${result.description.startsWith('No') ? 'Ups' : 'Info'}`, result.description);
+            await message.channel.send({ embeds: [embed] });
+        }
+        return;
+    }
 
     if (hasJefeMention || hasJefaMention) {
         console.log(`Detectado mensaje IFTTT con mención: ${content}`);
@@ -5703,7 +5448,7 @@ client.on('messageCreate', async (message) => {
             let pendientes = [];
             recordatoriosPendientes.forEach(r => {
                 if (!r.timestamp || ahora >= r.timestamp) {
-                    avisos.push(`- ${r.mensaje} ${r.timestamp ? `(a las ${new Date(r.timestamp).toLocaleTimeString('es-' + (targetName === 'Belén' ? 'AR' : 'EC'), { hour: '2-digit', minute: '2-digit' })})` : ''}`);
+                    avisos.push(`- ${r.mensaje} ${r.timestamp ? `(a las ${new Date(r.timestamp).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })})` : ''}`);
                 } else {
                     pendientes.push(r);
                 }
@@ -5712,10 +5457,15 @@ client.on('messageCreate', async (message) => {
                 dataStore.recordatorios = dataStore.recordatorios.filter(r => !r.cuandoLlegue || r.userId !== userId || pendientes.includes(r));
             }
 
+            let clima = 'No pude traer el clima, che.';
+            let noticias = 'No hay noticias frescas ahora, loco.';
             const climaResult = await manejarClima({ content: targetName === 'Belén' ? '!clima San Luis' : '!clima Guayaquil', channel: canal, author: { id: userId } }, true);
+            if (climaResult?.description) clima = climaResult.description;
+            console.log(`Clima obtenido para ${targetName}: ${clima}`);
+
             const noticiasResult = await manejarNoticias({ content: '!noticias', channel: canal, author: { id: userId } }, true);
-            const clima = climaResult.description;
-            const noticias = noticiasResult.description;
+            if (noticiasResult?.description) noticias = noticiasResult.description;
+            console.log(`Noticias obtenidas para ${targetName}: ${noticias}`);
 
             let consejoClima = '';
             if (clima.toLowerCase().includes('lluvia') || clima.toLowerCase().includes('tormenta')) {
@@ -5729,12 +5479,12 @@ client.on('messageCreate', async (message) => {
             if (targetName === 'Belén') {
                 const hora = new Date().toLocaleTimeString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires', hour: '2-digit', minute: '2-digit' });
                 const recordatoriosText = avisos.length > 0 ? `Tenés estos recordatorios pa’ ahora, genia: ${avisos.join(', ')}. ¡No te olvides, eh! 📋` : 'No hay recordatorios pa’ cuando llegás, ¡a descansar tranqui! 😊';
-                const mensajeTTS = `¡Qué lindo, Belén, llegaste a casa, genia! ${clima}\n${consejoClima} ${recordatoriosText} ${noticias} ¡Qué bueno tenerte de vuelta, grosa, ahora a relajarte como reina!`;
+                const mensajeTTS = `¡Qué lindo, Belén, llegaste a casa, genia! Son las ${hora} en Argentina. 🏠 El clima en San Luis está así: ${clima}. 🌤️ ${consejoClima} ${recordatoriosText} El titular del día: ${noticias}. 📰 ¡Qué bueno tenerte de vuelta, grosa, ahora a relajarte como reina!`;
                 
                 const response = await fetch(webhookUrl, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ chat_id: 'CHAT_ID_BELEN', text: mensajeTTS })
+                    body: JSON.stringify({ chat_id: 'CHAT_ID_BELEN', text: mensajeTTS }) // Reemplazá con el chat ID de Belén
                 });
                 if (!response.ok) {
                     const errorText = await response.text();
@@ -5743,20 +5493,20 @@ client.on('messageCreate', async (message) => {
                     console.log(`Enviado a Telegram para Belén (llegada)`);
                 }
 
-                const embed = createEmbed('#FF69B4', `🏠 ¡Bienvenida a casa, Belén! 🌸`, 
-                    `¡Qué lindo tenerte de vuelta, genia! Acá va todo lo que necesitás saber con onda:`)
+                const embed = createEmbed('#FF1493', `¡Bienvenida a casa, Belén! 🏠`, 
+                    `¡Qué lindo tenerte de vuelta, genia! Acá va todo lo importante`)
                     .addFields(
                         { name: '⏰ Hora en Argentina', value: hora, inline: true },
-                        { name: '🌤️ Clima en San Luis', value: `${clima.split('\n')[1]}\n${consejoClima}`, inline: false },
-                        { name: '📋 Recordatorios', value: avisos.length > 0 ? avisos.join('\n') : 'Ninguno pa’ ahora, ¡a disfrutar! 😊', inline: false },
-                        { name: '📰 Noticias', value: noticias.split('\n').slice(2, -1).join('\n'), inline: false }
+                        { name: '🌤️ Clima en San Luis', value: `${clima}\n${consejoClima}`, inline: false },
+                        { name: '📋 Recordatorios', value: avisos.length > 0 ? avisos.join('\n') : 'Ninguno pa’ ahora, ¡a disfrutar!', inline: false },
+                        { name: '📰 Noticias', value: noticias, inline: false }
                     )
-                    .setThumbnail('https://i.imgur.com/house-icon.png');
+                    .setFooter({ text: 'Con cariño, Oliver IA' });
                 await canal.send({ embeds: [embed] });
             } else if (targetName === 'Miguel') {
                 const hora = new Date().toLocaleTimeString('es-EC', { timeZone: 'America/Guayaquil', hour: '2-digit', minute: '2-digit' });
                 const recordatoriosText = avisos.length > 0 ? `Tenés estos recordatorios pa’ ahora, loco: ${avisos.join(', ')}. ¡No te cuelgues, eh! 📋` : 'No hay recordatorios pa’ cuando llegás, ¡a relajarse tranqui! 😎';
-                const mensajeTTS = `¡Grande, Miguel, ya estás en casa, capo! ${clima}\n${consejoClima} ${recordatoriosText} ${noticias} ¡A descansar como se merece el jefe, loco!`;
+                const mensajeTTS = `¡Grande, Miguel, ya estás en casa, capo! Son las ${hora} en Ecuador. 🏠 El clima en Guayaquil está así: ${clima}. 🌤️ ${consejoClima} ${recordatoriosText} El titular del día: ${noticias}. 📰 ¡A descansar como se merece el jefe, loco!`;
                 
                 const response = await fetch(webhookUrl, {
                     method: 'POST',
@@ -5770,15 +5520,15 @@ client.on('messageCreate', async (message) => {
                     console.log(`Enviado a Telegram para Miguel (llegada)`);
                 }
 
-                const embed = createEmbed('#FF69B4', `🏠 ¡Bienvenido a casa, Miguel! 🚀`, 
-                    `¡Grande, capo! Acá tenés todo lo que necesitás saber con onda:`)
+                const embed = createEmbed('#FF1493', `¡Bienvenido a casa, Miguel! 🏠`, 
+                    `¡Grande, capo! Acá tenés todo lo que necesitás saber`)
                     .addFields(
                         { name: '⏰ Hora en Ecuador', value: hora, inline: true },
-                        { name: '🌤️ Clima en Guayaquil', value: `${clima.split('\n')[1]}\n${consejoClima}`, inline: false },
-                        { name: '📋 Recordatorios', value: avisos.length > 0 ? avisos.join('\n') : 'Ninguno pa’ ahora, ¡a descansar! 😎', inline: false },
-                        { name: '📰 Noticias', value: noticias.split('\n').slice(2, -1).join('\n'), inline: false }
+                        { name: '🌤️ Clima en Guayaquil', value: `${clima}\n${consejoClima}`, inline: false },
+                        { name: '📋 Recordatorios', value: avisos.length > 0 ? avisos.join('\n') : 'Ninguno pa’ ahora, ¡a descansar!', inline: false },
+                        { name: '📰 Noticias', value: noticias, inline: false }
                     )
-                    .setThumbnail('https://i.imgur.com/house-icon.png');
+                    .setFooter({ text: 'Con onda, Oliver IA' });
                 await canal.send({ embeds: [embed] });
             }
             console.log(`TTS y embed procesados para llegada de ${targetName}`);
@@ -5794,10 +5544,10 @@ client.on('messageCreate', async (message) => {
                 console.error(`No pude borrar el mensaje de IFTTT: ${error.message}`);
             }
 
+            let clima = 'No pude traer el clima, che.';
             const climaResult = await manejarClima({ content: targetName === 'Belén' ? '!clima San Luis' : '!clima Guayaquil', channel: canal, author: { id: userId } }, true);
-            const noticiasResult = await manejarNoticias({ content: '!noticias', channel: canal, author: { id: userId } }, true);
-            const clima = climaResult.description;
-            const noticias = noticiasResult.description;
+            if (climaResult?.description) clima = climaResult.description;
+            console.log(`Clima obtenido para salida de ${targetName}: ${clima}`);
 
             const hoy = new Date();
             hoy.setHours(0, 0, 0, 0);
@@ -5806,9 +5556,6 @@ client.on('messageCreate', async (message) => {
             const recordatoriosHoy = dataStore.recordatorios.filter(r => 
                 r.userId === userId && r.timestamp && r.timestamp >= hoy.getTime() && r.timestamp < manana.getTime()
             );
-            const recordatoriosText = recordatoriosHoy.length > 0 
-                ? `Tus recordatorios pa’ hoy son: ${recordatoriosHoy.map(r => `${r.mensaje} a las ${new Date(r.timestamp).toLocaleTimeString('es-' + (targetName === 'Belén' ? 'AR' : 'EC'), { hour: '2-digit', minute: '2-digit' })}`).join(', ')}. ¡No te cuelgues, eh! 📋`
-                : 'No tenés recordatorios pa’ hoy, ¡a romperla sin presiones!';
 
             let consejoClima = '';
             if (clima.toLowerCase().includes('lluvia') || clima.toLowerCase().includes('tormenta')) {
@@ -5821,7 +5568,11 @@ client.on('messageCreate', async (message) => {
 
             if (targetName === 'Miguel') {
                 const hora = new Date().toLocaleTimeString('es-EC', { timeZone: 'America/Guayaquil', hour: '2-digit', minute: '2-digit' });
-                const mensajeTTS = `¡Ojo, Miguel, saliste de casa, capo! ${clima}\n${consejoClima} ${recordatoriosText} ${noticias} ¡A meterle pilas, loco, que el día es tuyo! 🚀`;
+                const recordatoriosText = recordatoriosHoy.length > 0 
+                    ? `Tus recordatorios pa’ hoy son: ${recordatoriosHoy.map(r => `${r.mensaje} a las ${new Date(r.timestamp).toLocaleTimeString('es-EC', { hour: '2-digit', minute: '2-digit' })}`).join(', ')}. ¡No te cuelgues, eh! 📋`
+                    : 'No tenés recordatorios pa’ hoy, ¡a romperla sin presiones!';
+                const mensajeTTS = `¡Ojo, Miguel, saliste de casa, capo! Son las ${hora} en Ecuador. 🚪 En Guayaquil está así: ${clima}. 🌤️ ${consejoClima} ${recordatoriosText} ¡A meterle pilas, loco, que el día es tuyo! 🚀`;
+                console.log(`Mensaje TTS a enviar (salida): ${mensajeTTS}`); // Depuración
                 
                 const response = await fetch(webhookUrl, {
                     method: 'POST',
@@ -5835,19 +5586,21 @@ client.on('messageCreate', async (message) => {
                     console.log(`Enviado a Telegram para Miguel (salida)`);
                 }
 
-                const embed = createEmbed('#FF69B4', `🚪 ¡A la calle, Miguel! 🚀`, 
-                    `¡Grande, capo! Saliste a comerte el mundo con onda:`)
+                const embed = createEmbed('#FF1493', `¡A la calle, Miguel! 🚪`, 
+                    `¡Grande, capo! Saliste a comerte el mundo`)
                     .addFields(
                         { name: '⏰ Hora en Ecuador', value: hora, inline: true },
-                        { name: '🌤️ Clima en Guayaquil', value: `${clima.split('\n')[1]}\n${consejoClima}`, inline: false },
-                        { name: '📋 Recordatorios de hoy', value: recordatoriosHoy.length > 0 ? recordatoriosHoy.map(r => `${r.mensaje} (${new Date(r.timestamp).toLocaleTimeString('es-EC', { hour: '2-digit', minute: '2-digit' })})`).join('\n') : 'Ninguno, ¡a full sin drama! 😎', inline: false },
-                        { name: '📰 Noticias', value: noticias.split('\n').slice(2, -1).join('\n'), inline: false }
+                        { name: '🌤️ Clima en Guayaquil', value: `${clima}\n${consejoClima}`, inline: false },
+                        { name: '📋 Recordatorios de hoy', value: recordatoriosHoy.length > 0 ? recordatoriosHoy.map(r => `${r.mensaje} (${new Date(r.timestamp).toLocaleTimeString('es-EC', { hour: '2-digit', minute: '2-digit' })})`).join('\n') : 'Ninguno, ¡a full sin drama!', inline: false }
                     )
-                    .setThumbnail('https://i.imgur.com/door-icon.png');
+                    .setFooter({ text: 'Con onda, Oliver IA' });
                 await canal.send({ embeds: [embed] });
             } else if (targetName === 'Belén') {
                 const hora = new Date().toLocaleTimeString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires', hour: '2-digit', minute: '2-digit' });
-                const mensajeTTS = `¡Atenti, Belén, saliste de casa, genia! ${clima}\n${consejoClima} ${recordatoriosText} ${noticias} ¡A brillar, grosa, que el día te espera! 🌸`;
+                const recordatoriosText = recordatoriosHoy.length > 0 
+                    ? `Tus recordatorios pa’ hoy son: ${recordatoriosHoy.map(r => `${r.mensaje} a las ${new Date(r.timestamp).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })}`).join(', ')}. ¡No te cuelgues, eh! 📋`
+                    : 'No tenés recordatorios pa’ hoy, ¡a brillar sin presiones!';
+                const mensajeTTS = `¡Atenti, Belén, saliste de casa, genia! Son las ${hora} en Argentina. 🚪 En San Luis está así: ${clima}. 🌤️ ${consejoClima} ${recordatoriosText} ¡A brillar, grosa, que el día te espera! 🌸`;
                 
                 const response = await fetch(webhookUrl, {
                     method: 'POST',
@@ -5861,29 +5614,24 @@ client.on('messageCreate', async (message) => {
                     console.log(`Enviado a Telegram para Belén (salida)`);
                 }
 
-                const embed = createEmbed('#FF69B4', `🚪 ¡A la calle, Belén! 🌸`, 
-                    `¡Ey, genia! Saliste a romperla toda con onda:`)
+                const embed = createEmbed('#FF1493', `¡A la calle, Belén! 🚪`, 
+                    `¡Ey, genia! Saliste a romperla toda`)
                     .addFields(
                         { name: '⏰ Hora en Argentina', value: hora, inline: true },
-                        { name: '🌤️ Clima en San Luis', value: `${clima.split('\n')[1]}\n${consejoClima}`, inline: false },
-                        { name: '📋 Recordatorios de hoy', value: recordatoriosHoy.length > 0 ? recordatoriosHoy.map(r => `${r.mensaje} (${new Date(r.timestamp).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })})`).join('\n') : 'Ninguno, ¡a disfrutar tranqui! 😊', inline: false },
-                        { name: '📰 Noticias', value: noticias.split('\n').slice(2, -1).join('\n'), inline: false }
+                        { name: '🌤️ Clima en San Luis', value: `${clima}\n${consejoClima}`, inline: false },
+                        { name: '📋 Recordatorios de hoy', value: recordatoriosHoy.length > 0 ? recordatoriosHoy.map(r => `${r.mensaje} (${new Date(r.timestamp).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })})`).join('\n') : 'Ninguno, ¡a disfrutar tranqui!', inline: false }
                     )
-                    .setThumbnail('https://i.imgur.com/door-icon.png');
+                    .setFooter({ text: 'Con cariño, Oliver IA' });
                 await canal.send({ embeds: [embed] });
             }
             console.log(`TTS y embed procesados para salida de ${targetName}`);
             return;
         }
-        return; // Evitamos procesar más si es un mensaje IFTTT
     }
+    if (message.author.bot) return;
 
-    // Procesamos el comando solo si el usuario es autorizado
-    if (message.author.id !== OWNER_ID && message.author.id !== ALLOWED_USER_ID) return;
-
-    // Manejo de mayúsculas
     const lettersOnly = message.content.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ]/g, '');
-    if (lettersOnly.length > 5) {
+    if (lettersOnly.length > 5 && (message.author.id === OWNER_ID || message.author.id === ALLOWED_USER_ID)) {
         const uppercaseCount = lettersOnly.split('').filter(char => char === char.toUpperCase()).length;
         const uppercasePercentage = (uppercaseCount / lettersOnly.length) * 100;
         if (uppercasePercentage >= 80) {
@@ -5913,10 +5661,190 @@ client.on('messageCreate', async (message) => {
         }
     }
 
-    // Llamada única a manejarCommand y procesamiento de la respuesta
-    const result = await manejarCommand(message);
-    if (result.embed && !result.silent) {
-        await message.channel.send({ embeds: [result.embed] });
+    if (message.author.id === OWNER_ID && (content.startsWith('!responder') || content.startsWith('!resp'))) {
+        await manejarCommand(message);
+        return;
+    }
+
+    if (message.author.id !== OWNER_ID && message.author.id !== ALLOWED_USER_ID) return;
+
+    if (processedMessages.has(message.id)) return;
+    processedMessages.set(message.id, Date.now());
+    setTimeout(() => processedMessages.delete(message.id), 10000);
+
+    if (content === '!tc' || content === '!trivia cancelar') {
+        const triviaKey = `trivia_${message.channel.id}`;
+        const session = dataStore.activeSessions[triviaKey];
+        if (!session || session.type !== 'trivia') {
+            await sendError(message.channel, `No hay trivia activa, ${userName}.`, '¿Querés una con !trivia?');
+        } else {
+            session.active = false;
+            delete dataStore.activeSessions[triviaKey];
+            activeTrivia.delete(message.channel.id);
+            dataStoreModified = true;
+            await sendSuccess(message.channel, '🛑 ¡Trivia cancelada!', `Listo, ${userName}. Puntuación: ${session.score}/${session.currentQuestion}.`);
+        }
+        return;
+    }
+
+    if (content === '!rc' || content === '!reacciones cancelar') {
+        const reactionKey = `reaction_${message.channel.id}`;
+        const session = dataStore.activeSessions[reactionKey];
+        if (!session || session.type !== 'reaction' || session.completed) {
+            await sendError(message.channel, `No hay reacciones activas, ${userName}.`, '¿Arrancamos con !reacciones?');
+        } else {
+            session.active = false;
+            session.completed = true;
+            delete dataStore.activeSessions[reactionKey];
+            dataStoreModified = true;
+            await sendSuccess(message.channel, '🛑 ¡Reacciones canceladas!', `Listo, ${userName}. Puntuación: ${session.score}.`);
+        }
+        return;
+    }
+
+    if (content === '!pc' || content === '!ppm cancelar') {
+        const ppmKey = `ppm_${message.author.id}`;
+        const session = dataStore.activeSessions[ppmKey];
+        if (!session || session.type !== 'ppm' || session.completed) {
+            await sendError(message.channel, `No hay PPM activo, ${userName}.`, '¿Querés uno con !ppm?');
+        } else {
+            session.active = false;
+            delete dataStore.activeSessions[ppmKey];
+            dataStoreModified = true;
+            await sendSuccess(message.channel, '🛑 ¡PPM cancelado!', `Listo, ${userName}. Paraste antes de terminar.`);
+        }
+        return;
+    }
+
+    // Comandos integrados del primer bloque
+    if (content === '!stop' || content === '!st') {
+        await manejarStop(message);
+        isPlayingMusic = false;
+        autosavePausedByMusic = false;
+        console.log('Música parada, autosave reanudado.');
+        return;
+    } else if (content === '!queue' || content === '!qu') {
+        await manejarQueue(message);
+        return;
+    } else if (content === '!repeat' || content === '!rp') {
+        await manejarRepeat(message);
+        return;
+    } else if (content === '!back' || content === '!bk') {
+        await manejarBack(message);
+        return;
+    } else if (content === '!autoplay' || content === '!ap') {
+        await manejarAutoplay(message);
+        return;
+    } else if (content === '!autosave' || content === '!as') {
+        await manejarAutosave(message);
+        return;
+    } else if (content === '!lyrics' || content === '!ly') {
+        await manejarLyrics(message);
+        return;
+    } else if (content === '!adivinanzas' || content === '!ad') {
+        await manejarAdivinanza(message);
+        return;
+    } else if (content.startsWith('!responder') || content.startsWith('!resp')) {
+        await manejarResponder(message);
+        return;
+    } else if (content.startsWith('!idea') || content.startsWith('!id')) {
+        await manejarIdea(message);
+        return;
+    } else if (content.startsWith('!dato') || content.startsWith('!dt')) {
+        await manejarDato(message);
+        return;
+    } else if (content.startsWith('!clima')) {
+        await manejarClima(message);
+        return;
+    } else if (content === '!noticias') {
+        await manejarNoticias(message);
+        return;
+    } else if (content.startsWith('!wiki')) {
+        await manejarWiki(message);
+        return;
+    } else if (content.startsWith('!imagen') || content.startsWith('!im')) {
+        await manejarImagen(message);
+        return;
+    } else if (content === '!misimagenes') {
+        await manejarMisImagenes(message);
+        return;
+    } else if (content.startsWith('!editarimagen') || content.startsWith('!ei')) {
+        await manejarEditarImagen(message);
+        return;
+    } else if (content.startsWith('!ansiedad') || content.startsWith('!an')) {
+        await manejarAnsiedad(message);
+        return;
+    } else if (content === '!lenguajes') {
+        await listarIdiomas(message);
+        return;
+    }
+
+    // Resto de los comandos originales
+    await manejarCommand(message);
+    if (content === '!ranking' || content === '!rk') {
+        const embed = getCombinedRankingEmbed(message.author.id, message.author.username);
+        await message.channel.send({ embeds: [embed] });
+    } else if (content === '!help' || content === '!h') {
+        const embed = createEmbed('#FF1493', `¡Lista de comandos para vos, ${userName}!`,
+            '¡Acá tenés todo lo que puedo hacer por vos, loco!\n' +
+            '- **!ch / !chat [mensaje]**: Charlamos un rato, posta.\n' +
+            '- **!tr / !trivia [categoría] [n]**: Trivia copada por categoría (mínimo 20).\n' +
+            '- **!tc / !trivia cancelar**: Cancela la trivia que empezaste.\n' +             
+            '- **!pp / !ppm**: A ver qué tan rápido tipeás, ¡dale!\n' +
+            '- **!pc / !ppm cancelar**: Cancela el PPM si te arrepentís.\n' +
+            '- **!rk / !ranking**: Tus puntajes y estadísticas (récord más alto de PPM).\n' +
+            '- **!ppt [piedra/papel/tijera]**: Jugá Piedra, Papel o Tijera contra mí, ¡dale!\n' +
+            '- **!ppt @alguien**: Desafiá a otro a Piedra, Papel o Tijera, ¡posta!\n' +
+            '- **!ad / !adivinanza**: Te tiro una adivinanza copada pa’ que le des al coco, ¡30 segundos pa’ responder, dale!\n' +
+            '- **!rppm / !rankingppm**: Todos tus intentos de PPM, loco.\n' +
+            '- **!re / !reacciones**: Juego para ver quién tipea más rápido.\n' +
+            '- **!rc / !reacciones cancelar**: Cancela las reacciones que empezaste.\n' +            
+            '- **!su / !sugerencias [sugerencia]**: Mandame tus sugerencias para hacer este bot más piola.\n' +
+            '- **!id / !idea [texto]**: Tirame una idea rápida pa’ mejorar el bot, ¡dale!\n' + 
+            '- **!ay / !ayuda [problema]**: Pedile una mano a Miguel.\n' +
+            '- **!save**: Guardo todo al toque, tranqui.\n' +
+            '- **!as / !autosave**: Paro o arranco el guardado automático.\n' +
+            '- **!act / !actualizaciones**: Mirá las últimas novedades del bot.\n' +
+            '- **!dt / !dato [pregunta]**: Te busco un dato rápido en la web o X, ¡posta!\n' +
+            '- **!clima [ciudad]**: Te digo el clima de cualquier ciudad, re útil.\n' +
+            '- **!noticias**: Te traigo el último titular de Argentina, al toque.\n' +
+            '- **!wiki [término]**: Busco un resumen en Wikipedia, ¡copado!\n' +
+            '- **!traduci [frase] a [idioma]**: Traduzco frases cortas, joya pa’ practicar.\n' +
+            '- **!an / !ansiedad**: Tips rápidos pa’ calmar la ansiedad, con un mensaje especial de Miguel pa’ darte pilas.\n' +
+            '- **!chiste**: Te tiro un chiste random pa’ sacarte una carcajada, ¡re copado!\n' +
+            '- **!av / !avatar [URL o adjunto]**: Cambio mi foto de perfil.\n' +
+            '- **!jugar**: Adivina un número del 1 al 10, ¡5 intentos pa’ ganarme, loco!\n' +
+            '- **!meme**: Te tiro un meme random pa’ sacarte una sonrisa.\n' +
+            '- **!pregunta**: Te hago una pregunta loca pa’ charlar un rato.\n' +
+            '- **!wt / !watchtogether**: Mirá videos de YouTube conmigo en un canal de voz, ¡re copado!\n' +
+            '- **!rec / !recordatorio [mensaje] [tiempo]**: Te recuerdo algo. Ejemplo: "!rec \'comprar sanguche\' en 1 hora" o "!rec \'tomar mate\' todos los días 08:00".\n' +
+            '- **!mr / !misrecordatorios**: Te muestro tus recordatorios activos.\n' +
+            '- **!cr / !cancelarrecordatorio [ID]**: Cancelás un recordatorio con su ID (lo ves con !mr).\n' +
+            '- **!accion [qué hacés]**: Avisá qué vas a hacer, tipo "me voy a dormir". ¡Copado pa’ estar al tanto!\n' +
+            '- **!ma / !misacciones**: Mirá tus últimas acciones registradas, ¡posta!\n' +
+            '- **!h / !help**: Esta lista, che.\n' +
+            '- **!hm / !help musica**: Comandos para meterle música al día.\n' +
+            '- **hola**: Te tiro un saludito con onda.');
+        await message.channel.send({ embeds: [embed] });
+    } else if (content === '!help musica' || content === '!hm') {
+        const embed = createEmbed('#FF1493', `¡Comandos de música para vos, ${userName}!`,
+            '¡Poné el ritmo con estos comandos, loco!\n' +
+            '- **!pl / !play [canción/URL]**: Tiro un tema para que suene.\n' +
+            '- **!pa / !pause**: Pauso o sigo la música, vos elegís.\n' +
+            '- **!sh / !shuffle**: Mezclo toda la lista de reproducción.\n' +
+            '- **!sk / !skip**: Salto al próximo tema, al toque.\n' +
+            '- **!st / !stop**: Corto todo, silencio total.\n' +
+            '- **!qu / !queue**: Te muestro la lista de temas que vienen.\n' +
+            '- **!rp / !repeat [cola]**: Repito el tema o toda la cola, ¿qué querés?\n' +
+            '- **!bk / !back**: Vuelvo al tema anterior, como en los viejos tiempos.\n' +
+            '- **!ap / !autoplay**: Prendo o apago el autoplay, re práctico.\n' +
+            '- **!ly / !lyrics [canción]**: Te traigo la letra del tema que suena o uno que me digas.\n' +
+            '- **!hm / !help musica**: Esta guía de música, posta.');
+        await message.channel.send({ embeds: [embed] });
+    } else if (content === 'hola') {
+        const embed = createEmbed('#FF1493', `¡Qué lindo verte, ${userName}!`,
+            `¡Hola, loco! Soy Oliver IA, tu compañero piola, trayéndote buena onda como si estuviéramos tomando mate en la vereda. ¿Cómo estás hoy, che? Estoy listo para charlar, ayudarte o tirar unas pavadas para reírnos. ¿Qué tenés en mente? ¡Dale, arrancamos!`);
+        await message.channel.send({ embeds: [embed] });
     }
 });
 
