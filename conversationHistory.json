@@ -784,6 +784,11 @@
         "action": "offfff, a estudiar",
         "timestamp": 1742327961250,
         "userId": "1023132788632862761"
+      },
+      {
+        "action": "recreo para merendar algo antes de colapsar del sueño",
+        "timestamp": 1742335341288,
+        "userId": "1023132788632862761"
       }
     ],
     "752987736759205960": [
@@ -885,6 +890,11 @@
       {
         "action": "en el bus yendo para casita, esperaremos a mi hermana en el terminal",
         "timestamp": 1742334142009,
+        "userId": "752987736759205960"
+      },
+      {
+        "action": "a comer pan de yuca y jugo de coca (recién me funciona el internet, ya pasamos el campo)",
+        "timestamp": 1742336724828,
         "userId": "752987736759205960"
       }
     ]
