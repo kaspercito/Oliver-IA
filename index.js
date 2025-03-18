@@ -4587,7 +4587,6 @@ async function manejarClima(message, silent = false) {
         ? message.content.slice(6).trim() 
         : message.content.slice(3).trim();
     const ciudad = args || (userName === 'Belén' ? 'San Luis' : 'Guayaquil');
-    const pais = userName === 'Belén' ? 'AR' : 'EC'; // Aseguramos el país correcto
 
     if (!args && !silent) {
         const errorEmbed = createEmbed('#FF5555', '¡Pará, loco!', 
@@ -4603,19 +4602,31 @@ async function manejarClima(message, silent = false) {
 
     try {
         const apiKey = process.env.OPENWEATHER_API_KEY;
-        const url = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(ciudad)},${pais}&appid=${apiKey}&units=metric&lang=es`;
+        // No forzamos el país, dejamos que OpenWeather lo determine
+        const url = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(ciudad)}&appid=${apiKey}&units=metric&lang=es`;
         const response = await axios.get(url);
         const data = response.data;
 
         const temp = Math.round(data.main.temp);
         const desc = data.weather[0].description;
         const city = data.name;
-        const country = data.sys.country === 'AR' ? 'Argentina' : 'Ecuador'; // Traduce el código
+        const countryCode = data.sys.country; // Código del país devuelto por la API
+        // Traducimos el código del país a un nombre legible
+        const countryMap = {
+            'AR': 'Argentina',
+            'EC': 'Ecuador',
+            'US': 'Estados Unidos',
+            'BR': 'Brasil',
+            'CO': 'Colombia',
+            // Agrega más países si es necesario
+        };
+        const country = countryMap[countryCode] || countryCode; // Si no está mapeado, usamos el código
         const vibe = temp > 25 ? "pa’l asado" : temp < 10 ? "pa’ un mate calentito" : "tranqui";
-        const hora = new Date().toLocaleTimeString('es-' + (pais === 'AR' ? 'AR' : 'EC'), { 
-            hour: '2-digit', 
-            minute: '2-digit', 
-            timeZone: pais === 'AR' ? 'America/Argentina/Buenos_Aires' : 'America/Guayaquil' 
+        // Determinamos la zona horaria según el país devuelto por la API
+        const timeZone = countryCode === 'AR' ? 'America/Argentina/Buenos_Aires' : 
+                        countryCode === 'EC' ? 'America/Guayaquil' : 'UTC';
+        const hora = new Date().toLocaleTimeString('es-' + (countryCode || 'AR'), { 
+            hour: '2-digit', minute: '2-digit', timeZone 
         });
 
         const embed = createEmbed('#FF1493', `⛅ Clima en ${city}, ${country}`, 
@@ -4626,14 +4637,12 @@ async function manejarClima(message, silent = false) {
         return { embed, description: climaTexto };
     } catch (error) {
         console.error(`Error en clima para "${ciudad}": ${error.message}`);
-        const hora = new Date().toLocaleTimeString('es-' + (pais === 'AR' ? 'AR' : 'EC'), { 
-            hour: '2-digit', 
-            minute: '2-digit', 
-            timeZone: pais === 'AR' ? 'America/Argentina/Buenos_Aires' : 'America/Guayaquil' 
+        const hora = new Date().toLocaleTimeString('es-AR', { 
+            hour: '2-digit', minute: '2-digit', timeZone: 'America/Argentina/Buenos_Aires' 
         });
-        const errorEmbed = createEmbed('#FF5555', '¡Qué cagada!', 
+        const errorEmbed = createEmbed('#FF1493', '¡Qué cagada!', 
             `No pude encontrar el clima de "${ciudad}", ${userName}. ¿Seguro que existe esa ciudad, loco?`);
-        const errorTexto = `⛅ Clima en ${ciudad}, ${pais === 'AR' ? 'Argentina' : 'Ecuador'}\nNo pude traer el clima, che.\nHecho con onda por Oliver IA•hoy a las ${hora}`;
+        const errorTexto = `⛅ Clima en ${ciudad}\nNo pude traer el clima, che.\nHecho con onda por Oliver IA•hoy a las ${hora}`;
         
         if (!silent && waitingMessage) await waitingMessage.edit({ embeds: [errorEmbed] });
         return { embed: errorEmbed, description: errorTexto };
@@ -4643,7 +4652,7 @@ async function manejarClima(message, silent = false) {
 async function manejarNoticias(message, silent = false) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
 
-    const waitingEmbed = createEmbed('#55FFFF', `📰 Buscando noticias, ${userName}...`, 
+    const waitingEmbed = createEmbed('#FF1493', `📰 Buscando noticias, ${userName}...`, 
         `Aguantá que te traigo lo último de Argentina y Ecuador al toque...`);
     let waitingMessage;
     if (!silent) waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
@@ -4653,7 +4662,7 @@ async function manejarNoticias(message, silent = false) {
         if (!apiKey) throw new Error('Falta la clave de Mediastack en el .env, loco.');
 
         const today = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Argentina/Buenos_Aires' });
-        console.log(`Fecha calculada: ${today}`);
+        const hora = new Date().toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Argentina/Buenos_Aires' });
 
         const fetchNews = async (country) => {
             let url = `http://api.mediastack.com/v1/news?access_key=${apiKey}&countries=${country}&languages=es&limit=5&date=${today}&sort=published_desc`;
@@ -4674,13 +4683,6 @@ async function manejarNoticias(message, silent = false) {
         const articlesAR = await fetchNews('ar');
         const articlesEC = await fetchNews('ec');
 
-        console.log('Respuesta AR:', JSON.stringify({ data: articlesAR }, null, 2));
-        console.log('Respuesta EC:', JSON.stringify({ data: articlesEC }, null, 2));
-
-        if (articlesAR.length === 0 && articlesEC.length === 0) {
-            throw new Error('No encontré noticias copadas de Argentina ni de Ecuador, qué cagada.');
-        }
-
         const formatNewsEmbed = (articles, country) => {
             if (articles.length === 0) return `No encontré noticias posta de ${country} hoy, loco.`;
             return articles.slice(0, 5).map((article, index) => 
@@ -4697,9 +4699,9 @@ async function manejarNoticias(message, silent = false) {
 
         const noticiasARTexto = formatNewsTexto(articlesAR, 'Argentina');
         const noticiasECTexto = formatNewsTexto(articlesEC, 'Ecuador');
-        const noticiasTexto = `📰 Últimas Noticias (${today})\nArgentina:\n${noticiasARTexto}\n\nEcuador:\n${noticiasECTexto}\nHecho con onda por Oliver IA•hoy a las ${new Date().toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Argentina/Buenos_Aires' })}`;
+        const noticiasTexto = `📰 Últimas Noticias (${today})\nArgentina:\n${noticiasARTexto}\n\nEcuador:\n${noticiasECTexto}\nHecho con onda por Oliver IA•hoy a las ${hora}`;
 
-        const embed = createEmbed('#FFD700', `📰 Últimas Noticias (${articlesAR.length > 0 || articlesEC.length > 0 ? today : 'Recientes'})`, 
+        const embed = createEmbed('#FF1493', `📰 Últimas Noticias (${articlesAR.length > 0 || articlesEC.length > 0 ? today : 'Recientes'})`, 
             `**Argentina:**\n${formatNewsEmbed(articlesAR, 'Argentina')}\n\n**Ecuador:**\n${formatNewsEmbed(articlesEC, 'Ecuador')}`);
 
         if (!silent && waitingMessage) await waitingMessage.edit({ embeds: [embed] });
@@ -4707,9 +4709,11 @@ async function manejarNoticias(message, silent = false) {
     } catch (error) {
         console.error(`Error en noticias: ${error.message}`);
         if (error.response) console.error(`Respuesta de la API: ${JSON.stringify(error.response.data)}`);
-        const errorEmbed = createEmbed('#FF5555', '¡Qué quilombo!', 
+        const today = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Argentina/Buenos_Aires' });
+        const hora = new Date().toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Argentina/Buenos_Aires' });
+        const errorEmbed = createEmbed('#FF1493', '¡Qué quilombo!', 
             `No pude traer noticias copadas, ${userName}. Error: ${error.message}. ¿Probamos de nuevo, loco?`);
-        const errorTexto = `📰 Últimas Noticias (${today})\nArgentina:\n- No encontré noticias copadas hoy, qué cagada.\nEcuador:\n- No encontré noticias copadas hoy, qué cagada.\nHecho con onda por Oliver IA•hoy a las ${new Date().toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Argentina/Buenos_Aires' })}`;
+        const errorTexto = `📰 Últimas Noticias (${today})\nArgentina:\n- No encontré noticias copadas hoy, qué cagada.\nEcuador:\n- No encontré noticias copadas hoy, qué cagada.\nHecho con onda por Oliver IA•hoy a las ${hora}`;
         
         if (!silent && waitingMessage) await waitingMessage.edit({ embeds: [errorEmbed] });
         return { embed: errorEmbed, description: errorTexto };
