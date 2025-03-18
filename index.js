@@ -32,6 +32,7 @@ const ALLOWED_USER_ID = '1023132788632862761'; // ID de un usuario permitido (Be
 const CHANNEL_ID = '1343749554905940058'; // ID del canal principal donde el bot interactúa.
 const API_URL = 'https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-2-1'; // URL de la API de Stable Diffusion para generar imágenes.
 const API_TOKEN = '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'; // Token de autenticación para la API de Hugging Face.
+const webhookUrl = 'https://api.telegram.org/bot7940800641:AAEohpWZHjmDfZvO1H0zOikqo9lYm1P07ZU/sendMessage'; // Tu token de Telegram
 
 // Configuración del administrador de música con Erela.js
 const manager = new Manager({
@@ -4586,105 +4587,38 @@ async function manejarClima(message, silent = false) {
         ? message.content.slice(6).trim() 
         : message.content.slice(3).trim();
 
-    if (!args) {
-        const errorEmbed = createEmbed('#FF5555', '¡Pará, loco!', 
-            `¡Decime una ciudad después de "!clima", ${userName}! Ejemplo: !clima Córdoba`);
-        if (!silent) await message.channel.send({ embeds: [errorEmbed] });
-        return errorEmbed;
-    }
-
-    const waitingEmbed = createEmbed('#FF1493', `⛅ Chequeando el clima, ${userName}...`, 
-        `Aguantá que veo cómo está "${args}"...`);
-    let waitingMessage;
-    if (!silent) waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
+    if (!args) return { description: 'No puse ciudad, loco.' };
 
     try {
         const apiKey = process.env.OPENWEATHER_API_KEY;
+        if (!apiKey) throw new Error('Falta la clave de OpenWeatherMap en el .env');
         const url = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(args)}&appid=${apiKey}&units=metric&lang=es`;
-        const response = await axios.get(url);
-        const data = response.data;
-
-        const temp = Math.round(data.main.temp);
-        const desc = data.weather[0].description;
-        const city = data.name;
-        const country = data.sys.country;
-        const vibe = temp > 25 ? "pa’l asado" : temp < 10 ? "pa’ un mate calentito" : "tranqui";
-
-        const embed = createEmbed('#FF1493', `⛅ Clima en ${city}, ${country}`, 
-            `${temp}°C, ${desc}, ${vibe}.`);
-        if (!silent && waitingMessage) await waitingMessage.edit({ embeds: [embed] });
-        return embed;
+        const response = await fetch(url);
+        const data = await response.json();
+        if (data.cod !== 200) throw new Error(data.message);
+        return { description: `${data.weather[0].description}, ${Math.round(data.main.temp)}°C` };
     } catch (error) {
         console.error(`Error en clima para "${args}": ${error.message}`);
-        const errorEmbed = createEmbed('#FF5555', '¡Qué cagada!', 
-            `No pude encontrar el clima de "${args}", ${userName}. ¿Seguro que existe esa ciudad, loco?`);
-        if (!silent && waitingMessage) await waitingMessage.edit({ embeds: [errorEmbed] });
-        return errorEmbed;
+        return { description: 'No pude traer el clima, che.' };
     }
 }
 
 async function manejarNoticias(message, silent = false) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
-
-    const waitingEmbed = createEmbed('#55FFFF', `📰 Buscando noticias, ${userName}...`, 
-        `Aguantá que te traigo lo último de Argentina y Ecuador al toque...`);
-    let waitingMessage;
-    if (!silent) waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
-
     try {
         const apiKey = process.env.MEDIASTACK_API_KEY;
-        if (!apiKey) throw new Error('Falta la clave de Mediastack en el .env, loco.');
-
-        const today = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Argentina/Buenos_Aires' });
-        console.log(`Fecha calculada: ${today}`);
-
-        const fetchNews = async (country) => {
-            let url = `http://api.mediastack.com/v1/news?access_key=${apiKey}&countries=${country}&languages=es&limit=5&date=${today}&sort=published_desc`;
-            console.log(`Pidiendo noticias de ${country} a: ${url}`);
-            let response = await axios.get(url);
-            let articles = response.data.data || [];
-
-            if (articles.length === 0) {
-                url = `http://api.mediastack.com/v1/news?access_key=${apiKey}&countries=${country}&languages=es&limit=5&sort=published_desc`;
-                console.log(`Sin noticias de hoy para ${country}, probando sin fecha: ${url}`);
-                response = await axios.get(url);
-                articles = response.data.data || [];
-            }
-
-            return articles;
-        };
-
-        const articlesAR = await fetchNews('ar');
-        const articlesEC = await fetchNews('ec');
-
-        console.log('Respuesta AR:', JSON.stringify({ data: articlesAR }, null, 2));
-        console.log('Respuesta EC:', JSON.stringify({ data: articlesEC }, null, 2));
-
-        if (articlesAR.length === 0 && articlesEC.length === 0) {
-            throw new Error('No encontré noticias copadas de Argentina ni de Ecuador, qué cagada.');
-        }
-
-        const formatNews = (articles, country) => {
-            if (articles.length === 0) return `No encontré noticias posta de ${country} hoy, loco.`;
-            return articles.slice(0, 5).map((article, index) => 
-                `${index + 1}. **${article.title}**\n${article.description ? article.description.slice(0, 150) + '...' : 'Sin descripción.'}\n*Fuente: ${article.source}*`
-            ).join('\n\n');
-        };
-
-        const noticiasAR = formatNews(articlesAR, 'Argentina');
-        const noticiasEC = formatNews(articlesEC, 'Ecuador');
-
-        const embed = createEmbed('#FFD700', `📰 Últimas Noticias (${articlesAR.length > 0 || articlesEC.length > 0 ? today : 'Recientes'})`, 
-            `**Argentina:**\n${noticiasAR}\n\n**Ecuador:**\n${noticiasEC}`);
-        if (!silent && waitingMessage) await waitingMessage.edit({ embeds: [embed] });
-        return embed;
+        if (!apiKey) throw new Error('Falta la clave de Mediastack en el .env');
+        const today = new Date().toISOString().split('T')[0];
+        const url = `http://api.mediastack.com/v1/news?access_key=${apiKey}&countries=ec,ar&languages=es&limit=1&date=${today}&sort=published_desc`;
+        const response = await fetch(url);
+        const data = await response.json();
+        const articles = data.data || [];
+        if (articles.length === 0) throw new Error('No hay noticias de hoy');
+        const article = articles[0];
+        return { description: `${article.title} - ${article.source}` };
     } catch (error) {
         console.error(`Error en noticias: ${error.message}`);
-        if (error.response) console.error(`Respuesta de la API: ${JSON.stringify(error.response.data)}`);
-        const errorEmbed = createEmbed('#FF5555', '¡Qué quilombo!', 
-            `No pude traer noticias copadas, ${userName}. Error: ${error.message}. ¿Probamos de nuevo, loco?`);
-        if (!silent && waitingMessage) await waitingMessage.edit({ embeds: [errorEmbed] });
-        return errorEmbed;
+        return { description: 'No hay noticias frescas ahora, loco.' };
     }
 }
 
@@ -5479,7 +5413,6 @@ client.on('messageCreate', async (message) => {
 
     const jefeRoleId = '1154946840454762496';
     const jefaRoleId = '1139744529428271187';
-
     const hasJefeMention = content.includes(`<@&${jefeRoleId}>`);
     const hasJefaMention = content.includes(`<@&${jefaRoleId}>`);
 
@@ -5489,9 +5422,6 @@ client.on('messageCreate', async (message) => {
         const userId = esJefe ? ALLOWED_USER_ID : OWNER_ID;
         const targetName = esJefe ? 'Belén' : 'Miguel';
         const canal = message.channel;
-
-        // Configuración común
-        const webhookUrl = process.env.WEBHOOK_URL || 'https://maker.ifttt.com/trigger/oliver_speak/with/key/TU_CLAVE_AQUI';
 
         if (content.includes('entered a su casa')) {
             console.log(`Procesando llegada de ${targetName}`);
@@ -5507,89 +5437,84 @@ client.on('messageCreate', async (message) => {
             let avisos = [];
             let pendientes = [];
 
-            if (recordatoriosPendientes.length > 0) {
-                recordatoriosPendientes.forEach(r => {
-                    if (!r.timestamp || ahora >= r.timestamp) {
-                        avisos.push(`- ${r.mensaje} ${r.timestamp ? `(a las ${new Date(r.timestamp).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })})` : ''}`);
-                    } else {
-                        pendientes.push(r);
-                    }
+            recordatoriosPendientes.forEach(r => {
+                if (!r.timestamp || ahora >= r.timestamp) {
+                    avisos.push(`- ${r.mensaje} ${r.timestamp ? `(a las ${new Date(r.timestamp).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })})` : ''}`);
+                } else {
+                    pendientes.push(r);
+                }
+            });
+            if (avisos.length > 0) {
+                dataStore.recordatorios = dataStore.recordatorios.filter(r => !r.cuandoLlegue || r.userId !== userId || pendientes.includes(r));
+            }
+
+            let clima = 'No pude traer el clima, che.';
+            let noticias = 'No hay noticias frescas ahora, loco.';
+            const climaResult = await manejarClima({ content: targetName === 'Belén' ? '!clima San Luis' : '!clima Guayaquil', channel: canal, author: { id: userId } }, true);
+            if (climaResult?.description) clima = climaResult.description;
+            console.log(`Clima obtenido para ${targetName}: ${clima}`);
+
+            const noticiasResult = await manejarNoticias({ content: '!noticias', channel: canal, author: { id: userId } }, true);
+            if (noticiasResult?.description) noticias = noticiasResult.description;
+            console.log(`Noticias obtenidas para ${targetName}: ${noticias}`);
+
+            let consejoClima = '';
+            if (clima.toLowerCase().includes('lluvia') || clima.toLowerCase().includes('tormenta')) {
+                consejoClima = 'Si salís otra vez, llevá paraguas o piloto, ¡que no te agarre la lluvia! ☔';
+            } else if (clima.toLowerCase().includes('frío') || clima.toLowerCase().includes('nublado')) {
+                consejoClima = 'Abrigate un toque si salís, ¡que está fresquito! 🧥';
+            } else if (clima.toLowerCase().includes('soleado') || clima.toLowerCase().includes('calor')) {
+                consejoClima = 'Si salís, llevate agua, ¡que está para chamuyar al sol! ☀️';
+            }
+
+            if (targetName === 'Belén') {
+                const hora = new Date().toLocaleTimeString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires', hour: '2-digit', minute: '2-digit' });
+                const recordatoriosText = avisos.length > 0 ? `Tenés estos recordatorios pa’ ahora, genia: ${avisos.join(', ')}. ¡No te olvides, eh! 📋` : 'No hay recordatorios pa’ cuando llegás, ¡a descansar tranqui! 😊';
+                const mensajeTTS = `¡Qué lindo, Belén, llegaste a casa, genia! Son las ${hora} en Argentina. 🏠 El clima en San Luis está así: ${clima}. 🌤️ ${consejoClima} ${recordatoriosText} El titular del día: ${noticias}. 📰 ¡Qué bueno tenerte de vuelta, grosa, ahora a relajarte como reina!`;
+                
+                const response = await fetch(webhookUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ chat_id: 'CHAT_ID_BELEN', text: mensajeTTS }) // Reemplazá con el chat ID de Belén
                 });
-                if (avisos.length > 0) {
-                    dataStore.recordatorios = dataStore.recordatorios.filter(r => !r.cuandoLlegue || r.userId !== userId || pendientes.includes(r));
-                    autoModified = true;
-                }
+                if (!response.ok) console.error(`Error Telegram Belén (llegada): ${response.statusText}`);
+                else console.log(`Enviado a Telegram para Belén (llegada)`);
+
+                const embed = createEmbed('#FF1493', `¡Bienvenida a casa, Belén! 🏠`, 
+                    `¡Qué lindo tenerte de vuelta, genia! Acá va todo lo importante`)
+                    .addFields(
+                        { name: '⏰ Hora en Argentina', value: hora, inline: true },
+                        { name: '🌤️ Clima en San Luis', value: `${clima}\n${consejoClima}`, inline: false },
+                        { name: '📋 Recordatorios', value: avisos.length > 0 ? avisos.join('\n') : 'Ninguno pa’ ahora, ¡a disfrutar!', inline: false },
+                        { name: '📰 Noticias', value: noticias, inline: false }
+                    )
+                    .setFooter({ text: 'Con cariño, Oliver IA' });
+                await canal.send({ embeds: [embed] });
+            } else if (targetName === 'Miguel') {
+                const hora = new Date().toLocaleTimeString('es-EC', { timeZone: 'America/Guayaquil', hour: '2-digit', minute: '2-digit' });
+                const recordatoriosText = avisos.length > 0 ? `Tenés estos recordatorios pa’ ahora, loco: ${avisos.join(', ')}. ¡No te cuelgues, eh! 📋` : 'No hay recordatorios pa’ cuando llegás, ¡a relajarse tranqui! 😎';
+                const mensajeTTS = `¡Grande, Miguel, ya estás en casa, capo! Son las ${hora} en Ecuador. 🏠 El clima en Guayaquil está así: ${clima}. 🌤️ ${consejoClima} ${recordatoriosText} El titular del día: ${noticias}. 📰 ¡A descansar como se merece el jefe, loco!`;
+                
+                const response = await fetch(webhookUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ chat_id: '5965566827', text: mensajeTTS }) // Tu chat ID
+                });
+                if (!response.ok) console.error(`Error Telegram Miguel (llegada): ${response.statusText}`);
+                else console.log(`Enviado a Telegram para Miguel (llegada)`);
+
+                const embed = createEmbed('#FF1493', `¡Bienvenido a casa, Miguel! 🏠`, 
+                    `¡Grande, capo! Acá tenés todo lo que necesitás saber`)
+                    .addFields(
+                        { name: '⏰ Hora en Ecuador', value: hora, inline: true },
+                        { name: '🌤️ Clima en Guayaquil', value: `${clima}\n${consejoClima}`, inline: false },
+                        { name: '📋 Recordatorios', value: avisos.length > 0 ? avisos.join('\n') : 'Ninguno pa’ ahora, ¡a descansar!', inline: false },
+                        { name: '📰 Noticias', value: noticias, inline: false }
+                    )
+                    .setFooter({ text: 'Con onda, Oliver IA' });
+                await canal.send({ embeds: [embed] });
             }
-
-            try {
-                let clima = 'No pude traer el clima, che.';
-                let noticias = 'No hay noticias frescas ahora, loco.';
-                const climaResult = await manejarCommand({ content: targetName === 'Belén' ? '!clima San Luis' : '!clima Guayaquil', channel: canal, author: { id: userId } }, true);
-                if (climaResult?.description) clima = climaResult.description;
-                console.log(`Clima obtenido para ${targetName}: ${clima}`);
-
-                const noticiasResult = await manejarCommand({ content: '!noticias', channel: canal, author: { id: userId } }, true);
-                if (noticiasResult?.description) noticias = noticiasResult.description.split('\n\n')[0] || noticias; // Solo el primer titular
-                console.log(`Noticias obtenidas para ${targetName}: ${noticias}`);
-
-                let consejoClima = '';
-                if (clima.toLowerCase().includes('lluvia') || clima.toLowerCase().includes('tormenta')) {
-                    consejoClima = 'Si salís otra vez, llevá paraguas o piloto, ¡que no te agarre la lluvia! ☔';
-                } else if (clima.toLowerCase().includes('frío') || clima.toLowerCase().includes('nublado')) {
-                    consejoClima = 'Abrigate un toque si salís, ¡que está fresquito! 🧥';
-                } else if (clima.toLowerCase().includes('soleado') || clima.toLowerCase().includes('calor')) {
-                    consejoClima = 'Si salís, llevate agua, ¡que está para chamuyar al sol! ☀️';
-                }
-
-                if (targetName === 'Belén') {
-                    const hora = new Date().toLocaleTimeString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires', hour: '2-digit', minute: '2-digit' });
-                    const recordatoriosText = avisos.length > 0 ? `Tenés estos recordatorios pa’ ahora, genia: ${avisos.join(', ')}. ¡No te olvides, eh! 📋` : 'No hay recordatorios pa’ cuando llegás, ¡a descansar tranqui! 😊';
-                    const mensajeTTS = `¡Qué lindo, Belén, llegaste a casa, genia! Son las ${hora} en Argentina. 🏠 El clima en San Luis está así: ${clima}. 🌤️ ${consejoClima} ${recordatoriosText} El titular del día: ${noticias}. 📰 ¡Qué bueno tenerte de vuelta, grosa, ahora a relajarte como reina!`;
-                    
-                    await fetch(webhookUrl, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ text: mensajeTTS })
-                    });
-                    console.log(`Mensaje TTS enviado al webhook para Belén (llegada)`);
-
-                    const embed = createEmbed('#FF1493', `¡Bienvenida a casa, Belén! 🏠`, 
-                        `¡Qué lindo tenerte de vuelta, genia! Acá va todo lo importante`)
-                        .addFields(
-                            { name: '⏰ Hora en Argentina', value: hora, inline: true },
-                            { name: '🌤️ Clima en San Luis', value: `${clima}\n${consejoClima}`, inline: false },
-                            { name: '📋 Recordatorios', value: avisos.length > 0 ? avisos.join('\n') : 'Ninguno pa’ ahora, ¡a disfrutar!', inline: false },
-                            { name: '📰 Noticias', value: noticias, inline: false }
-                        )
-                        .setFooter({ text: 'Con cariño, Oliver IA' });
-                    await canal.send({ embeds: [embed] });
-                } else if (targetName === 'Miguel') {
-                    const hora = new Date().toLocaleTimeString('es-EC', { timeZone: 'America/Guayaquil', hour: '2-digit', minute: '2-digit' });
-                    const recordatoriosText = avisos.length > 0 ? `Tenés estos recordatorios pa’ ahora, loco: ${avisos.join(', ')}. ¡No te cuelgues, eh! 📋` : 'No hay recordatorios pa’ cuando llegás, ¡a relajarse tranqui! 😎';
-                    const mensajeTTS = `¡Grande, Miguel, ya estás en casa, capo! Son las ${hora} en Ecuador. 🏠 El clima en Guayaquil está así: ${clima}. 🌤️ ${consejoClima} ${recordatoriosText} El titular del día: ${noticias}. 📰 ¡A descansar como se merece el jefe, loco!`;
-                    
-                    await fetch(webhookUrl, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ text: mensajeTTS })
-                    });
-                    console.log(`Mensaje TTS enviado al webhook para Miguel (llegada)`);
-
-                    const embed = createEmbed('#FF1493', `¡Bienvenido a casa, Miguel! 🏠`, 
-                        `¡Grande, capo! Acá tenés todo lo que necesitás saber`)
-                        .addFields(
-                            { name: '⏰ Hora en Ecuador', value: hora, inline: true },
-                            { name: '🌤️ Clima en Guayaquil', value: `${clima}\n${consejoClima}`, inline: false },
-                            { name: '📋 Recordatorios', value: avisos.length > 0 ? avisos.join('\n') : 'Ninguno pa’ ahora, ¡a descansar!', inline: false },
-                            { name: '📰 Noticias', value: noticias, inline: false }
-                        )
-                        .setFooter({ text: 'Con onda, Oliver IA' });
-                    await canal.send({ embeds: [embed] });
-                }
-                console.log(`TTS y embed procesados para llegada de ${targetName}`);
-            } catch (error) {
-                console.error(`Error procesando llegada de ${targetName}: ${error.message}`);
-            }
+            console.log(`TTS y embed procesados para llegada de ${targetName}`);
             return;
         }
 
@@ -5602,80 +5527,78 @@ client.on('messageCreate', async (message) => {
                 console.error(`No pude borrar el mensaje de IFTTT: ${error.message}`);
             }
 
-            try {
-                // Obtener el clima
-                let clima = 'No pude traer el clima, che.';
-                const climaResult = await manejarCommand({ content: targetName === 'Belén' ? '!clima San Luis' : '!clima Guayaquil', channel: canal, author: { id: userId } }, true);
-                if (climaResult?.description) clima = climaResult.description;
-                console.log(`Clima obtenido para salida de ${targetName}: ${clima}`);
+            let clima = 'No pude traer el clima, che.';
+            const climaResult = await manejarClima({ content: targetName === 'Belén' ? '!clima San Luis' : '!clima Guayaquil', channel: canal, author: { id: userId } }, true);
+            if (climaResult?.description) clima = climaResult.description;
+            console.log(`Clima obtenido para salida de ${targetName}: ${clima}`);
 
-                // Recordatorios del día
-                const hoy = new Date();
-                hoy.setHours(0, 0, 0, 0); // Inicio del día
-                const manana = new Date(hoy);
-                manana.setDate(hoy.getDate() + 1); // Fin del día
-                const recordatoriosHoy = dataStore.recordatorios.filter(r => 
-                    r.userId === userId && r.timestamp && r.timestamp >= hoy.getTime() && r.timestamp < manana.getTime()
-                );
+            const hoy = new Date();
+            hoy.setHours(0, 0, 0, 0);
+            const manana = new Date(hoy);
+            manana.setDate(hoy.getDate() + 1);
+            const recordatoriosHoy = dataStore.recordatorios.filter(r => 
+                r.userId === userId && r.timestamp && r.timestamp >= hoy.getTime() && r.timestamp < manana.getTime()
+            );
+
+            let consejoClima = '';
+            if (clima.toLowerCase().includes('lluvia') || clima.toLowerCase().includes('tormenta')) {
+                consejoClima = 'Llevá paraguas o piloto, ¡que no te agarre la lluvia, loco! ☔';
+            } else if (clima.toLowerCase().includes('frío') || clima.toLowerCase().includes('nublado')) {
+                consejoClima = 'Abrigate un toque, ¡que está fresquito pa’ salir! 🧥';
+            } else if (clima.toLowerCase().includes('soleado') || clima.toLowerCase().includes('calor')) {
+                consejoClima = 'Llevate agua o un gorrito, ¡que el sol está a full! ☀️';
+            }
+
+            if (targetName === 'Miguel') {
+                const hora = new Date().toLocaleTimeString('es-EC', { timeZone: 'America/Guayaquil', hour: '2-digit', minute: '2-digit' });
+                const recordatoriosText = recordatoriosHoy.length > 0 
+                    ? `Tus recordatorios pa’ hoy son: ${recordatoriosHoy.map(r => `${r.mensaje} a las ${new Date(r.timestamp).toLocaleTimeString('es-EC', { hour: '2-digit', minute: '2-digit' })}`).join(', ')}. ¡No te cuelgues, eh! 📋`
+                    : 'No tenés recordatorios pa’ hoy, ¡a romperla sin presiones!';
+                const mensajeTTS = `¡Ojo, Miguel, saliste de casa, capo! Son las ${hora} en Ecuador. 🚪 En Guayaquil está así: ${clima}. 🌤️ ${consejoClima} ${recordatoriosText} ¡A meterle pilas, loco, que el día es tuyo! 🚀`;
+                
+                const response = await fetch(webhookUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ chat_id: '5965566827', text: mensajeTTS })
+                });
+                if (!response.ok) console.error(`Error Telegram Miguel (salida): ${response.statusText}`);
+                else console.log(`Enviado a Telegram para Miguel (salida)`);
+
+                const embed = createEmbed('#FF1493', `¡A la calle, Miguel! 🚪`, 
+                    `¡Grande, capo! Saliste a comerte el mundo`)
+                    .addFields(
+                        { name: '⏰ Hora en Ecuador', value: hora, inline: true },
+                        { name: '🌤️ Clima en Guayaquil', value: `${clima}\n${consejoClima}`, inline: false },
+                        { name: '📋 Recordatorios de hoy', value: recordatoriosHoy.length > 0 ? recordatoriosHoy.map(r => `${r.mensaje} (${new Date(r.timestamp).toLocaleTimeString('es-EC', { hour: '2-digit', minute: '2-digit' })})`).join('\n') : 'Ninguno, ¡a full sin drama!', inline: false }
+                    )
+                    .setFooter({ text: 'Con onda, Oliver IA' });
+                await canal.send({ embeds: [embed] });
+            } else if (targetName === 'Belén') {
+                const hora = new Date().toLocaleTimeString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires', hour: '2-digit', minute: '2-digit' });
                 const recordatoriosText = recordatoriosHoy.length > 0 
                     ? `Tus recordatorios pa’ hoy son: ${recordatoriosHoy.map(r => `${r.mensaje} a las ${new Date(r.timestamp).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })}`).join(', ')}. ¡No te cuelgues, eh! 📋`
-                    : 'No tenés recordatorios pa’ hoy, ¡a romperla sin presiones!';
+                    : 'No tenés recordatorios pa’ hoy, ¡a brillar sin presiones!';
+                const mensajeTTS = `¡Atenti, Belén, saliste de casa, genia! Son las ${hora} en Argentina. 🚪 En San Luis está así: ${clima}. 🌤️ ${consejoClima} ${recordatoriosText} ¡A brillar, grosa, que el día te espera! 🌸`;
+                
+                const response = await fetch(webhookUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ chat_id: 'CHAT_ID_BELEN', text: mensajeTTS })
+                });
+                if (!response.ok) console.error(`Error Telegram Belén (salida): ${response.statusText}`);
+                else console.log(`Enviado a Telegram para Belén (salida)`);
 
-                // Consejo según el clima
-                let consejoClima = '';
-                if (clima.toLowerCase().includes('lluvia') || clima.toLowerCase().includes('tormenta')) {
-                    consejoClima = 'Llevá paraguas o piloto, ¡que no te agarre la lluvia, loco! ☔';
-                } else if (clima.toLowerCase().includes('frío') || clima.toLowerCase().includes('nublado')) {
-                    consejoClima = 'Abrigate un toque, ¡que está fresquito pa’ salir! 🧥';
-                } else if (clima.toLowerCase().includes('soleado') || clima.toLowerCase().includes('calor')) {
-                    consejoClima = 'Llevate agua o un gorrito, ¡que el sol está a full! ☀️';
-                }
-
-                if (targetName === 'Miguel') {
-                    const hora = new Date().toLocaleTimeString('es-EC', { timeZone: 'America/Guayaquil', hour: '2-digit', minute: '2-digit' });
-                    const mensajeTTS = `¡Ojo, Miguel, saliste de casa, capo! Son las ${hora} en Ecuador. 🚪 En Guayaquil está así: ${clima}. 🌤️ ${consejoClima} ${recordatoriosText} ¡A meterle pilas, loco, que el día es tuyo! 🚀`;
-                    
-                    await fetch(webhookUrl, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ text: mensajeTTS })
-                    });
-                    console.log(`Mensaje TTS enviado al webhook para Miguel (salida)`);
-
-                    const embed = createEmbed('#FF1493', `¡A la calle, Miguel! 🚪`, 
-                        `¡Grande, capo! Saliste a comerte el mundo`)
-                        .addFields(
-                            { name: '⏰ Hora en Ecuador', value: hora, inline: true },
-                            { name: '🌤️ Clima en Guayaquil', value: `${clima}\n${consejoClima}`, inline: false },
-                            { name: '📋 Recordatorios de hoy', value: recordatoriosHoy.length > 0 ? recordatoriosHoy.map(r => `${r.mensaje} (${new Date(r.timestamp).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })})`).join('\n') : 'Ninguno, ¡a full sin drama!', inline: false }
-                        )
-                        .setFooter({ text: 'Con onda, Oliver IA' });
-                    await canal.send({ embeds: [embed] });
-                } else if (targetName === 'Belén') {
-                    const hora = new Date().toLocaleTimeString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires', hour: '2-digit', minute: '2-digit' });
-                    const mensajeTTS = `¡Atenti, Belén, saliste de casa, genia! Son las ${hora} en Argentina. 🚪 En San Luis está así: ${clima}. 🌤️ ${consejoClima} ${recordatoriosText} ¡A brillar, grosa, que el día te espera! 🌸`;
-                    
-                    await fetch(webhookUrl, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ text: mensajeTTS })
-                    });
-                    console.log(`Mensaje TTS enviado al webhook para Belén (salida)`);
-
-                    const embed = createEmbed('#FF1493', `¡A la calle, Belén! 🚪`, 
-                        `¡Ey, genia! Saliste a romperla toda`)
-                        .addFields(
-                            { name: '⏰ Hora en Argentina', value: hora, inline: true },
-                            { name: '🌤️ Clima en San Luis', value: `${clima}\n${consejoClima}`, inline: false },
-                            { name: '📋 Recordatorios de hoy', value: recordatoriosHoy.length > 0 ? recordatoriosHoy.map(r => `${r.mensaje} (${new Date(r.timestamp).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })})`).join('\n') : 'Ninguno, ¡a disfrutar tranqui!', inline: false }
-                        )
-                        .setFooter({ text: 'Con cariño, Oliver IA' });
-                    await canal.send({ embeds: [embed] });
-                }
-                console.log(`TTS y embed procesados para salida de ${targetName}`);
-            } catch (error) {
-                console.error(`Error procesando salida de ${targetName}: ${error.message}`);
+                const embed = createEmbed('#FF1493', `¡A la calle, Belén! 🚪`, 
+                    `¡Ey, genia! Saliste a romperla toda`)
+                    .addFields(
+                        { name: '⏰ Hora en Argentina', value: hora, inline: true },
+                        { name: '🌤️ Clima en San Luis', value: `${clima}\n${consejoClima}`, inline: false },
+                        { name: '📋 Recordatorios de hoy', value: recordatoriosHoy.length > 0 ? recordatoriosHoy.map(r => `${r.mensaje} (${new Date(r.timestamp).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })})`).join('\n') : 'Ninguno, ¡a disfrutar tranqui!', inline: false }
+                    )
+                    .setFooter({ text: 'Con cariño, Oliver IA' });
+                await canal.send({ embeds: [embed] });
             }
+            console.log(`TTS y embed procesados para salida de ${targetName}`);
             return;
         }
     }
