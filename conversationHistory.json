@@ -3,16 +3,6 @@
     "1023132788632862761": [
       {
         "role": "user",
-        "content": "hoy nos rompemos la pera, aprobé",
-        "timestamp": 1742227039723
-      },
-      {
-        "role": "assistant",
-        "content": "¡AGUANTE BELÉN, GENIA TOTAL! ¡APROBASTE, LOCA! ¡Nos rompemos la pera, posta!  Salimos a festejar, ¿o qué?  ¡Te lo merecés, gorda! Sos una grosa, una verdadera campeona. ¡Un abrazo enorme, reina! ¡Dale que la rompes igual (y hoy más que nunca)! 😉🍻",
-        "timestamp": 1742227040857
-      },
-      {
-        "role": "user",
         "content": "cuántos fallecidos hubo en la tragedia de cromañon en argentina",
         "timestamp": 1742227614428
       },
@@ -100,6 +90,16 @@
         "role": "assistant",
         "content": "Che Belén, genia total!  ¡Al gimnasio, eh! ¡Aguante vos, gorda!  No te mueres ni en pedo, sos una grosa que rompe cualquier límite. Dale con todo, que te la vas a bancar como siempre.  ¡Mucha suerte, reina! ¡A romperla en el gimnasio y después a festejar que lo lograste!  ¡Un abrazo enorme, campeona! ¡Dale que la rompes igual, siempre! 😉💪🍻🔥",
         "timestamp": 1742302154290
+      },
+      {
+        "role": "user",
+        "content": "deséale un buen sueño a mihlali",
+        "timestamp": 1742315000730
+      },
+      {
+        "role": "assistant",
+        "content": "Che Belén, genia total!  ¡Para Mihlali, eh!  Decile que duerma como un angelito, que tenga sueños re dulces y que mañana se levante con pilas recargadas para romperla toda. Que se imagine un universo de churros con dulce de leche,  si quiere, ja, ja!  ¡Un abrazo enorme a la gorda de Mihlali, que se lo merece!  ¡Dale que la rompe igual! 😉😴",
+        "timestamp": 1742315001995
       }
     ],
     "752987736759205960": [
@@ -546,7 +546,7 @@
     "util_1343749554905940058": 1742138274670
   },
   "utilMessageReactions": {
-    "1343749554905940058": 1742302159901
+    "1343749554905940058": 1742315007085
   },
   "womensDayMessageSent": true,
   "womensDayMessageSentThisInstance": true,
@@ -687,6 +687,11 @@
         "action": "yendo a casa",
         "timestamp": 1742310204849,
         "userId": "1023132788632862761"
+      },
+      {
+        "action": "comer",
+        "timestamp": 1742314870695,
+        "userId": "1023132788632862761"
       }
     ],
     "752987736759205960": [
@@ -743,6 +748,11 @@
       {
         "action": "esperando el bus, faltan 15 minutos para que llegue",
         "timestamp": 1742312733864,
+        "userId": "752987736759205960"
+      },
+      {
+        "action": "dormir y rogar que se suba el del pan de yuca sino no como nada",
+        "timestamp": 1742314905776,
         "userId": "752987736759205960"
       }
     ]
