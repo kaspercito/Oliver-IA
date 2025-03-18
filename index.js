@@ -5225,7 +5225,6 @@ async function manejarJugar(message) {
     });
 }
 
-// Comandos
 async function manejarCommand(message, silent = false) {
     // Acá manejo todos los comandos, el cerebro del bot
     const content = message.content.toLowerCase();
@@ -5300,20 +5299,25 @@ async function manejarCommand(message, silent = false) {
     else if (content.startsWith('!traduci')) {
         console.log(`Enviando a manejarTraduci: "${message.content}"`);
         await manejarTraduci(message);
+        return;
     }
     else if (content === '!watchtogether' || content === '!wt') {
         await manejarWatchTogether(message);
+        return;
     }
     // Nuevo comando !accion
     else if (content.startsWith('!accion')) {
         await manejarAccion(message);
+        return;
     }
     else if (content === '!misacciones' || content === '!ma') {
         await manejarMisAcciones(message);
+        return;
     }
     // Resto de comandos en orden
     else if (content === '!trivia' || content === '!tc') {
         await manejarTrivia(message);
+        return;
     } 
     else if (content === '!meme') {
         const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
@@ -5368,12 +5372,15 @@ async function manejarCommand(message, silent = false) {
                 `No pude traer un meme, loco. Algo falló: ${error.message}. ¿Probamos de nuevo, dale?`);
             await message.channel.send({ embeds: [errorEmbed] });
         }
+        return;
     }
     else if (content === '!milagros') {
         await manejarMilagros(message);
+        return;
     } 
     else if (content.startsWith('!jugar')) {
         await manejarJugar(message);
+        return;
     }
     else if (content === '!pregunta' || content === '!pr') {
         const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
@@ -5386,9 +5393,11 @@ async function manejarCommand(message, silent = false) {
         const preguntaEmbed = createEmbed('#FF1493', `¡Pregunta pa’ vos, ${userName}!`, 
             `${pregunta} ¡Contame, loco, qué pensás!`);
         await message.channel.send({ embeds: [preguntaEmbed] });
+        return;
     }
     else if (content.startsWith('!avatar') || content.startsWith('!av')) {
         await manejarAvatar(message);
+        return;
     }
     else if (content.startsWith('!ppt')) {
         if (message.mentions.users.size > 0) {
@@ -5396,32 +5405,41 @@ async function manejarCommand(message, silent = false) {
         } else {
             await manejarPPTBot(message);
         }
+        return;
     }
     else if (content.startsWith('!recordatorio') || content.startsWith('!rec')) {
         await manejarRecordatorio(message);
+        return;
     }
     else if (content === '!misrecordatorios' || content === '!mr') {
         await manejarMisRecordatorios(message);
+        return;
     }  
     else if (content.startsWith('!cancelarrecordatorio') || content.startsWith('!cr')) {
         await manejarCancelarRecordatorio(message);
+        return;
     } 
     else if (content.startsWith('!reacciones') || content.startsWith('!re')) {
         await manejarReacciones(message);
+        return;
     } 
     else if (content.startsWith('!chat') || content.startsWith('!ch')) {
         await manejarChat(message);
+        return;
     } 
     else if (content === '!ppm' || content === '!pp') {
         await manejarPPM(message);
+        return;
     } 
     else if (content === '!actualizaciones' || content === '!act') {
         await manejarActualizaciones(message);
+        return;
     } 
     else if (content === '!luz') {
         const mensaje = mensajesAnimo[Math.floor(Math.random() * mensajesAnimo.length)];
         const embed = createEmbed('#FFAA00', `¡Ánimo, ${userName}!`, mensaje);
         await message.channel.send({ embeds: [embed] });
+        return;
     } 
     else if (content === '!save') {
         try {
@@ -5435,66 +5453,85 @@ async function manejarCommand(message, silent = false) {
         } catch (error) {
             await sendError(message.channel, '💾 Error al guardar', `No pude guardar los datos, ${userName}. Error: ${error.message}`);
         }
+        return;
     } 
     else if (content.startsWith('!sugerencias') || content.startsWith('!su')) {
         await manejarSugerencias(message);
+        return;
     } 
     else if (content.startsWith('!ayuda') || content.startsWith('!ay')) {
         await manejarAyuda(message);
+        return;
     } 
     else if (content === '!rankingppm' || content === '!rppm') {
         await manejarRankingPPM(message);
+        return;
     } 
     else if (content.startsWith('!play') || content.startsWith('!pl')) {
         await manejarPlay(message);
         isPlayingMusic = true;
         autosavePausedByMusic = true;
         console.log('Música arrancó, autosave pausado.');
+        return;
     } 
     else if (content === '!pause' || content === '!pa') {
         await manejarPause(message);
+        return;
     } 
     else if (content === '!skip' || content === '!sk') {
         await manejarSkip(message);
+        return;
     } 
     else if (content === '!shuffle' || content === '!sh') {
         await manejarShuffle(message);
+        return;
     }
     else if (content === '!stop' || content === '!st') {
         await manejarStop(message);
         isPlayingMusic = false;
         autosavePausedByMusic = false;
         console.log('Música parada, autosave reanudado.');
+        return;
     } 
     else if (content === '!queue' || content === '!qu') {
         await manejarQueue(message);
+        return;
     } 
     else if (content === '!repeat' || content === '!rp') {
         await manejarRepeat(message);
+        return;
     } 
     else if (content === '!back' || content === '!bk') {
         await manejarBack(message);
+        return;
     } 
     else if (content === '!autoplay' || content === '!ap') {
         await manejarAutoplay(message);
+        return;
     } 
     else if (content === '!autosave' || content === '!as') {
         await manejarAutosave(message);
+        return;
     } 
     else if (content === '!lyrics' || content === '!ly') {
         await manejarLyrics(message);
+        return;
     } 
     else if (content === '!adivinanzas' || content === '!ad') {
         await manejarAdivinanza(message);
+        return;
     } 
     else if (content.startsWith('!responder') || content.startsWith('!resp')) {
         await manejarResponder(message);
+        return;
     }
     else if (content.startsWith('!idea') || content.startsWith('!id')) {
         await manejarIdea(message);
+        return;
     }    
     else if (content.startsWith('!dato') || content.startsWith('!dt')) {
         await manejarDato(message);
+        return;
     } 
     else if (content.startsWith('!clima')) {
         return await manejarClima(message, silent);
@@ -5504,22 +5541,30 @@ async function manejarCommand(message, silent = false) {
     }
     else if (content.startsWith('!wiki')) {
         await manejarWiki(message);
+        return;
     }
     else if (content.startsWith('!imagen') || content.startsWith('!im')) {
         await manejarImagen(message);
+        return;
     }
     else if (content === '!misimagenes') {
         await manejarMisImagenes(message);
+        return;
     }
     else if (content.startsWith('!editarimagen') || content.startsWith('!ei')) {
         await manejarEditarImagen(message);
+        return;
     }
     else if (content.startsWith('!ansiedad') || content.startsWith('!an')) {
         await manejarAnsiedad(message);
+        return;
     }
     else if (content === '!lenguajes') {
         await listarIdiomas(message);
+        return;
     }
+    // Si no matchea ningún comando, no hacemos nada más
+    return;
 }
 
 
@@ -5531,6 +5576,11 @@ client.on('messageCreate', async (message) => {
         return;
     }
 
+    // Chequeo de mensajes procesados para evitar duplicados
+    if (processedMessages.has(message.id)) return;
+    processedMessages.set(message.id, Date.now());
+    setTimeout(() => processedMessages.delete(message.id), 10000);
+
     const userName = message.author.id === OWNER_ID ? 'Miguel' : (message.author.id === ALLOWED_USER_ID ? 'Belén' : 'Un desconocido');
     const content = message.content.trim().toLowerCase();
     console.log(`Contenido limpio: ${content}`);
@@ -5539,15 +5589,6 @@ client.on('messageCreate', async (message) => {
     const jefaRoleId = '1139744529428271187';
     const hasJefeMention = content.includes(`<@&${jefeRoleId}>`);
     const hasJefaMention = content.includes(`<@&${jefaRoleId}>`);
-
-    // Comando independiente !clima y !noticias
-    if (!hasJefeMention && !hasJefaMention && !message.author.bot) {
-        const result = await manejarCommand(message);
-        if (!result.silent && result.embed) {
-            await message.channel.send({ embeds: [result.embed] });
-        }
-        return;
-    }
 
     if (hasJefeMention || hasJefaMention) {
         console.log(`Detectado mensaje IFTTT con mención: ${content}`);
@@ -5743,8 +5784,12 @@ client.on('messageCreate', async (message) => {
             console.log(`TTS y embed procesados para salida de ${targetName}`);
             return;
         }
+        return; // Evitamos procesar más si es un mensaje IFTTT
     }
-    if (message.author.bot) return;
+
+    // Procesamos el comando solo una vez a través de manejarCommand
+    if (message.author.id !== OWNER_ID && message.author.id !== ALLOWED_USER_ID) return;
+    await manejarCommand(message);
 
     const lettersOnly = message.content.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ]/g, '');
     if (lettersOnly.length > 5 && (message.author.id === OWNER_ID || message.author.id === ALLOWED_USER_ID)) {
