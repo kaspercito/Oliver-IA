@@ -2112,9 +2112,6 @@ function cleanText(text) {
         .replace(/^(el|la|los|las)\s+/i, ''); // Chau artículos pa’ comparar mejor
 }
 
-const { MessageEmbed } = require('discord.js');
-const axios = require('axios');
-
 // Mapa de banderas por país
 const banderas = {
   'Paraguay': '🇵🇾',
