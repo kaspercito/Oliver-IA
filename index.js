@@ -3272,13 +3272,13 @@ function parsearTiempo(texto, userId) {
     const aLas = texto.match(/a las (\d{1,2}):(\d{2})/i);
 
     if (enMinutos) {
-        fechaObjetivo.setMinutes(ahoraLocal.getMinutes() + parseInt(enMinutos[1]));
+        fechaObjetivo.setMinutes(fechaObjetivo.getMinutes() + parseInt(enMinutos[1]));
     } else if (enHoras) {
-        fechaObjetivo.setHours(ahoraLocal.getHours() + parseInt(enHoras[1]));
+        fechaObjetivo.setHours(fechaObjetivo.getHours() + parseInt(enHoras[1]));
     } else if (enDias) {
-        fechaObjetivo.setDate(ahoraLocal.getDate() + parseInt(enDias[1]));
+        fechaObjetivo.setDate(fechaObjetivo.getDate() + parseInt(enDias[1]));
     } else if (mañana) {
-        fechaObjetivo.setDate(ahoraLocal.getDate() + 1);
+        fechaObjetivo.setDate(fechaObjetivo.getDate() + 1);
         fechaObjetivo.setHours(parseInt(mañana[1]), parseInt(mañana[2]), 0, 0);
     } else if (fechaEspecifica) {
         const dia = parseInt(fechaEspecifica[1]);
@@ -3292,21 +3292,23 @@ function parsearTiempo(texto, userId) {
         const minutos = parseInt(todosLosDias[2]);
         fechaObjetivo.setHours(hora, minutos, 0, 0);
         if (fechaObjetivo.getTime() <= ahoraLocal.getTime()) {
-            fechaObjetivo.setDate(ahoraLocal.getDate() + 1);
+            fechaObjetivo.setDate(fechaObjetivo.getDate() + 1);
         }
     } else if (aLas) {
         const hora = parseInt(aLas[1]);
         const minutos = parseInt(aLas[2]);
         fechaObjetivo.setHours(hora, minutos, 0, 0);
         if (fechaObjetivo.getTime() <= ahoraLocal.getTime()) {
-            fechaObjetivo.setDate(ahoraLocal.getDate() + 1);
+            fechaObjetivo.setDate(fechaObjetivo.getDate() + 1);
         }
     } else {
         return null;
     }
 
+    // Aseguramos que el timestamp sea válido y mayor a ahora
+    const timestamp = fechaObjetivo.getTime();
     return {
-        timestamp: fechaObjetivo.getTime() > ahoraLocal.getTime() ? fechaObjetivo.getTime() : null,
+        timestamp: timestamp > ahoraLocal.getTime() ? timestamp : null,
         esRecurrente: esRecurrente,
         hora: esRecurrente ? fechaObjetivo.getHours() : null,
         minutos: esRecurrente ? fechaObjetivo.getMinutes() : null
@@ -3413,11 +3415,14 @@ async function manejarRecordatorio(message) {
         }
     }
 
+    const fechaFormateada = recordatorio.timestamp 
+        ? new Date(recordatorio.timestamp).toLocaleString('es-AR', { timeZone: zonaHoraria, day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' })
+        : 'cuando llegues a casa';
     const textoRespuesta = esCuandoLlegue 
         ? recordatorio.timestamp 
             ? `Te aviso "${mensaje}" cuando llegues a casa después de las ${new Date(recordatorio.timestamp).toLocaleTimeString('es-AR', { timeZone: zonaHoraria, hour: '2-digit', minute: '2-digit' })}, ${userName}. ¡Copado!`
             : `Te aviso "${mensaje}" cuando llegues a casa, ${userName}. ¡Copado! (Sin hora específica, te aviso apenas llegues).`
-        : `Te aviso "${mensaje}" ${new Date(recordatorio.timestamp).toLocaleString('es-AR', { timeZone: zonaHoraria })}, ${userName}.`;
+        : `Te aviso "${mensaje}" ${fechaFormateada}, ${userName}.`;
     await sendSuccess(message.channel, '⏰ ¡Recordatorio seteado!', `${textoRespuesta}${guardadoMsg}`);
 
     if (recordatorio.timestamp && !esCuandoLlegue) programarRecordatorio(recordatorio);
@@ -4583,12 +4588,25 @@ const randomFacts = [
     }
 }
 
+// Mapa para evitar ejecuciones duplicadas (debounce)
+const commandCooldown = new Map();
+
 async function manejarClima(message, silent = false) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
     const args = message.content.toLowerCase().startsWith('!clima') 
         ? message.content.slice(6).trim() 
         : message.content.slice(3).trim();
     const ciudad = args || (userName === 'Belén' ? 'San Luis' : 'Guayaquil');
+
+    // Debounce: evitar que el comando se ejecute dos veces en menos de 2 segundos
+    const commandKey = `${message.author.id}-clima`;
+    const lastCommandTime = commandCooldown.get(commandKey);
+    const now = Date.now();
+    if (lastCommandTime && now - lastCommandTime < 2000) {
+        console.log(`Comando !clima bloqueado por debounce para ${userName}`);
+        return;
+    }
+    commandCooldown.set(commandKey, now);
 
     if (!args && !silent) {
         const errorEmbed = createEmbed('#FF5555', '¡Pará, loco!', 
@@ -4604,7 +4622,6 @@ async function manejarClima(message, silent = false) {
 
     try {
         const apiKey = process.env.OPENWEATHER_API_KEY;
-        // No forzamos el país, dejamos que OpenWeather lo determine
         const url = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(ciudad)}&appid=${apiKey}&units=metric&lang=es`;
         const response = await axios.get(url);
         const data = response.data;
@@ -4612,19 +4629,16 @@ async function manejarClima(message, silent = false) {
         const temp = Math.round(data.main.temp);
         const desc = data.weather[0].description;
         const city = data.name;
-        const countryCode = data.sys.country; // Código del país devuelto por la API
-        // Traducimos el código del país a un nombre legible
+        const countryCode = data.sys.country;
         const countryMap = {
             'AR': 'Argentina',
             'EC': 'Ecuador',
             'US': 'Estados Unidos',
             'BR': 'Brasil',
             'CO': 'Colombia',
-            // Agrega más países si es necesario
         };
-        const country = countryMap[countryCode] || countryCode; // Si no está mapeado, usamos el código
+        const country = countryMap[countryCode] || countryCode;
         const vibe = temp > 25 ? "pa’l asado" : temp < 10 ? "pa’ un mate calentito" : "tranqui";
-        // Determinamos la zona horaria según el país devuelto por la API
         const timeZone = countryCode === 'AR' ? 'America/Argentina/Buenos_Aires' : 
                         countryCode === 'EC' ? 'America/Guayaquil' : 'UTC';
         const hora = new Date().toLocaleTimeString('es-' + (countryCode || 'AR'), { 
@@ -4653,6 +4667,16 @@ async function manejarClima(message, silent = false) {
 
 async function manejarNoticias(message, silent = false) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
+
+    // Debounce: evitar que el comando se ejecute dos veces en menos de 2 segundos
+    const commandKey = `${message.author.id}-noticias`;
+    const lastCommandTime = commandCooldown.get(commandKey);
+    const now = Date.now();
+    if (lastCommandTime && now - lastCommandTime < 2000) {
+        console.log(`Comando !noticias bloqueado por debounce para ${userName}`);
+        return;
+    }
+    commandCooldown.set(commandKey, now);
 
     const waitingEmbed = createEmbed('#FF1493', `📰 Buscando noticias, ${userName}...`, 
         `Aguantá que te traigo lo último de Argentina y Ecuador al toque...`);
