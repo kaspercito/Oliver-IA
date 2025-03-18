@@ -5383,6 +5383,18 @@ async function manejarCommand(message) {
     else if (content === '!misacciones' || content === '!ma') {
     await manejarMisAcciones(message);
     }
+    else if (content === '!eliminar') {
+        await message.channel.send(`¡Uy, ${userName}! Me voy a eliminar en...`);
+        await new Promise(resolve => setTimeout(resolve, 1000)); // Pausa 1 segundo
+        await message.channel.send('3...');
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        await message.channel.send('2...');
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        await message.channel.send('1...');
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        await message.channel.send('¡Nah, era joda! Acá sigo, más vivo que nunca. 😜');
+        return;
+    }
     // Resto de comandos en orden
     else if (content === '!trivia' || content === '!tc') {
         await manejarTrivia(message);
