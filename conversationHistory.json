@@ -626,19 +626,6 @@
       "minutos": null
     },
     {
-      "id": "f726dbf2-885e-4a72-b001-4da396e94390",
-      "userId": "752987736759205960",
-      "channelId": "1343749554905940058",
-      "mensaje": "esto es de prueba",
-      "cuandoLlegue": true,
-      "cuandoSalga": false,
-      "timestamp": null,
-      "creado": 1742426495990,
-      "esRecurrente": false,
-      "hora": null,
-      "minutos": null
-    },
-    {
       "id": "7cf8314c-9e3d-4a46-93ed-f383c236fad2",
       "userId": "752987736759205960",
       "channelId": "1343749554905940058",
@@ -647,19 +634,6 @@
       "cuandoSalga": true,
       "timestamp": null,
       "creado": 1742426497819,
-      "esRecurrente": false,
-      "hora": null,
-      "minutos": null
-    },
-    {
-      "id": "7b434d97-0292-434b-8cd0-d645d734990d",
-      "userId": "752987736759205960",
-      "channelId": "1343749554905940058",
-      "mensaje": "esto es de prueba",
-      "cuandoLlegue": true,
-      "cuandoSalga": false,
-      "timestamp": null,
-      "creado": 1742427106292,
       "esRecurrente": false,
       "hora": null,
       "minutos": null
