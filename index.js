@@ -5779,8 +5779,8 @@ client.on('messageCreate', async (message) => {
         
                 const chatId = targetName === 'Belén' ? chatIdBelen : chatIdMiguel;
                 const mensajeTelegram = targetName === 'Miguel' 
-                    ? `¡Grande, Miguel! Bienvenido a casa, capo. El clima en Guayaquil está así: ${clima}. En San Luis son las ${horaSanLuis} y en Guayaquil las ${horaGuayaquil}. Tus recordatorios: ${avisos.length > 0 || pendientes.length > 0 ? (avisos.concat(pendientes).join(', ')) : 'ninguno por ahora, relajate'}. Las noticias del día: ${noticias}. ¡Qué lindo estar de vuelta!`
-                    : `¡Ey, Belén! Bienvenida a casa, genia. El clima en San Luis está así: ${clima}. En San Luis son las ${horaSanLuis} y en Guayaquil las ${horaGuayaquil}. Tus recordatorios: ${avisos.length > 0 || pendientes.length > 0 ? (avisos.concat(pendientes).join(', ')) : 'ninguno por ahora, descansá'}. Las noticias del día: ${noticias}. ¡Qué alegría tenerte acá!`;
+                    ? `¡Grande, Miguel! Bienvenido a casa, capo. El clima en Guayaquil está así: ${clima}. La hora es: ${horaGuayaquil}. Tus recordatorios: ${avisos.length > 0 || pendientes.length > 0 ? (avisos.concat(pendientes).join(', ')) : 'ninguno por ahora, relajate'}. Las noticias del día: ${noticias}. ¡Qué lindo estar de vuelta!`
+                    : `¡Ey, Belén! Bienvenida a casa, genia. El clima en San Luis está así: ${clima}. La hora e:s ${horaSanLuis}. Tus recordatorios: ${avisos.length > 0 || pendientes.length > 0 ? (avisos.concat(pendientes).join(', ')) : 'ninguno por ahora, descansá'}. Las noticias del día: ${noticias}. ¡Qué alegría tenerte acá!`;
                 await botTelegram.sendMessage(chatId, mensajeTelegram);
                 console.log(`Mensaje enviado a Telegram para ${targetName} (chat_id: ${chatId})`);
         
@@ -5843,8 +5843,8 @@ client.on('messageCreate', async (message) => {
         
                 const chatId = targetName === 'Belén' ? chatIdBelen : chatIdMiguel;
                 const mensajeTelegram = targetName === 'Miguel' 
-                    ? `¡Grande, Miguel! Saliste de casa, capo. El clima en Guayaquil está así: ${clima}. En San Luis son las ${horaSanLuis} y en Guayaquil las ${horaGuayaquil}. Tus recordatorios: ${avisos.length > 0 || pendientes.length > 0 ? (avisos.concat(pendientes).join(', ')) : 'ninguno urgente, a romperla'}. Las noticias del día: ${noticias}. ¡A comerte el día!`
-                    : `¡Ey, Belén! Saliste de casa, genia. El clima en San Luis está así: ${clima}. En San Luis son las ${horaSanLuis} y en Guayaquil las ${horaGuayaquil}. Tus recordatorios: ${avisos.length > 0 || pendientes.length > 0 ? (avisos.concat(pendientes).join(', ')) : 'ninguno urgente, a brillar'}. Las noticias del día: ${noticias}. ¡A disfrutar afuera!`;
+                    ? `¡Grande, Miguel! Saliste de casa, capo. El clima en Guayaquil está así: ${clima}. La hora es: ${horaGuayaquil}. Tus recordatorios: ${avisos.length > 0 || pendientes.length > 0 ? (avisos.concat(pendientes).join(', ')) : 'ninguno urgente, a romperla'}. Las noticias del día: ${noticias}. ¡A comerte el día!`
+                    : `¡Ey, Belén! Saliste de casa, genia. El clima en San Luis está así: ${clima}. La hora es: ${horaSanLuis}. Tus recordatorios: ${avisos.length > 0 || pendientes.length > 0 ? (avisos.concat(pendientes).join(', ')) : 'ninguno urgente, a brillar'}. Las noticias del día: ${noticias}. ¡A disfrutar afuera!`;
                 await botTelegram.sendMessage(chatId, mensajeTelegram);
                 console.log(`Mensaje enviado a Telegram para ${targetName} (chat_id: ${chatId})`);
         
