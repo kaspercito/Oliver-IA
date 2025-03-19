@@ -4806,11 +4806,12 @@ async function manejarClima(message, silent = false) {
 // Noticias
 async function manejarNoticias(message, silent = false) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
+    const isForTelegram = message.channel.type !== 'GUILD_TEXT'; // Detect if it's not Discord
 
     const waitingEmbed = createEmbed('#55FFFF', `📰 Buscando noticias, ${userName}...`, 
-        `Aguantá que te traigo lo último de Argentina y Ecuador al toque...`);
+        `Aguantá que te traigo lo último${isForTelegram ? (userName === 'Miguel' ? ' de Ecuador' : ' de Argentina') : ' de Argentina y Ecuador'} al toque...`);
     let waitingMessage;
-    if (!silent) waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
+    if (!silent && !isForTelegram) waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
 
     try {
         const apiKey = process.env.MEDIASTACK_API_KEY;
@@ -4855,18 +4856,51 @@ async function manejarNoticias(message, silent = false) {
         const noticiasAR = formatNews(articlesAR, 'Argentina');
         const noticiasEC = formatNews(articlesEC, 'Ecuador');
 
-        const embed = createEmbed('#FFD700', `📰 Últimas Noticias (${articlesAR.length > 0 || articlesEC.length > 0 ? today : 'Recientes'})`, 
-            `**Argentina:**\n${noticiasAR}\n\n**Ecuador:**\n${noticiasEC}`);
-        if (!silent && waitingMessage) await waitingMessage.edit({ embeds: [embed] });
+        let embed;
+        if (isForTelegram) {
+            // For Telegram, send only relevant country news
+            const relevantNews = userName === 'Miguel' ? noticiasEC : noticiasAR;
+            const countryLabel = userName === 'Miguel' ? 'Ecuador' : 'Argentina';
+            embed = createEmbed('#FFD700', `📰 Últimas Noticias de ${countryLabel} (${articlesAR.length > 0 || articlesEC.length > 0 ? today : 'Recientes'})`, 
+                relevantNews);
+        } else {
+            // For Discord, show both
+            embed = createEmbed('#FFD700', `📰 Últimas Noticias (${articlesAR.length > 0 || articlesEC.length > 0 ? today : 'Recientes'})`, 
+                `**Argentina:**\n${noticiasAR}\n\n**Ecuador:**\n${noticiasEC}`);
+        }
+
+        if (!silent && !isForTelegram && waitingMessage) await waitingMessage.edit({ embeds: [embed] });
         return embed;
     } catch (error) {
         console.error(`Error en noticias: ${error.message}`);
         if (error.response) console.error(`Respuesta de la API: ${JSON.stringify(error.response.data)}`);
         const errorEmbed = createEmbed('#FF5555', '¡Qué quilombo!', 
             `No pude traer noticias copadas, ${userName}. Error: ${error.message}. ¿Probamos de nuevo, loco?`);
-        if (!silent && waitingMessage) await waitingMessage.edit({ embeds: [errorEmbed] });
+        if (!silent && !isForTelegram && waitingMessage) await waitingMessage.edit({ embeds: [errorEmbed] });
         return errorEmbed;
     }
+}
+
+async function obtenerDatoInteresante(userName) {
+    // Simulate a message object for manejarDato
+    const mockMessage = {
+        author: { id: userName === 'Miguel' ? OWNER_ID : ALLOWED_USER_ID },
+        content: '!dato', // No args to get a random fact
+        channel: { send: async () => {} }, // Dummy channel to avoid sending
+    };
+
+    let result;
+    await manejarDato(mockMessage); // Call manejarDato
+
+    // Since manejarDato edits a waitingMessage, we'll capture the last random fact used
+    // Assuming ultimoDatoRandom is globally accessible from manejarDato
+    if (ultimoDatoRandom) {
+        result = `${ultimoDatoRandom.title}\n${ultimoDatoRandom.text}`;
+    } else {
+        result = '¡Ups! No pude generar un dato interesante, loco.';
+    }
+
+    return result;
 }
 
 // Wiki
@@ -5773,14 +5807,17 @@ client.on('messageCreate', async (message) => {
                 console.log(`Clima obtenido para ${targetName}: ${clima}`);
         
                 let noticias = 'No pude traer las noticias hoy, qué pena.';
-                const noticiasResult = await manejarCommand({ content: '!noticias', channel: canal, author: { id: userId } }, true);
+                const noticiasResult = await manejarNoticias({ 
+                    author: { id: userId }, 
+                    channel: { type: 'DM' } // Simulate non-Discord context for Telegram filtering
+                }, true);
                 if (noticiasResult?.description) noticias = noticiasResult.description;
                 console.log(`Noticias obtenidas para ${targetName}: ${noticias}`);
-        
+    
                 const chatId = targetName === 'Belén' ? chatIdBelen : chatIdMiguel;
                 const mensajeTelegram = targetName === 'Miguel' 
                     ? `¡Grande, Miguel! Bienvenido a casa, capo. El clima en Guayaquil está así: ${clima}. La hora es: ${horaGuayaquil}. Tus recordatorios: ${avisos.length > 0 || pendientes.length > 0 ? (avisos.concat(pendientes).join(', ')) : 'ninguno por ahora, relajate'}. Las noticias del día: ${noticias}. ¡Qué lindo estar de vuelta!`
-                    : `¡Ey, Belén! Bienvenida a casa, genia. El clima en San Luis está así: ${clima}. La hora e:s ${horaSanLuis}. Tus recordatorios: ${avisos.length > 0 || pendientes.length > 0 ? (avisos.concat(pendientes).join(', ')) : 'ninguno por ahora, descansá'}. Las noticias del día: ${noticias}. ¡Qué alegría tenerte acá!`;
+                    : `¡Ey, Belén! Bienvenida a casa, genia. El clima en San Luis está así: ${clima}. La hora es: ${horaSanLuis}. Tus recordatorios: ${avisos.length > 0 || pendientes.length > 0 ? (avisos.concat(pendientes).join(', ')) : 'ninguno por ahora, descansá'}. Las noticias del día: ${noticias}. ¡Qué alegría tenerte acá!`;
                 await botTelegram.sendMessage(chatId, mensajeTelegram);
                 console.log(`Mensaje enviado a Telegram para ${targetName} (chat_id: ${chatId})`);
         
@@ -5837,10 +5874,13 @@ client.on('messageCreate', async (message) => {
                 console.log(`Clima obtenido para ${targetName}: ${clima}`);
         
                 let noticias = 'No pude traer las noticias hoy, qué pena.';
-                const noticiasResult = await manejarCommand({ content: '!noticias', channel: canal, author: { id: userId } }, true);
+                const noticiasResult = await manejarNoticias({ 
+                    author: { id: userId }, 
+                    channel: { type: 'DM' } // Simulate non-Discord context for Telegram filtering
+                }, true);
                 if (noticiasResult?.description) noticias = noticiasResult.description;
                 console.log(`Noticias obtenidas para ${targetName}: ${noticias}`);
-        
+    
                 const chatId = targetName === 'Belén' ? chatIdBelen : chatIdMiguel;
                 const mensajeTelegram = targetName === 'Miguel' 
                     ? `¡Grande, Miguel! Saliste de casa, capo. El clima en Guayaquil está así: ${clima}. La hora es: ${horaGuayaquil}. Tus recordatorios: ${avisos.length > 0 || pendientes.length > 0 ? (avisos.concat(pendientes).join(', ')) : 'ninguno urgente, a romperla'}. Las noticias del día: ${noticias}. ¡A comerte el día!`
