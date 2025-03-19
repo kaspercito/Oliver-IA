@@ -5959,7 +5959,10 @@ client.on('messageCreate', async (message) => {
         const esJefe = hasJefeMention;
         const userId = esJefe ? ALLOWED_USER_ID : OWNER_ID;
         const targetName = esJefe ? 'Belén' : 'Miguel';
-        const canal = message.channel;
+        const canalMiguel = '1351976159914754129'; // Canal fijo para Miguel
+        const canalBelen = '1351975268654252123';  // Canal fijo para Belén
+        const canalId = targetName === 'Miguel' ? canalMiguel : canalBelen;
+        const canal = client.channels.cache.get(canalId);
 
         const horaSanLuis = new Date().toLocaleTimeString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires', hour: '2-digit', minute: '2-digit' });
         const horaGuayaquil = new Date().toLocaleTimeString('es-EC', { timeZone: 'America/Guayaquil', hour: '2-digit', minute: '2-digit' });
@@ -6001,7 +6004,7 @@ client.on('messageCreate', async (message) => {
                 let noticias = 'No pude traer las noticias hoy, qué pena.';
                 const noticiasResult = await manejarNoticias({ 
                     author: { id: userId }, 
-                    channel: { type: 'DM' } // Simulate non-Discord context for Telegram filtering
+                    channel: { type: 'DM' } // Simula Telegram
                 }, true);
                 if (noticiasResult?.description) noticias = noticiasResult.description;
                 console.log(`Noticias obtenidas para ${targetName}: ${noticias}`);
@@ -6013,6 +6016,11 @@ client.on('messageCreate', async (message) => {
                 await botTelegram.sendMessage(chatId, mensajeTelegram);
                 console.log(`Mensaje enviado a Telegram para ${targetName} (chat_id: ${chatId})`);
         
+                if (!canal) {
+                    console.error(`No se encontró el canal para ${targetName} (ID: ${canalId})`);
+                    return;
+                }
+
                 const embed = createEmbed('#FF1493', `¡Bienvenid@ a casa, ${targetName}! 🏠`, 
                     `¡Qué lindo tenerte de vuelta, ${targetName === 'Miguel' ? 'capo' : 'genia'}!`)
                     .addFields(
@@ -6024,6 +6032,7 @@ client.on('messageCreate', async (message) => {
                     )
                     .setFooter({ text: 'Con cariño, Oliver IA' });
                 await canal.send({ embeds: [embed] });
+                console.log(`Embed enviado al canal ${canalId} para llegada de ${targetName}`);
             } catch (error) {
                 console.error(`Error procesando llegada de ${targetName}: ${error.message}`);
             }
@@ -6125,7 +6134,6 @@ client.on('messageCreate', async (message) => {
             } catch (error) {
                 console.error(`Error enviando embed al canal ${canalId} para ${targetName}: ${error.message}`);
             }
-        }
             return;
         }
     }
