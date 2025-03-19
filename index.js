@@ -5391,7 +5391,7 @@ async function manejarJugar(message) {
 }
 
 // Comandos
-async function manejarCommand(message) {
+async function manejarCommand(message, silent = false) {
     // Acá manejo todos los comandos, el cerebro del bot
     const content = message.content.toLowerCase();
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
