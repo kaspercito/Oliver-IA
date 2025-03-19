@@ -3584,7 +3584,7 @@ function programarRecordatorio(recordatorio) {
 
     if (!recordatorio.timestamp) {
         console.log(`Recordatorio "${recordatorio.mensaje}" (ID: ${recordatorio.id}) no tiene timestamp, no se programa.`);
-        return; // No programar si no hay timestamp
+        return; // No programar ni eliminar si no hay timestamp
     }
 
     if (recordatorio.timestamp <= ahoraUTC) {
@@ -3600,14 +3600,12 @@ function programarRecordatorio(recordatorio) {
     console.log(`Programando recordatorio "${recordatorio.mensaje}" (ID: ${recordatorio.id}) en ${diferencia / 1000} segundos.`);
 
     setTimeout(async () => {
-        // Enviar MD en Discord
         const usuario = await client.users.fetch(recordatorio.userId);
         if (usuario) {
             await usuario.send({ embeds: [createEmbed('#FF1493', '⏰ ¡Recordatorio, loco!', 
                 `<@${recordatorio.userId}>, acordate de: **${recordatorio.mensaje}**. ¡Ya es hora, ${userName}!`)] });
         }
 
-        // Enviar al canal correspondiente en Discord
         const canalId = recordatorio.userId === OWNER_ID ? canalMiguel : canalBelen;
         const canal = client.channels.cache.get(canalId);
         if (canal) {
@@ -3615,7 +3613,6 @@ function programarRecordatorio(recordatorio) {
                 `<@${recordatorio.userId}>, acordate de: **${recordatorio.mensaje}**. ¡Ya es hora, ${userName}!`)] });
         }
 
-        // Enviar a Telegram
         const chatId = recordatorio.userId === OWNER_ID ? chatIdMiguel : chatIdBelen;
         try {
             await botTelegram.sendMessage(chatId, `⏰ ¡ALARMA! ${recordatorio.mensaje}\nHora: ${new Date(recordatorio.timestamp).toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })}`);
@@ -3624,7 +3621,6 @@ function programarRecordatorio(recordatorio) {
             console.error(`Error al enviar a Telegram para ${userName}:`, error);
         }
 
-        // Manejo de recurrentes
         if (recordatorio.esRecurrente) {
             const ahoraArgentina = Date.now() + offsetArgentina;
             const proximo = new Date(ahoraArgentina);
@@ -3657,9 +3653,16 @@ async function manejarMisRecordatorios(message) {
 
     const embed = createEmbed('#FF1493', `¡Tus recordatorios, ${userName}!`, 'Acá tenés la lista, ¡tranqui que no me olvido!');
     userRecordatorios.forEach((r, index) => {
-        const fechaStr = r.esRecurrente 
-            ? `todos los días a las ${r.hora.toString().padStart(2, '0')}:${r.minutos.toString().padStart(2, '0')}` 
-            : new Date(r.timestamp).toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' });
+        let fechaStr;
+        if (r.cuandoLlegue && !r.timestamp) {
+            fechaStr = 'cuando llegues a casa (sin hora específica)';
+        } else if (r.cuandoSalga && !r.timestamp) {
+            fechaStr = 'cuando salgas de casa (sin hora específica)';
+        } else if (r.esRecurrente) {
+            fechaStr = `todos los días a las ${r.hora.toString().padStart(2, '0')}:${r.minutos.toString().padStart(2, '0')}`;
+        } else {
+            fechaStr = new Date(r.timestamp).toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' });
+        }
         embed.addFields({
             name: `${index + 1}. ${r.mensaje}`,
             value: `Cuándo: ${fechaStr}\nID: ${r.id}`,
