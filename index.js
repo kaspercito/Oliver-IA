@@ -2086,8 +2086,8 @@ const SAVE_INTERVAL = 1800000; // 30 minutos
 const WARNING_TIME = 300000; // 5 minutos antes aviso
 let autosaveEnabled = true;
 let autosavePausedByMusic = false;
-let userModified = false; // Cambios hechos por el usuario
-let autoModified = false; // Cambios automáticos del bot
+let userModified = false;
+let autoModified = false;
 let ultimoDatoRandom = null;
 
 // Utilidades con tono argentino
@@ -2426,81 +2426,6 @@ const tips = [
     await sentMessage.react('✅');
     await sentMessage.react('❌');
     sentMessages.set(sentMessage.id, { content: `${tip} ${mensajeMiguel}`, message: sentMessage });
-}
-
-// Cargo los datos desde GitHub pa’ no perder nada
-async function loadDataStore() {
-    try {
-        const response = await axios.get(
-            `https://api.github.com/repos/${process.env.GITHUB_REPO}/contents/${process.env.GITHUB_FILE_PATH}`,
-            { headers: { 'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`, 'Accept': 'application/vnd.github+json' } }
-        );
-        const content = Buffer.from(response.data.content, 'base64').toString('utf8');
-        const loadedData = content ? JSON.parse(content) : { 
-            conversationHistory: {}, 
-            triviaRanking: {}, 
-            personalPPMRecords: {}, 
-            reactionStats: {}, 
-            reactionWins: {}, 
-            activeSessions: {}, 
-            triviaStats: {},
-            musicSessions: {},
-            recordatorios: [],
-            updatesSent: false,
-            adivinanzaStats: {} // Aseguramos que esté por defecto
-        };
-        if (!loadedData.musicSessions) loadedData.musicSessions = {};
-        if (!loadedData.recordatorios) loadedData.recordatorios = [];
-        if (!loadedData.adivinanzaStats) loadedData.adivinanzaStats = {}; // Aseguramos que exista
-        console.log('Datos cargados desde GitHub con adivinanzaStats asegurado');
-        return loadedData;
-    } catch (error) {
-        console.error('Error al cargar datos desde GitHub:', error.message);
-        return { 
-            conversationHistory: {}, 
-            triviaRanking: {}, 
-            personalPPMRecords: {}, 
-            reactionStats: {}, 
-            reactionWins: {}, 
-            activeSessions: {}, 
-            triviaStats: {},
-            musicSessions: {},
-            recordatorios: [],
-            updatesSent: false,
-            adivinanzaStats: {} // Por defecto si falla
-        };
-    }
-}
-
-// Guardo los datos en GitHub
-async function saveDataStore() {
-    if (!userModified && !autoModified) return false; // Nada que guardar
-    try {
-        let sha;
-        try {
-            const response = await axios.get(
-                `https://api.github.com/repos/${process.env.GITHUB_REPO}/contents/${process.env.GITHUB_FILE_PATH}`,
-                { headers: { 'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`, 'Accept': 'application/vnd.github+json' } }
-            );
-            sha = response.data.sha;
-        } catch (error) {
-            if (error.response?.status !== 404) throw error;
-        }
-        await axios.put(
-            `https://api.github.com/repos/${process.env.GITHUB_REPO}/contents/${process.env.GITHUB_FILE_PATH}`,
-            {
-                message: 'Actualizar historial y sesiones',
-                content: Buffer.from(JSON.stringify(dataStore, null, 2)).toString('base64'),
-                sha: sha || undefined,
-            },
-            { headers: { 'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`, 'Accept': 'application/vnd.github+json' } }
-        );
-        console.log('Datos guardados en GitHub');
-        return true;
-    } catch (error) {
-        console.error('Error al guardar datos en GitHub:', error.message);
-        throw error;
-    }
 }
 
 // Normalizo texto pa’ sacarle las tildes y que no haya lío
@@ -6368,7 +6293,9 @@ client.on('messageCreate', async (message) => {
 client.once('ready', async () => {
     console.log(`¡Miguel IA está listo! Instancia: ${instanceId} - ${new Date().toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })}`);
     client.user.setPresence({ activities: [{ name: "Listo para ayudar a Milagros", type: 0 }], status: 'dnd' });
-    dataStore = await loadDataStore();
+
+    // Cargar dataStore al iniciar
+    await initializeDataStore();
 
     if (dataStore.recordatorios && dataStore.recordatorios.length > 0) {
         const ahoraUTC = Date.now();
@@ -6376,7 +6303,7 @@ client.once('ready', async () => {
         const ahoraArgentina = ahoraUTC + offsetArgentina;
 
         dataStore.recordatorios.forEach(recordatorio => {
-            if (recordatorio.timestamp > ahoraUTC || recordatorio.esRecurrente) {
+            if (recordatorio.timestamp && (recordatorio.timestamp > ahoraUTC || recordatorio.esRecurrente)) {
                 console.log(`Restaurando recordatorio: "${recordatorio.mensaje}" (ID: ${recordatorio.id})`);
                 if (recordatorio.esRecurrente) {
                     const proximo = new Date(ahoraArgentina);
@@ -6384,16 +6311,17 @@ client.once('ready', async () => {
                     if (proximo.getTime() <= ahoraArgentina) {
                         proximo.setDate(proximo.getDate() + 1);
                     }
-                    recordatorio.timestamp = proximo.getTime() - offsetArgentina; // Convertimos a UTC
+                    recordatorio.timestamp = proximo.getTime() - offsetArgentina;
                     autoModified = true;
                 }
                 programarRecordatorio(recordatorio);
+            } else if (recordatorio.cuandoLlegue || recordatorio.cuandoSalga) {
+                console.log(`Manteniendo recordatorio sin timestamp: "${recordatorio.mensaje}" (ID: ${recordatorio.id})`);
             }
         });
-        dataStore.recordatorios = dataStore.recordatorios.filter(r => r.timestamp > ahoraUTC || r.esRecurrente);
+        // Solo filtrar los vencidos con timestamp
+        dataStore.recordatorios = dataStore.recordatorios.filter(r => !r.timestamp || r.timestamp > ahoraUTC || r.esRecurrente || r.cuandoLlegue || r.cuandoSalga);
         console.log('Recordatorios restaurados y vencidos limpiados');
-
-        // No ajustamos logs viejos de Ecuador, porque Railway usa UTC y los tiempos ya están bien
     }
     
     activeTrivia = new Map(Object.entries(dataStore.activeSessions).filter(([_, s]) => s.type === 'trivia'));
@@ -6401,7 +6329,7 @@ client.once('ready', async () => {
     if (!dataStore.musicSessions) {
         dataStore.musicSessions = {};
         console.log('musicSessions no estaba presente, inicializado manualmente');
-        autoModified = true; // Cambio automático
+        autoModified = true;
     }
 
     if (!dataStore.utilMessageTimestamps) dataStore.utilMessageTimestamps = {};
@@ -6419,7 +6347,7 @@ client.once('ready', async () => {
 
         if (!dataStore.sentUpdates) {
             dataStore.sentUpdates = [];
-            autoModified = true; // Cambio automático
+            autoModified = true;
         }
 
         const updatesChanged = JSON.stringify(BOT_UPDATES) !== JSON.stringify(dataStore.sentUpdates);
@@ -6450,7 +6378,7 @@ client.once('ready', async () => {
 
             await channel.send({ content: `<@${ALLOWED_USER_ID}>`, embeds: [updateEmbed] });
             dataStore.sentUpdates = [...BOT_UPDATES];
-            autoModified = true; // Cambio automático
+            autoModified = true;
             console.log('Actualizaciones enviadas y guardadas en sentUpdates.');
         } else {
             console.log('No hay cambios en BOT_UPDATES respecto a sentUpdates, no se envían.');
@@ -6476,7 +6404,7 @@ client.once('ready', async () => {
             await sentMessage.react('❌');
             dataStore.utilMessageTimestamps[`util_${CHANNEL_ID}`] = now;
             sentMessages.set(sentMessage.id, { content: utilEmbed.description, message: sentMessage });
-            autoModified = true; // Cambio automático
+            autoModified = true;
             console.log(`Mensaje útil enviado al iniciar - ${new Date().toLocaleString('es-AR')}`);
         }
 
@@ -6500,7 +6428,7 @@ client.once('ready', async () => {
                     await sentMessage.react('❌');
                     dataStore.utilMessageTimestamps[`util_${CHANNEL_ID}`] = now;
                     sentMessages.set(sentMessage.id, { content: dailyUtilEmbed.description, message: sentMessage });
-                    autoModified = true; // Cambio automático
+                    autoModified = true;
                     console.log(`Mensaje útil diario enviado al canal ${CHANNEL_ID} - ${new Date().toLocaleString('es-AR')}`);
                 }
 
@@ -6520,7 +6448,7 @@ client.once('ready', async () => {
                         reminder, 'Con cariño, Oliver IA');
                     await channel.send({ embeds: [embed] });
                     dataStore.utilMessageTimestamps[`reminder_${CHANNEL_ID}`] = now;
-                    autoModified = true; // Cambio automático
+                    autoModified = true;
                     console.log(`Recordatorio enviado a Belén (${currentHour}:00, ${isPostExam ? 'post-examen' : 'pre-examen'}) - ${new Date().toLocaleString('es-AR')}`);
                 }
             } catch (error) {
@@ -6561,7 +6489,8 @@ client.once('ready', async () => {
                 return;
             }
 
-            if (userModified) { // Solo avisa si hay cambios del usuario
+            console.log(`Preparando autosave con ${dataStore.recordatorios.length} recordatorios: ${JSON.stringify(dataStore.recordatorios)}`);
+            if (userModified) {
                 console.log('Avisando que voy a guardar en 5 minutos...');
                 if (channel) {
                     await channel.send({ embeds: [createEmbed('#FF1493', '⏰ Ojo al dato', 
@@ -6580,8 +6509,8 @@ client.once('ready', async () => {
                 }
                 try {
                     await saveDataStore();
-                    console.log('Datos guardados en GitHub');
-                    if (userModified && channel) { // Solo mensaje si fue por usuario
+                    console.log('Autosave completado con éxito');
+                    if (userModified && channel) {
                         await channel.send({ embeds: [createEmbed('#FF1493', '💾 ¡Listo el pollo!', 
                             'Datos guardados al toque, ¡tranqui!')] });
                     }
@@ -6611,97 +6540,113 @@ client.once('ready', async () => {
                 dataStore.recordatorios = dataStore.recordatorios.filter(rec => rec.id !== r.id);
                 autoModified = true;
             }
-        }, 60000); // Cada minuto
+        }, 60000);
 
     } catch (error) {
         console.error('Error al enviar actualizaciones o configurar el bot:', error.message);
     }
 });
 
-process.on('beforeExit', async () => {
-    // Antes de que el proceso se cierre, guardo todo pa’ no perder nada
-    console.log('Guardando datos antes de salir...'); // Aviso que estoy guardando
-    await saveDataStore(); // Guardo el dataStore en el archivo, pa’ que quede todo joya
+// Funciones de carga y guardado (fusionadas con mejoras)
+async function initializeDataStore() {
+    dataStore = await loadDataStore();
+    console.log(`dataStore inicializado con ${dataStore.recordatorios.length} recordatorios: ${JSON.stringify(dataStore.recordatorios)}`);
+}
+
+async function loadDataStore() {
+    try {
+        const response = await axios.get(
+            `https://api.github.com/repos/${process.env.GITHUB_REPO}/contents/${process.env.GITHUB_FILE_PATH}`,
+            { headers: { 'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`, 'Accept': 'application/vnd.github+json' } }
+        );
+        const content = Buffer.from(response.data.content, 'base64').toString('utf8');
+        const loadedData = content ? JSON.parse(content) : { 
+            conversationHistory: {}, 
+            triviaRanking: {}, 
+            personalPPMRecords: {}, 
+            reactionStats: {}, 
+            reactionWins: {}, 
+            activeSessions: {}, 
+            triviaStats: {},
+            musicSessions: {},
+            recordatorios: [],
+            updatesSent: false,
+            adivinanzaStats: {}
+        };
+        if (!loadedData.musicSessions) loadedData.musicSessions = {};
+        if (!loadedData.recordatorios) loadedData.recordatorios = [];
+        if (!loadedData.adivinanzaStats) loadedData.adivinanzaStats = {};
+        console.log('Datos cargados desde GitHub:', JSON.stringify(loadedData.recordatorios));
+        return loadedData;
+    } catch (error) {
+        console.error('Error al cargar datos desde GitHub:', error.message);
+        return { 
+            conversationHistory: {}, 
+            triviaRanking: {}, 
+            personalPPMRecords: {}, 
+            reactionStats: {}, 
+            reactionWins: {}, 
+            activeSessions: {}, 
+            triviaStats: {},
+            musicSessions: {},
+            recordatorios: [],
+            updatesSent: false,
+            adivinanzaStats: {}
+        };
+    }
+}
+
+async function saveDataStore() {
+    if (!userModified && !autoModified) {
+        console.log('Nada que guardar, userModified y autoModified son false');
+        return false;
+    }
+    try {
+        let sha;
+        try {
+            const response = await axios.get(
+                `https://api.github.com/repos/${process.env.GITHUB_REPO}/contents/${process.env.GITHUB_FILE_PATH}`,
+                { headers: { 'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`, 'Accept': 'application/vnd.github+json' } }
+            );
+            sha = response.data.sha;
+        } catch (error) {
+            if (error.response?.status !== 404) throw error;
+        }
+        console.log(`Guardando ${dataStore.recordatorios.length} recordatorios: ${JSON.stringify(dataStore.recordatorios)}`);
+        await axios.put(
+            `https://api.github.com/repos/${process.env.GITHUB_REPO}/contents/${process.env.GITHUB_FILE_PATH}`,
+            {
+                message: 'Actualizar historial y sesiones',
+                content: Buffer.from(JSON.stringify(dataStore, null, 2)).toString('base64'),
+                sha: sha || undefined,
+            },
+            { headers: { 'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`, 'Accept': 'application/vnd.github+json' } }
+        );
+        console.log('Datos guardados en GitHub con éxito');
+        userModified = false;
+        autoModified = false;
+        return true;
+    } catch (error) {
+        console.error('Error al guardar datos en GitHub:', error.message);
+        if (error.response) console.error('Detalles del error:', error.response.data);
+        throw error;
+    }
+}
+
+// Guardar al cerrar el proceso
+process.on('SIGINT', async () => {
+    console.log('Guardando datos antes de salir...');
+    await saveDataStore();
+    process.exit();
 });
 
-client.on('messageReactionAdd', async (reaction, user) => {
-    if (!sentMessages.has(reaction.message.id)) return;
-    if (![OWNER_ID, ALLOWED_USER_ID].includes(user.id)) return;
-
-    const messageData = sentMessages.get(reaction.message.id);
-    const userName = user.id === OWNER_ID ? 'Miguel' : 'Belén';
-
-    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
-
-    if (user.id === ALLOWED_USER_ID && (reaction.emoji.name === '✅' || reaction.emoji.name === '❌')) {
-        dataStore.utilMessageReactions[CHANNEL_ID] = Date.now();
-        autoModified = true; // Cambio automático
-        console.log(`Belén reaccionó con ${reaction.emoji.name} - ${new Date().toLocaleString('es-AR')}`);
-
-        if (reaction.emoji.name === '✅') {
-            await reaction.message.channel.send({ embeds: [createEmbed('#FF1493', '¡Genia, Belén!', 
-                '¡Gracias por el visto, grosa! Nos vemos mañana, ¿dale?', 'Con cariño, Oliver IA')] });
-        } else if (reaction.emoji.name === '❌') {
-            await reaction.message.channel.send({ embeds: [createEmbed('#FF1493', '¡Uy, Belén!', 
-                '¿No te copó, genia? Contame qué pasa, ¡dale!', 'Con cariño, Oliver IA')] });
-        }
-        sentMessages.delete(reaction.message.id);
-    }
-
-    if (reaction.emoji.name === '❌' && messageData.originalQuestion) {
-        const originalQuestion = messageData.originalQuestion;
-
-        const waitingEmbed = createEmbed('#FF1493', `¡Aguantá un toque, ${userName}!`, 
-            'Estoy pensando una respuesta más copada...', 'Hecho con onda por Miguel IA | Reacciona con ✅ o ❌');
-        const waitingMessage = await reaction.message.channel.send({ embeds: [waitingEmbed] });
-
-        try {
-            const prompt = `Sos Oliver IA, creado por Miguel, un loco re piola. La primera respuesta a "${originalQuestion}" no le copó al usuario. Probá de nuevo con una respuesta más copada, detallada y útil, usando palabras argentinas como "copado", "joya", "boludo", "re", "dale", "posta" o "genial". Si es para Belén, hablale con cariño como "grosa" o "genia". Respondé solo lo que te piden, con info posta, sin chamuyo. Sé claro y relajado en español. Terminá con buena onda pa’ seguir la charla, tipo "¿Te cerró, ${userName}?".`;
-            
-            const result = await model.generateContent(prompt);
-            let aiReply = result.response.text().trim();
-
-            if (aiReply.length > 2000) aiReply = aiReply.slice(0, 1990) + '... (seguí charlando pa’ más, loco)';
-            aiReply += `\n\n¿Te cerró esta vez, ${userName}? ¿Seguimos charlando, loco?`;
-
-            const alternativeEmbed = createEmbed('#FF1493', `¡Segunda chance, ${userName}!`, 
-                aiReply, 'Hecho con onda por Miguel IA | Reacciona con ✅ o ❌');
-            const newMessage = await waitingMessage.edit({ embeds: [alternativeEmbed] });
-            await newMessage.react('✅');
-            await newMessage.react('❌');
-            sentMessages.set(newMessage.id, { content: aiReply, originalQuestion: originalQuestion, message: newMessage });
-            sentMessages.delete(reaction.message.id);
-        } catch (error) {
-            console.error('Error con Gemini:', error.message);
-            const fallbackReply = `¡Uy, ${userName}, qué cagada! Me mandé un moco, loco. Error: ${error.message}. ¿Me tirás más detalles para sacarla bien esta vez?`;
-            const errorEmbed = createEmbed('#FF1493', '¡Qué cagada, che!', 
-                `${fallbackReply}\n\n¿Te cerró esta vez, ${userName}? ¿Seguimos charlando, loco?]`, 
-                'Hecho con onda por Miguel IA | Reacciona con ✅ o ❌');
-            const errorMessageSent = await waitingMessage.edit({ embeds: [errorEmbed] });
-            await errorMessageSent.react('✅');
-            await errorMessageSent.react('❌');
-            sentMessages.set(errorMessageSent.id, { content: fallbackReply, originalQuestion: originalQuestion, message: errorMessageSent });
-            sentMessages.delete(reaction.message.id);
-        }
-    }
-
-    if (user.id === ALLOWED_USER_ID) {
-        const owner = await client.users.fetch(OWNER_ID);
-        const reactionEmbed = createEmbed('#FF1493', '¡Belén le puso pilas!', 
-            `Belén reaccionó con ${reaction.emoji} a: "${messageData.content}"\nPregunta original: "${messageData.originalQuestion || 'Mensaje diario'}"\nMandado el: ${new Date(messageData.message.createdTimestamp).toLocaleString()}`);
-        try {
-            await owner.send({ embeds: [reactionEmbed] });
-            console.log(`Notificación enviada a ${OWNER_ID}: Belén reaccionó con ${reaction.emoji}`);
-        } catch (error) {
-            console.error('Error al notificar al dueño:', error);
-        }
-    }
-});
 
 client.on('raw', (d) => {
     console.log('Evento raw recibido:', d.t);
     manager.updateVoiceState(d);
 });
 
+    // Iniciar el bot
+initializeDataStore().then(() => {
 client.login(process.env.DISCORD_TOKEN);
+});
