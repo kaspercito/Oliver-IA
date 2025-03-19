@@ -634,6 +634,16 @@
       "cuandoSalga": false,
       "timestamp": null,
       "creado": 1742423807530
+    },
+    {
+      "id": "a1f2f0ea-787b-449e-9051-ed3797d1a68b",
+      "userId": "752987736759205960",
+      "channelId": "1343749554905940058",
+      "mensaje": "esto es de prueba",
+      "cuandoLlegue": false,
+      "cuandoSalga": true,
+      "timestamp": null,
+      "creado": 1742423813236
     }
   ],
   "usedJokes": {
