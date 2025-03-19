@@ -624,50 +624,6 @@
       "esRecurrente": false,
       "hora": null,
       "minutos": null
-    },
-    {
-      "id": "3c542c72-dd05-4bb3-9da5-e35dfdddd351",
-      "userId": "1023132788632862761",
-      "channelId": "1343749554905940058",
-      "mensaje": "despiértame",
-      "timestamp": 1742373941502,
-      "creado": 1742352341502,
-      "esRecurrente": false,
-      "hora": null,
-      "minutos": null
-    },
-    {
-      "id": "32fc6a69-5751-4314-a463-770f1b472739",
-      "userId": "1023132788632862761",
-      "channelId": "1343749554905940058",
-      "mensaje": "despiértame",
-      "timestamp": 1742373950727,
-      "creado": 1742352350728,
-      "esRecurrente": false,
-      "hora": null,
-      "minutos": null
-    },
-    {
-      "id": "736dbcb9-e77a-402c-896a-159dd64bf654",
-      "userId": "1023132788632862761",
-      "channelId": "1343749554905940058",
-      "mensaje": "despiértame",
-      "timestamp": 1742373962802,
-      "creado": 1742352362802,
-      "esRecurrente": false,
-      "hora": null,
-      "minutos": null
-    },
-    {
-      "id": "271e021b-e9b5-4910-af7c-8383403666fc",
-      "userId": "1023132788632862761",
-      "channelId": "1343749554905940058",
-      "mensaje": "despiértame",
-      "timestamp": 1742373974064,
-      "creado": 1742352374064,
-      "esRecurrente": false,
-      "hora": null,
-      "minutos": null
     }
   ],
   "usedJokes": {
