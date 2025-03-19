@@ -3252,40 +3252,6 @@ async function manejarSugerencias(message) {
     }
 }
 
-// Función para generar un archivo de audio con TTS y enviarlo a Telegram
-async function enviarMensajeVozTelegram(chatId, mensaje, idioma = 'es') {
-    try {
-        const gtts = new gTTS(mensaje, idioma);
-        const filePath = path.join(__dirname, `temp_audio_${Date.now()}.mp3`);
-        
-        await new Promise((resolve, reject) => {
-            gtts.save(filePath, (err) => {
-                if (err) reject(err);
-                else resolve();
-            });
-        });
-
-        const form = new FormData();
-        form.append('chat_id', chatId);
-        form.append('voice', fs.createReadStream(filePath));
-
-        const response = await fetch(`https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/sendVoice`, {
-            method: 'POST',
-            body: form
-        });
-
-        if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(`Error enviando mensaje de voz a Telegram: ${response.statusText} - ${errorText}`);
-        }
-
-        console.log(`Mensaje de voz enviado a Telegram (chat_id: ${chatId}): ${mensaje}`);
-        fs.unlinkSync(filePath);
-    } catch (error) {
-        console.error(`Error enviando mensaje de voz a Telegram (chat_id: ${chatId}): ${error.message}`);
-    }
-}
-
 // Función para generar un consejo basado en el clima
 function generarConsejoClima(clima, esSalida = false) {
     const climaLower = clima.toLowerCase();
@@ -4769,7 +4735,7 @@ async function manejarClima(message, silent = false) {
         const errorEmbed = createEmbed('#FF5555', '¡Pará, loco!', 
             `¡Decime una ciudad después de "!clima", ${userName}! Ejemplo: !clima Córdoba`);
         if (!silent) await message.channel.send({ embeds: [errorEmbed] });
-        return errorEmbed;
+        return { description: errorEmbed.description }; // Devolvemos un objeto
     }
 
     const waitingEmbed = createEmbed('#FF1493', `⛅ Chequeando el clima, ${userName}...`, 
@@ -4792,13 +4758,13 @@ async function manejarClima(message, silent = false) {
         const embed = createEmbed('#FF1493', `⛅ Clima en ${city}, ${country}`, 
             `${temp}°C, ${desc}, ${vibe}.`);
         if (!silent && waitingMessage) await waitingMessage.edit({ embeds: [embed] });
-        return embed;
+        return { description: `${temp}°C, ${desc}, ${vibe}.` }; // Devolvemos solo la descripción
     } catch (error) {
         console.error(`Error en clima para "${args}": ${error.message}`);
         const errorEmbed = createEmbed('#FF5555', '¡Qué cagada!', 
             `No pude encontrar el clima de "${args}", ${userName}. ¿Seguro que existe esa ciudad, loco?`);
         if (!silent && waitingMessage) await waitingMessage.edit({ embeds: [errorEmbed] });
-        return errorEmbed;
+        return { description: errorEmbed.description }; // Devolvemos la descripción del error
     }
 }
 
@@ -5734,7 +5700,6 @@ client.on('messageCreate', async (message) => {
         const targetName = esJefe ? 'Belén' : 'Miguel';
         const canal = message.channel;
 
-        // Obtener la hora en ambas ubicaciones
         const horaSanLuis = new Date().toLocaleTimeString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires', hour: '2-digit', minute: '2-digit' });
         const horaGuayaquil = new Date().toLocaleTimeString('es-EC', { timeZone: 'America/Guayaquil', hour: '2-digit', minute: '2-digit' });
 
@@ -5768,68 +5733,24 @@ client.on('messageCreate', async (message) => {
 
             try {
                 let clima = 'No pude traer el clima, che.';
-                let noticias = 'No hay noticias frescas ahora, loco.';
-                
                 const climaResult = await manejarCommand({ content: targetName === 'Belén' ? '!clima San Luis' : '!clima Guayaquil', channel: canal, author: { id: userId } }, true);
                 if (climaResult?.description) clima = climaResult.description;
                 console.log(`Clima obtenido para ${targetName}: ${clima}`);
 
-                const noticiasResult = await manejarCommand({ content: '!noticias', channel: canal, author: { id: userId } }, true);
-                if (noticiasResult?.description) noticias = noticiasResult.description;
-                console.log(`Noticias obtenidas para ${targetName}: ${noticias}`);
+                const chatId = targetName === 'Belén' ? chatIdBelen : chatIdMiguel;
+                const mensajeTelegram = `Bienvenido a casa ${targetName}. Clima: ${clima}. Hora en San Luis: ${horaSanLuis}. Hora en Guayaquil: ${horaGuayaquil}. Recordatorios: ${avisos.length > 0 ? avisos.join(', ') : 'Ninguno'}.`;
+                await botTelegram.sendMessage(chatId, mensajeTelegram);
+                console.log(`Mensaje enviado a Telegram para ${targetName} (chat_id: ${chatId})`);
 
-                const datoInteresante = obtenerDatoInteresante();
-
-                if (targetName === 'Belén') {
-                    const horaLocal = horaSanLuis;
-                    const recordatoriosText = avisos.length > 0 ? `Acá van tus recordatorios, escuchá bien, genia: ${avisos.join(', ')}. 📋` : 'No tenés recordatorios ahora, ¿querés que te tire un chiste pa’ festejar que llegaste? 😄';
-                    const totalRecordatorios = avisos.length + pendientes.length;
-                    const resumenRecordatorios = totalRecordatorios > 0 ? `Tenés ${totalRecordatorios} recordatorios en total, de los cuales ${avisos.length} son para ahora.` : 'No tenés recordatorios, ¡a descansar tranqui!';
-                    const consejoClima = generarConsejoClima(clima);
-                    const mensajeVoz = `¡Qué lindo, Belén, llegaste a casa! Soy Oliver IA, tu bot piola, dándote la bienvenida con toda la onda. 🏠 El clima en San Luis está así: ${clima}. 🌤️ ${consejoClima} Noticias frescas: ${noticias}. 📰 Che, en San Luis son las ${horaSanLuis}, y en Guayaquil son las ${horaGuayaquil}. ⏰ ${recordatoriosText} ${resumenRecordatorios} Ponete cómoda, ¿querés que te sugiera una playlist para descansar? 🎶 Y un dato para alegrarte el día: ${datoInteresante}`;
-                    
-                    // Enviamos el mensaje de voz a Telegram para Belén
-                    await enviarMensajeVozTelegram('CHAT_ID_BELEN', mensajeVoz, 'es');
-
-                    // Enviamos el embed a Discord (sin TTS)
-                    const embed = createEmbed('#FF1493', `¡Bienvenida a casa, Belén! 🏠`, 
-                        `¡Qué lindo tenerte de vuelta, genia! Acá va todo lo que necesitás saber al toque`)
-                        .addFields(
-                            { name: '🌤️ Clima en San Luis', value: `${clima}\n${consejoClima}`, inline: false },
-                            { name: '📰 Noticias frescas', value: noticias.split('\n\n')[0] || noticias, inline: false },
-                            { name: '⏰ Hora', value: `San Luis: ${horaSanLuis}\nGuayaquil: ${horaGuayaquil}`, inline: true },
-                            { name: '📋 Recordatorios', value: avisos.length > 0 ? avisos.join('\n') : 'No tenés recordatorios ahora, ¡descansá tranqui!', inline: false },
-                            { name: '📊 Resumen de recordatorios', value: resumenRecordatorios, inline: false },
-                            { name: '💡 Dato interesante', value: datoInteresante, inline: false }
-                        )
-                        .setFooter({ text: 'Con cariño, Oliver IA' });
-                    await canal.send({ embeds: [embed] });
-                } else if (targetName === 'Miguel') {
-                    const horaLocal = horaGuayaquil;
-                    const recordatoriosText = avisos.length > 0 ? `Acá van tus recordatorios, prestá atención, loco: ${avisos.join(', ')}. 📋` : 'No hay recordatorios pa’ vos ahora, ¿querés cola o algo pa’ relajarte? 😎';
-                    const totalRecordatorios = avisos.length + pendientes.length;
-                    const resumenRecordatorios = totalRecordatorios > 0 ? `Tenés ${totalRecordatorios} recordatorios en total, de los cuales ${avisos.length} son para ahora.` : 'No tenés recordatorios, ¡a descansar tranqui!';
-                    const consejoClima = generarConsejoClima(clima);
-                    const mensajeVoz = `¡Grande, Miguel, ya estás en casa! Soy Oliver IA, tu compañero fiel, dándote la bienvenida como se merece el capo. 🏠 El clima en Guayaquil está así: ${clima}. 🌤️ ${consejoClima} Noticias del día: ${noticias}. 📰 Che, en Guayaquil son las ${horaGuayaquil}, y en San Luis son las ${horaSanLuis}. ⏰ ${recordatoriosText} ${resumenRecordatorios} Ponete cómodo, ¿querés que te sugiera una peli para relajarte? 🎬 Y un dato para alegrarte el día: ${datoInteresante}`;
-                    
-                    // Enviamos el mensaje de voz a Telegram para Miguel
-                    await enviarMensajeVozTelegram('5965566827', mensajeVoz, 'es');
-
-                    // Enviamos el embed a Discord (sin TTS)
-                    const embed = createEmbed('#FF1493', `¡Bienvenido a casa, Miguel! 🏠`, 
-                        `¡Grande, capo! Acá tenés todo lo que precisás saber ahora mismo`)
-                        .addFields(
-                            { name: '🌤️ Clima en Guayaquil', value: `${clima}\n${consejoClima}`, inline: false },
-                            { name: '📰 Noticias del día', value: noticias.split('\n\n')[0] || noticias, inline: false },
-                            { name: '⏰ Hora', value: `Guayaquil: ${horaGuayaquil}\nSan Luis: ${horaSanLuis}`, inline: true },
-                            { name: '📋 Recordatorios', value: avisos.length > 0 ? avisos.join('\n') : 'No hay recordatorios pa’ vos, ¡a relajarse, loco!', inline: false },
-                            { name: '📊 Resumen de recordatorios', value: resumenRecordatorios, inline: false },
-                            { name: '💡 Dato interesante', value: datoInteresante, inline: false }
-                        )
-                        .setFooter({ text: 'Con onda, Oliver IA' });
-                    await canal.send({ embeds: [embed] });
-                }
-                console.log(`Embed enviado para llegada de ${targetName}`);
+                const embed = createEmbed('#FF1493', `¡Bienvenid@ a casa, ${targetName}! 🏠`, 
+                    `¡Qué lindo tenerte de vuelta, ${targetName === 'Miguel' ? 'capo' : 'genia'}!`)
+                    .addFields(
+                        { name: `🌤️ Clima en ${targetName === 'Belén' ? 'San Luis' : 'Guayaquil'}`, value: clima, inline: false },
+                        { name: '⏰ Hora', value: `San Luis: ${horaSanLuis}\nGuayaquil: ${horaGuayaquil}`, inline: true },
+                        { name: '📋 Recordatorios', value: avisos.length > 0 ? avisos.join('\n') : 'No tenés recordatorios ahora.', inline: false }
+                    )
+                    .setFooter({ text: 'Con cariño, Oliver IA' });
+                await canal.send({ embeds: [embed] });
             } catch (error) {
                 console.error(`Error procesando llegada de ${targetName}: ${error.message}`);
             }
@@ -5852,7 +5773,7 @@ client.on('messageCreate', async (message) => {
             if (recordatoriosPendientes.length > 0) {
                 recordatoriosPendientes.forEach(r => {
                     if (r.timestamp && r.timestamp <= Date.now()) {
-                        avisos.push(`- ${r.mensaje} ${r.timestamp ? `(seteado para las ${new Date(r.timestamp).toLocaleTimeString('es-' + (targetName === 'Belén' ? 'AR' : 'EC'), { hour: '2-digit', minute: '2-digit' })})` : ''}`);
+                        avisos.push(`- ${r.mensaje} (seteado para las ${new Date(r.timestamp).toLocaleTimeString('es-' + (targetName === 'Belén' ? 'AR' : 'EC'), { hour: '2-digit', minute: '2-digit' })})`);
                     } else {
                         pendientes.push(r);
                     }
@@ -5872,57 +5793,30 @@ client.on('messageCreate', async (message) => {
                     estadoTrafico = await obtenerEstadoTrafico('-2.19,-79.88', '-2.20,-79.90'); // Guayaquil
                 }
 
+                const chatId = targetName === 'Belén' ? chatIdBelen : chatIdMiguel;
+                const mensajeTelegram = `Saliste de casa ${targetName}. Clima: ${clima}. Tráfico: ${estadoTrafico}. Hora en San Luis: ${horaSanLuis}. Hora en Guayaquil: ${horaGuayaquil}. Recordatorios: ${avisos.length > 0 ? avisos.join(', ') : 'Ninguno urgente'}.`;
+                await botTelegram.sendMessage(chatId, mensajeTelegram);
+                console.log(`Mensaje enviado a Telegram para ${targetName} (chat_id: ${chatId})`);
+
                 const datoInteresante = obtenerDatoInteresante();
+                const consejoClima = generarConsejoClima(clima, true);
+                const horaLocal = targetName === 'Belén' ? horaSanLuis : horaGuayaquil;
+                const consejoHora = generarConsejoHora(horaLocal);
+                const totalRecordatorios = avisos.length + pendientes.length;
+                const resumenRecordatorios = totalRecordatorios > 0 ? `Tenés ${totalRecordatorios} recordatorios en total.` : 'No tenés recordatorios, ¡a salir tranqui!';
 
-                if (targetName === 'Miguel') {
-                    const horaLocal = horaGuayaquil;
-                    const consejoClima = generarConsejoClima(clima, true);
-                    const consejoHora = generarConsejoHora(horaLocal);
-                    const recordatoriosText = avisos.length > 0 ? `Antes de salir, ojo con estos recordatorios: ${avisos.join(', ')}. 📋` : 'No tenés recordatorios urgentes, pero revisá por las dudas antes de salir. 📋';
-                    const totalRecordatorios = avisos.length + pendientes.length;
-                    const resumenRecordatorios = totalRecordatorios > 0 ? `Tenés ${totalRecordatorios} recordatorios en total.` : 'No tenés recordatorios, ¡a salir tranqui!';
-                    const mensajeVoz = `¡Grande, Miguel, saliste de casa! Soy Oliver IA, tu compañero fiel, dándote todo lo que precisás para arrancar el día. 🏃‍♂️ El clima en Guayaquil está así: ${clima}. 🌤️ ${consejoClima} ${estadoTrafico} Che, en Guayaquil son las ${horaGuayaquil}, y en San Luis son las ${horaSanLuis}. ⏰ ${recordatoriosText} ${resumenRecordatorios} ${consejoHora} Y un dato para arrancar con buena onda: ${datoInteresante} ¡A romperla, capo! 🚀`;
-                    
-                    // Enviamos el mensaje de voz a Telegram para Miguel
-                    await enviarMensajeVozTelegram('5965566827', mensajeVoz, 'es');
-
-                    // Enviamos el embed a Discord (sin TTS)
-                    const embed = createEmbed('#FF1493', `¡A la calle, Miguel! 🚪`, 
-                        `¡Grande, capo! Saliste a comerte el mundo, ¿eh?`)
-                        .addFields(
-                            { name: '🌤️ Clima en Guayaquil', value: `${clima}\n${consejoClima}`, inline: false },
-                            { name: '⏰ Hora', value: `Guayaquil: ${horaGuayaquil}`, inline: true },
-                            { name: '📋 Recordatorios', value: avisos.length > 0 ? avisos.join('\n') : 'No tenés recordatorios urgentes.', inline: false },
-                            { name: '📊 Resumen de recordatorios', value: resumenRecordatorios, inline: false },
-                            { name: '💡 Dato interesante', value: datoInteresante, inline: false }
-                        )
-                        .setFooter({ text: 'Con onda, Oliver IA' });
-                    await canal.send({ embeds: [embed] });
-                } else if (targetName === 'Belén') {
-                    const horaLocal = horaSanLuis;
-                    const consejoClima = generarConsejoClima(clima, true);
-                    const consejoHora = generarConsejoHora(horaLocal);
-                    const recordatoriosText = avisos.length > 0 ? `Antes de salir, ojo con estos recordatorios: ${avisos.join(', ')}. 📋` : 'No tenés recordatorios urgentes, pero revisá por las dudas antes de salir. 📋';
-                    const totalRecordatorios = avisos.length + pendientes.length;
-                    const resumenRecordatorios = totalRecordatorios > 0 ? `Tenés ${totalRecordatorios} recordatorios en total.` : 'No tenés recordatorios, ¡a salir tranqui!';
-                    const mensajeVoz = `¡Atenti, Belén, saliste de casa! Soy Oliver IA, tu bot fiel, dándote todo lo que precisás para arrancar el día. 🏃‍♀️ El clima en San Luis está así: ${clima}. 🌤️ ${consejoClima} ${estadoTrafico} Che, en San Luis son las ${horaSanLuis}, y en Guayaquil son las ${horaGuayaquil}. ⏰ ${recordatoriosText} ${resumenRecordatorios} ${consejoHora} Y un dato para arrancar con buena onda: ${datoInteresante} ¡A brillar, reina! 🌸`;
-                    
-                    // Enviamos el mensaje de voz a Telegram para Belén
-                    await enviarMensajeVozTelegram('CHAT_ID_BELEN', mensajeVoz, 'es');
-
-                    // Enviamos el embed a Discord (sin TTS)
-                    const embed = createEmbed('#FF1493', `¡A la calle, Belén! 🚪`, 
-                        `¡Ey, genia! Saliste a romperla toda, ¿no?`)
-                        .addFields(
-                            { name: '🌤️ Clima en San Luis', value: `${clima}\n${consejoClima}`, inline: false },
-                            { name: '⏰ Hora', value: `San Luis: ${horaSanLuis}`, inline: true },
-                            { name: '📋 Recordatorios', value: avisos.length > 0 ? avisos.join('\n') : 'No tenés recordatorios urgentes.', inline: false },
-                            { name: '📊 Resumen de recordatorios', value: resumenRecordatorios, inline: false },
-                            { name: '💡 Dato interesante', value: datoInteresante, inline: false }
-                        )
-                        .setFooter({ text: 'Con cariño, Oliver IA' });
-                    await canal.send({ embeds: [embed] });
-                }
+                const embed = createEmbed('#FF1493', `¡A la calle, ${targetName}! 🚪`, 
+                    `¡${targetName === 'Miguel' ? 'Grande, capo' : 'Ey, genia'}! Saliste a romperla toda, ¿no?`)
+                    .addFields(
+                        { name: `🌤️ Clima en ${targetName === 'Belén' ? 'San Luis' : 'Guayaquil'}`, value: `${clima}\n${consejoClima}`, inline: false },
+                        { name: '🚗 Tráfico', value: estadoTrafico, inline: false },
+                        { name: '⏰ Hora', value: `${targetName === 'Belén' ? 'San Luis' : 'Guayaquil'}: ${horaLocal}`, inline: true },
+                        { name: '📋 Recordatorios', value: avisos.length > 0 ? avisos.join('\n') : 'No tenés recordatorios urgentes.', inline: false },
+                        { name: '📊 Resumen de recordatorios', value: resumenRecordatorios, inline: false },
+                        { name: '💡 Dato interesante', value: datoInteresante, inline: false }
+                    )
+                    .setFooter({ text: 'Con cariño, Oliver IA' });
+                await canal.send({ embeds: [embed] });
                 console.log(`Embed enviado para salida de ${targetName}`);
             } catch (error) {
                 console.error(`Error procesando salida de ${targetName}: ${error.message}`);
