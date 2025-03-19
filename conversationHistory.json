@@ -626,15 +626,14 @@
       "minutos": null
     },
     {
-      "id": "1527e7da-db01-4a64-a252-08bfbf118a19",
+      "id": "dc27dea3-b091-4640-a98f-95335e90a2a1",
       "userId": "752987736759205960",
       "channelId": "1343749554905940058",
-      "mensaje": "Hazme acuerdo de apagar la computadora",
-      "timestamp": 1742420476171,
-      "creado": 1742420416173,
-      "esRecurrente": false,
-      "hora": null,
-      "minutos": null
+      "mensaje": "esto es de prueba",
+      "cuandoLlegue": true,
+      "cuandoSalga": false,
+      "timestamp": null,
+      "creado": 1742423807530
     }
   ],
   "usedJokes": {
