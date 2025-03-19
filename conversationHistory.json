@@ -615,34 +615,12 @@
       "logSegundos": 75379
     },
     {
-      "id": "dffa4002-cbc1-4498-9738-8ff9e54dd33a",
-      "userId": "752987736759205960",
-      "channelId": "1343749554905940058",
-      "mensaje": "Hazme acuerdo de cortarme la uniceja por favor",
-      "timestamp": 1742346968924,
-      "creado": 1742325368925,
-      "esRecurrente": false,
-      "hora": null,
-      "minutos": null
-    },
-    {
       "id": "cd1f67a3-fe3a-40c2-b233-352b08b58b32",
       "userId": "752987736759205960",
       "channelId": "1343749554905940058",
       "mensaje": "Hazme acuerdo de viajar",
       "timestamp": 1742376600000,
       "creado": 1742325786140,
-      "esRecurrente": false,
-      "hora": null,
-      "minutos": null
-    },
-    {
-      "id": "b375e41f-2a38-4d83-998c-42682f579401",
-      "userId": "1023132788632862761",
-      "channelId": "1343749554905940058",
-      "mensaje": "la vacuna",
-      "timestamp": 1742347617099,
-      "creado": 1742344017099,
       "esRecurrente": false,
       "hora": null,
       "minutos": null
