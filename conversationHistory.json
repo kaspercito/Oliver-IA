@@ -584,7 +584,7 @@
       "userId": "1023132788632862761",
       "channelId": "1343749554905940058",
       "mensaje": "tomar pastilla rosada",
-      "timestamp": 1742396400000,
+      "timestamp": 1742482800000,
       "creado": 1742277583076,
       "esRecurrente": true,
       "hora": 12,
@@ -615,12 +615,12 @@
       "logSegundos": 75379
     },
     {
-      "id": "f113c670-cd30-4966-a04c-36384f1f0817",
+      "id": "a6f69c07-8bcf-4ffd-a0ef-b6f60b919584",
       "userId": "1023132788632862761",
       "channelId": "1343749554905940058",
-      "mensaje": "comprar bolsas de la basura al salir del gimnasio",
-      "timestamp": 1742392501681,
-      "creado": 1742388901682,
+      "mensaje": "respirar",
+      "timestamp": 1742409220773,
+      "creado": 1742408920773,
       "esRecurrente": false,
       "hora": null,
       "minutos": null
