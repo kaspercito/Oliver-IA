@@ -3444,14 +3444,13 @@ async function manejarRecordatorio(message) {
     if (!args) return sendError(message.channel, `¡Mandame algo pa’ recordar, ${userName}! Ejemplo: "!rec comprar agua a las 22:00"`);
 
     const palabras = args.toLowerCase().split(' ');
+    let mensajeStart = palabras[0] === 'recuérdame' || palabras[0] === 'recordame' ? 1 : 0;
     let tiempoIndex = -1;
     let esCuandoLlegue = false;
     let esCuandoSalga = false;
-    let mensajeStart = 0;
     let horaIndex = -1;
 
-    if (palabras[0] === 'recuérdame' || palabras[0] === 'recordame') mensajeStart = 1;
-
+    // Detectar el inicio del tiempo
     for (let i = mensajeStart; i < palabras.length; i++) {
         if (palabras[i] === 'cuando' && palabras[i + 1] === 'llegue' && palabras[i + 2] === 'a' && palabras[i + 3] === 'casa') {
             tiempoIndex = i;
@@ -3477,7 +3476,7 @@ async function manejarRecordatorio(message) {
 
     if (tiempoIndex === -1) return sendError(message.channel, `No entendí el tiempo, ${userName}. Usá "en 5 minutos", "mañana 15:00", "al llegar a casa" o "cuando salga de casa".`);
 
-    let tiempoTexto = args.split(' ').slice(tiempoIndex).join(' ').trim();
+    // Buscar hora específica después de "cuando llegue" o "cuando salga"
     if (esCuandoLlegue || esCuandoSalga) {
         for (let i = tiempoIndex; i < palabras.length; i++) {
             if (palabras[i] === 'a' && palabras[i + 1] === 'las') {
@@ -3487,74 +3486,60 @@ async function manejarRecordatorio(message) {
         }
     }
 
+    // Extraer el mensaje y el texto de tiempo
     const mensaje = horaIndex !== -1 
         ? args.split(' ').slice(mensajeStart, horaIndex).join(' ').trim() 
         : args.split(' ').slice(mensajeStart, tiempoIndex).join(' ').trim();
 
     if (!mensaje) return sendError(message.channel, `¡Decime qué recordar, ${userName}!`);
 
-    let recordatorio;
-    if (esCuandoLlegue) {
-        let timestamp = null;
+    const tiempoTexto = args.split(' ').slice(tiempoIndex).join(' ').trim();
+    let timestamp = null;
+    let esRecurrente = false;
+    let hora = null;
+    let minutos = null;
+
+    // Parsear el tiempo
+    if (esCuandoLlegue || esCuandoSalga) {
         if (horaIndex !== -1) {
             const horaTexto = args.split(' ').slice(horaIndex).join(' ').trim();
             const tiempo = parsearTiempo(horaTexto);
             if (!tiempo || !tiempo.timestamp) return sendError(message.channel, `No entendí la hora, ${userName}. Usá "a las 22:00" bien clarito.`);
             timestamp = tiempo.timestamp;
         }
-        recordatorio = {
-            id: uuidv4(),
-            userId: message.author.id,
-            channelId: message.channel.id,
-            mensaje,
-            cuandoLlegue: true,
-            cuandoSalga: false,
-            timestamp: timestamp,
-            creado: new Date().getTime()
-        };
-        if (timestamp) programarRecordatorio(recordatorio);
-    } else if (esCuandoSalga) {
-        let timestamp = null;
-        if (horaIndex !== -1) {
-            const horaTexto = args.split(' ').slice(horaIndex).join(' ').trim();
-            const tiempo = parsearTiempo(horaTexto);
-            if (!tiempo || !tiempo.timestamp) return sendError(message.channel, `No entendí la hora, ${userName}. Usá "a las 22:00" bien clarito.`);
-            timestamp = tiempo.timestamp;
-        }
-        recordatorio = {
-            id: uuidv4(),
-            userId: message.author.id,
-            channelId: message.channel.id,
-            mensaje,
-            cuandoLlegue: false,
-            cuandoSalga: true,
-            timestamp: timestamp,
-            creado: new Date().getTime()
-        };
-        if (timestamp) programarRecordatorio(recordatorio);
     } else {
         const tiempo = parsearTiempo(tiempoTexto);
-        if (!tiempo || (!tiempo.timestamp && !tiempo.esRecurrente)) return sendError(message.channel, `No entendí el tiempo, ${userName}.`);
-        recordatorio = {
-            id: uuidv4(),
-            userId: message.author.id,
-            channelId: message.channel.id,
-            mensaje,
-            cuandoLlegue: false,
-            cuandoSalga: false,
-            timestamp: tiempo.timestamp,
-            creado: new Date().getTime(),
-            esRecurrente: tiempo.esRecurrente || false,
-            hora: tiempo.hora,
-            minutos: tiempo.minutos
-        };
-        if (recordatorio.timestamp) programarRecordatorio(recordatorio);
+        if (!tiempo || (!tiempo.timestamp && !tiempo.esRecurrente)) return sendError(message.channel, `No entendí el tiempo, ${userName}. Ejemplo: "en 5 minutos" o "todos los días a las 10:00".`);
+        timestamp = tiempo.timestamp;
+        esRecurrente = tiempo.esRecurrente;
+        hora = tiempo.hora;
+        minutos = tiempo.minutos;
     }
 
+    // Crear el recordatorio
+    const recordatorio = {
+        id: uuidv4(),
+        userId: message.author.id,
+        channelId: message.channel.id,
+        mensaje,
+        cuandoLlegue: esCuandoLlegue,
+        cuandoSalga: esCuandoSalga,
+        timestamp,
+        creado: new Date().getTime(),
+        esRecurrente,
+        hora,
+        minutos
+    };
+
+    // Solo programar si hay timestamp
+    if (recordatorio.timestamp) programarRecordatorio(recordatorio);
+
+    // Guardar en dataStore
     dataStore.recordatorios = dataStore.recordatorios || [];
     dataStore.recordatorios.push(recordatorio);
     userModified = true;
 
+    // Manejar guardado
     const musicActive = false; // Asumo que no hay música activa
     let guardadoMsg = musicActive ? `\n⚠️ Hay música, no guardo ahora.` : `\n💾 Guardado al toque, ¡tranqui!`;
 
@@ -3568,15 +3553,22 @@ async function manejarRecordatorio(message) {
         }
     }
 
-    const textoRespuesta = esCuandoLlegue 
-        ? recordatorio.timestamp 
+    // Generar respuesta
+    let textoRespuesta;
+    if (esCuandoLlegue) {
+        textoRespuesta = recordatorio.timestamp 
             ? `Te aviso "${mensaje}" cuando llegues a casa después de las ${new Date(recordatorio.timestamp).toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires', hour: '2-digit', minute: '2-digit' })}, ${userName}.`
-            : `Te aviso "${mensaje}" cuando llegues a casa, ${userName}. (Sin hora específica).`
-        : esCuandoSalga 
-            ? recordatorio.timestamp 
-                ? `Te aviso "${mensaje}" cuando salgas de casa después de las ${new Date(recordatorio.timestamp).toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires', hour: '2-digit', minute: '2-digit' })}, ${userName}.`
-                : `Te aviso "${mensaje}" cuando salgas de casa, ${userName}. (Sin hora específica).`
-            : `Te aviso "${mensaje}" ${new Date(recordatorio.timestamp).toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })}, ${userName}.`;
+            : `Te aviso "${mensaje}" cuando llegues a casa, ${userName}. (Sin hora específica).`;
+    } else if (esCuandoSalga) {
+        textoRespuesta = recordatorio.timestamp 
+            ? `Te aviso "${mensaje}" cuando salgas de casa después de las ${new Date(recordatorio.timestamp).toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires', hour: '2-digit', minute: '2-digit' })}, ${userName}.`
+            : `Te aviso "${mensaje}" cuando salgas de casa, ${userName}. (Sin hora específica).`;
+    } else if (esRecurrente) {
+        textoRespuesta = `Te aviso "${mensaje}" todos los días a las ${hora.toString().padStart(2, '0')}:${minutos.toString().padStart(2, '0')}, ${userName}.`;
+    } else {
+        textoRespuesta = `Te aviso "${mensaje}" el ${new Date(recordatorio.timestamp).toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })}, ${userName}.`;
+    }
+
     await sendSuccess(message.channel, '⏰ ¡Recordatorio seteado!', `${textoRespuesta}${guardadoMsg}`);
 }
 
@@ -3589,6 +3581,11 @@ function programarRecordatorio(recordatorio) {
     const offsetArgentina = -3 * 60 * 60 * 1000;
     const canalMiguel = '1351976159914754129';
     const canalBelen = '1351975268654252123';
+
+    if (!recordatorio.timestamp) {
+        console.log(`Recordatorio "${recordatorio.mensaje}" (ID: ${recordatorio.id}) no tiene timestamp, no se programa.`);
+        return; // No programar si no hay timestamp
+    }
 
     if (recordatorio.timestamp <= ahoraUTC) {
         console.log(`Recordatorio "${recordatorio.mensaje}" (ID: ${recordatorio.id}) ya venció.`);
