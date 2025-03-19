@@ -3579,6 +3579,7 @@ function programarRecordatorio(recordatorio) {
     const userName = recordatorio.userId === OWNER_ID ? 'Miguel' : 'Belén';
     const ahoraUTC = Date.now();
     const offsetArgentina = -3 * 60 * 60 * 1000;
+    const canalId = '1351975268654252123'; // Canal donde se enviará el recordatorio
 
     if (recordatorio.timestamp <= ahoraUTC) {
         console.log(`Recordatorio "${recordatorio.mensaje}" (ID: ${recordatorio.id}) ya venció.`);
@@ -3594,12 +3595,27 @@ function programarRecordatorio(recordatorio) {
     console.log(`Programando recordatorio "${recordatorio.mensaje}" (ID: ${recordatorio.id}) en ${tiempoRestanteSegundos} segundos (hora Argentina: ${new Date(recordatorio.timestamp).toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })}).`);
 
     setTimeout(async () => {
+        // Enviar por MD al usuario
         const usuario = await client.users.fetch(recordatorio.userId);
         if (usuario) {
             await usuario.send({ embeds: [createEmbed('#FF1493', '⏰ ¡Recordatorio, loco!', 
                 `<@${recordatorio.userId}>, acordate de: **${recordatorio.mensaje}**. ¡Ya es hora, ${userName}! - ${new Date(recordatorio.timestamp).toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })}`)] });
-            console.log(`Recordatorio enviado a ${userName}: "${recordatorio.mensaje}" (ID: ${recordatorio.id}) a las ${new Date().toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })}`);
+            console.log(`Recordatorio enviado a ${userName} por MD: "${recordatorio.mensaje}" (ID: ${recordatorio.id}) a las ${new Date().toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })}`);
+        } else {
+            console.log(`No se pudo encontrar al usuario ${recordatorio.userId} para enviar MD`);
         }
+
+        // Enviar al canal específico
+        const canal = client.channels.cache.get(canalId);
+        if (canal) {
+            await canal.send({ embeds: [createEmbed('#FF1493', '⏰ ¡Recordatorio, loco!', 
+                `<@${recordatorio.userId}>, acordate de: **${recordatorio.mensaje}**. ¡Ya es hora, ${userName}! - ${new Date(recordatorio.timestamp).toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })}`)] });
+            console.log(`Recordatorio enviado al canal ${canalId}: "${recordatorio.mensaje}" (ID: ${recordatorio.id}) a las ${new Date().toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })}`);
+        } else {
+            console.log(`No se encontró el canal con ID ${canalId}`);
+        }
+
+        // Manejo de recordatorios recurrentes o eliminación
         if (recordatorio.esRecurrente) {
             const ahoraArgentina = Date.now() + offsetArgentina;
             const proximo = new Date(ahoraArgentina);
