@@ -626,27 +626,14 @@
       "minutos": null
     },
     {
-      "id": "c1124e3f-b6fe-4363-b2c5-740fb614e162",
+      "id": "f726dbf2-885e-4a72-b001-4da396e94390",
       "userId": "752987736759205960",
       "channelId": "1343749554905940058",
       "mensaje": "esto es de prueba",
       "cuandoLlegue": true,
       "cuandoSalga": false,
       "timestamp": null,
-      "creado": 1742426052879,
-      "esRecurrente": false,
-      "hora": null,
-      "minutos": null
-    },
-    {
-      "id": "acc781a2-582d-4dbd-bdad-6cbce462a684",
-      "userId": "752987736759205960",
-      "channelId": "1343749554905940058",
-      "mensaje": "esto es de prueba",
-      "cuandoLlegue": false,
-      "cuandoSalga": true,
-      "timestamp": null,
-      "creado": 1742426055265,
+      "creado": 1742426495990,
       "esRecurrente": false,
       "hora": null,
       "minutos": null
