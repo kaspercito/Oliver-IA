@@ -12,6 +12,7 @@ const { GoogleGenerativeAI } = require('@google/generative-ai'); // Para usar la
 const cheerio = require('cheerio');
 const gTTS = require('gtts');
 const FormData = require('form-data');
+const TelegramBot = require('node-telegram-bot-api');
 const path = require('path');
 require('dotenv').config(); // Carga variables de entorno desde un archivo .env (como tokens o claves API).
 
@@ -34,6 +35,10 @@ const ALLOWED_USER_ID = '1023132788632862761'; // ID de un usuario permitido (Be
 const CHANNEL_ID = '1343749554905940058'; // ID del canal principal donde el bot interactúa.
 const API_URL = 'https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-2-1'; // URL de la API de Stable Diffusion para generar imágenes.
 const API_TOKEN = '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'; // Token de autenticación para la API de Hugging Face.
+const telegramToken = '7833522664:AAGDfVgghfxEuxU3dXjHDZgFLE_2qk9v0ss'; // Reemplazá con el token de BotFather
+const botTelegram = new TelegramBot(telegramToken, { polling: false }); // Polling false para solo enviar
+const chatIdMiguel = '5965566827'; // Reemplazá con tu chat_id
+const chatIdBelen = '987654321';  // Reemplazá con el chat_id de Belén
 
 // Configuración del administrador de música con Erela.js
 const manager = new Manager({
@@ -3575,12 +3580,14 @@ async function manejarRecordatorio(message) {
 }
 
 // Programar el recordatorio, ajustado a Argentina
+const fetch = require('node-fetch');
+
 function programarRecordatorio(recordatorio) {
     const userName = recordatorio.userId === OWNER_ID ? 'Miguel' : 'Belén';
     const ahoraUTC = Date.now();
     const offsetArgentina = -3 * 60 * 60 * 1000;
-    const canalMiguel = '1351976159914754129'; // Canal para los recordatorios de Miguel
-    const canalBelen = '1351975268654252123';  // Canal para los recordatorios de Belén
+    const canalMiguel = '1351976159914754129';
+    const canalBelen = '1351975268654252123';
 
     if (recordatorio.timestamp <= ahoraUTC) {
         console.log(`Recordatorio "${recordatorio.mensaje}" (ID: ${recordatorio.id}) ya venció.`);
@@ -3592,32 +3599,34 @@ function programarRecordatorio(recordatorio) {
     }
 
     const diferencia = recordatorio.timestamp - ahoraUTC;
-    const tiempoRestanteSegundos = diferencia / 1000;
-    console.log(`Programando recordatorio "${recordatorio.mensaje}" (ID: ${recordatorio.id}) en ${tiempoRestanteSegundos} segundos (hora Argentina: ${new Date(recordatorio.timestamp).toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })}).`);
+    console.log(`Programando recordatorio "${recordatorio.mensaje}" (ID: ${recordatorio.id}) en ${diferencia / 1000} segundos.`);
 
     setTimeout(async () => {
-        // Enviar por MD al usuario
+        // Enviar MD en Discord
         const usuario = await client.users.fetch(recordatorio.userId);
         if (usuario) {
             await usuario.send({ embeds: [createEmbed('#FF1493', '⏰ ¡Recordatorio, loco!', 
-                `<@${recordatorio.userId}>, acordate de: **${recordatorio.mensaje}**. ¡Ya es hora, ${userName}! - ${new Date(recordatorio.timestamp).toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })}`)] });
-            console.log(`Recordatorio enviado a ${userName} por MD: "${recordatorio.mensaje}" (ID: ${recordatorio.id}) a las ${new Date().toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })}`);
-        } else {
-            console.log(`No se pudo encontrar al usuario ${recordatorio.userId} para enviar MD`);
+                `<@${recordatorio.userId}>, acordate de: **${recordatorio.mensaje}**. ¡Ya es hora, ${userName}!`)] });
         }
 
-        // Determinar el canal según el usuario
+        // Enviar al canal correspondiente en Discord
         const canalId = recordatorio.userId === OWNER_ID ? canalMiguel : canalBelen;
         const canal = client.channels.cache.get(canalId);
         if (canal) {
-            await canal.send({ embeds: [createEmbed('#FF1493', '⏰ ¡Recordatorio, loco!', 
-                `<@${recordatorio.userId}>, acordate de: **${recordatorio.mensaje}**. ¡Ya es hora, ${userName}! - ${new Date(recordatorio.timestamp).toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })}`)] });
-            console.log(`Recordatorio enviado al canal ${canalId}: "${recordatorio.mensaje}" (ID: ${recordatorio.id}) a las ${new Date().toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })}`);
-        } else {
-            console.log(`No se encontró el canal con ID ${canalId}`);
+            await canal.send({ embeds: [createEmbed('#FF1493', '⏰ ¡Recordatorio!', 
+                `<@${recordatorio.userId}>, acordate de: **${recordatorio.mensaje}**. ¡Ya es hora, ${userName}!`)] });
         }
 
-        // Manejo de recordatorios recurrentes o eliminación
+        // Enviar a Telegram
+        const chatId = recordatorio.userId === OWNER_ID ? chatIdMiguel : chatIdBelen;
+        try {
+            await botTelegram.sendMessage(chatId, `⏰ ¡ALARMA! ${recordatorio.mensaje}\nHora: ${new Date(recordatorio.timestamp).toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })}`);
+            console.log(`Mensaje enviado a Telegram para ${userName} (chat_id: ${chatId}): "${recordatorio.mensaje}"`);
+        } catch (error) {
+            console.error(`Error al enviar a Telegram para ${userName}:`, error);
+        }
+
+        // Manejo de recurrentes
         if (recordatorio.esRecurrente) {
             const ahoraArgentina = Date.now() + offsetArgentina;
             const proximo = new Date(ahoraArgentina);
