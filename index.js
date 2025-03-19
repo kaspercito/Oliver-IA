@@ -5711,43 +5711,54 @@ client.on('messageCreate', async (message) => {
             } catch (error) {
                 console.error(`No pude borrar el mensaje: ${error.message}`);
             }
-
+        
             const ahora = Date.now();
-            const recordatoriosPendientes = dataStore.recordatorios.filter(r => r.cuandoLlegue && r.userId === userId);
-            let avisos = [];
-            let pendientes = [];
-
-            if (recordatoriosPendientes.length > 0) {
-                recordatoriosPendientes.forEach(r => {
+            // Cambiamos el filtro para incluir todos los recordatorios del usuario, no solo los de 'cuandoLlegue'
+            const recordatoriosUsuario = dataStore.recordatorios.filter(r => r.userId === userId);
+            let avisos = []; // Recordatorios inmediatos o vencidos
+            let pendientes = []; // Recordatorios futuros
+        
+            if (recordatoriosUsuario.length > 0) {
+                recordatoriosUsuario.forEach(r => {
                     if (!r.timestamp || ahora >= r.timestamp) {
                         avisos.push(`- ${r.mensaje} ${r.timestamp ? `(seteado para las ${new Date(r.timestamp).toLocaleTimeString('es-' + (targetName === 'Belén' ? 'AR' : 'EC'), { hour: '2-digit', minute: '2-digit' })})` : ''}`);
                     } else {
-                        pendientes.push(r);
+                        pendientes.push(`- ${r.mensaje} (para el ${new Date(r.timestamp).toLocaleDateString('es-' + (targetName === 'Belén' ? 'AR' : 'EC'))} a las ${new Date(r.timestamp).toLocaleTimeString('es-' + (targetName === 'Belén' ? 'AR' : 'EC'), { hour: '2-digit', minute: '2-digit' })})`);
                     }
                 });
+                // Si hay avisos inmediatos de 'cuandoLlegue', los eliminamos después de mostrarlos
                 if (avisos.length > 0) {
-                    dataStore.recordatorios = dataStore.recordatorios.filter(r => !r.cuandoLlegue || r.userId !== userId || pendientes.includes(r));
+                    dataStore.recordatorios = dataStore.recordatorios.filter(r => !r.cuandoLlegue || r.userId !== userId || (r.timestamp && ahora < r.timestamp));
                     autoModified = true;
                 }
             }
-
+        
             try {
                 let clima = 'No pude traer el clima, che.';
                 const climaResult = await manejarCommand({ content: targetName === 'Belén' ? '!clima San Luis' : '!clima Guayaquil', channel: canal, author: { id: userId } }, true);
                 if (climaResult?.description) clima = climaResult.description;
                 console.log(`Clima obtenido para ${targetName}: ${clima}`);
-
+        
+                let noticias = 'No pude traer las noticias hoy, qué pena.';
+                const noticiasResult = await manejarCommand({ content: '!noticias', channel: canal, author: { id: userId } }, true);
+                if (noticiasResult?.description) noticias = noticiasResult.description;
+                console.log(`Noticias obtenidas para ${targetName}: ${noticias}`);
+        
                 const chatId = targetName === 'Belén' ? chatIdBelen : chatIdMiguel;
-                const mensajeTelegram = `Bienvenido a casa ${targetName}. Clima: ${clima}. Hora en San Luis: ${horaSanLuis}. Hora en Guayaquil: ${horaGuayaquil}. Recordatorios: ${avisos.length > 0 ? avisos.join(', ') : 'Ninguno'}.`;
+                const mensajeTelegram = targetName === 'Miguel' 
+                    ? `¡Grande, Miguel! Bienvenido a casa, capo. El clima en Guayaquil está así: ${clima}. En San Luis son las ${horaSanLuis} y en Guayaquil las ${horaGuayaquil}. Tus recordatorios: ${avisos.length > 0 || pendientes.length > 0 ? (avisos.concat(pendientes).join(', ')) : 'ninguno por ahora, relajate'}. Las noticias del día: ${noticias}. ¡Qué lindo estar de vuelta!`
+                    : `¡Ey, Belén! Bienvenida a casa, genia. El clima en San Luis está así: ${clima}. En San Luis son las ${horaSanLuis} y en Guayaquil las ${horaGuayaquil}. Tus recordatorios: ${avisos.length > 0 || pendientes.length > 0 ? (avisos.concat(pendientes).join(', ')) : 'ninguno por ahora, descansá'}. Las noticias del día: ${noticias}. ¡Qué alegría tenerte acá!`;
                 await botTelegram.sendMessage(chatId, mensajeTelegram);
                 console.log(`Mensaje enviado a Telegram para ${targetName} (chat_id: ${chatId})`);
-
+        
                 const embed = createEmbed('#FF1493', `¡Bienvenid@ a casa, ${targetName}! 🏠`, 
                     `¡Qué lindo tenerte de vuelta, ${targetName === 'Miguel' ? 'capo' : 'genia'}!`)
                     .addFields(
                         { name: `🌤️ Clima en ${targetName === 'Belén' ? 'San Luis' : 'Guayaquil'}`, value: clima, inline: false },
                         { name: '⏰ Hora', value: `San Luis: ${horaSanLuis}\nGuayaquil: ${horaGuayaquil}`, inline: true },
-                        { name: '📋 Recordatorios', value: avisos.length > 0 ? avisos.join('\n') : 'No tenés recordatorios ahora.', inline: false }
+                        { name: '📋 Recordatorios inmediatos', value: avisos.length > 0 ? avisos.join('\n') : 'No tenés recordatorios urgentes ahora.', inline: false },
+                        { name: '📅 Recordatorios futuros', value: pendientes.length > 0 ? pendientes.join('\n') : 'No tenés recordatorios programados.', inline: false },
+                        { name: '📰 Noticias', value: noticias, inline: false }
                     )
                     .setFooter({ text: 'Con cariño, Oliver IA' });
                 await canal.send({ embeds: [embed] });
@@ -5765,46 +5776,57 @@ client.on('messageCreate', async (message) => {
             } catch (error) {
                 console.error(`No pude borrar el mensaje de IFTTT: ${error.message}`);
             }
-
-            const recordatoriosPendientes = dataStore.recordatorios.filter(r => r.userId === userId);
-            let avisos = [];
-            let pendientes = [];
-
-            if (recordatoriosPendientes.length > 0) {
-                recordatoriosPendientes.forEach(r => {
-                    if (r.timestamp && r.timestamp <= Date.now()) {
-                        avisos.push(`- ${r.mensaje} (seteado para las ${new Date(r.timestamp).toLocaleTimeString('es-' + (targetName === 'Belén' ? 'AR' : 'EC'), { hour: '2-digit', minute: '2-digit' })})`);
+        
+            const ahora = Date.now();
+            // Cambiamos el filtro para incluir todos los recordatorios del usuario
+            const recordatoriosUsuario = dataStore.recordatorios.filter(r => r.userId === userId);
+            let avisos = []; // Recordatorios inmediatos o vencidos
+            let pendientes = []; // Recordatorios futuros
+        
+            if (recordatoriosUsuario.length > 0) {
+                recordatoriosUsuario.forEach(r => {
+                    if (!r.timestamp || ahora >= r.timestamp) {
+                        avisos.push(`- ${r.mensaje} ${r.timestamp ? `(seteado para las ${new Date(r.timestamp).toLocaleTimeString('es-' + (targetName === 'Belén' ? 'AR' : 'EC'), { hour: '2-digit', minute: '2-digit' })})` : ''}`);
                     } else {
-                        pendientes.push(r);
+                        pendientes.push(`- ${r.mensaje} (para el ${new Date(r.timestamp).toLocaleDateString('es-' + (targetName === 'Belén' ? 'AR' : 'EC'))} a las ${new Date(r.timestamp).toLocaleTimeString('es-' + (targetName === 'Belén' ? 'AR' : 'EC'), { hour: '2-digit', minute: '2-digit' })})`);
                     }
                 });
+                // No eliminamos recordatorios aquí, solo los mostramos
             }
-
+        
             try {
                 let clima = 'No pude traer el clima, che.';
                 const climaResult = await manejarCommand({ content: targetName === 'Belén' ? '!clima San Luis' : '!clima Guayaquil', channel: canal, author: { id: userId } }, true);
                 if (climaResult?.description) clima = climaResult.description;
                 console.log(`Clima obtenido para ${targetName}: ${clima}`);
-
+        
+                let noticias = 'No pude traer las noticias hoy, qué pena.';
+                const noticiasResult = await manejarCommand({ content: '!noticias', channel: canal, author: { id: userId } }, true);
+                if (noticiasResult?.description) noticias = noticiasResult.description;
+                console.log(`Noticias obtenidas para ${targetName}: ${noticias}`);
+        
                 const chatId = targetName === 'Belén' ? chatIdBelen : chatIdMiguel;
-                const mensajeTelegram = `Saliste de casa ${targetName}. Clima: ${clima}. Hora en San Luis: ${horaSanLuis}. Hora en Guayaquil: ${horaGuayaquil}. Recordatorios: ${avisos.length > 0 ? avisos.join(', ') : 'Ninguno urgente'}.`;
+                const mensajeTelegram = targetName === 'Miguel' 
+                    ? `¡Grande, Miguel! Saliste de casa, capo. El clima en Guayaquil está así: ${clima}. En San Luis son las ${horaSanLuis} y en Guayaquil las ${horaGuayaquil}. Tus recordatorios: ${avisos.length > 0 || pendientes.length > 0 ? (avisos.concat(pendientes).join(', ')) : 'ninguno urgente, a romperla'}. Las noticias del día: ${noticias}. ¡A comerte el día!`
+                    : `¡Ey, Belén! Saliste de casa, genia. El clima en San Luis está así: ${clima}. En San Luis son las ${horaSanLuis} y en Guayaquil las ${horaGuayaquil}. Tus recordatorios: ${avisos.length > 0 || pendientes.length > 0 ? (avisos.concat(pendientes).join(', ')) : 'ninguno urgente, a brillar'}. Las noticias del día: ${noticias}. ¡A disfrutar afuera!`;
                 await botTelegram.sendMessage(chatId, mensajeTelegram);
                 console.log(`Mensaje enviado a Telegram para ${targetName} (chat_id: ${chatId})`);
-
+        
                 const datoInteresante = obtenerDatoInteresante();
                 const consejoClima = generarConsejoClima(clima, true);
                 const horaLocal = targetName === 'Belén' ? horaSanLuis : horaGuayaquil;
                 const consejoHora = generarConsejoHora(horaLocal);
                 const totalRecordatorios = avisos.length + pendientes.length;
                 const resumenRecordatorios = totalRecordatorios > 0 ? `Tenés ${totalRecordatorios} recordatorios en total.` : 'No tenés recordatorios, ¡a salir tranqui!';
-
+        
                 const embed = createEmbed('#FF1493', `¡A la calle, ${targetName}! 🚪`, 
                     `¡${targetName === 'Miguel' ? 'Grande, capo' : 'Ey, genia'}! Saliste a romperla toda, ¿no?`)
                     .addFields(
                         { name: `🌤️ Clima en ${targetName === 'Belén' ? 'San Luis' : 'Guayaquil'}`, value: `${clima}\n${consejoClima}`, inline: false },
                         { name: '⏰ Hora', value: `${targetName === 'Belén' ? 'San Luis' : 'Guayaquil'}: ${horaLocal}`, inline: true },
-                        { name: '📋 Recordatorios', value: avisos.length > 0 ? avisos.join('\n') : 'No tenés recordatorios urgentes.', inline: false },
-                        { name: '📊 Resumen de recordatorios', value: resumenRecordatorios, inline: false },
+                        { name: '📋 Recordatorios inmediatos', value: avisos.length > 0 ? avisos.join('\n') : 'No tenés recordatorios urgentes ahora.', inline: false },
+                        { name: '📅 Recordatorios futuros', value: pendientes.length > 0 ? pendientes.join('\n') : 'No tenés recordatorios programados.', inline: false },
+                        { name: '📰 Noticias', value: noticias, inline: false },
                         { name: '💡 Dato interesante', value: datoInteresante, inline: false }
                     )
                     .setFooter({ text: 'Con cariño, Oliver IA' });
