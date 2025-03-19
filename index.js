@@ -3446,6 +3446,7 @@ async function manejarRecordatorio(message) {
     const palabras = args.toLowerCase().split(' ');
     let tiempoIndex = -1;
     let esCuandoLlegue = false;
+    let esCuandoSalga = false;
     let mensajeStart = 0;
     let horaIndex = -1;
 
@@ -3460,16 +3461,24 @@ async function manejarRecordatorio(message) {
             tiempoIndex = i;
             esCuandoLlegue = true;
             break;
+        } else if (palabras[i] === 'cuando' && palabras[i + 1] === 'salga' && palabras[i + 2] === 'de' && palabras[i + 3] === 'casa') {
+            tiempoIndex = i;
+            esCuandoSalga = true;
+            break;
+        } else if (palabras[i] === 'al' && palabras[i + 1] === 'salir' && palabras[i + 2] === 'de' && palabras[i + 3] === 'casa') {
+            tiempoIndex = i;
+            esCuandoSalga = true;
+            break;
         } else if (palabras[i] === 'en' || palabras[i] === 'mañana' || palabras[i].match(/\d{1,2}\/\d{1,2}/) || palabras[i] === 'todos' || (palabras[i] === 'a' && palabras[i + 1] === 'las')) {
             tiempoIndex = i;
             break;
         }
     }
 
-    if (tiempoIndex === -1) return sendError(message.channel, `No entendí el tiempo, ${userName}. Usá "en 5 minutos", "mañana 15:00", o "18/3 a las 22:00".`);
+    if (tiempoIndex === -1) return sendError(message.channel, `No entendí el tiempo, ${userName}. Usá "en 5 minutos", "mañana 15:00", "al llegar a casa" o "cuando salga de casa".`);
 
     let tiempoTexto = args.split(' ').slice(tiempoIndex).join(' ').trim();
-    if (esCuandoLlegue) {
+    if (esCuandoLlegue || esCuandoSalga) {
         for (let i = tiempoIndex; i < palabras.length; i++) {
             if (palabras[i] === 'a' && palabras[i + 1] === 'las') {
                 horaIndex = i;
@@ -3499,9 +3508,30 @@ async function manejarRecordatorio(message) {
             channelId: message.channel.id,
             mensaje,
             cuandoLlegue: true,
+            cuandoSalga: false,
             timestamp: timestamp,
             creado: new Date().getTime()
         };
+        if (timestamp) programarRecordatorio(recordatorio);
+    } else if (esCuandoSalga) {
+        let timestamp = null;
+        if (horaIndex !== -1) {
+            const horaTexto = args.split(' ').slice(horaIndex).join(' ').trim();
+            const tiempo = parsearTiempo(horaTexto);
+            if (!tiempo || !tiempo.timestamp) return sendError(message.channel, `No entendí la hora, ${userName}. Usá "a las 22:00" bien clarito.`);
+            timestamp = tiempo.timestamp;
+        }
+        recordatorio = {
+            id: uuidv4(),
+            userId: message.author.id,
+            channelId: message.channel.id,
+            mensaje,
+            cuandoLlegue: false,
+            cuandoSalga: true,
+            timestamp: timestamp,
+            creado: new Date().getTime()
+        };
+        if (timestamp) programarRecordatorio(recordatorio);
     } else {
         const tiempo = parsearTiempo(tiempoTexto);
         if (!tiempo || (!tiempo.timestamp && !tiempo.esRecurrente)) return sendError(message.channel, `No entendí el tiempo, ${userName}.`);
@@ -3510,12 +3540,15 @@ async function manejarRecordatorio(message) {
             userId: message.author.id,
             channelId: message.channel.id,
             mensaje,
+            cuandoLlegue: false,
+            cuandoSalga: false,
             timestamp: tiempo.timestamp,
             creado: new Date().getTime(),
             esRecurrente: tiempo.esRecurrente || false,
             hora: tiempo.hora,
             minutos: tiempo.minutos
         };
+        if (recordatorio.timestamp) programarRecordatorio(recordatorio);
     }
 
     dataStore.recordatorios = dataStore.recordatorios || [];
@@ -3539,10 +3572,12 @@ async function manejarRecordatorio(message) {
         ? recordatorio.timestamp 
             ? `Te aviso "${mensaje}" cuando llegues a casa después de las ${new Date(recordatorio.timestamp).toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires', hour: '2-digit', minute: '2-digit' })}, ${userName}.`
             : `Te aviso "${mensaje}" cuando llegues a casa, ${userName}. (Sin hora específica).`
-        : `Te aviso "${mensaje}" ${new Date(recordatorio.timestamp).toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })}, ${userName}.`;
+        : esCuandoSalga 
+            ? recordatorio.timestamp 
+                ? `Te aviso "${mensaje}" cuando salgas de casa después de las ${new Date(recordatorio.timestamp).toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires', hour: '2-digit', minute: '2-digit' })}, ${userName}.`
+                : `Te aviso "${mensaje}" cuando salgas de casa, ${userName}. (Sin hora específica).`
+            : `Te aviso "${mensaje}" ${new Date(recordatorio.timestamp).toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })}, ${userName}.`;
     await sendSuccess(message.channel, '⏰ ¡Recordatorio seteado!', `${textoRespuesta}${guardadoMsg}`);
-
-    if (recordatorio.timestamp && !esCuandoLlegue) programarRecordatorio(recordatorio);
 }
 
 // Programar el recordatorio, ajustado a Argentina
@@ -5713,20 +5748,18 @@ client.on('messageCreate', async (message) => {
             }
         
             const ahora = Date.now();
-            // Cambiamos el filtro para incluir todos los recordatorios del usuario, no solo los de 'cuandoLlegue'
             const recordatoriosUsuario = dataStore.recordatorios.filter(r => r.userId === userId);
-            let avisos = []; // Recordatorios inmediatos o vencidos
-            let pendientes = []; // Recordatorios futuros
+            let avisos = [];
+            let pendientes = [];
         
             if (recordatoriosUsuario.length > 0) {
                 recordatoriosUsuario.forEach(r => {
-                    if (!r.timestamp || ahora >= r.timestamp) {
+                    if ((!r.timestamp || ahora >= r.timestamp) && (r.cuandoLlegue || !r.cuandoSalga)) {
                         avisos.push(`- ${r.mensaje} ${r.timestamp ? `(seteado para las ${new Date(r.timestamp).toLocaleTimeString('es-' + (targetName === 'Belén' ? 'AR' : 'EC'), { hour: '2-digit', minute: '2-digit' })})` : ''}`);
-                    } else {
+                    } else if (!r.cuandoLlegue || (r.timestamp && ahora < r.timestamp)) {
                         pendientes.push(`- ${r.mensaje} (para el ${new Date(r.timestamp).toLocaleDateString('es-' + (targetName === 'Belén' ? 'AR' : 'EC'))} a las ${new Date(r.timestamp).toLocaleTimeString('es-' + (targetName === 'Belén' ? 'AR' : 'EC'), { hour: '2-digit', minute: '2-digit' })})`);
                     }
                 });
-                // Si hay avisos inmediatos de 'cuandoLlegue', los eliminamos después de mostrarlos
                 if (avisos.length > 0) {
                     dataStore.recordatorios = dataStore.recordatorios.filter(r => !r.cuandoLlegue || r.userId !== userId || (r.timestamp && ahora < r.timestamp));
                     autoModified = true;
@@ -5778,20 +5811,23 @@ client.on('messageCreate', async (message) => {
             }
         
             const ahora = Date.now();
-            // Cambiamos el filtro para incluir todos los recordatorios del usuario
             const recordatoriosUsuario = dataStore.recordatorios.filter(r => r.userId === userId);
             let avisos = []; // Recordatorios inmediatos o vencidos
             let pendientes = []; // Recordatorios futuros
         
             if (recordatoriosUsuario.length > 0) {
                 recordatoriosUsuario.forEach(r => {
-                    if (!r.timestamp || ahora >= r.timestamp) {
+                    if ((!r.timestamp || ahora >= r.timestamp) && (r.cuandoSalga || !r.cuandoLlegue)) {
                         avisos.push(`- ${r.mensaje} ${r.timestamp ? `(seteado para las ${new Date(r.timestamp).toLocaleTimeString('es-' + (targetName === 'Belén' ? 'AR' : 'EC'), { hour: '2-digit', minute: '2-digit' })})` : ''}`);
-                    } else {
+                    } else if (!r.cuandoSalga || (r.timestamp && ahora < r.timestamp)) {
                         pendientes.push(`- ${r.mensaje} (para el ${new Date(r.timestamp).toLocaleDateString('es-' + (targetName === 'Belén' ? 'AR' : 'EC'))} a las ${new Date(r.timestamp).toLocaleTimeString('es-' + (targetName === 'Belén' ? 'AR' : 'EC'), { hour: '2-digit', minute: '2-digit' })})`);
                     }
                 });
-                // No eliminamos recordatorios aquí, solo los mostramos
+                // Eliminar recordatorios con cuandoSalga que se dispararon
+                if (avisos.length > 0) {
+                    dataStore.recordatorios = dataStore.recordatorios.filter(r => !r.cuandoSalga || r.userId !== userId || (r.timestamp && ahora < r.timestamp));
+                    autoModified = true;
+                }
             }
         
             try {
