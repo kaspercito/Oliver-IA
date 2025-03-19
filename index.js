@@ -3533,6 +3533,7 @@ function programarRecordatorio(recordatorio) {
         if (usuario) {
             await usuario.send({ embeds: [createEmbed('#FF1493', '⏰ ¡Recordatorio, loco!', 
                 `<@${recordatorio.userId}>, acordate de: **${recordatorio.mensaje}**. ¡Ya es hora, ${userName}! - ${new Date(recordatorio.timestamp).toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })}`)] });
+            console.log(`Recordatorio enviado a ${userName}: "${recordatorio.mensaje}" (ID: ${recordatorio.id}) a las ${new Date().toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })}`);
         }
         if (recordatorio.esRecurrente) {
             const ahoraArgentina = Date.now() + offsetArgentina;
