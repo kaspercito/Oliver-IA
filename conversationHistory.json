@@ -615,23 +615,12 @@
       "logSegundos": 75379
     },
     {
-      "id": "cf46e497-307e-491f-a525-dd99e0e07535",
+      "id": "8c503f60-77b1-4eaa-ab67-c6dac829bec9",
       "userId": "752987736759205960",
-      "channelId": "1328170231008464958",
-      "mensaje": "estoy probando esto 5 4 3 2 1",
-      "timestamp": 1742419393870,
-      "creado": 1742419273870,
-      "esRecurrente": false,
-      "hora": null,
-      "minutos": null
-    },
-    {
-      "id": "a78290dd-e224-4b4f-b331-f1ecd5878de1",
-      "userId": "752987736759205960",
-      "channelId": "1328170231008464958",
-      "mensaje": "estoy probando esto 521",
-      "timestamp": 1742419349813,
-      "creado": 1742419289813,
+      "channelId": "1343749554905940058",
+      "mensaje": "estoy probando esto 5421",
+      "timestamp": 1742419598122,
+      "creado": 1742419538123,
       "esRecurrente": false,
       "hora": null,
       "minutos": null
