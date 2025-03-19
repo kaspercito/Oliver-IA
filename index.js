@@ -3579,7 +3579,8 @@ function programarRecordatorio(recordatorio) {
     const userName = recordatorio.userId === OWNER_ID ? 'Miguel' : 'Belén';
     const ahoraUTC = Date.now();
     const offsetArgentina = -3 * 60 * 60 * 1000;
-    const canalId = '1351975268654252123'; // Canal donde se enviará el recordatorio
+    const canalMiguel = '1351976159914754129'; // Canal para los recordatorios de Miguel
+    const canalBelen = '1351975268654252123';  // Canal para los recordatorios de Belén
 
     if (recordatorio.timestamp <= ahoraUTC) {
         console.log(`Recordatorio "${recordatorio.mensaje}" (ID: ${recordatorio.id}) ya venció.`);
@@ -3605,7 +3606,8 @@ function programarRecordatorio(recordatorio) {
             console.log(`No se pudo encontrar al usuario ${recordatorio.userId} para enviar MD`);
         }
 
-        // Enviar al canal específico
+        // Determinar el canal según el usuario
+        const canalId = recordatorio.userId === OWNER_ID ? canalMiguel : canalBelen;
         const canal = client.channels.cache.get(canalId);
         if (canal) {
             await canal.send({ embeds: [createEmbed('#FF1493', '⏰ ¡Recordatorio, loco!', 
