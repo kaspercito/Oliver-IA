@@ -26,7 +26,8 @@
     "gtts": "latest",
     "path": "latest",
     "form-data": "latest",
-    "@googlemaps/google-maps-services-js": "latest"
+    "@googlemaps/google-maps-services-js": "latest",
+    "node-telegram-bot-api": "^0.66.0"
   },
   "author": "Miguel",
   "license": "ISC"
