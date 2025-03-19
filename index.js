@@ -13,7 +13,6 @@ const cheerio = require('cheerio');
 const gTTS = require('gtts');
 const FormData = require('form-data');
 const path = require('path');
-const { Client } = require('@googlemaps/google-maps-services-js');
 require('dotenv').config(); // Carga variables de entorno desde un archivo .env (como tokens o claves API).
 
 // Creación del cliente de Discord
@@ -3285,37 +3284,6 @@ async function enviarMensajeVozTelegram(chatId, mensaje, idioma = 'es') {
     }
 }
 
-// Función para obtener el estado del tráfico usando Google Maps Routes API
-async function obtenerEstadoTrafico(origen, destino) {
-    try {
-        const response = await googleMapsClient.directions({
-            params: {
-                origin: origen,
-                destination: destino,
-                mode: 'driving',
-                departure_time: 'now', // Tráfico en tiempo real
-                traffic_model: 'best_guess', // Modelo de tráfico más preciso
-                key: process.env.GOOGLE_MAPS_API_KEY
-            },
-            timeout: 1000 // Timeout de 1 segundo
-        });
-
-        const route = response.data.routes[0];
-        const leg = route.legs[0];
-        const duration = leg.duration.text; // Duración sin tráfico
-        const durationInTraffic = leg.duration_in_traffic?.text || duration; // Duración con tráfico
-
-        if (durationInTraffic !== duration) {
-            return `El tráfico está un poco pesado, el trayecto al centro te tomará unas ${durationInTraffic} en auto. 🚗`;
-        } else {
-            return `El tráfico está tranquilo, el trayecto al centro te tomará unas ${duration} en auto. 🚗`;
-        }
-    } catch (error) {
-        console.error(`Error obteniendo estado del tráfico: ${error.message}`);
-        return 'No pude obtener el estado del tráfico, che. Mejor mirá por la ventana antes de salir. 🚦';
-    }
-}
-
 // Función para generar un consejo basado en el clima
 function generarConsejoClima(clima, esSalida = false) {
     const climaLower = clima.toLowerCase();
@@ -5899,8 +5867,7 @@ client.on('messageCreate', async (message) => {
                         `¡Grande, capo! Saliste a comerte el mundo, ¿eh?`)
                         .addFields(
                             { name: '🌤️ Clima en Guayaquil', value: `${clima}\n${consejoClima}`, inline: false },
-                            { name: '🚦 Estado del tráfico', value: estadoTrafico, inline: false },
-                            { name: '⏰ Hora', value: `Guayaquil: ${horaGuayaquil}\nSan Luis: ${horaSanLuis}`, inline: true },
+                            { name: '⏰ Hora', value: `Guayaquil: ${horaGuayaquil}`, inline: true },
                             { name: '📋 Recordatorios', value: avisos.length > 0 ? avisos.join('\n') : 'No tenés recordatorios urgentes.', inline: false },
                             { name: '📊 Resumen de recordatorios', value: resumenRecordatorios, inline: false },
                             { name: '💡 Dato interesante', value: datoInteresante, inline: false }
@@ -5924,8 +5891,7 @@ client.on('messageCreate', async (message) => {
                         `¡Ey, genia! Saliste a romperla toda, ¿no?`)
                         .addFields(
                             { name: '🌤️ Clima en San Luis', value: `${clima}\n${consejoClima}`, inline: false },
-                            { name: '🚦 Estado del tráfico', value: estadoTrafico, inline: false },
-                            { name: '⏰ Hora', value: `San Luis: ${horaSanLuis}\nGuayaquil: ${horaGuayaquil}`, inline: true },
+                            { name: '⏰ Hora', value: `San Luis: ${horaSanLuis}`, inline: true },
                             { name: '📋 Recordatorios', value: avisos.length > 0 ? avisos.join('\n') : 'No tenés recordatorios urgentes.', inline: false },
                             { name: '📊 Resumen de recordatorios', value: resumenRecordatorios, inline: false },
                             { name: '💡 Dato interesante', value: datoInteresante, inline: false }
