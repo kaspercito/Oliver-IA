@@ -624,6 +624,17 @@
       "esRecurrente": false,
       "hora": null,
       "minutos": null
+    },
+    {
+      "id": "72a00bec-f6f7-4720-84cd-1a5a42a3af08",
+      "userId": "752987736759205960",
+      "channelId": "1343749554905940058",
+      "mensaje": "quiero probar que funcione correctamente, hola",
+      "timestamp": 1742420298943,
+      "creado": 1742420238943,
+      "esRecurrente": false,
+      "hora": null,
+      "minutos": null
     }
   ],
   "usedJokes": {
