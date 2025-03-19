@@ -626,24 +626,14 @@
       "minutos": null
     },
     {
-      "id": "dc27dea3-b091-4640-a98f-95335e90a2a1",
-      "userId": "752987736759205960",
-      "channelId": "1343749554905940058",
-      "mensaje": "esto es de prueba",
-      "cuandoLlegue": true,
-      "cuandoSalga": false,
-      "timestamp": null,
-      "creado": 1742423807530
-    },
-    {
-      "id": "a1f2f0ea-787b-449e-9051-ed3797d1a68b",
+      "id": "dd4435c2-cc1a-49d6-9191-5a62d76f7623",
       "userId": "752987736759205960",
       "channelId": "1343749554905940058",
       "mensaje": "esto es de prueba",
       "cuandoLlegue": false,
       "cuandoSalga": true,
       "timestamp": null,
-      "creado": 1742423813236
+      "creado": 1742424181631
     }
   ],
   "usedJokes": {
