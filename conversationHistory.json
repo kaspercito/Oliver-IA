@@ -613,17 +613,6 @@
       "hora": 0,
       "minutos": 0,
       "logSegundos": 75379
-    },
-    {
-      "id": "cd1f67a3-fe3a-40c2-b233-352b08b58b32",
-      "userId": "752987736759205960",
-      "channelId": "1343749554905940058",
-      "mensaje": "Hazme acuerdo de viajar",
-      "timestamp": 1742376600000,
-      "creado": 1742325786140,
-      "esRecurrente": false,
-      "hora": null,
-      "minutos": null
     }
   ],
   "usedJokes": {
