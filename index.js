@@ -5786,15 +5786,8 @@ client.on('messageCreate', async (message) => {
                 if (climaResult?.description) clima = climaResult.description;
                 console.log(`Clima obtenido para ${targetName}: ${clima}`);
 
-                let estadoTrafico = 'No pude obtener el estado del tráfico, che.';
-                if (targetName === 'Belén') {
-                    estadoTrafico = await obtenerEstadoTrafico('-33.295,-66.335', '-33.30,-66.34'); // San Luis
-                } else if (targetName === 'Miguel') {
-                    estadoTrafico = await obtenerEstadoTrafico('-2.19,-79.88', '-2.20,-79.90'); // Guayaquil
-                }
-
                 const chatId = targetName === 'Belén' ? chatIdBelen : chatIdMiguel;
-                const mensajeTelegram = `Saliste de casa ${targetName}. Clima: ${clima}. Tráfico: ${estadoTrafico}. Hora en San Luis: ${horaSanLuis}. Hora en Guayaquil: ${horaGuayaquil}. Recordatorios: ${avisos.length > 0 ? avisos.join(', ') : 'Ninguno urgente'}.`;
+                const mensajeTelegram = `Saliste de casa ${targetName}. Clima: ${clima}. Hora en San Luis: ${horaSanLuis}. Hora en Guayaquil: ${horaGuayaquil}. Recordatorios: ${avisos.length > 0 ? avisos.join(', ') : 'Ninguno urgente'}.`;
                 await botTelegram.sendMessage(chatId, mensajeTelegram);
                 console.log(`Mensaje enviado a Telegram para ${targetName} (chat_id: ${chatId})`);
 
@@ -5809,7 +5802,6 @@ client.on('messageCreate', async (message) => {
                     `¡${targetName === 'Miguel' ? 'Grande, capo' : 'Ey, genia'}! Saliste a romperla toda, ¿no?`)
                     .addFields(
                         { name: `🌤️ Clima en ${targetName === 'Belén' ? 'San Luis' : 'Guayaquil'}`, value: `${clima}\n${consejoClima}`, inline: false },
-                        { name: '🚗 Tráfico', value: estadoTrafico, inline: false },
                         { name: '⏰ Hora', value: `${targetName === 'Belén' ? 'San Luis' : 'Guayaquil'}: ${horaLocal}`, inline: true },
                         { name: '📋 Recordatorios', value: avisos.length > 0 ? avisos.join('\n') : 'No tenés recordatorios urgentes.', inline: false },
                         { name: '📊 Resumen de recordatorios', value: resumenRecordatorios, inline: false },
