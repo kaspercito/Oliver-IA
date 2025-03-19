@@ -626,14 +626,14 @@
       "minutos": null
     },
     {
-      "id": "dd4435c2-cc1a-49d6-9191-5a62d76f7623",
+      "id": "17927cfe-8fc7-4c2f-a54d-6de597bbdf0f",
       "userId": "752987736759205960",
       "channelId": "1343749554905940058",
       "mensaje": "esto es de prueba",
-      "cuandoLlegue": false,
-      "cuandoSalga": true,
+      "cuandoLlegue": true,
+      "cuandoSalga": false,
       "timestamp": null,
-      "creado": 1742424181631
+      "creado": 1742424756269
     }
   ],
   "usedJokes": {
