@@ -3247,9 +3247,6 @@ async function manejarSugerencias(message) {
     }
 }
 
-// Inicializar el cliente de Google Maps
-const googleMapsClient = new Client({});
-
 // Función para generar un archivo de audio con TTS y enviarlo a Telegram
 async function enviarMensajeVozTelegram(chatId, mensaje, idioma = 'es') {
     try {
