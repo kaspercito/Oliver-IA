@@ -4785,21 +4785,18 @@ async function manejarNoticias(message, silent = false) {
         const articlesAR = await fetchNews('ar');
         const articlesEC = await fetchNews('ec');
 
-        console.log('Noticias procesadas AR:', JSON.stringify(articlesAR, null, 2));
-        console.log('Noticias procesadas EC:', JSON.stringify(articlesEC, null, 2));
-
         let noticias;
         if (silent) {
             const relevantArticles = userName === 'Miguel' ? articlesEC : articlesAR;
             noticias = relevantArticles.length > 0 
-                ? relevantArticles.slice(0, 3).map((article, index) => `${index + 1}. ${article.title}`).join('\n')
+                ? relevantArticles.slice(0, 3).map((article, index) => `${index + 1}. ${article.title || 'Sin título disponible'}`).join('\n')
                 : `No encontré noticias de ${userName === 'Miguel' ? 'Ecuador' : 'Argentina'} hoy, loco.`;
         } else {
             const noticiasAR = articlesAR.length > 0 
-                ? articlesAR.slice(0, 5).map((article, index) => `${index + 1}. **${article.title}**`).join('\n')
+                ? articlesAR.slice(0, 5).map((article, index) => `${index + 1}. **${article.title || 'Sin título disponible'}**`).join('\n')
                 : 'No encontré noticias de Argentina hoy, loco.';
             const noticiasEC = articlesEC.length > 0 
-                ? articlesEC.slice(0, 5).map((article, index) => `${index + 1}. **${article.title}**`).join('\n')
+                ? articlesEC.slice(0, 5).map((article, index) => `${index + 1}. **${article.title || 'Sin título disponible'}**`).join('\n')
                 : 'No encontré noticias de Ecuador hoy, loco.';
             noticias = `**Argentina:**\n${noticiasAR}\n\n**Ecuador:**\n${noticiasEC}`;
         }
@@ -5884,7 +5881,7 @@ async function manejarCommand(message, silent = false) {
 }
 
 client.on('messageCreate', async (message) => {
-    console.log(`Mensaje recibido - Autor: ${message.author?.username}, Contenido: ${message.content}, Bot: ${message.author?.bot}`);
+    console.log(`Mensaje recibido - Autor: ${message.author?.username || 'desconocido'}, Contenido: ${message.content || 'sin contenido'}, Bot: ${message.author?.bot || 'N/A'}`);
     
     if (!message.author || (message.author.bot && message.author.username !== 'IFTTT')) {
         console.log(`Ignorado por filtro de bot o mensaje inválido: ${message.content || 'sin contenido'} (Autor: ${message.author?.username || 'desconocido'})`);
@@ -5892,12 +5889,12 @@ client.on('messageCreate', async (message) => {
     }
 
     const userName = message.author.id === OWNER_ID ? 'Miguel' : (message.author.id === ALLOWED_USER_ID ? 'Belén' : 'Un desconocido');
-    if (!message.content) {
-        console.error('Mensaje sin contenido recibido');
+    if (!message.content || typeof message.content !== 'string') {
+        console.error('Mensaje sin contenido válido recibido o no es string');
         return;
     }
     const content = message.content.trim().toLowerCase();
-    console.log(`Contenido limpio: ${content}`);
+    console.log(`Contenido limpio: "${content}"`);
 
     const jefeRoleId = '1154946840454762496';
     const jefaRoleId = '1139744529428271187';
@@ -5905,7 +5902,7 @@ client.on('messageCreate', async (message) => {
     const hasJefaMention = content.includes(`<@&${jefaRoleId}>`);
 
     if (hasJefeMention || hasJefaMention) {
-        console.log(`Detectado mensaje IFTTT con mención: ${content}`);
+        console.log(`Detectado mensaje IFTTT con mención: "${content}"`);
         const esJefe = hasJefeMention;
         const userId = esJefe ? ALLOWED_USER_ID : OWNER_ID;
         const targetName = esJefe ? 'Belén' : 'Miguel';
@@ -5927,7 +5924,7 @@ client.on('messageCreate', async (message) => {
             console.log(`Procesando ${isArrival ? 'llegada' : 'salida'} de ${targetName}`);
             try {
                 await message.delete();
-                console.log(`Mensaje de IFTTT borrado: ${content}`);
+                console.log(`Mensaje de IFTTT borrado: "${content}"`);
             } catch (error) {
                 console.error(`No pude borrar el mensaje: ${error.message}`);
             }
@@ -5973,6 +5970,8 @@ client.on('messageCreate', async (message) => {
                     }, true);
                     if (noticiasResult?.description) {
                         noticias = noticiasResult.description.split('\n').slice(0, 3).join('\n');
+                    } else {
+                        console.warn(`No se encontró description en noticiasResult: ${JSON.stringify(noticiasResult)}`);
                     }
                     console.log(`Noticias obtenidas para ${targetName}: ${noticias}`);
                 } catch (error) {
@@ -5988,7 +5987,7 @@ client.on('messageCreate', async (message) => {
                 }
         
                 const consejoClima = generarConsejoClima(clima, !isArrival);
-                const horaLocal = targetName === 'Miguel' ? horaEcuador : horaArgentina; // Ecuador para Miguel, Argentina para Belén
+                const horaLocal = targetName === 'Miguel' ? horaEcuador : horaArgentina;
                 const consejoHora = generarConsejoHora(horaLocal);
                 const totalRecordatorios = recordatoriosUsuario.length;
                 const resumenRecordatorios = totalRecordatorios > 0 ? `Tenés ${totalRecordatorios} recordatorios en total.` : 'No tenés recordatorios, ¡a descansar tranqui!';
