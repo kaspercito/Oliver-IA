@@ -3525,27 +3525,35 @@ function programarRecordatorio(recordatorio) {
     console.log(`Programando recordatorio "${recordatorio.mensaje}" (ID: ${recordatorio.id}) en ${diferencia / 1000} segundos.`);
 
     setTimeout(async () => {
+        const embed = createEmbed('#FF1493', '⏰ ¡Recordatorio, loco!', 
+            `<@${recordatorio.userId}>, acordate de: **${recordatorio.mensaje}**. ¡Ya es hora, ${userName}!`);
+
+        // Enviar a DM
         const usuario = await client.users.fetch(recordatorio.userId);
         if (usuario) {
-            await usuario.send({ embeds: [createEmbed('#FF1493', '⏰ ¡Recordatorio, loco!', 
-                `<@${recordatorio.userId}>, acordate de: **${recordatorio.mensaje}**. ¡Ya es hora, ${userName}!`)] });
+            await usuario.send({ embeds: [embed] });
+            console.log(`Recordatorio enviado a DM de ${userName}: "${recordatorio.mensaje}"`);
         }
 
+        // Enviar a canal correspondiente
         const canalId = recordatorio.userId === OWNER_ID ? canalMiguel : canalBelen;
         const canal = client.channels.cache.get(canalId);
         if (canal) {
-            await canal.send({ embeds: [createEmbed('#FF1493', '⏰ ¡Recordatorio!', 
-                `<@${recordatorio.userId}>, acordate de: **${recordatorio.mensaje}**. ¡Ya es hora, ${userName}!`)] });
+            await canal.send({ embeds: [embed] });
+            console.log(`Recordatorio enviado al canal ${canalId} para ${userName}: "${recordatorio.mensaje}"`);
         }
 
+        // Enviar a Telegram
         const chatId = recordatorio.userId === OWNER_ID ? chatIdMiguel : chatIdBelen;
         try {
-            await botTelegram.sendMessage(chatId, `⏰ ¡ALARMA! ${recordatorio.mensaje}\nHora: ${new Date(recordatorio.timestamp).toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })}`);
+            await botTelegram.sendMessage(chatId, 
+                `⏰ ¡ALARMA! ${recordatorio.mensaje}\nHora: ${new Date(recordatorio.timestamp).toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })}`);
             console.log(`Mensaje enviado a Telegram para ${userName} (chat_id: ${chatId}): "${recordatorio.mensaje}"`);
         } catch (error) {
-            console.error(`Error al enviar a Telegram para ${userName}:`, error);
+            console.error(`Error al enviar a Telegram para ${userName}: ${error.message}`);
         }
 
+        // Manejo de recurrencia o eliminación
         if (recordatorio.esRecurrente) {
             const ahoraArgentina = Date.now() + offsetArgentina;
             const proximo = new Date(ahoraArgentina);
@@ -4740,7 +4748,11 @@ async function manejarNoticias(message, silent = false) {
 
     try {
         const apiKey = process.env.MEDIASTACK_API_KEY;
-        if (!apiKey) throw new Error('Falta la clave de Mediastack en el .env, loco.');
+        if (!apiKey) {
+            console.error('No se encontró MEDIASTACK_API_KEY en el archivo .env');
+            throw new Error('Falta la clave de Mediastack en el .env, loco.');
+        }
+        console.log(`Usando clave API: ${apiKey.substring(0, 4)}... (ocultada por seguridad)`);
 
         const today = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Argentina/Buenos_Aires' });
         console.log(`Fecha calculada: ${today}`);
@@ -4750,18 +4762,23 @@ async function manejarNoticias(message, silent = false) {
             console.log(`Pidiendo noticias de ${country} a: ${url}`);
             try {
                 let response = await axios.get(url);
+                console.log(`Respuesta cruda de ${country}: ${JSON.stringify(response.data, null, 2)}`);
                 let articles = response.data.data || [];
 
                 if (articles.length === 0) {
                     url = `http://api.mediastack.com/v1/news?access_key=${apiKey}&countries=${country}&languages=es&limit=5&sort=published_desc`;
                     console.log(`Sin noticias de hoy para ${country}, probando sin fecha: ${url}`);
                     response = await axios.get(url);
+                    console.log(`Respuesta cruda sin fecha de ${country}: ${JSON.stringify(response.data, null, 2)}`);
                     articles = response.data.data || [];
                 }
 
                 return articles;
             } catch (error) {
                 console.error(`Error al obtener noticias de ${country}: ${error.message}`);
+                if (error.response) {
+                    console.error(`Detalles del error: ${JSON.stringify(error.response.data, null, 2)}`);
+                }
                 return [];
             }
         };
@@ -4769,10 +4786,11 @@ async function manejarNoticias(message, silent = false) {
         const articlesAR = await fetchNews('ar');
         const articlesEC = await fetchNews('ec');
 
-        console.log('Respuesta AR:', JSON.stringify({ data: articlesAR }, null, 2));
-        console.log('Respuesta EC:', JSON.stringify({ data: articlesEC }, null, 2));
+        console.log('Noticias procesadas AR:', JSON.stringify(articlesAR, null, 2));
+        console.log('Noticias procesadas EC:', JSON.stringify(articlesEC, null, 2));
 
         if (articlesAR.length === 0 && articlesEC.length === 0) {
+            console.warn('No se encontraron noticias para ningún país.');
             throw new Error('No encontré noticias copadas de Argentina ni de Ecuador, qué cagada.');
         }
 
@@ -4803,8 +4821,8 @@ async function manejarNoticias(message, silent = false) {
         }
         return embed;
     } catch (error) {
-        console.error(`Error en noticias: ${error.message}`);
-        if (error.response) console.error(`Respuesta de la API: ${JSON.stringify(error.response.data)}`);
+        console.error(`Error general en manejarNoticias: ${error.message}`);
+        if (error.response) console.error(`Respuesta de la API con error: ${JSON.stringify(error.response.data, null, 2)}`);
         const errorEmbed = createEmbed('#FF5555', '¡Qué quilombo!', 
             `No pude traer noticias copadas, ${userName}. Error: ${error.message}. ¿Probamos de nuevo, loco?`);
         if (!silent && !isForTelegram && waitingMessage) {
@@ -5904,6 +5922,7 @@ client.on('messageCreate', async (message) => {
         const horaSanLuis = new Date().toLocaleTimeString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires', hour: '2-digit', minute: '2-digit' });
         const horaGuayaquil = new Date().toLocaleTimeString('es-EC', { timeZone: 'America/Guayaquil', hour: '2-digit', minute: '2-digit' });
 
+        // Dentro de processEvent en messageCreate
         const processEvent = async (isArrival) => {
             console.log(`Procesando ${isArrival ? 'llegada' : 'salida'} de ${targetName} - Canal general: ${canalGeneralId}, Canal recordatorios: ${targetName === 'Miguel' ? canalMiguel : canalBelen}`);
             try {
@@ -5912,24 +5931,26 @@ client.on('messageCreate', async (message) => {
             } catch (error) {
                 console.error(`No pude borrar el mensaje: ${error.message}`);
             }
-
+        
             const ahora = Date.now();
             const recordatoriosUsuario = dataStore.recordatorios.filter(r => r.userId === userId);
             let avisos = [];
             let pendientes = [];
-
+        
             if (recordatoriosUsuario.length > 0) {
                 recordatoriosUsuario.forEach(r => {
-                    if ((!r.timestamp || ahora >= r.timestamp) && ((isArrival && r.cuandoLlegue) || (!isArrival && r.cuandoSalga))) {
+                    const estaListo = (!r.timestamp || ahora >= r.timestamp); // Si no tiene timestamp o ya pasó la hora
+                    if (estaListo && ((isArrival && r.cuandoLlegue) || (!isArrival && r.cuandoSalga))) {
                         avisos.push(`- ${r.mensaje} ${r.timestamp ? `(seteado para las ${new Date(r.timestamp).toLocaleTimeString('es-' + (targetName === 'Belén' ? 'AR' : 'EC'), { hour: '2-digit', minute: '2-digit' })})` : ''}`);
-                    } else if ((isArrival && !r.cuandoLlegue) || (!isArrival && !r.cuandoSalga) || (r.timestamp && ahora < r.timestamp)) {
+                    } else {
                         pendientes.push(`- ${r.mensaje} ${r.timestamp ? `(para el ${new Date(r.timestamp).toLocaleDateString('es-' + (targetName === 'Belén' ? 'AR' : 'EC'))} a las ${new Date(r.timestamp).toLocaleTimeString('es-' + (targetName === 'Belén' ? 'AR' : 'EC'), { hour: '2-digit', minute: '2-digit' })})` : ''}`);
                     }
                 });
                 if (avisos.length > 0) {
+                    // Eliminar solo los recordatorios que se dispararon (no recurrentes)
                     dataStore.recordatorios = dataStore.recordatorios.filter(r => 
                         r.userId !== userId || 
-                        ((isArrival && !r.cuandoLlegue) || (!isArrival && !r.cuandoSalga) || (r.timestamp && ahora < r.timestamp))
+                        (!((isArrival && r.cuandoLlegue) || (!isArrival && r.cuandoSalga)) || (r.timestamp && ahora < r.timestamp))
                     );
                     autoModified = true;
                 }
