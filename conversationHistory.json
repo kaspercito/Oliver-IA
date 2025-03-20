@@ -637,6 +637,19 @@
       "esRecurrente": false,
       "hora": null,
       "minutos": null
+    },
+    {
+      "id": "aade3f87-53be-4641-ae17-9e65811b79f3",
+      "userId": "1023132788632862761",
+      "channelId": "1343749554905940058",
+      "mensaje": "comprar hojas para la impresora",
+      "cuandoLlegue": false,
+      "cuandoSalga": false,
+      "timestamp": 1742497565593,
+      "creado": 1742486765594,
+      "esRecurrente": false,
+      "hora": null,
+      "minutos": null
     }
   ],
   "usedJokes": {
