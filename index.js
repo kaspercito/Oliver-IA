@@ -5905,9 +5905,9 @@ client.on('messageCreate', async (message) => {
         const esJefe = hasJefeMention;
         const userId = esJefe ? ALLOWED_USER_ID : OWNER_ID;
         const targetName = esJefe ? 'Belén' : 'Miguel';
-        const canalGeneralId = '1343749554905940058'; // Canal único para mensajes generales
-        const canalMiguel = '1351976159914754129'; // Canal de recordatorios para Miguel
-        const canalBelen = '1351975268654252123'; // Canal de recordatorios para Belén
+        const canalGeneralId = '1343749554905940058';
+        const canalMiguel = '1351976159914754129';
+        const canalBelen = '1351975268654252123';
         const canalGeneral = client.channels.cache.get(canalGeneralId);
         const canalRecordatorios = client.channels.cache.get(targetName === 'Miguel' ? canalMiguel : canalBelen);
 
@@ -5937,9 +5937,9 @@ client.on('messageCreate', async (message) => {
                 recordatoriosUsuario.forEach(r => {
                     const estaListo = (!r.timestamp || ahora >= r.timestamp);
                     if (estaListo && ((isArrival && r.cuandoLlegue) || (!isArrival && r.cuandoSalga))) {
-                        avisos.push(`- ${r.mensaje} ${r.timestamp ? `(seteado para las ${new Date(r.timestamp).toLocaleTimeString('es-' + (targetName === 'Belén' ? 'AR' : 'EC'), { hour: '2-digit', minute: '2-digit' })})` : ''}`);
+                        avisos.push(`- ${r.mensaje} ${r.timestamp ? `(seteado para ${new Date(r.timestamp).toLocaleTimeString('es-' + (targetName === 'Belén' ? 'AR' : 'EC'), { hour: '2-digit', minute: '2-digit' })})` : ''}`);
                     } else {
-                        pendientes.push(`- ${r.mensaje} ${r.timestamp ? `(para el ${new Date(r.timestamp).toLocaleDateString('es-' + (targetName === 'Belén' ? 'AR' : 'EC'))} a las ${new Date(r.timestamp).toLocaleTimeString('es-' + (targetName === 'Belén' ? 'AR' : 'EC'), { hour: '2-digit', minute: '2-digit' })})` : ''}`);
+                        pendientes.push(`- ${r.mensaje} ${r.timestamp ? `(para ${new Date(r.timestamp).toLocaleDateString('es-' + (targetName === 'Belén' ? 'AR' : 'EC'))} ${new Date(r.timestamp).toLocaleTimeString('es-' + (targetName === 'Belén' ? 'AR' : 'EC'), { hour: '2-digit', minute: '2-digit' })})` : ''}`);
                     }
                 });
                 if (avisos.length > 0) {
@@ -5967,11 +5967,7 @@ client.on('messageCreate', async (message) => {
                         author: { id: userId }, 
                         channel: canalGeneral 
                     }, true);
-                    if (noticiasResult && noticiasResult.data && noticiasResult.data.description) {
-                        noticias = noticiasResult.data.description;
-                    } else {
-                        console.warn('El embed de noticias no tiene description:', JSON.stringify(noticiasResult, null, 2));
-                    }
+                    if (noticiasResult?.data?.description) noticias = noticiasResult.data.description;
                     console.log(`Noticias obtenidas para ${targetName}: ${noticias}`);
                 } catch (error) {
                     console.error(`Error al obtener noticias: ${error.message}`);
@@ -5998,11 +5994,15 @@ client.on('messageCreate', async (message) => {
                         { name: '⏰ Hora', value: isArrival ? `San Luis: ${horaSanLuis}\nGuayaquil: ${horaGuayaquil}` : `${targetName === 'Belén' ? 'San Luis' : 'Guayaquil'}: ${horaLocal}\n${consejoHora}`, inline: true },
                         { name: '📋 Recordatorios inmediatos', value: avisos.length > 0 ? avisos.join('\n') : 'No tenés recordatorios urgentes ahora.', inline: false },
                         { name: '📅 Recordatorios futuros', value: pendientes.length > 0 ? pendientes.join('\n') : 'No tenés recordatorios programados.', inline: false },
-                        { name: '📰 Noticias', value: noticias, inline: false },
-                        { name: '💡 Dato interesante', value: datoInteresante, inline: false },
+                        { name: '📰 Noticias', value: noticias.length > 1024 ? noticias.substring(0, 1021) + '...' : noticias, inline: false },
+                        { name: '💡 Dato interesante', value: datoInteresante.length > 1024 ? datoInteresante.substring(0, 1021) + '...' : datoInteresante, inline: false },
                         { name: '📝 Resumen', value: resumenRecordatorios, inline: false }
                     )
                     .setFooter({ text: 'Con cariño, Oliver IA' });
+
+                const embedSize = JSON.stringify(embed).length;
+                console.log(`Tamaño del embed: ${embedSize} caracteres`);
+                if (embedSize > 6000) throw new Error(`El embed excede el límite de 6000 caracteres: ${embedSize}`);
         
                 await canalGeneral.send({ embeds: [embed] });
                 console.log(`Embed enviado al canal general ${canalGeneralId} para ${isArrival ? 'llegada' : 'salida'} de ${targetName}`);
@@ -6053,6 +6053,7 @@ client.on('messageCreate', async (message) => {
                 console.error(`Error procesando ${isArrival ? 'llegada' : 'salida'} de ${targetName}: ${error.message}`);
             }
         };
+
         if (content.includes('entered a su casa')) {
             await processEvent(true);
         } else if (content.includes('exited a su casa')) {
@@ -6193,7 +6194,9 @@ client.on('messageCreate', async (message) => {
       await obtenerResultados(message);
         return;
     } else if (content === '!noticias') {
-        await manejarNoticias(message, false); // false para que no sea silencioso y muestre ambos países
+        const embed = await manejarNoticias(message, false); // Muestra ambos países
+        await message.channel.send({ embeds: [embed] });
+        console.log(`Embed de !noticias enviado al canal ${message.channel.id}`);
         return;
     } else if (content.startsWith('!wiki')) {
         await manejarWiki(message);
