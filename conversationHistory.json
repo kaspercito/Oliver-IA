@@ -624,19 +624,6 @@
       "esRecurrente": false,
       "hora": null,
       "minutos": null
-    },
-    {
-      "id": "844136d1-d444-41fd-8cb6-afc8849d0c56",
-      "userId": "752987736759205960",
-      "channelId": "1343749554905940058",
-      "mensaje": "Recuerdame que tengo que ver el partido",
-      "cuandoLlegue": false,
-      "cuandoSalga": false,
-      "timestamp": 1742499900000,
-      "creado": 1742435802496,
-      "esRecurrente": false,
-      "hora": null,
-      "minutos": null
     }
   ],
   "usedJokes": {
