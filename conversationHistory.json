@@ -639,14 +639,14 @@
       "minutos": null
     },
     {
-      "id": "51f14cc2-4dbf-4d49-aa49-0f30dc21e093",
+      "id": "e4f00c34-a54c-41af-876e-ecb35154ab95",
       "userId": "752987736759205960",
       "channelId": "1343749554905940058",
       "mensaje": "Está lloviendo como el diablo recuérdamelo",
       "cuandoLlegue": false,
       "cuandoSalga": false,
-      "timestamp": 1742430422163,
-      "creado": 1742430362163,
+      "timestamp": 1742430501929,
+      "creado": 1742430441930,
       "esRecurrente": false,
       "hora": null,
       "minutos": null
