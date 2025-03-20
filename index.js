@@ -4741,7 +4741,7 @@ async function manejarNoticias(message, silent = false) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
     const isForTelegram = message.channel.type !== 'GUILD_TEXT';
 
-    const waitingEmbed = createEmbed('#FF1493', `📰 Buscando noticias, ${userName}...`, 
+    const waitingEmbed = createEmbed('#55FFFF', `📰 Buscando noticias, ${userName}...`, 
         `Aguantá que te traigo lo último${isForTelegram ? (userName === 'Miguel' ? ' de Ecuador' : ' de Argentina') : ' de Argentina y Ecuador'} al toque...`);
     let waitingMessage;
     if (!silent && !isForTelegram) {
@@ -4786,26 +4786,33 @@ async function manejarNoticias(message, silent = false) {
         console.log('Noticias procesadas AR:', JSON.stringify(articlesAR, null, 2));
         console.log('Noticias procesadas EC:', JSON.stringify(articlesEC, null, 2));
 
-        const formatNews = (articles, country) => {
-            if (articles.length === 0) return `No encontré noticias posta de ${country} hoy, loco.`;
-            return articles.slice(0, 5).map((article, index) => 
-                `${index + 1}. **${article.title}**\n${article.description ? article.description.slice(0, 50) + '...' : 'Sin descripción.'}\n*Fuente: ${article.source}*`
-            ).join('\n\n');
-        };
-
-        const noticiasAR = formatNews(articlesAR, 'Argentina');
-        const noticiasEC = formatNews(articlesEC, 'Ecuador');
+        let noticias;
+        if (silent && isForTelegram) {
+            const relevantArticles = userName === 'Miguel' ? articlesEC : articlesAR;
+            noticias = relevantArticles.length > 0 
+                ? relevantArticles.slice(0, 5).map((article, index) => `${index + 1}. ${article.title}`).join('\n')
+                : `No encontré noticias de ${userName === 'Miguel' ? 'Ecuador' : 'Argentina'} hoy, loco.`;
+        } else if (silent) {
+            const relevantArticles = userName === 'Miguel' ? articlesEC : articlesAR;
+            noticias = relevantArticles.length > 0 
+                ? relevantArticles.slice(0, 5).map((article, index) => `${index + 1}. ${article.title}`).join('\n')
+                : `No encontré noticias de ${userName === 'Miguel' ? 'Ecuador' : 'Argentina'} hoy, loco.`;
+        } else {
+            const noticiasAR = articlesAR.length > 0 
+                ? articlesAR.slice(0, 5).map((article, index) => `${index + 1}. **${article.title}**`).join('\n')
+                : 'No encontré noticias de Argentina hoy, loco.';
+            const noticiasEC = articlesEC.length > 0 
+                ? articlesEC.slice(0, 5).map((article, index) => `${index + 1}. **${article.title}**`).join('\n')
+                : 'No encontré noticias de Ecuador hoy, loco.';
+            noticias = `**Argentina:**\n${noticiasAR}\n\n**Ecuador:**\n${noticiasEC}`;
+        }
 
         let embed;
-        if (isForTelegram && silent) {
-            // Para eventos de llegada/salida
-            const relevantNews = userName === 'Miguel' ? noticiasEC : noticiasAR;
+        if (silent) {
             const countryLabel = userName === 'Miguel' ? 'Ecuador' : 'Argentina';
-            embed = createEmbed('#FF1493', `📰 Últimas Noticias de ${countryLabel} (${today})`, relevantNews);
+            embed = createEmbed('#FFD700', `📰 Últimas Noticias de ${countryLabel} (${today})`, noticias);
         } else {
-            // Para !noticias
-            embed = createEmbed('#FF1493', `📰 Últimas Noticias (${today})`, 
-                `**Argentina:**\n${noticiasAR}\n\n**Ecuador:**\n${noticiasEC}`);
+            embed = createEmbed('#FFD700', `📰 Últimas Noticias (${today})`, noticias);
         }
 
         const embedSize = JSON.stringify(embed).length;
@@ -4824,7 +4831,7 @@ async function manejarNoticias(message, silent = false) {
         return embed;
     } catch (error) {
         console.error(`Error en manejarNoticias: ${error.message}`);
-        const errorEmbed = createEmbed('#FF1493', '¡Qué quilombo!', 
+        const errorEmbed = createEmbed('#FF5555', '¡Qué quilombo!', 
             `No pude traer noticias copadas, ${userName}. Error: ${error.message}. ¿Probamos de nuevo, loco?`);
         if (!silent && !isForTelegram && waitingMessage) {
             await waitingMessage.edit({ embeds: [errorEmbed] });
