@@ -663,6 +663,19 @@
       "esRecurrente": false,
       "hora": null,
       "minutos": null
+    },
+    {
+      "id": "4fdee7b4-7c0b-47a7-a852-2b98efab8836",
+      "userId": "1023132788632862761",
+      "channelId": "1343749554905940058",
+      "mensaje": "dejar las llaves del vecino",
+      "cuandoLlegue": false,
+      "cuandoSalga": false,
+      "timestamp": 1742497546172,
+      "creado": 1742490346173,
+      "esRecurrente": false,
+      "hora": null,
+      "minutos": null
     }
   ],
   "usedJokes": {
