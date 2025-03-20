@@ -5994,7 +5994,7 @@ client.on('messageCreate', async (message) => {
                     isArrival ? `¡Qué lindo tenerte de vuelta, ${targetName === 'Miguel' ? 'capo' : 'genia'}!` : `¡${targetName === 'Miguel' ? 'Grande, capo' : 'Ey, genia'}! Saliste a romperla toda, ¿no?`)
                     .addFields(
                         { name: `🌤️ Clima en ${targetName === 'Belén' ? 'San Luis' : 'Guayaquil'}`, value: isArrival ? clima : `${clima}\n${consejoClima}`, inline: false },
-                        { name: '⏰ Hora', value: isArrival ? `San Luis: ${horaSanLuis}\nGuayaquil: ${horaGuayaquil}` : `${targetName === 'Belén' ? 'San Luis' : 'Guayaquil'}: ${horaLocal}\n${consejoHora}`, inline: true },
+                        { name: `⏰ Hora en ${targetName === 'Belén' ? 'San Luis' : 'Guayaquil'}`, value: isArrival ? hora: `${horaLocal}\n${consejoHora}`, inline: false },
                         { name: '📋 Recordatorios inmediatos', value: avisos.length > 0 ? avisos.join('\n') : 'No tenés recordatorios urgentes ahora.', inline: false },
                         { name: '📅 Recordatorios futuros', value: pendientes.length > 0 ? pendientes.join('\n') : 'No tenés recordatorios programados.', inline: false },
                         { name: '📰 Noticias', value: noticias.length > 1024 ? noticias.substring(0, 1021) + '...' : noticias, inline: false },
