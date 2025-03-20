@@ -626,14 +626,14 @@
       "minutos": null
     },
     {
-      "id": "c046cfab-2709-4d2d-b5f2-3c33bf80c335",
+      "id": "ce4bb579-5fef-4dd8-9032-e43508b50d60",
       "userId": "752987736759205960",
       "channelId": "1343749554905940058",
-      "mensaje": "hazme acuerdo agarrar la ropa, esta lloviendo",
+      "mensaje": "hazme acuerdo de agarrar la ropa, esta lloviendo",
       "cuandoLlegue": false,
       "cuandoSalga": false,
-      "timestamp": 1742428456814,
-      "creado": 1742428396815,
+      "timestamp": 1742428966573,
+      "creado": 1742428906573,
       "esRecurrente": false,
       "hora": null,
       "minutos": null
