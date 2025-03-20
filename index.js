@@ -3594,7 +3594,19 @@ async function manejarMisRecordatorios(message) {
         } else if (r.esRecurrente) {
             fechaStr = `todos los días a las ${r.hora.toString().padStart(2, '0')}:${r.minutos.toString().padStart(2, '0')}`;
         } else {
-            fechaStr = new Date(r.timestamp).toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' });
+            // Sumar 12 horas al timestamp para corregir el offset
+            const fechaAjustada = new Date(r.timestamp + (12 * 60 * 60 * 1000));
+            const fechaEcuador = fechaAjustada.toLocaleDateString('es-EC', { 
+                day: '2-digit', 
+                month: '2-digit', 
+                year: 'numeric' 
+            });
+            const horaEcuador = fechaAjustada.toLocaleTimeString('es-EC', { 
+                hour: '2-digit', 
+                minute: '2-digit', 
+                hour12: false // Formato 24 horas
+            });
+            fechaStr = `${fechaEcuador}, ${horaEcuador}`;
         }
         embed.addFields({
             name: `${index + 1}. ${r.mensaje}`,
