@@ -5883,16 +5883,17 @@ async function manejarCommand(message, silent = false) {
 client.on('messageCreate', async (message) => {
     console.log(`Mensaje recibido - Autor: ${message.author?.username || 'desconocido'}, Contenido: ${message.content || 'sin contenido'}, Bot: ${message.author?.bot || 'N/A'}`);
     
-    if (!message.author || (message.author.bot && message.author.username !== 'IFTTT')) {
-        console.log(`Ignorado por filtro de bot o mensaje inválido: ${message.content || 'sin contenido'} (Autor: ${message.author?.username || 'desconocido'})`);
+    if (!message.author || !message.content || typeof message.content !== 'string') {
+        console.error(`Mensaje inválido recibido - Autor: ${message.author?.username || 'desconocido'}, Contenido: ${message.content || 'sin contenido'}`);
+        return;
+    }
+
+    if (message.author.bot && message.author.username !== 'IFTTT') {
+        console.log(`Ignorado por filtro de bot: "${message.content}" (Autor: ${message.author.username})`);
         return;
     }
 
     const userName = message.author.id === OWNER_ID ? 'Miguel' : (message.author.id === ALLOWED_USER_ID ? 'Belén' : 'Un desconocido');
-    if (!message.content || typeof message.content !== 'string') {
-        console.error('Mensaje sin contenido válido recibido o no es string');
-        return;
-    }
     const content = message.content.trim().toLowerCase();
     console.log(`Contenido limpio: "${content}"`);
 
