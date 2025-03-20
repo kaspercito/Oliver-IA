@@ -5929,32 +5929,36 @@ client.on('messageCreate', async (message) => {
             } catch (error) {
                 console.error(`No pude borrar el mensaje: ${error.message}`);
             }
-        
+
             const ahora = new Date();
             const hoy = new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate());
             const recordatoriosUsuario = dataStore.recordatorios.filter(r => r.userId === userId);
             let recordatorios = [];
-        
+
             if (recordatoriosUsuario.length > 0) {
-                recordatoriosUsuario.forEach(r => {
+                recordatoriosUsuario.forEach((r, index) => {
                     if (!r.esRecurrente && r.timestamp) {
                         const fechaRecordatorio = new Date(r.timestamp);
                         const diaRecordatorio = new Date(fechaRecordatorio.getFullYear(), fechaRecordatorio.getMonth(), fechaRecordatorio.getDate());
                         if (diaRecordatorio.getTime() === hoy.getTime()) {
-                            const horaRecordatorio = fechaRecordatorio.toLocaleTimeString('es-AR', { 
-                                timeZone: 'America/Argentina/Buenos_Aires', 
-                                hour: '2-digit', 
-                                minute: '2-digit', 
-                                hour12: false 
-                            });
-                            recordatorios.push(`- ${r.mensaje} (para ${horaRecordatorio})`);
+                            const timeZone = targetName === 'Miguel' ? 'America/Guayaquil' : 'America/Argentina/Buenos_Aires';
+                            const fechaHoraFormateada = fechaRecordatorio.toLocaleString(targetName === 'Miguel' ? 'es-EC' : 'es-AR', {
+                                timeZone,
+                                day: '2-digit',
+                                month: '2-digit',
+                                year: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit',
+                                hour12: false
+                            }).replace(/,/, '');
+                            recordatorios.push(`${index + 1}. ${r.mensaje}\nCuándo: ${fechaHoraFormateada}`);
                         }
                     }
                 });
             }
-        
+
+            let clima = 'No pude traer el clima, che.';
             try {
-                let clima = 'No pude traer el clima, che.';
                 const climaResult = await manejarCommand({ 
                     content: targetName === 'Belén' ? '!clima San Luis' : '!clima Guayaquil', 
                     channel: canalGeneral, 
@@ -5962,86 +5966,93 @@ client.on('messageCreate', async (message) => {
                 }, true);
                 if (climaResult?.description) clima = climaResult.description;
                 console.log(`Clima obtenido para ${targetName}: ${clima}`);
-        
-                let noticias = 'No pude traer las noticias hoy, qué pena.';
-                try {
-                    const noticiasResult = await manejarNoticias({ 
-                        author: { id: userId }, 
-                        channel: canalGeneral 
-                    }, true);
-                    if (noticiasResult?.description) {
-                        noticias = noticiasResult.description.split('\n').slice(0, 3).join('\n');
-                    } else {
-                        console.warn(`No se encontró description en noticiasResult: ${JSON.stringify(noticiasResult)}`);
-                    }
-                    console.log(`Noticias obtenidas para ${targetName}: ${noticias}`);
-                } catch (error) {
-                    console.error(`Error al obtener noticias: ${error.message}`);
-                }
-        
-                let datoInteresante = 'No pude traer un dato interesante, che.';
-                try {
-                    datoInteresante = await obtenerDatoInteresante(targetName);
-                    console.log(`Dato interesante obtenido para ${targetName}: ${datoInteresante}`);
-                } catch (error) {
-                    console.error(`Error obteniendo dato interesante: ${error.message}`);
-                }
-        
-                const consejoClima = generarConsejoClima(clima, !isArrival);
-                const horaLocal = targetName === 'Miguel' ? horaEcuador : horaArgentina;
-                const consejoHora = generarConsejoHora(horaLocal);
-                const totalRecordatorios = recordatoriosUsuario.length;
-                const resumenRecordatorios = totalRecordatorios > 0 ? `Tenés ${totalRecordatorios} recordatorios en total.` : 'No tenés recordatorios, ¡a descansar tranqui!';
-        
-                const embed = createEmbed('#FF1493', isArrival ? `¡Bienvenid@ a casa, ${targetName}! 🏠` : `¡A la calle, ${targetName}! 🚪`, 
-                    isArrival ? `¡Qué lindo tenerte de vuelta, ${targetName === 'Miguel' ? 'capo' : 'genia'}!` : `¡${targetName === 'Miguel' ? 'Grande, capo' : 'Ey, genia'}! Saliste a romperla toda, ¿no?`)
-                    .addFields(
-                        { name: `🌤️ Clima en ${targetName === 'Belén' ? 'Argentina' : 'Ecuador'}`, value: isArrival ? clima : `${clima}\n${consejoClima}`, inline: false },
-                        { name: `⏰ Hora en ${targetName === 'Belén' ? 'Argentina' : 'Ecuador'}`, value: isArrival ? horaLocal : `${horaLocal}\n${consejoHora}`, inline: true },
-                        { name: '📅 Recordatorios', value: recordatorios.length > 0 ? recordatorios.slice(0, 2).join('\n') : 'No tenés recordatorios para hoy.', inline: false },
-                        { name: '📰 Noticias', value: noticias.length > 1024 ? noticias.substring(0, 1021) + '...' : noticias, inline: false },
-                        { name: '💡 Dato interesante', value: datoInteresante.length > 1024 ? datoInteresante.substring(0, 1021) + '...' : datoInteresante, inline: false },
-                        { name: '📝 Resumen', value: resumenRecordatorios, inline: false }
-                    )
-                    .setFooter({ text: `Con cariño, Oliver IA • hoy a las ${horaLocal}` });
+            } catch (error) {
+                console.error(`Error al obtener clima: ${error.message}`);
+            }
 
+            let noticias = 'No pude traer las noticias hoy, qué pena.';
+            try {
+                const noticiasResult = await manejarNoticias({ 
+                    author: { id: userId }, 
+                    channel: canalGeneral 
+                }, true);
+                if (noticiasResult?.data?.description) {
+                    noticias = noticiasResult.data.description.split('\n').slice(0, 3).join('\n');
+                } else if (noticiasResult?.description) {
+                    noticias = noticiasResult.description.split('\n').slice(0, 3).join('\n');
+                }
+                console.log(`Noticias obtenidas para ${targetName}: ${noticias}`);
+            } catch (error) {
+                console.error(`Error al obtener noticias: ${error.message}`);
+            }
+
+            let datoInteresante = 'No pude traer un dato interesante, che.';
+            try {
+                datoInteresante = await obtenerDatoInteresante(targetName);
+                console.log(`Dato interesante obtenido para ${targetName}: ${datoInteresante}`);
+            } catch (error) {
+                console.error(`Error obteniendo dato interesante: ${error.message}`);
+            }
+
+            const horaLocal = targetName === 'Miguel' ? horaEcuador : horaArgentina;
+            const consejoClima = generarConsejoClima(clima || 'Desconocido', !isArrival);
+            const consejoHora = generarConsejoHora(horaLocal || '00:00');
+            const totalRecordatorios = recordatoriosUsuario.length;
+            const resumenRecordatorios = totalRecordatorios > 0 ? `Tenés ${totalRecordatorios} recordatorios en total.` : 'No tenés recordatorios, ¡a descansar tranqui!';
+
+            const embed = createEmbed('#FF1493', isArrival ? `¡Bienvenid@ a casa, ${targetName}! 🏠` : `¡A la calle, ${targetName}! 🚪`, 
+                isArrival ? `¡Qué lindo tenerte de vuelta, ${targetName === 'Miguel' ? 'capo' : 'genia'}!` : `¡${targetName === 'Miguel' ? 'Grande, capo' : 'Ey, genia'}! Saliste a romperla toda, ¿no?`)
+                .addFields(
+                    { name: `🌤️ Clima en ${targetName === 'Belén' ? 'Argentina' : 'Ecuador'}`, value: isArrival ? clima : `${clima}\n${consejoClima}`, inline: false },
+                    { name: `⏰ Hora en ${targetName === 'Belén' ? 'Argentina' : 'Ecuador'}`, value: isArrival ? horaLocal : `${horaLocal}\n${consejoHora}`, inline: true },
+                    { name: '📅 Recordatorios', value: recordatorios.length > 0 ? recordatorios.slice(0, 2).join('\n') : 'No tenés recordatorios para hoy.', inline: false },
+                    { name: '📰 Noticias', value: noticias.length > 1024 ? noticias.substring(0, 1021) + '...' : noticias, inline: false },
+                    { name: '💡 Dato interesante', value: datoInteresante.length > 1024 ? datoInteresante.substring(0, 1021) + '...' : datoInteresante, inline: false },
+                    { name: '📝 Resumen', value: resumenRecordatorios, inline: false }
+                )
+                .setFooter({ text: `Con cariño, Oliver IA • hoy a las ${horaLocal}` });
+
+            try {
                 const embedSize = JSON.stringify(embed).length;
                 console.log(`Tamaño del embed: ${embedSize} caracteres`);
                 if (embedSize > 6000) throw new Error(`El embed excede el límite de 6000 caracteres: ${embedSize}`);
-        
                 await canalGeneral.send({ embeds: [embed] });
                 console.log(`Embed enviado al canal general ${canalGeneralId} para ${isArrival ? 'llegada' : 'salida'} de ${targetName}`);
-        
-                const chatId = targetName === 'Belén' ? chatIdBelen : chatIdMiguel;
-                const mensajeTelegram = isArrival
-                    ? `¡${targetName === 'Miguel' ? 'Grande, Miguel' : 'Ey, Belén'}! Bienvenid@ a casa, ${targetName === 'Miguel' ? 'capo' : 'genia'}. 🏠\n` +
-                      `Clima en ${targetName === 'Belén' ? 'Argentina' : 'Ecuador'}: ${clima}\n` +
-                      `Hora en ${targetName === 'Belén' ? 'Argentina' : 'Ecuador'}: ${horaLocal}\n` +
-                      `Recordatorios: ${recordatorios.length > 0 ? recordatorios.slice(0, 2).join(', ') : 'Ninguno para hoy'}\n` +
-                      `Noticias:\n${noticias}\n` +
-                      `Dato interesante: ${datoInteresante}\n` +
-                      `Resumen: ${resumenRecordatorios}\n` +
-                      `Con cariño, Oliver IA`
-                    : `¡${targetName === 'Miguel' ? 'Grande, Miguel' : 'Ey, Belén'}! Saliste a romperla, ${targetName === 'Miguel' ? 'capo' : 'genia'}. 🚪\n` +
-                      `Clima en ${targetName === 'Belén' ? 'Argentina' : 'Ecuador'}: ${clima} - ${consejoClima}\n` +
-                      `Hora en ${targetName === 'Belén' ? 'Argentina' : 'Ecuador'}: ${horaLocal} - ${consejoHora}\n` +
-                      `Recordatorios: ${recordatorios.length > 0 ? recordatorios.slice(0, 2).join(', ') : 'Ninguno para hoy'}\n` +
-                      `Noticias:\n${noticias}\n` +
-                      `Dato interesante: ${datoInteresante}\n` +
-                      `Resumen: ${resumenRecordatorios}\n` +
-                      `Con cariño, Oliver IA`;
-        
+            } catch (error) {
+                console.error(`Error enviando embed: ${error.message}`);
+            }
+
+            const chatId = targetName === 'Belén' ? chatIdBelen : chatIdMiguel;
+            const mensajeTelegram = isArrival
+                ? `¡${targetName === 'Miguel' ? 'Grande, Miguel' : 'Ey, Belén'}! Bienvenid@ a casa, ${targetName === 'Miguel' ? 'capo' : 'genia'}. 🏠\n` +
+                  `Clima en ${targetName === 'Belén' ? 'Argentina' : 'Ecuador'}: ${clima}\n` +
+                  `Hora en ${targetName === 'Belén' ? 'Argentina' : 'Ecuador'}: ${horaLocal}\n` +
+                  `Recordatorios: ${recordatorios.length > 0 ? recordatorios.slice(0, 2).join(', ') : 'Ninguno para hoy'}\n` +
+                  `Noticias:\n${noticias}\n` +
+                  `Dato interesante: ${datoInteresante}\n` +
+                  `Resumen: ${resumenRecordatorios}\n` +
+                  `Con cariño, Oliver IA`
+                : `¡${targetName === 'Miguel' ? 'Grande, Miguel' : 'Ey, Belén'}! Saliste a romperla, ${targetName === 'Miguel' ? 'capo' : 'genia'}. 🚪\n` +
+                  `Clima en ${targetName === 'Belén' ? 'Argentina' : 'Ecuador'}: ${clima} - ${consejoClima}\n` +
+                  `Hora en ${targetName === 'Belén' ? 'Argentina' : 'Ecuador'}: ${horaLocal} - ${consejoHora}\n` +
+                  `Recordatorios: ${recordatorios.length > 0 ? recordatorios.slice(0, 2).join(', ') : 'Ninguno para hoy'}\n` +
+                  `Noticias:\n${noticias}\n` +
+                  `Dato interesante: ${datoInteresante}\n` +
+                  `Resumen: ${resumenRecordatorios}\n` +
+                  `Con cariño, Oliver IA`;
+
+            try {
                 await botTelegram.sendMessage(chatId, mensajeTelegram);
                 console.log(`Mensaje enviado a Telegram para ${targetName} (chat_id: ${chatId})`);
-        
-                try {
-                    await saveDataStore();
-                    console.log('dataStore guardado tras evento');
-                } catch (error) {
-                    console.error(`Error al guardar dataStore: ${error.message}`);
-                }
             } catch (error) {
-                console.error(`Error procesando ${isArrival ? 'llegada' : 'salida'} de ${targetName}: ${error.message}`);
+                console.error(`Error enviando a Telegram: ${error.message}`);
+            }
+
+            try {
+                await saveDataStore();
+                console.log('dataStore guardado tras evento');
+            } catch (error) {
+                console.error(`Error al guardar dataStore: ${error.message}`);
             }
         };
 
