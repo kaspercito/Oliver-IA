@@ -5977,7 +5977,11 @@ client.on('messageCreate', async (message) => {
                         author: { id: userId }, 
                         channel: canalGeneral 
                     }, true);
-                    if (noticiasResult?.data?.description) noticias = noticiasResult.data.description;
+                    if (noticiasResult?.data?.description) {
+                        // Limitamos a 3 noticias
+                        const noticiasArray = noticiasResult.data.description.split('\n').slice(0, 3).join('\n');
+                        noticias = noticiasArray;
+                    }
                     console.log(`Noticias obtenidas para ${targetName}: ${noticias}`);
                 } catch (error) {
                     console.error(`Error al obtener noticias: ${error.message}`);
@@ -6003,7 +6007,7 @@ client.on('messageCreate', async (message) => {
                         { name: `🌤️ Clima en ${targetName === 'Belén' ? 'Argentina' : 'Ecuador'}`, value: isArrival ? clima : `${clima}\n${consejoClima}`, inline: false },
                         { name: `⏰ Hora en ${targetName === 'Belén' ? 'Argentina' : 'Ecuador'}`, value: isArrival ? horaLocal : `${horaLocal}\n${consejoHora}`, inline: true },
                         { name: '📋 Recordatorios inmediatos', value: avisos.length > 0 ? avisos.join('\n') : 'No tenés recordatorios urgentes ahora.', inline: false },
-                        { name: '📅 Recordatorios futuros', value: pendientes.length > 0 ? pendientes.join('\n') : 'No tenés recordatorios programados.', inline: false },
+                        { name: '📅 Recordatorios futuros', value: pendientes.length > 0 ? pendientes.slice(0, 2).join('\n') : 'No tenés recordatorios programados.', inline: false },
                         { name: '📰 Noticias', value: noticias.length > 1024 ? noticias.substring(0, 1021) + '...' : noticias, inline: false },
                         { name: '💡 Dato interesante', value: datoInteresante.length > 1024 ? datoInteresante.substring(0, 1021) + '...' : datoInteresante, inline: false },
                         { name: '📝 Resumen', value: resumenRecordatorios, inline: false }
@@ -6017,14 +6021,13 @@ client.on('messageCreate', async (message) => {
                 await canalGeneral.send({ embeds: [embed] });
                 console.log(`Embed enviado al canal general ${canalGeneralId} para ${isArrival ? 'llegada' : 'salida'} de ${targetName}`);
         
-        
                 const chatId = targetName === 'Belén' ? chatIdBelen : chatIdMiguel;
                 const mensajeTelegram = isArrival
                     ? `¡${targetName === 'Miguel' ? 'Grande, Miguel' : 'Ey, Belén'}! Bienvenid@ a casa, ${targetName === 'Miguel' ? 'capo' : 'genia'}. 🏠\n` +
                       `Clima en ${targetName === 'Belén' ? 'Argentina' : 'Ecuador'}: ${clima}\n` +
                       `Hora en ${targetName === 'Belén' ? 'Argentina' : 'Ecuador'}: ${horaLocal}\n` +
                       `Recordatorios inmediatos: ${avisos.length > 0 ? avisos.join(', ') : 'Ninguno urgente'}\n` +
-                      `Recordatorios futuros: ${pendientes.length > 0 ? pendientes.join(', ') : 'Ninguno programado'}\n` +
+                      `Recordatorios futuros: ${pendientes.length > 0 ? pendientes.slice(0, 2).join(', ') : 'Ninguno programado'}\n` +
                       `Noticias:\n${noticias}\n` +
                       `Dato interesante: ${datoInteresante}\n` +
                       `Resumen: ${resumenRecordatorios}\n` +
@@ -6033,7 +6036,7 @@ client.on('messageCreate', async (message) => {
                       `Clima en ${targetName === 'Belén' ? 'Argentina' : 'Ecuador'}: ${clima} - ${consejoClima}\n` +
                       `Hora en ${targetName === 'Belén' ? 'Argentina' : 'Ecuador'}: ${horaLocal} - ${consejoHora}\n` +
                       `Recordatorios inmediatos: ${avisos.length > 0 ? avisos.join(', ') : 'Ninguno urgente'}\n` +
-                      `Recordatorios futuros: ${pendientes.length > 0 ? pendientes.join(', ') : 'Ninguno programado'}\n` +
+                      `Recordatorios futuros: ${pendientes.length > 0 ? pendientes.slice(0, 2).join(', ') : 'Ninguno programado'}\n` +
                       `Noticias:\n${noticias}\n` +
                       `Dato interesante: ${datoInteresante}\n` +
                       `Resumen: ${resumenRecordatorios}\n` +
