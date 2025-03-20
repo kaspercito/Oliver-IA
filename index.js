@@ -38,7 +38,7 @@ const API_TOKEN = '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'; // Token de autentica
 const telegramToken = '7833522664:AAGDfVgghfxEuxU3dXjHDZgFLE_2qk9v0ss'; // Reemplazá con el token de BotFather
 const botTelegram = new TelegramBot(telegramToken, { polling: false }); // Polling false para solo enviar
 const chatIdMiguel = '5965566827'; // Reemplazá con tu chat_id
-const chatIdBelen = '987654321';  // Reemplazá con el chat_id de Belén
+const chatIdBelen = '7894854634';  // Reemplazá con el chat_id de Belén
 
 // Configuración del administrador de música con Erela.js
 const manager = new Manager({
