@@ -5938,13 +5938,20 @@ client.on('messageCreate', async (message) => {
                 console.error(`No pude borrar el mensaje: ${error.message}`);
             }
         
-            const ahora = Date.now();
+            const ahora = new Date();
+            const hoy = new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate()); // Fecha actual sin hora
             const recordatoriosUsuario = dataStore.recordatorios.filter(r => r.userId === userId);
             let recordatorios = [];
         
             if (recordatoriosUsuario.length > 0) {
                 recordatoriosUsuario.forEach(r => {
-                    recordatorios.push(`- ${r.mensaje} ${r.timestamp ? `(para ${new Date(r.timestamp).toLocaleDateString('es-' + (targetName === 'Belén' ? 'AR' : 'EC'))} ${new Date(r.timestamp).toLocaleTimeString('es-' + (targetName === 'Belén' ? 'AR' : 'EC'), { hour: '2-digit', minute: '2-digit' })})` : ''}`);
+                    if (!r.esRecurrente && r.timestamp) { // Excluir recurrentes y sin timestamp
+                        const fechaRecordatorio = new Date(r.timestamp);
+                        const diaRecordatorio = new Date(fechaRecordatorio.getFullYear(), fechaRecordatorio.getMonth(), fechaRecordatorio.getDate());
+                        if (diaRecordatorio.getTime() === hoy.getTime()) { // Solo los de hoy
+                            recordatorios.push(`- ${r.mensaje} (para ${fechaRecordatorio.toLocaleTimeString('es-' + (targetName === 'Belén' ? 'AR' : 'EC'), { hour: '2-digit', minute: '2-digit' })})`);
+                        }
+                    }
                 });
             }
         
@@ -5985,7 +5992,7 @@ client.on('messageCreate', async (message) => {
                 const consejoClima = generarConsejoClima(clima, !isArrival);
                 const horaLocal = targetName === 'Belén' ? horaSanLuis : horaGuayaquil;
                 const consejoHora = generarConsejoHora(horaLocal);
-                const totalRecordatorios = recordatorios.length;
+                const totalRecordatorios = recordatoriosUsuario.length; // Total incluye todos, pero mostramos solo los de hoy
                 const resumenRecordatorios = totalRecordatorios > 0 ? `Tenés ${totalRecordatorios} recordatorios en total.` : 'No tenés recordatorios, ¡a descansar tranqui!';
         
                 const embed = createEmbed('#FF1493', isArrival ? `¡Bienvenid@ a casa, ${targetName}! 🏠` : `¡A la calle, ${targetName}! 🚪`, 
@@ -5993,7 +6000,7 @@ client.on('messageCreate', async (message) => {
                     .addFields(
                         { name: `🌤️ Clima en ${targetName === 'Belén' ? 'Argentina' : 'Ecuador'}`, value: isArrival ? clima : `${clima}\n${consejoClima}`, inline: false },
                         { name: `⏰ Hora en ${targetName === 'Belén' ? 'Argentina' : 'Ecuador'}`, value: isArrival ? horaLocal : `${horaLocal}\n${consejoHora}`, inline: true },
-                        { name: '📅 Recordatorios', value: recordatorios.length > 0 ? recordatorios.slice(0, 2).join('\n') : 'No tenés recordatorios programados.', inline: false },
+                        { name: '📅 Recordatorios', value: recordatorios.length > 0 ? recordatorios.slice(0, 2).join('\n') : 'No tenés recordatorios para hoy.', inline: false },
                         { name: '📰 Noticias', value: noticias.length > 1024 ? noticias.substring(0, 1021) + '...' : noticias, inline: false },
                         { name: '💡 Dato interesante', value: datoInteresante.length > 1024 ? datoInteresante.substring(0, 1021) + '...' : datoInteresante, inline: false },
                         { name: '📝 Resumen', value: resumenRecordatorios, inline: false }
@@ -6012,7 +6019,7 @@ client.on('messageCreate', async (message) => {
                     ? `¡${targetName === 'Miguel' ? 'Grande, Miguel' : 'Ey, Belén'}! Bienvenid@ a casa, ${targetName === 'Miguel' ? 'capo' : 'genia'}. 🏠\n` +
                       `Clima en ${targetName === 'Belén' ? 'Argentina' : 'Ecuador'}: ${clima}\n` +
                       `Hora en ${targetName === 'Belén' ? 'Argentina' : 'Ecuador'}: ${horaLocal}\n` +
-                      `Recordatorios: ${recordatorios.length > 0 ? recordatorios.slice(0, 2).join(', ') : 'Ninguno'}\n` +
+                      `Recordatorios: ${recordatorios.length > 0 ? recordatorios.slice(0, 2).join(', ') : 'Ninguno para hoy'}\n` +
                       `Noticias:\n${noticias}\n` +
                       `Dato interesante: ${datoInteresante}\n` +
                       `Resumen: ${resumenRecordatorios}\n` +
@@ -6020,7 +6027,7 @@ client.on('messageCreate', async (message) => {
                     : `¡${targetName === 'Miguel' ? 'Grande, Miguel' : 'Ey, Belén'}! Saliste a romperla, ${targetName === 'Miguel' ? 'capo' : 'genia'}. 🚪\n` +
                       `Clima en ${targetName === 'Belén' ? 'Argentina' : 'Ecuador'}: ${clima} - ${consejoClima}\n` +
                       `Hora en ${targetName === 'Belén' ? 'Argentina' : 'Ecuador'}: ${horaLocal} - ${consejoHora}\n` +
-                      `Recordatorios: ${recordatorios.length > 0 ? recordatorios.slice(0, 2).join(', ') : 'Ninguno'}\n` +
+                      `Recordatorios: ${recordatorios.length > 0 ? recordatorios.slice(0, 2).join(', ') : 'Ninguno para hoy'}\n` +
                       `Noticias:\n${noticias}\n` +
                       `Dato interesante: ${datoInteresante}\n` +
                       `Resumen: ${resumenRecordatorios}\n` +
