@@ -4789,11 +4789,6 @@ async function manejarNoticias(message, silent = false) {
         console.log('Noticias procesadas AR:', JSON.stringify(articlesAR, null, 2));
         console.log('Noticias procesadas EC:', JSON.stringify(articlesEC, null, 2));
 
-        if (articlesAR.length === 0 && articlesEC.length === 0) {
-            console.warn('No se encontraron noticias para ningún país.');
-            throw new Error('No encontré noticias copadas de Argentina ni de Ecuador, qué cagada.');
-        }
-
         const formatNews = (articles, country) => {
             if (articles.length === 0) return `No encontré noticias posta de ${country} hoy, loco.`;
             return articles.slice(0, 5).map((article, index) => 
@@ -4806,11 +4801,13 @@ async function manejarNoticias(message, silent = false) {
 
         let embed;
         if (isForTelegram && silent) {
+            // Para Telegram en eventos de llegada/salida, solo noticias del país del usuario
             const relevantNews = userName === 'Miguel' ? noticiasEC : noticiasAR;
             const countryLabel = userName === 'Miguel' ? 'Ecuador' : 'Argentina';
             embed = createEmbed('#FFD700', `📰 Últimas Noticias de ${countryLabel} (${articlesAR.length > 0 || articlesEC.length > 0 ? today : 'Recientes'})`, 
-                relevantNews || 'No encontré noticias posta hoy, loco.');
+                relevantNews);
         } else {
+            // Para el comando !noticias, muestra ambos países
             embed = createEmbed('#FFD700', `📰 Últimas Noticias (${articlesAR.length > 0 || articlesEC.length > 0 ? today : 'Recientes'})`, 
                 `**Argentina:**\n${noticiasAR}\n\n**Ecuador:**\n${noticiasEC}`);
         }
@@ -5922,7 +5919,6 @@ client.on('messageCreate', async (message) => {
         const horaSanLuis = new Date().toLocaleTimeString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires', hour: '2-digit', minute: '2-digit' });
         const horaGuayaquil = new Date().toLocaleTimeString('es-EC', { timeZone: 'America/Guayaquil', hour: '2-digit', minute: '2-digit' });
 
-        // Dentro de processEvent en messageCreate
         const processEvent = async (isArrival) => {
             console.log(`Procesando ${isArrival ? 'llegada' : 'salida'} de ${targetName} - Canal general: ${canalGeneralId}, Canal recordatorios: ${targetName === 'Miguel' ? canalMiguel : canalBelen}`);
             try {
@@ -5939,7 +5935,7 @@ client.on('messageCreate', async (message) => {
         
             if (recordatoriosUsuario.length > 0) {
                 recordatoriosUsuario.forEach(r => {
-                    const estaListo = (!r.timestamp || ahora >= r.timestamp); // Si no tiene timestamp o ya pasó la hora
+                    const estaListo = (!r.timestamp || ahora >= r.timestamp);
                     if (estaListo && ((isArrival && r.cuandoLlegue) || (!isArrival && r.cuandoSalga))) {
                         avisos.push(`- ${r.mensaje} ${r.timestamp ? `(seteado para las ${new Date(r.timestamp).toLocaleTimeString('es-' + (targetName === 'Belén' ? 'AR' : 'EC'), { hour: '2-digit', minute: '2-digit' })})` : ''}`);
                     } else {
@@ -5947,7 +5943,6 @@ client.on('messageCreate', async (message) => {
                     }
                 });
                 if (avisos.length > 0) {
-                    // Eliminar solo los recordatorios que se dispararon (no recurrentes)
                     dataStore.recordatorios = dataStore.recordatorios.filter(r => 
                         r.userId !== userId || 
                         (!((isArrival && r.cuandoLlegue) || (!isArrival && r.cuandoSalga)) || (r.timestamp && ahora < r.timestamp))
@@ -5955,7 +5950,7 @@ client.on('messageCreate', async (message) => {
                     autoModified = true;
                 }
             }
-
+        
             try {
                 let clima = 'No pude traer el clima, che.';
                 const climaResult = await manejarCommand({ 
@@ -5965,62 +5960,53 @@ client.on('messageCreate', async (message) => {
                 }, true);
                 if (climaResult?.description) clima = climaResult.description;
                 console.log(`Clima obtenido para ${targetName}: ${clima}`);
-
+        
                 let noticias = 'No pude traer las noticias hoy, qué pena.';
                 try {
                     const noticiasResult = await manejarNoticias({ 
                         author: { id: userId }, 
                         channel: canalGeneral 
                     }, true);
-                    if (noticiasResult?.description) noticias = noticiasResult.description;
+                    if (noticiasResult && noticiasResult.data && noticiasResult.data.description) {
+                        noticias = noticiasResult.data.description;
+                    } else {
+                        console.warn('El embed de noticias no tiene description:', JSON.stringify(noticiasResult, null, 2));
+                    }
                     console.log(`Noticias obtenidas para ${targetName}: ${noticias}`);
                 } catch (error) {
                     console.error(`Error al obtener noticias: ${error.message}`);
                 }
-
-                let datoInteresante = isArrival ? '' : 'No pude traer un dato interesante, che.';
-                if (!isArrival) {
-                    try {
-                        datoInteresante = await obtenerDatoInteresante(targetName);
-                        console.log(`Dato interesante obtenido para ${targetName}: ${datoInteresante}`);
-                    } catch (error) {
-                        console.error(`Error obteniendo dato interesante: ${error.message}`);
-                    }
+        
+                let datoInteresante = 'No pude traer un dato interesante, che.';
+                try {
+                    datoInteresante = await obtenerDatoInteresante(targetName);
+                    console.log(`Dato interesante obtenido para ${targetName}: ${datoInteresante}`);
+                } catch (error) {
+                    console.error(`Error obteniendo dato interesante: ${error.message}`);
                 }
-
-                const consejoClima = isArrival ? '' : generarConsejoClima(clima, true);
+        
+                const consejoClima = generarConsejoClima(clima, !isArrival);
                 const horaLocal = targetName === 'Belén' ? horaSanLuis : horaGuayaquil;
-                const consejoHora = isArrival ? '' : generarConsejoHora(horaLocal);
+                const consejoHora = generarConsejoHora(horaLocal);
                 const totalRecordatorios = avisos.length + pendientes.length;
-                const resumenRecordatorios = totalRecordatorios > 0 ? `Tenés ${totalRecordatorios} recordatorios en total.` : 'No tenés recordatorios, ¡a salir tranqui!';
-
-                const embed = isArrival
-                    ? createEmbed('#FF1493', `¡Bienvenid@ a casa, ${targetName}! 🏠`, 
-                        `¡Qué lindo tenerte de vuelta, ${targetName === 'Miguel' ? 'capo' : 'genia'}!`)
-                        .addFields(
-                            { name: `🌤️ Clima en ${targetName === 'Belén' ? 'San Luis' : 'Guayaquil'}`, value: clima, inline: false },
-                            { name: '⏰ Hora', value: `San Luis: ${horaSanLuis}\nGuayaquil: ${horaGuayaquil}`, inline: true },
-                            { name: '📋 Recordatorios inmediatos', value: avisos.length > 0 ? avisos.join('\n') : 'No tenés recordatorios urgentes ahora.', inline: false },
-                            { name: '📅 Recordatorios futuros', value: pendientes.length > 0 ? pendientes.join('\n') : 'No tenés recordatorios programados.', inline: false },
-                            { name: '📰 Noticias', value: noticias, inline: false }
-                        )
-                        .setFooter({ text: 'Con cariño, Oliver IA' })
-                    : createEmbed('#FF1493', `¡A la calle, ${targetName}! 🚪`, 
-                        `¡${targetName === 'Miguel' ? 'Grande, capo' : 'Ey, genia'}! Saliste a romperla toda, ¿no?`)
-                        .addFields(
-                            { name: `🌤️ Clima en ${targetName === 'Belén' ? 'San Luis' : 'Guayaquil'}`, value: `${clima}\n${consejoClima}`, inline: false },
-                            { name: '⏰ Hora', value: `${targetName === 'Belén' ? 'San Luis' : 'Guayaquil'}: ${horaLocal}\n${consejoHora}`, inline: true },
-                            { name: '📋 Recordatorios inmediatos', value: avisos.length > 0 ? avisos.join('\n') : 'No tenés recordatorios urgentes ahora.', inline: false },
-                            { name: '📅 Recordatorios futuros', value: pendientes.length > 0 ? pendientes.join('\n') : 'No tenés recordatorios programados.', inline: false },
-                            { name: '📰 Noticias', value: noticias, inline: false },
-                            { name: '💡 Dato interesante', value: datoInteresante, inline: false },
-                            { name: '📝 Resumen', value: resumenRecordatorios, inline: false }
-                        )
-                        .setFooter({ text: 'Con cariño, Oliver IA' });
-
+                const resumenRecordatorios = totalRecordatorios > 0 ? `Tenés ${totalRecordatorios} recordatorios en total.` : 'No tenés recordatorios, ¡a descansar tranqui!';
+        
+                const embed = createEmbed('#FF1493', isArrival ? `¡Bienvenid@ a casa, ${targetName}! 🏠` : `¡A la calle, ${targetName}! 🚪`, 
+                    isArrival ? `¡Qué lindo tenerte de vuelta, ${targetName === 'Miguel' ? 'capo' : 'genia'}!` : `¡${targetName === 'Miguel' ? 'Grande, capo' : 'Ey, genia'}! Saliste a romperla toda, ¿no?`)
+                    .addFields(
+                        { name: `🌤️ Clima en ${targetName === 'Belén' ? 'San Luis' : 'Guayaquil'}`, value: isArrival ? clima : `${clima}\n${consejoClima}`, inline: false },
+                        { name: '⏰ Hora', value: isArrival ? `San Luis: ${horaSanLuis}\nGuayaquil: ${horaGuayaquil}` : `${targetName === 'Belén' ? 'San Luis' : 'Guayaquil'}: ${horaLocal}\n${consejoHora}`, inline: true },
+                        { name: '📋 Recordatorios inmediatos', value: avisos.length > 0 ? avisos.join('\n') : 'No tenés recordatorios urgentes ahora.', inline: false },
+                        { name: '📅 Recordatorios futuros', value: pendientes.length > 0 ? pendientes.join('\n') : 'No tenés recordatorios programados.', inline: false },
+                        { name: '📰 Noticias', value: noticias, inline: false },
+                        { name: '💡 Dato interesante', value: datoInteresante, inline: false },
+                        { name: '📝 Resumen', value: resumenRecordatorios, inline: false }
+                    )
+                    .setFooter({ text: 'Con cariño, Oliver IA' });
+        
                 await canalGeneral.send({ embeds: [embed] });
                 console.log(`Embed enviado al canal general ${canalGeneralId} para ${isArrival ? 'llegada' : 'salida'} de ${targetName}`);
-
+        
                 if (avisos.length > 0 || pendientes.length > 0) {
                     const recordatoriosEmbed = createEmbed('#FF1493', `Recordatorios para ${targetName}`, 
                         `Aquí van tus recordatorios, ${targetName === 'Miguel' ? 'capo' : 'genia'}:`)
@@ -6032,7 +6018,7 @@ client.on('messageCreate', async (message) => {
                     await canalRecordatorios.send({ embeds: [recordatoriosEmbed] });
                     console.log(`Recordatorios enviados al canal ${targetName === 'Miguel' ? canalMiguel : canalBelen} para ${targetName}`);
                 }
-
+        
                 const chatId = targetName === 'Belén' ? chatIdBelen : chatIdMiguel;
                 const mensajeTelegram = isArrival
                     ? `¡${targetName === 'Miguel' ? 'Grande, Miguel' : 'Ey, Belén'}! Bienvenid@ a casa, ${targetName === 'Miguel' ? 'capo' : 'genia'}. 🏠\n` +
@@ -6041,6 +6027,8 @@ client.on('messageCreate', async (message) => {
                       `📋 Recordatorios inmediatos: ${avisos.length > 0 ? avisos.join(', ') : 'Ninguno urgente'}\n` +
                       `📅 Recordatorios futuros: ${pendientes.length > 0 ? pendientes.join(', ') : 'Ninguno programado'}\n` +
                       `📰 Noticias: ${noticias}\n` +
+                      `💡 Dato interesante: ${datoInteresante}\n` +
+                      `📝 Resumen: ${resumenRecordatorios}\n` +
                       `Con cariño, Oliver IA`
                     : `¡${targetName === 'Miguel' ? 'Grande, Miguel' : 'Ey, Belén'}! Saliste a romperla, ${targetName === 'Miguel' ? 'capo' : 'genia'}. 🚪\n` +
                       `🌤️ Clima en ${targetName === 'Belén' ? 'San Luis' : 'Guayaquil'}: ${clima} - ${consejoClima}\n` +
@@ -6051,10 +6039,10 @@ client.on('messageCreate', async (message) => {
                       `💡 Dato interesante: ${datoInteresante}\n` +
                       `📝 Resumen: ${resumenRecordatorios}\n` +
                       `Con cariño, Oliver IA`;
-
+        
                 await botTelegram.sendMessage(chatId, mensajeTelegram);
                 console.log(`Mensaje enviado a Telegram para ${targetName} (chat_id: ${chatId})`);
-
+        
                 try {
                     await saveDataStore();
                     console.log('dataStore guardado tras evento');
@@ -6065,7 +6053,6 @@ client.on('messageCreate', async (message) => {
                 console.error(`Error procesando ${isArrival ? 'llegada' : 'salida'} de ${targetName}: ${error.message}`);
             }
         };
-
         if (content.includes('entered a su casa')) {
             await processEvent(true);
         } else if (content.includes('exited a su casa')) {
