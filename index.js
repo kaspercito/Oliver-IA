@@ -5928,8 +5928,8 @@ client.on('messageCreate', async (message) => {
             return;
         }
 
-        const horaSanLuis = new Date().toLocaleTimeString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires', hour: '2-digit', minute: '2-digit' });
-        const horaGuayaquil = new Date().toLocaleTimeString('es-EC', { timeZone: 'America/Guayaquil', hour: '2-digit', minute: '2-digit' });
+        const horaSanLuis = new Date().toLocaleTimeString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires', hour: '2-digit', minute: '2-digit', hour12: false });
+        const horaGuayaquil = new Date().toLocaleTimeString('es-EC', { timeZone: 'America/Guayaquil', hour: '2-digit', minute: '2-digit', hour12: false });
 
         const processEvent = async (isArrival) => {
             console.log(`Procesando ${isArrival ? 'llegada' : 'salida'} de ${targetName} - Canal general: ${canalGeneralId}, Canal recordatorios: ${targetName === 'Miguel' ? canalMiguel : canalBelen}`);
@@ -5941,17 +5941,23 @@ client.on('messageCreate', async (message) => {
             }
         
             const ahora = new Date();
-            const hoy = new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate()); // Fecha actual sin hora
+            const hoy = new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate());
             const recordatoriosUsuario = dataStore.recordatorios.filter(r => r.userId === userId);
             let recordatorios = [];
         
             if (recordatoriosUsuario.length > 0) {
                 recordatoriosUsuario.forEach(r => {
-                    if (!r.esRecurrente && r.timestamp) { // Excluir recurrentes y sin timestamp
+                    if (!r.esRecurrente && r.timestamp) {
                         const fechaRecordatorio = new Date(r.timestamp);
                         const diaRecordatorio = new Date(fechaRecordatorio.getFullYear(), fechaRecordatorio.getMonth(), fechaRecordatorio.getDate());
-                        if (diaRecordatorio.getTime() === hoy.getTime()) { // Solo los de hoy
-                            recordatorios.push(`- ${r.mensaje} (para ${fechaRecordatorio.toLocaleTimeString('es-' + (targetName === 'Belén' ? 'AR' : 'EC'), { hour: '2-digit', minute: '2-digit' })})`);
+                        if (diaRecordatorio.getTime() === hoy.getTime()) {
+                            const horaRecordatorio = fechaRecordatorio.toLocaleTimeString('es-AR', { 
+                                timeZone: 'America/Argentina/Buenos_Aires', 
+                                hour: '2-digit', 
+                                minute: '2-digit', 
+                                hour12: false 
+                            });
+                            recordatorios.push(`- ${r.mensaje} (para ${horaRecordatorio})`);
                         }
                     }
                 });
@@ -5974,9 +5980,7 @@ client.on('messageCreate', async (message) => {
                         channel: canalGeneral 
                     }, true);
                     if (noticiasResult?.data?.description) {
-                        // Limitamos a 3 noticias
-                        const noticiasArray = noticiasResult.data.description.split('\n').slice(0, 3).join('\n');
-                        noticias = noticiasArray;
+                        noticias = noticiasResult.data.description.split('\n').slice(0, 3).join('\n');
                     }
                     console.log(`Noticias obtenidas para ${targetName}: ${noticias}`);
                 } catch (error) {
@@ -5992,9 +5996,9 @@ client.on('messageCreate', async (message) => {
                 }
         
                 const consejoClima = generarConsejoClima(clima, !isArrival);
-                const horaLocal = targetName === 'Belén' ? horaSanLuis : horaGuayaquil;
+                const horaLocal = targetName === 'Belén' ? horaSanLuis : horaSanLuis; // Usamos Argentina para Miguel también
                 const consejoHora = generarConsejoHora(horaLocal);
-                const totalRecordatorios = recordatoriosUsuario.length; // Total incluye todos, pero mostramos solo los de hoy
+                const totalRecordatorios = recordatoriosUsuario.length;
                 const resumenRecordatorios = totalRecordatorios > 0 ? `Tenés ${totalRecordatorios} recordatorios en total.` : 'No tenés recordatorios, ¡a descansar tranqui!';
         
                 const embed = createEmbed('#FF1493', isArrival ? `¡Bienvenid@ a casa, ${targetName}! 🏠` : `¡A la calle, ${targetName}! 🚪`, 
