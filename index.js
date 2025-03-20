@@ -6195,7 +6195,6 @@ client.on('messageCreate', async (message) => {
     } else if (content === '!noticias') {
         await manejarNoticias(message, false); // false para que no sea silencioso y muestre ambos países
         return;
-    }
     } else if (content.startsWith('!wiki')) {
         await manejarWiki(message);
         return;
