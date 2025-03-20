@@ -637,19 +637,6 @@
       "esRecurrente": false,
       "hora": null,
       "minutos": null
-    },
-    {
-      "id": "ca15682d-9725-44be-8a4e-d96059a11f2d",
-      "userId": "752987736759205960",
-      "channelId": "1343749554905940058",
-      "mensaje": "hazme acuerdo de lo otro",
-      "cuandoLlegue": false,
-      "cuandoSalga": false,
-      "timestamp": 1742479032507,
-      "creado": 1742478732508,
-      "esRecurrente": false,
-      "hora": null,
-      "minutos": null
     }
   ],
   "usedJokes": {
