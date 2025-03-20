@@ -5994,7 +5994,7 @@ client.on('messageCreate', async (message) => {
                     isArrival ? `¡Qué lindo tenerte de vuelta, ${targetName === 'Miguel' ? 'capo' : 'genia'}!` : `¡${targetName === 'Miguel' ? 'Grande, capo' : 'Ey, genia'}! Saliste a romperla toda, ¿no?`)
                     .addFields(
                         { name: `🌤️ Clima en ${targetName === 'Belén' ? 'San Luis' : 'Guayaquil'}`, value: isArrival ? clima : `${clima}\n${consejoClima}`, inline: false },
-                        { name: `⏰ Hora en ${targetName === 'Belén' ? 'San Luis' : 'Guayaquil'}`, value: isArrival ? hora: `${horaLocal}\n${consejoHora}`, inline: false },
+                        { name: '⏰ Hora', value: isArrival ? `San Luis: ${horaSanLuis}\nGuayaquil: ${horaGuayaquil}` : `${targetName === 'Belén' ? 'San Luis' : 'Guayaquil'}: ${horaLocal}\n${consejoHora}`, inline: true },
                         { name: '📋 Recordatorios inmediatos', value: avisos.length > 0 ? avisos.join('\n') : 'No tenés recordatorios urgentes ahora.', inline: false },
                         { name: '📅 Recordatorios futuros', value: pendientes.length > 0 ? pendientes.join('\n') : 'No tenés recordatorios programados.', inline: false },
                         { name: '📰 Noticias', value: noticias.length > 1024 ? noticias.substring(0, 1021) + '...' : noticias, inline: false },
@@ -6024,23 +6024,23 @@ client.on('messageCreate', async (message) => {
         
                 const chatId = targetName === 'Belén' ? chatIdBelen : chatIdMiguel;
                 const mensajeTelegram = isArrival
-                    ? `¡${targetName === 'Miguel' ? 'Grande, Miguel' : 'Ey, Belén'}! Bienvenid@ a casa, ${targetName === 'Miguel' ? 'capo' : 'genia'}. 🏠\n` +
-                      `🌤️ Clima en ${targetName === 'Belén' ? 'San Luis' : 'Guayaquil'}: ${clima} - ${consejoClima}\n` +
-                      `⏰ Hora en ${targetName === 'Belén' ? 'San Luis' : 'Guayaquil'}: ${horaLocal} - ${consejoHora}\n` +
-                      `📋 Recordatorios inmediatos: ${avisos.length > 0 ? avisos.join(', ') : 'Ninguno urgente'}\n` +
-                      `📅 Recordatorios futuros: ${pendientes.length > 0 ? pendientes.join(', ') : 'Ninguno programado'}\n` +
-                      `📰 Noticias: ${noticias}\n` +
-                      `💡 Dato interesante: ${datoInteresante}\n` +
-                      `📝 Resumen: ${resumenRecordatorios}\n` +
+                    ? `¡Grande, Miguel! Bienvenid@ a casa, capo. 🏠\n` +
+                      `Clima en Guayaquil: ${clima}\n` +
+                      `Hora: San Luis: ${horaSanLuis} | Guayaquil: ${horaGuayaquil}\n` +
+                      `Recordatorios inmediatos: ${avisos.length > 0 ? avisos.join(', ') : 'Ninguno urgente'}\n` +
+                      `Recordatorios futuros: ${pendientes.length > 0 ? pendientes.join(', ') : 'Ninguno programado'}\n` +
+                      `Noticias:\n${noticias}\n` +
+                      `Dato interesante: ${datoInteresante}\n` +
+                      `Resumen: ${resumenRecordatorios}\n` +
                       `Con cariño, Oliver IA`
-                    : `¡${targetName === 'Miguel' ? 'Grande, Miguel' : 'Ey, Belén'}! Saliste a romperla, ${targetName === 'Miguel' ? 'capo' : 'genia'}. 🚪\n` +
-                      `🌤️ Clima en ${targetName === 'Belén' ? 'San Luis' : 'Guayaquil'}: ${clima} - ${consejoClima}\n` +
-                      `⏰ Hora en ${targetName === 'Belén' ? 'San Luis' : 'Guayaquil'}: ${horaLocal} - ${consejoHora}\n` +
-                      `📋 Recordatorios inmediatos: ${avisos.length > 0 ? avisos.join(', ') : 'Ninguno urgente'}\n` +
-                      `📅 Recordatorios futuros: ${pendientes.length > 0 ? pendientes.join(', ') : 'Ninguno programado'}\n` +
-                      `📰 Noticias: ${noticias}\n` +
-                      `💡 Dato interesante: ${datoInteresante}\n` +
-                      `📝 Resumen: ${resumenRecordatorios}\n` +
+                    : `¡Grande, Miguel! Saliste a romperla, capo. 🚪\n` +
+                      `Clima en Guayaquil: ${clima} - ${consejoClima}\n` +
+                      `Hora en Guayaquil: ${horaLocal} - ${consejoHora}\n` +
+                      `Recordatorios inmediatos: ${avisos.length > 0 ? avisos.join(', ') : 'Ninguno urgente'}\n` +
+                      `Recordatorios futuros: ${pendientes.length > 0 ? pendientes.join(', ') : 'Ninguno programado'}\n` +
+                      `Noticias:\n${noticias}\n` +
+                      `Dato interesante: ${datoInteresante}\n` +
+                      `Resumen: ${resumenRecordatorios}\n` +
                       `Con cariño, Oliver IA`;
         
                 await botTelegram.sendMessage(chatId, mensajeTelegram);
@@ -6064,7 +6064,7 @@ client.on('messageCreate', async (message) => {
         }
         return;
     }
-
+    
     if (message.author.bot) return;
 
     const lettersOnly = message.content.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ]/g, '');
