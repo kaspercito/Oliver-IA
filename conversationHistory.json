@@ -639,14 +639,14 @@
       "minutos": null
     },
     {
-      "id": "e4f00c34-a54c-41af-876e-ecb35154ab95",
+      "id": "a8e6af3d-5d85-43d9-9e60-b0045ad05666",
       "userId": "752987736759205960",
       "channelId": "1343749554905940058",
-      "mensaje": "Está lloviendo como el diablo recuérdamelo",
+      "mensaje": "Hazme acuerdo de tapar el hueco donde entra el agua",
       "cuandoLlegue": false,
       "cuandoSalga": false,
-      "timestamp": 1742430501929,
-      "creado": 1742430441930,
+      "timestamp": 1742475600000,
+      "creado": 1742431298405,
       "esRecurrente": false,
       "hora": null,
       "minutos": null
