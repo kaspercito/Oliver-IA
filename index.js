@@ -5914,8 +5914,8 @@ client.on('messageCreate', async (message) => {
             return;
         }
 
-        const horaEcuador = new Date().toLocaleTimeString('es-EC', { timeZone: 'America/Guayaquil', hour: '2-digit', minute: '2-digit', hour12: false });
-        const horaArgentina = new Date().toLocaleTimeString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires', hour: '2-digit', minute: '2-digit', hour12: false });
+        const horaEcuador = new Date().toLocaleTimeString('es-EC', { timeZone: 'America/Guayaquil', hour: '2-digit', minute: '2-digit', hour12: true }).toLowerCase();
+        const horaArgentina = new Date().toLocaleTimeString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires', hour: '2-digit', minute: '2-digit', hour12: true }).toLowerCase();
 
         const processEvent = async (isArrival) => {
             console.log(`Procesando ${isArrival ? 'llegada' : 'salida'} de ${targetName}`);
@@ -5929,7 +5929,8 @@ client.on('messageCreate', async (message) => {
             const ahora = new Date();
             const hoy = new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate());
             const recordatoriosUsuario = dataStore.recordatorios.filter(r => r.userId === userId);
-            let recordatorios = [];
+            let recordatoriosDiscord = [];
+            let recordatoriosTelegram = [];
 
             if (recordatoriosUsuario.length > 0) {
                 recordatoriosUsuario.forEach((r, index) => {
@@ -5938,7 +5939,8 @@ client.on('messageCreate', async (message) => {
                         const diaRecordatorio = new Date(fechaRecordatorio.getFullYear(), fechaRecordatorio.getMonth(), fechaRecordatorio.getDate());
                         if (diaRecordatorio.getTime() === hoy.getTime()) {
                             const timeZone = targetName === 'Miguel' ? 'America/Guayaquil' : 'America/Argentina/Buenos_Aires';
-                            const fechaHoraFormateada = fechaRecordatorio.toLocaleString(targetName === 'Miguel' ? 'es-EC' : 'es-AR', {
+                            // Formato para Discord (fecha completa)
+                            const fechaHoraDiscord = fechaRecordatorio.toLocaleString(targetName === 'Miguel' ? 'es-EC' : 'es-AR', {
                                 timeZone,
                                 day: '2-digit',
                                 month: '2-digit',
@@ -5947,7 +5949,15 @@ client.on('messageCreate', async (message) => {
                                 minute: '2-digit',
                                 hour12: false
                             }).replace(/,/, '');
-                            recordatorios.push(`${index + 1}. ${r.mensaje}\nCuándo: ${fechaHoraFormateada}`);
+                            recordatoriosDiscord.push(`${index + 1}. ${r.mensaje}\nCuándo: ${fechaHoraDiscord}`);
+                            // Formato para Telegram (solo hora con a.m./p.m.)
+                            const horaTelegram = fechaRecordatorio.toLocaleTimeString(targetName === 'Miguel' ? 'es-EC' : 'es-AR', {
+                                timeZone,
+                                hour: '2-digit',
+                                minute: '2-digit',
+                                hour12: true
+                            }).toLowerCase();
+                            recordatoriosTelegram.push(`- ${r.mensaje} (para ${horaTelegram})`);
                         }
                     }
                 });
@@ -5972,9 +5982,7 @@ client.on('messageCreate', async (message) => {
                     author: { id: userId }, 
                     channel: canalGeneral 
                 }, true);
-                if (noticiasResult?.data?.description) {
-                    noticias = noticiasResult.data.description.split('\n').slice(0, 3).join('\n');
-                } else if (noticiasResult?.description) {
+                if (noticiasResult?.description) {
                     noticias = noticiasResult.description.split('\n').slice(0, 3).join('\n');
                 }
                 console.log(`Noticias obtenidas para ${targetName}: ${noticias}`);
@@ -6001,7 +6009,7 @@ client.on('messageCreate', async (message) => {
                 .addFields(
                     { name: `🌤️ Clima en ${targetName === 'Belén' ? 'Argentina' : 'Ecuador'}`, value: isArrival ? clima : `${clima}\n${consejoClima}`, inline: false },
                     { name: `⏰ Hora en ${targetName === 'Belén' ? 'Argentina' : 'Ecuador'}`, value: isArrival ? horaLocal : `${horaLocal}\n${consejoHora}`, inline: true },
-                    { name: '📅 Recordatorios', value: recordatorios.length > 0 ? recordatorios.slice(0, 2).join('\n') : 'No tenés recordatorios para hoy.', inline: false },
+                    { name: '📅 Recordatorios', value: recordatoriosDiscord.length > 0 ? recordatoriosDiscord.slice(0, 2).join('\n') : 'No tenés recordatorios para hoy.', inline: false },
                     { name: '📰 Noticias', value: noticias.length > 1024 ? noticias.substring(0, 1021) + '...' : noticias, inline: false },
                     { name: '💡 Dato interesante', value: datoInteresante.length > 1024 ? datoInteresante.substring(0, 1021) + '...' : datoInteresante, inline: false },
                     { name: '📝 Resumen', value: resumenRecordatorios, inline: false }
@@ -6023,7 +6031,7 @@ client.on('messageCreate', async (message) => {
                 ? `¡${targetName === 'Miguel' ? 'Grande, Miguel' : 'Ey, Belén'}! Bienvenid@ a casa, ${targetName === 'Miguel' ? 'capo' : 'genia'}. 🏠\n` +
                   `Clima en ${targetName === 'Belén' ? 'Argentina' : 'Ecuador'}: ${clima}\n` +
                   `Hora en ${targetName === 'Belén' ? 'Argentina' : 'Ecuador'}: ${horaLocal}\n` +
-                  `Recordatorios: ${recordatorios.length > 0 ? recordatorios.slice(0, 2).join(', ') : 'Ninguno para hoy'}\n` +
+                  `Recordatorios: ${recordatoriosTelegram.length > 0 ? recordatoriosTelegram.slice(0, 2).join('\n') : 'Ninguno para hoy'}\n` +
                   `Noticias:\n${noticias}\n` +
                   `Dato interesante: ${datoInteresante}\n` +
                   `Resumen: ${resumenRecordatorios}\n` +
@@ -6031,7 +6039,7 @@ client.on('messageCreate', async (message) => {
                 : `¡${targetName === 'Miguel' ? 'Grande, Miguel' : 'Ey, Belén'}! Saliste a romperla, ${targetName === 'Miguel' ? 'capo' : 'genia'}. 🚪\n` +
                   `Clima en ${targetName === 'Belén' ? 'Argentina' : 'Ecuador'}: ${clima} - ${consejoClima}\n` +
                   `Hora en ${targetName === 'Belén' ? 'Argentina' : 'Ecuador'}: ${horaLocal} - ${consejoHora}\n` +
-                  `Recordatorios: ${recordatorios.length > 0 ? recordatorios.slice(0, 2).join(', ') : 'Ninguno para hoy'}\n` +
+                  `Recordatorios: ${recordatoriosTelegram.length > 0 ? recordatoriosTelegram.slice(0, 2).join('\n') : 'Ninguno para hoy'}\n` +
                   `Noticias:\n${noticias}\n` +
                   `Dato interesante: ${datoInteresante}\n` +
                   `Resumen: ${resumenRecordatorios}\n` +
