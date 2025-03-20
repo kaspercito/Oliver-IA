@@ -624,6 +624,19 @@
       "esRecurrente": false,
       "hora": null,
       "minutos": null
+    },
+    {
+      "id": "33a87a36-dd18-4d10-ad86-21261dd2341a",
+      "userId": "752987736759205960",
+      "channelId": "1343749554905940058",
+      "mensaje": "hazme acuerdo de ver el partido de",
+      "cuandoLlegue": false,
+      "cuandoSalga": false,
+      "timestamp": 1742499000000,
+      "creado": 1742430191747,
+      "esRecurrente": false,
+      "hora": null,
+      "minutos": null
     }
   ],
   "usedJokes": {
