@@ -650,6 +650,19 @@
       "esRecurrente": false,
       "hora": null,
       "minutos": null
+    },
+    {
+      "id": "0abf7b4d-c1fc-4c52-b683-984b23bf592a",
+      "userId": "752987736759205960",
+      "channelId": "1343749554905940058",
+      "mensaje": "Hazme acuerdo de arreglar la hora",
+      "cuandoLlegue": false,
+      "cuandoSalga": false,
+      "timestamp": 1742478055108,
+      "creado": 1742449255109,
+      "esRecurrente": false,
+      "hora": null,
+      "minutos": null
     }
   ],
   "usedJokes": {
