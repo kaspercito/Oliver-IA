@@ -650,19 +650,6 @@
       "esRecurrente": false,
       "hora": null,
       "minutos": null
-    },
-    {
-      "id": "59662018-a3a7-428f-9390-8ae4ab1bb15d",
-      "userId": "752987736759205960",
-      "channelId": "1343749554905940058",
-      "mensaje": "probando esto",
-      "cuandoLlegue": false,
-      "cuandoSalga": false,
-      "timestamp": 1742433313023,
-      "creado": 1742433253024,
-      "esRecurrente": false,
-      "hora": null,
-      "minutos": null
     }
   ],
   "usedJokes": {
