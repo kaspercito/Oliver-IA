@@ -3375,7 +3375,6 @@ async function manejarRecordatorio(message) {
     let esCuandoSalga = false;
     let horaIndex = -1;
 
-    // Detectar el inicio del tiempo
     for (let i = mensajeStart; i < palabras.length; i++) {
         if (palabras[i] === 'cuando' && palabras[i + 1] === 'llegue' && palabras[i + 2] === 'a' && palabras[i + 3] === 'casa') {
             tiempoIndex = i;
@@ -3401,17 +3400,13 @@ async function manejarRecordatorio(message) {
 
     if (tiempoIndex === -1) return sendError(message.channel, `No entendí el tiempo, ${userName}. Usá "en 5 minutos", "mañana 15:00", "al llegar a casa" o "cuando salga de casa".`);
 
-    // Buscar hora específica después de "cuando llegue" o "cuando salga"
-    if (esCuandoLlegue || esCuandoSalga) {
-        for (let i = tiempoIndex; i < palabras.length; i++) {
-            if (palabras[i] === 'a' && palabras[i + 1] === 'las') {
-                horaIndex = i;
-                break;
-            }
+    for (let i = tiempoIndex; i < palabras.length; i++) {
+        if (palabras[i] === 'a' && palabras[i + 1] === 'las') {
+            horaIndex = i;
+            break;
         }
     }
 
-    // Extraer el mensaje y el texto de tiempo
     const mensaje = horaIndex !== -1 
         ? args.split(' ').slice(mensajeStart, horaIndex).join(' ').trim() 
         : args.split(' ').slice(mensajeStart, tiempoIndex).join(' ').trim();
@@ -3424,7 +3419,6 @@ async function manejarRecordatorio(message) {
     let hora = null;
     let minutos = null;
 
-    // Parsear el tiempo
     if (esCuandoLlegue || esCuandoSalga) {
         if (horaIndex !== -1) {
             const horaTexto = args.split(' ').slice(horaIndex).join(' ').trim();
@@ -3441,7 +3435,6 @@ async function manejarRecordatorio(message) {
         minutos = tiempo.minutos;
     }
 
-    // Crear el recordatorio
     const recordatorio = {
         id: uuidv4(),
         userId: message.author.id,
@@ -3456,16 +3449,13 @@ async function manejarRecordatorio(message) {
         minutos
     };
 
-    // Solo programar si hay timestamp
     if (recordatorio.timestamp) programarRecordatorio(recordatorio);
 
-    // Guardar en dataStore
     dataStore.recordatorios = dataStore.recordatorios || [];
     dataStore.recordatorios.push(recordatorio);
     userModified = true;
 
-    // Manejar guardado
-    const musicActive = false; // Asumo que no hay música activa
+    const musicActive = false;
     let guardadoMsg = musicActive ? `\n⚠️ Hay música, no guardo ahora.` : `\n💾 Guardado al toque, ¡tranqui!`;
 
     if (!musicActive) {
@@ -3478,20 +3468,22 @@ async function manejarRecordatorio(message) {
         }
     }
 
-    // Generar respuesta
     let textoRespuesta;
     if (esCuandoLlegue) {
         textoRespuesta = recordatorio.timestamp 
-            ? `Te aviso "${mensaje}" cuando llegues a casa después de las ${new Date(recordatorio.timestamp).toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires', hour: '2-digit', minute: '2-digit' })}, ${userName}.`
+            ? `Te aviso "${mensaje}" cuando llegues a casa después de las ${new Date(recordatorio.timestamp + (12 * 60 * 60 * 1000)).toLocaleTimeString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires', hour: '2-digit', minute: '2-digit', hour12: false })}, ${userName}.`
             : `Te aviso "${mensaje}" cuando llegues a casa, ${userName}. (Sin hora específica).`;
     } else if (esCuandoSalga) {
         textoRespuesta = recordatorio.timestamp 
-            ? `Te aviso "${mensaje}" cuando salgas de casa después de las ${new Date(recordatorio.timestamp).toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires', hour: '2-digit', minute: '2-digit' })}, ${userName}.`
+            ? `Te aviso "${mensaje}" cuando salgas de casa después de las ${new Date(recordatorio.timestamp + (12 * 60 * 60 * 1000)).toLocaleTimeString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires', hour: '2-digit', minute: '2-digit', hour12: false })}, ${userName}.`
             : `Te aviso "${mensaje}" cuando salgas de casa, ${userName}. (Sin hora específica).`;
     } else if (esRecurrente) {
         textoRespuesta = `Te aviso "${mensaje}" todos los días a las ${hora.toString().padStart(2, '0')}:${minutos.toString().padStart(2, '0')}, ${userName}.`;
     } else {
-        textoRespuesta = `Te aviso "${mensaje}" el ${new Date(recordatorio.timestamp).toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })}, ${userName}.`;
+        const fechaAjustada = new Date(recordatorio.timestamp + (12 * 60 * 60 * 1000));
+        const fechaStr = fechaAjustada.toLocaleDateString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires', day: '2-digit', month: '2-digit', year: 'numeric' });
+        const horaStr = fechaAjustada.toLocaleTimeString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires', hour: '2-digit', minute: '2-digit', hour12: false });
+        textoRespuesta = `Te aviso "${mensaje}" el ${fechaStr}, ${horaStr}, ${userName}.`;
     }
 
     await sendSuccess(message.channel, '⏰ ¡Recordatorio seteado!', `${textoRespuesta}${guardadoMsg}`);
@@ -3594,19 +3586,21 @@ async function manejarMisRecordatorios(message) {
         } else if (r.esRecurrente) {
             fechaStr = `todos los días a las ${r.hora.toString().padStart(2, '0')}:${r.minutos.toString().padStart(2, '0')}`;
         } else {
-            // Sumar 12 horas al timestamp para corregir el offset
+            // Sumar 12 horas para corregir los timestamps mal guardados
             const fechaAjustada = new Date(r.timestamp + (12 * 60 * 60 * 1000));
-            const fechaEcuador = fechaAjustada.toLocaleDateString('es-EC', { 
+            const fechaArgentina = fechaAjustada.toLocaleDateString('es-AR', { 
+                timeZone: 'America/Argentina/Buenos_Aires', 
                 day: '2-digit', 
                 month: '2-digit', 
                 year: 'numeric' 
             });
-            const horaEcuador = fechaAjustada.toLocaleTimeString('es-EC', { 
+            const horaArgentina = fechaAjustada.toLocaleTimeString('es-AR', { 
+                timeZone: 'America/Argentina/Buenos_Aires', 
                 hour: '2-digit', 
                 minute: '2-digit', 
                 hour12: false // Formato 24 horas
             });
-            fechaStr = `${fechaEcuador}, ${horaEcuador}`;
+            fechaStr = `${fechaArgentina}, ${horaArgentina}`;
         }
         embed.addFields({
             name: `${index + 1}. ${r.mensaje}`,
