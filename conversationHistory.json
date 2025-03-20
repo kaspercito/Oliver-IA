@@ -650,6 +650,19 @@
       "esRecurrente": false,
       "hora": null,
       "minutos": null
+    },
+    {
+      "id": "1e19aff2-7514-46a6-b058-9c9e8771d2ed",
+      "userId": "1023132788632862761",
+      "channelId": "1343749554905940058",
+      "mensaje": "cargar los cartuchos con tinta",
+      "cuandoLlegue": false,
+      "cuandoSalga": false,
+      "timestamp": 1742497580058,
+      "creado": 1742486780059,
+      "esRecurrente": false,
+      "hora": null,
+      "minutos": null
     }
   ],
   "usedJokes": {
