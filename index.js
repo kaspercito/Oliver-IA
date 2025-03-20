@@ -6017,17 +6017,6 @@ client.on('messageCreate', async (message) => {
                 await canalGeneral.send({ embeds: [embed] });
                 console.log(`Embed enviado al canal general ${canalGeneralId} para ${isArrival ? 'llegada' : 'salida'} de ${targetName}`);
         
-                if (avisos.length > 0 || pendientes.length > 0) {
-                    const recordatoriosEmbed = createEmbed('#FF1493', `Recordatorios para ${targetName}`, 
-                        `Aquí van tus recordatorios, ${targetName === 'Miguel' ? 'capo' : 'genia'}:`)
-                        .addFields(
-                            { name: '📋 Recordatorios inmediatos', value: avisos.length > 0 ? avisos.join('\n') : 'Ninguno urgente.', inline: false },
-                            { name: '📅 Recordatorios futuros', value: pendientes.length > 0 ? pendientes.join('\n') : 'Ninguno programado.', inline: false }
-                        )
-                        .setFooter({ text: 'Con cariño, Oliver IA' });
-                    await canalRecordatorios.send({ embeds: [recordatoriosEmbed] });
-                    console.log(`Recordatorios enviados al canal ${targetName === 'Miguel' ? canalMiguel : canalBelen} para ${targetName}`);
-                }
         
                 const chatId = targetName === 'Belén' ? chatIdBelen : chatIdMiguel;
                 const mensajeTelegram = isArrival
