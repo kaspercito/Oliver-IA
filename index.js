@@ -4744,14 +4744,17 @@ async function manejarNoticias(message, silent = false) {
     const waitingEmbed = createEmbed('#55FFFF', `📰 Buscando noticias, ${userName}...`, 
         `Aguantá que te traigo lo último${isForTelegram ? (userName === 'Miguel' ? ' de Ecuador' : ' de Argentina') : ' de Argentina y Ecuador'} al toque...`);
     let waitingMessage;
-    if (!silent && !isForTelegram) waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
+    if (!silent && !isForTelegram) {
+        try {
+            waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
+        } catch (error) {
+            console.error(`Error enviando mensaje de espera: ${error.message}`);
+        }
+    }
 
     try {
         const apiKey = process.env.MEDIASTACK_API_KEY;
-        if (!apiKey) {
-            console.error('No se encontró MEDIASTACK_API_KEY en el archivo .env');
-            throw new Error('Falta la clave de Mediastack en el .env, loco.');
-        }
+        if (!apiKey) throw new Error('Falta la clave de Mediastack en el .env, loco.');
         console.log(`Usando clave API: ${apiKey.substring(0, 4)}... (ocultada por seguridad)`);
 
         const today = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Argentina/Buenos_Aires' });
@@ -4764,21 +4767,15 @@ async function manejarNoticias(message, silent = false) {
                 let response = await axios.get(url);
                 console.log(`Respuesta cruda de ${country}: ${JSON.stringify(response.data, null, 2)}`);
                 let articles = response.data.data || [];
-
                 if (articles.length === 0) {
                     url = `http://api.mediastack.com/v1/news?access_key=${apiKey}&countries=${country}&languages=es&limit=5&sort=published_desc`;
                     console.log(`Sin noticias de hoy para ${country}, probando sin fecha: ${url}`);
                     response = await axios.get(url);
-                    console.log(`Respuesta cruda sin fecha de ${country}: ${JSON.stringify(response.data, null, 2)}`);
                     articles = response.data.data || [];
                 }
-
                 return articles;
             } catch (error) {
                 console.error(`Error al obtener noticias de ${country}: ${error.message}`);
-                if (error.response) {
-                    console.error(`Detalles del error: ${JSON.stringify(error.response.data, null, 2)}`);
-                }
                 return [];
             }
         };
@@ -4792,7 +4789,7 @@ async function manejarNoticias(message, silent = false) {
         const formatNews = (articles, country) => {
             if (articles.length === 0) return `No encontré noticias posta de ${country} hoy, loco.`;
             return articles.slice(0, 5).map((article, index) => 
-                `${index + 1}. **${article.title}**\n${article.description ? article.description.slice(0, 150) + '...' : 'Sin descripción.'}\n*Fuente: ${article.source}*`
+                `${index + 1}. **${article.title}**\n${article.description ? article.description.slice(0, 50) + '...' : 'Sin descripción.'}\n*Fuente: ${article.source}*`
             ).join('\n\n');
         };
 
@@ -4801,30 +4798,36 @@ async function manejarNoticias(message, silent = false) {
 
         let embed;
         if (isForTelegram && silent) {
-            // Para Telegram en eventos de llegada/salida, solo noticias del país del usuario
+            // Para eventos de llegada/salida
             const relevantNews = userName === 'Miguel' ? noticiasEC : noticiasAR;
             const countryLabel = userName === 'Miguel' ? 'Ecuador' : 'Argentina';
-            embed = createEmbed('#FFD700', `📰 Últimas Noticias de ${countryLabel} (${articlesAR.length > 0 || articlesEC.length > 0 ? today : 'Recientes'})`, 
-                relevantNews);
+            embed = createEmbed('#FFD700', `📰 Últimas Noticias de ${countryLabel} (${today})`, relevantNews);
         } else {
-            // Para el comando !noticias, muestra ambos países
-            embed = createEmbed('#FFD700', `📰 Últimas Noticias (${articlesAR.length > 0 || articlesEC.length > 0 ? today : 'Recientes'})`, 
+            // Para !noticias
+            embed = createEmbed('#FFD700', `📰 Últimas Noticias (${today})`, 
                 `**Argentina:**\n${noticiasAR}\n\n**Ecuador:**\n${noticiasEC}`);
         }
 
-        if (!silent && !isForTelegram && waitingMessage) {
-            await waitingMessage.edit({ embeds: [embed] });
-            console.log(`Noticias enviadas al canal de Discord para ${userName}`);
+        const embedSize = JSON.stringify(embed).length;
+        console.log(`Tamaño del embed: ${embedSize} caracteres`);
+        if (embedSize > 6000) throw new Error(`El embed excede el límite de 6000 caracteres: ${embedSize}`);
+
+        if (!silent && !isForTelegram) {
+            if (waitingMessage) {
+                await waitingMessage.edit({ embeds: [embed] });
+                console.log(`Noticias enviadas al canal de Discord para ${userName}`);
+            } else {
+                await message.channel.send({ embeds: [embed] });
+                console.log(`Noticias enviadas directamente al canal de Discord para ${userName}`);
+            }
         }
         return embed;
     } catch (error) {
-        console.error(`Error general en manejarNoticias: ${error.message}`);
-        if (error.response) console.error(`Respuesta de la API con error: ${JSON.stringify(error.response.data, null, 2)}`);
+        console.error(`Error en manejarNoticias: ${error.message}`);
         const errorEmbed = createEmbed('#FF5555', '¡Qué quilombo!', 
             `No pude traer noticias copadas, ${userName}. Error: ${error.message}. ¿Probamos de nuevo, loco?`);
         if (!silent && !isForTelegram && waitingMessage) {
             await waitingMessage.edit({ embeds: [errorEmbed] });
-            console.log(`Error de noticias enviado al canal de Discord para ${userName}`);
         }
         return errorEmbed;
     }
