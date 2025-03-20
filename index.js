@@ -4789,15 +4789,10 @@ async function manejarNoticias(message, silent = false) {
         console.log('Noticias procesadas EC:', JSON.stringify(articlesEC, null, 2));
 
         let noticias;
-        if (silent && isForTelegram) {
+        if (silent) {
             const relevantArticles = userName === 'Miguel' ? articlesEC : articlesAR;
             noticias = relevantArticles.length > 0 
-                ? relevantArticles.slice(0, 5).map((article, index) => `${index + 1}. ${article.title}`).join('\n')
-                : `No encontré noticias de ${userName === 'Miguel' ? 'Ecuador' : 'Argentina'} hoy, loco.`;
-        } else if (silent) {
-            const relevantArticles = userName === 'Miguel' ? articlesEC : articlesAR;
-            noticias = relevantArticles.length > 0 
-                ? relevantArticles.slice(0, 5).map((article, index) => `${index + 1}. ${article.title}`).join('\n')
+                ? relevantArticles.slice(0, 3).map((article, index) => `${index + 1}. ${article.title}`).join('\n')
                 : `No encontré noticias de ${userName === 'Miguel' ? 'Ecuador' : 'Argentina'} hoy, loco.`;
         } else {
             const noticiasAR = articlesAR.length > 0 
