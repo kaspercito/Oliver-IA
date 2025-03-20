@@ -4729,7 +4729,7 @@ async function manejarClima(message, silent = false) {
         return { description: `${temp}°C, ${desc}, ${vibe}.` }; // Devolvemos solo la descripción
     } catch (error) {
         console.error(`Error en clima para "${args}": ${error.message}`);
-        const errorEmbed = createEmbed('#FF5555', '¡Qué cagada!', 
+        const errorEmbed = createEmbed('#FF1493', '¡Qué cagada!', 
             `No pude encontrar el clima de "${args}", ${userName}. ¿Seguro que existe esa ciudad, loco?`);
         if (!silent && waitingMessage) await waitingMessage.edit({ embeds: [errorEmbed] });
         return { description: errorEmbed.description }; // Devolvemos la descripción del error
@@ -4741,7 +4741,7 @@ async function manejarNoticias(message, silent = false) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
     const isForTelegram = message.channel.type !== 'GUILD_TEXT';
 
-    const waitingEmbed = createEmbed('#55FFFF', `📰 Buscando noticias, ${userName}...`, 
+    const waitingEmbed = createEmbed('#FF1493', `📰 Buscando noticias, ${userName}...`, 
         `Aguantá que te traigo lo último${isForTelegram ? (userName === 'Miguel' ? ' de Ecuador' : ' de Argentina') : ' de Argentina y Ecuador'} al toque...`);
     let waitingMessage;
     if (!silent && !isForTelegram) {
@@ -4801,10 +4801,10 @@ async function manejarNoticias(message, silent = false) {
             // Para eventos de llegada/salida
             const relevantNews = userName === 'Miguel' ? noticiasEC : noticiasAR;
             const countryLabel = userName === 'Miguel' ? 'Ecuador' : 'Argentina';
-            embed = createEmbed('#FFD700', `📰 Últimas Noticias de ${countryLabel} (${today})`, relevantNews);
+            embed = createEmbed('#FF1493', `📰 Últimas Noticias de ${countryLabel} (${today})`, relevantNews);
         } else {
             // Para !noticias
-            embed = createEmbed('#FFD700', `📰 Últimas Noticias (${today})`, 
+            embed = createEmbed('#FF1493', `📰 Últimas Noticias (${today})`, 
                 `**Argentina:**\n${noticiasAR}\n\n**Ecuador:**\n${noticiasEC}`);
         }
 
@@ -4824,7 +4824,7 @@ async function manejarNoticias(message, silent = false) {
         return embed;
     } catch (error) {
         console.error(`Error en manejarNoticias: ${error.message}`);
-        const errorEmbed = createEmbed('#FF5555', '¡Qué quilombo!', 
+        const errorEmbed = createEmbed('#FF1493', '¡Qué quilombo!', 
             `No pude traer noticias copadas, ${userName}. Error: ${error.message}. ¿Probamos de nuevo, loco?`);
         if (!silent && !isForTelegram && waitingMessage) {
             await waitingMessage.edit({ embeds: [errorEmbed] });
@@ -6025,8 +6025,8 @@ client.on('messageCreate', async (message) => {
                 const chatId = targetName === 'Belén' ? chatIdBelen : chatIdMiguel;
                 const mensajeTelegram = isArrival
                     ? `¡${targetName === 'Miguel' ? 'Grande, Miguel' : 'Ey, Belén'}! Bienvenid@ a casa, ${targetName === 'Miguel' ? 'capo' : 'genia'}. 🏠\n` +
-                      `🌤️ Clima en ${targetName === 'Belén' ? 'San Luis' : 'Guayaquil'}: ${clima}\n` +
-                      `⏰ Hora: San Luis: ${horaSanLuis} | Guayaquil: ${horaGuayaquil}\n` +
+                      `🌤️ Clima en ${targetName === 'Belén' ? 'San Luis' : 'Guayaquil'}: ${clima} - ${consejoClima}\n` +
+                      `⏰ Hora en ${targetName === 'Belén' ? 'San Luis' : 'Guayaquil'}: ${horaLocal} - ${consejoHora}\n` +
                       `📋 Recordatorios inmediatos: ${avisos.length > 0 ? avisos.join(', ') : 'Ninguno urgente'}\n` +
                       `📅 Recordatorios futuros: ${pendientes.length > 0 ? pendientes.join(', ') : 'Ninguno programado'}\n` +
                       `📰 Noticias: ${noticias}\n` +
