@@ -3194,16 +3194,12 @@ function generarConsejoClima(clima, esSalida = false) {
 
 // Función para generar un consejo práctico según la hora (para salida)
 function generarConsejoHora(hora) {
-    const [horaNum, periodo] = hora.split(' ').map(part => part.trim());
-    const horaInt = parseInt(horaNum.split(':')[0]);
-    const esPM = periodo.toLowerCase().includes('pm');
-
-    if (esPM && horaInt >= 6) {
-        return 'Es de noche, asegurate de llevar una linterna o tener el móvil cargado por si lo necesitás. 🌙';
-    } else if (!esPM && horaInt < 8) {
-        return 'Es temprano, ¿ya desayunaste? No salgas con el estómago vacío, capo. 🍳';
-    }
-    return 'La hora está perfecta para salir, ¡a meterle pilas! ⏰';
+    if (!hora || typeof hora !== 'string') return 'No tengo la hora, pero aprovechá el día.';
+    const [horas] = hora.split(':').map(Number);
+    if (horas < 8) return 'Tempranito, ¡a meterle pilas!';
+    if (horas < 12) return 'La mañana está perfecta, ¡dale gas!';
+    if (horas < 18) return 'Tarde tranqui, aprovechá.';
+    return 'Noche pa’ relajarse, ¿no?';
 }
 
 async function manejarAyuda(message) {
