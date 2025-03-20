@@ -3307,7 +3307,6 @@ function parsearTiempo(texto) {
     let fechaObjetivo = new Date(ahoraArgentina); // Trabajamos desde hora Argentina
     let esRecurrente = false;
 
-    // Expresiones regulares (sin cambios)
     const enMinutos = texto.match(/en (\d+) minuto(s)?/i);
     const enHoras = texto.match(/en (\d+) hora(s)?/i);
     const enDias = texto.match(/en (\d+) día(s)?/i);
@@ -3350,7 +3349,6 @@ function parsearTiempo(texto) {
         return null;
     }
 
-    // Convertimos la fecha objetivo de Argentina a UTC para el timestamp
     const timestampUTC = fechaObjetivo.getTime() - offsetArgentina;
 
     return {
@@ -3471,16 +3469,16 @@ async function manejarRecordatorio(message) {
     let textoRespuesta;
     if (esCuandoLlegue) {
         textoRespuesta = recordatorio.timestamp 
-            ? `Te aviso "${mensaje}" cuando llegues a casa después de las ${new Date(recordatorio.timestamp + (12 * 60 * 60 * 1000)).toLocaleTimeString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires', hour: '2-digit', minute: '2-digit', hour12: false })}, ${userName}.`
+            ? `Te aviso "${mensaje}" cuando llegues a casa después de las ${new Date(recordatorio.timestamp).toLocaleTimeString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires', hour: '2-digit', minute: '2-digit', hour12: false })}, ${userName}.`
             : `Te aviso "${mensaje}" cuando llegues a casa, ${userName}. (Sin hora específica).`;
     } else if (esCuandoSalga) {
         textoRespuesta = recordatorio.timestamp 
-            ? `Te aviso "${mensaje}" cuando salgas de casa después de las ${new Date(recordatorio.timestamp + (12 * 60 * 60 * 1000)).toLocaleTimeString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires', hour: '2-digit', minute: '2-digit', hour12: false })}, ${userName}.`
+            ? `Te aviso "${mensaje}" cuando salgas de casa después de las ${new Date(recordatorio.timestamp).toLocaleTimeString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires', hour: '2-digit', minute: '2-digit', hour12: false })}, ${userName}.`
             : `Te aviso "${mensaje}" cuando salgas de casa, ${userName}. (Sin hora específica).`;
     } else if (esRecurrente) {
         textoRespuesta = `Te aviso "${mensaje}" todos los días a las ${hora.toString().padStart(2, '0')}:${minutos.toString().padStart(2, '0')}, ${userName}.`;
     } else {
-        const fechaAjustada = new Date(recordatorio.timestamp + (12 * 60 * 60 * 1000));
+        const fechaAjustada = new Date(recordatorio.timestamp);
         const fechaStr = fechaAjustada.toLocaleDateString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires', day: '2-digit', month: '2-digit', year: 'numeric' });
         const horaStr = fechaAjustada.toLocaleTimeString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires', hour: '2-digit', minute: '2-digit', hour12: false });
         textoRespuesta = `Te aviso "${mensaje}" el ${fechaStr}, ${horaStr}, ${userName}.`;
@@ -3586,19 +3584,17 @@ async function manejarMisRecordatorios(message) {
         } else if (r.esRecurrente) {
             fechaStr = `todos los días a las ${r.hora.toString().padStart(2, '0')}:${r.minutos.toString().padStart(2, '0')}`;
         } else {
-            // Sumar 12 horas para corregir los timestamps mal guardados
-            const fechaAjustada = new Date(r.timestamp + (12 * 60 * 60 * 1000));
-            const fechaArgentina = fechaAjustada.toLocaleDateString('es-AR', { 
+            const fechaArgentina = new Date(r.timestamp).toLocaleDateString('es-AR', { 
                 timeZone: 'America/Argentina/Buenos_Aires', 
                 day: '2-digit', 
                 month: '2-digit', 
                 year: 'numeric' 
             });
-            const horaArgentina = fechaAjustada.toLocaleTimeString('es-AR', { 
+            const horaArgentina = new Date(r.timestamp).toLocaleTimeString('es-AR', { 
                 timeZone: 'America/Argentina/Buenos_Aires', 
                 hour: '2-digit', 
                 minute: '2-digit', 
-                hour12: false // Formato 24 horas
+                hour12: false 
             });
             fechaStr = `${fechaArgentina}, ${horaArgentina}`;
         }
