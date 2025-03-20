@@ -5891,14 +5891,18 @@ async function manejarCommand(message, silent = false) {
 }
 
 client.on('messageCreate', async (message) => {
-    console.log(`Mensaje recibido - Autor: ${message.author.username}, Contenido: ${message.content}, Bot: ${message.author.bot}`);
+    console.log(`Mensaje recibido - Autor: ${message.author?.username}, Contenido: ${message.content}, Bot: ${message.author?.bot}`);
     
-    if (message.author.bot && message.author.username !== 'IFTTT') {
-        console.log(`Ignorado por filtro de bot: ${message.content} (Autor: ${message.author.username})`);
+    if (!message.author || (message.author.bot && message.author.username !== 'IFTTT')) {
+        console.log(`Ignorado por filtro de bot o mensaje inválido: ${message.content || 'sin contenido'} (Autor: ${message.author?.username || 'desconocido'})`);
         return;
     }
 
     const userName = message.author.id === OWNER_ID ? 'Miguel' : (message.author.id === ALLOWED_USER_ID ? 'Belén' : 'Un desconocido');
+    if (!message.content) {
+        console.error('Mensaje sin contenido recibido');
+        return;
+    }
     const content = message.content.trim().toLowerCase();
     console.log(`Contenido limpio: ${content}`);
 
@@ -5923,11 +5927,11 @@ client.on('messageCreate', async (message) => {
             return;
         }
 
-        const horaSanLuis = new Date().toLocaleTimeString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires', hour: '2-digit', minute: '2-digit', hour12: false });
-        const horaGuayaquil = new Date().toLocaleTimeString('es-EC', { timeZone: 'America/Guayaquil', hour: '2-digit', minute: '2-digit', hour12: false });
+        const horaEcuador = new Date().toLocaleTimeString('es-EC', { timeZone: 'America/Guayaquil', hour: '2-digit', minute: '2-digit', hour12: false });
+        const horaArgentina = new Date().toLocaleTimeString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires', hour: '2-digit', minute: '2-digit', hour12: false });
 
         const processEvent = async (isArrival) => {
-            console.log(`Procesando ${isArrival ? 'llegada' : 'salida'} de ${targetName} - Canal general: ${canalGeneralId}, Canal recordatorios: ${targetName === 'Miguel' ? canalMiguel : canalBelen}`);
+            console.log(`Procesando ${isArrival ? 'llegada' : 'salida'} de ${targetName}`);
             try {
                 await message.delete();
                 console.log(`Mensaje de IFTTT borrado: ${content}`);
@@ -5974,8 +5978,8 @@ client.on('messageCreate', async (message) => {
                         author: { id: userId }, 
                         channel: canalGeneral 
                     }, true);
-                    if (noticiasResult?.data?.description) {
-                        noticias = noticiasResult.data.description.split('\n').slice(0, 3).join('\n');
+                    if (noticiasResult?.description) {
+                        noticias = noticiasResult.description.split('\n').slice(0, 3).join('\n');
                     }
                     console.log(`Noticias obtenidas para ${targetName}: ${noticias}`);
                 } catch (error) {
@@ -5991,7 +5995,7 @@ client.on('messageCreate', async (message) => {
                 }
         
                 const consejoClima = generarConsejoClima(clima, !isArrival);
-                const horaLocal = targetName === 'Belén' ? horaSanLuis : horaSanLuis; // Usamos Argentina para Miguel también
+                const horaLocal = targetName === 'Miguel' ? horaEcuador : horaArgentina; // Ecuador para Miguel, Argentina para Belén
                 const consejoHora = generarConsejoHora(horaLocal);
                 const totalRecordatorios = recordatoriosUsuario.length;
                 const resumenRecordatorios = totalRecordatorios > 0 ? `Tenés ${totalRecordatorios} recordatorios en total.` : 'No tenés recordatorios, ¡a descansar tranqui!';
@@ -6006,7 +6010,7 @@ client.on('messageCreate', async (message) => {
                         { name: '💡 Dato interesante', value: datoInteresante.length > 1024 ? datoInteresante.substring(0, 1021) + '...' : datoInteresante, inline: false },
                         { name: '📝 Resumen', value: resumenRecordatorios, inline: false }
                     )
-                    .setFooter({ text: 'Con cariño, Oliver IA' });
+                    .setFooter({ text: `Con cariño, Oliver IA • hoy a las ${horaLocal}` });
 
                 const embedSize = JSON.stringify(embed).length;
                 console.log(`Tamaño del embed: ${embedSize} caracteres`);
@@ -6057,7 +6061,7 @@ client.on('messageCreate', async (message) => {
     }
     
     if (message.author.bot) return;
-
+    
     const lettersOnly = message.content.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ]/g, '');
     if (lettersOnly.length > 5 && (message.author.id === OWNER_ID || message.author.id === ALLOWED_USER_ID)) {
         const uppercaseCount = lettersOnly.split('').filter(char => char === char.toUpperCase()).length;
