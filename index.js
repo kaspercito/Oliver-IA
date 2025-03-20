@@ -4804,14 +4804,7 @@ async function manejarNoticias(message, silent = false) {
             noticias = `**Argentina:**\n${noticiasAR}\n\n**Ecuador:**\n${noticiasEC}`;
         }
 
-        let embed;
-        if (silent) {
-            const countryLabel = userName === 'Miguel' ? 'Ecuador' : 'Argentina';
-            embed = createEmbed('#FFD700', `📰 Últimas Noticias de ${countryLabel} (${today})`, noticias);
-        } else {
-            embed = createEmbed('#FFD700', `📰 Últimas Noticias (${today})`, noticias);
-        }
-
+        const embed = createEmbed('#FFD700', `📰 Últimas Noticias (${today})`, noticias);
         const embedSize = JSON.stringify(embed).length;
         console.log(`Tamaño del embed: ${embedSize} caracteres`);
         if (embedSize > 6000) throw new Error(`El embed excede el límite de 6000 caracteres: ${embedSize}`);
