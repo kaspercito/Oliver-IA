@@ -6256,7 +6256,7 @@ client.on('messageCreate', async (message) => {
 // Eventos
 client.once('ready', async () => {
     console.log(`¡Oliver IA está listo! Instancia: ${instanceId} - ${new Date().toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })}`);
-    client.user.setPresence({ activities: [{ name: "Estoy de regreso solamente para ti Milagros", type: 0 }], status: 'online' });
+    client.user.setPresence({ activities: [{ name: "Estoy de regreso para ti Milagros", type: 0 }], status: 'online' });
 
     await initializeDataStore();
 
