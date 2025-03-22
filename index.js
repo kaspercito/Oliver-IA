@@ -6355,19 +6355,6 @@ client.once('ready', async () => {
         const lastSentReminder = dataStore.utilMessageTimestamps[`reminder_${CHANNEL_ID}`] || 0;
         const lastReaction = dataStore.utilMessageReactions[CHANNEL_ID] || 0;
 
-        if (now - lastSentUtil >= oneDayInMs && (!lastReaction || now - lastReaction >= oneDayInMs)) {
-            const utilEmbed = createEmbed('#FF1493', '¡Ey, Belén!', 
-                '¡Volví para vos, genia! ¿Te vengo bien por acá? Contame qué onda, dale.', 
-                'Hecho con onda para Belén por Oliver IA | Reacciona con ✅ o ❌');
-            const sentMessage = await channel.send({ embeds: [utilEmbed] });
-            await sentMessage.react('✅');
-            await sentMessage.react('❌');
-            dataStore.utilMessageTimestamps[`util_${CHANNEL_ID}`] = now;
-            sentMessages.set(sentMessage.id, { content: utilEmbed.description, message: sentMessage });
-            autoModified = true;
-            console.log(`Mensaje útil enviado al iniciar - ${new Date().toLocaleString('es-AR')}`);
-        }
-
         setInterval(async () => {
             try {
                 const now = Date.now();
