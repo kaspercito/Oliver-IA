@@ -6314,38 +6314,6 @@ client.once('ready', async () => {
 
         const updatesChanged = JSON.stringify(BOT_UPDATES) !== JSON.stringify(dataStore.sentUpdates);
 
-        if (updatesChanged) {
-            const updateEmbed = createEmbed('#FF1493', '📢 ¡Volví con todo, Belén!',
-                '¡Che, grosa! Acá estoy de nuevo con algunas cositas nuevas para vos.');
-            const updatesText = BOT_UPDATES.map(update => `- ${update}`).join('\n');
-            let currentField = '';
-            let fieldCount = 1;
-            const fields = [];
-
-            updatesText.split('\n').forEach(line => {
-                if (currentField.length + line.length + 1 > 1024) {
-                    fields.push({ name: `Novedades (Parte ${fieldCount})`, value: currentField.trim(), inline: false });
-                    currentField = line;
-                    fieldCount++;
-                } else {
-                    currentField += (currentField ? '\n' : '') + line;
-                }
-            });
-            if (currentField) {
-                fields.push({ name: `Novedades (Parte ${fieldCount})`, value: currentField.trim(), inline: false });
-            }
-
-            fields.forEach(field => updateEmbed.addFields(field));
-            updateEmbed.addFields({ name: 'Hora de vuelta', value: `${argentinaTime}`, inline: false });
-
-            await channel.send({ content: `<@${ALLOWED_USER_ID}>`, embeds: [updateEmbed] });
-            dataStore.sentUpdates = [...BOT_UPDATES];
-            autoModified = true;
-            console.log('Actualizaciones enviadas y guardadas en sentUpdates.');
-        } else {
-            console.log('No hay cambios en BOT_UPDATES respecto a sentUpdates, no se envían.');
-        }
-
         const oneDayInMs = 24 * 60 * 60 * 1000;
         const checkInterval = 60 * 60 * 1000;
 
