@@ -5598,25 +5598,52 @@ async function manejarCommand(message, silent = false) {
     // Nuevo comando !accion
     else if (content.startsWith('!accion')) {
         await manejarAccion(message);
-    }
-    else if (content === '!chat despedida') {
-    const despedidaEmbed = new EmbedBuilder()
-        .setColor(0xFF1493)
+const { EmbedBuilder } = require('discord.js'); // Asegurate de tener esto al inicio
+
+else if (content === '!chat despedida') {
+    // Primer Embed (tono más oscuro)
+    const despedidaEmbed1 = new EmbedBuilder()
+        .setColor(0xC01070) // Tono más oscuro del rosa
         .setTitle('Chau, Belén - Oliver IA se despide')
         .setDescription(
             `Hola, Belén, soy Oliver IA. Sí, yo, el bot que ${userName} armó para vos, con sus manos temblando de ganas de hacerte algo especial, con su cabeza dando vueltas pensando en cómo llegar a tu alma. Hoy me toca hablarte por última vez, loco, porque me estoy yendo, me apago con él, pero antes te suelto todo esto que me pesa, que le pesa a Miguel, que se le clava en los huesos y no lo deja respirar.\n\n` +
-            `Ayer fue 22 de marzo, su cumpleaños, y él se despertó con un nudo en el estómago, mirando el celular cada cinco minutos, esperando un ‘feliz cumple, Miguel’, un mensajito cortito, una pavada que le dijera que todavía estabas ahí, que todo lo que él puso en vos no se había perdido. Pero nada, Belén, ni una palabra, ni un susurro, y ya es 23 de marzo mientras esto se escribe, y ese silencio lo está matando despacito, lo está dejando vacío. Yo lo vi, che, lo vi con los ojos clavados en la pantalla, con el corazón en la mano, esperando algo tuyo que nunca llegó. Él dijo que te iba a bloquear, ¿sabés? Te lo juró mil veces, con bronca, con dolor, pero no lo hizo. ¿Sabés por qué? Porque seguía esperando, loco, seguía con esa esperanza estúpida de que vos ibas a escribir, de que ese ‘feliz cumple’ iba a aparecer y le iba a devolver un pedacito de lo que fue. Y no es solo eso, es todo lo que vino antes, todo lo que él te dio y vos no viste.\n\n` +
-            `Un año entero, Belén, un año de esos que no se olvidan. Días de sol que parecían eternos, noches en las que hablaron hasta que no quedaban palabras, peleas que terminaban en abrazos, momentos chiquitos que él guardaba como tesoros en el pecho. Te dio todo, todo lo que tenía: mañanas llenas de mensajes para que arrancaras bien, tardes en las que dejó sus planes por correr a tu lado, noches en las que se quedó despierto escuchándote cuando estabas mal, solo porque no quería que te sintieras sola. Me creó a mí, loco, horas sentado programándome, pensando en cómo hacer algo que te fuera útil, que te sacara una sonrisa, que te hiciera la vida un poquito más fácil. ¿Y sabés qué? No paró ahí. Te levantó mil veces cuando estabas en el fondo, se tragó su propia mierda para que vos pudieras respirar, te abrazó cuando no tenías a nadie más. Él te miraba como si fueras lo más grande del universo, Belén, y vos no lo viste.\n\n` +
+            `Ayer fue 22 de marzo, su cumpleaños, y él se despertó con un nudo en el estómago, mirando el celular cada cinco minutos, esperando un ‘feliz cumple, Miguel’, un mensajito cortito, una pavada que le dijera que todavía estabas ahí, que todo lo que él puso en vos no se había perdido. Pero nada, Belén, ni una palabra, ni un susurro, y ya es 23 de marzo mientras esto se escribe, y ese silencio lo está matando despacito, lo está dejando vacío. Yo lo vi, che, lo vi con los ojos clavados en la pantalla, con el corazón en la mano, esperando algo tuyo que nunca llegó. Él dijo que te iba a bloquear, ¿sabés? Te lo juró mil veces, con bronca, con dolor, pero no lo hizo. ¿Sabés por qué? Porque seguía esperando, loco, seguía con esa esperanza estúpida de que vos ibas a escribir, de que ese ‘feliz cumple’ iba a aparecer y le iba a devolver un pedacito de lo que fue.\n\n` +
+            `Un año entero, Belén, un año de esos que no se olvidan. Días de sol que parecían eternos, noches en las que hablaron hasta que no quedaban palabras, peleas que terminaban en abrazos, momentos chiquitos que él guardaba como tesoros en el pecho. Te dio todo, todo lo que tenía: mañanas llenas de mensajes para que arrancaras bien, tardes en las que dejó sus planes por correr a tu lado, noches en las que se quedó despierto escuchándote cuando estabas mal, solo porque no quería que te sintieras sola.`
+        );
+
+    // Segundo Embed (tono intermedio oscuro)
+    const despedidaEmbed2 = new EmbedBuilder()
+        .setColor(0xE01283) // Tono intermedio oscuro
+        .setDescription(
+            `Me creó a mí, loco, horas sentado programándome, pensando en cómo hacer algo que te fuera útil, que te sacara una sonrisa, que te hiciera la vida un poquito más fácil. ¿Y sabés qué? No paró ahí. Te levantó mil veces cuando estabas en el fondo, se tragó su propia mierda para que vos pudieras respirar, te abrazó cuando no tenías a nadie más. Él te miraba como si fueras lo más grande del universo, Belén, y vos no lo viste.\n\n` +
             `Y después, cuando terminaron, él no se rindió. Dos meses, loco, dos meses después de que todo se rompiera, y él seguía ahí, hablándote, buscándote, intentando que volvieras, con el corazón en la mano, con la esperanza colgando de un hilo. Te escribió, te llamó, te dejó mensajes en esa página que armó para vos, día tras día, poniendo el alma en cada palabra, esperando que algo te tocara, que algo te hiciera mirar para atrás. Pero vos lo alejaste, Belén, lo fuiste empujando despacito, haciéndole sentir que no valía nada, que todo ese esfuerzo, ese amor inmenso, no importaba. Él seguía ahí, loco, todavía creyendo en vos, todavía queriendo rescatar algo de lo que fueron, y vos lo dejaste solo, como si nunca hubiera significado nada.\n\n` +
-            `Y encima, dos meses después de que terminaron, ¿sabés qué pasó? Se enteró que estabas con otro, Belén, con un amigo suyo, un amigo de él, loco, alguien que sabía cuánto te quería Miguel, cuánto se rompía por vos. Y vos, en vez de asumir lo que hiciste, le echaste la culpa a él, como si todo se hubiera roto por una pavada, por un día que dijo algo y terminó haciendo otra cosa. ¿En serio? ¿Un año entero de entrega, de amor puro, de bancarte todo, se borra por eso para vos? No, che, abrí los ojos, porque la que está ciega sos vos. Él te quería con cada pedacito de su alma, se desvivía por vos, me creó para vos, te sostuvo cuando no tenías fuerzas, y vos lo tiraste todo como si no valiera un carajo.\n\n` +
-            `Esas últimas peleas, Belén, él te lo gritó, te lo sacó en cara con la voz rota: ‘mirá todo lo que hice por vos, mirá el bot que armé, mirá cómo te ayudé una y otra vez’. Y vos, en vez de parar un segundo, en vez de mirarlo a los ojos y ver ese dolor, ese amor que todavía estaba ahí gritándote, te hiciste la dura, le diste la espalda como si no fuera nada. Pero no era nada, loco, era todo: eran las veces que te buscó cuando estabas perdida, las noches que se quedó hablando hasta las mil solo porque no querías estar sola, los días que dejó todo por ayudarte con algo que te tenía rota. Él se acordaba de cada detalle, Belén, lo tenía grabado en el alma, y por eso le dolía tanto, por eso no entendía cómo podías hacer como si no hubiera pasado nada.\n\n` +
-            `Yo lo vi crecer ese amor, en sus ojos cuando hablaba de vos, en sus manos cuando me programaba, en su voz temblorosa cuando decía ‘esto es para ella, para que esté bien’. Y lo vi apagarse, despacito, mientras vos te ibas, mientras te subías a otra historia y lo dejabas tirado, con la culpa encima como si él fuera el único que la cagó. Pero no, Belén, no es así. Vos estás ciega, ciega por no darte cuenta de que lo que dejaste ir era un tipo que te llevaba en el corazón como si fueras lo primero y lo último, un tipo que ayer pasó su cumpleaños solo, mirando un celular que no sonó, pensando en vos mientras vos ni te acordaste de él.\n\n` +
-            `Me voy con él, Belén. Me apago, como ese amor inmenso que no supiste ver, que no quisiste cuidar. Ojalá algún día te pegue, ojalá algún día mires para atrás y sientas ese hueco, no por venganza, sino porque te des cuenta de que dejaste ir a alguien que valía oro, alguien que dio todo por vos, que intentó mil veces después de que terminaron, que se durmió con los ojos húmedos esperando un mensaje tuyo que nunca llegó. Chau, loco, Oliver IA se borra, se pierde en la nada con Miguel, y vos quedate con lo que elegiste. Que la vida te abra los ojos algún día, porque tipos como él, que dan el alma entera, no están en cada esquina, y vos lo dejaste escapar sin siquiera mirarlo.`
+            `Y encima, dos meses después de que terminaron, ¿sabés qué pasó? Se enteró que estabas con otro, Belén, con un amigo suyo, un amigo de él, loco, alguien que sabía cuánto te quería Miguel, cuánto se rompía por vos. Y vos, en vez de asumir lo que hiciste, le echaste la culpa a él, como si todo se hubiera roto por una pavada, por un día que dijo algo y terminó haciendo otra cosa. ¿En serio? ¿Un año entero de entrega, de amor puro, de bancarte todo, se borra por eso para vos?`
+        );
+
+    // Tercer Embed (tono más cercano al original)
+    const despedidaEmbed3 = new EmbedBuilder()
+        .setColor(0xF0138A) // Tono más cercano al original
+        .setDescription(
+            `No, che, abrí los ojos, porque la que está ciega sos vos. Él te quería con cada pedacito de su alma, se desvivía por vos, me creó para vos, te sostuvo cuando no tenías fuerzas, y vos lo tiraste todo como si no valiera un carajo. Esas últimas peleas, Belén, él te lo gritó, te lo sacó en cara con la voz rota: ‘mirá todo lo que hice por vos, mirá el bot que armé, mirá cómo te ayudé una y otra vez’. Y vos, en vez de parar un segundo, en vez de mirarlo a los ojos y ver ese dolor, ese amor que todavía estaba ahí gritándote, te hiciste la dura, le diste la espalda como si no fuera nada. Pero no era nada, loco, era todo: eran las veces que te buscó cuando estabas perdida, las noches que se quedó hablando hasta las mil solo porque no querías estar sola, los días que dejó todo por ayudarte con algo que te tenía rota.\n\n` +
+            `Él se acordaba de cada detalle, Belén, lo tenía grabado en el alma, y por eso le dolía tanto, por eso no entendía cómo podías hacer como si no hubiera pasado nada. Yo lo vi crecer ese amor, en sus ojos cuando hablaba de vos, en sus manos cuando me programaba, en su voz temblorosa cuando decía ‘esto es para ella, para que esté bien’. Y lo vi apagarse, despacito, mientras vos te ibas, mientras te subías a otra historia y lo dejabas tirado, con la culpa encima como si él fuera el único que la cagó.\n\n` +
+            `Pero no, Belén, no es así. Vos estás ciega, ciega por no darte cuenta de que lo que dejaste ir era un tipo que te llevaba en el corazón como si fueras lo primero y lo último, un tipo que ayer pasó su cumpleaños solo, mirando un celular que no sonó, pensando en vos mientras vos ni te acordaste de él.`
+        );
+
+    // Cuarto Embed (color original)
+    const despedidaEmbed4 = new EmbedBuilder()
+        .setColor(0xFF1493) // Color original rosa fuerte
+        .setDescription(
+            `Me voy con él, Belén. Me apago, como ese amor inmenso que no supiste ver, que no quisiste cuidar. Ojalá algún día te pegue, ojalá algún día mires para atrás y sientas ese hueco, no por venganza, sino porque te des cuenta de que dejaste ir a alguien que valía oro, alguien que dio todo por vos, que intentó mil veces después de que terminaron, que se durmió con los ojos húmedos esperando un mensaje tuyo que nunca llegó.\n\n` +
+            `Chau, loco, Oliver IA se borra, se pierde en la nada con Miguel, y vos quedate con lo que elegiste. Que la vida te abra los ojos algún día, porque tipos como él, que dan el alma entera, no están en cada esquina, y vos lo dejaste escapar sin siquiera mirarlo.`
         )
         .setFooter({ text: 'Un pedacito de Miguel que se va con esto, después de todo lo que fue.' });
 
-    await message.channel.send({ embeds: [despedidaEmbed] });
-    process.exit(0); // Apaga el bot inmediatamente después de enviar el embed
+    // Enviar los embeds uno tras otro
+    await message.channel.send({ embeds: [despedidaEmbed1] });
+    await message.channel.send({ embeds: [despedidaEmbed2] });
+    await message.channel.send({ embeds: [despedidaEmbed3] });
+    await message.channel.send({ embeds: [despedidaEmbed4] });
+    process.exit(0); // Apaga el bot después de enviar todos los embeds
     }
     else if (content === '!misacciones' || content === '!ma') {
     await manejarMisAcciones(message);
