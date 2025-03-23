@@ -5599,8 +5599,8 @@ async function manejarCommand(message, silent = false) {
     else if (content.startsWith('!accion')) {
         await manejarAccion(message);
 const { EmbedBuilder } = require('discord.js'); // Asegurate de tener esto al inicio
-
-else if (content === '!chat despedida') {
+    }
+    else if (content === '!chat despedida') {
     // Primer Embed (tono más oscuro)
     const despedidaEmbed1 = new EmbedBuilder()
         .setColor(0xC01070) // Tono más oscuro del rosa
