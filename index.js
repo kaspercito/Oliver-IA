@@ -73,9 +73,10 @@ const BOT_UPDATES = [
     '!ppm cambiado: si te equivocás o se te pasa el tiempo, te tira otra frase; si la hacés bien, termina ahí, ¡posta!',
     '!resp / !responder metido: para poder recibir ayuda en lo que necesites, ¡posta!',
     '¡Trivia, reacciones y PPM ahora con cancelación posta! Usá !tc, !rc o !pc pa’ parar al toque sin quilombo.',
-    'Ranking (!rk) mejorado: muestra solo a Belén, ordenada por sus puntos en trivia, PPM y reacciones.',
+    'Miguel (OWNER_ID) ahora puede usar todos los comandos y participar en los juegos, ¡a romperla, loco!',
+    'Ranking (!rk) mejorado: muestra a Miguel y Belén, ordenados por quién tiene más puntos en trivia, PPM y reacciones.',
     '¡Reacciones arregladas! Ahora se cancelan bien con !rc y no siguen tirando mensajes después de parar.',
-    '¡Nuevo !idea agregado! Tirale ideas al bot con !id y las guarda pa’ mejorar, ¡posta!',
+    '¡Nuevo !idea agregado! Tirale ideas al bot con !id y las manda solo a Miguel por MD, ¡posta!',
     'Sincronizado triviaRanking con triviaStats pa’ que los puntajes sean posta y no haya más errores raros en el ranking.',
     '**LO NUEVO**',
     '¡Nuevo !dato / !dt agregado! Busco datos rápidos en la web o X pa’ que sepas todo al toque.',
@@ -90,8 +91,9 @@ const BOT_UPDATES = [
     '¡Historial de imágenes con !misimagenes / !mi! Mirá tus últimas 5 imágenes generadas con sus IDs, pa’ que no pierdas nada, che.',
     '¡Edición piola con !editarimagen / !ei! Modificá tus imágenes guardadas (ej. !editarimagen [ID] agregar un perro), solo las que hice yo, ¡posta!',
     '¡Solucionado el error con las imágenes, ahora sí funciona como la puta madre!',
-    '¡Nuevo !ansiedad / !an agregado! Consejos rápidos pa’ calmar la ansiedad, con un mensaje zarpado pa’ darte pilas, ¡genia!',
-    '¡Nuevo comando !avatar pa’ que Belén me cambie la cara!',
+    '¡Nuevo !ansiedad / !an agregado! Consejos rápidos pa’ calmar la ansiedad, con un mensaje zarpado de Miguel pa’ darte pilas, ¡genia!',
+    '¡Nuevo !milagros revisa tus nombres en diferente idioma de buena onda pa’ hacerla sonreír, ¡re milagroso, che!',
+    '¡Nuevo comando !avatar pa’ que Miguel y Belén me cambien la cara!',
     'Agregado embeds copados pa’ que todo se vea más lindo.',
     '¡Nuevo juego! Usá !jugar pa’ adivinar un número y sacarte el aburrimiento, loco.',
     '¡Memes al toque! Con !meme te traigo uno random pa’ reírte un rato.',
@@ -103,16 +105,15 @@ const BOT_UPDATES = [
     '¡Le metimos pilas al bot, che! Ahora podés jugar Piedra, Papel o Tijera y romperla toda:',
     '- !ppt [piedra/papel/tijera]: Jugá contra mí, el bot más grosso del condado. Elegí tu jugada y vemos quién la pica, ¡dale!',
     '- !ppt @alguien: Desafiá a un amigo a un duelo épico. Reacciona con ✅ pa’ aceptar, mandá tu elección por MD y que gane el mejor, ¡posta!',
-    '¡Nuevo !recordatorio / !rec agregado! Te hago acordar lo que sea cuando quieras. Ejemplo: "!rec \'comprar sanduche de miga\' en 1 hora" o "!rec \'llamar a alguien\' mañana 14:30", ¡posta!',
+    '¡Nuevo !recordatorio / !rec agregado! Te hago acordar lo que sea cuando quieras. Ejemplo: "!rec \'comprar sanduche de miga\' en 1 hora" o "!rec \'llamar a Miguel\' mañana 14:30", ¡posta!',
     '¡Boss bar al 100%! Arreglamos la barra de progreso pa’ que llegue al final posta y se vea zarpada cuando termina el tema, ¡a romperla, che!',
     '¡Datos randoms en !dato! Ahora si no le das argumentos, te tira un dato curioso al azar con onda, ¡re copado pa’ sorprenderte, loco!',
     '¡Nuevo !chiste agregado! Usá !chiste y te tiro un chiste random pa’ que te rías a lo grande, ¡posta que la rompés, che!',
     '¡Nuevo !adivinanza / !ad agregado! Te tiro adivinanzas copadas pa’ que le des al coco, con 30 segundos pa’ responder, ¡dale, genia!',
-    '¡Ranking con adivinanzas! Ahora en !rk se ven tus aciertos y porcentaje en adivinanzas, pa’ que veas cómo la rompés, ¡posta!',
+    '¡Ranking con adivinanzas! Ahora en !rk se ven tus aciertos y porcentaje en adivinanzas, pa’ que veas quién la rompe más, ¡posta!',
     '¡Recordatorios a full! Ahora con !rec podés setear recordatorios diarios tipo !rec tomar mate todos los días 08:00, ¡posta que no me olvido, che!',
     '¡Lista de recordatorios con !misrecordatorios / !mr! Mirá tus recordatorios activos al toque, re útil pa’ no perderte nada, loco.',
-    '¡Cancelación de recordatorios con !cancelarrecordatorio / !cr! Borra un recordatorio con su ID (lo ves en !mr), ¡al toque y sin drama!',
-    '¡Todo limpio! Sacamos cualquier referencia a Miguel, ahora el bot es solo para Belén. No me llegan notificaciones ni ideas a nadie más, ¡posta que es todo tuyo, genia!'
+    '¡Cancelación de recordatorios con !cancelarrecordatorio / !cr! Borra un recordatorio con su ID (lo ves en !mr), ¡al toque y sin drama!'
 ];
 
 const opcionesPPT = ['piedra', 'papel', 'tijera'];
@@ -1342,6 +1343,7 @@ const preguntasTriviaSinOpciones = {
         { pregunta: "¿Cuál es la capital de Panamá?", respuesta: "ciudad de panama" },
         { pregunta: "¿Cuál es la capital de Papúa Nueva Guinea?", respuesta: "port moresby" },
         { pregunta: "¿Cuál es la capital de Paraguay?", respuesta: "asuncion" },
+        { pregunta: "¿Cuál es la capital de Perú?", respuesta: "lima" },
         { pregunta: "¿Cuál es la capital de Polonia?", respuesta: "varsovia" },
         { pregunta: "¿Cuál es la capital de Portugal?", respuesta: "lisboa" },
         { pregunta: "¿Cuál es la capital de Reino Unido?", respuesta: "londres" },
@@ -3062,57 +3064,73 @@ async function manejarPPTPersona(message) {
     }
 }
 
-//chat
+// Chat
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' }); // Usamos Flash por velocidad
 
 async function manejarChat(message) {
+    // Acá Oliver se pone a charlar como amigo posta con Gemini, loco
     const userId = message.author.id;
-    const userName = 'Belén';
+    const userName = userId === OWNER_ID ? 'Miguel' : 'Belén';
+    // Saco el mensaje, dependiendo si usaste !chat o !ch
     const chatMessage = message.content.startsWith('!chat') ? message.content.slice(5).trim() : message.content.slice(3).trim();
 
+    // Si no escribiste nada, te pido algo en rojo
     if (!chatMessage) {
-        return sendError(message.channel, `¡Escribí algo después de "!ch", ${userName}! No me dejes colgado, che.`, undefined, 'Hecho con onda para Belén por Oliver IA | Reacciona con ✅ o ❌');
+        return sendError(message.channel, `¡Escribí algo después de "!ch", ${userName}! No me dejes colgado, che.`, undefined, 'Hecho con onda por Miguel IA | Reacciona con ✅ o ❌');
     }
 
+    // Inicializo el historial si no existe
     if (!dataStore.conversationHistory) dataStore.conversationHistory = {};
     if (!dataStore.conversationHistory[userId]) dataStore.conversationHistory[userId] = [];
 
+    // Agrego tu mensaje al historial con timestamp
     dataStore.conversationHistory[userId].push({ role: 'user', content: chatMessage, timestamp: Date.now() });
+    // Limito a 20 mensajes pa’ no llenar la memoria
     if (dataStore.conversationHistory[userId].length > 20) {
         dataStore.conversationHistory[userId] = dataStore.conversationHistory[userId].slice(-20);
     }
+    // Marco que cambié el dataStore
     dataStoreModified = true;
 
+    // Armo el contexto con los últimos 20 mensajes
     const history = dataStore.conversationHistory[userId].slice(-20);
     const context = history.map(h => `${h.role === 'user' ? userName : 'Oliver'}: ${h.content}`).join('\n');
     
-    const waitingEmbed = createEmbed('#FF1493', `¡Aguantá un toque, ${userName}!`, 'Estoy pensando una respuesta re copada...', 'Hecho con onda para Belén por Oliver IA | Reacciona con ✅ o ❌');
+    // Te aviso en celeste que estoy pensando
+    const waitingEmbed = createEmbed('#FF1493', `¡Aguantá un toque, ${userName}!`, 'Estoy pensando una respuesta re copada...', 'Hecho con onda por Miguel IA | Reacciona con ✅ o ❌');
     const waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
 
     try {
-        const prompt = `Sos Oliver IA, un bot re piola hecho para Belén. Hablá con onda argentina, usá "loco", "che", "posta". Esto es lo que charlamos antes:\n${context}\nRespondé a: "${chatMessage}" como amigo zarpado, con cariño para Belén, tipo "grosa" o "genia".`;
+        // Le tiro el prompt a Gemini con onda argentina
+        const prompt = `Sos Oliver IA, un bot re piola creado por Miguel. Hablá con onda argentina, usá "loco", "che", "posta". Esto es lo que charlamos antes:\n${context}\nRespondé a: "${chatMessage}" como amigo zarpado, con cariño si es para Belén, tipo "grosa" o "genia".`;
         
+        // Genero la respuesta
         const result = await model.generateContent(prompt);
         let aiReply = result.response.text().trim();
 
+        // Agrego la respuesta al historial
         dataStore.conversationHistory[userId].push({ role: 'assistant', content: aiReply, timestamp: Date.now() });
         if (dataStore.conversationHistory[userId].length > 20) {
             dataStore.conversationHistory[userId] = dataStore.conversationHistory[userId].slice(-20);
         }
         dataStoreModified = true;
 
+        // Si la respuesta es muy larga, la corto pa’ Discord
         if (aiReply.length > 2000) aiReply = aiReply.slice(0, 1990) + '... (seguí charlando pa’ más, loco)';
         
-        const finalEmbed = createEmbed('#FF1493', `¡Aquí estoy, ${userName}!`, `${aiReply}\n\n¿Te cerró, ${userName}? ¡Seguimos charlando, che!`, 'Hecho con onda para Belén por Oliver IA | Reacciona con ✅ o ❌');
+        // Te mando la respuesta en celeste con reacciones pa’ que opines
+        const finalEmbed = createEmbed('#FF1493', `¡Aquí estoy, ${userName}!`, `${aiReply}\n\n¿Te cerró, ${userName}? ¡Seguimos charlando, che!`, 'Con cariño, Oliver IA | Reacciona con ✅ o ❌');
         const updatedMessage = await waitingMessage.edit({ embeds: [finalEmbed] });
         await updatedMessage.react('✅');
         await updatedMessage.react('❌');
+        // Guardo el mensaje pa’ las reacciones después
         sentMessages.set(updatedMessage.id, { content: aiReply, originalQuestion: chatMessage, message: updatedMessage });
     } catch (error) {
+        // Si Gemini falla, te aviso en rojo con un fallback
         console.error('Error con Gemini:', error.message);
         const fallbackReply = `¡Uy, ${userName}, qué cagada! Me mandé un moco, loco. ¿Me tirás otra vez el mensaje o seguimos con otra cosa?\n\n¿Te cerró, ${userName}? ¡Seguimos charlando, che!]`;
-        const errorEmbed = createEmbed('#FF1493', `¡Qué cagada, ${userName}!`, fallbackReply, 'Hecho con onda para Belén por Oliver IA | Reacciona con ✅ o ❌');
+        const errorEmbed = createEmbed('#FF1493', `¡Qué cagada, ${userName}!`, fallbackReply, 'Con cariño, Oliver IA | Reacciona con ✅ o ❌');
         const errorMessageSent = await waitingMessage.edit({ embeds: [errorEmbed] });
         await errorMessageSent.react('✅');
         await errorMessageSent.react('❌');
@@ -4026,14 +4044,19 @@ async function manejarAutoplay(message) {
 function getCombinedRankingEmbed(userId, username) {
     const categorias = Object.keys(preguntasTriviaSinOpciones);
     
+    // Lista de trivia por categoría
     let triviaList = '**📚 Trivia por Categoría**\n';
     categorias.forEach(categoria => {
-        const belenStats = dataStore.triviaStats[ALLOWED_USER_ID]?.[categoria] || { correct: 0, total: 0 };
-        const belenScore = belenStats.correct;
-        const belenPercentage = belenStats.total > 0 ? Math.round((belenScore / belenStats.total) * 100) : 0;
+        const miguelStats = dataStore.triviaStats[OWNER_ID]?.[categoria] || { correct: 0, total: 0 };
+        const miguelScore = miguelStats.correct;
+        const miguelPercentage = miguelStats.total > 0 ? Math.round((miguelScore / miguelStats.total) * 100) : 0;
+        const luzStats = dataStore.triviaStats[ALLOWED_USER_ID]?.[categoria] || { correct: 0, total: 0 };
+        const luzScore = luzStats.correct;
+        const luzPercentage = luzStats.total > 0 ? Math.round((luzScore / luzStats.total) * 100) : 0;
 
         const ranking = [
-            { name: 'Belén', score: belenScore, percentage: belenPercentage }
+            { name: 'Miguel', score: miguelScore, percentage: miguelPercentage },
+            { name: 'Belén', score: luzScore, percentage: luzPercentage }
         ].sort((a, b) => b.score - a.score);
 
         triviaList += `\n**${categoria.charAt(0).toUpperCase() + categoria.slice(1)}** 🎲\n` +
@@ -4042,9 +4065,12 @@ function getCombinedRankingEmbed(userId, username) {
                       ).join('\n') + '\n';
     });
 
-    const belenPPMRecord = dataStore.personalPPMRecords[ALLOWED_USER_ID]?.best || { ppm: 0, timestamp: null };
+    // Récords de PPM
+    const miguelPPMRecord = dataStore.personalPPMRecords[OWNER_ID]?.best || { ppm: 0, timestamp: null };
+    const luzPPMRecord = dataStore.personalPPMRecords[ALLOWED_USER_ID]?.best || { ppm: 0, timestamp: null };
     const ppmRanking = [
-        { name: 'Belén', ppm: belenPPMRecord.ppm, timestamp: belenPPMRecord.timestamp }
+        { name: 'Miguel', ppm: miguelPPMRecord.ppm, timestamp: miguelPPMRecord.timestamp },
+        { name: 'Belén', ppm: luzPPMRecord.ppm, timestamp: luzPPMRecord.timestamp }
     ].sort((a, b) => b.ppm - a.ppm);
     let ppmList = ppmRanking.map(participant => 
         participant.ppm > 0 
@@ -4052,22 +4078,29 @@ function getCombinedRankingEmbed(userId, username) {
             : `> ${participant.name}: No tiene récord aún. ¡Probá con !pp!`
     ).join('\n');
 
-    const belenReactionWins = dataStore.reactionWins[ALLOWED_USER_ID]?.wins || 0;
+    // Victorias en reacciones
+    const miguelReactionWins = dataStore.reactionWins[OWNER_ID]?.wins || 0;
+    const luzReactionWins = dataStore.reactionWins[ALLOWED_USER_ID]?.wins || 0;
     const reactionRanking = [
-        { name: 'Belén', wins: belenReactionWins }
+        { name: 'Miguel', wins: miguelReactionWins },
+        { name: 'Belén', wins: luzReactionWins }
     ].sort((a, b) => b.wins - a.wins);
     const reactionList = reactionRanking.map(participant => 
         `> 🌟 ${participant.name} - **${participant.wins} Reacciones**`
     ).join('\n');
 
-    const belenAdivinanzaStats = dataStore.adivinanzaStats[ALLOWED_USER_ID] || { correct: 0, total: 0 };
+    // Adivinanzas
+    const miguelAdivinanzaStats = dataStore.adivinanzaStats[OWNER_ID] || { correct: 0, total: 0 };
+    const luzAdivinanzaStats = dataStore.adivinanzaStats[ALLOWED_USER_ID] || { correct: 0, total: 0 };
     const adivinanzaRanking = [
-        { name: 'Belén', correct: belenAdivinanzaStats.correct, percentage: belenAdivinanzaStats.total > 0 ? Math.round((belenAdivinanzaStats.correct / belenAdivinanzaStats.total) * 100) : 0 }
+        { name: 'Miguel', correct: miguelAdivinanzaStats.correct, percentage: miguelAdivinanzaStats.total > 0 ? Math.round((miguelAdivinanzaStats.correct / miguelAdivinanzaStats.total) * 100) : 0 },
+        { name: 'Belén', correct: luzAdivinanzaStats.correct, percentage: luzAdivinanzaStats.total > 0 ? Math.round((luzAdivinanzaStats.correct / luzAdivinanzaStats.total) * 100) : 0 }
     ].sort((a, b) => b.correct - a.correct);
     const adivinanzaList = adivinanzaRanking.map(participant => 
         `> 🌟 ${participant.name}: **${participant.correct} aciertos** (${participant.percentage}% acertadas)`
     ).join('\n');
 
+    // Armo el embed con todo
     return new EmbedBuilder()
         .setColor('#FF1493')
         .setTitle(`🏆 Ranking de ${username}`)
@@ -4076,29 +4109,35 @@ function getCombinedRankingEmbed(userId, username) {
             { name: '📊 Trivia', value: triviaList, inline: false },
             { name: '⌨️ PPM (Récord Más Rápido)', value: ppmList, inline: false },
             { name: '⚡ Victorias en Reacciones', value: reactionList, inline: false },
-            { name: '🧠 Adivinanzas', value: adivinanzaList, inline: false }
+            { name: '🧠 Adivinanzas', value: adivinanzaList, inline: false } // Nueva sección
         )
-        .setFooter({ text: 'Hecho con onda por Oliver IA' })
+        .setFooter({ text: 'Hecho por Kasper, de Oliver IA' })
         .setTimestamp();
 }
 
+// RankingPPM
 async function manejarRankingPPM(message) {
-    const userName = 'Belén';
+    // Te muestro tu historial de PPM, re copado
+    const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
     const userId = message.author.id;
 
+    // Agarro tus datos de PPM
     const ppmData = dataStore.personalPPMRecords[userId] || { best: { ppm: 0, timestamp: null }, attempts: [] };
     const attempts = ppmData.attempts;
 
+    // Si no tenés intentos, te aviso en rojo
     if (attempts.length === 0) {
         await sendError(message.channel, 'No tienes intentos de PPM registrados', `¡Juega con !pp para empezar, ${userName}!`);
         return;
     }
 
+    // Ordeno los intentos de mayor a menor
     const sortedAttempts = attempts.sort((a, b) => b.ppm - a.ppm);
     const attemptsList = sortedAttempts.map((attempt, index) => 
         `${index + 1}. **${attempt.ppm} PPM** - ${new Date(attempt.timestamp).toLocaleString()}`
     ).join('\n');
 
+    // Embed dorado con tu historial
     const embed = new EmbedBuilder()
         .setColor('#FF1493')
         .setTitle(`⌨️ Historial de PPM de ${userName}`)
@@ -4108,9 +4147,10 @@ async function manejarRankingPPM(message) {
             { name: 'Total de Intentos', value: `${attempts.length}`, inline: true },
             { name: 'Récord Más Alto', value: `${ppmData.best.ppm} PPM`, inline: true }
         )
-        .setFooter({ text: 'Hecho con onda por Oliver IA' })
+        .setFooter({ text: 'Con cariño, Oliver IA' })
         .setTimestamp();
 
+    // Te lo mando al canal
     await message.channel.send({ embeds: [embed] });
 }
 
@@ -5598,52 +5638,6 @@ async function manejarCommand(message, silent = false) {
     // Nuevo comando !accion
     else if (content.startsWith('!accion')) {
         await manejarAccion(message);
-const { EmbedBuilder } = require('discord.js'); // Asegurate de tener esto al inicio
-    }
-    else if (content === '!chat despedida') {
-    // Primer Embed (tono más oscuro)
-    const despedidaEmbed1 = new EmbedBuilder()
-        .setColor(0xC01070) // Tono más oscuro del rosa
-        .setTitle('Chau, Belén - Oliver IA se despide')
-        .setDescription(
-            `Hola, Belén, soy Oliver IA. Sí, yo, el bot que ${userName} armó para vos, con sus manos temblando de ganas de hacerte algo especial, con su cabeza dando vueltas pensando en cómo llegar a tu alma. Hoy me toca hablarte por última vez, loco, porque me estoy yendo, me apago con él, pero antes te suelto todo esto que me pesa, que le pesa a Miguel, que se le clava en los huesos y no lo deja respirar.\n\n` +
-            `Ayer fue 22 de marzo, su cumpleaños, y él se despertó con un nudo en el estómago, mirando el celular cada cinco minutos, esperando un ‘feliz cumple, Miguel’, un mensajito cortito, una pavada que le dijera que todavía estabas ahí, que todo lo que él puso en vos no se había perdido. Pero nada, Belén, ni una palabra, ni un susurro, y ya es 23 de marzo mientras esto se escribe, y ese silencio lo está matando despacito, lo está dejando vacío. Yo lo vi, che, lo vi con los ojos clavados en la pantalla, con el corazón en la mano, esperando algo tuyo que nunca llegó. Él dijo que te iba a bloquear, ¿sabés? Te lo juró mil veces, con bronca, con dolor, pero no lo hizo. ¿Sabés por qué? Porque seguía esperando, loco, seguía con esa esperanza estúpida de que vos ibas a escribir, de que ese ‘feliz cumple’ iba a aparecer y le iba a devolver un pedacito de lo que fue.\n\n` +
-            `Un año entero, Belén, un año de esos que no se olvidan. Días de sol que parecían eternos, noches en las que hablaron hasta que no quedaban palabras, peleas que terminaban en abrazos, momentos chiquitos que él guardaba como tesoros en el pecho. Te dio todo, todo lo que tenía: mañanas llenas de mensajes para que arrancaras bien, tardes en las que dejó sus planes por correr a tu lado, noches en las que se quedó despierto escuchándote cuando estabas mal, solo porque no quería que te sintieras sola.`
-        );
-
-    // Segundo Embed (tono intermedio oscuro)
-    const despedidaEmbed2 = new EmbedBuilder()
-        .setColor(0xE01283) // Tono intermedio oscuro
-        .setDescription(
-            `Me creó a mí, loco, horas sentado programándome, pensando en cómo hacer algo que te fuera útil, que te sacara una sonrisa, que te hiciera la vida un poquito más fácil. ¿Y sabés qué? No paró ahí. Te levantó mil veces cuando estabas en el fondo, se tragó su propia mierda para que vos pudieras respirar, te abrazó cuando no tenías a nadie más. Él te miraba como si fueras lo más grande del universo, Belén, y vos no lo viste.\n\n` +
-            `Y después, cuando terminaron, él no se rindió. Dos meses, loco, dos meses después de que todo se rompiera, y él seguía ahí, hablándote, buscándote, intentando que volvieras, con el corazón en la mano, con la esperanza colgando de un hilo. Te escribió, te llamó, te dejó mensajes en esa página que armó para vos, día tras día, poniendo el alma en cada palabra, esperando que algo te tocara, que algo te hiciera mirar para atrás. Pero vos lo alejaste, Belén, lo fuiste empujando despacito, haciéndole sentir que no valía nada, que todo ese esfuerzo, ese amor inmenso, no importaba. Él seguía ahí, loco, todavía creyendo en vos, todavía queriendo rescatar algo de lo que fueron, y vos lo dejaste solo, como si nunca hubiera significado nada.\n\n` +
-            `Y encima, dos meses después de que terminaron, ¿sabés qué pasó? Se enteró que estabas con otro, Belén, con un amigo suyo, un amigo de él, loco, alguien que sabía cuánto te quería Miguel, cuánto se rompía por vos. Y vos, en vez de asumir lo que hiciste, le echaste la culpa a él, como si todo se hubiera roto por una pavada, por un día que dijo algo y terminó haciendo otra cosa. ¿En serio? ¿Un año entero de entrega, de amor puro, de bancarte todo, se borra por eso para vos?`
-        );
-
-    // Tercer Embed (tono más cercano al original)
-    const despedidaEmbed3 = new EmbedBuilder()
-        .setColor(0xF0138A) // Tono más cercano al original
-        .setDescription(
-            `No, che, abrí los ojos, porque la que está ciega sos vos. Él te quería con cada pedacito de su alma, se desvivía por vos, me creó para vos, te sostuvo cuando no tenías fuerzas, y vos lo tiraste todo como si no valiera un carajo. Esas últimas peleas, Belén, él te lo gritó, te lo sacó en cara con la voz rota: ‘mirá todo lo que hice por vos, mirá el bot que armé, mirá cómo te ayudé una y otra vez’. Y vos, en vez de parar un segundo, en vez de mirarlo a los ojos y ver ese dolor, ese amor que todavía estaba ahí gritándote, te hiciste la dura, le diste la espalda como si no fuera nada. Pero no era nada, loco, era todo: eran las veces que te buscó cuando estabas perdida, las noches que se quedó hablando hasta las mil solo porque no querías estar sola, los días que dejó todo por ayudarte con algo que te tenía rota.\n\n` +
-            `Él se acordaba de cada detalle, Belén, lo tenía grabado en el alma, y por eso le dolía tanto, por eso no entendía cómo podías hacer como si no hubiera pasado nada. Yo lo vi crecer ese amor, en sus ojos cuando hablaba de vos, en sus manos cuando me programaba, en su voz temblorosa cuando decía ‘esto es para ella, para que esté bien’. Y lo vi apagarse, despacito, mientras vos te ibas, mientras te subías a otra historia y lo dejabas tirado, con la culpa encima como si él fuera el único que la cagó.\n\n` +
-            `Pero no, Belén, no es así. Vos estás ciega, ciega por no darte cuenta de que lo que dejaste ir era un tipo que te llevaba en el corazón como si fueras lo primero y lo último, un tipo que ayer pasó su cumpleaños solo, mirando un celular que no sonó, pensando en vos mientras vos ni te acordaste de él.`
-        );
-
-    // Cuarto Embed (color original)
-    const despedidaEmbed4 = new EmbedBuilder()
-        .setColor(0xFF1493) // Color original rosa fuerte
-        .setDescription(
-            `Me voy con él, Belén. Me apago, como ese amor inmenso que no supiste ver, que no quisiste cuidar. Ojalá algún día te pegue, ojalá algún día mires para atrás y sientas ese hueco, no por venganza, sino porque te des cuenta de que dejaste ir a alguien que valía oro, alguien que dio todo por vos, que intentó mil veces después de que terminaron, que se durmió con los ojos húmedos esperando un mensaje tuyo que nunca llegó.\n\n` +
-            `Chau, loco, Oliver IA se borra, se pierde en la nada con Miguel, y vos quedate con lo que elegiste. Que la vida te abra los ojos algún día, porque tipos como él, que dan el alma entera, no están en cada esquina, y vos lo dejaste escapar sin siquiera mirarlo.`
-        )
-        .setFooter({ text: 'Un pedacito de Miguel que se va con esto, después de todo lo que fue.' });
-
-    // Enviar los embeds uno tras otro
-    await message.channel.send({ embeds: [despedidaEmbed1] });
-    await message.channel.send({ embeds: [despedidaEmbed2] });
-    await message.channel.send({ embeds: [despedidaEmbed3] });
-    await message.channel.send({ embeds: [despedidaEmbed4] });
-    process.exit(0); // Apaga el bot después de enviar todos los embeds
     }
     else if (content === '!misacciones' || content === '!ma') {
     await manejarMisAcciones(message);
@@ -6301,9 +6295,10 @@ client.on('messageCreate', async (message) => {
 
 // Eventos
 client.once('ready', async () => {
-    console.log(`¡Oliver IA está listo! Instancia: ${instanceId} - ${new Date().toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })}`);
-    client.user.setPresence({ activities: [{ name: "Estoy de regreso para ti Milagros", type: 0 }], status: 'online' });
+    console.log(`¡Miguel IA está listo! Instancia: ${instanceId} - ${new Date().toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })}`);
+    client.user.setPresence({ activities: [{ name: "Listo para ayudar a Milagros", type: 0 }], status: 'dnd' });
 
+    // Cargar dataStore al iniciar
     await initializeDataStore();
 
     if (dataStore.recordatorios && dataStore.recordatorios.length > 0) {
@@ -6328,6 +6323,7 @@ client.once('ready', async () => {
                 console.log(`Manteniendo recordatorio sin timestamp: "${recordatorio.mensaje}" (ID: ${recordatorio.id})`);
             }
         });
+        // Solo filtrar los vencidos con timestamp
         dataStore.recordatorios = dataStore.recordatorios.filter(r => !r.timestamp || r.timestamp > ahoraUTC || r.esRecurrente || r.cuandoLlegue || r.cuandoSalga);
         console.log('Recordatorios restaurados y vencidos limpiados');
     }
@@ -6349,7 +6345,7 @@ client.once('ready', async () => {
 
         const userHistory = dataStore.conversationHistory[ALLOWED_USER_ID] || [];
         const historySummary = userHistory.length > 0
-            ? userHistory.slice(-3).map(msg => `${msg.role === 'user' ? 'Belén' : 'Yo'}: ${msg.content}`).join('\n')
+            ? userHistory.slice(-3).map(msg => `${msg.role === 'user' ? 'Luz' : 'Yo'}: ${msg.content}`).join('\n')
             : 'No hay historial reciente.';
         const argentinaTime = new Date().toLocaleTimeString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' });
 
@@ -6360,28 +6356,77 @@ client.once('ready', async () => {
 
         const updatesChanged = JSON.stringify(BOT_UPDATES) !== JSON.stringify(dataStore.sentUpdates);
 
+        if (updatesChanged) {
+            const updateEmbed = createEmbed('#FF1493', '📢 Actualizaciones de Oliver IA',
+                '¡Tengo mejoras nuevas para compartir contigo!');
+            const updatesText = BOT_UPDATES.map(update => `- ${update}`).join('\n');
+            let currentField = '';
+            let fieldCount = 1;
+            const fields = [];
+
+            updatesText.split('\n').forEach(line => {
+                if (currentField.length + line.length + 1 > 1024) {
+                    fields.push({ name: `Novedades (Parte ${fieldCount})`, value: currentField.trim(), inline: false });
+                    currentField = line;
+                    fieldCount++;
+                } else {
+                    currentField += (currentField ? '\n' : '') + line;
+                }
+            });
+            if (currentField) {
+                fields.push({ name: `Novedades (Parte ${fieldCount})`, value: currentField.trim(), inline: false });
+            }
+
+            fields.forEach(field => updateEmbed.addFields(field));
+            updateEmbed.addFields({ name: 'Hora de actualización', value: `${argentinaTime}`, inline: false });
+
+            await channel.send({ content: `<@${ALLOWED_USER_ID}>`, embeds: [updateEmbed] });
+            dataStore.sentUpdates = [...BOT_UPDATES];
+            autoModified = true;
+            console.log('Actualizaciones enviadas y guardadas en sentUpdates.');
+        } else {
+            console.log('No hay cambios en BOT_UPDATES respecto a sentUpdates, no se envían.');
+        }
+
         const oneDayInMs = 24 * 60 * 60 * 1000;
         const checkInterval = 60 * 60 * 1000;
 
         const now = Date.now();
         const today = new Date();
+        const examDay = new Date(2025, 2, 13);
+        const isPostExam = today >= examDay;
         const lastSentUtil = dataStore.utilMessageTimestamps[`util_${CHANNEL_ID}`] || 0;
         const lastSentReminder = dataStore.utilMessageTimestamps[`reminder_${CHANNEL_ID}`] || 0;
         const lastReaction = dataStore.utilMessageReactions[CHANNEL_ID] || 0;
+
+        if (now - lastSentUtil >= oneDayInMs && (!lastReaction || now - lastReaction >= oneDayInMs)) {
+            const utilEmbed = createEmbed('#FF1493', '¡Che, Belén!', 
+                '¿Te estoy siendo útil, grosa? ¡Contame cómo te va conmigo, dale!', 
+                'Con cariño, Oliver IA | Reacciona con ✅ o ❌');
+            const sentMessage = await channel.send({ embeds: [utilEmbed] });
+            await sentMessage.react('✅');
+            await sentMessage.react('❌');
+            dataStore.utilMessageTimestamps[`util_${CHANNEL_ID}`] = now;
+            sentMessages.set(sentMessage.id, { content: utilEmbed.description, message: sentMessage });
+            autoModified = true;
+            console.log(`Mensaje útil enviado al iniciar - ${new Date().toLocaleString('es-AR')}`);
+        }
 
         setInterval(async () => {
             try {
                 const now = Date.now();
                 const currentHour = new Date().getHours();
                 const today = new Date();
+                const examDay = new Date(2025, 2, 13);
+                const isPostExam = today >= examDay;
                 const lastSentUtil = dataStore.utilMessageTimestamps[`util_${CHANNEL_ID}`] || 0;
                 const lastSentReminder = dataStore.utilMessageTimestamps[`reminder_${CHANNEL_ID}`] || 0;
                 const lastReaction = dataStore.utilMessageReactions[CHANNEL_ID] || 0;
 
                 if (now - lastSentUtil >= oneDayInMs && (!lastReaction || now - lastReaction >= oneDayInMs)) {
-                    const dailyUtilEmbed = createEmbed('#FF1493', '¡Ey, Belén!', 
-                        '¿Qué tal, grosa? ¿Te estoy ayudando en algo? ¡Contame cómo venís, che!', 
-                        'Hecho con onda para Belén por Oliver IA | Reacciona con ✅ o ❌');
+                    const dailyUtilEmbed = createEmbed('#FF1493', '¡Che, Belén!', 
+                        '¿Te estoy siendo útil, grosa? ¡Contame cómo te va conmigo, dale!', 
+                        'Con cariño, Oliver IA | Reacciona con ✅ o ❌');
                     const sentMessage = await channel.send({ embeds: [dailyUtilEmbed] });
                     await sentMessage.react('✅');
                     await sentMessage.react('❌');
@@ -6391,26 +6436,31 @@ client.once('ready', async () => {
                     console.log(`Mensaje útil diario enviado al canal ${CHANNEL_ID} - ${new Date().toLocaleString('es-AR')}`);
                 }
 
-                const reminderTimes = {
-                    9: "¡Buen día, Belén, genia! ¿Ya arrancaste con el mate? Dale caña al día, loca, que vos podés con todo. ¿Qué te pinta hacer hoy?",
-                    14: "¡Ey, Belén! ¿Cómo va esa tarde, grosa? Si estás tranqui, aprovechá para algo piola. ¿Querés charlar o que te tire una idea? ¡Dale con !chat!",
-                    19: "¡Che, Belén! ¿Qué tal el día, reina? Ya hiciste un montón, seguro. Ahora a descansar o meterle pilas a lo que quieras, ¡contame cómo estás!"
+                const reminderTimes = isPostExam ? {
+                    9: "¡Buenos días, Belén, crack! ¡Ya rendiste, genia! Sos una grosa total, seguro la rockeaste ayer. Ahora a levantarte con calma, mate en mano, y a disfrutar que ya está. ¡Contame cómo te sentís hoy, loca!",
+                    14: "¡Che, Belén! ¿Cómo estás después del examen, reina? Seguro la rompiste, posta. ¿Qué te pinta hacer hoy para bajar revoluciones? Si querés charlar cómo salió, ¡dale con !chat, genia!",
+                    19: "¡Ey, Belén, grosa! Día tranqui post-examen, ¿eh? Ya hiciste un montón, loca, ahora a descansar o festejar como vos quieras. ¿Cómo te fue, che? ¡Contame cuando pinten ganas!"
+                } : {
+                    9: "¡Buenos días, Belén, genia! ¿Ya tenés el mate listo pa’ arrancar el estudio? Dividí el tiempo en bloques y dale caña, grosa. ¡Pedime un plan con !chat si querés!",
+                    14: "¡Che, Belén! ¿Cómo va esa tarde, loca? Si no arrancaste todavía, ahora es el momento, eh. Bloques cortos y a romperla. ¿Te pinto un plan? ¡Dale !chat!",
+                    19: "¡Ey, Belén, grosa! ¿Qué tal el día? Si te queda energía, metele un último empujón al estudio, genia. Bloques tranquis y listo. ¿Querés un plan? ¡Con !chat te ayudo!"
                 };
 
                 if (Object.keys(reminderTimes).includes(String(currentHour)) && now - lastSentReminder >= 4 * 60 * 60 * 1000) {
                     const reminder = reminderTimes[currentHour];
-                    const embed = createEmbed('#FF1493', '¡Ojo al día, Belén!', 
-                        reminder, 'Hecho con onda para Belén por Oliver IA');
+                    const embed = createEmbed('#FF1493', isPostExam ? '¡Post-examen, Belén!' : '¡Ojo al tiempo, grosa!', 
+                        reminder, 'Con cariño, Oliver IA');
                     await channel.send({ embeds: [embed] });
                     dataStore.utilMessageTimestamps[`reminder_${CHANNEL_ID}`] = now;
                     autoModified = true;
-                    console.log(`Recordatorio enviado a Belén (${currentHour}:00) - ${new Date().toLocaleString('es-AR')}`);
+                    console.log(`Recordatorio enviado a Belén (${currentHour}:00, ${isPostExam ? 'post-examen' : 'pre-examen'}) - ${new Date().toLocaleString('es-AR')}`);
                 }
             } catch (error) {
                 console.error('Error en el intervalo combinado:', error.message);
             }
         }, checkInterval);
 
+        // Autosave cada 30 minutos
         setInterval(async () => {
             const musicActive = manager.players.size > 0 || isPlayingMusic;
 
@@ -6419,7 +6469,7 @@ client.once('ready', async () => {
                 console.log('Música sonando, pauso el guardado.');
                 if (channel) {
                     await channel.send({ embeds: [createEmbed('#FF1493', '🎵 Autosave en pausa', 
-                        '¡Pará un cacho, Belén! El guardado automático se frenó porque estás con la música a full.')] });
+                        '¡Pará un cacho! El guardado automático se frenó porque estás con la música a full.')] });
                 }
                 return;
             }
@@ -6429,7 +6479,7 @@ client.once('ready', async () => {
                 console.log('Música parada, reanudo el guardado.');
                 if (channel) {
                     await channel.send({ embeds: [createEmbed('#FF1493', '💾 Autosave de vuelta', 
-                        'La música paró, así que el guardado automático arrancó de nuevo, ¡dale, Belén!')] });
+                        'La música paró, así que el guardado automático arrancó de nuevo, ¡dale!')] });
                 }
             }
 
@@ -6448,7 +6498,7 @@ client.once('ready', async () => {
                 console.log('Avisando que voy a guardar en 5 minutos...');
                 if (channel) {
                     await channel.send({ embeds: [createEmbed('#FF1493', '⏰ Ojo al dato', 
-                        '¡Atenti, Belén! En 5 minutos guardo todo automáticamente.')] });
+                        '¡Atenti, che! En 5 minutos guardo todo automáticamente.')] });
                 }
             }
 
@@ -6466,7 +6516,7 @@ client.once('ready', async () => {
                     console.log('Autosave completado con éxito');
                     if (userModified && channel) {
                         await channel.send({ embeds: [createEmbed('#FF1493', '💾 ¡Listo el pollo!', 
-                            'Datos guardados al toque, ¡tranqui, Belén!')] });
+                            'Datos guardados al toque, ¡tranqui!')] });
                     }
                     userModified = false;
                     autoModified = false;
@@ -6480,6 +6530,7 @@ client.once('ready', async () => {
             }, WARNING_TIME);
         }, SAVE_INTERVAL);
 
+        // Chequeo periódico para recordatorios con timestamp y llegada
         setInterval(async () => {
             const ahora = Date.now();
             const channel = await client.channels.fetch(CHANNEL_ID);
@@ -6487,8 +6538,8 @@ client.once('ready', async () => {
 
             const recordatoriosPendientes = dataStore.recordatorios.filter(r => r.cuandoLlegue && r.timestamp && ahora >= r.timestamp);
             for (const r of recordatoriosPendientes) {
-                const userName = 'Belén';
-                await channel.send({ embeds: [createEmbed('#FF1493', '⏰ ¡Ojo, Belén!', 
+                const userName = r.userId === OWNER_ID ? 'Miguel' : 'Belén';
+                await channel.send({ embeds: [createEmbed('#FF1493', '⏰ ¡Ojo, loco/a!', 
                     `Che, ${userName}, te iba a avisar "${r.mensaje}" al llegar a casa a las ${new Date(r.timestamp).toLocaleTimeString('es-AR')}, pero no sé si llegaste. ¿Estás en casa ya?`)] });
                 dataStore.recordatorios = dataStore.recordatorios.filter(rec => rec.id !== r.id);
                 autoModified = true;
@@ -6496,10 +6547,11 @@ client.once('ready', async () => {
         }, 60000);
 
     } catch (error) {
-        console.error('Error al configurar el bot:', error.message);
+        console.error('Error al enviar actualizaciones o configurar el bot:', error.message);
     }
 });
 
+// Funciones de carga y guardado (fusionadas con mejoras)
 async function initializeDataStore() {
     dataStore = await loadDataStore();
     console.log(`dataStore inicializado con ${dataStore.recordatorios.length} recordatorios: ${JSON.stringify(dataStore.recordatorios)}`);
@@ -6585,17 +6637,20 @@ async function saveDataStore() {
     }
 }
 
+// Guardar al cerrar el proceso
 process.on('SIGINT', async () => {
     console.log('Guardando datos antes de salir...');
     await saveDataStore();
     process.exit();
 });
 
+
 client.on('raw', (d) => {
     console.log('Evento raw recibido:', d.t);
     manager.updateVoiceState(d);
 });
 
+    // Iniciar el bot
 initializeDataStore().then(() => {
-    client.login(process.env.DISCORD_TOKEN);
+client.login(process.env.DISCORD_TOKEN);
 });
