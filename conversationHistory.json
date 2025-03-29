@@ -613,19 +613,6 @@
       "hora": 0,
       "minutos": 0,
       "logSegundos": 75379
-    },
-    {
-      "id": "e99031a3-916e-429c-a4f0-cd6499b684a4",
-      "userId": "1023132788632862761",
-      "channelId": "1343749554905940058",
-      "mensaje": "cargar gasolina",
-      "cuandoLlegue": false,
-      "cuandoSalga": false,
-      "timestamp": 1743207358063,
-      "creado": 1743203758064,
-      "esRecurrente": false,
-      "hora": null,
-      "minutos": null
     }
   ],
   "usedJokes": {
