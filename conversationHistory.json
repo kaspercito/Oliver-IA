@@ -691,6 +691,19 @@
       "esRecurrente": false,
       "hora": null,
       "minutos": null
+    },
+    {
+      "id": "37994972-0bc4-4405-bdb4-bbb37f7c8eca",
+      "userId": "1023132788632862761",
+      "channelId": "1343749554905940058",
+      "mensaje": "hacer revisar una de las ruedas de mi auto",
+      "cuandoLlegue": false,
+      "cuandoSalga": false,
+      "timestamp": 1743287094631,
+      "creado": 1743283494631,
+      "esRecurrente": false,
+      "hora": null,
+      "minutos": null
     }
   ],
   "usedJokes": {
