@@ -665,6 +665,19 @@
       "esRecurrente": true,
       "hora": 12,
       "minutos": 0
+    },
+    {
+      "id": "7e62808f-274a-4e12-93cf-63a615a9f186",
+      "userId": "1023132788632862761",
+      "channelId": "1343749554905940058",
+      "mensaje": "tomar la vitamina todos los días",
+      "cuandoLlegue": false,
+      "cuandoSalga": false,
+      "timestamp": 1743289200000,
+      "creado": 1743208808339,
+      "esRecurrente": true,
+      "hora": 20,
+      "minutos": 0
     }
   ],
   "usedJokes": {
