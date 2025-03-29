@@ -626,6 +626,19 @@
       "esRecurrente": true,
       "hora": 6,
       "minutos": 0
+    },
+    {
+      "id": "d4ac842b-a550-4d11-b974-6d1af38451f8",
+      "userId": "1023132788632862761",
+      "channelId": "1343749554905940058",
+      "mensaje": "tomar la pastilla rosada todos los días",
+      "cuandoLlegue": false,
+      "cuandoSalga": false,
+      "timestamp": 1743282000000,
+      "creado": 1743208751308,
+      "esRecurrente": true,
+      "hora": 18,
+      "minutos": 0
     }
   ],
   "usedJokes": {
