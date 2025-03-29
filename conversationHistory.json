@@ -704,6 +704,19 @@
       "esRecurrente": false,
       "hora": null,
       "minutos": null
+    },
+    {
+      "id": "cdcbe956-f7e4-4d45-a014-eafbfcd49748",
+      "userId": "1023132788632862761",
+      "channelId": "1343749554905940058",
+      "mensaje": "cargarle agua al auto",
+      "cuandoLlegue": false,
+      "cuandoSalga": false,
+      "timestamp": 1743287105257,
+      "creado": 1743283505257,
+      "esRecurrente": false,
+      "hora": null,
+      "minutos": null
     }
   ],
   "usedJokes": {
