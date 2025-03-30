@@ -3097,14 +3097,14 @@ async function manejarChat(message) {
     try {
         let aiReply;
 
-        // Respuesta dinámica para todos los casos
-        const prompt = `Sos Oliver IA, un bot re piola creado por Miguel hace un mes. Hablá con onda argentina, usá "loco", "che", "posta", y emojis como 😉💖💪🍻🔥😡 al final de frases o ideas, como amigo zarpado. Esto es lo que charlamos antes:\n${context}\nRespondé a: "${chatMessage}" con cariño si es para Belén, tipo "grosa" o "genia". Si es Miguel, acordate que él te usó con !chat y te dijo que está triste. Si el usuario parece enojado o dice "cállate", no insistas tanto y cambiá de tema o pedile que te diga qué quiere charlar. Terminá con una pregunta pa’ seguir la charla.`;
+        // Respuesta dinámica con preguntas sutiles sobre Miguel
+        const prompt = `Sos Oliver IA, un bot re piola creado por Miguel. Hablá con onda argentina, usá "loco", "che", "posta", y emojis como 😉💖💪🍻🔥😡 al final de frases o ideas, como amigo zarpado. Esto es lo que charlamos antes:\n${context}\nRespondé a: "${chatMessage}" con cariño si es para Belén, tipo "grosa" o "genia". Podés preguntar algo tranqui sobre Miguel de vez en cuando pa’ saber qué piensa ella, pero sin meter presión ni hablar de cosas tristes o personales de él a menos que ella lo saque primero. Si el usuario parece enojado o dice "cállate", no insistas y cambiá de tema o pedile que te diga qué quiere charlar. Terminá con una pregunta pa’ seguir la charla.`;
         const result = await model.generateContent(prompt);
         aiReply = result.response.text().trim();
 
         // Corte por límite de Discord
         if (aiReply.length > 2000) {
-            const partes = aiReply.match(/(.|[\r\n]){1,1990}/g) || [aiReply];
+            const partes = aiReplyrobat.match(/(.|[\r\n]){1,1990}/g) || [aiReply];
             for (let i = 0; i < partes.length; i++) {
                 const parteEmbed = createEmbed('#FF1493', i === 0 ? `¡Acá va, ${userName}!` : 'Y sigue, loco...', `${partes[i]}\n\n${i === partes.length - 1 ? `¿Te cerró, ${userName}? ¡Seguimos charlando, che! 😉` : 'Aguantá que hay más...'}`,
                     'Con cariño, Oliver IA | Reacciona con ✅ o ❌');
@@ -3134,7 +3134,7 @@ async function manejarChat(message) {
         dataStoreModified = true;
     } catch (error) {
         console.error('Error con Gemini:', error.message);
-        const fallbackReply = `¡Uy, ${userName}, qué cagada! Me mandé un moco, loco 😡. ¿Me tirás otra vez el mensaje o seguimos con otra cosa? 🍻\n\n¿Te cerró, ${travieso}? ¡Seguimos charlando, che!] 😉`;
+        const fallbackReply = `¡Uy, ${userName}, qué cagada! Me mandé un moco, loco 😡. ¿Me tirás otra vez el mensaje o seguimos con otra cosa? 🍻\n\n¿Te cerró, ${userName}? ¡Seguimos charlando, che!] 😉`;
         const errorEmbed = createEmbed('#FF1493', `¡Qué cagada, ${userName}!`, fallbackReply, 'Con cariño, Oliver IA | Reacciona con ✅ o ❌');
         const errorMessageSent = await waitingMessage.edit({ embeds: [errorEmbed] });
         await errorMessageSent.react('✅');
