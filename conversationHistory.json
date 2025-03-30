@@ -573,7 +573,7 @@
       "userId": "1023132788632862761",
       "channelId": "1343749554905940058",
       "mensaje": "tomar pastilla rosada",
-      "timestamp": 1743325200000,
+      "timestamp": 1743411600000,
       "creado": 1742277577277,
       "esRecurrente": true,
       "hora": 6,
@@ -621,7 +621,7 @@
       "mensaje": "tomar la pastilla rosada todos los días",
       "cuandoLlegue": false,
       "cuandoSalga": false,
-      "timestamp": 1743325200000,
+      "timestamp": 1743411600000,
       "creado": 1743208737942,
       "esRecurrente": true,
       "hora": 6,
@@ -678,19 +678,6 @@
       "esRecurrente": true,
       "hora": 20,
       "minutos": 0
-    },
-    {
-      "id": "6bb1a659-fd45-4e22-ae7d-1e3a473cdf4e",
-      "userId": "1023132788632862761",
-      "channelId": "1343749554905940058",
-      "mensaje": "despiértame",
-      "cuandoLlegue": false,
-      "cuandoSalga": false,
-      "timestamp": 1743322134013,
-      "creado": 1743300534014,
-      "esRecurrente": false,
-      "hora": null,
-      "minutos": null
     }
   ],
   "usedJokes": {
