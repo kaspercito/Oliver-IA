@@ -3752,6 +3752,9 @@ async function manejarPlay(message, args) {
     const guildId = message.guild.id;
     const voiceChannel = message.member.voice.channel;
 
+    console.log('Mensaje recibido:', message.content);
+    console.log('Argumentos:', args);
+
     if (!voiceChannel) {
         const embed = createEmbed('#FF1493', '⚠️ Unite a un canal', 
             `Tenés que estar en un canal de voz primero, ${userName}.`);
@@ -3763,7 +3766,7 @@ async function manejarPlay(message, args) {
             `Ya estoy en el canal de voz, ${userName}. Mandame una canción con !play cuando quieras.`);
         return await message.channel.send({ embeds: [embed] });
     }
-
+    
     const player = manager.players.get(guildId) || manager.create({
         guild: guildId,
         voiceChannel: voiceChannel.id,
