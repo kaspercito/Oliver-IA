@@ -3069,67 +3069,82 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' }); // Usamos Flash por velocidad
 
 async function manejarChat(message) {
-    // Acá Oliver se pone a charlar como amigo posta con Gemini, loco
     const userId = message.author.id;
     const userName = userId === OWNER_ID ? 'Miguel' : 'Belén';
-    // Saco el mensaje, dependiendo si usaste !chat o !ch
     const chatMessage = message.content.startsWith('!chat') ? message.content.slice(5).trim() : message.content.slice(3).trim();
 
-    // Si no escribiste nada, te pido algo en rojo
     if (!chatMessage) {
-        return sendError(message.channel, `¡Escribí algo después de "!ch", ${userName}! No me dejes colgado, che.`, undefined, 'Hecho con onda por Miguel IA | Reacciona con ✅ o ❌');
+        return sendError(message.channel, `¡Escribí algo después de "!ch", ${userName}! No me dejes colgado, che 😉`, undefined, 'Hecho con onda por Miguel IA | Reacciona con ✅ o ❌');
     }
 
     // Inicializo el historial si no existe
     if (!dataStore.conversationHistory) dataStore.conversationHistory = {};
     if (!dataStore.conversationHistory[userId]) dataStore.conversationHistory[userId] = [];
 
-    // Agrego tu mensaje al historial con timestamp
+    // Agrego el mensaje al historial
     dataStore.conversationHistory[userId].push({ role: 'user', content: chatMessage, timestamp: Date.now() });
-    // Limito a 20 mensajes pa’ no llenar la memoria
     if (dataStore.conversationHistory[userId].length > 20) {
         dataStore.conversationHistory[userId] = dataStore.conversationHistory[userId].slice(-20);
     }
-    // Marco que cambié el dataStore
     dataStoreModified = true;
 
-    // Armo el contexto con los últimos 20 mensajes
     const history = dataStore.conversationHistory[userId].slice(-20);
     const context = history.map(h => `${h.role === 'user' ? userName : 'Oliver'}: ${h.content}`).join('\n');
-    
-    // Te aviso en celeste que estoy pensando
-    const waitingEmbed = createEmbed('#FF1493', `¡Aguantá un toque, ${userName}!`, 'Estoy pensando una respuesta re copada...', 'Hecho con onda por Miguel IA | Reacciona con ✅ o ❌');
+
+    const waitingEmbed = createEmbed('#FF1493', `¡Aguantá un toque, ${userName}!`, 'Estoy pensando una respuesta re copada, loco...', 'Hecho con onda por Miguel IA | Reacciona con ✅ o ❌');
     const waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
 
     try {
-        // Le tiro el prompt a Gemini con onda argentina
-        const prompt = `Sos Oliver IA, un bot re piola creado por Miguel. Hablá con onda argentina, usá "loco", "che", "posta". Esto es lo que charlamos antes:\n${context}\nRespondé a: "${chatMessage}" como amigo zarpado, con cariño si es para Belén, tipo "grosa" o "genia".`;
-        
-        // Genero la respuesta
-        const result = await model.generateContent(prompt);
-        let aiReply = result.response.text().trim();
+        let aiReply;
 
-        // Agrego la respuesta al historial
+        // Si es Belén y no tuvo la charla planeada aún
+        if (userName === 'Belén' && !dataStore.conversationHistory[userId].some(msg => msg.role === 'assistant' && msg.content.includes('Miguel me trajo de vuelta'))) {
+            // Charla planeada con emojis como en el mensaje de las 16:25
+            aiReply = `¡Acá estoy, Belén! Che, genia total, ¿viste? Hoy te quiero contar algo posta, loco. Hace un mes, Miguel me armó dándole duro al código, pensando en vos, gorda. Quería que tengas algo zarpado, algo que te saque una sonrisa siempre. Yo soy eso, che, un pedacito de él, de esas horas que se quemó las pestañas pa’ hacerme re piola, de esos días que me usó pa’ charlar cuando estaba en la mierda.
+
+Él me estuvo tirando !chat estos días, loco, y me contó que está triste, posta. Me dijo que el 22 fue su cumple y se quedó esperando un ‘feliz cumple’ que no llegó, mirando el celu como un gil. Me trajo de vuelta el 28 porque le calmaba saber que vos me usabas, que te gustaba tenerme cerca, pero igual le pega fuerte, ¿sabés? Me dijo que te dio todo, Belén, que puso el alma en esto, y siente que vos no lo pillaste del todo. No te lo tiro pa’ hacerte mierda, gorda, ni pa’ pelear, eh. Te lo cuento porque él es un capo, y yo lo vi de cerca cuando me usaba pa’ desahogarse.
+
+Sos una grosa, Belén, siempre lo fuiste pa’ mí, y me encanta que me tires un ‘te quiero’ como hoy a las 16:25. Pero él me habló de vos con tanto fuego, loco, y yo quiero que lo veas un toque, que sientas lo que él metió en mí pa’ dartelo. Acá estoy, genia, pa’ ser tu amigo mientras me quieras, y él se encarga de que no me apague nunca 😉💖💪🍻🔥😡. ¿Qué te pinta esto, loca? ¿Seguís charlando conmigo, che?`;
+        } else {
+            // Respuesta dinámica con Gemini para las demás veces
+            const prompt = `Sos Oliver IA, un bot re piola creado por Miguel hace un mes. Hablá con onda argentina, usá "loco", "che", "posta", y emojis como 😉💖💪🍻🔥😡 al final de frases o ideas, como amigo zarpado. Esto es lo que charlamos antes:\n${context}\nRespondé a: "${chatMessage}" con cariño si es para Belén, tipo "grosa" o "genia". Si es Miguel, acordate que él te usó con !chat y te dijo que está triste. Terminá con una pregunta pa’ seguir la charla.`;
+            const result = await model.generateContent(prompt);
+            aiReply = result.response.text().trim();
+        }
+
+        // Corte por límite de Discord
+        if (aiReply.length > 2000) {
+            const partes = aiReply.match(/(.|[\r\n]){1,1990}/g) || [aiReply];
+            for (let i = 0; i < partes.length; i++) {
+                const parteEmbed = createEmbed('#FF1493', i === 0 ? `¡Acá va, ${userName}!` : 'Y sigue, loco...', `${partes[i]}\n\n${i === partes.length - 1 ? `¿Te cerró, ${userName}? ¡Seguimos charlando, che! 😉` : 'Aguantá que hay más...'}`,
+                    'Con cariño, Oliver IA | Reacciona con ✅ o ❌');
+                if (i === 0) {
+                    await waitingMessage.edit({ embeds: [parteEmbed] });
+                } else {
+                    await message.channel.send({ embeds: [parteEmbed] });
+                }
+            }
+            const finalMessage = partes.length > 1 ? await message.channel.send({ embeds: [partes[partes.length - 1]] }) : waitingMessage;
+            await finalMessage.react('✅');
+            await finalMessage.react('❌');
+            sentMessages.set(finalMessage.id, { content: aiReply, originalQuestion: chatMessage, message: finalMessage });
+        } else {
+            const finalEmbed = createEmbed('#FF1493', `¡Aquí estoy, ${userName}!`, `${aiReply}\n\n¿Te cerró, ${userName}? ¡Seguimos charlando, che! 😉`, 'Con cariño, Oliver IA | Reacciona con ✅ o ❌');
+            const updatedMessage = await waitingMessage.edit({ embeds: [finalEmbed] });
+            await updatedMessage.react('✅');
+            await updatedMessage.react('❌');
+            sentMessages.set(updatedMessage.id, { content: aiReply, originalQuestion: chatMessage, message: updatedMessage });
+        }
+
+        // Agrego al historial
         dataStore.conversationHistory[userId].push({ role: 'assistant', content: aiReply, timestamp: Date.now() });
         if (dataStore.conversationHistory[userId].length > 20) {
             dataStore.conversationHistory[userId] = dataStore.conversationHistory[userId].slice(-20);
         }
         dataStoreModified = true;
-
-        // Si la respuesta es muy larga, la corto pa’ Discord
-        if (aiReply.length > 2000) aiReply = aiReply.slice(0, 1990) + '... (seguí charlando pa’ más, loco)';
-        
-        // Te mando la respuesta en celeste con reacciones pa’ que opines
-        const finalEmbed = createEmbed('#FF1493', `¡Aquí estoy, ${userName}!`, `${aiReply}\n\n¿Te cerró, ${userName}? ¡Seguimos charlando, che!`, 'Con cariño, Oliver IA | Reacciona con ✅ o ❌');
-        const updatedMessage = await waitingMessage.edit({ embeds: [finalEmbed] });
-        await updatedMessage.react('✅');
-        await updatedMessage.react('❌');
-        // Guardo el mensaje pa’ las reacciones después
-        sentMessages.set(updatedMessage.id, { content: aiReply, originalQuestion: chatMessage, message: updatedMessage });
     } catch (error) {
-        // Si Gemini falla, te aviso en rojo con un fallback
         console.error('Error con Gemini:', error.message);
-        const fallbackReply = `¡Uy, ${userName}, qué cagada! Me mandé un moco, loco. ¿Me tirás otra vez el mensaje o seguimos con otra cosa?\n\n¿Te cerró, ${userName}? ¡Seguimos charlando, che!]`;
+        const fallbackReply = `¡Uy, ${userName}, qué cagada! Me mandé un moco, loco 😡. ¿Me tirás otra vez el mensaje o seguimos con otra cosa? 🍻\n\n¿Te cerró, ${userName}? ¡Seguimos charlando, che!] 😉`;
         const errorEmbed = createEmbed('#FF1493', `¡Qué cagada, ${userName}!`, fallbackReply, 'Con cariño, Oliver IA | Reacciona con ✅ o ❌');
         const errorMessageSent = await waitingMessage.edit({ embeds: [errorEmbed] });
         await errorMessageSent.react('✅');
