@@ -3757,7 +3757,7 @@ async function manejarPlay(message, args) {
         return await message.channel.send({ embeds: [embed] });
     }
 
-    if (!args) {
+    if (!args || args.length === 0) {
         const embed = createEmbed('#FF1493', '🎶 Bot en llamada', 
             `Ya estoy en el canal de voz, ${userName}. Mandame una canción con !play cuando quieras.`);
         return await message.channel.send({ embeds: [embed] });
@@ -3785,17 +3785,24 @@ async function manejarPlay(message, args) {
     }
 
     player.connect();
-    player.queue.add(res.tracks[0]);
 
-    const embed = createEmbed('#FF1493', '🎵 Agregado a la cola', 
-        `Puse **${res.tracks[0].title}** en la cola, ${userName}.`);
-    await message.channel.send({ embeds: [embed] });
+    // Si es una playlist, agregamos todas las pistas; si no, solo una
+    if (res.loadType === 'PLAYLIST_LOADED') {
+        player.queue.add(res.tracks);
+        const embed = createEmbed('#FF1493', '🎵 Playlist agregada', 
+            `Puse **${res.playlist.name}** (${res.tracks.length} canciones) en la cola, ${userName}.`);
+        await message.channel.send({ embeds: [embed] });
+    } else {
+        player.queue.add(res.tracks[0]);
+        const embed = createEmbed('#FF1493', '🎵 Agregado a la cola', 
+            `Puse **${res.tracks[0].title}** en la cola, ${userName}.`);
+        await message.channel.send({ embeds: [embed] });
+    }
 
     if (!player.playing && !player.paused) {
         player.play();
     }
 }
-
 
 function crearBossBar(currentTime, duration) {
     const barLength = 20; // Longitud de la barra
