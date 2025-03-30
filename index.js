@@ -3746,14 +3746,10 @@ async function manejarActualizaciones(message) {
     }
 }
 
-// Funciones de música
 async function manejarPlay(message, args) {
     const userName = message.author.username;
     const guildId = message.guild.id;
     const voiceChannel = message.member.voice.channel;
-
-    console.log('Mensaje recibido:', message.content);
-    console.log('Argumentos:', args);
 
     if (!voiceChannel) {
         const embed = createEmbed('#FF1493', '⚠️ Unite a un canal', 
@@ -3766,7 +3762,7 @@ async function manejarPlay(message, args) {
             `Ya estoy en el canal de voz, ${userName}. Mandame una canción con !play cuando quieras.`);
         return await message.channel.send({ embeds: [embed] });
     }
-    
+
     const player = manager.players.get(guildId) || manager.create({
         guild: guildId,
         voiceChannel: voiceChannel.id,
@@ -3799,6 +3795,7 @@ async function manejarPlay(message, args) {
         player.play();
     }
 }
+
 
 function crearBossBar(currentTime, duration) {
     const barLength = 20; // Longitud de la barra
@@ -5808,11 +5805,13 @@ async function manejarCommand(message, silent = false) {
         await manejarRankingPPM(message);
     } 
     else if (content.startsWith('!play') || content.startsWith('!pl')) {
-        await manejarPlay(message);
+        const args = message.content.slice(content.startsWith('!play') ? 5 : 3).trim().split(/ +/); // Extrae argumentos después de "!play" o "!pl"
+        console.log(`Argumentos extraídos para !play: ${args}`); // Para depurar
+        await manejarPlay(message, args);
         isPlayingMusic = true; // Música empieza
         autosavePausedByMusic = true; // Pausamos guardado
         console.log('Música arrancó, autosave pausado.');
-    } 
+    }
     else if (content === '!pause' || content === '!pa') {
         await manejarPause(message);
     } 
