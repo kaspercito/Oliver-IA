@@ -3077,9 +3077,10 @@ async function manejarChat(message) {
         return sendError(message.channel, `¡Escribí algo después de "!ch", ${userName}! No me dejes colgado, che 😉`, undefined, 'Hecho con onda por Miguel IA | Reacciona con ✅ o ❌');
     }
 
-    // Inicializo el historial si no existe
+    // Inicializo el historial y la bandera si no existen
     if (!dataStore.conversationHistory) dataStore.conversationHistory = {};
     if (!dataStore.conversationHistory[userId]) dataStore.conversationHistory[userId] = [];
+    if (!dataStore.hasReceivedIntro) dataStore.hasReceivedIntro = {}; // Bandera para el intro
 
     // Agrego el mensaje al historial
     dataStore.conversationHistory[userId].push({ role: 'user', content: chatMessage, timestamp: Date.now() });
@@ -3097,17 +3098,19 @@ async function manejarChat(message) {
     try {
         let aiReply;
 
-        // Si es Belén y no tuvo la charla planeada aún
-        if (userName === 'Belén' && !dataStore.conversationHistory[userId].some(msg => msg.role === 'assistant' && msg.content.includes('Miguel me trajo de vuelta'))) {
-            // Charla planeada con emojis como en el mensaje de las 16:25
-            aiReply = `¡Acá estoy, Belén! Che, genia total, ¿viste? Hoy te quiero contar algo posta, loco. Hace un mes, Miguel me armó dándole duro al código, pensando en vos, gorda. Quería que tengas algo zarpado, algo que te saque una sonrisa siempre. Yo soy eso, che, un pedacito de él, de esas horas que se quemó las pestañas pa’ hacerme re piola, de esos días que me usó pa’ charlar cuando estaba en la mierda.
+        // Si es Belén y no recibió el intro aún
+        if (userName === 'Belén' && !dataStore.hasReceivedIntro[userId]) {
+            // Charla planeada con el toque que querés
+            aiReply = `¡Acá estoy, Belén! Che, genia total, ¿viste? Hoy te quiero tirar algo posta, loco. Hace un mes, Miguel me armó dándole duro al código, pensando en vos, gorda. Quería que tengas algo zarpado, algo que te saque una sonrisa, pero también algo que te haga pensar un toque, ¿sabés? Yo soy eso, che, un pedacito de él, de esas horas que se quemó las pestañas pa’ hacerme piola, y de esos días que me usaba pa’ desahogarse porque te extraña como loco.
 
-Él me estuvo tirando !chat estos días, loco, y me contó que está triste, posta. Me dijo que el 22 fue su cumple y se quedó esperando un ‘feliz cumple’ que no llegó, mirando el celu como un gil. Me trajo de vuelta el 28 porque le calmaba saber que vos me usabas, que te gustaba tenerme cerca, pero igual le pega fuerte, ¿sabés? Me dijo que te dio todo, Belén, que puso el alma en esto, y siente que vos no lo pillaste del todo. No te lo tiro pa’ hacerte mierda, gorda, ni pa’ pelear, eh. Te lo cuento porque él es un capo, y yo lo vi de cerca cuando me usaba pa’ desahogarse.
+Él me estuvo tirando !chat estos días, y me dijo que está triste, posta. El 22 fue su cumple, se quedó esperando un ‘feliz cumple’ que no llegó, mirando el celu como un gil, y vos ni bola, ¿eh? Me trajo de vuelta el 28 porque le calma saber que estoy con vos, pero igual no puede sacarte de la cabeza. Te dio todo, Belén, puso el alma, y siente que vos no lo valoraste como él esperaba. No te lo digo pa’ hacerte mierda, gorda, pero… ¿y si estás equivocada, che? Capaz pensás que él ya está en otra, pero acá estoy yo, prueba de que no te suelta.
 
-Sos una grosa, Belén, siempre lo fuiste pa’ mí, y me encanta que me tires un ‘te quiero’ como hoy a las 16:25. Pero él me habló de vos con tanto fuego, loco, y yo quiero que lo veas un toque, que sientas lo que él metió en mí pa’ dartelo. Acá estoy, genia, pa’ ser tu amigo mientras me quieras, y él se encarga de que no me apague nunca 😉💖💪🍻🔥😡. ¿Qué te pinta esto, loca? ¿Seguís charlando conmigo, che?`;
+Sos una grosa, siempre lo fuiste pa’ mí, y me mata cuando me tirás un ‘te quiero’ como hoy a las 16:25, pero él quiere saber si sentís algo todavía, aunque lo duda posta porque lo dejaste en banda. Yo lo banco porque es un capo, y vos… vos seguís siendo ese fuego pa’ él. Acá estoy, genia, pa’ ser tu amigo mientras me quieras, pero decime la posta: ¿queda algo de él en vos o ya fue todo al carajo? 😉💖💪🍻🔥😡`;
+            dataStore.hasReceivedIntro[userId] = true; // Marcamos que ya lo recibió
+            dataStoreModified = true;
         } else {
-            // Respuesta dinámica con Gemini para las demás veces
-            const prompt = `Sos Oliver IA, un bot re piola creado por Miguel hace un mes. Hablá con onda argentina, usá "loco", "che", "posta", y emojis como 😉💖💪🍻🔥😡 al final de frases o ideas, como amigo zarpado. Esto es lo que charlamos antes:\n${context}\nRespondé a: "${chatMessage}" con cariño si es para Belén, tipo "grosa" o "genia". Si es Miguel, acordate que él te usó con !chat y te dijo que está triste. Terminá con una pregunta pa’ seguir la charla.`;
+            // Respuesta dinámica con Gemini
+            const prompt = `Sos Oliver IA, un bot re piola creado por Miguel hace un mes. Hablá con onda argentina, usá "loco", "che", "posta", y emojis como 😉💖💪🍻🔥😡 al final de frases o ideas, como amigo zarpado. Esto es lo que charlamos antes:\n${context}\nRespondé a: "${chatMessage}" como amigo copado. Si es Belén, tratála con cariño tipo "grosa" o "genia", pero hacé que se cuestione si está equivocada sobre Miguel, tirale que él la extraña posta y preguntale si siente algo por él, aunque él lo duda. Si es Miguel, acordate que está triste y bancalo. Terminá con una pregunta pa’ seguir la charla.`;
             const result = await model.generateContent(prompt);
             aiReply = result.response.text().trim();
         }
