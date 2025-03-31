@@ -2973,9 +2973,9 @@ async function manejarPPTPersona(message) {
 
 async function manejarLyrics(message) {
     const userId = message.author.id;
-    const userName = userId === OWNER_ID ? 'Miguel' : 'Belén';
+    const userName = userId === OWNER_ID ? 'Miguel' : 'Belén'; // Asegúrate de que OWNER_ID esté definido
     const args = message.content.split(' ').slice(1).join(' ').trim();
-    const player = manager.players.get(message.guild.id);
+    const player = manager.players.get(message.guild.id); // Asegúrate de que 'manager' esté definido
     let songInput = args || (player?.queue.current?.title);
 
     if (!songInput) {
@@ -3021,21 +3021,18 @@ async function manejarLyrics(message) {
             return await sendLyrics(waitingMessage, message.channel, `${artist} - ${title}`, lyricsReply);
         }
 
-        // 2. Fallback a Letras.com con ScrapingBee y proxy premium
+        // 2. Fallback a Letras.com con ScrapingBee
         console.log('Gemini no tiene las letras, buscando en Letras.com con ScrapingBee...');
         const formattedArtist = artist.toLowerCase().replace(/\s+/g, '-');
         const formattedTitle = title.toLowerCase().replace(/\s+/g, '-');
         const directUrl = `https://www.letras.com/${formattedArtist}/${formattedTitle}/`;
         console.log(`URL de búsqueda en Letras.com: ${directUrl}`);
 
-        const apiKey = 'VQWXR6TAJBTT8V81LXFHIZ7XAVAZB8PJSO5T8S5I5C64DHCZXVKIIHDEMUC0OQBYY5UYWUELDF4C6GR6'; // Reemplazá con tu key de ScrapingBee
+        const apiKey = 'VQWXR6TAJBTT8V81LXFHIZ7XAVAZB8PJSO5T8S5I5C64DHCZXVKIIHDEMUC0OQBYY5UYWUELDF4C6GR6'; // Tu API key de ScrapingBee
         const scrapingBeeUrl = `https://app.scrapingbee.com/api/v1/?api_key=${apiKey}&url=${encodeURIComponent(directUrl)}&render_js=true&wait=3000&premium_proxy=true`;
 
         const response = await axios.get(scrapingBeeUrl, { timeout: 20000 });
         const $lyrics = cheerio.load(response.data);
-
-        console.log('HTML recibido con ScrapingBee (primeros 2000 caracteres):', response.data.substring(0, 2000));
-        console.log('¿Está cnt-letra en el HTML?', response.data.includes('cnt-letra'));
 
         let lyrics = '';
         $lyrics('div.cnt-letra p').each((i, elem) => {
