@@ -2833,7 +2833,6 @@ async function manejarLyrics(message) {
         return sendError(message.channel, `¡Mandame una canción con "!lyrics [título]", ${userName}! O reproducí algo primero, che 😉`, undefined, 'Hecho con onda por Miguel IA');
     }
 
-    // Limpieza más robusta del título
     songInput = songInput
         .replace(/\s*\(lyric video\)/i, '')
         .replace(/\s*\(official video\)/i, '')
@@ -2873,24 +2872,20 @@ async function manejarLyrics(message) {
             return await sendLyrics(waitingMessage, message.channel, `${artist} - ${title}`, lyricsReply);
         }
 
-        // 2. Fallback a Letras.com con Puppeteer usando Chrome del sistema
-        console.log('Gemini no tiene las letras, buscando en Letras.com con Puppeteer...');
+        // 2. Fallback a Letras.com con ScrapingBee
+        console.log('Gemini no tiene las letras, buscando en Letras.com con ScrapingBee...');
         const formattedArtist = artist.toLowerCase().replace(/\s+/g, '-');
         const formattedTitle = title.toLowerCase().replace(/\s+/g, '-');
         const directUrl = `https://www.letras.com/${formattedArtist}/${formattedTitle}/`;
         console.log(`URL de búsqueda en Letras.com: ${directUrl}`);
 
-        const browser = await puppeteer.launch({
-            headless: true,
-            executablePath: '/usr/bin/google-chrome', // Chrome que suele estar en Railway
-            args: ['--no-sandbox', '--disable-setuid-sandbox'] // Necesario en entornos como Railway
-        });
-        const page = await browser.newPage();
-        await page.goto(directUrl, { waitUntil: 'networkidle2' });
-        const html = await page.content();
-        const $lyrics = cheerio.load(html);
+        const apiKey = 'VQWXR6TAJBTT8V81LXFHIZ7XAVAZB8PJSO5T8S5I5C64DHCZXVKIIHDEMUC0OQBYY5UYWUELDF4C6GR6'; // Reemplazá con tu key de ScrapingBee
+        const scrapingBeeUrl = `https://app.scrapingbee.com/api/v1/?api_key=${apiKey}&url=${encodeURIComponent(directUrl)}&render_js=true`;
 
-        console.log('HTML recibido con Puppeteer (primeros 1000 caracteres):', Html.substring(0, 1000));
+        const response = await axios.get(scrapingBeeUrl);
+        const $lyrics = cheerio.load(response.data);
+
+        console.log('HTML recibido con ScrapingBee (primeros 1000 caracteres):', response.data.substring(0, 1000));
 
         let lyrics = '';
         $lyrics('div.cnt-letra p').each((i, elem) => {
@@ -2898,11 +2893,9 @@ async function manejarLyrics(message) {
         });
         lyrics = lyrics.trim();
 
-        await browser.close();
-
         if (!lyrics) {
-            console.log('No se encontraron letras con div.cnt-letra p en Puppeteer.');
-            throw new Error('No se encontraron letras en la URL directa de Letras.com con Puppeteer.');
+            console.log('No se encontraron letras con div.cnt-letra p en ScrapingBee.');
+            throw new Error('No se encontraron letras en la URL directa de Letras.com con ScrapingBee.');
         }
 
         console.log(`Letras encontradas en Letras.com (primeros 100 caracteres): "${lyrics.substring(0, 100)}..."`);
@@ -2910,13 +2903,12 @@ async function manejarLyrics(message) {
 
     } catch (error) {
         console.error('Error buscando letras:', error.message);
-        const fallbackReply = `¡Uy, ${userName}, qué cagada! No encontré las letras de "${artist} - ${title}", loco 😡. Probá en Genius o YouTube. ¿Qué otro temazo querés, che? 🍻`;
+        const fallbackReply = `¡Uy, ${userName}, qué cagada! No encontré las letras de "${artist} - ${title}", loco 😡. Probá en YouTube o pedime otro temazo, che 🍻`;
         const errorEmbed = createEmbed('#FF1493', `¡Qué cagada, ${userName}!`, fallbackReply, 'Hecho con onda por Miguel IA');
         await waitingMessage.edit({ embeds: [errorEmbed] });
     }
 }
 
-// Función auxiliar para enviar letras (sin cambios)
 async function sendLyrics(waitingMessage, channel, songTitle, lyrics) {
     const maxLength = 2000;
     const userName = waitingMessage.embeds[0].author.name.split(' ')[2].replace('...', '');
@@ -2944,7 +2936,7 @@ async function sendLyrics(waitingMessage, channel, songTitle, lyrics) {
                 '#FF1493',
                 i === 0 ? `¡Acá van las letras de "${songTitle}", ${userName}!` : 'Y sigue, loco...',
                 partes[i],
-                'Hecho con onda por Oliver IA'
+                'Hecho con onda por Miguel IA'
             );
             if (i === 0) {
                 await waitingMessage.edit({ embeds: [parteEmbed] });
