@@ -3129,7 +3129,7 @@ function formatLyrics(lyrics) {
 
         // Combinar repeticiones de "Put a little love on me"
         if (line.match(/put a little love on me/i)) {
-            let combinedLine = 'put a little love on me'; // Forzar minúsculas desde el inicio
+            let combinedLine = 'put a little love on me';
             i++;
             while (i < lines.length && lines[i].match(/put a little love on me/i)) {
                 combinedLine += ', put a little love on me';
@@ -3137,7 +3137,7 @@ function formatLyrics(lyrics) {
             }
             finalLines.push(combinedLine);
         } 
-        // Reemplazar cualquier variante de "to put a little love on me" por "So put a little love on me"
+        // Reemplazar "To put a little love on me" o similares por "So put a little love on me"
         else if (line.toLowerCase().includes('put a little love on me') && !line.match(/so put your love on me/i)) {
             finalLines.push("So put a little love on me");
             i++;
@@ -3152,26 +3152,33 @@ function formatLyrics(lyrics) {
         }
     }
 
-    // Depurar las líneas finales antes de agrupar
-    console.log('Líneas procesadas:\n', finalLines.join('\n'));
+    console.log('Líneas procesadas antes de agrupar:\n', finalLines.join('\n'));
 
-    // Agrupar en estrofas
+    // Agrupar en estrofas manualmente para asegurar el formato exacto
     let stanzas = [];
     let currentStanza = [];
-    const chorusStart = /put a little love on me/i;
-    let inChorus = false;
 
-    for (const line of finalLines) {
-        if (chorusStart.test(line) && !inChorus) {
-            if (currentStanza.length) stanzas.push(currentStanza);
-            currentStanza = [];
-            inChorus = true;
-        }
-        currentStanza.push(line);
-        if (inChorus && line.match(/so put (your|a little) love on me/i)) {
+    for (let j = 0; j < finalLines.length; j++) {
+        let line = finalLines[j];
+
+        // Inicio de estribillo
+        if (line === 'put a little love on me, put a little love on me' && !currentStanza.includes('put a little love on me, put a little love on me')) {
+            if (currentStanza.length) {
+                stanzas.push(currentStanza);
+            }
+            currentStanza = [line];
+        } 
+        // Fin de estribillo
+        else if (line === 'So put a little love on me' || line === 'So put your love on me') {
+            currentStanza.push(finalLines[j - 4]); // When the lights...
+            currentStanza.push(finalLines[j - 3]); // I look around...
+            currentStanza.push(finalLines[j - 2]); // 'Cause you’re...
+            currentStanza.push(line);
             stanzas.push(currentStanza);
             currentStanza = [];
-            inChorus = false;
+            if (line === 'So put a little love on me') j -= 4; // Retroceder para no saltar líneas
+        } else if (!currentStanza.includes(line)) {
+            currentStanza.push(line);
         }
     }
     if (currentStanza.length) stanzas.push(currentStanza);
