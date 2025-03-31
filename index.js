@@ -2833,7 +2833,7 @@ async function manejarLyrics(message) {
         return sendError(message.channel, `¡Mandame una canción con "!lyrics [título]", ${userName}! O reproducí algo primero, che 😉`, undefined, 'Hecho con onda por Miguel IA');
     }
 
-    // Limpieza básica del título
+    // Limpieza del título
     songInput = songInput
         .replace(/\s*\(lyric video\)/i, '')
         .replace(/\s*\(official video\)/i, '')
@@ -2842,40 +2842,79 @@ async function manejarLyrics(message) {
         .replace(/\s*\[.*?\]/g, '')
         .trim();
 
-    console.log(`Buscando letras para: "${songInput}"`);
-    const waitingEmbed = createEmbed('#FFD700', `⌛ Buscando letras, ${userName}...`, `Dame un segundo que te traigo "${songInput}", loco 🎵`, 'Hecho con onda por Miguel IA');
+    // Separar artista y título
+    let artist = '', title = songInput;
+    const dashIndex = songInput.indexOf(' - ');
+    if (dashIndex !== -1) {
+        artist = songInput.substring(0, dashIndex).trim();
+        title = songInput.substring(dashIndex + 3).trim();
+    } else {
+        const spaceIndex = songInput.indexOf(' ');
+        if (spaceIndex !== -1) {
+            artist = songInput.substring(0, spaceIndex).trim();
+            title = songInput.substring(spaceIndex + 1).trim();
+        }
+    }
+
+    console.log(`Buscando letras para: "${artist} - ${title}"`);
+    const waitingEmbed = createEmbed('#FF1493', `⌛ Buscando letras, ${userName}...`, `Dame un segundo que te traigo "${artist} - ${title}", loco 🎵`, 'Hecho con onda por Miguel IA');
     const waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
 
     try {
-        // Prompt para Gemini
-        const prompt = `Sos Oliver IA, un bot re piola creado por Miguel. El usuario (${userName}) te pidió las letras de "${songInput}". Si tenés las letras completas en tu conocimiento, dáselas con onda argentina (usá "loco", "che", "posta", emojis como 😉💖🍻🎵). Si no las tenés exactas, decile que no las encontraste, ofrecé una alternativa piola (ej. "buscala en Letras.mus.br o Genius") y terminá con una pregunta copada pa’ seguir la charla. No inventes letras si no las sabés, sé honesto pero mantené la buena onda.`;
-
+        // 1. Intentar con Gemini
+        const prompt = `Sos Oliver IA, creado por Miguel. El usuario (${userName}) te pidió las letras de "${artist} - ${title}". Si tenés las letras completas en tu conocimiento, dáselas directamente sin explicaciones extra, solo las letras en formato limpio. Si no las tenés, respondé solo con "NO_LYRICS" y nada más. No inventes letras ni des sugerencias, dejame manejar eso.`;
         const result = await model.generateContent(prompt);
         let lyricsReply = result.response.text().trim();
 
-        // Manejar respuesta larga (límite de Discord)
-        if (lyricsReply.length > 2000) {
-            const partes = lyricsReply.match(/(.|[\r\n]){1,1990}/g) || [lyricsReply];
-            for (let i = 0; i < partes.length; i++) {
-                const parteEmbed = createEmbed('#FFD700', i === 0 ? `¡Acá van las letras, ${userName}!` : 'Y sigue, loco...', `${partes[i]}\n\n${i === partes.length - 1 ? `¿Te cerró, ${userName}? ¿Qué otro temazo querés? 🎵` : 'Aguantá que hay más...'}`,
-                    'Hecho con onda por Miguel IA');
-                if (i === 0) {
-                    await waitingMessage.edit({ embeds: [parteEmbed] });
-                } else {
-                    await message.channel.send({ embeds: [parteEmbed] });
-                }
-            }
-        } else {
-            const finalEmbed = createEmbed('#FFD700', `¡Acá van las letras, ${userName}!`, `${lyricsReply}\n\n¿Te cerró, ${userName}? ¿Qué otro temazo querés? 🎵`, 'Hecho con onda por Miguel IA');
-            await waitingMessage.edit({ embeds: [finalEmbed] });
+        if (lyricsReply !== 'NO_LYRICS') {
+            console.log(`Gemini encontró las letras (primeros 100 caracteres): "${lyricsReply.substring(0, 100)}..."`);
+            return await sendLyrics(waitingMessage, message.channel, `${artist} - ${title}`, lyricsReply);
         }
+
+        // 2. Fallback a Letras.mus.br si Gemini no las tiene
+        console.log('Gemini no tiene las letras, buscando en Letras.mus.br...');
+        const url = `https://www.letras.mus.br/${artist.toLowerCase().replace(/\s/g, '-')}/${title.toLowerCase().replace(/\s/g, '-')}/`;
+        const response = await axios.get(url, { timeout: 5000 });
+        const $ = cheerio.load(response.data);
+        let lyrics = '';
+        $('div.cnt-letra p').each((i, elem) => lyrics += $(elem).text() + '\n');
+        lyrics = lyrics.trim();
+
+        if (lyrics) {
+            console.log(`Letras encontradas en Letras.mus.br (primeros 100 caracteres): "${lyrics.substring(0, 100)}..."`);
+            return await sendLyrics(waitingMessage, message.channel, `${artist} - ${title}`, `¡Acá van las letras de "${artist} - ${title}", loco! 🎵\n${lyrics}`);
+        }
+
+        throw new Error('No se encontraron letras en Letras.mus.br.');
     } catch (error) {
-        console.error('Error con Gemini en !lyrics:', error.message);
-        const fallbackReply = `¡Uy, ${userName}, qué cagada! Me mandé un moco buscando las letras de "${songInput}", loco 😡. Capaz las encontrás en Letras.mus.br o Genius. ¿Qué otro tema querés probar, che? 🍻`;
-        const errorEmbed = createEmbed('#FF5555', `¡Qué cagada, ${userName}!`, fallbackReply, 'Hecho con onda por Miguel IA');
+        console.error('Error buscando letras:', error.message);
+        const fallbackReply = `¡Uy, ${userName}, qué cagada! No encontré las letras de "${artist} - ${title}", loco 😡. Capaz las tenés en Genius o YouTube. ¿Qué otro temazo querés probar, che? 🍻`;
+        const errorEmbed = createEmbed('#FF1493', `¡Qué cagada, ${userName}!`, fallbackReply, 'Hecho con onda por Miguel IA');
         await waitingMessage.edit({ embeds: [errorEmbed] });
     }
 }
+
+// Función auxiliar para enviar letras
+async function sendLyrics(waitingMessage, channel, songTitle, lyrics) {
+    const maxLength = 2000;
+    if (lyrics.length <= maxLength) {
+        const embed = createEmbed('#FF1493', `¡Acá van las letras, ${waitingMessage.embeds[0].author.name.split(' ')[2].replace('...', '')}!`, `${lyrics}\n\n¿Te cerró? ¿Qué otro temazo querés? 🎵`, 'Hecho con onda por Miguel IA');
+        await waitingMessage.edit({ embeds: [embed] });
+    } else {
+        const partes = lyrics.match(/(.|[\r\n]){1,1990}/g) || [lyrics];
+        for (let i = 0; i < partes.length; i++) {
+            const parteEmbed = createEmbed('#FF1493', i === 0 ? `¡Acá van las letras de "${songTitle}", ${waitingMessage.embeds[0].author.name.split(' ')[2].replace('...', '')}!` : 'Y sigue, loco...', 
+                `${partes[i]}\n\n${i === partes.length - 1 ? `¿Te cerró? ¿Qué otro temazo querés? 🎵` : 'Aguantá que hay más...'}`,
+                'Hecho con onda por Oliver IA');
+            if (i === 0) {
+                await waitingMessage.edit({ embeds: [parteEmbed] });
+            } else {
+                await channel.send({ embeds: [parteEmbed] });
+            }
+        }
+    }
+}
+
 
 function determinarGanador(jugador1, jugador2) {
     if (jugador1 === jugador2) return 'empate';
