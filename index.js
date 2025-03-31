@@ -2971,6 +2971,7 @@ async function manejarPPTPersona(message) {
     }
 }
 
+// Clase API para consultar letras
 class API {
     constructor(artista, cancion) {
         this.artista = artista;
@@ -2999,6 +3000,7 @@ async function manejarLyrics(message) {
         return sendError(message.channel, `¡Mandame una canción con "!lyrics [título]", ${userName}! O reproducí algo primero, che 😉`, undefined, 'Hecho con onda por Miguel IA');
     }
 
+    // Limpieza inicial del input
     songInput = songInput
         .replace(/\s*\(lyric video\)/i, '')
         .replace(/\s*\(official video\)/i, '')
@@ -3023,20 +3025,44 @@ async function manejarLyrics(message) {
         }
     }
 
+    // Limpiar tildes y caracteres especiales para la API
+    const cleanString = (str) => {
+        return str
+            .normalize('NFD') // Descompone caracteres con tildes
+            .replace(/[\u0300-\u036f]/g, '') // Elimina tildes
+            .replace(/[^a-zA-Z0-9\s-]/g, '') // Elimina caracteres especiales
+            .trim();
+    };
+
+    const cleanArtist = cleanString(artist);
+    const cleanTitle = cleanString(title);
+
     console.log(`Buscando letras para: "${artist} - ${title}"`);
+    console.log(`Artista limpio: ${cleanArtist}, Título limpio: ${cleanTitle}`);
     const waitingEmbed = createEmbed('#FF1493', `⌛ Buscando letras, ${userName}...`, `Dame un segundo que te traigo "${artist} - ${title}", loco 🎵`, 'Hecho con onda por Miguel IA');
     const waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
 
     try {
-        // Usar la API de lyrics.ovh
-        const api = new API(artist, title);
-        const { respuesta } = await api.consultarAPI();
+        // Intentar con el formato artista/título
+        let api = new API(cleanArtist, cleanTitle);
+        let { respuesta } = await api.consultarAPI();
+        console.log('Respuesta de la API (artista/título):', respuesta);
 
-        if (!respuesta.lyrics) {
+        let lyrics = respuesta.lyrics ? respuesta.lyrics.trim() : '';
+
+        // Si no encuentra, intentar con título/artista
+        if (!lyrics) {
+            console.log('No se encontraron letras con artista/título, intentando título/artista...');
+            api = new API(cleanTitle, cleanArtist);
+            ({ respuesta } = await api.consultarAPI());
+            console.log('Respuesta de la API (título/artista):', respuesta);
+            lyrics = respuesta.lyrics ? respuesta.lyrics.trim() : '';
+        }
+
+        if (!lyrics) {
             throw new Error('No se encontraron letras en la API de lyrics.ovh.');
         }
 
-        let lyrics = respuesta.lyrics.trim();
         console.log(`Letras encontradas (primeros 100 caracteres): "${lyrics.substring(0, 100)}..."`);
         return await sendLyrics(waitingMessage, message.channel, `${artist} - ${title}`, lyrics);
 
@@ -3085,7 +3111,6 @@ async function sendLyrics(waitingMessage, channel, songTitle, lyrics) {
         }
     }
 }
-
 // Chat
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' }); // Usamos Flash por velocidad
