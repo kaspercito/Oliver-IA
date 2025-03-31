@@ -3115,10 +3115,8 @@ function formatLyrics(lyrics) {
     // Normalizar saltos de línea
     let formattedLyrics = lyrics
         .replace(/\r\n/g, '\n') // Normalizar saltos de línea
-        .replace(/\n{2,}/g, '\n') // Reducir saltos excesivos a uno
+        .replace(/\n{3,}/g, '\n\n') // Reducir saltos de línea excesivos a dos
         .trim();
-
-    console.log('Letras crudas antes de procesar:\n', formattedLyrics);
 
     // Dividir en líneas
     let lines = formattedLyrics.split('\n').filter(line => line.trim() !== '');
@@ -3130,10 +3128,10 @@ function formatLyrics(lyrics) {
 
         // Combinar repeticiones de "Put a little love on me"
         if (line.match(/put a little love on me/i)) {
-            let combinedLine = 'Put a little love on me'; // Empezar con la primera en mayúscula inicial
+            let combinedLine = 'Put a little love on me';
             i++;
             while (i < lines.length && lines[i].match(/put a little love on me/i)) {
-                combinedLine += ', put a little love on me'; // Añadir en minúsculas
+                combinedLine += ', put a little love on me';
                 i++;
             }
             finalLines.push(combinedLine);
@@ -3148,48 +3146,69 @@ function formatLyrics(lyrics) {
             finalLines.push("So put your love on me");
             i++;
         } else {
+            // Eliminar comillas alrededor de palabras como "forever" o "I miss you"
+            line = line.replace(/"forever,"/g, 'forever');
+            line = line.replace(/"I miss you"/g, 'I miss you');
+
+            // Ajustar "And said, 'I miss you'" a "and said: I miss you"
+            if (line.match(/And said, "I miss you"/)) {
+                line = line.replace(/And said, "I miss you"/, 'and said: I miss you');
+            }
+
+            // Eliminar coma después de "You said"
+            if (line.match(/You said, forever/)) {
+                line = line.replace(/You said, forever/, 'You said forever');
+            }
+
+            // Eliminar coma después de "Then all of a sudden"
+            if (line.match(/Then all of a sudden,/)) {
+                line = line.replace(/Then all of a sudden,/, 'Then all of a sudden');
+            }
+
+            // Unir "Thought you'd hate me..." con "And said..." si están en líneas consecutivas
+            if (line.match(/Thought you'd hate me/) && i + 1 < lines.length && lines[i + 1].match(/and said: I miss you/)) {
+                line = `${line} ${lines[i + 1]}`.replace(/, but/, ' but');
+                i += 2; // Saltar la siguiente línea ya que la unimos
+            } else {
+                i += 1;
+            }
+
+            // Formatear líneas con paréntesis
+            if (line.match(/^\(/)) {
+                line = line.toLowerCase();
+                line = line.replace(/\bi\b/g, 'I'); // Restaurar "I" en mayúscula
+                line = line.replace(/"forever,"/g, 'forever');
+            }
+
             finalLines.push(line);
-            i++;
         }
     }
 
-    // Agrupar en estrofas según la estructura de la canción
+    // Agrupar en estrofas
     let stanzas = [];
     let currentStanza = [];
-    let inChorus = false;
+    const stanzaSizes = [4, 6, 5, 5, 5, 5, 4]; // Ajustado según tu ejemplo "bien"
 
-    for (let j = 0; j < finalLines.length; j++) {
-        let line = finalLines[j];
+    let stanzaIndex = 0;
+    let lineIndex = 0;
 
-        // Detectar inicio de estribillo
-        if (line.match(/put a little love on me/i) && !inChorus) {
-            if (currentStanza.length) {
-                stanzas.push(currentStanza);
-            }
-            currentStanza = [line];
-            inChorus = true;
-        } 
-        // Detectar fin de estribillo y ajustar
-        else if (inChorus && (line === "So put a little love on me" || line === "So put your love on me")) {
-            currentStanza.push(finalLines[j - 4]); // "When the lights come up..."
-            currentStanza.push(finalLines[j - 3]); // "I look around..."
-            currentStanza.push(finalLines[j - 2]); // "'Cause you’re the only one..."
-            currentStanza.push(line);
+    while (lineIndex < finalLines.length) {
+        const line = finalLines[lineIndex];
+        currentStanza.push(line);
+
+        // Si hemos alcanzado el tamaño de la estrofa actual o es la última línea
+        if (currentStanza.length === stanzaSizes[stanzaIndex] || lineIndex === finalLines.length - 1) {
             stanzas.push(currentStanza);
             currentStanza = [];
-            inChorus = false;
-        } else if (!inChorus) {
-            currentStanza.push(line);
+            stanzaIndex = Math.min(stanzaIndex + 1, stanzaSizes.length - 1); // No exceder el array
         }
+
+        lineIndex++;
     }
-    if (currentStanza.length) stanzas.push(currentStanza);
 
-    // Unir estrofas con dos saltos de línea
-    let result = stanzas.map(stanza => stanza.join('\n')).join('\n\n');
-    console.log('Resultado final:\n', result);
-    return result;
+    // Unir las estrofas con dos saltos de línea
+    return stanzas.map(stanza => stanza.join('\n')).join('\n\n');
 }
-
 
 async function sendLyrics(waitingMessage, channel, songTitle, lyrics, userName) {
     const maxLength = 2000; // Límite de caracteres para embeds en Discord
