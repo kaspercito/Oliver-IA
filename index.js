@@ -3032,20 +3032,18 @@ async function manejarLyrics(message) {
         // Intentar separar por la última coma (formato: "Título, Artista")
         const lastCommaIndex = songInput.lastIndexOf(',');
         if (lastCommaIndex !== -1) {
-            // Verificar si lo que viene después de la última coma parece un artista (por ejemplo, "Gracie Abrams")
+            // Verificar si lo que viene después de la última coma parece un artista
             const possibleArtist = songInput.substring(lastCommaIndex + 1).trim();
             const possibleTitle = songInput.substring(0, lastCommaIndex).trim();
-            // Un artista típico tiene 1-3 palabras (por ejemplo, "Gracie Abrams", "Pedro Infante")
             const artistWords = possibleArtist.split(' ').length;
             if (artistWords <= 3 && artistWords > 0) {
                 artist = possibleArtist;
                 title = possibleTitle;
             } else {
-                // Si no parece un artista, asumir que la coma es parte del título
-                // y tomar las últimas 1-2 palabras como artista
+                // Si no parece un artista, tomar las últimas 2 palabras como artista
                 const parts = songInput.split(' ');
                 if (parts.length > 2) {
-                    artist = parts.slice(-2).join(' '); // Últimas 2 palabras como artista
+                    artist = parts.slice(-2).join(' ');
                     title = parts.slice(0, -2).join(' ');
                 }
             }
@@ -3053,7 +3051,7 @@ async function manejarLyrics(message) {
             // Si no hay guion ni coma, asumir que el artista es lo último
             const parts = songInput.split(' ');
             if (parts.length > 1) {
-                artist = parts.slice(-2).join(' '); // Últimas 2 palabras como artista
+                artist = parts.slice(-2).join(' ');
                 title = parts.slice(0, -2).join(' ').trim();
             }
         }
@@ -3124,13 +3122,67 @@ function formatLyrics(lyrics) {
     // Dividir en líneas
     let lines = formattedLyrics.split('\n').filter(line => line.trim() !== '');
 
-    // Capitalizar la primera letra de cada línea
-    lines = lines.map(line => {
-        return line.charAt(0).toUpperCase() + line.slice(1);
-    });
+    // Procesar las líneas
+    let finalLines = [];
+    let i = 0;
 
-    // Unir las líneas con saltos de línea, respetando las estrofas
-    return lines.join('\n');
+    while (i < lines.length) {
+        let line = lines[i].trim();
+
+        // Eliminar comillas alrededor de palabras como "forever" o "I miss you"
+        line = line.replace(/"forever,"/g, 'forever');
+        line = line.replace(/"I miss you"/g, 'I miss you');
+
+        // Ajustar "And said, 'I miss you'" a "and said: I miss you"
+        if (line.match(/And said, "I miss you"/)) {
+            line = line.replace(/And said, "I miss you"/, 'and said: I miss you');
+        }
+
+        // Eliminar coma después de "Then all of a sudden"
+        if (line.match(/Then all of a sudden,/)) {
+            line = line.replace(/Then all of a sudden,/, 'Then all of a sudden');
+        }
+
+        // Unir "Thought you'd hate me..." con "And said..." si están en líneas consecutivas
+        if (line.match(/Thought you'd hate me/) && i + 1 < lines.length && lines[i + 1].match(/and said: I miss you/)) {
+            line = `${line} ${lines[i + 1]}`.replace(/, but/, ' but');
+            i += 2; // Saltar la siguiente línea ya que la unimos
+        } else {
+            i += 1;
+        }
+
+        // Formatear líneas con paréntesis
+        if (line.match(/^\(/)) {
+            line = line.toLowerCase();
+            line = line.replace(/"forever,"/g, 'forever');
+        }
+
+        finalLines.push(line);
+    }
+
+    // Agrupar en estrofas
+    let stanzas = [];
+    let currentStanza = [];
+
+    for (let i = 0; i < finalLines.length; i++) {
+        const line = finalLines[i];
+
+        // Si la línea está vacía, indica el fin de una estrofa
+        if (line === '' && currentStanza.length > 0) {
+            stanzas.push(currentStanza);
+            currentStanza = [];
+        } else {
+            currentStanza.push(line);
+        }
+
+        // Si es la última línea, agregar la estrofa actual
+        if (i === finalLines.length - 1 && currentStanza.length > 0) {
+            stanzas.push(currentStanza);
+        }
+    }
+
+    // Unir las estrofas con dos saltos de línea entre ellas
+    return stanzas.map(stanza => stanza.join('\n')).join('\n\n');
 }
 
 async function sendLyrics(waitingMessage, channel, songTitle, lyrics, userName) {
@@ -3140,7 +3192,7 @@ async function sendLyrics(waitingMessage, channel, songTitle, lyrics, userName) 
         const embed = createEmbed(
             '#FF1493',
             `🎵 ${songTitle}`,
-            `**Letra:**\n${lyrics}`,
+            lyrics, // Eliminamos el encabezado "Letra:"
             'Hecho con onda por Oliver IA',
             userName
         );
@@ -3148,14 +3200,14 @@ async function sendLyrics(waitingMessage, channel, songTitle, lyrics, userName) 
     } else {
         const partes = [];
         let currentPart = '';
-        const lines = lyrics.split('\n');
+        const stanzas = lyrics.split('\n\n');
 
-        for (const line of lines) {
-            if (currentPart.length + line.length + 1 > maxLength - 50) {
+        for (const stanza of stanzas) {
+            if (currentPart.length + stanza.length + 2 > maxLength - 50) {
                 partes.push(currentPart.trim());
-                currentPart = line + '\n';
+                currentPart = stanza + '\n\n';
             } else {
-                currentPart += line + '\n';
+                currentPart += stanza + '\n\n';
             }
         }
         if (currentPart) partes.push(currentPart.trim());
@@ -3164,7 +3216,7 @@ async function sendLyrics(waitingMessage, channel, songTitle, lyrics, userName) 
             const parteEmbed = createEmbed(
                 '#FF1493',
                 i === 0 ? `🎵 ${songTitle}` : '🎵 (Continuación)',
-                i === 0 ? `**Letra:**\n${partes[i]}` : partes[i],
+                partes[i], // Sin encabezado "Letra:"
                 'Hecho con onda por Oliver IA',
                 userName
             );
