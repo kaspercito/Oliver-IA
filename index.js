@@ -2831,6 +2831,7 @@ async function manejarLyrics(message) {
     const player = manager.players.get(message.guild.id);
     let songTitle;
 
+    // Si no hay argumentos, usamos la canción que está sonando
     if (!args) {
         if (!player || !player.queue.current) {
             return sendError(message.channel, `No hay ninguna canción sonando ahora, ${userName}. Usa !lyrics [nombre de la canción] para buscar una específica.`);
@@ -2840,12 +2841,14 @@ async function manejarLyrics(message) {
         songTitle = args;
     }
 
-    // Limpieza más agresiva del título
+    // Limpieza del título para mejorar coincidencias
     songTitle = songTitle
         .replace(/\s*\(official music video\)/i, '')
         .replace(/\s*\(videoclip oficial\)/i, '')
+        .replace(/\s*\(feat.*?\)/i, '') // Sacamos "feat."
         .replace(/\s*-\s*/g, ' ')
-        .replace(/\s*\[.*?\]/g, '') // Sacamos cualquier cosa entre corchetes
+        .replace(/\s*\[.*?\]/g, '') // Sacamos corchetes
+        .replace(/[^\w\s]/g, '') // Sacamos caracteres raros
         .trim();
 
     console.log(`Buscando letras para: "${songTitle}"`);
@@ -2854,44 +2857,28 @@ async function manejarLyrics(message) {
     const waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
 
     try {
-        const searchUrl = `https://api.genius.com/search?q=${encodeURIComponent(songTitle)}`;
-        const searchResponse = await axios.get(searchUrl, {
-            headers: { 'Authorization': `Bearer ${process.env.GENIUS_ACCESS_TOKEN}` }
-        });
-
-        const hits = searchResponse.data.response.hits;
-        if (!hits || hits.length === 0) {
-            throw new Error('No se encontraron resultados en Genius.');
+        // Separamos el título en artista y canción si es posible
+        let artist = '';
+        let title = songTitle;
+        const splitIndex = songTitle.indexOf(' ');
+        if (splitIndex !== -1) {
+            artist = songTitle.substring(0, splitIndex);
+            title = songTitle.substring(splitIndex + 1);
         }
 
-        const songId = hits[0].result.id;
-        const songTitleFound = hits[0].result.full_title; // Debug: qué canción encontró
-        console.log(`Canción encontrada en Genius: "${songTitleFound}" (ID: ${songId})`);
+        // Buscamos en Lyrics.ovh
+        const lyricsUrl = `https://api.lyrics.ovh/v1/${encodeURIComponent(artist)}/${encodeURIComponent(title)}`;
+        console.log(`Consultando Lyrics.ovh: ${lyricsUrl}`);
+        const response = await axios.get(lyricsUrl);
+        let lyrics = response.data.lyrics.trim();
 
-        const songUrl = `https://api.genius.com/songs/${songId}`;
-        const songResponse = await axios.get(songUrl, {
-            headers: { 'Authorization': `Bearer ${process.env.GENIUS_ACCESS_TOKEN}` }
-        });
-
-        const lyricsPath = songResponse.data.response.song.path;
-        const lyricsPageUrl = `https://genius.com${lyricsPath}`;
-        console.log(`Scrapeando letras desde: ${lyricsPageUrl}`);
-
-        const lyricsPage = await axios.get(lyricsPageUrl);
-        const $ = cheerio.load(lyricsPage.data);
-
-        let lyrics = '';
-        $('div[class*="Lyrics__Container"]').each((i, elem) => {
-            lyrics += $(elem).text() + '\n';
-        });
-
-        lyrics = lyrics.trim();
         if (!lyrics) {
-            throw new Error('No se encontraron letras en la página.');
+            throw new Error('No se encontraron letras en Lyrics.ovh.');
         }
 
         console.log(`Letras encontradas (primeros 100 caracteres): "${lyrics.substring(0, 100)}..."`);
 
+        // Dividimos las letras si son muy largas
         const maxLength = 2000;
         if (lyrics.length <= maxLength) {
             const embed = createEmbed('#FFD700', `🎵 Letras de "${songTitle}"`, lyrics);
@@ -2909,8 +2896,62 @@ async function manejarLyrics(message) {
             }
         }
     } catch (error) {
-        console.error(`Error al buscar letras para "${songTitle}": ${error.message}`);
-        await waitingMessage.edit({ embeds: [createEmbed('#FF5555', '¡Ups!', `No pude encontrar las letras de "${songTitle}", ${userName}. Error: ${error.message}`)] });
+        console.error(`Error al buscar letras en Lyrics.ovh para "${songTitle}": ${error.message}`);
+
+        // Fallback a Genius si Lyrics.ovh falla (opcional)
+        try {
+            const searchUrl = `https://api.genius.com/search?q=${encodeURIComponent(songTitle)}`;
+            const searchResponse = await axios.get(searchUrl, {
+                headers: { 'Authorization': `Bearer ${process.env.GENIUS_ACCESS_TOKEN}` }
+            });
+
+            const hits = searchResponse.data.response.hits;
+            if (!hits || hits.length === 0) {
+                throw new Error('No se encontraron resultados en Genius.');
+            }
+
+            const songId = hits[0].result.id;
+            const songUrl = `https://api.genius.com/songs/${songId}`;
+            const songResponse = await axios.get(songUrl, {
+                headers: { 'Authorization': `Bearer ${process.env.GENIUS_ACCESS_TOKEN}` }
+            });
+
+            const lyricsPath = songResponse.data.response.song.path;
+            const lyricsPageUrl = `https://genius.com${lyricsPath}`;
+            const lyricsPage = await axios.get(lyricsPageUrl);
+            const $ = require('cheerio').load(lyricsPage.data);
+
+            let lyrics = '';
+            $('div[class*="Lyrics__Container"]').each((i, elem) => {
+                lyrics += $(elem).text() + '\n';
+            });
+
+            lyrics = lyrics.trim();
+            if (!lyrics) {
+                throw new Error('No se encontraron letras en Genius.');
+            }
+
+            const maxLength = 2000;
+            if (lyrics.length <= maxLength) {
+                const embed = createEmbed('#FFD700', `🎵 Letras de "${songTitle}" (via Genius)`, lyrics);
+                await waitingMessage.edit({ embeds: [embed] });
+            } else {
+                const chunks = [];
+                for (let i = 0; i < lyrics.length; i += maxLength) {
+                    chunks.push(lyrics.substring(i, i + maxLength));
+                }
+                const firstEmbed = createEmbed('#FFD700', `🎵 Letras de "${songTitle}" (via Genius, Parte 1/${chunks.length})`, chunks[0]);
+                await waitingMessage.edit({ embeds: [firstEmbed] });
+                for (let i = 1; i < chunks.length; i++) {
+                    const embed = createEmbed('#FFD700', `🎵 Letras de "${songTitle}" (via Genius, Parte ${i + 1}/${chunks.length})`, chunks[i]);
+                    await message.channel.send({ embeds: [embed] });
+                }
+            }
+        } catch (geniusError) {
+            console.error(`Fallback a Genius falló: ${geniusError.message}`);
+            await waitingMessage.edit({ embeds: [createEmbed('#FF5555', '¡Ups!', 
+                `No pude encontrar las letras de "${songTitle}", ${userName}. Probá con otro tema, che.`)] });
+        }
     }
 }
 
