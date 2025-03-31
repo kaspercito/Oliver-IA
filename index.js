@@ -2838,24 +2838,25 @@ async function manejarLyrics(message) {
         .replace(/\s*\(lyric video\)/i, '')
         .replace(/\s*\(official video\)/i, '')
         .replace(/\s*\(videoclip oficial\)/i, '')
-        .replace(/\s*\(audio oficial\)/i, '') // Quitar "Audio Oficial"
+        .replace(/\s*\(audio oficial\)/i, '')
         .replace(/\s*\(feat.*?\)/i, '')
         .replace(/\s*\[.*?\]/g, '')
-        .replace(/[^\w\s-óéíáúñ]/g, '') // Permitir acentos y ñ
-        .replace(/corazn/i, 'corazón') // Corregir "corazn" a "corazón"
+        .replace(/[^\w\s-óéíáúñ]/g, '')
+        .replace(/corazn/i, 'corazón')
         .trim();
 
-    // Separar artista y título
+    // Separar artista y título de forma más inteligente
     let artist = '', title = songInput;
     const dashIndex = songInput.indexOf(' - ');
     if (dashIndex !== -1) {
         artist = songInput.substring(0, dashIndex).trim();
         title = songInput.substring(dashIndex + 3).trim();
     } else {
-        const spaceIndex = songInput.indexOf(' ');
-        if (spaceIndex !== -1) {
-            artist = songInput.substring(0, spaceIndex).trim();
-            title = songInput.substring(spaceIndex + 1).trim();
+        // Si no hay guión, asumir que el primer "palabra" es el artista
+        const parts = songInput.split(' ');
+        if (parts.length > 1) {
+            artist = parts.shift(); // Primer palabra como artista
+            title = parts.join(' ').trim(); // Resto como título
         }
     }
 
@@ -2876,16 +2877,12 @@ async function manejarLyrics(message) {
 
         // 2. Fallback a Letras.com
         console.log('Gemini no tiene las letras, buscando en Letras.com...');
-        const searchUrl = `https://www.letras.com/?q=${encodeURIComponent(`${artist} ${title}`)}`;
-        const searchResponse = await axios.get(searchUrl, { timeout: 10000 });
-        const $search = cheerio.load(searchResponse.data);
-
-        // Buscar el primer resultado relevante
-        const songLink = $search('div.songs-list a').first().attr('href');
-        if (!songLink) throw new Error('No se encontró la canción en Letras.com.');
-
-        const lyricsUrl = `https://www.letras.com${songLink}`;
-        const lyricsResponse = await axios.get(lyricsUrl, { timeout: 10000 });
+        const formattedArtist = artist.toLowerCase().replace(/\s+/g, '-');
+        const formattedTitle = title.toLowerCase().replace(/\s+/g, '-');
+        const directUrl = `https://www.letras.com/${formattedArtist}/${formattedTitle}/`;
+        console.log(`Probando URL directa: ${directUrl}`);
+        
+        const lyricsResponse = await axios.get(directUrl, { timeout: 10000 });
         const $lyrics = cheerio.load(lyricsResponse.data);
 
         let lyrics = '';
@@ -2895,33 +2892,22 @@ async function manejarLyrics(message) {
         lyrics = lyrics.trim();
 
         if (!lyrics) {
-            // Fallback manual si el scraping falla
-            console.log('No se encontraron letras en la primera URL, probando URL directa...');
-            const manualUrl = `https://www.letras.com/${artist.toLowerCase().replace(/\s/g, '-')}/${title.toLowerCase().replace(/\s/g, '-')}/`;
-            const manualResponse = await axios.get(manualUrl, { timeout: 10000 });
-            const $manual = cheerio.load(manualResponse.data);
-            lyrics = '';
-            $manual('div.lyric-cnt p').each((i, elem) => {
-                lyrics += $manual(elem).text() + '\n';
-            });
-            lyrics = lyrics.trim();
+            throw new Error('No se encontraron letras en la URL directa de Letras.com.');
         }
 
-        if (lyrics) {
-            console.log(`Letras encontradas en Letras.com (primeros 100 caracteres): "${lyrics.substring(0, 100)}..."`);
-            return await sendLyrics(waitingMessage, message.channel, `${artist} - ${title}`, `¡Acá van las letras de "${artist} - ${title}", loco! 🎵\n${lyrics}`);
-        }
+        console.log(`Letras encontradas en Letras.com (primeros 100 caracteres): "${lyrics.substring(0, 100)}..."`);
+        return await sendLyrics(waitingMessage, message.channel, `${artist} - ${title}`, `¡Acá van las letras de "${artist} - ${title}", loco! 🎵\n${lyrics}`);
 
-        throw new Error('No se encontraron letras en Letras.com.');
     } catch (error) {
         console.error('Error buscando letras:', error.message);
-        const fallbackReply = `¡Uy, ${userName}, qué cagada! No encontré las letras de "${artist} - ${title}", loco 😡. Capaz las tenés en Genius o YouTube. ¿Qué otro temazo querés probar, che? 🍻`;
+        // 3. Fallback adicional a Genius (opcional, requiere API o scraping)
+        const fallbackReply = `¡Uy, ${userName}, qué cagada! No encontré las letras de "${artist} - ${title}", loco 😡. Probá en Genius o YouTube. ¿Qué otro temazo querés, che? 🍻`;
         const errorEmbed = createEmbed('#FF1493', `¡Qué cagada, ${userName}!`, fallbackReply, 'Hecho con onda por Miguel IA');
         await waitingMessage.edit({ embeds: [errorEmbed] });
     }
 }
 
-// Función auxiliar para enviar letras
+// Función auxiliar para enviar letras (sin cambios)
 async function sendLyrics(waitingMessage, channel, songTitle, lyrics) {
     const maxLength = 2000;
     const userName = waitingMessage.embeds[0].author.name.split(' ')[2].replace('...', '');
@@ -2942,6 +2928,7 @@ async function sendLyrics(waitingMessage, channel, songTitle, lyrics) {
         }
     }
 }
+
 function determinarGanador(jugador1, jugador2) {
     if (jugador1 === jugador2) return 'empate';
     if (
