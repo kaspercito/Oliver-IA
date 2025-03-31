@@ -6040,9 +6040,9 @@ async function manejarCommand(message, silent = false) {
     else if (content === '!autosave' || content === '!as') {
         await manejarAutosave(message);
     } 
-    else if (content === '!lyrics' || content === '!ly') {
+    else if (content.startsWith('!lyrics') || content.startsWith('!ly')) {
         await manejarLyrics(message);
-    } 
+    }
     else if (content === '!adivinanzas' || content === '!ad') {
         await manejarAdivinanza(message);
     } 
