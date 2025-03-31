@@ -3032,14 +3032,29 @@ async function manejarLyrics(message) {
         // Intentar separar por la última coma (formato: "Título, Artista")
         const lastCommaIndex = songInput.lastIndexOf(',');
         if (lastCommaIndex !== -1) {
-            title = songInput.substring(0, lastCommaIndex).trim();
-            artist = songInput.substring(lastCommaIndex + 1).trim();
+            // Verificar si lo que viene después de la última coma parece un artista (por ejemplo, "Gracie Abrams")
+            const possibleArtist = songInput.substring(lastCommaIndex + 1).trim();
+            const possibleTitle = songInput.substring(0, lastCommaIndex).trim();
+            // Un artista típico tiene 1-3 palabras (por ejemplo, "Gracie Abrams", "Pedro Infante")
+            const artistWords = possibleArtist.split(' ').length;
+            if (artistWords <= 3 && artistWords > 0) {
+                artist = possibleArtist;
+                title = possibleTitle;
+            } else {
+                // Si no parece un artista, asumir que la coma es parte del título
+                // y tomar las últimas 1-2 palabras como artista
+                const parts = songInput.split(' ');
+                if (parts.length > 2) {
+                    artist = parts.slice(-2).join(' '); // Últimas 2 palabras como artista
+                    title = parts.slice(0, -2).join(' ');
+                }
+            }
         } else {
             // Si no hay guion ni coma, asumir que el artista es lo último
             const parts = songInput.split(' ');
             if (parts.length > 1) {
-                artist = parts.pop(); // Última palabra como artista
-                title = parts.join(' ').trim();
+                artist = parts.slice(-2).join(' '); // Últimas 2 palabras como artista
+                title = parts.slice(0, -2).join(' ').trim();
             }
         }
     }
@@ -3103,49 +3118,19 @@ function formatLyrics(lyrics) {
     // Normalizar saltos de línea
     let formattedLyrics = lyrics
         .replace(/\r\n/g, '\n') // Normalizar saltos de línea
-        .replace(/\n{3,}/g, '\n\n') // Reducir saltos de línea excesivos
+        .replace(/\n{3,}/g, '\n\n') // Reducir saltos de línea excesivos a dos
         .trim();
 
     // Dividir en líneas
     let lines = formattedLyrics.split('\n').filter(line => line.trim() !== '');
 
-    // Capitalizar la primera letra de cada línea y agregar comas donde sea necesario
+    // Capitalizar la primera letra de cada línea
     lines = lines.map(line => {
-        // Capitalizar la primera letra
-        line = line.charAt(0).toUpperCase() + line.slice(1);
-        // Agregar coma después de "Amorcito" si la línea empieza con eso
-        if (line.toLowerCase().startsWith('amorcito')) {
-            line = line.replace(/^Amorcito/, 'Amorcito,');
-        }
-        return line;
+        return line.charAt(0).toUpperCase() + line.slice(1);
     });
 
-    // Unir líneas que deberían estar juntas (por ejemplo, "Yo quiero ser un solo ser, un ser contigo")
-    let finalLines = [];
-    let currentLine = '';
-
-    for (let i = 0; i < lines.length; i++) {
-        const line = lines[i].trim();
-        // Si la línea es muy corta (menos de 20 caracteres) y no es la última, unirla con la siguiente
-        if (line.length < 20 && i < lines.length - 1) {
-            currentLine = currentLine ? `${currentLine}, ${line}` : line;
-        } else {
-            if (currentLine) {
-                finalLines.push(`${currentLine}, ${line}`);
-                currentLine = '';
-            } else {
-                finalLines.push(line);
-            }
-        }
-    }
-
-    // Si queda algo en currentLine, añadirlo
-    if (currentLine) {
-        finalLines.push(currentLine);
-    }
-
-    // Unir las líneas con un solo salto de línea entre estrofas
-    return finalLines.join('\n');
+    // Unir las líneas con saltos de línea, respetando las estrofas
+    return lines.join('\n');
 }
 
 async function sendLyrics(waitingMessage, channel, songTitle, lyrics, userName) {
