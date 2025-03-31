@@ -2852,11 +2852,10 @@ async function manejarLyrics(message) {
         artist = songInput.substring(0, dashIndex).trim();
         title = songInput.substring(dashIndex + 3).trim();
     } else {
-        // Si no hay guión, asumir que el primer "palabra" es el artista
         const parts = songInput.split(' ');
         if (parts.length > 1) {
-            artist = parts.shift(); // Primer palabra como artista
-            title = parts.join(' ').trim(); // Resto como título
+            artist = parts.shift();
+            title = parts.join(' ').trim();
         }
     }
 
@@ -2880,19 +2879,23 @@ async function manejarLyrics(message) {
         const formattedArtist = artist.toLowerCase().replace(/\s+/g, '-');
         const formattedTitle = title.toLowerCase().replace(/\s+/g, '-');
         const directUrl = `https://www.letras.com/${formattedArtist}/${formattedTitle}/`;
-        console.log(`Probando URL directa: ${directUrl}`);
+        console.log(`URL de búsqueda en Letras.com: ${directUrl}`);
         
-        const lyricsResponse = await axios.get(directUrl, { timeout: 10000 });
+        const lyricsResponse = await axios.get(directUrl, { timeout: 15000 }); // Aumenté el timeout
         const $lyrics = cheerio.load(lyricsResponse.data);
 
+        // Loguear el HTML crudo para depurar
+        console.log('HTML recibido (primeros 500 caracteres):', lyricsResponse.data.substring(0, 500));
+
+        // Actualizar selector: Letras.com usa 'div.cnt-letra p' para las letras
         let lyrics = '';
-        $lyrics('div.lyric-cnt p').each((i, elem) => {
+        $lyrics('div.cnt-letra p').each((i, elem) => {
             lyrics += $lyrics(elem).text() + '\n';
         });
         lyrics = lyrics.trim();
 
         if (!lyrics) {
-            throw new Error('No se encontraron letras en la URL directa de Letras.com.');
+            throw new Error('No se encontraron letras en la URL directa de Letras.com con el selector div.cnt-letra p.');
         }
 
         console.log(`Letras encontradas en Letras.com (primeros 100 caracteres): "${lyrics.substring(0, 100)}..."`);
@@ -2900,7 +2903,6 @@ async function manejarLyrics(message) {
 
     } catch (error) {
         console.error('Error buscando letras:', error.message);
-        // 3. Fallback adicional a Genius (opcional, requiere API o scraping)
         const fallbackReply = `¡Uy, ${userName}, qué cagada! No encontré las letras de "${artist} - ${title}", loco 😡. Probá en Genius o YouTube. ¿Qué otro temazo querés, che? 🍻`;
         const errorEmbed = createEmbed('#FF1493', `¡Qué cagada, ${userName}!`, fallbackReply, 'Hecho con onda por Miguel IA');
         await waitingMessage.edit({ embeds: [errorEmbed] });
