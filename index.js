@@ -5541,11 +5541,10 @@ manager.on('trackEnd', (player, track) => {
     const progressMessage = player.get('progressMessage');
     const userName = track.requester.id === OWNER_ID ? 'Miguel' : 'Belén';
 
-    console.log(`trackEnd disparado para ${track.title} en guild ${player.guild}`);
-
-    if (progressMessage && track && !player.get('trackEnded')) {
+    // Actualizamos el embed al 100%
+    if (progressMessage && track) {
         const durationStr = `${Math.floor(track.duration / 60000)}:${((track.duration % 60000) / 1000).toFixed(0).padStart(2, '0')}`;
-        const bossBar = '▬'.repeat(20) + '🔘';
+        const bossBar = crearBossBar(track.duration, track.duration); // Barra llena
 
         const finalEmbed = createEmbed('#FF1493', `🎶 Tema terminado pa’ ${userName}`, '¡Ya fue, che!')
             .addFields(
@@ -5553,16 +5552,18 @@ manager.on('trackEnd', (player, track) => {
                 { name: '⏳ Duración', value: durationStr, inline: true },
                 { name: '📊 Progreso', value: `${bossBar} ${durationStr} / ${durationStr}`, inline: true }
             )
-            .setThumbnail(track.thumbnail || 'https://i.imgur.com/defaultThumbnail.png');
+            .setThumbnail(track.thumbnail || 'https://i.imgur.com/defaultThumbnail.png')
+            .setFooter({ text: `Oliver IA - Música con onda | Pedido por ${userName}`, iconURL: client.user.avatarURL() })
+            .setTimestamp();
 
         progressMessage.edit({ embeds: [finalEmbed] }).catch(err => console.error('Error editando embed final:', err));
-        player.set('trackEnded', true);
     }
 
     if (intervalo) {
         clearInterval(intervalo);
         player.set('progressInterval', null);
     }
+
     player.set('progressMessage', null);
 
     const guildId = player.guild;
@@ -5574,28 +5575,6 @@ manager.on('trackEnd', (player, track) => {
             dataStore.musicSessions[guildId].history.pop();
         }
         dataStoreModified = true;
-    }
-
-    console.log(`Estado de la cola después de ${track.title}: size=${player.queue.size}, playing=${player.playing}, paused=${player.paused}`);
-    if (player.queue.size > 0) {
-        console.log(`Reproduciendo siguiente pista: ${player.queue[0].title}. Cola restante: ${player.queue.size}`);
-        try {
-            player.play();
-        } catch (error) {
-            console.error(`Error al reproducir la siguiente pista (${player.queue[0].title}): ${error.message}`);
-            // Si falla, intentamos con la siguiente pista
-            player.queue.remove(0); // Quitamos la pista que falló
-            if (player.queue.size > 0) {
-                console.log(`Intentando con la siguiente pista: ${player.queue[0].title}`);
-                player.play();
-            } else {
-                console.log(`No hay más pistas en la cola para guild ${guildId}`);
-                player.destroy();
-            }
-        }
-    } else {
-        console.log(`No hay más pistas en la cola para guild ${guildId}`);
-        player.destroy();
     }
 });
 
