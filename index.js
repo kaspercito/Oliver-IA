@@ -2881,25 +2881,29 @@ async function manejarLyrics(message) {
         const directUrl = `https://www.letras.com/${formattedArtist}/${formattedTitle}/`;
         console.log(`URL de búsqueda en Letras.com: ${directUrl}`);
         
-        const lyricsResponse = await axios.get(directUrl, { timeout: 15000 }); // Aumenté el timeout
+        const lyricsResponse = await axios.get(directUrl, { 
+            timeout: 15000,
+            headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36' }
+        });
         const $lyrics = cheerio.load(lyricsResponse.data);
 
-        // Loguear el HTML crudo para depurar
+        // Loguear el HTML para depurar
         console.log('HTML recibido (primeros 500 caracteres):', lyricsResponse.data.substring(0, 500));
 
-        // Actualizar selector: Letras.com usa 'div.cnt-letra p' para las letras
+        // Extraer letras con el selector correcto
         let lyrics = '';
         $lyrics('div.cnt-letra p').each((i, elem) => {
-            lyrics += $lyrics(elem).text() + '\n';
+            lyrics += $lyrics(elem).text().trim() + '\n\n'; // Doble salto para separar estrofas
         });
         lyrics = lyrics.trim();
 
         if (!lyrics) {
-            throw new Error('No se encontraron letras en la URL directa de Letras.com con el selector div.cnt-letra p.');
+            console.log('No se encontraron letras con div.cnt-letra p, revisando HTML...');
+            throw new Error('No se encontraron letras en la URL directa de Letras.com.');
         }
 
         console.log(`Letras encontradas en Letras.com (primeros 100 caracteres): "${lyrics.substring(0, 100)}..."`);
-        return await sendLyrics(waitingMessage, message.channel, `${artist} - ${title}`, `¡Acá van las letras de "${artist} - ${title}", loco! 🎵\n${lyrics}`);
+        return await sendLyrics(waitingMessage, message.channel, `${artist} - ${title}`, lyrics);
 
     } catch (error) {
         console.error('Error buscando letras:', error.message);
@@ -2909,19 +2913,36 @@ async function manejarLyrics(message) {
     }
 }
 
-// Función auxiliar para enviar letras (sin cambios)
+// Función auxiliar para enviar letras
 async function sendLyrics(waitingMessage, channel, songTitle, lyrics) {
-    const maxLength = 2000;
+    const maxLength = 2000; // Límite aproximado para embeds de Discord
     const userName = waitingMessage.embeds[0].author.name.split(' ')[2].replace('...', '');
+    
     if (lyrics.length <= maxLength) {
-        const embed = createEmbed('#FF1493', `¡Acá van las letras, ${userName}!`, `${lyrics}\n\n¿Te cerró? ¿Qué otro temazo querés? 🎵`, 'Hecho con onda por Miguel IA');
+        const embed = createEmbed('#FF1493', `¡Acá van las letras de "${songTitle}", ${userName}!`, lyrics, 'Hecho con onda por Miguel IA');
         await waitingMessage.edit({ embeds: [embed] });
     } else {
-        const partes = lyrics.match(/(.|[\r\n]){1,1990}/g) || [lyrics];
+        const partes = [];
+        let currentPart = '';
+        const lines = lyrics.split('\n');
+
+        for (const line of lines) {
+            if (currentPart.length + line.length + 1 > maxLength) {
+                partes.push(currentPart.trim());
+                currentPart = line + '\n';
+            } else {
+                currentPart += line + '\n';
+            }
+        }
+        if (currentPart) partes.push(currentPart.trim());
+
         for (let i = 0; i < partes.length; i++) {
-            const parteEmbed = createEmbed('#FF1493', i === 0 ? `¡Acá van las letras de "${songTitle}", ${userName}!` : 'Y sigue, loco...', 
-                `${partes[i]}\n\n${i === partes.length - 1 ? `¿Te cerró? ¿Qué otro temazo querés? 🎵` : 'Aguantá que hay más...'}`,
-                'Hecho con onda por Miguel IA');
+            const parteEmbed = createEmbed(
+                '#FF1493',
+                i === 0 ? `¡Acá van las letras de "${songTitle}", ${userName}!` : 'Y sigue, loco...',
+                partes[i],
+                'Hecho con onda por Miguel IA'
+            );
             if (i === 0) {
                 await waitingMessage.edit({ embeds: [parteEmbed] });
             } else {
