@@ -3792,20 +3792,24 @@ async function manejarPlay(message, args) {
     if (res.loadType === 'PLAYLIST_LOADED') {
         player.queue.add(res.tracks);
         const embed = createEmbed('#FF1493', '🎶 Playlist agregada', 
-            `Agregué ${res.tracks.length} temas a la cola, ${userName}. ¡A disfrutar, loco! 🎉`);
+            `Agregué ${res.tracks.length} temas a la cola, ${userName}. ¡A disfrutar, loco! 🎉`)
+            .setThumbnail(res.tracks[0].thumbnail || 'https://i.imgur.com/defaultThumbnail.png'); // Imagen del primer tema
         await message.channel.send({ embeds: [embed] });
     } else {
         const trackUri = res.tracks[0].uri;
         const isAlreadyInQueue = player.queue.some(track => track.uri === trackUri);
-        if (isAlreadyInQueue) {
-            const embed = createEmbed('#FF1493', '🎵 Tema ya en cola', 
-                `**${res.tracks[0].title}** ya está en la cola, ${userName}. ¡Paciencia, che! 🎶`);
-            return await message.channel.send({ embeds: [embed] });
-        }
+        let embed;
 
-        player.queue.add(res.tracks[0]);
-        const embed = createEmbed('#FF1493', '🎶 Tema agregado', 
-            `Agregué **${res.tracks[0].title}** a la cola, ${userName}. ¡Ya va a sonar, che! 🎵`);
+        if (isAlreadyInQueue) {
+            embed = createEmbed('#FF1493', '🎵 Tema ya en cola', 
+                `**${res.tracks[0].title}** ya está en la cola, ${userName}. ¡Paciencia, che! 🎶`)
+                .setThumbnail(res.tracks[0].thumbnail || 'https://i.imgur.com/defaultThumbnail.png'); // Imagen del tema
+        } else {
+            player.queue.add(res.tracks[0]);
+            embed = createEmbed('#FF1493', '🎶 Tema agregado', 
+                `Agregué **${res.tracks[0].title}** a la cola, ${userName}. ¡Ya va a sonar, che! 🎵`)
+                .setThumbnail(res.tracks[0].thumbnail || 'https://i.imgur.com/defaultThumbnail.png'); // Imagen del tema
+        }
         await message.channel.send({ embeds: [embed] });
     }
 
