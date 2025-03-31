@@ -3011,6 +3011,9 @@ async function manejarLyrics(message) {
         .replace(/\s*\(official video\)/i, '')
         .replace(/\s*\(videoclip oficial\)/i, '')
         .replace(/\s*\(audio oficial\)/i, '')
+        .replace(/\s*\(official audio\)/i, '')
+        .replace(/\s*\(official lyric video\)/i, '')
+        .replace(/\s*\(official music video\)/i, '')
         .replace(/\s*\(feat.*?\)/i, '')
         .replace(/\s*\[.*?\]/g, '')
         .replace(/corazn/i, 'corazón')
@@ -3020,17 +3023,17 @@ async function manejarLyrics(message) {
 
     let artist = '', title = songInput;
 
-    // Intentar separar por coma (formato: "Título, Artista")
-    const commaIndex = songInput.indexOf(',');
-    if (commaIndex !== -1) {
-        title = songInput.substring(0, commaIndex).trim();
-        artist = songInput.substring(commaIndex + 1).trim();
+    // Intentar separar por guion (formato: "Artista - Título")
+    const dashIndex = songInput.indexOf(' - ');
+    if (dashIndex !== -1) {
+        artist = songInput.substring(0, dashIndex).trim();
+        title = songInput.substring(dashIndex + 3).trim();
     } else {
-        // Intentar separar por guion (formato: "Artista - Título")
-        const dashIndex = songInput.indexOf(' - ');
-        if (dashIndex !== -1) {
-            artist = songInput.substring(0, dashIndex).trim();
-            title = songInput.substring(dashIndex + 3).trim();
+        // Intentar separar por la última coma (formato: "Título, Artista")
+        const lastCommaIndex = songInput.lastIndexOf(',');
+        if (lastCommaIndex !== -1) {
+            title = songInput.substring(0, lastCommaIndex).trim();
+            artist = songInput.substring(lastCommaIndex + 1).trim();
         } else {
             // Si no hay guion ni coma, asumir que el artista es lo último
             const parts = songInput.split(' ');
@@ -3078,7 +3081,7 @@ async function manejarLyrics(message) {
         }
 
         if (!lyrics) {
-            throw new Error('No se encontraron letras en la API de lyrics.ovh.');
+            throw new Error('No se encontraron letras en the API de lyrics.ovh.');
         }
 
         // Limpiar y formatear las letras para el embed
@@ -3095,7 +3098,7 @@ async function manejarLyrics(message) {
     }
 }
 
-// Nueva función para formatear las letras
+// Función para formatear las letras
 function formatLyrics(lyrics) {
     // Normalizar saltos de línea
     let formattedLyrics = lyrics
