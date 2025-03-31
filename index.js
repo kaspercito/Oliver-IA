@@ -3864,16 +3864,16 @@ async function manejarSkip(message) {
     const player = manager.players.get(message.guild.id);
     if (!player) return sendError(message.channel, `No hay música en reproducción, ${userName}.`);
 
-    console.log(`Saltando pista. Cola antes de skip: ${player.queue.size}`);
+    console.log(`Saltando pista: ${player.queue.current?.title}. Cola antes de skip: ${player.queue.size}`);
     player.stop();
 
-    // Aseguramos que la siguiente pista se reproduzca
     if (player.queue.size > 0) {
         try {
+            console.log(`Reproduciendo siguiente: ${player.queue[0]?.title}`);
             player.play();
         } catch (error) {
             console.error(`Error al reproducir después de skip: ${error.message}`);
-            player.queue.remove(0); // Quitamos la pista que falló
+            player.queue.remove(0);
             if (player.queue.size > 0) {
                 console.log(`Intentando con la siguiente pista: ${player.queue[0].title}`);
                 player.play();
@@ -3881,6 +3881,8 @@ async function manejarSkip(message) {
                 player.destroy();
             }
         }
+    } else {
+        console.log('No hay más pistas en la cola después del skip.');
     }
 
     await sendSuccess(message.channel, '⏭️ ¡Canción saltada!', `Pasamos a la siguiente, ${userName}.`);
@@ -5541,9 +5543,17 @@ manager.on('trackStart', async (player, track) => {
 });
 
 manager.on('trackEnd', (player, track) => {
+    console.log(`trackEnd disparado para: ${track.title}, guild: ${player.guild}, queue.size: ${player.queue.size}`);
     const intervalo = player.get('progressInterval');
     const progressMessage = player.get('progressMessage');
     const userName = track.requester.id === OWNER_ID ? 'Miguel' : 'Belén';
+
+    // Verificación para evitar duplicados
+    if (player.get('trackEnded')) {
+        console.log(`Pista ${track.title} ya fue marcada como terminada, ignorando.`);
+        return;
+    }
+    player.set('trackEnded', true);
 
     // Actualizamos el embed al 100%
     if (progressMessage && track) {
