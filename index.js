@@ -3111,11 +3111,12 @@ async function manejarLyrics(message) {
     }
 }
 
+// Función para formatear las letras
 function formatLyrics(lyrics) {
     // Normalizar saltos de línea
     let formattedLyrics = lyrics
         .replace(/\r\n/g, '\n') // Normalizar saltos de línea
-        .replace(/\n{2,}/g, '\n') // Reducir saltos excesivos a uno solo
+        .replace(/\n{3,}/g, '\n\n') // Reducir saltos de línea excesivos a dos
         .trim();
 
     // Dividir en líneas
@@ -3128,7 +3129,7 @@ function formatLyrics(lyrics) {
     while (i < lines.length) {
         let line = lines[i].trim();
 
-        // Eliminar comillas innecesarias
+        // Eliminar comillas alrededor de palabras como "forever" o "I miss you"
         line = line.replace(/"forever,"/g, 'forever');
         line = line.replace(/"I miss you"/g, 'I miss you');
 
@@ -3147,24 +3148,20 @@ function formatLyrics(lyrics) {
             line = line.replace(/Then all of a sudden,/, 'Then all of a sudden');
         }
 
-        // Unir "Thought you'd hate me..." con "And said..." si están consecutivas
+        // Unir "Thought you'd hate me..." con "And said..." si están en líneas consecutivas
         if (line.match(/Thought you'd hate me/) && i + 1 < lines.length && lines[i + 1].match(/and said: I miss you/)) {
             line = `${line} ${lines[i + 1]}`.replace(/, but/, ' but');
             i += 2; // Saltar la siguiente línea ya que la unimos
-        } 
-        // Combinar TODAS las repeticiones de "Put a little love on me" en una sola línea
-        else if (line.match(/put a little love on me/i)) {
-            let combinedLine = line.replace(/, eh$/, '').trim(); // Eliminar ", eh" si está al final
-            i++;
-            while (i < lines.length && lines[i].match(/put a little love on me/i)) {
-                let nextPart = lines[i].replace(/, eh$/, '').trim(); // Eliminar ", eh" de cada repetición
-                combinedLine += ', ' + nextPart;
-                i++;
-            }
-            line = combinedLine;
-            i--; // Retroceder porque el bucle principal incrementará i
         } else {
             i += 1;
+        }
+
+        // Formatear líneas con paréntesis
+        if (line.match(/^\(/)) {
+            // Convertir a minúsculas, pero preservar la capitalización de "I"
+            line = line.toLowerCase();
+            line = line.replace(/\bi\b/g, 'I'); // Restaurar "I" en mayúscula
+            line = line.replace(/"forever,"/g, 'forever');
         }
 
         finalLines.push(line);
@@ -3173,37 +3170,28 @@ function formatLyrics(lyrics) {
     // Agrupar en estrofas
     let stanzas = [];
     let currentStanza = [];
-    const chorusStart = /put a little love on me/i;
-    let inChorus = false;
 
-    for (let i = 0; i < finalLines.length; i++) {
-        const line = finalLines[i];
+    // Definir cuántas líneas debe tener cada estrofa (basado en tu ejemplo)
+    const stanzaSizes = [4, 4, 3, 8, 4, 4, 4, 4]; // Número de líneas por estrofa
+    let stanzaIndex = 0;
+    let lineIndex = 0;
 
-        // Detectar inicio de estribillo
-        if (chorusStart.test(line) && !inChorus) {
-            if (currentStanza.length > 0) {
-                stanzas.push(currentStanza);
-                currentStanza = [];
-            }
-            inChorus = true;
-        }
-
+    while (lineIndex < finalLines.length) {
+        const line = finalLines[lineIndex];
         currentStanza.push(line);
 
-        // Detectar fin de estribillo
-        if (inChorus && (line.match(/so put (your|a little) love on me/i) || i === finalLines.length - 1)) {
+        // Si hemos alcanzado el tamaño de la estrofa actual o es la última línea
+        if (currentStanza.length === stanzaSizes[stanzaIndex] || lineIndex === finalLines.length - 1) {
             stanzas.push(currentStanza);
             currentStanza = [];
-            inChorus = false;
+            stanzaIndex = Math.min(stanzaIndex + 1, stanzaSizes.length - 1); // No exceder el array
         }
+
+        lineIndex++;
     }
 
-    if (currentStanza.length > 0) {
-        stanzas.push(currentStanza);
-    }
-
-    // Unir las estrofas: un salto dentro de estrofas, dos entre estrofas
-    return stanzas.map(stanza => stanza.join('\n')).join('\n\n');
+    // Unir las estrofas con tres saltos de línea para asegurar separación visual en Discord
+    return stanzas.map(stanza => stanza.join('\n')).join('\n\n\n');
 }
 
 
