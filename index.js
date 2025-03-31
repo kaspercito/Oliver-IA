@@ -3147,10 +3147,21 @@ function formatLyrics(lyrics) {
             line = line.replace(/Then all of a sudden,/, 'Then all of a sudden');
         }
 
-        // Unir líneas específicas si están relacionadas
+        // Unir "Thought you'd hate me..." con "And said..." si están consecutivas
         if (line.match(/Thought you'd hate me/) && i + 1 < lines.length && lines[i + 1].match(/and said: I miss you/)) {
             line = `${line} ${lines[i + 1]}`.replace(/, but/, ' but');
             i += 2; // Saltar la siguiente línea ya que la unimos
+        } 
+        // Combinar repeticiones consecutivas de "Put a little love on me"
+        else if (line.match(/put a little love on me/i) && i + 1 < lines.length && lines[i + 1].match(/put a little love on me/i)) {
+            let combinedLine = line;
+            i++;
+            while (i < lines.length && lines[i].match(/put a little love on me/i)) {
+                combinedLine += ', ' + lines[i].trim().replace(/, eh$/, ''); // Combinar y limpiar ", eh" si aparece
+                i++;
+            }
+            line = combinedLine;
+            i--; // Retroceder una posición porque el bucle principal incrementará i
         } else {
             i += 1;
         }
@@ -3158,11 +3169,9 @@ function formatLyrics(lyrics) {
         finalLines.push(line);
     }
 
-    // Agrupar en estrofas basadas en el patrón deseado
+    // Agrupar en estrofas
     let stanzas = [];
     let currentStanza = [];
-
-    // Usar un enfoque más simple: detectar estribillos y separar estrofas
     const chorusStart = /put a little love on me/i;
     let inChorus = false;
 
@@ -3180,7 +3189,7 @@ function formatLyrics(lyrics) {
 
         currentStanza.push(line);
 
-        // Detectar fin de estribillo (líneas como "So put your love on me" o similar)
+        // Detectar fin de estribillo
         if (inChorus && (line.match(/so put (your|a little) love on me/i) || i === finalLines.length - 1)) {
             stanzas.push(currentStanza);
             currentStanza = [];
@@ -3192,7 +3201,7 @@ function formatLyrics(lyrics) {
         stanzas.push(currentStanza);
     }
 
-    // Unir las estrofas: un solo salto de línea dentro de estrofas, dos entre estrofas
+    // Unir las estrofas: un salto dentro de estrofas, dos entre estrofas
     return stanzas.map(stanza => stanza.join('\n')).join('\n\n');
 }
 
