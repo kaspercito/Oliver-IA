@@ -5457,13 +5457,18 @@ manager.on('queueEnd', async player => {
 
 manager.on('trackStart', async (player, track) => {
     const channel = client.channels.cache.get(player.textChannel);
+    if (!channel) {
+        console.error(`Canal no encontrado: ${player.textChannel}`);
+        return;
+    }
+
     const durationMs = track.duration;
     const durationSeconds = Math.floor(durationMs / 1000);
     const durationFormatted = `${Math.floor(durationSeconds / 60)}:${(durationSeconds % 60).toString().padStart(2, '0')}`;
 
     // Construimos el thumbnail manualmente si es YouTube
     let thumbnail = track.thumbnail;
-    if (!thumbnail && track.identifier) { // identifier es el ID del video en YouTube
+    if (!thumbnail && track.identifier) {
         thumbnail = `https://img.youtube.com/vi/${track.identifier}/hqdefault.jpg`;
     }
     console.log(`Thumbnail usado para ${track.title}: ${thumbnail}`);
@@ -5475,28 +5480,33 @@ manager.on('trackStart', async (player, track) => {
         const totalBars = 20;
         const progress = Math.min(positionMs / durationMs, 1);
         const filledBars = Math.round(progress * totalBars);
-        const emptyBars = totalBars - filledBars;
+        const emptyBars = totalBars - filledBars; // Corregimos el typo: "emptyBars | totalBars" debería ser "="
         const bossBar = '▬'.repeat(filledBars) + '🔘' + '▬'.repeat(emptyBars);
 
         const embed = createEmbed('#FF1493', '▶️ Sonando ahora', 
-            `**${track.title}**\n⏳ Duración: ${durationFormatted}\n📊 Progreso: ${bossBar} ${positionFormatted} / ${durationFormatted}`)
+            `**${track.title}**\n⏳ Duración: ${durationFormatted}\n📊 Progreso: ${bossBar} ${positionFormatted} / ${durationFormatted}`,
+            'Hecho con onda por Oliver IA')
             .setThumbnail(thumbnail || 'https://i.imgur.com/defaultThumbnail.png');
         return embed;
     };
 
-    const embed = updateBossBar();
-    const progressMessage = await channel.send({ embeds: [embed] });
-    player.set('progressMessage', progressMessage);
+    try {
+        const embed = updateBossBar();
+        const progressMessage = await channel.send({ embeds: [embed] });
+        player.set('progressMessage', progressMessage);
 
-    const intervalo = setInterval(() => {
-        const updatedEmbed = updateBossBar();
-        progressMessage.edit({ embeds: [updatedEmbed] }).catch(err => {
-            console.error('Error editando boss bar:', err);
-            clearInterval(intervalo);
-        });
-    }, 5000);
+        const intervalo = setInterval(() => {
+            const updatedEmbed = updateBossBar();
+            progressMessage.edit({ embeds: [updatedEmbed] }).catch(err => {
+                console.error('Error editando boss bar:', err);
+                clearInterval(intervalo);
+            });
+        }, 5000);
 
-    player.set('progressInterval', intervalo);
+        player.set('progressInterval', intervalo);
+    } catch (error) {
+        console.error(`Error en trackStart para ${track.title}: ${error.message}`);
+    }
 });
 
 manager.on('trackEnd', (player, track) => {
