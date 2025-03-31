@@ -2874,32 +2874,34 @@ async function manejarLyrics(message) {
             return await sendLyrics(waitingMessage, message.channel, `${artist} - ${title}`, lyricsReply);
         }
 
-        // 2. Fallback a Letras.com
-        console.log('Gemini no tiene las letras, buscando en Letras.com...');
+        // 2. Fallback a Letras.com con Puppeteer
+        console.log('Gemini no tiene las letras, buscando en Letras.com con Puppeteer...');
         const formattedArtist = artist.toLowerCase().replace(/\s+/g, '-');
         const formattedTitle = title.toLowerCase().replace(/\s+/g, '-');
         const directUrl = `https://www.letras.com/${formattedArtist}/${formattedTitle}/`;
         console.log(`URL de búsqueda en Letras.com: ${directUrl}`);
 
-        const lyricsResponse = await axios.get(directUrl, {
-            timeout: 15000,
-            headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36' }
-        });
-        const $lyrics = cheerio.load(lyricsResponse.data);
+        const browser = await puppeteer.launch({ headless: true });
+        const page = await browser.newPage();
+        await page.goto(directUrl, { waitUntil: 'networkidle2' });
+        const html = await page.content();
+        const $lyrics = cheerio.load(html);
 
-        // Loguear más HTML para depurar
-        console.log('HTML recibido (primeros 1000 caracteres):', lyricsResponse.data.substring(0, 1000));
+        // Loguear para depurar
+        console.log('HTML recibido con Puppeteer (primeros 1000 caracteres):', html.substring(0, 1000));
 
-        // Buscar letras en div.cnt-letra p
+        // Extraer letras
         let lyrics = '';
         $lyrics('div.cnt-letra p').each((i, elem) => {
             lyrics += $lyrics(elem).text().trim() + '\n\n';
         });
         lyrics = lyrics.trim();
 
+        await browser.close();
+
         if (!lyrics) {
-            console.log('No se encontraron letras con div.cnt-letra p. HTML completo contiene "cnt-letra"?', lyricsResponse.data.includes('cnt-letra'));
-            throw new Error('No se encontraron letras en la URL directa de Letras.com.');
+            console.log('No se encontraron letras con div.cnt-letra p en Puppeteer.');
+            throw new Error('No se encontraron letras en la URL directa de Letras.com con Puppeteer.');
         }
 
         console.log(`Letras encontradas en Letras.com (primeros 100 caracteres): "${lyrics.substring(0, 100)}..."`);
@@ -2939,9 +2941,9 @@ async function sendLyrics(waitingMessage, channel, songTitle, lyrics) {
         for (let i = 0; i < partes.length; i++) {
             const parteEmbed = createEmbed(
                 '#FF1493',
-                i === 0 ? `¡Acá van las letras de "${songTitle}", ${userName}!` : 'Y sigue, loco...',
+                i === 0 ? `¡Acá van las letras de "${songTitle}", ${userName}!` : 'Y sigue, locoo...',
                 partes[i],
-                'Hecho con onda por Oliver IA'
+                'Hecho con onda por Miguel IA'
             );
             if (i === 0) {
                 await waitingMessage.edit({ embeds: [parteEmbed] });
