@@ -2973,7 +2973,7 @@ async function manejarPPTPersona(message) {
 
 async function manejarLyrics(message) {
     const userId = message.author.id;
-    const userName = userId === OWNER_ID ? 'Miguel' : 'Belén'; // Define OWNER_ID en tu código
+    const userName = userId === OWNER_ID ? 'Miguel' : 'Belén'; // Define OWNER_ID
     const args = message.content.split(' ').slice(1).join(' ').trim();
     const player = manager.players.get(message.guild.id); // Asegúrate de que 'manager' esté definido
     let songInput = args || (player?.queue.current?.title);
@@ -3011,23 +3011,23 @@ async function manejarLyrics(message) {
     const waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
 
     try {
-        // Formatear URL directa (corregimos la tilde manualmente para este caso)
+        // Formatear URL directa
         const formattedArtist = artist.toLowerCase().replace(/\s+/g, '-');
-        const formattedTitle = title.toLowerCase().replace(/\s+/g, '-').replace('corazón', 'corazon'); // Ajuste para Letras.com
+        const formattedTitle = title.toLowerCase().replace(/\s+/g, '-').replace('corazón', 'corazon');
         const directUrl = `https://www.letras.com/${formattedArtist}/${formattedTitle}/`;
         console.log(`URL de búsqueda en Letras.com: ${directUrl}`);
 
         const apiKey = 'VQWXR6TAJBTT8V81LXFHIZ7XAVAZB8PJSO5T8S5I5C64DHCZXVKIIHDEMUC0OQBYY5UYWUELDF4C6GR6'; // Tu API key de ScrapingBee
-        const scrapingBeeUrl = `https://app.scrapingbee.com/api/v1/?api_key=${apiKey}&url=${encodeURIComponent(directUrl)}&render_js=true&wait=3000&premium_proxy=true`;
+        const scrapingBeeUrl = `https://app.scrapingbee.com/api/v1/?api_key=${apiKey}&url=${encodeURIComponent(directUrl)}&render_js=true&wait=5000&premium_proxy=true`;
 
-        const response = await axios.get(scrapingBeeUrl, { timeout: 20000 });
+        // Intentar con ScrapingBee primero
+        console.log('Intentando con ScrapingBee...');
+        const response = await axios.get(scrapingBeeUrl, { timeout: 30000 });
         const $lyrics = cheerio.load(response.data);
 
-        // Loguear más detalles para depuración
-        console.log('HTML completo contiene cnt-letra?', response.data.includes('cnt-letra'));
+        console.log('HTML contiene cnt-letra?', response.data.includes('cnt-letra'));
         console.log('Primeros 2000 caracteres del HTML:', response.data.substring(0, 2000));
 
-        // Extraer letras con el selector correcto
         let lyrics = '';
         $lyrics('div.cnt-letra p').each((i, elem) => {
             lyrics += $lyrics(elem).text().trim() + '\n\n';
@@ -3035,8 +3035,25 @@ async function manejarLyrics(message) {
 
         lyrics = lyrics.trim();
         if (!lyrics) {
-            console.log('No se encontraron letras con div.cnt-letra p. HTML completo:', response.data);
-            throw new Error('No se encontraron letras en la URL directa de Letras.com.');
+            console.log('No se encontraron letras con ScrapingBee. HTML completo:', response.data);
+            // Intentar solicitud directa como fallback
+            console.log('Intentando solicitud directa sin ScrapingBee...');
+            const directResponse = await axios.get(directUrl, {
+                timeout: 30000,
+                headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36' }
+            });
+            const $directLyrics = cheerio.load(directResponse.data);
+
+            console.log('HTML directo contiene cnt-letra?', directResponse.data.includes('cnt-letra'));
+            $directLyrics('div.cnt-letra p').each((i, elem) => {
+                lyrics += $directLyrics(elem).text().trim() + '\n\n';
+            });
+            lyrics = lyrics.trim();
+
+            if (!lyrics) {
+                console.log('No se encontraron letras en solicitud directa. HTML completo:', directResponse.data);
+                throw new Error('No se encontraron letras en la URL directa de Letras.com.');
+            }
         }
 
         console.log(`Letras encontradas (primeros 100 caracteres): "${lyrics.substring(0, 100)}..."`);
@@ -3087,7 +3104,6 @@ async function sendLyrics(waitingMessage, channel, songTitle, lyrics) {
         }
     }
 }
-
 // Chat
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' }); // Usamos Flash por velocidad
