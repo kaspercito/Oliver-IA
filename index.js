@@ -3887,20 +3887,29 @@ async function manejarShuffle(message) {
 
 // Stop
 async function manejarStop(message) {
-    // Paramos todo el reproductor, chau música
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
-    // Solo en servers, como siempre
     if (!message.guild) return sendError(message.channel, `Este comando solo funciona en servidores, ${userName}.`);
-    // Busco el reproductor
     const player = manager.players.get(message.guild.id);
-    // Si no hay nada, te aviso en rojo
     if (!player) return sendError(message.channel, `No hay música en reproducción, ${userName}.`);
 
-    // Destruyo el reproductor y limpio la sesión
+    // Limpiamos el intervalo de la barra de progreso
+    const intervalo = player.get('progressInterval');
+    if (intervalo) {
+        clearInterval(intervalo);
+        player.set('progressInterval', null);
+        console.log(`Intervalo de barra limpiado para guild ${message.guild.id}`);
+    }
+
+    // Limpiamos el mensaje de progreso si existe
+    const progressMessage = player.get('progressMessage');
+    if (progressMessage) {
+        progressMessage.delete().catch(err => console.error('Error borrando mensaje de progreso:', err));
+        player.set('progressMessage', null);
+    }
+
     player.destroy();
     delete dataStore.musicSessions[message.guild.id];
     dataStoreModified = true;
-    // Te confirmo en verde que corté todo
     await sendSuccess(message.channel, '🛑 ¡Música detenida!', `El reproductor se detuvo, ${userName}.`);
 }
 
@@ -5437,17 +5446,12 @@ manager.on('queueEnd', async player => {
 
 manager.on('trackStart', async (player, track) => {
     const channel = client.channels.cache.get(player.textChannel);
-    const userName = client.users.cache.get(track.requester.id).username;
-
     const durationMs = track.duration;
-    const durationSeconds = Math.floor(durationMs / 1000);
-    const durationFormatted = `${Math.floor(durationSeconds / 60)}:${(durationSeconds % 60).toString().padStart(2, '0')}`;
+    const durationFormatted = `${Math.floor(durationMs / 60000)}:${((durationMs % 60000) / 1000).toString().padStart(2, '0')}`;
 
     const updateBossBar = () => {
         const positionMs = player.position;
-        const positionSeconds = Math.floor(positionMs / 1000);
-        const positionFormatted = `${Math.floor(positionSeconds / 60)}:${(positionSeconds % 60).toString().padStart(2, '0')}`;
-        
+        const positionFormatted = `${Math.floor(positionMs / 60000)}:${((positionMs % 60000) / 1000).toString().padStart(2, '0')}`;
         const totalBars = 20;
         const progress = Math.min(positionMs / durationMs, 1);
         const filledBars = Math.round(progress * totalBars);
@@ -5457,12 +5461,12 @@ manager.on('trackStart', async (player, track) => {
         const embed = createEmbed('#FF1493', '▶️ Sonando ahora', 
             `**${track.title}**\n⏳ Duración: ${durationFormatted}\n📊 Progreso: ${bossBar} ${positionFormatted} / ${durationFormatted}`)
             .setThumbnail(track.thumbnail);
-
         return embed;
     };
 
     const embed = updateBossBar();
     const progressMessage = await channel.send({ embeds: [embed] });
+    player.set('progressMessage', progressMessage);
 
     const intervalo = setInterval(() => {
         const updatedEmbed = updateBossBar();
@@ -5470,7 +5474,7 @@ manager.on('trackStart', async (player, track) => {
             console.error('Error editando boss bar:', err);
             clearInterval(intervalo);
         });
-    }, 1000);
+    }, 5000); // Cambiado a 5 segundos
 
     player.set('progressInterval', intervalo);
 });
@@ -5777,7 +5781,8 @@ async function manejarCommand(message, silent = false) {
     } 
     else if (content.startsWith('!chat') || content.startsWith('!ch')) {
         await manejarChat(message);
-    } 
+        console.log(`!chat procesado en ${Date.now() - startTime}ms`);
+    }
     else if (content === '!ppm' || content === '!pp') {
         await manejarPPM(message);
     } 
