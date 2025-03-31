@@ -5792,7 +5792,6 @@ async function manejarCommand(message, silent = false) {
     } 
     else if (content.startsWith('!chat') || content.startsWith('!ch')) {
         await manejarChat(message);
-        console.log(`!chat procesado en ${Date.now() - startTime}ms`);
     }
     else if (content === '!ppm' || content === '!pp') {
         await manejarPPM(message);
