@@ -2989,9 +2989,27 @@ class API {
     }
 }
 
+// Clase API para consultar letras (tomada de la página web)
+class API {
+    constructor(artista, cancion) {
+        this.artista = artista;
+        this.cancion = cancion;
+    }
+
+    async consultarAPI() {
+        try {
+            const url = await fetch(`https://api.lyrics.ovh/v1/${this.artista}/${this.cancion}`);
+            const respuesta = await url.json();
+            return { respuesta };
+        } catch (error) {
+            throw new Error('Error al consultar la API de lyrics.ovh: ' + error.message);
+        }
+    }
+}
+
 async function manejarLyrics(message) {
     const userId = message.author.id;
-    const userName = userId === OWNER_ID ? 'Miguel' : 'Belén'; // Define OWNER_ID en tu bot
+    const userName = userId === OWNER_ID ? 'Miguel' : 'Belén'; // Define OWNER_ID
     const args = message.content.split(' ').slice(1).join(' ').trim();
     const player = manager.players.get(message.guild.id); // Asegúrate de que 'manager' esté definido
     let songInput = args || (player?.queue.current?.title);
@@ -3043,19 +3061,19 @@ async function manejarLyrics(message) {
     const waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
 
     try {
-        // Intentar con el formato artista/título
-        let api = new API(cleanArtist, cleanTitle);
+        // Intentar con el formato título/artista (como aparece en la captura de lyrics.ovh)
+        let api = new API(cleanTitle, cleanArtist);
         let { respuesta } = await api.consultarAPI();
-        console.log('Respuesta de la API (artista/título):', respuesta);
+        console.log('Respuesta de la API (título/artista):', respuesta);
 
         let lyrics = respuesta.lyrics ? respuesta.lyrics.trim() : '';
 
-        // Si no encuentra, intentar con título/artista
+        // Si no encuentra, intentar con artista/título
         if (!lyrics) {
-            console.log('No se encontraron letras con artista/título, intentando título/artista...');
-            api = new API(cleanTitle, cleanArtist);
+            console.log('No se encontraron letras con título/artista, intentando artista/título...');
+            api = new API(cleanArtist, cleanTitle);
             ({ respuesta } = await api.consultarAPI());
-            console.log('Respuesta de la API (título/artista):', respuesta);
+            console.log('Respuesta de la API (artista/título):', respuesta);
             lyrics = respuesta.lyrics ? respuesta.lyrics.trim() : '';
         }
 
