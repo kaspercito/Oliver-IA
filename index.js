@@ -3111,89 +3111,102 @@ async function manejarLyrics(message) {
     }
 }
 
-// Función para formatear las letras
 function formatLyrics(lyrics) {
-    // Normalizar saltos de línea
+    // Normalizar saltos de línea y limpiar
     let formattedLyrics = lyrics
-        .replace(/\r\n/g, '\n') // Normalizar saltos de línea
-        .replace(/\n{3,}/g, '\n\n') // Reducir saltos de línea excesivos a dos
+        .replace(/\r\n/g, '\n')
+        .replace(/\n{2,}/g, '\n')
         .trim();
 
-    // Dividir en líneas
     let lines = formattedLyrics.split('\n').filter(line => line.trim() !== '');
-
-    // Procesar las líneas
     let finalLines = [];
     let i = 0;
 
     while (i < lines.length) {
         let line = lines[i].trim();
 
-        // Eliminar comillas alrededor de palabras como "forever" o "I miss you"
-        line = line.replace(/"forever,"/g, 'forever');
-        line = line.replace(/"I miss you"/g, 'I miss you');
-
-        // Ajustar "And said, 'I miss you'" a "and said: I miss you"
-        if (line.match(/And said, "I miss you"/)) {
-            line = line.replace(/And said, "I miss you"/, 'and said: I miss you');
-        }
-
-        // Eliminar coma después de "You said"
-        if (line.match(/You said, forever/)) {
-            line = line.replace(/You said, forever/, 'You said forever');
-        }
-
-        // Eliminar coma después de "Then all of a sudden"
-        if (line.match(/Then all of a sudden,/)) {
-            line = line.replace(/Then all of a sudden,/, 'Then all of a sudden');
-        }
-
-        // Unir "Thought you'd hate me..." con "And said..." si están en líneas consecutivas
-        if (line.match(/Thought you'd hate me/) && i + 1 < lines.length && lines[i + 1].match(/and said: I miss you/)) {
-            line = `${line} ${lines[i + 1]}`.replace(/, but/, ' but');
-            i += 2; // Saltar la siguiente línea ya que la unimos
+        // Combinar repeticiones de "Put a little love on me"
+        if (line.match(/put a little love on me/i)) {
+            let combinedLine = line.replace(/, eh$/, '').trim();
+            i++;
+            while (i < lines.length && lines[i].match(/put a little love on me/i)) {
+                combinedLine += ', ' + lines[i].replace(/, eh$/, '').trim();
+                i++;
+            }
+            finalLines.push(combinedLine);
         } else {
-            i += 1;
+            finalLines.push(line);
+            i++;
         }
-
-        // Formatear líneas con paréntesis
-        if (line.match(/^\(/)) {
-            // Convertir a minúsculas, pero preservar la capitalización de "I"
-            line = line.toLowerCase();
-            line = line.replace(/\bi\b/g, 'I'); // Restaurar "I" en mayúscula
-            line = line.replace(/"forever,"/g, 'forever');
-        }
-
-        finalLines.push(line);
     }
 
     // Agrupar en estrofas
     let stanzas = [];
     let currentStanza = [];
+    const chorusStart = /put a little love on me/i;
+    let inChorus = false;
 
-    // Definir cuántas líneas debe tener cada estrofa (basado en tu ejemplo)
-    const stanzaSizes = [4, 4, 3, 8, 4, 4, 4, 4]; // Número de líneas por estrofa
-    let stanzaIndex = 0;
-    let lineIndex = 0;
-
-    while (lineIndex < finalLines.length) {
-        const line = finalLines[lineIndex];
+    for (const line of finalLines) {
+        if (chorusStart.test(line) && !inChorus) {
+            if (currentStanza.length) stanzas.push(currentStanza);
+            currentStanza = [];
+            inChorus = true;
+        }
         currentStanza.push(line);
-
-        // Si hemos alcanzado el tamaño de la estrofa actual o es la última línea
-        if (currentStanza.length === stanzaSizes[stanzaIndex] || lineIndex === finalLines.length - 1) {
+        if (inChorus && line.match(/so put (your|a little) love on me/i)) {
             stanzas.push(currentStanza);
             currentStanza = [];
-            stanzaIndex = Math.min(stanzaIndex + 1, stanzaSizes.length - 1); // No exceder el array
+            inChorus = false;
         }
-
-        lineIndex++;
     }
+    if (currentStanza.length) stanzas.push(currentStanza);
 
-    // Unir las estrofas con tres saltos de línea para asegurar separación visual en Discord
-    return stanzas.map(stanza => stanza.join('\n')).join('\n\n\n');
+    return stanzas.map(stanza => stanza.join('\n')).join('\n\n');
 }
 
+async function sendLyrics(waitingMessage, channel, songTitle, lyrics, userName) {
+    const maxLength = 2000; // Límite de caracteres para embeds en Discord
+
+    if (lyrics.length <= maxLength) {
+        const embed = createEmbed(
+            '#FF1493',
+            `🎵 ${songTitle}`,
+            lyrics, // Sin encabezado "Letra:"
+            'Hecho con onda por Oliver IA',
+            userName
+        );
+        await waitingMessage.edit({ embeds: [embed] });
+    } else {
+        const partes = [];
+        let currentPart = '';
+        const stanzas = lyrics.split('\n\n\n');
+
+        for (const stanza of stanzas) {
+            if (currentPart.length + stanza.length + 3 > maxLength - 50) {
+                partes.push(currentPart.trim());
+                currentPart = stanza + '\n\n\n';
+            } else {
+                currentPart += stanza + '\n\n\n';
+            }
+        }
+        if (currentPart) partes.push(currentPart.trim());
+
+        for (let i = 0; i < partes.length; i++) {
+            const parteEmbed = createEmbed(
+                '#FF1493',
+                i === 0 ? `🎵 ${songTitle}` : '🎵 (Continuación)',
+                partes[i], // Sin encabezado "Letra:"
+                'Hecho con onda por Oliver IA',
+                userName
+            );
+            if (i === 0) {
+                await waitingMessage.edit({ embeds: [parteEmbed] });
+            } else {
+                await channel.send({ embeds: [parteEmbed] });
+            }
+        }
+    }
+}
 
 // Chat
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
