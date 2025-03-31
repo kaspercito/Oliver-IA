@@ -5458,11 +5458,20 @@ manager.on('queueEnd', async player => {
 manager.on('trackStart', async (player, track) => {
     const channel = client.channels.cache.get(player.textChannel);
     const durationMs = track.duration;
-    const durationFormatted = `${Math.floor(durationMs / 60000)}:${((durationMs % 60000) / 1000).toString().padStart(2, '0')}`;
+    const durationSeconds = Math.floor(durationMs / 1000);
+    const durationFormatted = `${Math.floor(durationSeconds / 60)}:${(durationSeconds % 60).toString().padStart(2, '0')}`;
+
+    // Construimos el thumbnail manualmente si es YouTube
+    let thumbnail = track.thumbnail;
+    if (!thumbnail && track.identifier) { // identifier es el ID del video en YouTube
+        thumbnail = `https://img.youtube.com/vi/${track.identifier}/hqdefault.jpg`;
+    }
+    console.log(`Thumbnail usado para ${track.title}: ${thumbnail}`);
 
     const updateBossBar = () => {
         const positionMs = player.position;
-        const positionFormatted = `${Math.floor(positionMs / 60000)}:${((positionMs % 60000) / 1000).toString().padStart(2, '0')}`;
+        const positionSeconds = Math.floor(positionMs / 1000);
+        const positionFormatted = `${Math.floor(positionSeconds / 60)}:${(positionSeconds % 60).toString().padStart(2, '0')}`;
         const totalBars = 20;
         const progress = Math.min(positionMs / durationMs, 1);
         const filledBars = Math.round(progress * totalBars);
@@ -5471,7 +5480,7 @@ manager.on('trackStart', async (player, track) => {
 
         const embed = createEmbed('#FF1493', '▶️ Sonando ahora', 
             `**${track.title}**\n⏳ Duración: ${durationFormatted}\n📊 Progreso: ${bossBar} ${positionFormatted} / ${durationFormatted}`)
-            .setThumbnail(track.thumbnail);
+            .setThumbnail(thumbnail || 'https://i.imgur.com/defaultThumbnail.png');
         return embed;
     };
 
@@ -5485,7 +5494,7 @@ manager.on('trackStart', async (player, track) => {
             console.error('Error editando boss bar:', err);
             clearInterval(intervalo);
         });
-    }, 5000); // Cambiado a 5 segundos
+    }, 5000);
 
     player.set('progressInterval', intervalo);
 });
