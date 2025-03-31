@@ -3130,16 +3130,16 @@ function formatLyrics(lyrics) {
 
         // Combinar repeticiones de "Put a little love on me"
         if (line.match(/put a little love on me/i)) {
-            let combinedLine = 'Put a little love on me'; // Empezar con "P" mayúscula
+            let combinedLine = 'Put a little love on me'; // Empezar con la primera en mayúscula inicial
             i++;
             while (i < lines.length && lines[i].match(/put a little love on me/i)) {
-                combinedLine += ', put a little love on me'; // Añadir en minúsculas después de coma
+                combinedLine += ', put a little love on me'; // Añadir en minúsculas
                 i++;
             }
             finalLines.push(combinedLine);
         } 
-        // Reemplazar cualquier "To put a little love on me" o similar por "So put a little love on me"
-        else if (line.toLowerCase().includes('put a little love on me') && !line.match(/so put your love on me/i)) {
+        // Reemplazar "To put a little love on me" por "So put a little love on me"
+        else if (line.toLowerCase().includes('to put a little love on me')) {
             finalLines.push("So put a little love on me");
             i++;
         } 
@@ -3153,7 +3153,7 @@ function formatLyrics(lyrics) {
         }
     }
 
-    // Agrupar en estrofas según la estructura deseada
+    // Agrupar en estrofas según la estructura de la canción
     let stanzas = [];
     let currentStanza = [];
     let inChorus = false;
@@ -3162,16 +3162,15 @@ function formatLyrics(lyrics) {
         let line = finalLines[j];
 
         // Detectar inicio de estribillo
-        if (line.match(/put a little love on me, put a little love on me/i) && !inChorus) {
+        if (line.match(/put a little love on me/i) && !inChorus) {
             if (currentStanza.length) {
                 stanzas.push(currentStanza);
             }
             currentStanza = [line];
             inChorus = true;
         } 
-        // Detectar fin de estribillo
+        // Detectar fin de estribillo y ajustar
         else if (inChorus && (line === "So put a little love on me" || line === "So put your love on me")) {
-            // Asegurarse de incluir las 4 líneas del estribillo
             currentStanza.push(finalLines[j - 4]); // "When the lights come up..."
             currentStanza.push(finalLines[j - 3]); // "I look around..."
             currentStanza.push(finalLines[j - 2]); // "'Cause you’re the only one..."
