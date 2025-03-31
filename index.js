@@ -3098,10 +3098,6 @@ async function manejarPPTPersona(message) {
     }
 }
 
-// Chat
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' }); // Usamos Flash por velocidad
-
 async function manejarLyrics(message) {
     const userId = message.author.id;
     const userName = userId === OWNER_ID ? 'Miguel' : 'Belén';
@@ -3159,7 +3155,7 @@ async function manejarLyrics(message) {
         const directUrl = `https://www.letras.com/${formattedArtist}/${formattedTitle}/`;
         console.log(`URL de búsqueda en Letras.com: ${directUrl}`);
 
-        const apiKey = 'TU_API_KEY_AQUI'; // Reemplazá con tu key de ScrapingBee
+        const apiKey = 'VQWXR6TAJBTT8V81LXFHIZ7XAVAZB8PJSO5T8S5I5C64DHCZXVKIIHDEMUC0OQBYY5UYWUELDF4C6GR6'; // Reemplazá con tu key de ScrapingBee
         const scrapingBeeUrl = `https://app.scrapingbee.com/api/v1/?api_key=${apiKey}&url=${encodeURIComponent(directUrl)}&render_js=true&wait=3000&premium_proxy=true`;
 
         const response = await axios.get(scrapingBeeUrl, { timeout: 20000 });
