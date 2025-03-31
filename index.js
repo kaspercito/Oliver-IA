@@ -2822,9 +2822,6 @@ async function manejarReacciones(message) {
     }
 }
 
-const puppeteer = require('puppeteer');
-const cheerio = require('cheerio');
-
 async function manejarLyrics(message) {
     const userId = message.author.id;
     const userName = userId === OWNER_ID ? 'Miguel' : 'Belén';
