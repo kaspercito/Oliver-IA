@@ -2823,121 +2823,59 @@ async function manejarReacciones(message) {
 }
 
 async function manejarLyrics(message) {
-    const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
-    if (!message.guild) return sendError(message.channel, `Este comando solo funciona en servidores, ${userName}.`);
-
+    const userId = message.author.id;
+    const userName = userId === OWNER_ID ? 'Miguel' : 'Belén';
     const args = message.content.split(' ').slice(1).join(' ').trim();
     const player = manager.players.get(message.guild.id);
     let songInput = args || (player?.queue.current?.title);
 
-    if (!songInput) return sendError(message.channel, `No hay canción sonando ni especificaste una, ${userName}. Usa !lyrics [artista - título].`);
+    if (!songInput) {
+        return sendError(message.channel, `¡Mandame una canción con "!lyrics [título]", ${userName}! O reproducí algo primero, che 😉`, undefined, 'Hecho con onda por Miguel IA');
+    }
 
-    // Limpieza del título
+    // Limpieza básica del título
     songInput = songInput
         .replace(/\s*\(lyric video\)/i, '')
         .replace(/\s*\(official video\)/i, '')
         .replace(/\s*\(videoclip oficial\)/i, '')
         .replace(/\s*\(feat.*?\)/i, '')
         .replace(/\s*\[.*?\]/g, '')
-        .replace(/[^\w\s-]/g, '')
         .trim();
 
-    // Separar artista y título
-    let artist = '', title = songInput;
-    const dashIndex = songInput.indexOf(' - ');
-    if (dashIndex !== -1) {
-        artist = songInput.substring(0, dashIndex).trim();
-        title = songInput.substring(dashIndex + 3).trim();
-    } else {
-        const spaceIndex = songInput.indexOf(' ');
-        if (spaceIndex !== -1) {
-            artist = songInput.substring(0, spaceIndex).trim();
-            title = songInput.substring(spaceIndex + 1).trim();
-        }
-    }
+    console.log(`Buscando letras para: "${songInput}"`);
+    const waitingEmbed = createEmbed('#FFD700', `⌛ Buscando letras, ${userName}...`, `Dame un segundo que te traigo "${songInput}", loco 🎵`, 'Hecho con onda por Miguel IA');
+    const waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
 
-    console.log(`Buscando letras para: "${artist} - ${title}"`);
-    const waitingMessage = await message.channel.send({ embeds: [createEmbed('#55FFFF', `⌛ Buscando letras, ${userName}...`, `Espera un toque, che.`)] });
-
-    // 1. Intentar con Letras.mus.br
     try {
-        const url = `https://www.letras.mus.br/${artist.toLowerCase().replace(/\s/g, '-')}/${title.toLowerCase().replace(/\s/g, '-')}/`;
-        console.log(`Probando Letras.mus.br: ${url}`);
-        const response = await axios.get(url, { timeout: 5000 });
-        const $ = cheerio.load(response.data);
-        let lyrics = '';
-        $('div.cnt-letra p').each((i, elem) => lyrics += $(elem).text() + '\n');
-        lyrics = lyrics.trim();
+        // Prompt para Gemini
+        const prompt = `Sos Oliver IA, un bot re piola creado por Miguel. El usuario (${userName}) te pidió las letras de "${songInput}". Si tenés las letras completas en tu conocimiento, dáselas con onda argentina (usá "loco", "che", "posta", emojis como 😉💖🍻🎵). Si no las tenés exactas, decile que no las encontraste, ofrecé una alternativa piola (ej. "buscala en Letras.mus.br o Genius") y terminá con una pregunta copada pa’ seguir la charla. No inventes letras si no las sabés, sé honesto pero mantené la buena onda.`;
 
-        if (lyrics) {
-            console.log(`Letras encontradas en Letras.mus.br (primeros 100 caracteres): "${lyrics.substring(0, 100)}..."`);
-            return await sendLyrics(waitingMessage, message.channel, '#FFD700', `🎵 Letras de "${artist} - ${title}" (via Letras.mus.br)`, lyrics);
+        const result = await model.generateContent(prompt);
+        let lyricsReply = result.response.text().trim();
+
+        // Manejar respuesta larga (límite de Discord)
+        if (lyricsReply.length > 2000) {
+            const partes = lyricsReply.match(/(.|[\r\n]){1,1990}/g) || [lyricsReply];
+            for (let i = 0; i < partes.length; i++) {
+                const parteEmbed = createEmbed('#FFD700', i === 0 ? `¡Acá van las letras, ${userName}!` : 'Y sigue, loco...', `${partes[i]}\n\n${i === partes.length - 1 ? `¿Te cerró, ${userName}? ¿Qué otro temazo querés? 🎵` : 'Aguantá que hay más...'}`,
+                    'Hecho con onda por Miguel IA');
+                if (i === 0) {
+                    await waitingMessage.edit({ embeds: [parteEmbed] });
+                } else {
+                    await message.channel.send({ embeds: [parteEmbed] });
+                }
+            }
+        } else {
+            const finalEmbed = createEmbed('#FFD700', `¡Acá van las letras, ${userName}!`, `${lyricsReply}\n\n¿Te cerró, ${userName}? ¿Qué otro temazo querés? 🎵`, 'Hecho con onda por Miguel IA');
+            await waitingMessage.edit({ embeds: [finalEmbed] });
         }
-        throw new Error('No se encontraron letras en Letras.mus.br.');
     } catch (error) {
-        console.log(`Letras.mus.br falló: ${error.message}`);
-    }
-
-    // 2. Fallback a Genius
-    try {
-        const searchUrl = `https://api.genius.com/search?q=${encodeURIComponent(`${artist} ${title}`)}`;
-        console.log(`Probando Genius: ${searchUrl}`);
-        const searchResponse = await axios.get(searchUrl, {
-            headers: { 'Authorization': `Bearer ${process.env.GENIUS_ACCESS_TOKEN}` },
-            timeout: 5000
-        });
-
-        const hits = searchResponse.data.response.hits;
-        if (!hits || hits.length === 0) throw new Error('No se encontraron resultados en Genius.');
-
-        const match = hits.find(hit => hit.result.primary_artist.name.toLowerCase().includes(artist.toLowerCase()));
-        if (!match) throw new Error('No hay coincidencia con el artista en Genius.');
-
-        const songId = match.result.id;
-        const songTitleFound = match.result.full_title;
-        const songUrl = `https://api.genius.com/songs/${songId}`;
-        const songResponse = await axios.get(songUrl, {
-            headers: { 'Authorization': `Bearer ${process.env.GENIUS_ACCESS_TOKEN}` }
-        });
-
-        const lyricsPath = songResponse.data.response.song.path;
-        const lyricsPageUrl = `https://genius.com${lyricsPath}`;
-        const lyricsPage = await axios.get(lyricsPageUrl);
-        const $ = cheerio.load(lyricsPage.data);
-
-        let lyrics = '';
-        $('div[class*="Lyrics__Container"]').each((i, elem) => lyrics += $(elem).text() + '\n');
-        lyrics = lyrics.trim();
-
-        if (lyrics) {
-            console.log(`Letras encontradas en Genius (primeros 100 caracteres): "${lyrics.substring(0, 100)}..."`);
-            return await sendLyrics(waitingMessage, message.channel, '#FFD700', `🎵 Letras de "${songTitleFound}" (via Genius)`, lyrics);
-        }
-        throw new Error('No se encontraron letras en Genius.');
-    } catch (error) {
-        console.log(`Genius falló: ${error.message}`);
-    }
-
-    // Si todo falla
-    await waitingMessage.edit({ embeds: [createEmbed('#FF5555', '¡Ups!', 
-        `No encontré las letras de "${artist} - ${title}", ${userName}. Puede que no estén disponibles o el título esté mal. Probá con otro tema, che.`)] });
-}
-
-async function sendLyrics(waitingMessage, channel, color, title, lyrics) {
-    const maxLength = 2000;
-    if (lyrics.length <= maxLength) {
-        await waitingMessage.edit({ embeds: [createEmbed(color, title, lyrics)] });
-    } else {
-        const chunks = [];
-        for (let i = 0; i < lyrics.length; i += maxLength) chunks.push(lyrics.substring(i, i + maxLength));
-        await waitingMessage.edit({ embeds: [createEmbed(color, `${title} (Parte 1/${chunks.length})`, chunks[0])] });
-        for (let i = 1; i < chunks.length; i++) {
-            await channel.send({ embeds: [createEmbed(color, `${title} (Parte ${i + 1}/${chunks.length})`, chunks[i])] });
-        }
+        console.error('Error con Gemini en !lyrics:', error.message);
+        const fallbackReply = `¡Uy, ${userName}, qué cagada! Me mandé un moco buscando las letras de "${songInput}", loco 😡. Capaz las encontrás en Letras.mus.br o Genius. ¿Qué otro tema querés probar, che? 🍻`;
+        const errorEmbed = createEmbed('#FF5555', `¡Qué cagada, ${userName}!`, fallbackReply, 'Hecho con onda por Miguel IA');
+        await waitingMessage.edit({ embeds: [errorEmbed] });
     }
 }
-
-module.exports = { manejarLyrics }; // Exportalo si usás módulos
 
 function determinarGanador(jugador1, jugador2) {
     if (jugador1 === jugador2) return 'empate';
@@ -3123,27 +3061,21 @@ async function manejarChat(message) {
 
         // Prompt base
         let prompt = `Sos Oliver IA, un bot re piola creado por Miguel. Hablá con onda argentina, usá "loco", "che", "posta", y emojis como 😉💖💪🍻🔥😡 al final de frases o ideas, como amigo zarpado. Esto es lo que charlamos antes:\n${context}\nRespondé a: "${chatMessage}"`;
-
-        // Detectar si piden letras
-        const lyricsMatch = chatMessage.match(/(?:dame las letras de|letra de|lyrics de)\s+(.+)/i);
-        if (lyricsMatch) {
-            const songQuery = lyricsMatch[1].trim();
-            prompt = `Sos Oliver IA, creado por Miguel. El usuario (${userName}) te pidió las letras de "${songQuery}". Si tenés las letras completas en tu conocimiento, dáselas con onda argentina (usá "loco", "che", "posta", emojis como 😉💖🍻). Si no las tenés exactas, decile que no las encontraste, ofrecé una alternativa piola (ej. "buscala en Letras.mus.br o Genius") y seguí la charla con una pregunta copada. No inventes letras si no las sabés, sé honesto pero mantené la buena onda.`;
-        } else {
-            // Ajuste según el usuario para charlas normales
-            if (userId !== OWNER_ID) {
-                prompt += ` con cariño, tipo "grosa" o "genia". Podés preguntar algo tranqui sobre Miguel de vez en cuando pa’ saber qué piensa ella, pero sin meter presión ni hablar de cosas tristes o personales de él a menos que ella lo saque primero.`;
-            } else {
-                prompt += ` con onda, como al creador piola del bot. No preguntes sobre Miguel, obvio, porque sos vos, loco 😂.`;
-            }
-            prompt += ` Si el usuario parece enojado o dice "cállate", no insistas y cambiá de tema o pedile que te diga qué quiere charlar. Terminá con una pregunta pa’ seguir la charla.`;
+        
+        // Ajuste según el usuario
+        if (userId !== OWNER_ID) { // Solo para Belén (o no Miguel)
+            prompt += ` con cariño, tipo "grosa" o "genia". Podés preguntar algo tranqui sobre Miguel de vez en cuando pa’ saber qué piensa ella, pero sin meter presión ni hablar de cosas tristes o personales de él a menos que ella lo saque primero.`;
+        } else { // Para Miguel
+            prompt += ` con onda, como al creador piola del bot. No preguntes sobre Miguel, obvio, porque sos vos, loco 😂.`;
         }
+        
+        // Instrucciones generales
+        prompt += ` Si el usuario parece enojado o dice "cállate", no insistas y cambiá de tema o pedile que te diga qué quiere charlar. Terminá con una pregunta pa’ seguir la charla.`;
 
-        // Generar respuesta con Gemini
         const result = await model.generateContent(prompt);
         aiReply = result.response.text().trim();
 
-        // Manejar respuesta larga (límite de Discord)
+        // Corte por límite de Discord
         if (aiReply.length > 2000) {
             const partes = aiReply.match(/(.|[\r\n]){1,1990}/g) || [aiReply];
             for (let i = 0; i < partes.length; i++) {
