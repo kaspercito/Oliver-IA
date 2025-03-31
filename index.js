@@ -2991,7 +2991,7 @@ class API {
 
 async function manejarLyrics(message) {
     const userId = message.author.id;
-    const userName = userId === OWNER_ID ? 'Miguel' : 'Belén'; // Define OWNER_ID
+    const userName = userId === OWNER_ID ? 'Miguel' : 'Belén'; // Define OWNER_ID en tu bot
     const args = message.content.split(' ').slice(1).join(' ').trim();
     const player = manager.players.get(message.guild.id); // Asegúrate de que 'manager' esté definido
     let songInput = args || (player?.queue.current?.title);
@@ -3075,7 +3075,7 @@ async function manejarLyrics(message) {
 }
 
 async function sendLyrics(waitingMessage, channel, songTitle, lyrics) {
-    const maxLength = 2000;
+    const maxLength = 2000; // Límite de caracteres para embeds en Discord
     const userName = waitingMessage.embeds[0].author.name.split(' ')[2].replace('...', '');
 
     if (lyrics.length <= maxLength) {
@@ -3101,7 +3101,7 @@ async function sendLyrics(waitingMessage, channel, songTitle, lyrics) {
                 '#FF1493',
                 i === 0 ? `¡Acá van las letras de "${songTitle}", ${userName}!` : 'Y sigue, loco...',
                 partes[i],
-                'Hecho con onda por Miguel IA'
+                'Hecho con onda por Oliver IA'
             );
             if (i === 0) {
                 await waitingMessage.edit({ embeds: [parteEmbed] });
@@ -3111,6 +3111,7 @@ async function sendLyrics(waitingMessage, channel, songTitle, lyrics) {
         }
     }
 }
+
 // Chat
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' }); // Usamos Flash por velocidad
