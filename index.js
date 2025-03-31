@@ -2971,9 +2971,6 @@ async function manejarPPTPersona(message) {
     }
 }
 
-const axios = require('axios');
-const cheerio = require('cheerio');
-
 async function manejarLyrics(message) {
     const userId = message.author.id;
     const userName = userId === OWNER_ID ? 'Miguel' : 'Belén';
