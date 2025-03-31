@@ -3867,6 +3867,10 @@ async function manejarSkip(message) {
     console.log(`Saltando pista: ${player.queue.current?.title}. Cola antes de skip: ${player.queue.size}`);
     player.stop();
 
+    // Limpiamos el estado antes de pasar a la siguiente
+    player.set('trackEnded', false);
+    player.set('currentTrack', null);
+
     if (player.queue.size > 0) {
         try {
             console.log(`Reproduciendo siguiente: ${player.queue[0]?.title}`);
@@ -5485,9 +5489,10 @@ manager.on('trackStart', async (player, track) => {
 
     const currentTrack = player.get('currentTrack');
     if (currentTrack === track.uri) {
-        console.log(`Pista ${track.title} ya está en reproducción, ignorando trackStart.`);
+        console.log(`Pista ${track.title} ya está en reproducción, ignorando trackStart. URI: ${track.uri}`);
         return;
     }
+    console.log(`trackStart para ${track.title}, URI: ${track.uri}, seteando como pista actual.`);
     player.set('currentTrack', track.uri);
     player.set('trackEnded', false);
 
@@ -5500,12 +5505,10 @@ manager.on('trackStart', async (player, track) => {
     let thumbnail = track.thumbnail;
     if (!thumbnail && track.uri && track.uri.includes('spotify')) {
         console.log(`Thumbnail no disponible, intentando con Spotify para ${track.uri}`);
-        // Aquí podrías integrar la API de Spotify si tenés acceso
     }
     if (!thumbnail && track.identifier) {
         thumbnail = `https://img.youtube.com/vi/${track.identifier}/hqdefault.jpg`;
     }
-    // Ajuste opcional: si no hay thumbnail, usamos el placeholder directamente
     if (!thumbnail) {
         thumbnail = 'https://i.imgur.com/defaultThumbnail.png';
         console.log(`Sin thumbnail disponible para ${track.title}, usando placeholder.`);
@@ -5548,17 +5551,18 @@ manager.on('trackStart', async (player, track) => {
 });
 
 manager.on('trackEnd', (player, track) => {
-    console.log(`trackEnd disparado para: ${track.title}, guild: ${player.guild}, queue.size: ${player.queue.size}`);
+    console.log(`trackEnd disparado para: ${track.title}, guild: ${player.guild}, queue.size: ${player.queue.size}, URI: ${track.uri}`);
     const intervalo = player.get('progressInterval');
     const progressMessage = player.get('progressMessage');
     const userName = track.requester.id === OWNER_ID ? 'Miguel' : 'Belén';
-
-    // Verificación reforzada
     const currentTrackUri = player.get('currentTrack');
+
+    // Verificación estricta: solo procesamos si es la pista actual y no terminó antes
     if (player.get('trackEnded') || (currentTrackUri && currentTrackUri !== track.uri)) {
         console.log(`Ignorando trackEnd para ${track.title}. Ya terminó o no es la pista actual (current: ${currentTrackUri}).`);
         return;
     }
+    console.log(`Procesando trackEnd para ${track.title}, marcando como terminado.`);
     player.set('trackEnded', true);
 
     // Actualizamos el embed al 100%
