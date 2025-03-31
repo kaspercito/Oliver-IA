@@ -3773,7 +3773,6 @@ async function manejarPlay(message, args) {
         return await message.channel.send({ embeds: [embed] });
     }
 
-    // Creamos o recuperamos el reproductor
     const player = manager.players.get(guildId) || manager.create({
         guild: guildId,
         voiceChannel: voiceChannel.id,
@@ -3781,14 +3780,13 @@ async function manejarPlay(message, args) {
     });
 
     console.log(`Creando o usando reproductor para guild ${guildId}. Conectando al canal ${voiceChannel.id}`);
-    // Aseguramos la conexión al canal de voz
     try {
         await player.connect();
         console.log(`Conectado al canal de voz ${voiceChannel.id}`);
     } catch (error) {
-        console.error(`Error al conectar al canal de voz: ${error.message}`);
+        console.error(`Error al conectar: ${error.message}`);
         const embed = createEmbed('#FF1493', '⚠️ Error', 
-            `No pude conectarme al canal de voz, ${userName}. Error: ${error.message}`);
+            `No pude conectarme al canal, ${userName}. Error: ${error.message}`);
         return await message.channel.send({ embeds: [embed] });
     }
 
@@ -3801,7 +3799,6 @@ async function manejarPlay(message, args) {
         return await message.channel.send({ embeds: [embed] });
     }
 
-    // Si es una playlist, agregamos todo y reproducimos
     if (res.loadType === 'PLAYLIST_LOADED') {
         player.queue.add(res.tracks);
         const embed = createEmbed('#FF1493', '🎶 Playlist agregada', 
@@ -3809,7 +3806,6 @@ async function manejarPlay(message, args) {
             .setThumbnail(res.tracks[0].thumbnail || 'https://i.imgur.com/defaultThumbnail.png');
         await message.channel.send({ embeds: [embed] });
     } else {
-        // Si es un solo tema
         const trackUri = res.tracks[0].uri;
         const isAlreadyInQueue = player.queue.some(track => track.uri === trackUri);
         let embed;
@@ -3827,7 +3823,6 @@ async function manejarPlay(message, args) {
         await message.channel.send({ embeds: [embed] });
     }
 
-    // Forzamos la reproducción si no está sonando nada o el reproductor es nuevo
     if (!player.playing && !player.paused) {
         console.log(`Forzando reproducción de ${player.queue[0]?.title || 'sin título'}`);
         try {
@@ -3838,7 +3833,7 @@ async function manejarPlay(message, args) {
             const embed = createEmbed('#FF1493', '⚠️ Error', 
                 `No pude reproducir el tema, ${userName}. Error: ${error.message}`);
             await message.channel.send({ embeds: [embed] });
-            player.destroy(); // Limpiamos si falla
+            player.destroy();
         }
     } else {
         console.log(`Estado: playing=${player.playing}, paused=${player.paused}, queue.size=${player.queue.size}`);
@@ -3885,23 +3880,17 @@ async function manejarPause(message) {
 // Skip
 async function manejarSkip(message) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
-    if (!message.guild) return sendError(message.channel, `Este comando solo funciona en/Button servidores, ${userName}.`);
+    if (!message.guild) return sendError(message.channel, `Este comando solo funciona en servidores, ${userName}.`);
     const player = manager.players.get(message.guild.id);
     if (!player) return sendError(message.channel, `No hay música en reproducción, ${userName}.`);
 
     console.log(`Saltando pista: ${player.queue.current?.title || 'sin título'}. Cola antes de skip: ${player.queue.size}`);
 
-    // Limpiamos el estado para evitar que trackEnd se dispare de más
-    player.set('trackEnded', true); // Marcamos la pista actual como terminada
-    player.set('currentTrack', null); // Borramos la pista actual
-
-    // Saltamos la pista
+    // Simplemente saltamos la pista
     player.stop();
 
-    // Si hay más en la cola, dejamos que Erela.js lo maneje, pero verificamos
     if (player.queue.size > 0) {
         console.log(`Siguiente en cola: ${player.queue[0]?.title || 'sin título'}`);
-        // No llamamos a player.play() aquí, dejamos que Erela.js lo haga automáticamente
     } else {
         console.log('No hay más pistas en la cola, destruyendo reproductor.');
         player.destroy();
