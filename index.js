@@ -2971,6 +2971,7 @@ async function manejarPPTPersona(message) {
     }
 }
 
+
 // Clase API para consultar letras
 class API {
     constructor(artista, cancion) {
@@ -2996,6 +2997,10 @@ async function manejarLyrics(message) {
     const player = manager.players.get(message.guild.id); // Asegúrate de que 'manager' esté definido
     let songInput = args || (player?.queue.current?.title);
 
+    console.log('Input recibido (args):', args);
+    console.log('Título actual del player:', player?.queue.current?.title);
+    console.log('SongInput final:', songInput);
+
     if (!songInput) {
         return sendError(message.channel, `¡Mandame una canción con "!lyrics [título]", ${userName}! O reproducí algo primero, che 😉`, undefined, 'Hecho con onda por Oliver IA');
     }
@@ -3010,6 +3015,8 @@ async function manejarLyrics(message) {
         .replace(/\s*\[.*?\]/g, '')
         .replace(/corazn/i, 'corazón')
         .trim();
+
+    console.log('SongInput después de limpieza inicial:', songInput);
 
     let artist = '', title = songInput;
 
@@ -3041,6 +3048,7 @@ async function manejarLyrics(message) {
             .replace(/[\u0300-\u036f]/g, '') // Elimina tildes
             .replace(/[^a-zA-Z0-9\s-]/g, '') // Elimina caracteres especiales (como comas)
             .replace(/\s+/g, ' ') // Normaliza espacios
+            .toLowerCase() // Convertir a minúsculas para la API
             .trim();
     };
 
@@ -3073,13 +3081,10 @@ async function manejarLyrics(message) {
             throw new Error('No se encontraron letras en la API de lyrics.ovh.');
         }
 
-        // Limpiar las letras para mejor presentación
-        lyrics = lyrics
-            .replace(/\r\n/g, '\n') // Normalizar saltos de línea
-            .replace(/\n{3,}/g, '\n\n') // Reducir saltos de línea excesivos
-            .trim();
+        // Limpiar y formatear las letras para el embed
+        lyrics = formatLyrics(lyrics);
 
-        console.log(`Letras encontradas (primeros 100 caracteres): "${lyrics.substring(0, 100)}..."`);
+        console.log(`Letras formateadas (primeros 100 caracteres): "${lyrics.substring(0, 100)}..."`);
         return await sendLyrics(waitingMessage, message.channel, `${artist} - ${title}`, lyrics, userName);
 
     } catch (error) {
@@ -3088,6 +3093,56 @@ async function manejarLyrics(message) {
         const errorEmbed = createEmbed('#FF1493', `¡Qué cagada, ${userName}!`, fallbackReply, 'Hecho con onda por Oliver IA', userName);
         await waitingMessage.edit({ embeds: [errorEmbed] });
     }
+}
+
+// Nueva función para formatear las letras
+function formatLyrics(lyrics) {
+    // Normalizar saltos de línea
+    let formattedLyrics = lyrics
+        .replace(/\r\n/g, '\n') // Normalizar saltos de línea
+        .replace(/\n{3,}/g, '\n\n') // Reducir saltos de línea excesivos
+        .trim();
+
+    // Dividir en líneas
+    let lines = formattedLyrics.split('\n').filter(line => line.trim() !== '');
+
+    // Capitalizar la primera letra de cada línea y agregar comas donde sea necesario
+    lines = lines.map(line => {
+        // Capitalizar la primera letra
+        line = line.charAt(0).toUpperCase() + line.slice(1);
+        // Agregar coma después de "Amorcito" si la línea empieza con eso
+        if (line.toLowerCase().startsWith('amorcito')) {
+            line = line.replace(/^Amorcito/, 'Amorcito,');
+        }
+        return line;
+    });
+
+    // Unir líneas que deberían estar juntas (por ejemplo, "Yo quiero ser un solo ser, un ser contigo")
+    let finalLines = [];
+    let currentLine = '';
+
+    for (let i = 0; i < lines.length; i++) {
+        const line = lines[i].trim();
+        // Si la línea es muy corta (menos de 20 caracteres) y no es la última, unirla con la siguiente
+        if (line.length < 20 && i < lines.length - 1) {
+            currentLine = currentLine ? `${currentLine}, ${line}` : line;
+        } else {
+            if (currentLine) {
+                finalLines.push(`${currentLine}, ${line}`);
+                currentLine = '';
+            } else {
+                finalLines.push(line);
+            }
+        }
+    }
+
+    // Si queda algo en currentLine, añadirlo
+    if (currentLine) {
+        finalLines.push(currentLine);
+    }
+
+    // Unir las líneas con un solo salto de línea entre estrofas
+    return finalLines.join('\n');
 }
 
 async function sendLyrics(waitingMessage, channel, songTitle, lyrics, userName) {
@@ -3133,6 +3188,7 @@ async function sendLyrics(waitingMessage, channel, songTitle, lyrics, userName) 
         }
     }
 }
+
 // Chat
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' }); // Usamos Flash por velocidad
