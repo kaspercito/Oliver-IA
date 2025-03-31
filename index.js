@@ -3138,6 +3138,11 @@ function formatLyrics(lyrics) {
             line = line.replace(/And said, "I miss you"/, 'and said: I miss you');
         }
 
+        // Eliminar coma después de "You said"
+        if (line.match(/You said, forever/)) {
+            line = line.replace(/You said, forever/, 'You said forever');
+        }
+
         // Eliminar coma después de "Then all of a sudden"
         if (line.match(/Then all of a sudden,/)) {
             line = line.replace(/Then all of a sudden,/, 'Then all of a sudden');
@@ -3153,7 +3158,9 @@ function formatLyrics(lyrics) {
 
         // Formatear líneas con paréntesis
         if (line.match(/^\(/)) {
+            // Convertir a minúsculas, pero preservar la capitalización de "I"
             line = line.toLowerCase();
+            line = line.replace(/\bi\b/g, 'I'); // Restaurar "I" en mayúscula
             line = line.replace(/"forever,"/g, 'forever');
         }
 
@@ -3164,25 +3171,27 @@ function formatLyrics(lyrics) {
     let stanzas = [];
     let currentStanza = [];
 
-    for (let i = 0; i < finalLines.length; i++) {
-        const line = finalLines[i];
+    // Definir cuántas líneas debe tener cada estrofa (basado en tu ejemplo)
+    const stanzaSizes = [4, 4, 3, 8, 4, 4, 4, 4]; // Número de líneas por estrofa
+    let stanzaIndex = 0;
+    let lineIndex = 0;
 
-        // Si la línea está vacía, indica el fin de una estrofa
-        if (line === '' && currentStanza.length > 0) {
+    while (lineIndex < finalLines.length) {
+        const line = finalLines[lineIndex];
+        currentStanza.push(line);
+
+        // Si hemos alcanzado el tamaño de la estrofa actual o es la última línea
+        if (currentStanza.length === stanzaSizes[stanzaIndex] || lineIndex === finalLines.length - 1) {
             stanzas.push(currentStanza);
             currentStanza = [];
-        } else {
-            currentStanza.push(line);
+            stanzaIndex = Math.min(stanzaIndex + 1, stanzaSizes.length - 1); // No exceder el array
         }
 
-        // Si es la última línea, agregar la estrofa actual
-        if (i === finalLines.length - 1 && currentStanza.length > 0) {
-            stanzas.push(currentStanza);
-        }
+        lineIndex++;
     }
 
-    // Unir las estrofas con dos saltos de línea entre ellas
-    return stanzas.map(stanza => stanza.join('\n')).join('\n\n');
+    // Unir las estrofas con tres saltos de línea para asegurar separación visual en Discord
+    return stanzas.map(stanza => stanza.join('\n')).join('\n\n\n');
 }
 
 async function sendLyrics(waitingMessage, channel, songTitle, lyrics, userName) {
@@ -3192,7 +3201,7 @@ async function sendLyrics(waitingMessage, channel, songTitle, lyrics, userName) 
         const embed = createEmbed(
             '#FF1493',
             `🎵 ${songTitle}`,
-            lyrics, // Eliminamos el encabezado "Letra:"
+            lyrics, // Sin encabezado "Letra:"
             'Hecho con onda por Oliver IA',
             userName
         );
@@ -3200,14 +3209,14 @@ async function sendLyrics(waitingMessage, channel, songTitle, lyrics, userName) 
     } else {
         const partes = [];
         let currentPart = '';
-        const stanzas = lyrics.split('\n\n');
+        const stanzas = lyrics.split('\n\n\n');
 
         for (const stanza of stanzas) {
-            if (currentPart.length + stanza.length + 2 > maxLength - 50) {
+            if (currentPart.length + stanza.length + 3 > maxLength - 50) {
                 partes.push(currentPart.trim());
-                currentPart = stanza + '\n\n';
+                currentPart = stanza + '\n\n\n';
             } else {
-                currentPart += stanza + '\n\n';
+                currentPart += stanza + '\n\n\n';
             }
         }
         if (currentPart) partes.push(currentPart.trim());
@@ -3228,6 +3237,7 @@ async function sendLyrics(waitingMessage, channel, songTitle, lyrics, userName) 
         }
     }
 }
+
 
 // Chat
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
