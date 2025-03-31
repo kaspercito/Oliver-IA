@@ -3111,12 +3111,11 @@ async function manejarLyrics(message) {
     }
 }
 
-// Función para formatear las letras
 function formatLyrics(lyrics) {
     // Normalizar saltos de línea
     let formattedLyrics = lyrics
         .replace(/\r\n/g, '\n') // Normalizar saltos de línea
-        .replace(/\n{3,}/g, '\n\n') // Reducir saltos de línea excesivos a dos
+        .replace(/\n{2,}/g, '\n') // Reducir saltos excesivos a uno solo
         .trim();
 
     // Dividir en líneas
@@ -3129,7 +3128,7 @@ function formatLyrics(lyrics) {
     while (i < lines.length) {
         let line = lines[i].trim();
 
-        // Eliminar comillas alrededor de palabras como "forever" o "I miss you"
+        // Eliminar comillas innecesarias
         line = line.replace(/"forever,"/g, 'forever');
         line = line.replace(/"I miss you"/g, 'I miss you');
 
@@ -3148,7 +3147,7 @@ function formatLyrics(lyrics) {
             line = line.replace(/Then all of a sudden,/, 'Then all of a sudden');
         }
 
-        // Unir "Thought you'd hate me..." con "And said..." si están en líneas consecutivas
+        // Unir líneas específicas si están relacionadas
         if (line.match(/Thought you'd hate me/) && i + 1 < lines.length && lines[i + 1].match(/and said: I miss you/)) {
             line = `${line} ${lines[i + 1]}`.replace(/, but/, ' but');
             i += 2; // Saltar la siguiente línea ya que la unimos
@@ -3156,42 +3155,45 @@ function formatLyrics(lyrics) {
             i += 1;
         }
 
-        // Formatear líneas con paréntesis
-        if (line.match(/^\(/)) {
-            // Convertir a minúsculas, pero preservar la capitalización de "I"
-            line = line.toLowerCase();
-            line = line.replace(/\bi\b/g, 'I'); // Restaurar "I" en mayúscula
-            line = line.replace(/"forever,"/g, 'forever');
-        }
-
         finalLines.push(line);
     }
 
-    // Agrupar en estrofas
+    // Agrupar en estrofas basadas en el patrón deseado
     let stanzas = [];
     let currentStanza = [];
 
-    // Definir cuántas líneas debe tener cada estrofa (basado en tu ejemplo)
-    const stanzaSizes = [4, 4, 3, 8, 4, 4, 4, 4]; // Número de líneas por estrofa
-    let stanzaIndex = 0;
-    let lineIndex = 0;
+    // Usar un enfoque más simple: detectar estribillos y separar estrofas
+    const chorusStart = /put a little love on me/i;
+    let inChorus = false;
 
-    while (lineIndex < finalLines.length) {
-        const line = finalLines[lineIndex];
-        currentStanza.push(line);
+    for (let i = 0; i < finalLines.length; i++) {
+        const line = finalLines[i];
 
-        // Si hemos alcanzado el tamaño de la estrofa actual o es la última línea
-        if (currentStanza.length === stanzaSizes[stanzaIndex] || lineIndex === finalLines.length - 1) {
-            stanzas.push(currentStanza);
-            currentStanza = [];
-            stanzaIndex = Math.min(stanzaIndex + 1, stanzaSizes.length - 1); // No exceder el array
+        // Detectar inicio de estribillo
+        if (chorusStart.test(line) && !inChorus) {
+            if (currentStanza.length > 0) {
+                stanzas.push(currentStanza);
+                currentStanza = [];
+            }
+            inChorus = true;
         }
 
-        lineIndex++;
+        currentStanza.push(line);
+
+        // Detectar fin de estribillo (líneas como "So put your love on me" o similar)
+        if (inChorus && (line.match(/so put (your|a little) love on me/i) || i === finalLines.length - 1)) {
+            stanzas.push(currentStanza);
+            currentStanza = [];
+            inChorus = false;
+        }
     }
 
-    // Unir las estrofas con tres saltos de línea para asegurar separación visual en Discord
-    return stanzas.map(stanza => stanza.join('\n')).join('\n\n\n');
+    if (currentStanza.length > 0) {
+        stanzas.push(currentStanza);
+    }
+
+    // Unir las estrofas: un solo salto de línea dentro de estrofas, dos entre estrofas
+    return stanzas.map(stanza => stanza.join('\n')).join('\n\n');
 }
 
 async function sendLyrics(waitingMessage, channel, songTitle, lyrics, userName) {
