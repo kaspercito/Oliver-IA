@@ -3878,11 +3878,13 @@ async function manejarSkip(message) {
                 console.log(`Intentando con la siguiente pista: ${player.queue[0].title}`);
                 player.play();
             } else {
+                console.log('No hay más pistas en la cola, destruyendo reproductor.');
                 player.destroy();
             }
         }
     } else {
         console.log('No hay más pistas en la cola después del skip.');
+        player.destroy();
     }
 
     await sendSuccess(message.channel, '⏭️ ¡Canción saltada!', `Pasamos a la siguiente, ${userName}.`);
@@ -5497,13 +5499,16 @@ manager.on('trackStart', async (player, track) => {
 
     let thumbnail = track.thumbnail;
     if (!thumbnail && track.uri && track.uri.includes('spotify')) {
-        // Intentamos obtener el thumbnail de Spotify (esto requiere la API de Spotify)
         console.log(`Thumbnail no disponible, intentando con Spotify para ${track.uri}`);
-        // Nota: Necesitarías usar la API de Spotify para obtener el thumbnail real
-        // Por ahora, usamos un placeholder
+        // Aquí podrías integrar la API de Spotify si tenés acceso
     }
     if (!thumbnail && track.identifier) {
         thumbnail = `https://img.youtube.com/vi/${track.identifier}/hqdefault.jpg`;
+    }
+    // Ajuste opcional: si no hay thumbnail, usamos el placeholder directamente
+    if (!thumbnail) {
+        thumbnail = 'https://i.imgur.com/defaultThumbnail.png';
+        console.log(`Sin thumbnail disponible para ${track.title}, usando placeholder.`);
     }
     console.log(`Thumbnail usado para ${track.title}: ${thumbnail}`);
 
@@ -5517,9 +5522,9 @@ manager.on('trackStart', async (player, track) => {
         const emptyBars = totalBars - filledBars;
         const bossBar = '▬'.repeat(filledBars) + '🔘' + '▬'.repeat(emptyBars);
 
-        const embed = createEmbed('#FF1493', '▶️ Sonando ahora', 
+        const embed = createEmbed('#FF1493', '▶️ Sonando ahora',
             `**${track.title}**\n⏳ Duración: ${durationFormatted}\n📊 Progreso: ${bossBar} ${positionFormatted} / ${durationFormatted}`)
-            .setThumbnail(thumbnail || 'https://i.imgur.com/defaultThumbnail.png');
+            .setThumbnail(thumbnail);
         return embed;
     };
 
@@ -5548,9 +5553,10 @@ manager.on('trackEnd', (player, track) => {
     const progressMessage = player.get('progressMessage');
     const userName = track.requester.id === OWNER_ID ? 'Miguel' : 'Belén';
 
-    // Verificación para evitar duplicados
-    if (player.get('trackEnded')) {
-        console.log(`Pista ${track.title} ya fue marcada como terminada, ignorando.`);
+    // Verificación reforzada
+    const currentTrackUri = player.get('currentTrack');
+    if (player.get('trackEnded') || (currentTrackUri && currentTrackUri !== track.uri)) {
+        console.log(`Ignorando trackEnd para ${track.title}. Ya terminó o no es la pista actual (current: ${currentTrackUri}).`);
         return;
     }
     player.set('trackEnded', true);
@@ -5558,7 +5564,7 @@ manager.on('trackEnd', (player, track) => {
     // Actualizamos el embed al 100%
     if (progressMessage && track) {
         const durationStr = `${Math.floor(track.duration / 60000)}:${((track.duration % 60000) / 1000).toFixed(0).padStart(2, '0')}`;
-        const bossBar = crearBossBar(track.duration, track.duration); // Barra llena
+        const bossBar = crearBossBar(track.duration, track.duration);
 
         const finalEmbed = createEmbed('#FF1493', `🎶 Tema terminado pa’ ${userName}`, '¡Ya fue, che!')
             .addFields(
