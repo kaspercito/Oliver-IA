@@ -3795,13 +3795,21 @@ async function manejarPlay(message, args) {
             `Agregué ${res.tracks.length} temas a la cola, ${userName}. ¡A disfrutar, loco! 🎉`);
         await message.channel.send({ embeds: [embed] });
     } else {
+        // Evitamos agregar la misma pista si ya está en la cola
+        const trackUri = res.tracks[0].uri;
+        const isAlreadyInQueue = player.queue.some(track => track.uri === trackUri);
+        if (isAlreadyInQueue) {
+            const embed = createEmbed('#FF1493', '🎵 Tema ya en cola', 
+                `**${res.tracks[0].title}** ya está en la cola, ${userName}. ¡Paciencia, che! 🎶`);
+            return await message.channel.send({ embeds: [embed] });
+        }
+
         player.queue.add(res.tracks[0]);
         const embed = createEmbed('#FF1493', '🎶 Tema agregado', 
             `Agregué **${res.tracks[0].title}** a la cola, ${userName}. ¡Ya va a sonar, che! 🎵`);
         await message.channel.send({ embeds: [embed] });
     }
 
-    // Solo reproducimos si no hay nada sonando
     if (!player.playing && !player.paused && player.queue.size > 0) {
         player.play();
     } else {
@@ -5456,6 +5464,15 @@ manager.on('trackStart', async (player, track) => {
         return;
     }
 
+    // Evitamos disparar trackStart varias veces para la misma pista
+    const currentTrack = player.get('currentTrack');
+    if (currentTrack === track.uri) {
+        console.log(`Pista ${track.title} ya está en reproducción, ignorando trackStart.`);
+        return;
+    }
+    player.set('currentTrack', track.uri);
+    player.set('trackEnded', false); // Reseteamos la bandera para el nuevo track
+
     console.log(`Iniciando pista: ${track.title} en guild ${player.guild}, queue.size=${player.queue.size}`);
 
     const durationMs = track.duration;
@@ -5508,7 +5525,8 @@ manager.on('trackEnd', (player, track) => {
     const progressMessage = player.get('progressMessage');
     const userName = track.requester.id === OWNER_ID ? 'Miguel' : 'Belén';
 
-    if (progressMessage && track) {
+    // Solo editamos el mensaje si existe y no lo hemos editado ya
+    if (progressMessage && track && !player.get('trackEnded')) {
         const durationStr = `${Math.floor(track.duration / 60000)}:${((track.duration % 60000) / 1000).toFixed(0).padStart(2, '0')}`;
         const bossBar = '▬'.repeat(20) + '🔘';
 
@@ -5521,6 +5539,7 @@ manager.on('trackEnd', (player, track) => {
             .setThumbnail(track.thumbnail || 'https://i.imgur.com/defaultThumbnail.png');
 
         progressMessage.edit({ embeds: [finalEmbed] }).catch(err => console.error('Error editando embed final:', err));
+        player.set('trackEnded', true); // Marcamos que ya procesamos este trackEnd
     }
 
     if (intervalo) {
@@ -5540,11 +5559,13 @@ manager.on('trackEnd', (player, track) => {
         dataStoreModified = true;
     }
 
-    // Si hay más pistas en la cola, reproducimos la siguiente
+    // Reproducimos la siguiente pista solo si hay algo en la cola
     if (player.queue.size > 0) {
+        console.log(`Reproduciendo siguiente pista. Cola restante: ${player.queue.size}`);
         player.play();
     } else {
         console.log(`No hay más pistas en la cola para guild ${guildId}`);
+        player.destroy(); // Destruimos el player si no hay más pistas
     }
 });
 
