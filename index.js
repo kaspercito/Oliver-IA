@@ -1,20 +1,19 @@
-// Importación de módulos necesarios
-const fs = require('fs'); // Módulo para manejar archivos (lectura/escritura).
-const { Client, GatewayIntentBits, EmbedBuilder } = require('discord.js'); // Librería de Discord para interactuar con la API de Discord.
-const axios = require('axios'); // Para hacer solicitudes HTTP, como a APIs externas.
-const { v4: uuidv4 } = require('uuid'); // Genera IDs únicos para identificar instancias o sesiones.
-const { Manager } = require('erela.js'); // Gestor de música para reproducir audio en canales de voz.
+const fs = require('fs');
+const { Client, GatewayIntentBits, EmbedBuilder } = require('discord.js');
+const axios = require('axios');
+const { v4: uuidv4 } = require('uuid');
+const { Manager } = require('erela.js');
 const { DiscordTogether } = require('discord-together');
-const Spotify = require('erela.js-spotify'); // Plugin para integrar Spotify con Erela.js.
-const puppeteer = require('puppeteer'); // Para automatización de navegadores (web scraping, capturas de pantalla, etc.).
-const lyricsFinder = require('lyrics-finder'); // Busca letras de canciones.
-const { GoogleGenerativeAI } = require('@google/generative-ai'); // Para usar la API de Google para IA generativa.
+const Spotify = require('erela.js-spotify');
+const puppeteer = require('puppeteer');
+const lyricsFinder = require('lyrics-finder');
+const { GoogleGenerativeAI } = require('@google/generative-ai');
 const cheerio = require('cheerio');
 const gTTS = require('gtts');
 const FormData = require('form-data');
 const TelegramBot = require('node-telegram-bot-api');
 const path = require('path');
-require('dotenv').config(); // Carga variables de entorno desde un archivo .env (como tokens o claves API).
+require('dotenv').config();
 
 // Creación del cliente de Discord
 const client = new Client({
