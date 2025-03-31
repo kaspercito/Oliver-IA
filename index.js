@@ -2880,12 +2880,14 @@ async function manejarLyrics(message) {
         console.log(`URL de búsqueda en Letras.com: ${directUrl}`);
 
         const apiKey = 'VQWXR6TAJBTT8V81LXFHIZ7XAVAZB8PJSO5T8S5I5C64DHCZXVKIIHDEMUC0OQBYY5UYWUELDF4C6GR6'; // Reemplazá con tu key de ScrapingBee
-        const scrapingBeeUrl = `https://app.scrapingbee.com/api/v1/?api_key=${apiKey}&url=${encodeURIComponent(directUrl)}&render_js=true`;
+        const scrapingBeeUrl = `https://app.scrapingbee.com/api/v1/?api_key=${apiKey}&url=${encodeURIComponent(directUrl)}&render_js=true&wait=3000`; // Espera 3 segundos
 
-        const response = await axios.get(scrapingBeeUrl);
+        const response = await axios.get(scrapingBeeUrl, { timeout: 15000 });
         const $lyrics = cheerio.load(response.data);
 
-        console.log('HTML recibido con ScrapingBee (primeros 1000 caracteres):', response.data.substring(0, 1000));
+        // Loguear más para depurar
+        console.log('HTML recibido con ScrapingBee (primeros 2000 caracteres):', response.data.substring(0, 2000));
+        console.log('¿Está cnt-letra en el HTML?', response.data.includes('cnt-letra'));
 
         let lyrics = '';
         $lyrics('div.cnt-letra p').each((i, elem) => {
