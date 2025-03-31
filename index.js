@@ -2971,7 +2971,7 @@ async function manejarPPTPersona(message) {
     }
 }
 
-// Clase API para consultar letras (tomada de la página web)
+// Clase API para consultar letras
 class API {
     constructor(artista, cancion) {
         this.artista = artista;
@@ -3039,7 +3039,7 @@ async function manejarLyrics(message) {
 
     console.log(`Buscando letras para: "${artist} - ${title}"`);
     console.log(`Artista limpio: ${cleanArtist}, Título limpio: ${cleanTitle}`);
-    const waitingEmbed = createEmbed('#FF1493', `⌛ Buscando letras, ${userName}...`, `Dame un segundo que te traigo "${artist} - ${title}", loco 🎵`, 'Hecho con onda por Miguel IA');
+    const waitingEmbed = createEmbed('#FF1493', `⌛ Buscando letras, ${userName}...`, `Dame un segundo que te traigo "${artist} - ${title}", loco 🎵`, 'Hecho con onda por Miguel IA', userName);
     const waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
 
     try {
@@ -3064,22 +3064,21 @@ async function manejarLyrics(message) {
         }
 
         console.log(`Letras encontradas (primeros 100 caracteres): "${lyrics.substring(0, 100)}..."`);
-        return await sendLyrics(waitingMessage, message.channel, `${artist} - ${title}`, lyrics);
+        return await sendLyrics(waitingMessage, message.channel, `${artist} - ${title}`, lyrics, userName);
 
     } catch (error) {
         console.error('Error buscando letras:', error.message);
         const fallbackReply = `¡Uy, ${userName}, qué cagada! No encontré las letras de "${artist} - ${title}", loco 😡. Probá en YouTube o pedime otro temazo, che 🍻`;
-        const errorEmbed = createEmbed('#FF1493', `¡Qué cagada, ${userName}!`, fallbackReply, 'Hecho con onda por Miguel IA');
+        const errorEmbed = createEmbed('#FF1493', `¡Qué cagada, ${userName}!`, fallbackReply, 'Hecho con onda por Miguel IA', userName);
         await waitingMessage.edit({ embeds: [errorEmbed] });
     }
 }
 
-async function sendLyrics(waitingMessage, channel, songTitle, lyrics) {
+async function sendLyrics(waitingMessage, channel, songTitle, lyrics, userName) {
     const maxLength = 2000; // Límite de caracteres para embeds en Discord
-    const userName = waitingMessage.embeds[0].author.name.split(' ')[2].replace('...', '');
 
     if (lyrics.length <= maxLength) {
-        const embed = createEmbed('#FF1493', `¡Acá van las letras de "${songTitle}", ${userName}!`, lyrics, 'Hecho con onda por Miguel IA');
+        const embed = createEmbed('#FF1493', `¡Acá van las letras de "${songTitle}", ${userName}!`, lyrics, 'Hecho con onda por Miguel IA', userName);
         await waitingMessage.edit({ embeds: [embed] });
     } else {
         const partes = [];
@@ -3101,7 +3100,8 @@ async function sendLyrics(waitingMessage, channel, songTitle, lyrics) {
                 '#FF1493',
                 i === 0 ? `¡Acá van las letras de "${songTitle}", ${userName}!` : 'Y sigue, loco...',
                 partes[i],
-                'Hecho con onda por Oliver IA'
+                'Hecho con onda por Oliver IA',
+                userName
             );
             if (i === 0) {
                 await waitingMessage.edit({ embeds: [parteEmbed] });
