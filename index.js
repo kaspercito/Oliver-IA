@@ -3127,16 +3127,20 @@ function formatLyrics(lyrics) {
 
         // Combinar repeticiones de "Put a little love on me"
         if (line.match(/put a little love on me/i)) {
-            // Normalizar la primera línea a minúsculas y limpiar ", eh"
+            // Normalizar a minúsculas y limpiar ", eh"
             let combinedLine = line.toLowerCase().replace(/, eh$/, '').trim();
             i++;
             while (i < lines.length && lines[i].match(/put a little love on me/i)) {
-                // Normalizar cada repetición a minúsculas y limpiar ", eh"
                 let nextPart = lines[i].toLowerCase().replace(/, eh$/, '').trim();
                 combinedLine += ', ' + nextPart;
                 i++;
             }
             finalLines.push(combinedLine);
+        } 
+        // Asegurar que "to put a little love on me" se convierta en "So put a little love on me"
+        else if (line.match(/to put a little love on me/i)) {
+            finalLines.push("So put a little love on me");
+            i++;
         } else {
             finalLines.push(line);
             i++;
