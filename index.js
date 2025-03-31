@@ -2997,7 +2997,7 @@ async function manejarLyrics(message) {
     let songInput = args || (player?.queue.current?.title);
 
     if (!songInput) {
-        return sendError(message.channel, `¡Mandame una canción con "!lyrics [título]", ${userName}! O reproducí algo primero, che 😉`, undefined, 'Hecho con onda por Miguel IA');
+        return sendError(message.channel, `¡Mandame una canción con "!lyrics [título]", ${userName}! O reproducí algo primero, che 😉`, undefined, 'Hecho con onda por Oliver IA');
     }
 
     // Limpieza inicial del input
@@ -3008,20 +3008,29 @@ async function manejarLyrics(message) {
         .replace(/\s*\(audio oficial\)/i, '')
         .replace(/\s*\(feat.*?\)/i, '')
         .replace(/\s*\[.*?\]/g, '')
-        .replace(/[^\w\s-óéíáúñ]/g, '')
         .replace(/corazn/i, 'corazón')
         .trim();
 
     let artist = '', title = songInput;
-    const dashIndex = songInput.indexOf(' - ');
-    if (dashIndex !== -1) {
-        artist = songInput.substring(0, dashIndex).trim();
-        title = songInput.substring(dashIndex + 3).trim();
+
+    // Intentar separar por coma (formato: "Título, Artista")
+    const commaIndex = songInput.indexOf(',');
+    if (commaIndex !== -1) {
+        title = songInput.substring(0, commaIndex).trim();
+        artist = songInput.substring(commaIndex + 1).trim();
     } else {
-        const parts = songInput.split(' ');
-        if (parts.length > 1) {
-            artist = parts.shift();
-            title = parts.join(' ').trim();
+        // Intentar separar por guion (formato: "Artista - Título")
+        const dashIndex = songInput.indexOf(' - ');
+        if (dashIndex !== -1) {
+            artist = songInput.substring(0, dashIndex).trim();
+            title = songInput.substring(dashIndex + 3).trim();
+        } else {
+            // Si no hay guion ni coma, asumir que el artista es lo último
+            const parts = songInput.split(' ');
+            if (parts.length > 1) {
+                artist = parts.pop(); // Última palabra como artista
+                title = parts.join(' ').trim();
+            }
         }
     }
 
@@ -3030,7 +3039,8 @@ async function manejarLyrics(message) {
         return str
             .normalize('NFD') // Descompone caracteres con tildes
             .replace(/[\u0300-\u036f]/g, '') // Elimina tildes
-            .replace(/[^a-zA-Z0-9\s-]/g, '') // Elimina caracteres especiales
+            .replace(/[^a-zA-Z0-9\s-]/g, '') // Elimina caracteres especiales (como comas)
+            .replace(/\s+/g, ' ') // Normaliza espacios
             .trim();
     };
 
@@ -3039,11 +3049,11 @@ async function manejarLyrics(message) {
 
     console.log(`Buscando letras para: "${artist} - ${title}"`);
     console.log(`Artista limpio: ${cleanArtist}, Título limpio: ${cleanTitle}`);
-    const waitingEmbed = createEmbed('#FF1493', `⌛ Buscando letras, ${userName}...`, `Dame un segundo que te traigo "${artist} - ${title}", loco 🎵`, 'Hecho con onda por Miguel IA', userName);
+    const waitingEmbed = createEmbed('#FF1493', `⌛ Buscando letras, ${userName}...`, `Dame un segundo que te traigo "${artist} - ${title}", loco 🎵`, 'Hecho con onda por Oliver IA', userName);
     const waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
 
     try {
-        // Intentar con el formato título/artista (como aparece en la captura de lyrics.ovh)
+        // Intentar con el formato título/artista
         let api = new API(cleanTitle, cleanArtist);
         let { respuesta } = await api.consultarAPI();
         console.log('Respuesta de la API (título/artista):', respuesta);
@@ -3063,13 +3073,19 @@ async function manejarLyrics(message) {
             throw new Error('No se encontraron letras en la API de lyrics.ovh.');
         }
 
+        // Limpiar las letras para mejor presentación
+        lyrics = lyrics
+            .replace(/\r\n/g, '\n') // Normalizar saltos de línea
+            .replace(/\n{3,}/g, '\n\n') // Reducir saltos de línea excesivos
+            .trim();
+
         console.log(`Letras encontradas (primeros 100 caracteres): "${lyrics.substring(0, 100)}..."`);
         return await sendLyrics(waitingMessage, message.channel, `${artist} - ${title}`, lyrics, userName);
 
     } catch (error) {
         console.error('Error buscando letras:', error.message);
         const fallbackReply = `¡Uy, ${userName}, qué cagada! No encontré las letras de "${artist} - ${title}", loco 😡. Probá en YouTube o pedime otro temazo, che 🍻`;
-        const errorEmbed = createEmbed('#FF1493', `¡Qué cagada, ${userName}!`, fallbackReply, 'Hecho con onda por Miguel IA', userName);
+        const errorEmbed = createEmbed('#FF1493', `¡Qué cagada, ${userName}!`, fallbackReply, 'Hecho con onda por Oliver IA', userName);
         await waitingMessage.edit({ embeds: [errorEmbed] });
     }
 }
@@ -3078,7 +3094,13 @@ async function sendLyrics(waitingMessage, channel, songTitle, lyrics, userName) 
     const maxLength = 2000; // Límite de caracteres para embeds en Discord
 
     if (lyrics.length <= maxLength) {
-        const embed = createEmbed('#FF1493', `¡Acá van las letras de "${songTitle}", ${userName}!`, lyrics, 'Hecho con onda por Miguel IA', userName);
+        const embed = createEmbed(
+            '#FF1493',
+            `🎵 ${songTitle}`,
+            `**Letra:**\n${lyrics}`,
+            'Hecho con onda por Oliver IA',
+            userName
+        );
         await waitingMessage.edit({ embeds: [embed] });
     } else {
         const partes = [];
@@ -3086,7 +3108,7 @@ async function sendLyrics(waitingMessage, channel, songTitle, lyrics, userName) 
         const lines = lyrics.split('\n');
 
         for (const line of lines) {
-            if (currentPart.length + line.length + 1 > maxLength) {
+            if (currentPart.length + line.length + 1 > maxLength - 50) {
                 partes.push(currentPart.trim());
                 currentPart = line + '\n';
             } else {
@@ -3098,8 +3120,8 @@ async function sendLyrics(waitingMessage, channel, songTitle, lyrics, userName) 
         for (let i = 0; i < partes.length; i++) {
             const parteEmbed = createEmbed(
                 '#FF1493',
-                i === 0 ? `¡Acá van las letras de "${songTitle}", ${userName}!` : 'Y sigue, loco...',
-                partes[i],
+                i === 0 ? `🎵 ${songTitle}` : '🎵 (Continuación)',
+                i === 0 ? `**Letra:**\n${partes[i]}` : partes[i],
                 'Hecho con onda por Oliver IA',
                 userName
             );
@@ -3111,7 +3133,6 @@ async function sendLyrics(waitingMessage, channel, songTitle, lyrics, userName) 
         }
     }
 }
-
 // Chat
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' }); // Usamos Flash por velocidad
