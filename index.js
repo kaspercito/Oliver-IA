@@ -3779,38 +3779,33 @@ async function manejarPlay(message, args) {
         textChannel: message.channel.id,
     });
 
-    if (player.voiceChannel !== voiceChannel.id) {
-        const embed = createEmbed('#FF1493', '⚠️ Canal equivocado', 
-            `Tenés que estar en mi mismo canal de voz, ${userName}.`);
-        return await message.channel.send({ embeds: [embed] });
-    }
-
     const searchQuery = args.join(' ');
     const res = await manager.search(searchQuery, message.author);
 
-    if (res.loadType === 'LOAD_FAILED' || res.loadType === 'NO_MATCHES') {
-        const embed = createEmbed('#FF1493', '⚠️ No encontré nada', 
-            `No pude encontrar "${searchQuery}", ${userName}. Probá otra cosa.`);
+    if (res.loadType === 'NO_MATCHES') {
+        const embed = createEmbed('#FF1493', '❌ No encontré nada', 
+            `No encontré nada con "${searchQuery}", ${userName}. Probá con otro tema, che.`);
         return await message.channel.send({ embeds: [embed] });
     }
 
     player.connect();
-
-    // Si es una playlist, agregamos todas las pistas; si no, solo una
     if (res.loadType === 'PLAYLIST_LOADED') {
         player.queue.add(res.tracks);
-        const embed = createEmbed('#FF1493', '🎵 Playlist agregada', 
-            `Puse **${res.playlist.name}** (${res.tracks.length} canciones) en la cola, ${userName}.`);
+        const embed = createEmbed('#FF1493', '🎶 Playlist agregada', 
+            `Agregué ${res.tracks.length} temas a la cola, ${userName}. ¡A disfrutar, loco! 🎉`);
         await message.channel.send({ embeds: [embed] });
     } else {
         player.queue.add(res.tracks[0]);
-        const embed = createEmbed('#FF1493', '🎵 Agregado a la cola', 
-            `Puse **${res.tracks[0].title}** en la cola, ${userName}.`);
+        const embed = createEmbed('#FF1493', '🎶 Tema agregado', 
+            `Agregué **${res.tracks[0].title}** a la cola, ${userName}. ¡Ya va a sonar, che! 🎵`);
         await message.channel.send({ embeds: [embed] });
     }
 
-    if (!player.playing && !player.paused) {
+    // Solo reproducimos si no hay nada sonando
+    if (!player.playing && !player.paused && player.queue.size > 0) {
         player.play();
+    } else {
+        console.log(`No se inicia reproducción: player.playing=${player.playing}, player.paused=${player.paused}, queue.size=${player.queue.size}`);
     }
 }
 
@@ -5461,11 +5456,12 @@ manager.on('trackStart', async (player, track) => {
         return;
     }
 
+    console.log(`Iniciando pista: ${track.title} en guild ${player.guild}, queue.size=${player.queue.size}`);
+
     const durationMs = track.duration;
     const durationSeconds = Math.floor(durationMs / 1000);
     const durationFormatted = `${Math.floor(durationSeconds / 60)}:${(durationSeconds % 60).toString().padStart(2, '0')}`;
 
-    // Construimos el thumbnail manualmente si es YouTube
     let thumbnail = track.thumbnail;
     if (!thumbnail && track.identifier) {
         thumbnail = `https://img.youtube.com/vi/${track.identifier}/hqdefault.jpg`;
@@ -5479,12 +5475,11 @@ manager.on('trackStart', async (player, track) => {
         const totalBars = 20;
         const progress = Math.min(positionMs / durationMs, 1);
         const filledBars = Math.round(progress * totalBars);
-        const emptyBars = totalBars - filledBars; // Corregimos el typo: "emptyBars | totalBars" debería ser "="
+        const emptyBars = totalBars - filledBars;
         const bossBar = '▬'.repeat(filledBars) + '🔘' + '▬'.repeat(emptyBars);
 
         const embed = createEmbed('#FF1493', '▶️ Sonando ahora', 
-            `**${track.title}**\n⏳ Duración: ${durationFormatted}\n📊 Progreso: ${bossBar} ${positionFormatted} / ${durationFormatted}`,
-            'Hecho con onda por Oliver IA')
+            `**${track.title}**\n⏳ Duración: ${durationFormatted}\n📊 Progreso: ${bossBar} ${positionFormatted} / ${durationFormatted}`)
             .setThumbnail(thumbnail || 'https://i.imgur.com/defaultThumbnail.png');
         return embed;
     };
@@ -5513,10 +5508,9 @@ manager.on('trackEnd', (player, track) => {
     const progressMessage = player.get('progressMessage');
     const userName = track.requester.id === OWNER_ID ? 'Miguel' : 'Belén';
 
-    // Actualizamos el embed al 100%
     if (progressMessage && track) {
         const durationStr = `${Math.floor(track.duration / 60000)}:${((track.duration % 60000) / 1000).toFixed(0).padStart(2, '0')}`;
-        const bossBar = crearBossBar(track.duration, track.duration); // Barra llena
+        const bossBar = '▬'.repeat(20) + '🔘';
 
         const finalEmbed = createEmbed('#FF1493', `🎶 Tema terminado pa’ ${userName}`, '¡Ya fue, che!')
             .addFields(
@@ -5524,9 +5518,7 @@ manager.on('trackEnd', (player, track) => {
                 { name: '⏳ Duración', value: durationStr, inline: true },
                 { name: '📊 Progreso', value: `${bossBar} ${durationStr} / ${durationStr}`, inline: true }
             )
-            .setThumbnail(track.thumbnail || 'https://i.imgur.com/defaultThumbnail.png')
-            .setFooter({ text: `Oliver IA - Música con onda | Pedido por ${userName}`, iconURL: client.user.avatarURL() })
-            .setTimestamp();
+            .setThumbnail(track.thumbnail || 'https://i.imgur.com/defaultThumbnail.png');
 
         progressMessage.edit({ embeds: [finalEmbed] }).catch(err => console.error('Error editando embed final:', err));
     }
@@ -5535,7 +5527,6 @@ manager.on('trackEnd', (player, track) => {
         clearInterval(intervalo);
         player.set('progressInterval', null);
     }
-
     player.set('progressMessage', null);
 
     const guildId = player.guild;
@@ -5547,6 +5538,13 @@ manager.on('trackEnd', (player, track) => {
             dataStore.musicSessions[guildId].history.pop();
         }
         dataStoreModified = true;
+    }
+
+    // Si hay más pistas en la cola, reproducimos la siguiente
+    if (player.queue.size > 0) {
+        player.play();
+    } else {
+        console.log(`No hay más pistas en la cola para guild ${guildId}`);
     }
 });
 
