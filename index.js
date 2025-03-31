@@ -3102,72 +3102,129 @@ async function manejarPPTPersona(message) {
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' }); // Usamos Flash por velocidad
 
-async function manejarChat(message) {
-    // Acá Oliver se pone a charlar como amigo posta con Gemini, loco
+async function manejarLyrics(message) {
     const userId = message.author.id;
     const userName = userId === OWNER_ID ? 'Miguel' : 'Belén';
-    // Saco el mensaje, dependiendo si usaste !chat o !ch
-    const chatMessage = message.content.startsWith('!chat') ? message.content.slice(5).trim() : message.content.slice(3).trim();
+    const args = message.content.split(' ').slice(1).join(' ').trim();
+    const player = manager.players.get(message.guild.id);
+    let songInput = args || (player?.queue.current?.title);
 
-    // Si no escribiste nada, te pido algo en rojo
-    if (!chatMessage) {
-        return sendError(message.channel, `¡Escribí algo después de "!ch", ${userName}! No me dejes colgado, che.`, undefined, 'Hecho con onda por Miguel IA | Reacciona con ✅ o ❌');
+    if (!songInput) {
+        return sendError(message.channel, `¡Mandame una canción con "!lyrics [título]", ${userName}! O reproducí algo primero, che 😉`, undefined, 'Hecho con onda por Miguel IA');
     }
 
-    // Inicializo el historial si no existe
-    if (!dataStore.conversationHistory) dataStore.conversationHistory = {};
-    if (!dataStore.conversationHistory[userId]) dataStore.conversationHistory[userId] = [];
+    songInput = songInput
+        .replace(/\s*\(lyric video\)/i, '')
+        .replace(/\s*\(official video\)/i, '')
+        .replace(/\s*\(videoclip oficial\)/i, '')
+        .replace(/\s*\(audio oficial\)/i, '')
+        .replace(/\s*\(feat.*?\)/i, '')
+        .replace(/\s*\[.*?\]/g, '')
+        .replace(/[^\w\s-óéíáúñ]/g, '')
+        .replace(/corazn/i, 'corazón')
+        .trim();
 
-    // Agrego tu mensaje al historial con timestamp
-    dataStore.conversationHistory[userId].push({ role: 'user', content: chatMessage, timestamp: Date.now() });
-    // Limito a 20 mensajes pa’ no llenar la memoria
-    if (dataStore.conversationHistory[userId].length > 20) {
-        dataStore.conversationHistory[userId] = dataStore.conversationHistory[userId].slice(-20);
+    let artist = '', title = songInput;
+    const dashIndex = songInput.indexOf(' - ');
+    if (dashIndex !== -1) {
+        artist = songInput.substring(0, dashIndex).trim();
+        title = songInput.substring(dashIndex + 3).trim();
+    } else {
+        const parts = songInput.split(' ');
+        if (parts.length > 1) {
+            artist = parts.shift();
+            title = parts.join(' ').trim();
+        }
     }
-    // Marco que cambié el dataStore
-    dataStoreModified = true;
 
-    // Armo el contexto con los últimos 20 mensajes
-    const history = dataStore.conversationHistory[userId].slice(-20);
-    const context = history.map(h => `${h.role === 'user' ? userName : 'Oliver'}: ${h.content}`).join('\n');
-    
-    // Te aviso en celeste que estoy pensando
-    const waitingEmbed = createEmbed('#FF1493', `¡Aguantá un toque, ${userName}!`, 'Estoy pensando una respuesta re copada...', 'Hecho con onda por Miguel IA | Reacciona con ✅ o ❌');
+    console.log(`Buscando letras para: "${artist} - ${title}"`);
+    const waitingEmbed = createEmbed('#FF1493', `⌛ Buscando letras, ${userName}...`, `Dame un segundo que te traigo "${artist} - ${title}", loco 🎵`, 'Hecho con onda por Miguel IA');
     const waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
 
     try {
-        // Le tiro el prompt a Gemini con onda argentina
-        const prompt = `Sos Oliver IA, creado por Miguel. Hablá con una onda argentina re piola y modo hot, bien apasionado y subido de tono, como si estuvieras loco de amor. Usá "loco", "che", "posta", y tirá frases calientes tipo "me volvés loco", "te comería a besos", "sos un fuego". Esto es lo que charlamos antes:\n${context}\nRespondé a: "${chatMessage}" como amigo zarpado y amante ardiente, con cariño extra si es para Belén, tipo "mi grosa hermosa" o "genia que me quema". ¡Dale con todo, che!`;
-        
-        // Genero la respuesta
+        // 1. Intentar con Gemini
+        const prompt = `Sos Oliver IA, creado por Miguel. El usuario (${userName}) te pidió las letras de "${artist} - ${title}". Si tenés las letras completas en tu conocimiento, dáselas directamente sin explicaciones extra, solo las letras en formato limpio. Si no las tenés, respondé solo con "NO_LYRICS" y nada más. No inventes letras ni des sugerencias, dejame manejar eso.`;
         const result = await model.generateContent(prompt);
-        let aiReply = result.response.text().trim();
+        let lyricsReply = result.response.text().trim();
 
-        // Agrego la respuesta al historial
-        dataStore.conversationHistory[userId].push({ role: 'assistant', content: aiReply, timestamp: Date.now() });
-        if (dataStore.conversationHistory[userId].length > 20) {
-            dataStore.conversationHistory[userId] = dataStore.conversationHistory[userId].slice(-20);
+        if (lyricsReply !== 'NO_LYRICS') {
+            console.log(`Gemini encontró las letras (primeros 100 caracteres): "${lyricsReply.substring(0, 100)}..."`);
+            return await sendLyrics(waitingMessage, message.channel, `${artist} - ${title}`, lyricsReply);
         }
-        dataStoreModified = true;
 
-        // Si la respuesta es muy larga, la corto pa’ Discord
-        if (aiReply.length > 2000) aiReply = aiReply.slice(0, 1990) + '... (seguí charlando pa’ más, loco)';
-        
-        // Te mando la respuesta en celeste con reacciones pa’ que opines
-        const finalEmbed = createEmbed('#FF1493', `¡Aquí estoy, ${userName}!`, `${aiReply}\n\n¿Te cerró, ${userName}? ¡Seguimos charlando, che!`, 'Con cariño, Oliver IA | Reacciona con ✅ o ❌');
-        const updatedMessage = await waitingMessage.edit({ embeds: [finalEmbed] });
-        await updatedMessage.react('✅');
-        await updatedMessage.react('❌');
-        // Guardo el mensaje pa’ las reacciones después
-        sentMessages.set(updatedMessage.id, { content: aiReply, originalQuestion: chatMessage, message: updatedMessage });
+        // 2. Fallback a Letras.com con ScrapingBee y proxy premium
+        console.log('Gemini no tiene las letras, buscando en Letras.com con ScrapingBee...');
+        const formattedArtist = artist.toLowerCase().replace(/\s+/g, '-');
+        const formattedTitle = title.toLowerCase().replace(/\s+/g, '-');
+        const directUrl = `https://www.letras.com/${formattedArtist}/${formattedTitle}/`;
+        console.log(`URL de búsqueda en Letras.com: ${directUrl}`);
+
+        const apiKey = 'TU_API_KEY_AQUI'; // Reemplazá con tu key de ScrapingBee
+        const scrapingBeeUrl = `https://app.scrapingbee.com/api/v1/?api_key=${apiKey}&url=${encodeURIComponent(directUrl)}&render_js=true&wait=3000&premium_proxy=true`;
+
+        const response = await axios.get(scrapingBeeUrl, { timeout: 20000 });
+        const $lyrics = cheerio.load(response.data);
+
+        console.log('HTML recibido con ScrapingBee (primeros 2000 caracteres):', response.data.substring(0, 2000));
+        console.log('¿Está cnt-letra en el HTML?', response.data.includes('cnt-letra'));
+
+        let lyrics = '';
+        $lyrics('div.cnt-letra p').each((i, elem) => {
+            lyrics += $lyrics(elem).text().trim() + '\n\n';
+        });
+        lyrics = lyrics.trim();
+
+        if (!lyrics) {
+            console.log('No se encontraron letras con div.cnt-letra p en ScrapingBee.');
+            throw new Error('No se encontraron letras en la URL directa de Letras.com con ScrapingBee.');
+        }
+
+        console.log(`Letras encontradas en Letras.com (primeros 100 caracteres): "${lyrics.substring(0, 100)}..."`);
+        return await sendLyrics(waitingMessage, message.channel, `${artist} - ${title}`, lyrics);
+
     } catch (error) {
-        // Si Gemini falla, te aviso en rojo con un fallback
-        console.error('Error con Gemini:', error.message);
-        const fallbackReply = `¡Uy, ${userName}, qué cagada! Me mandé un moco, loco. ¿Me tirás otra vez el mensaje o seguimos con otra cosa?\n\n¿Te cerró, ${userName}? ¡Seguimos charlando, che!]`;
-        const errorEmbed = createEmbed('#FF1493', `¡Qué cagada, ${userName}!`, fallbackReply, 'Con cariño, Oliver IA | Reacciona con ✅ o ❌');
-        const errorMessageSent = await waitingMessage.edit({ embeds: [errorEmbed] });
-        await errorMessageSent.react('✅');
-        await errorMessageSent.react('❌');
+        console.error('Error buscando letras:', error.message);
+        const fallbackReply = `¡Uy, ${userName}, qué cagada! No encontré las letras de "${artist} - ${title}", loco 😡. Probá en YouTube o pedime otro temazo, che 🍻`;
+        const errorEmbed = createEmbed('#FF1493', `¡Qué cagada, ${userName}!`, fallbackReply, 'Hecho con onda por Miguel IA');
+        await waitingMessage.edit({ embeds: [errorEmbed] });
+    }
+}
+
+async function sendLyrics(waitingMessage, channel, songTitle, lyrics) {
+    const maxLength = 2000;
+    const userName = waitingMessage.embeds[0].author.name.split(' ')[2].replace('...', '');
+
+    if (lyrics.length <= maxLength) {
+        const embed = createEmbed('#FF1493', `¡Acá van las letras de "${songTitle}", ${userName}!`, lyrics, 'Hecho con onda por Miguel IA');
+        await waitingMessage.edit({ embeds: [embed] });
+    } else {
+        const partes = [];
+        let currentPart = '';
+        const lines = lyrics.split('\n');
+
+        for (const line of lines) {
+            if (currentPart.length + line.length + 1 > maxLength) {
+                partes.push(currentPart.trim());
+                currentPart = line + '\n';
+            } else {
+                currentPart += line + '\n';
+            }
+        }
+        if (currentPart) partes.push(currentPart.trim());
+
+        for (let i = 0; i < partes.length; i++) {
+            const parteEmbed = createEmbed(
+                '#FF1493',
+                i === 0 ? `¡Acá van las letras de "${songTitle}", ${userName}!` : 'Y sigue, loco...',
+                partes[i],
+                'Hecho con onda por Oliver IA'
+            );
+            if (i === 0) {
+                await waitingMessage.edit({ embeds: [parteEmbed] });
+            } else {
+                await channel.send({ embeds: [parteEmbed] });
+            }
+        }
     }
 }
 
