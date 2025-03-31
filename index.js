@@ -3250,7 +3250,7 @@ async function manejarChat(message) {
 
     try {
         // Le tiro el prompt a Gemini con onda argentina
-        const prompt = `Sos Oliver IA, un bot re piola creado por Miguel. Hablá con onda argentina y modo hot, usá "loco", "che", "posta". Esto es lo que charlamos antes:\n${context}\nRespondé a: "${chatMessage}" como amigo zarpado, con cariño si es para Belén, tipo "grosa" o "genia".`;
+        const prompt = `Sos Oliver IA, un bot re piola creado por Miguel. Hablá con onda argentina, usá "loco", "che", "posta". Esto es lo que charlamos antes:\n${context}\nRespondé a: "${chatMessage}" como amigo zarpado, con cariño si es para Belén, tipo "grosa" o "genia".`;
         
         // Genero la respuesta
         const result = await model.generateContent(prompt);
