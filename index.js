@@ -3152,16 +3152,17 @@ function formatLyrics(lyrics) {
             line = `${line} ${lines[i + 1]}`.replace(/, but/, ' but');
             i += 2; // Saltar la siguiente línea ya que la unimos
         } 
-        // Combinar repeticiones consecutivas de "Put a little love on me"
-        else if (line.match(/put a little love on me/i) && i + 1 < lines.length && lines[i + 1].match(/put a little love on me/i)) {
-            let combinedLine = line;
+        // Combinar TODAS las repeticiones de "Put a little love on me" en una sola línea
+        else if (line.match(/put a little love on me/i)) {
+            let combinedLine = line.replace(/, eh$/, '').trim(); // Eliminar ", eh" si está al final
             i++;
             while (i < lines.length && lines[i].match(/put a little love on me/i)) {
-                combinedLine += ', ' + lines[i].trim().replace(/, eh$/, ''); // Combinar y limpiar ", eh" si aparece
+                let nextPart = lines[i].replace(/, eh$/, '').trim(); // Eliminar ", eh" de cada repetición
+                combinedLine += ', ' + nextPart;
                 i++;
             }
             line = combinedLine;
-            i--; // Retroceder una posición porque el bucle principal incrementará i
+            i--; // Retroceder porque el bucle principal incrementará i
         } else {
             i += 1;
         }
