@@ -3118,6 +3118,8 @@ function formatLyrics(lyrics) {
         .replace(/\n{2,}/g, '\n')
         .trim();
 
+    console.log('Letras crudas antes de procesar:\n', formattedLyrics);
+
     let lines = formattedLyrics.split('\n').filter(line => line.trim() !== '');
     let finalLines = [];
     let i = 0;
@@ -3127,21 +3129,20 @@ function formatLyrics(lyrics) {
 
         // Combinar repeticiones de "Put a little love on me"
         if (line.match(/put a little love on me/i)) {
-            let combinedLine = line.toLowerCase().replace(/, eh$/, '').trim();
+            let combinedLine = 'put a little love on me'; // Forzar minúsculas desde el inicio
             i++;
             while (i < lines.length && lines[i].match(/put a little love on me/i)) {
-                let nextPart = lines[i].toLowerCase().replace(/, eh$/, '').trim();
-                combinedLine += ', ' + nextPart;
+                combinedLine += ', put a little love on me';
                 i++;
             }
             finalLines.push(combinedLine);
         } 
-        // Reemplazar explícitamente cualquier variante de "(to|so) put a little love on me" por "So put a little love on me"
+        // Reemplazar cualquier variante de "to put a little love on me" por "So put a little love on me"
         else if (line.toLowerCase().includes('put a little love on me') && !line.match(/so put your love on me/i)) {
             finalLines.push("So put a little love on me");
             i++;
         } 
-        // Mantener "So put your love on me" como está
+        // Mantener "So put your love on me" intacto
         else if (line.match(/so put your love on me/i)) {
             finalLines.push("So put your love on me");
             i++;
@@ -3150,6 +3151,9 @@ function formatLyrics(lyrics) {
             i++;
         }
     }
+
+    // Depurar las líneas finales antes de agrupar
+    console.log('Líneas procesadas:\n', finalLines.join('\n'));
 
     // Agrupar en estrofas
     let stanzas = [];
@@ -3172,7 +3176,9 @@ function formatLyrics(lyrics) {
     }
     if (currentStanza.length) stanzas.push(currentStanza);
 
-    return stanzas.map(stanza => stanza.join('\n')).join('\n\n');
+    let result = stanzas.map(stanza => stanza.join('\n')).join('\n\n');
+    console.log('Resultado final:\n', result);
+    return result;
 }
 
 async function sendLyrics(waitingMessage, channel, songTitle, lyrics, userName) {
