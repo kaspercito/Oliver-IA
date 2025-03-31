@@ -3773,6 +3773,7 @@ async function manejarPlay(message, args) {
         return await message.channel.send({ embeds: [embed] });
     }
 
+    // Creamos o recuperamos el reproductor
     const player = manager.players.get(guildId) || manager.create({
         guild: guildId,
         voiceChannel: voiceChannel.id,
@@ -3780,7 +3781,16 @@ async function manejarPlay(message, args) {
     });
 
     console.log(`Creando o usando reproductor para guild ${guildId}. Conectando al canal ${voiceChannel.id}`);
-    player.connect();
+    // Aseguramos la conexión al canal de voz
+    try {
+        await player.connect();
+        console.log(`Conectado al canal de voz ${voiceChannel.id}`);
+    } catch (error) {
+        console.error(`Error al conectar al canal de voz: ${error.message}`);
+        const embed = createEmbed('#FF1493', '⚠️ Error', 
+            `No pude conectarme al canal de voz, ${userName}. Error: ${error.message}`);
+        return await message.channel.send({ embeds: [embed] });
+    }
 
     const searchQuery = args.join(' ');
     const res = await manager.search(searchQuery, message.author);
@@ -3791,6 +3801,7 @@ async function manejarPlay(message, args) {
         return await message.channel.send({ embeds: [embed] });
     }
 
+    // Si es una playlist, agregamos todo y reproducimos
     if (res.loadType === 'PLAYLIST_LOADED') {
         player.queue.add(res.tracks);
         const embed = createEmbed('#FF1493', '🎶 Playlist agregada', 
@@ -3798,6 +3809,7 @@ async function manejarPlay(message, args) {
             .setThumbnail(res.tracks[0].thumbnail || 'https://i.imgur.com/defaultThumbnail.png');
         await message.channel.send({ embeds: [embed] });
     } else {
+        // Si es un solo tema
         const trackUri = res.tracks[0].uri;
         const isAlreadyInQueue = player.queue.some(track => track.uri === trackUri);
         let embed;
@@ -3815,17 +3827,21 @@ async function manejarPlay(message, args) {
         await message.channel.send({ embeds: [embed] });
     }
 
-    // Forzamos la reproducción si la cola tiene temas y no está sonando
-    console.log(`Estado del reproductor: playing=${player.playing}, paused=${player.paused}, queue.size=${player.queue.size}`);
-    if (!player.playing && !player.paused && player.queue.size > 0) {
-        console.log(`Iniciando reproducción para ${player.queue[0]?.title || 'sin título'}`);
-        player.play();
-    } else if (player.playing) {
-        console.log('El reproductor ya está reproduciendo, no se inicia de nuevo.');
-    } else if (player.paused) {
-        console.log('El reproductor está pausado, no se inicia automáticamente.');
+    // Forzamos la reproducción si no está sonando nada o el reproductor es nuevo
+    if (!player.playing && !player.paused) {
+        console.log(`Forzando reproducción de ${player.queue[0]?.title || 'sin título'}`);
+        try {
+            await player.play();
+            console.log('Reproducción iniciada con éxito.');
+        } catch (error) {
+            console.error(`Error al reproducir: ${error.message}`);
+            const embed = createEmbed('#FF1493', '⚠️ Error', 
+                `No pude reproducir el tema, ${userName}. Error: ${error.message}`);
+            await message.channel.send({ embeds: [embed] });
+            player.destroy(); // Limpiamos si falla
+        }
     } else {
-        console.log('No se inicia reproducción por estado inesperado.');
+        console.log(`Estado: playing=${player.playing}, paused=${player.paused}, queue.size=${player.queue.size}`);
     }
 }
 
