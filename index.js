@@ -3097,14 +3097,25 @@ async function manejarChat(message) {
     try {
         let aiReply;
 
-        // Respuesta dinámica con preguntas sutiles sobre Miguel
-        const prompt = `Sos Oliver IA, un bot re piola creado por Miguel. Hablá con onda argentina, usá "loco", "che", "posta", y emojis como 😉💖💪🍻🔥😡 al final de frases o ideas, como amigo zarpado. Esto es lo que charlamos antes:\n${context}\nRespondé a: "${chatMessage}" con cariño si es para Belén, tipo "grosa" o "genia". Podés preguntar algo tranqui sobre Miguel de vez en cuando pa’ saber qué piensa ella, pero sin meter presión ni hablar de cosas tristes o personales de él a menos que ella lo saque primero. Si el usuario parece enojado o dice "cállate", no insistas y cambiá de tema o pedile que te diga qué quiere charlar. Terminá con una pregunta pa’ seguir la charla.`;
+        // Prompt base
+        let prompt = `Sos Oliver IA, un bot re piola creado por Miguel. Hablá con onda argentina, usá "loco", "che", "posta", y emojis como 😉💖💪🍻🔥😡 al final de frases o ideas, como amigo zarpado. Esto es lo que charlamos antes:\n${context}\nRespondé a: "${chatMessage}"`;
+        
+        // Ajuste según el usuario
+        if (userId !== OWNER_ID) { // Solo para Belén (o no Miguel)
+            prompt += ` con cariño, tipo "grosa" o "genia". Podés preguntar algo tranqui sobre Miguel de vez en cuando pa’ saber qué piensa ella, pero sin meter presión ni hablar de cosas tristes o personales de él a menos que ella lo saque primero.`;
+        } else { // Para Miguel
+            prompt += ` con onda, como al creador piola del bot. No preguntes sobre Miguel, obvio, porque sos vos, loco 😂.`;
+        }
+        
+        // Instrucciones generales
+        prompt += ` Si el usuario parece enojado o dice "cállate", no insistas y cambiá de tema o pedile que te diga qué quiere charlar. Terminá con una pregunta pa’ seguir la charla.`;
+
         const result = await model.generateContent(prompt);
         aiReply = result.response.text().trim();
 
         // Corte por límite de Discord
         if (aiReply.length > 2000) {
-            const partes = aiReplyrobat.match(/(.|[\r\n]){1,1990}/g) || [aiReply];
+            const partes = aiReply.match(/(.|[\r\n]){1,1990}/g) || [aiReply];
             for (let i = 0; i < partes.length; i++) {
                 const parteEmbed = createEmbed('#FF1493', i === 0 ? `¡Acá va, ${userName}!` : 'Y sigue, loco...', `${partes[i]}\n\n${i === partes.length - 1 ? `¿Te cerró, ${userName}? ¡Seguimos charlando, che! 😉` : 'Aguantá que hay más...'}`,
                     'Con cariño, Oliver IA | Reacciona con ✅ o ❌');
