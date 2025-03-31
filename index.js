@@ -2822,6 +2822,9 @@ async function manejarReacciones(message) {
     }
 }
 
+const puppeteer = require('puppeteer');
+const cheerio = require('cheerio');
+
 async function manejarLyrics(message) {
     const userId = message.author.id;
     const userName = userId === OWNER_ID ? 'Miguel' : 'Belén';
@@ -2845,7 +2848,6 @@ async function manejarLyrics(message) {
         .replace(/corazn/i, 'corazón')
         .trim();
 
-    // Separar artista y título
     let artist = '', title = songInput;
     const dashIndex = songInput.indexOf(' - ');
     if (dashIndex !== -1) {
@@ -2874,23 +2876,25 @@ async function manejarLyrics(message) {
             return await sendLyrics(waitingMessage, message.channel, `${artist} - ${title}`, lyricsReply);
         }
 
-        // 2. Fallback a Letras.com con Puppeteer
+        // 2. Fallback a Letras.com con Puppeteer usando Chrome del sistema
         console.log('Gemini no tiene las letras, buscando en Letras.com con Puppeteer...');
         const formattedArtist = artist.toLowerCase().replace(/\s+/g, '-');
         const formattedTitle = title.toLowerCase().replace(/\s+/g, '-');
         const directUrl = `https://www.letras.com/${formattedArtist}/${formattedTitle}/`;
         console.log(`URL de búsqueda en Letras.com: ${directUrl}`);
 
-        const browser = await puppeteer.launch({ headless: true });
+        const browser = await puppeteer.launch({
+            headless: true,
+            executablePath: '/usr/bin/google-chrome', // Chrome que suele estar en Railway
+            args: ['--no-sandbox', '--disable-setuid-sandbox'] // Necesario en entornos como Railway
+        });
         const page = await browser.newPage();
         await page.goto(directUrl, { waitUntil: 'networkidle2' });
         const html = await page.content();
         const $lyrics = cheerio.load(html);
 
-        // Loguear para depurar
-        console.log('HTML recibido con Puppeteer (primeros 1000 caracteres):', html.substring(0, 1000));
+        console.log('HTML recibido con Puppeteer (primeros 1000 caracteres):', Html.substring(0, 1000));
 
-        // Extraer letras
         let lyrics = '';
         $lyrics('div.cnt-letra p').each((i, elem) => {
             lyrics += $lyrics(elem).text().trim() + '\n\n';
@@ -2915,7 +2919,7 @@ async function manejarLyrics(message) {
     }
 }
 
-// Función auxiliar para enviar letras
+// Función auxiliar para enviar letras (sin cambios)
 async function sendLyrics(waitingMessage, channel, songTitle, lyrics) {
     const maxLength = 2000;
     const userName = waitingMessage.embeds[0].author.name.split(' ')[2].replace('...', '');
@@ -2941,9 +2945,9 @@ async function sendLyrics(waitingMessage, channel, songTitle, lyrics) {
         for (let i = 0; i < partes.length; i++) {
             const parteEmbed = createEmbed(
                 '#FF1493',
-                i === 0 ? `¡Acá van las letras de "${songTitle}", ${userName}!` : 'Y sigue, locoo...',
+                i === 0 ? `¡Acá van las letras de "${songTitle}", ${userName}!` : 'Y sigue, loco...',
                 partes[i],
-                'Hecho con onda por Miguel IA'
+                'Hecho con onda por Oliver IA'
             );
             if (i === 0) {
                 await waitingMessage.edit({ embeds: [parteEmbed] });
