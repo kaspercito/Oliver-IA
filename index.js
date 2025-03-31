@@ -2840,6 +2840,7 @@ async function manejarLyrics(message) {
         .replace(/\s*\(videoclip oficial\)/i, '')
         .replace(/\s*\(feat.*?\)/i, '')
         .replace(/\s*\[.*?\]/g, '')
+        .replace(/[^\w\s-]/g, '')
         .trim();
 
     // Separar artista y título
@@ -2871,21 +2872,32 @@ async function manejarLyrics(message) {
             return await sendLyrics(waitingMessage, message.channel, `${artist} - ${title}`, lyricsReply);
         }
 
-        // 2. Fallback a Letras.mus.br si Gemini no las tiene
-        console.log('Gemini no tiene las letras, buscando en Letras.mus.br...');
-        const url = `https://www.letras.mus.br/${artist.toLowerCase().replace(/\s/g, '-')}/${title.toLowerCase().replace(/\s/g, '-')}/`;
-        const response = await axios.get(url, { timeout: 5000 });
-        const $ = cheerio.load(response.data);
+        // 2. Fallback a Letras.com
+        console.log('Gemini no tiene las letras, buscando en Letras.com...');
+        const searchUrl = `https://www.letras.com/?q=${encodeURIComponent(`${artist} ${title}`)}`;
+        const searchResponse = await axios.get(searchUrl, { timeout: 5000 });
+        const $search = cheerio.load(searchResponse.data);
+
+        // Buscar el primer resultado relevante
+        const songLink = $search('div.songs-list a').first().attr('href');
+        if (!songLink) throw new Error('No se encontró la canción en Letras.com.');
+
+        const lyricsUrl = `https://www.letras.com${songLink}`;
+        const lyricsResponse = await axios.get(lyricsUrl, { timeout: 5000 });
+        const $lyrics = cheerio.load(lyricsResponse.data);
+
         let lyrics = '';
-        $('div.cnt-letra p').each((i, elem) => lyrics += $(elem).text() + '\n');
+        $lyrics('div.lyric-cnt p').each((i, elem) => {
+            lyrics += $lyrics(elem).text() + '\n';
+        });
         lyrics = lyrics.trim();
 
         if (lyrics) {
-            console.log(`Letras encontradas en Letras.mus.br (primeros 100 caracteres): "${lyrics.substring(0, 100)}..."`);
+            console.log(`Letras encontradas en Letras.com (primeros 100 caracteres): "${lyrics.substring(0, 100)}..."`);
             return await sendLyrics(waitingMessage, message.channel, `${artist} - ${title}`, `¡Acá van las letras de "${artist} - ${title}", loco! 🎵\n${lyrics}`);
         }
 
-        throw new Error('No se encontraron letras en Letras.mus.br.');
+        throw new Error('No se encontraron letras en Letras.com.');
     } catch (error) {
         console.error('Error buscando letras:', error.message);
         const fallbackReply = `¡Uy, ${userName}, qué cagada! No encontré las letras de "${artist} - ${title}", loco 😡. Capaz las tenés en Genius o YouTube. ¿Qué otro temazo querés probar, che? 🍻`;
@@ -2897,15 +2909,16 @@ async function manejarLyrics(message) {
 // Función auxiliar para enviar letras
 async function sendLyrics(waitingMessage, channel, songTitle, lyrics) {
     const maxLength = 2000;
+    const userName = waitingMessage.embeds[0].author.name.split(' ')[2].replace('...', '');
     if (lyrics.length <= maxLength) {
-        const embed = createEmbed('#FF1493', `¡Acá van las letras, ${waitingMessage.embeds[0].author.name.split(' ')[2].replace('...', '')}!`, `${lyrics}\n\n¿Te cerró? ¿Qué otro temazo querés? 🎵`, 'Hecho con onda por Miguel IA');
+        const embed = createEmbed('#FF1493', `¡Acá van las letras, ${userName}!`, `${lyrics}\n\n¿Te cerró? ¿Qué otro temazo querés? 🎵`, 'Hecho con onda por Miguel IA');
         await waitingMessage.edit({ embeds: [embed] });
     } else {
         const partes = lyrics.match(/(.|[\r\n]){1,1990}/g) || [lyrics];
         for (let i = 0; i < partes.length; i++) {
-            const parteEmbed = createEmbed('#FF1493', i === 0 ? `¡Acá van las letras de "${songTitle}", ${waitingMessage.embeds[0].author.name.split(' ')[2].replace('...', '')}!` : 'Y sigue, loco...', 
+            const parteEmbed = createEmbed('#FF1493', i === 0 ? `¡Acá van las letras de "${songTitle}", ${userName}!` : 'Y sigue, loco...', 
                 `${partes[i]}\n\n${i === partes.length - 1 ? `¿Te cerró? ¿Qué otro temazo querés? 🎵` : 'Aguantá que hay más...'}`,
-                'Hecho con onda por Oliver IA');
+                'Hecho con onda por Miguel IA');
             if (i === 0) {
                 await waitingMessage.edit({ embeds: [parteEmbed] });
             } else {
@@ -2914,7 +2927,6 @@ async function sendLyrics(waitingMessage, channel, songTitle, lyrics) {
         }
     }
 }
-
 
 function determinarGanador(jugador1, jugador2) {
     if (jugador1 === jugador2) return 'empate';
