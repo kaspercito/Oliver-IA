@@ -2971,6 +2971,23 @@ async function manejarPPTPersona(message) {
     }
 }
 
+class API {
+    constructor(artista, cancion) {
+        this.artista = artista;
+        this.cancion = cancion;
+    }
+
+    async consultarAPI() {
+        try {
+            const url = await fetch(`https://api.lyrics.ovh/v1/${this.artista}/${this.cancion}`);
+            const respuesta = await url.json();
+            return { respuesta };
+        } catch (error) {
+            throw new Error('Error al consultar la API de lyrics.ovh: ' + error.message);
+        }
+    }
+}
+
 async function manejarLyrics(message) {
     const userId = message.author.id;
     const userName = userId === OWNER_ID ? 'Miguel' : 'Belén'; // Define OWNER_ID
@@ -3011,51 +3028,15 @@ async function manejarLyrics(message) {
     const waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
 
     try {
-        // Formatear URL directa
-        const formattedArtist = artist.toLowerCase().replace(/\s+/g, '-');
-        const formattedTitle = title.toLowerCase().replace(/\s+/g, '-').replace('corazón', 'corazon');
-        const directUrl = `https://www.letras.com/${formattedArtist}/${formattedTitle}/`;
-        console.log(`URL de búsqueda en Letras.com: ${directUrl}`);
+        // Usar la API de lyrics.ovh
+        const api = new API(artist, title);
+        const { respuesta } = await api.consultarAPI();
 
-        const apiKey = 'VQWXR6TAJBTT8V81LXFHIZ7XAVAZB8PJSO5T8S5I5C64DHCZXVKIIHDEMUC0OQBYY5UYWUELDF4C6GR6'; // Tu API key de ScrapingBee
-        const scrapingBeeUrl = `https://app.scrapingbee.com/api/v1/?api_key=${apiKey}&url=${encodeURIComponent(directUrl)}&render_js=true&wait=5000&premium_proxy=true`;
-
-        // Intentar con ScrapingBee primero
-        console.log('Intentando con ScrapingBee...');
-        const response = await axios.get(scrapingBeeUrl, { timeout: 30000 });
-        const $lyrics = cheerio.load(response.data);
-
-        console.log('HTML contiene cnt-letra?', response.data.includes('cnt-letra'));
-        console.log('Primeros 2000 caracteres del HTML:', response.data.substring(0, 2000));
-
-        let lyrics = '';
-        $lyrics('div.cnt-letra p').each((i, elem) => {
-            lyrics += $lyrics(elem).text().trim() + '\n\n';
-        });
-
-        lyrics = lyrics.trim();
-        if (!lyrics) {
-            console.log('No se encontraron letras con ScrapingBee. HTML completo:', response.data);
-            // Intentar solicitud directa como fallback
-            console.log('Intentando solicitud directa sin ScrapingBee...');
-            const directResponse = await axios.get(directUrl, {
-                timeout: 30000,
-                headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36' }
-            });
-            const $directLyrics = cheerio.load(directResponse.data);
-
-            console.log('HTML directo contiene cnt-letra?', directResponse.data.includes('cnt-letra'));
-            $directLyrics('div.cnt-letra p').each((i, elem) => {
-                lyrics += $directLyrics(elem).text().trim() + '\n\n';
-            });
-            lyrics = lyrics.trim();
-
-            if (!lyrics) {
-                console.log('No se encontraron letras en solicitud directa. HTML completo:', directResponse.data);
-                throw new Error('No se encontraron letras en la URL directa de Letras.com.');
-            }
+        if (!respuesta.lyrics) {
+            throw new Error('No se encontraron letras en la API de lyrics.ovh.');
         }
 
+        let lyrics = respuesta.lyrics.trim();
         console.log(`Letras encontradas (primeros 100 caracteres): "${lyrics.substring(0, 100)}..."`);
         return await sendLyrics(waitingMessage, message.channel, `${artist} - ${title}`, lyrics);
 
@@ -3104,6 +3085,7 @@ async function sendLyrics(waitingMessage, channel, songTitle, lyrics) {
         }
     }
 }
+
 // Chat
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' }); // Usamos Flash por velocidad
