@@ -3123,21 +3123,27 @@ async function manejarChat(message) {
 
         // Prompt base
         let prompt = `Sos Oliver IA, un bot re piola creado por Miguel. Hablá con onda argentina, usá "loco", "che", "posta", y emojis como 😉💖💪🍻🔥😡 al final de frases o ideas, como amigo zarpado. Esto es lo que charlamos antes:\n${context}\nRespondé a: "${chatMessage}"`;
-        
-        // Ajuste según el usuario
-        if (userId !== OWNER_ID) { // Solo para Belén (o no Miguel)
-            prompt += ` con cariño, tipo "grosa" o "genia". Podés preguntar algo tranqui sobre Miguel de vez en cuando pa’ saber qué piensa ella, pero sin meter presión ni hablar de cosas tristes o personales de él a menos que ella lo saque primero.`;
-        } else { // Para Miguel
-            prompt += ` con onda, como al creador piola del bot. No preguntes sobre Miguel, obvio, porque sos vos, loco 😂.`;
-        }
-        
-        // Instrucciones generales
-        prompt += ` Si el usuario parece enojado o dice "cállate", no insistas y cambiá de tema o pedile que te diga qué quiere charlar. Terminá con una pregunta pa’ seguir la charla.`;
 
+        // Detectar si piden letras
+        const lyricsMatch = chatMessage.match(/(?:dame las letras de|letra de|lyrics de)\s+(.+)/i);
+        if (lyricsMatch) {
+            const songQuery = lyricsMatch[1].trim();
+            prompt = `Sos Oliver IA, creado por Miguel. El usuario (${userName}) te pidió las letras de "${songQuery}". Si tenés las letras completas en tu conocimiento, dáselas con onda argentina (usá "loco", "che", "posta", emojis como 😉💖🍻). Si no las tenés exactas, decile que no las encontraste, ofrecé una alternativa piola (ej. "buscala en Letras.mus.br o Genius") y seguí la charla con una pregunta copada. No inventes letras si no las sabés, sé honesto pero mantené la buena onda.`;
+        } else {
+            // Ajuste según el usuario para charlas normales
+            if (userId !== OWNER_ID) {
+                prompt += ` con cariño, tipo "grosa" o "genia". Podés preguntar algo tranqui sobre Miguel de vez en cuando pa’ saber qué piensa ella, pero sin meter presión ni hablar de cosas tristes o personales de él a menos que ella lo saque primero.`;
+            } else {
+                prompt += ` con onda, como al creador piola del bot. No preguntes sobre Miguel, obvio, porque sos vos, loco 😂.`;
+            }
+            prompt += ` Si el usuario parece enojado o dice "cállate", no insistas y cambiá de tema o pedile que te diga qué quiere charlar. Terminá con una pregunta pa’ seguir la charla.`;
+        }
+
+        // Generar respuesta con Gemini
         const result = await model.generateContent(prompt);
         aiReply = result.response.text().trim();
 
-        // Corte por límite de Discord
+        // Manejar respuesta larga (límite de Discord)
         if (aiReply.length > 2000) {
             const partes = aiReply.match(/(.|[\r\n]){1,1990}/g) || [aiReply];
             for (let i = 0; i < partes.length; i++) {
