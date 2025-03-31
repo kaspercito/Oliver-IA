@@ -3779,6 +3779,9 @@ async function manejarPlay(message, args) {
         textChannel: message.channel.id,
     });
 
+    console.log(`Creando o usando reproductor para guild ${guildId}. Conectando al canal ${voiceChannel.id}`);
+    player.connect();
+
     const searchQuery = args.join(' ');
     const res = await manager.search(searchQuery, message.author);
 
@@ -3788,12 +3791,11 @@ async function manejarPlay(message, args) {
         return await message.channel.send({ embeds: [embed] });
     }
 
-    player.connect();
     if (res.loadType === 'PLAYLIST_LOADED') {
         player.queue.add(res.tracks);
         const embed = createEmbed('#FF1493', '🎶 Playlist agregada', 
             `Agregué ${res.tracks.length} temas a la cola, ${userName}. ¡A disfrutar, loco! 🎉`)
-            .setThumbnail(res.tracks[0].thumbnail || 'https://i.imgur.com/defaultThumbnail.png'); // Imagen del primer tema
+            .setThumbnail(res.tracks[0].thumbnail || 'https://i.imgur.com/defaultThumbnail.png');
         await message.channel.send({ embeds: [embed] });
     } else {
         const trackUri = res.tracks[0].uri;
@@ -3803,20 +3805,27 @@ async function manejarPlay(message, args) {
         if (isAlreadyInQueue) {
             embed = createEmbed('#FF1493', '🎵 Tema ya en cola', 
                 `**${res.tracks[0].title}** ya está en la cola, ${userName}. ¡Paciencia, che! 🎶`)
-                .setThumbnail(res.tracks[0].thumbnail || 'https://i.imgur.com/defaultThumbnail.png'); // Imagen del tema
+                .setThumbnail(res.tracks[0].thumbnail || 'https://i.imgur.com/defaultThumbnail.png');
         } else {
             player.queue.add(res.tracks[0]);
             embed = createEmbed('#FF1493', '🎶 Tema agregado', 
                 `Agregué **${res.tracks[0].title}** a la cola, ${userName}. ¡Ya va a sonar, che! 🎵`)
-                .setThumbnail(res.tracks[0].thumbnail || 'https://i.imgur.com/defaultThumbnail.png'); // Imagen del tema
+                .setThumbnail(res.tracks[0].thumbnail || 'https://i.imgur.com/defaultThumbnail.png');
         }
         await message.channel.send({ embeds: [embed] });
     }
 
+    // Forzamos la reproducción si la cola tiene temas y no está sonando
+    console.log(`Estado del reproductor: playing=${player.playing}, paused=${player.paused}, queue.size=${player.queue.size}`);
     if (!player.playing && !player.paused && player.queue.size > 0) {
+        console.log(`Iniciando reproducción para ${player.queue[0]?.title || 'sin título'}`);
         player.play();
+    } else if (player.playing) {
+        console.log('El reproductor ya está reproduciendo, no se inicia de nuevo.');
+    } else if (player.paused) {
+        console.log('El reproductor está pausado, no se inicia automáticamente.');
     } else {
-        console.log(`No se inicia reproducción: player.playing=${player.playing}, player.paused=${player.paused}, queue.size=${player.queue.size}`);
+        console.log('No se inicia reproducción por estado inesperado.');
     }
 }
 
@@ -3860,34 +3869,25 @@ async function manejarPause(message) {
 // Skip
 async function manejarSkip(message) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
-    if (!message.guild) return sendError(message.channel, `Este comando solo funciona en servidores, ${userName}.`);
+    if (!message.guild) return sendError(message.channel, `Este comando solo funciona en/Button servidores, ${userName}.`);
     const player = manager.players.get(message.guild.id);
     if (!player) return sendError(message.channel, `No hay música en reproducción, ${userName}.`);
 
-    console.log(`Saltando pista: ${player.queue.current?.title}. Cola antes de skip: ${player.queue.size}`);
+    console.log(`Saltando pista: ${player.queue.current?.title || 'sin título'}. Cola antes de skip: ${player.queue.size}`);
+
+    // Limpiamos el estado para evitar que trackEnd se dispare de más
+    player.set('trackEnded', true); // Marcamos la pista actual como terminada
+    player.set('currentTrack', null); // Borramos la pista actual
+
+    // Saltamos la pista
     player.stop();
 
-    // Limpiamos el estado antes de pasar a la siguiente
-    player.set('trackEnded', false);
-    player.set('currentTrack', null);
-
+    // Si hay más en la cola, dejamos que Erela.js lo maneje, pero verificamos
     if (player.queue.size > 0) {
-        try {
-            console.log(`Reproduciendo siguiente: ${player.queue[0]?.title}`);
-            player.play();
-        } catch (error) {
-            console.error(`Error al reproducir después de skip: ${error.message}`);
-            player.queue.remove(0);
-            if (player.queue.size > 0) {
-                console.log(`Intentando con la siguiente pista: ${player.queue[0].title}`);
-                player.play();
-            } else {
-                console.log('No hay más pistas en la cola, destruyendo reproductor.');
-                player.destroy();
-            }
-        }
+        console.log(`Siguiente en cola: ${player.queue[0]?.title || 'sin título'}`);
+        // No llamamos a player.play() aquí, dejamos que Erela.js lo haga automáticamente
     } else {
-        console.log('No hay más pistas en la cola después del skip.');
+        console.log('No hay más pistas en la cola, destruyendo reproductor.');
         player.destroy();
     }
 
