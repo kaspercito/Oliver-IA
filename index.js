@@ -3137,8 +3137,8 @@ function formatLyrics(lyrics) {
             }
             finalLines.push(combinedLine);
         } 
-        // Asegurar que "to put a little love on me" se convierta en "So put a little love on me"
-        else if (line.match(/to put a little love on me/i)) {
+        // Reemplazar cualquier variante de "to put a little love on me" por "So put a little love on me"
+        else if (line.match(/(to|so) put a little love on me/i)) {
             finalLines.push("So put a little love on me");
             i++;
         } else {
