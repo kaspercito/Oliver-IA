@@ -3011,18 +3011,7 @@ async function manejarLyrics(message) {
     const waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
 
     try {
-        // 1. Intentar con Gemini
-        const prompt = `Sos Oliver IA, creado por Miguel. El usuario (${userName}) te pidió las letras de "${artist} - ${title}". Si tenés las letras completas en tu conocimiento, dáselas directamente sin explicaciones extra, solo las letras en formato limpio. Si no las tenés, respondé solo con "NO_LYRICS" y nada más. No inventes letras ni des sugerencias, dejame manejar eso.`;
-        const result = await model.generateContent(prompt);
-        let lyricsReply = result.response.text().trim();
-
-        if (lyricsReply !== 'NO_LYRICS') {
-            console.log(`Gemini encontró las letras (primeros 100 caracteres): "${lyricsReply.substring(0, 100)}..."`);
-            return await sendLyrics(waitingMessage, message.channel, `${artist} - ${title}`, lyricsReply);
-        }
-
-        // 2. Fallback a Letras.com con ScrapingBee
-        console.log('Gemini no tiene las letras, buscando en Letras.com con ScrapingBee...');
+        // Buscar directamente en Letras.com con ScrapingBee
         const formattedArtist = artist.toLowerCase().replace(/\s+/g, '-');
         const formattedTitle = title.toLowerCase().replace(/\s+/g, '-');
         const directUrl = `https://www.letras.com/${formattedArtist}/${formattedTitle}/`;
@@ -3045,7 +3034,7 @@ async function manejarLyrics(message) {
             throw new Error('No se encontraron letras en la URL directa de Letras.com con ScrapingBee.');
         }
 
-        console.log(`Letras encontradas en Letras.com (primeros 100 caracteres): "${lyrics.substring(0, 100)}..."`);
+        console.log(`Letras encontradas (primeros 100 caracteres): "${lyrics.substring(0, 100)}..."`);
         return await sendLyrics(waitingMessage, message.channel, `${artist} - ${title}`, lyrics);
 
     } catch (error) {
@@ -3083,7 +3072,7 @@ async function sendLyrics(waitingMessage, channel, songTitle, lyrics) {
                 '#FF1493',
                 i === 0 ? `¡Acá van las letras de "${songTitle}", ${userName}!` : 'Y sigue, loco...',
                 partes[i],
-                'Hecho con onda por Oliver IA'
+                'Hecho con onda por Miguel IA'
             );
             if (i === 0) {
                 await waitingMessage.edit({ embeds: [parteEmbed] });
@@ -3093,6 +3082,7 @@ async function sendLyrics(waitingMessage, channel, songTitle, lyrics) {
         }
     }
 }
+
 
 // Sugerencias
 async function manejarSugerencias(message) {
