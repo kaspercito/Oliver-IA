@@ -2971,24 +2971,6 @@ async function manejarPPTPersona(message) {
     }
 }
 
-// Clase API para consultar letras
-class API {
-    constructor(artista, cancion) {
-        this.artista = artista;
-        this.cancion = cancion;
-    }
-
-    async consultarAPI() {
-        try {
-            const url = await fetch(`https://api.lyrics.ovh/v1/${this.artista}/${this.cancion}`);
-            const respuesta = await url.json();
-            return { respuesta };
-        } catch (error) {
-            throw new Error('Error al consultar la API de lyrics.ovh: ' + error.message);
-        }
-    }
-}
-
 // Clase API para consultar letras (tomada de la página web)
 class API {
     constructor(artista, cancion) {
