@@ -3127,7 +3127,6 @@ function formatLyrics(lyrics) {
 
         // Combinar repeticiones de "Put a little love on me"
         if (line.match(/put a little love on me/i)) {
-            // Normalizar a minúsculas y limpiar ", eh"
             let combinedLine = line.toLowerCase().replace(/, eh$/, '').trim();
             i++;
             while (i < lines.length && lines[i].match(/put a little love on me/i)) {
@@ -3137,9 +3136,14 @@ function formatLyrics(lyrics) {
             }
             finalLines.push(combinedLine);
         } 
-        // Reemplazar cualquier variante de "to put a little love on me" por "So put a little love on me"
-        else if (line.match(/(to|so) put a little love on me/i)) {
+        // Reemplazar explícitamente cualquier variante de "(to|so) put a little love on me" por "So put a little love on me"
+        else if (line.toLowerCase().includes('put a little love on me') && !line.match(/so put your love on me/i)) {
             finalLines.push("So put a little love on me");
+            i++;
+        } 
+        // Mantener "So put your love on me" como está
+        else if (line.match(/so put your love on me/i)) {
+            finalLines.push("So put your love on me");
             i++;
         } else {
             finalLines.push(line);
