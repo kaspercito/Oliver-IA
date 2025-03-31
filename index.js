@@ -2822,10 +2822,6 @@ async function manejarReacciones(message) {
     }
 }
 
-// Función pa’ traerte las letras de una canción
-const axios = require('axios');
-const cheerio = require('cheerio');
-
 async function manejarLyrics(message) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
     if (!message.guild) return sendError(message.channel, `Este comando solo funciona en servidores, ${userName}.`);
