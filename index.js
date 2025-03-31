@@ -3923,29 +3923,20 @@ async function manejarShuffle(message) {
 
 // Stop
 async function manejarStop(message) {
+    // Paramos todo el reproductor, chau música
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
+    // Solo en servers, como siempre
     if (!message.guild) return sendError(message.channel, `Este comando solo funciona en servidores, ${userName}.`);
+    // Busco el reproductor
     const player = manager.players.get(message.guild.id);
+    // Si no hay nada, te aviso en rojo
     if (!player) return sendError(message.channel, `No hay música en reproducción, ${userName}.`);
 
-    // Limpiamos el intervalo de la barra de progreso
-    const intervalo = player.get('progressInterval');
-    if (intervalo) {
-        clearInterval(intervalo);
-        player.set('progressInterval', null);
-        console.log(`Intervalo de barra limpiado para guild ${message.guild.id}`);
-    }
-
-    // Limpiamos el mensaje de progreso si existe
-    const progressMessage = player.get('progressMessage');
-    if (progressMessage) {
-        progressMessage.delete().catch(err => console.error('Error borrando mensaje de progreso:', err));
-        player.set('progressMessage', null);
-    }
-
+    // Destruyo el reproductor y limpio la sesión
     player.destroy();
     delete dataStore.musicSessions[message.guild.id];
     dataStoreModified = true;
+    // Te confirmo en verde que corté todo
     await sendSuccess(message.channel, '🛑 ¡Música detenida!', `El reproductor se detuvo, ${userName}.`);
 }
 
