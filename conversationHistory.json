@@ -680,6 +680,19 @@
       "esRecurrente": false,
       "hora": null,
       "minutos": null
+    },
+    {
+      "id": "348f5e87-e0a9-4797-b828-a183a8296af7",
+      "userId": "752987736759205960",
+      "channelId": "1008091220544851970",
+      "mensaje": "Hazme acuerdo de capturar koth todos los dias",
+      "cuandoLlegue": false,
+      "cuandoSalga": false,
+      "timestamp": 1743541200000,
+      "creado": 1743536185687,
+      "esRecurrente": false,
+      "hora": null,
+      "minutos": null
     }
   ],
   "usedJokes": {
