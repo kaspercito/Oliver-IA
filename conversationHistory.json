@@ -656,56 +656,17 @@
       "minutos": 30
     },
     {
-      "id": "5573a53a-07ae-4f6f-b412-6607dd5724a1",
+      "id": "b8bc3393-5c03-4e4d-9066-6b8622461342",
       "userId": "752987736759205960",
       "channelId": "1008091220544851970",
-      "mensaje": "Hazme acuerdo de capturar koth todos los dias",
+      "mensaje": "Hazme acuerdo de capturar koth todos los días",
       "cuandoLlegue": false,
       "cuandoSalga": false,
       "timestamp": 1743613200000,
-      "creado": 1743536178773,
-      "esRecurrente": false,
-      "hora": null,
-      "minutos": null
-    },
-    {
-      "id": "ec98cc45-3cf4-49f4-a977-128f71518694",
-      "userId": "752987736759205960",
-      "channelId": "1008091220544851970",
-      "mensaje": "Hazme acuerdo de capturar koth todos los dias",
-      "cuandoLlegue": false,
-      "cuandoSalga": false,
-      "timestamp": 1743620400000,
-      "creado": 1743536181965,
-      "esRecurrente": false,
-      "hora": null,
-      "minutos": null
-    },
-    {
-      "id": "348f5e87-e0a9-4797-b828-a183a8296af7",
-      "userId": "752987736759205960",
-      "channelId": "1008091220544851970",
-      "mensaje": "Hazme acuerdo de capturar koth todos los dias",
-      "cuandoLlegue": false,
-      "cuandoSalga": false,
-      "timestamp": 1743541200000,
-      "creado": 1743536185687,
-      "esRecurrente": false,
-      "hora": null,
-      "minutos": null
-    },
-    {
-      "id": "d029f31f-c111-4bbf-a82c-e9b93e018ae0",
-      "userId": "752987736759205960",
-      "channelId": "1008091220544851970",
-      "mensaje": "Hazme acuerdo de capturar koth todos los dias",
-      "cuandoLlegue": false,
-      "cuandoSalga": false,
-      "timestamp": 1743548400000,
-      "creado": 1743536189111,
-      "esRecurrente": false,
-      "hora": null,
-      "minutos": null
+      "creado": 1743536333479,
+      "esRecurrente": true,
+      "hora": 14,
+      "minutos": 0
     }
   ],
   "usedJokes": {
