@@ -6323,7 +6323,36 @@ client.on('messageCreate', async (message) => {
     }
     
     if (message.author.bot) return;
-    });
+    
+    const lettersOnly = message.content.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ]/g, '');
+    if (lettersOnly.length > 5 && (message.author.id === OWNER_ID || message.author.id === ALLOWED_USER_ID)) {
+        const uppercaseCount = lettersOnly.split('').filter(char => char === char.toUpperCase()).length;
+        const uppercasePercentage = (uppercaseCount / lettersOnly.length) * 100;
+        if (uppercasePercentage >= 80) {
+            try {
+                const member = message.guild?.members.cache.get(message.author.id);
+                if (member && message.guild?.members.me.permissions.has('MODERATE_MEMBERS')) {
+                    await member.timeout(5 * 60 * 1000, 'Te pasaste con las mayúsculas, loco');
+                    await message.channel.send({ 
+                        embeds: [createEmbed('#FF1493', '⛔ ¡Pará un poco, che!', 
+                            `¡${userName} se mandó un griterío con mayúsculas y se comió 5 minutos de mute! Nada de hacer lío, ¿eh?`)] 
+                    });
+                } else {
+                    await message.channel.send({ 
+                        embeds: [createEmbed('#FF1493', '⛔ ¡No pude muteartelo, boludo!', 
+                            `¡${userName} gritó todo en mayúsculas, pero no tengo permisos para muteartelo! Igual borré el mensaje, tranqui.`)] 
+                    });
+                }
+            } catch (error) {
+                console.error('Error al mutear:', error.message);
+                await message.channel.send({ 
+                    embeds: [createEmbed('#FF1493', '⛔ ¡Qué quilombo!', 
+                        `¡${userName} usó un montón de mayúsculas, pero la cagué muteándolo/a! Error: ${error.message}. El mensaje ya se fue, relajá.`)] 
+                });
+            }
+            return;
+        }
+    }
 
     if (message.author.id === OWNER_ID && (content.startsWith('!responder') || content.startsWith('!resp'))) {
         await manejarCommand(message);
