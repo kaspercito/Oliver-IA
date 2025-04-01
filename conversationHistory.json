@@ -654,6 +654,19 @@
       "esRecurrente": true,
       "hora": 8,
       "minutos": 30
+    },
+    {
+      "id": "6ed141d1-70d3-4f80-97fc-2d5d5d72c053",
+      "userId": "752987736759205960",
+      "channelId": "1008091220544851970",
+      "mensaje": "Hazme acuerdo de levantarme todos los días",
+      "cuandoLlegue": false,
+      "cuandoSalga": false,
+      "timestamp": 1743507000000,
+      "creado": 1743485772718,
+      "esRecurrente": true,
+      "hora": 8,
+      "minutos": 30
     }
   ],
   "usedJokes": {
