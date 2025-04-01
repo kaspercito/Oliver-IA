@@ -6323,7 +6323,7 @@ client.on('messageCreate', async (message) => {
     }
     
     if (message.author.bot) return;
-    }
+    });
 
     if (message.author.id === OWNER_ID && (content.startsWith('!responder') || content.startsWith('!resp'))) {
         await manejarCommand(message);
