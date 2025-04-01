@@ -706,19 +706,6 @@
       "esRecurrente": true,
       "hora": 20,
       "minutos": 0
-    },
-    {
-      "id": "983ebd75-7783-46d4-bdca-6aff23f7442d",
-      "userId": "752987736759205960",
-      "channelId": "1008091220544851970",
-      "mensaje": "Hazme acuerdo de capear koth",
-      "cuandoLlegue": false,
-      "cuandoSalga": false,
-      "timestamp": 1743537294063,
-      "creado": 1743536994063,
-      "esRecurrente": false,
-      "hora": null,
-      "minutos": null
     }
   ],
   "usedJokes": {
