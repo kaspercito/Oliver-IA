@@ -6325,11 +6325,12 @@ client.on('messageCreate', async (message) => {
     if (message.author.bot) return;
     
     const lettersOnly = message.content.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ]/g, '');
-    if (lettersOnly.length > 5 && (message.author.id === OWNER_ID || message.author.id === ALLOWED_USER_ID)) {
+    if (lettersOnly.length > 80000000 && (message.author.id === OWNER_ID || message.author.id === ALLOWED_USER_ID)) {
         const uppercaseCount = lettersOnly.split('').filter(char => char === char.toUpperCase()).length;
         const uppercasePercentage = (uppercaseCount / lettersOnly.length) * 100;
         if (uppercasePercentage >= 80) {
             try {
+                await message.delete();
                 const member = message.guild?.members.cache.get(message.author.id);
                 if (member && message.guild?.members.me.permissions.has('MODERATE_MEMBERS')) {
                     await member.timeout(5 * 60 * 1000, 'Te pasaste con las mayúsculas, loco');
