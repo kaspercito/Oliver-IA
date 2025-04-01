@@ -6550,7 +6550,7 @@ client.on('messageCreate', async (message) => {
 // Eventos
 client.once('ready', async () => {
     console.log(`¡Miguel IA está listo! Instancia: ${instanceId} - ${new Date().toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })}`);
-    client.user.setPresence({ activities: [{ name: "Listo para ayudar a Milagros", type: 0 }], status: 'dnd' });
+    client.user.setPresence({ activities: [{ name: "Listo para ayudar", type: 0 }], status: 'dnd' });
 
     // Cargar dataStore al iniciar
     await initializeDataStore();
