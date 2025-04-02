@@ -5951,31 +5951,23 @@ manager.on('trackStart', async (player, track) => {
         player.set('progressMessage', progressMessage);
 
         const intervalo = setInterval(() => {
+            if (!player.playing || player.paused) {
+                clearInterval(intervalo);
+                return;
+            }
             const updatedEmbed = updateBossBar();
             progressMessage.edit({ embeds: [updatedEmbed] }).catch(err => {
-                console.error('Error editando boss bar:', err);
+                console.error('Error editando boss bar:', err.message);
                 clearInterval(intervalo);
             });
         }, 5000);
 
         player.set('progressInterval', intervalo);
 
-        // Guardar estado en dataStore
+        // Guardar estado del reproductor
         const guildId = player.guild;
         dataStore.musicSessions[guildId] = {
             ...dataStore.musicSessions[guildId],
-            current: {
-                title: track.title,
-                uri: track.uri,
-                duration: track.duration,
-                thumbnail: track.thumbnail,
-                requester: track.requester.id
-            },
-            position: player.position,
-            playing: player.playing,
-            paused: player.paused,
-            voiceChannel: player.voiceChannel,
-            textChannel: player.textChannel,
             queue: player.queue.map(t => ({
                 title: t.title,
                 uri: t.uri,
@@ -5983,6 +5975,13 @@ manager.on('trackStart', async (player, track) => {
                 thumbnail: t.thumbnail,
                 requester: t.requester.id
             })),
+            current: player.queue.current ? {
+                title: player.queue.current.title,
+                uri: player.queue.current.uri,
+                duration: player.queue.current.duration,
+                thumbnail: player.queue.current.thumbnail,
+                requester: player.queue.current.requester.id
+            } : null,
             previous: player.queue.previous ? {
                 title: player.queue.previous.title,
                 uri: player.queue.previous.uri,
@@ -5991,12 +5990,18 @@ manager.on('trackStart', async (player, track) => {
                 requester: player.queue.previous.requester.id
             } : null,
             history: dataStore.musicSessions[guildId]?.history || [],
-            autoplay: player.get('autoplay') || false
+            autoplay: player.get('autoplay') || false,
+            position: player.position,
+            playing: player.playing,
+            paused: player.paused,
+            voiceChannel: player.voiceChannel,
+            textChannel: player.textChannel
         };
         autoModified = true;
-        await saveDataStore();
+        await saveDataStore(); // Esto falló por el 409, pero ahora debería funcionar
     } catch (error) {
         console.error(`Error en trackStart para ${track.title}: ${error.message}`);
+        if (error.response) console.error('Detalles:', error.response.data);
     }
 });
 
