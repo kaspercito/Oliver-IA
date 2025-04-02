@@ -7260,12 +7260,6 @@ process.on('SIGINT', async () => {
     process.exit();
 });
 
-
-client.on('raw', (d) => {
-    console.log('Evento raw recibido:', d.t);
-    manager.updateVoiceState(d);
-});
-
     // Iniciar el bot
 initializeDataStore().then(() => {
 client.login(process.env.DISCORD_TOKEN);
