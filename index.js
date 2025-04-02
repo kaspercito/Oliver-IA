@@ -4080,10 +4080,17 @@ async function manejarActualizaciones(message) {
     }
 }
 
+// Comando !play
 async function manejarPlay(message, args) {
     const userName = message.author.username;
     const guildId = message.guild.id;
     const voiceChannel = message.member.voice.channel;
+
+    if (!message.guild) {
+        const embed = createEmbed('#FF1493', '⚠️ Solo servidores', 
+            `Este comando solo funciona en servidores, ${userName}.`);
+        return await message.channel.send({ embeds: [embed] });
+    }
 
     if (!voiceChannel) {
         const embed = createEmbed('#FF1493', '⚠️ Unite a un canal', 
@@ -4097,38 +4104,73 @@ async function manejarPlay(message, args) {
         return await message.channel.send({ embeds: [embed] });
     }
 
-    const player = manager.players.get(guildId) || manager.create({
+    // Verificar o establecer la conexión de voz
+    let connection = getVoiceConnection(guildId);
+    if (!connection || connection.joinConfig.channelId !== voiceChannel.id) {
+        if (connection) connection.destroy(); // Si está en otro canal, desconectamos primero
+        connection = joinVoiceChannel({
+            channelId: voiceChannel.id,
+            guildId: guildId,
+            adapterCreator: message.guild.voiceAdapterCreator,
+            selfDeaf: true,
+            selfMute: false,
+        });
+
+        connection.on('stateChange', (oldState, newState) => {
+            console.log(`Estado de conexión cambió de ${oldState.status} a ${newState.status}`);
+            if (newState.status === 'disconnected') {
+                console.log(`Bot desconectado del canal ${voiceChannel.id}, reconectando...`);
+                setTimeout(() => {
+                    joinVoiceChannel({
+                        channelId: voiceChannel.id,
+                        guildId: guildId,
+                        adapterCreator: message.guild.voiceAdapterCreator,
+                        selfDeaf: true,
+                        selfMute: false,
+                    });
+                }, 5000);
+            }
+        });
+        console.log(`Conectado al canal de voz ${voiceChannel.id}`);
+    }
+
+    // Configurar el reproductor
+    const player = manager.get(guildId) || manager.create({
         guild: guildId,
         voiceChannel: voiceChannel.id,
         textChannel: message.channel.id,
-        selfDeaf: true, // Aquí aseguramos que el bot entre ensordecido
-        selfMute: false // Puede hablar, pero no escucha
+        selfDeaf: true,
     });
 
-    console.log(`Creando o usando reproductor para guild ${guildId}. Conectando al canal ${voiceChannel.id}`);
-    try {
-        await player.connect();
-        console.log(`Conectado al canal de voz ${voiceChannel.id}`);
-    } catch (error) {
-        console.error(`Error al conectar: ${error.message}`);
+    // Verificar nodos Lavalink
+    if (!manager.nodes.some(node => node.connected)) {
+        console.error('No hay nodos Lavalink conectados.');
         const embed = createEmbed('#FF1493', '⚠️ Error', 
-            `No pude conectarme al canal, ${userName}. Error: ${error.message}`);
+            `No hay nodos de música disponibles, ${userName}. Probá de nuevo más tarde.`);
         return await message.channel.send({ embeds: [embed] });
     }
 
     const searchQuery = args.join(' ');
-    const res = await manager.search(searchQuery, message.author);
+    let res;
+    try {
+        res = await manager.search(searchQuery, message.author);
+    } catch (error) {
+        console.error(`Error en búsqueda: ${error.message}`);
+        const embed = createEmbed('#FF1493', '⚠️ Error', 
+            `No pude buscar "${searchQuery}", ${userName}. Error: ${error.message}`);
+        return await message.channel.send({ embeds: [embed] });
+    }
 
-    if (res.loadType === 'NO_MATCHES') {
+    if (res.loadType === 'NO_MATCHES' || res.tracks.length === 0) {
         const embed = createEmbed('#FF1493', '❌ No encontré nada', 
-            `No encontré nada con "${searchQuery}", ${userName}. Probá con otro tema, che.`);
+            `No encontré nada con "${searchQuery}", ${userName}. Probá con otro tema.`);
         return await message.channel.send({ embeds: [embed] });
     }
 
     if (res.loadType === 'PLAYLIST_LOADED') {
         player.queue.add(res.tracks);
         const embed = createEmbed('#FF1493', '🎶 Playlist agregada', 
-            `Agregué ${res.tracks.length} temas a la cola, ${userName}. ¡A disfrutar, loco! 🎉`)
+            `Agregué ${res.tracks.length} temas a la cola, ${userName}. ¡A disfrutar!`)
             .setThumbnail(res.tracks[0].thumbnail || 'https://i.imgur.com/defaultThumbnail.png');
         await message.channel.send({ embeds: [embed] });
     } else {
@@ -4138,14 +4180,13 @@ async function manejarPlay(message, args) {
 
         if (isAlreadyInQueue) {
             embed = createEmbed('#FF1493', '🎵 Tema ya en cola', 
-                `**${res.tracks[0].title}** ya está en la cola, ${userName}. ¡Paciencia, che! 🎶`)
-                .setThumbnail(res.tracks[0].thumbnail || 'https://i.imgur.com/defaultThumbnail.png');
+                `**${res.tracks[0].title}** ya está en la cola, ${userName}.`);
         } else {
             player.queue.add(res.tracks[0]);
             embed = createEmbed('#FF1493', '🎶 Tema agregado', 
-                `Agregué **${res.tracks[0].title}** a la cola, ${userName}. ¡Ya va a sonar, che! 🎵`)
-                .setThumbnail(res.tracks[0].thumbnail || 'https://i.imgur.com/defaultThumbnail.png');
+                `Agregué **${res.tracks[0].title}** a la cola, ${userName}.`);
         }
+        embed.setThumbnail(res.tracks[0].thumbnail || 'https://i.imgur.com/defaultThumbnail.png');
         await message.channel.send({ embeds: [embed] });
     }
 
@@ -4157,9 +4198,9 @@ async function manejarPlay(message, args) {
         } catch (error) {
             console.error(`Error al reproducir: ${error.message}`);
             const embed = createEmbed('#FF1493', '⚠️ Error', 
-                `No pude reproducir el tema, ${userName}. Error: ${error.message}`);
+                `No pude reproducir el tema, ${userName}. Error: ${error.message}. El bot sigue en ${voiceChannel.name}.`);
             await message.channel.send({ embeds: [embed] });
-            player.destroy();
+            // No destruimos el player, se queda en el canal
         }
     } else {
         console.log(`Estado: playing=${player.playing}, paused=${player.paused}, queue.size=${player.queue.size}`);
@@ -4203,7 +4244,7 @@ async function manejarPause(message) {
     }
 }
 
-// Skip
+// Ajustar manejarSkip para no destruir en queue vacía
 async function manejarSkip(message) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
     if (!message.guild) return sendError(message.channel, `Este comando solo funciona en servidores, ${userName}.`);
@@ -4211,15 +4252,12 @@ async function manejarSkip(message) {
     if (!player) return sendError(message.channel, `No hay música en reproducción, ${userName}.`);
 
     console.log(`Saltando pista: ${player.queue.current?.title || 'sin título'}. Cola antes de skip: ${player.queue.size}`);
-
-    // Simplemente saltamos la pista
     player.stop();
 
     if (player.queue.size > 0) {
         console.log(`Siguiente en cola: ${player.queue[0]?.title || 'sin título'}`);
     } else {
-        console.log('No hay más pistas en la cola, destruyendo reproductor.');
-        player.destroy();
+        console.log('No hay más pistas en la cola, pero el bot sigue en el canal.');
     }
 
     await sendSuccess(message.channel, '⏭️ ¡Canción saltada!', `Pasamos a la siguiente, ${userName}.`);
@@ -4252,30 +4290,22 @@ async function manejarShuffle(message) {
     await message.channel.send({ embeds: [embed] });
 }
 
-// Stop
+// Ajustar manejarStop para no desconectar
 async function manejarStop(message) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
-    
-    // Solo en servidores, como siempre
     if (!message.guild) return sendError(message.channel, `Este comando solo funciona en servidores, ${userName}.`);
     
-    // Busco el reproductor
     const player = manager.players.get(message.guild.id);
-    
-    // Si no hay nada, te aviso en rojo
     if (!player) return sendError(message.channel, `No hay música en reproducción, ${userName}.`);
 
-    // Detengo la música sin destruir la conexión
-    player.stop(); // Para la pista actual y limpia la cola (depende del manejador)
-    
-    // Limpio la sesión de música en dataStore, pero no toco la conexión de voz
+    player.stop();
     if (dataStore.musicSessions[message.guild.id]) {
         delete dataStore.musicSessions[message.guild.id];
         dataStoreModified = true;
     }
     
-    // Te confirmo en verde que corté la música
-    await sendSuccess(message.channel, '🛑 ¡Música detenida!', `La reproducción se detuvo, ${userName}. El bot sigue en el canal de voz.`);
+    await sendSuccess(message.channel, '🛑 ¡Música detenida!', 
+        `La reproducción se detuvo, ${userName}. El bot sigue en el canal de voz.`);
 }
 
 // Queue
@@ -6758,40 +6788,6 @@ client.once('ready', async () => {
         const channel = await client.channels.fetch(CHANNEL_ID);
         if (!channel) throw new Error('Canal no encontrado');
 
-        const VOICE_CHANNEL_ID = '1345936574096998410';
-        // No necesitamos fetch del canal otra vez, ya lo tenemos
-        const voiceChannel = client.channels.cache.get(VOICE_CHANNEL_ID);
-        if (!voiceChannel || voiceChannel.type !== 'GUILD_VOICE') {
-            throw new Error('El canal de voz no existe o no es un canal de voz válido.');
-        }
-
-        const connectToVoiceChannel = () => {
-            const connection = joinVoiceChannel({
-                channelId: VOICE_CHANNEL_ID,
-                guildId: voiceChannel.guild.id,
-                adapterCreator: voiceChannel.guild.voiceAdapterCreator,
-                selfDeaf: true,
-                selfMute: false,
-            });
-
-            connection.on('stateChange', (oldState, newState) => {
-                console.log(`Estado de conexión cambió de ${oldState.status} a ${newState.status}`);
-                if (newState.status === 'disconnected') {
-                    console.log('Bot desconectado del canal de voz, intentando reconectar...');
-                    setTimeout(connectToVoiceChannel, 5000);
-                }
-            });
-
-            console.log(`Conectado al canal de voz ${VOICE_CHANNEL_ID}`);
-        };
-
-        const existingConnection = getVoiceConnection(client.user.id);
-        if (!existingConnection) {
-            connectToVoiceChannel();
-        } else {
-            console.log('El bot ya está conectado a un canal de voz.');
-        }
-
         const userHistory = dataStore.conversationHistory[ALLOWED_USER_ID] || [];
         const historySummary = userHistory.length > 0
             ? userHistory.slice(-3).map(msg => `${msg.role === 'user' ? 'Luz' : 'Yo'}: ${msg.content}`).join('\n')
@@ -6845,7 +6841,7 @@ client.once('ready', async () => {
                 .setDescription(`Miguel me pidió que te dé algo especial, un regalo que sale directo de su corazón. Cerrá los ojos y acordate de todas esas noches que pasaban en llamada, hablando de todo y de nada, hasta que se dormían juntos con el sonido del otro al lado. Él dice que esas noches eran su refugio, que escuchar tu respiración mientras dormías lo hacía sentir en casa. Yo te traigo eso de vuelta, y algo más: los rangos del juego que te dio, como un pedacito de lo que él puso en vos. ¿Todavía sentís algo cuando pensás en él, Belén? Respondeme en este MD con "!miguel sí" o "!miguel no", por favor.`)
                 .setFooter({ text: 'Un pedacito de Miguel' });
             await belenUser.send({ embeds: [initialEmbed] });
-            dataStore.regaloStarted = true; // Marcamos que ya se envió
+            dataStore.regaloStarted = true;
             dataStore.regaloHistory = dataStore.regaloHistory || {};
             dataStore.regaloHistory[ALLOWED_USER_ID] = [{ role: 'assistant', content: initialEmbed.data.description, timestamp: Date.now() }];
             dataStoreModified = true;
@@ -6904,7 +6900,6 @@ client.once('ready', async () => {
             }
         }, checkInterval);
 
-        // Autosave cada 30 minutos
         setInterval(async () => {
             const musicActive = manager.players.size > 0 || isPlayingMusic;
 
@@ -6974,7 +6969,6 @@ client.once('ready', async () => {
             }, WARNING_TIME);
         }, SAVE_INTERVAL);
 
-        // Chequeo periódico para recordatorios con timestamp y llegada
         setInterval(async () => {
             const ahora = Date.now();
             const channel = await client.channels.fetch(CHANNEL_ID);
