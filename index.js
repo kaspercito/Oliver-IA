@@ -3865,7 +3865,7 @@ async function manejarMiguel(message) {
     if (regaloHistory.length === 0) {
         const initialEmbed = new EmbedBuilder()
             .setColor('#FF1493')
-            .setTitle(`¡Hola, ${belenMention}!`)
+            .setTitle(`¡Hola, Belen!`)
             .setDescription(`${belenMention}, Miguel me pidió que te traiga algo especial. Pensá en esas noches en llamada, hablando hasta dormirse juntos. Él dice que eras su refugio, que te extraña con todo su corazón. ¿Todavía sentís algo por él? Respondeme aquí con "!miguel sí" o "!miguel no", por favor.`)
             .setFooter({ text: 'Un pedacito de Miguel' });
         await targetChannel.send({ embeds: [initialEmbed] });
