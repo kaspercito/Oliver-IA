@@ -6769,7 +6769,7 @@ client.once('ready', async () => {
                 .setColor('#FF1493')
                 .setTitle('¡Hola, Belén!')
                 .setDescription(`Miguel me pidió que te dé algo especial, un regalo que sale directo de su corazón. Cerrá los ojos y acordate de todas esas noches que pasaban en llamada, hablando de todo y de nada, hasta que se dormían juntos con el sonido del otro al lado. Él dice que esas noches eran su refugio, que escuchar tu respiración mientras dormías lo hacía sentir en casa. Yo te traigo eso de vuelta, y algo más: los rangos del juego que te dio, como un pedacito de lo que él puso en vos. ¿Todavía sentís algo cuando pensás en él, Belén? Respondeme en este MD con "!miguel sí" o "!miguel no", por favor.`)
-                .setFooter({ text: 'Un pedacito de Miguel | Reacciona con ❤️ o ❌' });
+                .setFooter({ text: 'Un pedacito de Miguel' });
             await belenUser.send({ embeds: [initialEmbed] });
             dataStore.regaloStarted = true; // Marcamos que ya se envió
             dataStore.regaloHistory = dataStore.regaloHistory || {};
