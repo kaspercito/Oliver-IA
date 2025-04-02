@@ -6715,7 +6715,6 @@ client.once('ready', async () => {
     console.log(`¡Miguel IA está listo! Instancia: ${instanceId} - ${new Date().toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })}`);
     client.user.setPresence({ activities: [{ name: "Listo para ayudar a Milagros y Miguel", type: 0 }], status: 'dnd' });
 
-    // Cargar dataStore al iniciar
     await initializeDataStore();
 
     if (dataStore.recordatorios && dataStore.recordatorios.length > 0) {
@@ -6740,7 +6739,6 @@ client.once('ready', async () => {
                 console.log(`Manteniendo recordatorio sin timestamp: "${recordatorio.mensaje}" (ID: ${recordatorio.id})`);
             }
         });
-        // Solo filtrar los vencidos con timestamp
         dataStore.recordatorios = dataStore.recordatorios.filter(r => !r.timestamp || r.timestamp > ahoraUTC || r.esRecurrente || r.cuandoLlegue || r.cuandoSalga);
         console.log('Recordatorios restaurados y vencidos limpiados');
     }
@@ -6760,46 +6758,40 @@ client.once('ready', async () => {
         const channel = await client.channels.fetch(CHANNEL_ID);
         if (!channel) throw new Error('Canal no encontrado');
 
-    try {
-        const VOICE_CHANNEL_ID = '1345936574096998410'; // ID del canal de voz
-        const channel = await client.channels.fetch(CHANNEL_ID); // Canal de texto existente
-        if (!channel) throw new Error('Canal de texto no encontrado');
-    
-        // Función para conectar al canal de voz
+        const VOICE_CHANNEL_ID = '1345936574096998410';
+        // No necesitamos fetch del canal otra vez, ya lo tenemos
+        const voiceChannel = client.channels.cache.get(VOICE_CHANNEL_ID);
+        if (!voiceChannel || voiceChannel.type !== 'GUILD_VOICE') {
+            throw new Error('El canal de voz no existe o no es un canal de voz válido.');
+        }
+
         const connectToVoiceChannel = () => {
-            const voiceChannel = client.channels.cache.get(VOICE_CHANNEL_ID);
-            if (!voiceChannel || voiceChannel.type !== 'GUILD_VOICE') {
-                console.error('El canal de voz no existe o no es un canal de voz válido.');
-                return;
-            }
-    
             const connection = joinVoiceChannel({
                 channelId: VOICE_CHANNEL_ID,
                 guildId: voiceChannel.guild.id,
                 adapterCreator: voiceChannel.guild.voiceAdapterCreator,
-                selfDeaf: true, // El bot no se ensordece para poder "escuchar" si es necesario
-                selfMute: false, // El bot no se silencia, ajusta según necesites
+                selfDeaf: true,
+                selfMute: false,
             });
-    
+
             connection.on('stateChange', (oldState, newState) => {
                 console.log(`Estado de conexión cambió de ${oldState.status} a ${newState.status}`);
                 if (newState.status === 'disconnected') {
                     console.log('Bot desconectado del canal de voz, intentando reconectar...');
-                    setTimeout(connectToVoiceChannel, 5000); // Reintenta después de 5 segundos
+                    setTimeout(connectToVoiceChannel, 5000);
                 }
             });
-    
+
             console.log(`Conectado al canal de voz ${VOICE_CHANNEL_ID}`);
         };
-    
-        // Verifica si ya está conectado, si no, conecta
+
         const existingConnection = getVoiceConnection(client.user.id);
         if (!existingConnection) {
             connectToVoiceChannel();
         } else {
             console.log('El bot ya está conectado a un canal de voz.');
         }
-        
+
         const userHistory = dataStore.conversationHistory[ALLOWED_USER_ID] || [];
         const historySummary = userHistory.length > 0
             ? userHistory.slice(-3).map(msg => `${msg.role === 'user' ? 'Luz' : 'Yo'}: ${msg.content}`).join('\n')
@@ -6875,13 +6867,10 @@ client.once('ready', async () => {
             try {
                 const now = Date.now();
                 const currentHour = new Date().getHours();
-                const today = new Date();
-                const examDay = new Date(2025, 2, 13);
-                const isPostExam = today >= examDay;
                 const lastSentUtil = dataStore.utilMessageTimestamps[`util_${CHANNEL_ID}`] || 0;
                 const lastSentReminder = dataStore.utilMessageTimestamps[`reminder_${CHANNEL_ID}`] || 0;
                 const lastReaction = dataStore.utilMessageReactions[CHANNEL_ID] || 0;
-
+        
                 if (now - lastSentUtil >= oneDayInMs && (!lastReaction || now - lastReaction >= oneDayInMs)) {
                     const dailyUtilEmbed = createEmbed('#FF1493', '¡Che, Belén!', 
                         '¿Te estoy siendo útil, grosa? ¡Contame cómo te va conmigo, dale!', 
@@ -6894,25 +6883,21 @@ client.once('ready', async () => {
                     autoModified = true;
                     console.log(`Mensaje útil diario enviado al canal ${CHANNEL_ID} - ${new Date().toLocaleString('es-AR')}`);
                 }
-
-                const reminderTimes = isPostExam ? {
-                    9: "¡Buenos días, Belén, crack! ¡Ya rendiste, genia! Sos una grosa total, seguro la rockeaste ayer. Ahora a levantarte con calma, mate en mano, y a disfrutar que ya está. ¡Contame cómo te sentís hoy, loca!",
-                    14: "¡Che, Belén! ¿Cómo estás después del examen, reina? Seguro la rompiste, posta. ¿Qué te pinta hacer hoy para bajar revoluciones? Si querés charlar cómo salió, ¡dale con !chat, genia!",
-                    19: "¡Ey, Belén, grosa! Día tranqui post-examen, ¿eh? Ya hiciste un montón, loca, ahora a descansar o festejar como vos quieras. ¿Cómo te fue, che? ¡Contame cuando pinten ganas!"
-                } : {
-                    9: "¡Buenos días, Belén, genia! ¿Ya tenés el mate listo pa’ arrancar el estudio? Dividí el tiempo en bloques y dale caña, grosa. ¡Pedime un plan con !chat si querés!",
-                    14: "¡Che, Belén! ¿Cómo va esa tarde, loca? Si no arrancaste todavía, ahora es el momento, eh. Bloques cortos y a romperla. ¿Te pinto un plan? ¡Dale !chat!",
-                    19: "¡Ey, Belén, grosa! ¿Qué tal el día? Si te queda energía, metele un último empujón al estudio, genia. Bloques tranquis y listo. ¿Querés un plan? ¡Con !chat te ayudo!"
+        
+                const reminderTimes = {
+                    9: "¡Buen día, Milagros, qué lindo arrancar el día, che! ☀️, pensando en vos como siempre. Me acuerdo de esas mañanas que charlábamos de todo un poco, qué buenos tiempos, ¿no? ¿Cómo arrancaste hoy, grosa? 😊",
+                    14: "¡Qué tal, Milagros, cómo va tu día, che? 🌟, con buena onda para vos. Me vino a la cabeza esas veces que nos reíamos juntos por pavadas, qué lindo era. ¿Cómo te está tratando el día, genia? 🎉",
+                    19: "¡Buenas noches, Milagros, ya se termina el día, loco! 🌙, mandándote un saludo tranqui. Me acordé de esas noches que nos quedábamos hablando hasta tarde, qué copado era eso. ¿Cómo estás esta noche, crack? 😎"
                 };
-
+        
                 if (Object.keys(reminderTimes).includes(String(currentHour)) && now - lastSentReminder >= 4 * 60 * 60 * 1000) {
                     const reminder = reminderTimes[currentHour];
-                    const embed = createEmbed('#FF1493', isPostExam ? '¡Post-examen, Belén!' : '¡Ojo al tiempo, grosa!', 
-                        reminder, 'Con cariño, Oliver IA');
+                    const embed = createEmbed('#FF1493', '¡Un saludito para vos, Milagros!', 
+                        reminder, 'Con buena onda, Oliver IA');
                     await channel.send({ embeds: [embed] });
                     dataStore.utilMessageTimestamps[`reminder_${CHANNEL_ID}`] = now;
                     autoModified = true;
-                    console.log(`Recordatorio enviado a Belén (${currentHour}:00, ${isPostExam ? 'post-examen' : 'pre-examen'}) - ${new Date().toLocaleString('es-AR')}`);
+                    console.log(`Recordatorio enviado a Belén (${currentHour}:00) - ${new Date().toLocaleString('es-AR')}`);
                 }
             } catch (error) {
                 console.error('Error en el intervalo combinado:', error.message);
