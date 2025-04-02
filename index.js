@@ -3854,56 +3854,25 @@ async function manejarMiguel(message) {
         return;
     }
 
-    // Inicializar el historial si no existe
-    if (!dataStore.regaloHistory) dataStore.regaloHistory = {};
-    if (!dataStore.regaloHistory[ALLOWED_USER_ID]) dataStore.regaloHistory[ALLOWED_USER_ID] = [];
-
-    const regaloHistory = dataStore.regaloHistory[ALLOWED_USER_ID];
-    console.log(`[manejarMiguel] Historial actual de Belén: ${JSON.stringify(regaloHistory)}`);
-
-    // Solo procesamos si es Belén y en el canal correcto
+    // Solo procesamos si es Belén en el canal correcto
     if (message.channel.id !== targetChannelId || userId !== ALLOWED_USER_ID) {
         console.log(`[manejarMiguel] Mensaje ignorado - Canal: ${message.channel.id}, UserID: ${userId}`);
         return;
     }
 
+    // Extraer respuesta
     const normalizedContent = message.content.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-    let respuesta = '';
-
-    if (normalizedContent.startsWith('!miguel')) {
-        respuesta = normalizedContent.slice(7).trim();
-    } else {
+    if (!normalizedContent.startsWith('!miguel')) {
         console.log(`[manejarMiguel] Comando no válido: ${message.content}`);
         return;
     }
+    const respuesta = normalizedContent.slice(7).trim();
 
-    // Si el historial está vacío, enviamos el mensaje inicial
-    if (regaloHistory.length === 0) {
-        const initialEmbed = new EmbedBuilder()
-            .setColor('#FF1493')
-            .setTitle(`¡Hola, ${belenMention}!`)
-            .setDescription(`${belenMention}, Miguel me pidió que te traiga algo especial. Pensá en esas noches en llamada, hablando hasta dormirse juntos. Él dice que eras su refugio, que te extraña con todo su corazón. ¿Todavía sentís algo por él? Respondeme aquí con "!miguel sí" o "!miguel no", por favor.`)
-            .setFooter({ text: 'Un pedacito de Miguel' });
-        await targetChannel.send({ embeds: [initialEmbed] });
-        regaloHistory.push({ role: 'assistant', content: initialEmbed.data.description, timestamp: Date.now() });
-        fs.writeFileSync('conversationHistory.json', JSON.stringify(dataStore, null, 2));
-        console.log('[manejarMiguel] Mensaje inicial enviado al canal');
-
-        const ownerUser = await client.users.fetch(OWNER_ID);
-        const ownerEmbed = new EmbedBuilder()
-            .setColor('#FF1493')
-            .setTitle('¡Arrancamos, Miguel!')
-            .setDescription('Le mandé el mensaje inicial a Belén en el canal. Esperá a ver qué responde.')
-            .setFooter({ text: 'Un pedacito tuyo' });
-        await ownerUser.send({ embeds: [ownerEmbed] });
-        return;
-    }
-
-    // Procesamos la respuesta
+    // Mensaje de espera
     const waitingEmbed = new EmbedBuilder()
         .setColor('#FF1493')
-        .setTitle(`¡Un segundo, ${belenMention}!`)
-        .setDescription(`${belenMention}, estoy trayendo algo del corazón — de Miguel para vos...`)
+        .setTitle(`¡Hola, ${belenMention}!`)
+        .setDescription(`${belenMention}, estoy trayendo algo de Miguel... Un segundo...`)
         .setFooter({ text: 'Un pedacito de Miguel' });
     const waitingMessage = await targetChannel.send({ embeds: [waitingEmbed] });
 
@@ -3911,47 +3880,83 @@ async function manejarMiguel(message) {
         let aiReply = '';
         let ownerReply = '';
 
-        if (regaloHistory.length === 1 && respuesta) {
-            regaloHistory.push({ role: 'user', content: respuesta, timestamp: Date.now() });
-            if (respuesta === 'sí' || respuesta === 'si') {
-                aiReply = `${belenMention}, ¡qué alegría escuchar eso! Si todavía sentís algo, Miguel quiere saber si le das una chance de volver a intentarlo. Respondeme con "!miguel sí" o "!miguel no".`;
-                ownerReply = `Miguel, ¡Belén dijo SÍ, siente algo por vos! Le pregunté si quiere intentarlo de nuevo.`;
-            } else if (respuesta === 'no') {
-                aiReply = `${belenMention}, gracias por ser honesta. Si querés decirle algo a Miguel, usá "!miguel [tu mensaje]".`;
-                ownerReply = `Miguel, Belén dijo NO, no siente nada. Esperá por si te manda un mensaje.`;
+        // Estado inicial: primera pregunta con "!miguel"
+        if (respuesta === '' || respuesta === 'miguel') {
+            aiReply = `${belenMention}, Miguel me pidió que te hable de corazón. ¿Todavía sentís algo por él, aunque sea un pedacito de lo que fueron? Decime '!miguel sí' o '!miguel no'.`;
+            ownerReply = 'Le hice la primera pregunta a Belén. Esperá a ver qué dice.';
+        }
+        // Respuesta a "¿Sentís algo?"
+        else if (respuesta === 'sí' || respuesta === 'si') {
+            if (message.reference && message.reference.messageId) {
+                const repliedMessage = await targetChannel.messages.fetch(message.reference.messageId);
+                if (repliedMessage.embeds[0]?.description.includes('¿Te animarías a darle una chance')) {
+                    aiReply = `${belenMention}, ¡eso es enorme! ¿Qué te gustaría que Miguel haga para empezar de nuevo? Decime '!miguel [tu idea]'.`;
+                    ownerReply = `¡Belén dijo SÍ a intentarlo! Le pedí una idea para empezar.`;
+                } else {
+                    aiReply = `${belenMention}, ¡eso me da esperanza! ¿Te acordás de algo lindo de lo que vivieron juntos que todavía te saque una sonrisa? Contame con '!miguel [tu respuesta]'.`;
+                    ownerReply = `Belén dijo SÍ, siente algo por vos. Le pedí que me cuente un recuerdo lindo.`;
+                }
             } else {
-                aiReply = `${belenMention}, no te entendí bien. Respondeme con "!miguel sí" o "!miguel no", por favor.`;
-                ownerReply = `Miguel, Belén no respondió claro ("${respuesta}"). Le pedí que sea más específica.`;
+                aiReply = `${belenMention}, ¡eso me da esperanza! ¿Te acordás de algo lindo de lo que vivieron juntos que todavía te saque una sonrisa? Contame con '!miguel [tu respuesta]'.`;
+                ownerReply = `Belén dijo SÍ, siente algo por vos. Le pedí que me cuente un recuerdo lindo.`;
             }
-        } else if (regaloHistory.length === 3 && respuesta) {
-            regaloHistory.push({ role: 'user', content: respuesta, timestamp: Date.now() });
-            const firstAnswer = regaloHistory[1].content;
-            if (firstAnswer === 'sí' || firstAnswer === 'si') {
-                if (respuesta === 'sí' || respuesta === 'si') {
-                    aiReply = `${belenMention}, ¡esto es todo! Decime algo para Miguel con "!miguel [tu mensaje]".`;
-                    ownerReply = `Miguel, ¡Belén dijo SÍ a intentarlo! Esperá su mensaje.`;
-                } else if (respuesta === 'no') {
-                    aiReply = `${belenMention}, qué pena... Si querés decirle algo, usá "!miguel [tu mensaje]".`;
-                    ownerReply = `Miguel, Belén siente algo pero dijo NO a intentarlo.`;
+        }
+        else if (respuesta === 'no') {
+            if (message.reference && message.reference.messageId) {
+                const repliedMessage = await targetChannel.messages.fetch(message.reference.messageId);
+                if (repliedMessage.embeds[0]?.description.includes('¿Vale la pena intentarlo')) {
+                    aiReply = `${belenMention}, entiendo. ¿Hay algo que quieras que Miguel sepa antes de cerrar este capítulo? Decime '!miguel [tu mensaje]' o '!miguel listo'.`;
+                    ownerReply = `Belén dijo NO a intentarlo. Le pregunté si quiere decirte algo más.`;
+                } else {
+                    aiReply = `${belenMention}, gracias por ser sincera. ¿Hay algo que él podría hacer diferente para que sientas que vale la pena intentarlo de nuevo? Decime '!miguel [tu respuesta]' o '!miguel nada'.`;
+                    ownerReply = `Belén dijo NO, pero le pregunté si hay algo que puedas hacer para cambiar eso.`;
+                }
+            } else {
+                aiReply = `${belenMention}, gracias por ser sincera. ¿Hay algo que él podría hacer diferente para que sientas que vale la pena intentarlo de nuevo? Decime '!miguel [tu respuesta]' o '!miguel nada'.`;
+                ownerReply = `Belén dijo NO, pero le pregunté si hay algo que puedas hacer para cambiar eso.`;
+            }
+        }
+        // Respuesta a "¿Algo lindo?" o "¿Algo diferente?"
+        else if (respuesta.startsWith('[') && respuesta.endsWith(']')) {
+            const mensaje = respuesta.slice(1, -1);
+            if (message.reference && message.reference.messageId) {
+                const repliedMessage = await targetChannel.messages.fetch(message.reference.messageId);
+                if (repliedMessage.embeds[0]?.description.includes('¿Te acordás de algo lindo')) {
+                    aiReply = `${belenMention}, qué lindo eso. Miguel dice que extraña esos momentos con vos. ¿Te animarías a darle una chance de volver a construir algo así? Decime '!miguel sí' o '!miguel no'.`;
+                    ownerReply = `Belén compartió un recuerdo: "${mensaje}". Le pregunté si te da una chance.`;
+                } else if (repliedMessage.embeds[0]?.description.includes('¿Algo que él podría hacer diferente')) {
+                    aiReply = `${belenMention}, gracias por contarme. Se lo voy a pasar a Miguel para que lo tenga en cuenta. ¿Querés decirle algo más? Usá '!miguel [tu mensaje]' o '!miguel listo'.`;
+                    ownerReply = `Belén dijo que podrías intentar esto: "${mensaje}". Le pregunté si quiere decirte algo más.`;
+                } else if (repliedMessage.embeds[0]?.description.includes('¿Qué te gustaría que haga') || 
+                           repliedMessage.embeds[0]?.description.includes('¿Algo que quieras que Miguel sepa')) {
+                    aiReply = `${belenMention}, listo, se lo paso a Miguel. ¿Algo más? '!miguel listo' si terminaste.`;
+                    ownerReply = `Belén te dice: "${mensaje}".`;
                 }
             }
-        } else if (respuesta.startsWith('[') && respuesta.endsWith(']')) {
-            const mensaje = respuesta.slice(1, -1);
-            aiReply = `${belenMention}, mensaje recibido. Se lo paso a Miguel.`;
-            ownerReply = `Miguel, Belén te dice: "${mensaje}".`;
-            regaloHistory.push({ role: 'user', content: respuesta, timestamp: Date.now() });
-        } else {
-            aiReply = `${belenMention}, no te entendí bien. Usá "!miguel sí", "!miguel no" o "!miguel [tu mensaje]".`;
-            ownerReply = `Miguel, Belén dijo algo raro ("${respuesta}"). Le pedí que lo aclare.`;
+        }
+        else if (respuesta === 'nada') {
+            aiReply = `${belenMention}, está bien. Miguel solo quiere que sepas que sos importante para él. Si alguna vez querés hablarle, decime '!miguel [tu mensaje]'. ¿Algo más por ahora? '!miguel listo' si no.`;
+            ownerReply = `Belén dijo NO y que no hay nada que puedas hacer por ahora. Le dejé la puerta abierta para un mensaje.`;
+        }
+        else if (respuesta === 'listo') {
+            aiReply = `${belenMention}, gracias por hablar conmigo. Si alguna vez querés decirle algo a Miguel, ya sabés: '!miguel [tu mensaje]'. ¡Acá estoy!`;
+            ownerReply = `Belén terminó por ahora. Te conté todo lo que dijo.`;
+        }
+        // Respuesta inválida
+        else {
+            aiReply = `${belenMention}, no te entendí bien. Usá '!miguel sí', '!miguel no', '!miguel [tu mensaje]', '!miguel nada' o '!miguel listo', dependiendo de lo que te pregunté antes.`;
+            ownerReply = `Belén dijo algo raro ("${respuesta}"). Le pedí que lo aclare.`;
         }
 
+        // Enviar respuesta al canal
         const finalEmbed = new EmbedBuilder()
             .setColor('#FF1493')
-            .setTitle(`¡Aquí estoy, ${belenMention}!`)
+            .setTitle(`¡Hola, ${belenMention}!`)
             .setDescription(aiReply)
             .setFooter({ text: 'Un pedacito de Miguel' });
         await waitingMessage.edit({ embeds: [finalEmbed] });
 
+        // Notificar a Miguel
         if (ownerReply) {
             const ownerUser = await client.users.fetch(OWNER_ID);
             const ownerEmbed = new EmbedBuilder()
@@ -3962,16 +3967,12 @@ async function manejarMiguel(message) {
             await ownerUser.send({ embeds: [ownerEmbed] });
             console.log(`[manejarMiguel] Informe enviado a Miguel: ${ownerReply}`);
         }
-
-        dataStore.regaloHistory[ALLOWED_USER_ID] = regaloHistory;
-        fs.writeFileSync('conversationHistory.json', JSON.stringify(dataStore, null, 2));
-        console.log(`[manejarMiguel] Historial actualizado: ${JSON.stringify(regaloHistory)}`);
     } catch (error) {
         console.error(`[manejarMiguel] Error: ${error.message}`);
         const errorEmbed = new EmbedBuilder()
             .setColor('#FF1493')
-            .setTitle(`¡Uy, ${belenMention}, algo falló!`)
-            .setDescription('Se me trabó el regalo, perdón. ¿Probamos de nuevo?')
+            .setTitle(`¡Uy, ${belenMention}!`)
+            .setDescription(`Algo se trabó, perdón. Error: ${error.message}. ¿Probamos de nuevo con '!miguel'?`)
             .setFooter({ text: 'Un pedacito de Miguel' });
         await waitingMessage.edit({ embeds: [errorEmbed] });
     }
