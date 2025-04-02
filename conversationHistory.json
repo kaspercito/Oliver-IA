@@ -662,7 +662,7 @@
       "mensaje": "Hazme acuerdo de capturar koth todos los días",
       "cuandoLlegue": false,
       "cuandoSalga": false,
-      "timestamp": 1743613200000,
+      "timestamp": 1743699600000,
       "creado": 1743536333479,
       "esRecurrente": true,
       "hora": 14,
@@ -675,7 +675,7 @@
       "mensaje": "Hazme acuerdo de capturar koth todos los días",
       "cuandoLlegue": false,
       "cuandoSalga": false,
-      "timestamp": 1743620400000,
+      "timestamp": 1743706800000,
       "creado": 1743536337763,
       "esRecurrente": true,
       "hora": 16,
@@ -688,7 +688,7 @@
       "mensaje": "Hazme acuerdo de capturar koth todos los días",
       "cuandoLlegue": false,
       "cuandoSalga": false,
-      "timestamp": 1743627600000,
+      "timestamp": 1743714000000,
       "creado": 1743536340675,
       "esRecurrente": true,
       "hora": 18,
@@ -1034,8 +1034,8 @@
     "1023132788632862761": true
   },
   "regaloStarted": true,
-"regaloHistory": {
+  "regaloHistory": {
     "1023132788632862761": [],
     "752987736759205960": []
-}
+  }
 }
