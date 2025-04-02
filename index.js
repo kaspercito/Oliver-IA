@@ -3251,7 +3251,7 @@ async function manejarChat(message) {
 
     // Si no escribe nada, error con onda y emojis
     if (!chatMessage) {
-        return sendError(message.channel, `¡Escribí algo después de "!ch", ${userName}! No me dejes colgado, che 😛`, undefined, 'Hecho con onda por Miguel IA | Reacciona con ✅ o ❌');
+        return sendError(message.channel, `¡Escribí algo después de "!ch", ${userName}! No me dejes colgado.`, undefined, 'Hecho con onda por Oliver IA | Reacciona con ✅ o ❌');
     }
 
     // Inicializo historiales
@@ -3292,7 +3292,7 @@ async function manejarChat(message) {
     }
 
     // Aviso que estoy pensando
-    const waitingEmbed = createEmbed('#FF1493', `¡Aguantá un toque, ${userName}! ⏳`, 'Estoy pensando una respuesta re copada... 😎', 'Hecho con onda por Miguel IA | Reacciona con ✅ o ❌');
+    const waitingEmbed = createEmbed('#FF1493', `¡Aguantá un toque, ${userName}! ⏳`, 'Estoy pensando una respuesta re copada...', 'Hecho con onda por Oliver IA | Reacciona con ✅ o ❌');
     const waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
 
     try {
@@ -3318,18 +3318,18 @@ Esto es lo que charlamos antes con ${userName}:\n${context}\n${sharedContext ? `
         dataStoreModified = true;
 
         // Corto si es muy largo
-        if (aiReply.length > 2000) aiReply = aiReply.slice(0, 1990) + '... (seguí charlando pa’ más, loco 😜)';
+        if (aiReply.length > 2000) aiReply = aiReply.slice(0, 1990) + '... (seguí charlando pa’ más.)';
 
         // Respuesta final con emojis
-        const finalEmbed = createEmbed('#FF1493', `¡Aquí estoy, ${userName}! 🚀`, `${aiReply}\n\n¿Te cerró, ${userName}? ¡Seguimos charlando, che! 😎✨`, 'Con cariño, Oliver IA | Reacciona con ✅ o ❌');
+        const finalEmbed = createEmbed('#FF1493', `¡Hola, ${userName}!`, `${aiReply}\n\n¿Te cerró, ${userName}? ¡Seguimos charlando.`, 'Con cariño, Oliver IA | Reacciona con ✅ o ❌');
         const updatedMessage = await waitingMessage.edit({ embeds: [finalEmbed] });
         await updatedMessage.react('✅');
         await updatedMessage.react('❌');
         sentMessages.set(updatedMessage.id, { content: aiReply, originalQuestion: chatMessage, message: updatedMessage });
     } catch (error) {
         console.error('Error con Gemini:', error.message);
-        const fallbackReply = `¡Uy, ${userName}, qué cagada! Me mandé un moco, loco 😅. ¿Me tirás otra vez el mensaje o seguimos con otra cosa? 😜\n\n¿Te cerró, ${userName}? ¡Seguimos charlando, che! ✨]`;
-        const errorEmbed = createEmbed('#FF1493', `¡Qué cagada, ${userName}! 😱`, fallbackReply, 'Con cariño, Oliver IA | Reacciona con ✅ o ❌');
+        const fallbackReply = `¡Uy, ${userName}, qué cagada! Me mandé un moco, loco. ¿Me tirás otra vez el mensaje o seguimos con otra cosa?\n\n¿Te cerró, ${userName}? ¡Seguimos charlando, che!]`;
+        const errorEmbed = createEmbed('#FF1493', `¡Qué cagada, ${userName}!`, fallbackReply, 'Con cariño, Oliver IA | Reacciona con ✅ o ❌');
         const errorMessageSent = await waitingMessage.edit({ embeds: [errorEmbed] });
         await errorMessageSent.react('✅');
         await errorMessageSent.react('❌');
