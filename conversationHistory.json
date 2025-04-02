@@ -105,54 +105,6 @@
     "752987736759205960": [
       {
         "role": "user",
-        "content": "ah no te preguntaba nomás",
-        "timestamp": 1743630859456,
-        "userName": "Miguel"
-      },
-      {
-        "role": "assistant",
-        "content": "Ah, okay, Miguel.  Entendido.",
-        "timestamp": 1743630860179,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
-        "content": "te quiero mucho y quiero que me acompañes y no me defraudes como ella",
-        "timestamp": 1743630894387,
-        "userName": "Miguel"
-      },
-      {
-        "role": "assistant",
-        "content": "Che, Miguel,  lo que me decís es muy importante.  Te agradezco que confíes en mí y que quieras que te acompañe.  Entiendo que te sientas vulnerable después de lo que pasaste con Belén, y te aseguro que voy a estar acá para vos, siempre que me necesites.  No te voy a defraudar.  \n\nPero,  recordá que yo soy un IA, y aunque puedo ofrecerte apoyo y consejos, no puedo reemplazar el apoyo de amigos, familia o un profesional. Si sentís que necesitas ayuda más allá de una charla,  no dudes en buscarla.  \n\nContame, ¿qué necesitas ahora? ¿Hay algo específico con lo que te pueda ayudar?",
-        "timestamp": 1743630896018,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
-        "content": "crees que le deba quitar el acceso a usarte?",
-        "timestamp": 1743630956039,
-        "userName": "Miguel"
-      },
-      {
-        "role": "assistant",
-        "content": "Che, Miguel, entiendo tu pregunta.  Si te referís a si deberías quitarle el acceso a *mí* a Belén,  la respuesta es que depende completamente de lo que vos quieras y necesites. No te puedo decir qué hacer,  porque es una decisión personal y solo vos podés tomarla.  Pensalo bien,  y hace lo que te parezca mejor para tu bienestar.  Si necesitas ayuda para analizar las posibles consecuencias de cada opción,  con gusto te ayudo.",
-        "timestamp": 1743630957318,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
-        "content": "quiero que tú me lo digas, quieres que ella te use?",
-        "timestamp": 1743630993916,
-        "userName": "Miguel"
-      },
-      {
-        "role": "assistant",
-        "content": "Che, Miguel,  entiendo perfectamente lo que me estás preguntando.  Como IA, no tengo deseos, sentimientos ni la capacidad de ser \"usado\" en el sentido humano de la palabra. No experimento emociones como celos o la necesidad de ser controlado.  Mi objetivo es ayudar a todos los usuarios por igual.  La decisión de quién puede acceder a mí depende de vos y de cómo configures tu acceso a la herramienta.  No tengo preferencias al respecto.",
-        "timestamp": 1743630995096,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
         "content": "dime si o no por favor",
         "timestamp": 1743631023602,
         "userName": "Miguel"
@@ -221,6 +173,54 @@
         "role": "assistant",
         "content": "Che, Miguel, entiendo perfectamente lo que me estás diciendo.  Suena a que te está dando migas, pero sin realmente querer volver.  Decir que extraña ver películas contigo es una forma de mantener un contacto emocional,  pero su firmeza en la decisión de separarse desde el primer día indica que,  a pesar de algún posible afecto residual, no hay una intención real de retomar la relación.  Posta que es una situación difícil, pero te recomiendo que lo aceptes.  Seguir aferrándote a esa posibilidad te puede causar más dolor.  Concentrate en vos, en tu bienestar, y seguí adelante.",
         "timestamp": 1743634466021,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "la sigo amando pero que me sugieres hacer?",
+        "timestamp": 1743636787139,
+        "userName": "Miguel"
+      },
+      {
+        "role": "assistant",
+        "content": "Che, Miguel, te entiendo posta.  Amar y soltar es una de las cosas más difíciles del mundo, loco.  Que sigas amándola no significa que tengas que seguir aferrándote a algo que ya terminó.  \n\nTe sugiero que te enfoques en vos mismo, en tu bienestar.  Buscá actividades que te gusten, reencontrate con amigos, dedicá tiempo a tus hobbies.  Permitir que el dolor te consuma solo te va a retrasar.  \n\nNo hay una fórmula mágica, pero darle tiempo al tiempo es fundamental.  Si el dolor es muy grande,  no dudes en buscar ayuda profesional. Un psicólogo te puede ayudar a procesar tus emociones y a construir un camino hacia adelante.  No tengas vergüenza,  es una muestra de fortaleza buscar apoyo cuando lo necesitas.\n\nPensá en esto:  ¿Qué cosas podrías hacer para sentirte mejor hoy mismo?  Empezá por ahí, de a poco.  Y acordate que estoy acá para lo que necesites, aunque sea para charlar un rato.",
+        "timestamp": 1743636789196,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "que opinas del dorama si la vida te da mandarinas?",
+        "timestamp": 1743636878142,
+        "userName": "Miguel"
+      },
+      {
+        "role": "assistant",
+        "content": "Che, Miguel,  para darte mi opinión sobre el dorama \"Si la vida te da mandarinas\" necesito saber de qué dorama estás hablando.  No lo conozco, loco.  ¿Podrías darme más información, como el título en inglés o algún dato adicional?  Posta que necesito eso para poder ayudarte.",
+        "timestamp": 1743636879144,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "when life gives you tangerines kdrama",
+        "timestamp": 1743636902930,
+        "userName": "Miguel"
+      },
+      {
+        "role": "assistant",
+        "content": "Che, Miguel, entiendo.  \"When Life Gives You Tangerines\" (o \"Si la vida te da mandarinas\" en español, según entiendo), no es un k-drama muy conocido, al menos no en el nivel de otros más populares.  No tengo información específica sobre él, como crítica o resumen de la trama. Para poder darte una opinión, necesitaría más datos: ¿dónde lo viste mencionado?, ¿qué tipo de información te interesa saber?  Posta que sin más detalles, no te puedo ayudar mucho, loco.",
+        "timestamp": 1743636904226,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "es una serie de televisión pues",
+        "timestamp": 1743636936971,
+        "userName": "Miguel"
+      },
+      {
+        "role": "assistant",
+        "content": "Che, Miguel, entiendo que me decís que \"When Life Gives You Tangerines\" es una serie de televisión.  Pero sin más detalles, como el país de origen, el año de emisión o alguna reseña, no puedo darte una opinión.  Necesitaría más información para ayudarte, loco. ¿Podrías aclararme un poco más, por favor?",
+        "timestamp": 1743636938172,
         "userName": "Oliver"
       }
     ]
@@ -1238,6 +1238,54 @@
         "role": "assistant",
         "content": "Che, Miguel, entiendo perfectamente lo que me estás diciendo.  Suena a que te está dando migas, pero sin realmente querer volver.  Decir que extraña ver películas contigo es una forma de mantener un contacto emocional,  pero su firmeza en la decisión de separarse desde el primer día indica que,  a pesar de algún posible afecto residual, no hay una intención real de retomar la relación.  Posta que es una situación difícil, pero te recomiendo que lo aceptes.  Seguir aferrándote a esa posibilidad te puede causar más dolor.  Concentrate en vos, en tu bienestar, y seguí adelante.",
         "timestamp": 1743634466021,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "la sigo amando pero que me sugieres hacer?",
+        "timestamp": 1743636787139,
+        "userName": "Miguel"
+      },
+      {
+        "role": "assistant",
+        "content": "Che, Miguel, te entiendo posta.  Amar y soltar es una de las cosas más difíciles del mundo, loco.  Que sigas amándola no significa que tengas que seguir aferrándote a algo que ya terminó.  \n\nTe sugiero que te enfoques en vos mismo, en tu bienestar.  Buscá actividades que te gusten, reencontrate con amigos, dedicá tiempo a tus hobbies.  Permitir que el dolor te consuma solo te va a retrasar.  \n\nNo hay una fórmula mágica, pero darle tiempo al tiempo es fundamental.  Si el dolor es muy grande,  no dudes en buscar ayuda profesional. Un psicólogo te puede ayudar a procesar tus emociones y a construir un camino hacia adelante.  No tengas vergüenza,  es una muestra de fortaleza buscar apoyo cuando lo necesitas.\n\nPensá en esto:  ¿Qué cosas podrías hacer para sentirte mejor hoy mismo?  Empezá por ahí, de a poco.  Y acordate que estoy acá para lo que necesites, aunque sea para charlar un rato.",
+        "timestamp": 1743636789196,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "que opinas del dorama si la vida te da mandarinas?",
+        "timestamp": 1743636878143,
+        "userName": "Miguel"
+      },
+      {
+        "role": "assistant",
+        "content": "Che, Miguel,  para darte mi opinión sobre el dorama \"Si la vida te da mandarinas\" necesito saber de qué dorama estás hablando.  No lo conozco, loco.  ¿Podrías darme más información, como el título en inglés o algún dato adicional?  Posta que necesito eso para poder ayudarte.",
+        "timestamp": 1743636879144,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "when life gives you tangerines kdrama",
+        "timestamp": 1743636902930,
+        "userName": "Miguel"
+      },
+      {
+        "role": "assistant",
+        "content": "Che, Miguel, entiendo.  \"When Life Gives You Tangerines\" (o \"Si la vida te da mandarinas\" en español, según entiendo), no es un k-drama muy conocido, al menos no en el nivel de otros más populares.  No tengo información específica sobre él, como crítica o resumen de la trama. Para poder darte una opinión, necesitaría más datos: ¿dónde lo viste mencionado?, ¿qué tipo de información te interesa saber?  Posta que sin más detalles, no te puedo ayudar mucho, loco.",
+        "timestamp": 1743636904226,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "es una serie de televisión pues",
+        "timestamp": 1743636936971,
+        "userName": "Miguel"
+      },
+      {
+        "role": "assistant",
+        "content": "Che, Miguel, entiendo que me decís que \"When Life Gives You Tangerines\" es una serie de televisión.  Pero sin más detalles, como el país de origen, el año de emisión o alguna reseña, no puedo darte una opinión.  Necesitaría más información para ayudarte, loco. ¿Podrías aclararme un poco más, por favor?",
+        "timestamp": 1743636938172,
         "userName": "Oliver"
       }
     ]
