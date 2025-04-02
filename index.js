@@ -3861,30 +3861,7 @@ async function manejarMiguel(message) {
     const regaloHistory = dataStore.regaloHistory[ALLOWED_USER_ID];
     console.log(`[manejarMiguel] Historial actual de Belén: ${JSON.stringify(regaloHistory)}`);
 
-    // Enviar mensaje inicial si el historial está vacío
-    if (regaloHistory.length === 0) {
-        const initialEmbed = new EmbedBuilder()
-            .setColor('#FF1493')
-            .setTitle(`¡Hola, Belen!`)
-            .setDescription(`${belenMention}, Miguel me pidió que te traiga algo especial. Pensá en esas noches en llamada, hablando hasta dormirse juntos. Él dice que eras su refugio, que te extraña con todo su corazón. ¿Todavía sentís algo por él? Respondeme aquí con "!miguel sí" o "!miguel no", por favor.`)
-            .setFooter({ text: 'Un pedacito de Miguel' });
-        await targetChannel.send({ embeds: [initialEmbed] });
-        regaloHistory.push({ role: 'assistant', content: initialEmbed.data.description, timestamp: Date.now() });
-        fs.writeFileSync('conversationHistory.json', JSON.stringify(dataStore, null, 2));
-        console.log('[manejarMiguel] Mensaje inicial enviado al canal');
-        
-        // Notificar a Miguel
-        const ownerUser = await client.users.fetch(OWNER_ID);
-        const ownerEmbed = new EmbedBuilder()
-            .setColor('#FF1493')
-            .setTitle('¡Arrancamos, Miguel!')
-            .setDescription('Le mandé el mensaje inicial a Belén en el canal. Esperá a ver qué responde.')
-            .setFooter({ text: 'Un pedacito tuyo' });
-        await ownerUser.send({ embeds: [ownerEmbed] });
-        return;
-    }
-
-    // Procesar respuestas solo si vienen del canal correcto y de Belén
+    // Solo procesamos si es Belén y en el canal correcto
     if (message.channel.id !== targetChannelId || userId !== ALLOWED_USER_ID) {
         console.log(`[manejarMiguel] Mensaje ignorado - Canal: ${message.channel.id}, UserID: ${userId}`);
         return;
@@ -3900,6 +3877,29 @@ async function manejarMiguel(message) {
         return;
     }
 
+    // Si el historial está vacío, enviamos el mensaje inicial
+    if (regaloHistory.length === 0) {
+        const initialEmbed = new EmbedBuilder()
+            .setColor('#FF1493')
+            .setTitle(`¡Hola, ${belenMention}!`)
+            .setDescription(`${belenMention}, Miguel me pidió que te traiga algo especial. Pensá en esas noches en llamada, hablando hasta dormirse juntos. Él dice que eras su refugio, que te extraña con todo su corazón. ¿Todavía sentís algo por él? Respondeme aquí con "!miguel sí" o "!miguel no", por favor.`)
+            .setFooter({ text: 'Un pedacito de Miguel' });
+        await targetChannel.send({ embeds: [initialEmbed] });
+        regaloHistory.push({ role: 'assistant', content: initialEmbed.data.description, timestamp: Date.now() });
+        fs.writeFileSync('conversationHistory.json', JSON.stringify(dataStore, null, 2));
+        console.log('[manejarMiguel] Mensaje inicial enviado al canal');
+
+        const ownerUser = await client.users.fetch(OWNER_ID);
+        const ownerEmbed = new EmbedBuilder()
+            .setColor('#FF1493')
+            .setTitle('¡Arrancamos, Miguel!')
+            .setDescription('Le mandé el mensaje inicial a Belén en el canal. Esperá a ver qué responde.')
+            .setFooter({ text: 'Un pedacito tuyo' });
+        await ownerUser.send({ embeds: [ownerEmbed] });
+        return;
+    }
+
+    // Procesamos la respuesta
     const waitingEmbed = new EmbedBuilder()
         .setColor('#FF1493')
         .setTitle(`¡Un segundo, ${belenMention}!`)
@@ -3908,8 +3908,8 @@ async function manejarMiguel(message) {
     const waitingMessage = await targetChannel.send({ embeds: [waitingEmbed] });
 
     try {
-        let aiReply;
-        let ownerReply;
+        let aiReply = '';
+        let ownerReply = '';
 
         if (regaloHistory.length === 1 && respuesta) {
             regaloHistory.push({ role: 'user', content: respuesta, timestamp: Date.now() });
@@ -3921,7 +3921,7 @@ async function manejarMiguel(message) {
                 ownerReply = `Miguel, Belén dijo NO, no siente nada. Esperá por si te manda un mensaje.`;
             } else {
                 aiReply = `${belenMention}, no te entendí bien. Respondeme con "!miguel sí" o "!miguel no", por favor.`;
-                ownerReply = `Miguel, Belén no respondió claro. Le pedí que sea más específica.`;
+                ownerReply = `Miguel, Belén no respondió claro ("${respuesta}"). Le pedí que sea más específica.`;
             }
         } else if (regaloHistory.length === 3 && respuesta) {
             regaloHistory.push({ role: 'user', content: respuesta, timestamp: Date.now() });
@@ -3940,26 +3940,27 @@ async function manejarMiguel(message) {
             aiReply = `${belenMention}, mensaje recibido. Se lo paso a Miguel.`;
             ownerReply = `Miguel, Belén te dice: "${mensaje}".`;
             regaloHistory.push({ role: 'user', content: respuesta, timestamp: Date.now() });
+        } else {
+            aiReply = `${belenMention}, no te entendí bien. Usá "!miguel sí", "!miguel no" o "!miguel [tu mensaje]".`;
+            ownerReply = `Miguel, Belén dijo algo raro ("${respuesta}"). Le pedí que lo aclare.`;
         }
 
-        if (aiReply) {
-            const finalEmbed = new EmbedBuilder()
-                .setColor('#FF1493')
-                .setTitle(`¡Aquí estoy, ${belenMention}!`)
-                .setDescription(aiReply)
-                .setFooter({ text: 'Un pedacito de Miguel' });
-            await waitingMessage.edit({ embeds: [finalEmbed] });
+        const finalEmbed = new EmbedBuilder()
+            .setColor('#FF1493')
+            .setTitle(`¡Aquí estoy, ${belenMention}!`)
+            .setDescription(aiReply)
+            .setFooter({ text: 'Un pedacito de Miguel' });
+        await waitingMessage.edit({ embeds: [finalEmbed] });
 
-            if (ownerReply) {
-                const ownerUser = await client.users.fetch(OWNER_ID);
-                const ownerEmbed = new EmbedBuilder()
-                    .setColor('#FF1493')
-                    .setTitle('Informe de Belén')
-                    .setDescription(ownerReply)
-                    .setFooter({ text: 'Respuesta procesada' });
-                await ownerUser.send({ embeds: [ownerEmbed] });
-                console.log(`[manejarMiguel] Informe enviado a Miguel: ${ownerReply}`);
-            }
+        if (ownerReply) {
+            const ownerUser = await client.users.fetch(OWNER_ID);
+            const ownerEmbed = new EmbedBuilder()
+                .setColor('#FF1493')
+                .setTitle('Informe de Belén')
+                .setDescription(ownerReply)
+                .setFooter({ text: 'Respuesta procesada' });
+            await ownerUser.send({ embeds: [ownerEmbed] });
+            console.log(`[manejarMiguel] Informe enviado a Miguel: ${ownerReply}`);
         }
 
         dataStore.regaloHistory[ALLOWED_USER_ID] = regaloHistory;
@@ -3970,7 +3971,7 @@ async function manejarMiguel(message) {
         const errorEmbed = new EmbedBuilder()
             .setColor('#FF1493')
             .setTitle(`¡Uy, ${belenMention}, algo falló!`)
-            .setDescription('Se me trabó el regalo, perdón. ¿Repetimos?')
+            .setDescription('Se me trabó el regalo, perdón. ¿Probamos de nuevo?')
             .setFooter({ text: 'Un pedacito de Miguel' });
         await waitingMessage.edit({ embeds: [errorEmbed] });
     }
