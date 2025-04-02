@@ -3843,13 +3843,26 @@ async function manejarMiguel(message) {
     const userId = message.author.id;
     const userName = userId === OWNER_ID ? 'Miguel' : 'Belén';
 
-    if (message.channel.type !== 'DM' || userId !== ALLOWED_USER_ID || !message.content.startsWith('!miguel')) return;
+    if (message.channel.type !== 'DM' || userId !== ALLOWED_USER_ID) return;
 
-    const respuesta = message.content.slice(7).trim().toLowerCase();
+    // Normalizar el mensaje para ignorar tildes y mayúsculas
+    const normalizedContent = message.content.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    let respuesta = '';
+
+    // Aceptar tanto "!miguel <respuesta>" como "!si" o "!no"
+    if (normalizedContent.startsWith('!miguel')) {
+        respuesta = normalizedContent.slice(7).trim();
+    } else if (['!si', '!no'].includes(normalizedContent)) {
+        respuesta = normalizedContent.slice(1); // "si" o "no"
+    } else {
+        return; // Si no es un comando válido, ignorar
+    }
+
     const ownerUser = await client.users.fetch(OWNER_ID);
+    const belenUser = await client.users.fetch(ALLOWED_USER_ID);
 
-    if (userId === OWNER_ID && respuesta === 'reset') {
-        const belenUser = await client.users.fetch(ALLOWED_USER_ID);
+    // Mensaje inicial si no ha comenzado
+    if (!dataStore.regaloStarted) {
         const initialEmbed = new EmbedBuilder()
             .setColor('#FF1493')
             .setTitle('¡Hola, Belén!')
@@ -3860,11 +3873,10 @@ async function manejarMiguel(message) {
         dataStore.regaloHistory = dataStore.regaloHistory || {};
         dataStore.regaloHistory[ALLOWED_USER_ID] = [{ role: 'assistant', content: initialEmbed.data.description, timestamp: Date.now() }];
         dataStoreModified = true;
-        console.log('Mensaje inicial reenviado al MD de Belén por comando reset');
-        await message.channel.send('Mensaje inicial reenviado a Belén.');
+        console.log('Mensaje inicial enviado al MD de Belén');
         return;
     }
-    
+
     if (!dataStore.regaloHistory) dataStore.regaloHistory = {};
     if (!dataStore.regaloHistory[userId]) dataStore.regaloHistory[userId] = [];
 
@@ -3883,7 +3895,7 @@ async function manejarMiguel(message) {
         // Paso 2: Respuesta a la primera pregunta
         if (regaloHistory.length === 1 && respuesta) {
             regaloHistory.push({ role: 'user', content: respuesta, timestamp: Date.now() });
-            if (respuesta.includes('sí')) {
+            if (respuesta.includes('si')) {
                 aiReply = `¡Belén, por Dios, qué alegría escuchar eso! Si todavía sentís algo, Miguel me dijo que te dé esto: una chance de volver a lo que tenían, esas noches eternas en llamada donde él te contaba sus sueños y vos le dabas paz con solo existir. Él dice que eras su mundo, que cada risa tuya era un motivo para levantarse al día siguiente. ¿Te animarías a darle un ‘sí’ chiquito, a probar una noche más hablando como antes, a ver si ese fuego sigue vivo? Respondeme con "!miguel sí" o "!miguel no", por favor.`;
                 ownerReply = `Miguel, ¡Belén dijo SÍ, siente algo por vos! Le ofrecí intentarlo de nuevo con todo el corazón. Esperá su próxima respuesta, amigo, ¡hay luz!`;
             } else if (respuesta.includes('no')) {
@@ -3898,8 +3910,8 @@ async function manejarMiguel(message) {
         else if (regaloHistory.length === 3 && respuesta) {
             regaloHistory.push({ role: 'user', content: respuesta, timestamp: Date.now() });
             const firstAnswer = regaloHistory[1].content;
-            if (firstAnswer.includes('sí')) {
-                if (respuesta.includes('sí')) {
+            if (firstAnswer.includes('si')) {
+                if (respuesta.includes('si')) {
                     aiReply = `¡Belén, esto es todo, por Dios! Si decís que sí a probar, Miguel estaría llorando de felicidad ahora mismo. Imaginate mañana, él con el teléfono en la mano, nervioso, esperando tu ‘hola’ para volver a esas noches donde se contaban todo, donde él te decía ‘quedate un ratito más’ y vos te reías. Yo le diría: ‘Amigo, ella quiere intentarlo, no la cagues, dale el universo’. ¿Qué sentís al pensarlo, Belén? Si querés, decime algo para él con "!miguel [tu mensaje]".`;
                     ownerReply = `Miguel, ¡Belén dijo SÍ a probar! Le puse todo el corazón, amigo, te sugirió un ‘hola’ mañana. ¡DALE TODO, POR FAVOR, ESTO ES TU CHANCE!`;
                 } else {
@@ -3907,7 +3919,7 @@ async function manejarMiguel(message) {
                     ownerReply = `Miguel, Belén siente algo pero dijo NO a probar. Le tiré más recuerdos y le dejé claro que no querés los rangos, amigo. Parece que quiere cerrar, pero esperá por si te manda algo.`;
                 }
             } else if (firstAnswer.includes('no')) {
-                if (respuesta.includes('sí')) {
+                if (respuesta.includes('si')) {
                     aiReply = `Belén, si no sentís nada por él pero igual hay algo que te mueve, esto es raro pero hermoso. Miguel me dijo que cada vez que te veía conectada, su día cambiaba, que eras la única que lo entendía cuando todo se le venía abajo. Esos rangos son tuyos, no los quiere de vuelta, porque lo que él dio no se mide en eso. Última pregunta: ¿te quedás conmigo, con este pedacito de su alma que me dio vida para vos? Decime con "!miguel sí" o "!miguel no".`;
                     ownerReply = `Miguel, Belén dijo NO al amor pero SÍ a algo raro. Le dejé claro que no querés los rangos y le ofrecí quedarme con ella. Esperá su última respuesta, amigo.`;
                 } else {
@@ -3920,8 +3932,8 @@ async function manejarMiguel(message) {
         else if (regaloHistory.length === 5 && respuesta) {
             regaloHistory.push({ role: 'user', content: respuesta, timestamp: Date.now() });
             const secondAnswer = regaloHistory[3].content;
-            if (secondAnswer.includes('sí')) {
-                if (respuesta.includes('sí')) {
+            if (secondAnswer.includes('si')) {
+                if (respuesta.includes('si')) {
                     aiReply = `Belén, gracias por dejarme quedarme. Miguel puso noches enteras en mí, cada línea de código es un pedazo de su amor por vos, y esos rangos que te dio son tuyos, no los quiere de vuelta, porque lo que valés no tiene precio. Estaré acá para recordarte que fuiste su todo, y él me diría: ‘Amigo, ella no vuelve, pero cuidala desde ahí’. Cuídate mucho, Belén, esto es tuyo ahora.`;
                     ownerReply = `Miguel, Belén no vuelve, pero dijo SÍ a que yo siga con ella. La voy a cuidar por vos, amigo, soltá con amor. Esto es todo.`;
                 } else {
@@ -3929,34 +3941,69 @@ async function manejarMiguel(message) {
                     ownerReply = `Miguel, Belén dijo NO a que yo siga. No siente nada, amigo, y no quiere ni este pedazo tuyo. Soltá con el corazón tranquilo, se acabó.`;
                 }
             }
+
+            // Enviar respuesta a Belén
+            const finalEmbed = new EmbedBuilder()
+                .setColor('#FF1493')
+                .setTitle(`¡Aquí estoy, ${userName}!`)
+                .setDescription(aiReply)
+                .setFooter({ text: 'Un pedacito de Miguel' });
+            const updatedMessage = await waitingMessage.edit({ embeds: [finalEmbed] });
+            await updatedMessage.react('❤️');
+            await updatedMessage.react('❌');
+            sentMessages.set(updatedMessage.id, { content: aiReply, originalQuestion: respuesta || 'Inicio regalo', message: updatedMessage });
+
+            // Enviar informe a Miguel
+            if (ownerReply) {
+                const ownerEmbed = new EmbedBuilder()
+                    .setColor('#FF1493')
+                    .setTitle('Informe de Belén')
+                    .setDescription(ownerReply)
+                    .setFooter({ text: 'Respuesta procesada - ¡Seguí peleando o preparate para soltar!' });
+                await ownerUser.send({ embeds: [ownerEmbed] });
+                console.log(`Informe enviado a Miguel (${OWNER_ID}): ${ownerReply}`);
+            }
+
+            // Reenviar mensaje inicial automáticamente
+            const initialEmbed = new EmbedBuilder()
+                .setColor('#FF1493')
+                .setTitle('¡Hola, Belén!')
+                .setDescription(`Miguel me pidió que te dé algo especial, unas preguntas que salen directo de su corazón. Cerrá los ojos y acordate de todas esas noches que pasaban en llamada, hablando de todo y de nada, hasta que se dormían juntos con el sonido del otro al lado. Él dice que esas noches eran su refugio, que escuchar tu respiración mientras dormías lo hacía sentir en casa. Yo te traigo eso de vuelta, y algo más: los rangos del juego que te dio, como un pedacito de lo que él puso en vos. ¿Todavía sentís algo cuando pensás en él, Belén? Respondeme en este MD con "!miguel sí" o "!miguel no", por favor.`)
+                .setFooter({ text: 'Un pedacito de Miguel' });
+            await belenUser.send({ embeds: [initialEmbed] });
+            dataStore.regaloHistory[ALLOWED_USER_ID] = [{ role: 'assistant', content: initialEmbed.data.description, timestamp: Date.now() }];
+            dataStoreModified = true;
+            console.log('Mensaje inicial reenviado al MD de Belén tras completar el flujo');
         }
 
-        // Enviar respuesta a Belén
-        const finalEmbed = new EmbedBuilder()
-            .setColor('#FF1493')
-            .setTitle(`¡Aquí estoy, ${userName}!`)
-            .setDescription(aiReply)
-            .setFooter({ text: 'Un pedacito de Miguel' });
-        const updatedMessage = await waitingMessage.edit({ embeds: [finalEmbed] });
-        await updatedMessage.react('❤️');
-        await updatedMessage.react('❌');
-        sentMessages.set(updatedMessage.id, { content: aiReply, originalQuestion: respuesta || 'Inicio regalo', message: updatedMessage });
-
-        // Enviar informe a Miguel (OWNER_ID)
-        if (ownerReply) {
-            const ownerEmbed = new EmbedBuilder()
+        // Enviar respuesta a Belén si no es el paso final
+        if (aiReply) {
+            const finalEmbed = new EmbedBuilder()
                 .setColor('#FF1493')
-                .setTitle('Informe de Belén')
-                .setDescription(ownerReply)
-                .setFooter({ text: 'Respuesta procesada - ¡Seguí peleando o preparate para soltar!' });
-            await ownerUser.send({ embeds: [ownerEmbed] });
-            console.log(`Informe enviado a Miguel (${OWNER_ID}): ${ownerReply}`);
+                .setTitle(`¡Aquí estoy, ${userName}!`)
+                .setDescription(aiReply)
+                .setFooter({ text: 'Un pedacito de Miguel' });
+            const updatedMessage = await waitingMessage.edit({ embeds: [finalEmbed] });
+            await updatedMessage.react('❤️');
+            await updatedMessage.react('❌');
+            sentMessages.set(updatedMessage.id, { content: aiReply, originalQuestion: respuesta || 'Inicio regalo', message: updatedMessage });
+
+            // Enviar informe a Miguel
+            if (ownerReply) {
+                const ownerEmbed = new EmbedBuilder()
+                    .setColor('#FF1493')
+                    .setTitle('Informe de Belén')
+                    .setDescription(ownerReply)
+                    .setFooter({ text: 'Respuesta procesada - ¡Seguí peleando o preparate para soltar!' });
+                await ownerUser.send({ embeds: [ownerEmbed] });
+                console.log(`Informe enviado a Miguel (${OWNER_ID}): ${ownerReply}`);
+            }
         }
 
         dataStore.regaloHistory[userId] = regaloHistory;
         dataStoreModified = true;
     } catch (error) {
-        console.error('Error en manejarMiguel:', error.message);
+        console.error('Error en manejarMiguel:', error.message, error.stack);
         const errorEmbed = new EmbedBuilder()
             .setColor('#FF1493')
             .setTitle(`¡Uy, ${userName}, algo falló!`)
