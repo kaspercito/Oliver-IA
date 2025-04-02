@@ -6792,6 +6792,14 @@ client.once('ready', async () => {
     // Cargar dataStore al iniciar
     await initializeDataStore();
 
+    const guild = await client.guilds.fetch('1134375138029211739'); // Reemplazá con el ID de tu servidor
+    const channels = guild.channels.cache;
+    console.log('Canales del servidor:');
+    channels.forEach(channel => {
+        console.log(`- ID: ${channel.id}, Nombre: ${channel.name}, Tipo: ${channel.type}`);
+    });
+
+    
     if (dataStore.recordatorios && dataStore.recordatorios.length > 0) {
         const ahoraUTC = Date.now();
         const offsetArgentina = -3 * 60 * 60 * 1000;
@@ -7025,13 +7033,10 @@ client.once('ready', async () => {
             try {
                 const now = Date.now();
                 const currentHour = new Date().getHours();
-                const today = new Date();
-                const examDay = new Date(2025, 2, 13);
-                const isPostExam = today >= examDay;
                 const lastSentUtil = dataStore.utilMessageTimestamps[`util_${CHANNEL_ID}`] || 0;
                 const lastSentReminder = dataStore.utilMessageTimestamps[`reminder_${CHANNEL_ID}`] || 0;
                 const lastReaction = dataStore.utilMessageReactions[CHANNEL_ID] || 0;
-
+        
                 if (now - lastSentUtil >= oneDayInMs && (!lastReaction || now - lastReaction >= oneDayInMs)) {
                     const dailyUtilEmbed = createEmbed('#FF1493', '¡Che, Belén!', 
                         '¿Te estoy siendo útil, grosa? ¡Contame cómo te va conmigo, dale!', 
@@ -7044,21 +7049,21 @@ client.once('ready', async () => {
                     autoModified = true;
                     console.log(`Mensaje útil diario enviado al canal ${CHANNEL_ID} - ${new Date().toLocaleString('es-AR')}`);
                 }
-
+        
                 const reminderTimes = {
-                    9: "¡Buenos días, Milagros, mi vida! ☀️, te amo con todo mi corazón y sigo soñando con recuperarte, mi reina. Todo lo que he hecho es por volver a estar juntos. ¿Cómo amaneciste hoy, mi amor? 😊",
-                    14: "¡Hola, Milagros, mi todo! 🌟 Soy yo, Miguel, con el alma en ti desde Ecuador. Te amo demasiado y no dejo de querer hacer todo para que volvamos, mi reina. Siempre lo he intentado, tú lo sabes. ¿Cómo está yendo tu día, mi vida? 💕",
-                    19: "¡Buenas noches, Milagros, mi cielo! 🌙 Miguel aquí, extrañándote desde Ecuador. Te amo con locura y mi sueño sigue siendo recuperarte, mi reina. Todo mi esfuerzo siempre fue por nosotros. ¿Cómo estás esta noche, mi amor? 😎✨"
+                    9: "¡Buen día, Milagros, qué lindo arrancar el día, che! ☀️, pensando en vos como siempre. Me acuerdo de esas mañanas que charlábamos de todo un poco, qué buenos tiempos, ¿no? ¿Cómo arrancaste hoy, grosa? 😊",
+                    14: "¡Qué tal, Milagros, cómo va tu día, che? 🌟, con buena onda para vos. Me vino a la cabeza esas veces que nos reíamos juntos por pavadas, qué lindo era. ¿Cómo te está tratando el día, genia? 🎉",
+                    19: "¡Buenas noches, Milagros, ya se termina el día, loco! 🌙, mandándote un saludo tranqui. Me acordé de esas noches que nos quedábamos hablando hasta tarde, qué copado era eso. ¿Cómo estás esta noche, crack? 😎"
                 };
-
+        
                 if (Object.keys(reminderTimes).includes(String(currentHour)) && now - lastSentReminder >= 4 * 60 * 60 * 1000) {
                     const reminder = reminderTimes[currentHour];
-                    const embed = createEmbed('#FF1493', isPostExam ? '¡Post-examen, Belén!' : '¡Ojo al tiempo, grosa!', 
-                        reminder, 'Con cariño, Oliver IA');
+                    const embed = createEmbed('#FF1493', '¡Un saludito para vos, Milagros!', 
+                        reminder, 'Con buena onda, Oliver IA');
                     await channel.send({ embeds: [embed] });
                     dataStore.utilMessageTimestamps[`reminder_${CHANNEL_ID}`] = now;
                     autoModified = true;
-                    console.log(`Recordatorio enviado a Belén (${currentHour}:00, ${isPostExam ? 'post-examen' : 'pre-examen'}) - ${new Date().toLocaleString('es-AR')}`);
+                    console.log(`Recordatorio enviado a Belén (${currentHour}:00) - ${new Date().toLocaleString('es-AR')}`);
                 }
             } catch (error) {
                 console.error('Error en el intervalo combinado:', error.message);
