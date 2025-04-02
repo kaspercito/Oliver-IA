@@ -3895,10 +3895,9 @@ async function manejarMiguel(message) {
             .setDescription(`${belenMention}, Miguel me pidió que te dé algo especial, unas preguntas que salen directo de su corazón. Cerrá los ojos y acordate de todas esas noches que pasaban en llamada, hablando de todo y de nada, hasta que se dormían juntos con el sonido del otro al lado. Él dice que esas noches eran su refugio, que escuchar tu respiración mientras dormías lo hacía sentir en casa. Te traigo eso de vuelta, y algo más, los rangos del juego que te dio, como un pedacito de lo que él puso en vos. ¿Todavía sentís algo cuando pensás en él? Respondeme aquí con "!miguel sí" o "!miguel no", por favor.`)
             .setFooter({ text: 'Un pedacito de Miguel' });
         await targetChannel.send({ embeds: [initialEmbed] });
-        dataStore.regaloStarted = true;
-        dataStore.regaloHistory[userId] = [{ role: 'assistant', content: initialEmbed.data.description, timestamp: Date.now() }];
-        dataStoreModified = true;
-        fs.writeFileSync(dataFile, JSON.stringify(dataStore, null, 2));
+        dataStore.regaloStarted = false;
+        dataStore.regaloHistory = {};
+        fs.writeFileSync('conversationHistory.json', JSON.stringify(dataStore, null, 2));
         console.log('[manejarMiguel] Mensaje inicial enviado al canal');
         return;
     }
