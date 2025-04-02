@@ -482,26 +482,7 @@
     }
   },
   "updatesSent": true,
-  "musicSessions": {
-    "1134375138029211739": {
-      "queue": [],
-      "current": {
-        "title": "Música Para Dormir Profundamente En Menos De 5 Minutos; Musica Relajante Para Dormir #8",
-        "uri": "https://www.youtube.com/watch?v=CnHGab2JMYw",
-        "duration": 25761000,
-        "thumbnail": "https://img.youtube.com/vi/CnHGab2JMYw/default.jpg",
-        "requester": "752987736759205960"
-      },
-      "previous": null,
-      "history": [],
-      "autoplay": false,
-      "position": 0,
-      "playing": true,
-      "paused": false,
-      "voiceChannel": "1345936574096998410",
-      "textChannel": "1345941771338907771"
-    }
-  },
+  "musicSessions": {},
   "sentUpdates": [
     "¡Chat mejorado! Segunda respuesta automática al darle ❌, pa’ que sea más bacán y no pida detalles de una.",
     "Optimizado el código un poco, si te gustaría agregar algo más puedes solicitarlo, espero este bot cumpla con tus expectativas.",
@@ -725,32 +706,6 @@
       "esRecurrente": true,
       "hora": 20,
       "minutos": 0
-    },
-    {
-      "id": "715bd44c-320d-4c53-8cae-0e9d528608da",
-      "userId": "1023132788632862761",
-      "channelId": "1343749554905940058",
-      "mensaje": "despiértame",
-      "cuandoLlegue": false,
-      "cuandoSalga": false,
-      "timestamp": 1743600547590,
-      "creado": 1743596947591,
-      "esRecurrente": false,
-      "hora": null,
-      "minutos": null
-    },
-    {
-      "id": "08f99f15-fe1a-46d0-bfa2-d7bfdf7cebc6",
-      "userId": "1023132788632862761",
-      "channelId": "1343749554905940058",
-      "mensaje": "despiértame",
-      "cuandoLlegue": false,
-      "cuandoSalga": false,
-      "timestamp": 1743604152858,
-      "creado": 1743596952859,
-      "esRecurrente": false,
-      "hora": null,
-      "minutos": null
     }
   ],
   "usedJokes": {
