@@ -4083,7 +4083,7 @@ async function manejarActualizaciones(message) {
 async function manejarPlay(message, args) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
     const guildId = message.guild.id;
-    const voiceChannelId = '1345936574096998410'; // Canal fijo
+    const voiceChannelId = '1344199685455478885'; // Canal fijo
 
     if (!message.guild) {
         await sendError(message.channel, `Este comando solo funciona en servidores, ${userName}.`);
@@ -5718,7 +5718,7 @@ manager.on('nodeError', (node, error) => console.error(`Error en nodo ${node.opt
 manager.on('queueEnd', async player => {
     const channel = client.channels.cache.get(player.textChannel);
     const guildId = player.guild;
-    const specificVoiceChannelId = '1345936574096998410';
+    const specificVoiceChannelId = '1344199685455478885';
     const isSpecificChannel = player.voiceChannel === specificVoiceChannelId;
 
     if (isSpecificChannel) {
@@ -5936,7 +5936,7 @@ manager.on('trackEnd', (player, track) => {
 
 manager.on('playerDisconnect', async (player) => {
     const guildId = player.guild;
-    const voiceChannelId = '1345936574096998410';
+    const voiceChannelId = '1344199685455478885';
     if (player.voiceChannel === voiceChannelId) {
         console.log(`Desconexión detectada en ${guildId}, intentando reconectar...`);
         const newPlayer = manager.create({
@@ -5968,7 +5968,7 @@ manager.on('playerDisconnect', async (player) => {
 manager.on('trackError', async (player, track, error) => {
     console.error(`Error en pista ${track.title}: ${error.message}`);
     const guildId = player.guild;
-    const voiceChannelId = '1345936574096998410';
+    const voiceChannelId = '1344199685455478885';
     if (player.voiceChannel === voiceChannelId && !player.playing && !player.paused) {
         const session = dataStore.musicSessions[guildId] || {};
         if (session.lastTrack) {
@@ -6791,14 +6791,6 @@ client.once('ready', async () => {
 
     // Cargar dataStore al iniciar
     await initializeDataStore();
-
-    const guild = await client.guilds.fetch('1134375138029211739'); // Reemplazá con el ID de tu servidor
-    const channels = guild.channels.cache;
-    console.log('Canales del servidor:');
-    channels.forEach(channel => {
-        console.log(`- ID: ${channel.id}, Nombre: ${channel.name}, Tipo: ${channel.type}`);
-    });
-
     
     if (dataStore.recordatorios && dataStore.recordatorios.length > 0) {
         const ahoraUTC = Date.now();
@@ -6838,7 +6830,7 @@ client.once('ready', async () => {
     if (!dataStore.utilMessageReactions) dataStore.utilMessageReactions = {};
 
     // Conexión automática al canal de voz 1345936574096998410
-    const voiceChannelId = '1345936574096998410';
+    const voiceChannelId = '1344199685455478885';
 
     let voiceChannel;
     try {
