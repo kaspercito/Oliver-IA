@@ -4081,28 +4081,33 @@ async function manejarActualizaciones(message) {
 }
 
 async function manejarPlay(message, args) {
-    const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
+    const userName = message.author.username;
     const guildId = message.guild.id;
+    const voiceChannel = message.member.voice.channel;
 
-    if (!message.guild) {
-        await sendError(message.channel, `Este comando solo funciona en servidores, ${userName}.`);
-        return false;
+    if (!voiceChannel) {
+        const embed = createEmbed('#FF1493', '⚠️ Unite a un canal', 
+            `Tenés que estar en un canal de voz primero, ${userName}.`);
+        return await message.channel.send({ embeds: [embed] });
     }
 
     if (!args || args.length === 0) {
         const embed = createEmbed('#FF1493', '🎶 Bot en llamada', 
             `Ya estoy en el canal de voz, ${userName}. Mandame una canción con !play cuando quieras.`);
         await message.channel.send({ embeds: [embed] });
-        return false; // No se reproduce nada, pero el bot está listo
+        return false;
     }
 
-    let player = manager.players.get(guildId);
-    if (!player) {
-        player = manager.create({
-            guild: guildId,
-            textChannel: message.channel.id,
-        });
-    }
+    const player = manager.players.get(guildId) || manager.create({
+        guild: guildId,
+        voiceChannel: voiceChannel.id,
+        textChannel: message.channel.id,
+    });
+
+    // Guardar el canal de voz en dataStore
+    dataStore.musicSessions[guildId] = dataStore.musicSessions[guildId] || {};
+    dataStore.musicSessions[guildId].voiceChannel = voiceChannel.id;
+    dataStoreModified = true;
 
     try {
         await player.connect();
@@ -4112,6 +4117,7 @@ async function manejarPlay(message, args) {
         return false;
     }
 
+    // Resto del código sigue igual...
     const searchQuery = args.join(' ');
     const res = await manager.search(searchQuery, message.author);
 
@@ -5927,16 +5933,23 @@ manager.on('trackEnd', (player, track) => {
 
 manager.on('playerDisconnect', async (player) => {
     const guildId = player.guild;
-    const voiceChannelId = '1344199685455478885';
-    if (player.voiceChannel === voiceChannelId) {
-        console.log(`Desconexión detectada en ${guildId}, intentando reconectar...`);
-        const newPlayer = manager.create({
-            guild: guildId,
-            voiceChannel: voiceChannelId,
-            textChannel: player.textChannel,
-        });
+    const session = dataStore.musicSessions[guildId] || {};
+    const voiceChannelId = session.voiceChannel;
+
+    if (!voiceChannelId) {
+        console.log(`No hay canal de voz almacenado para guild ${guildId}, no se puede reconectar.`);
+        return;
+    }
+
+    console.log(`Desconexión detectada en ${guildId}, intentando reconectar al canal ${voiceChannelId}...`);
+    const newPlayer = manager.create({
+        guild: guildId,
+        voiceChannel: voiceChannelId,
+        textChannel: player.textChannel,
+    });
+
+    try {
         await newPlayer.connect();
-        const session = dataStore.musicSessions[guildId] || {};
         if (session.lastTrack) {
             const res = await manager.search(session.lastTrack.uri, client.user);
             if (res.tracks.length > 0) {
@@ -5948,39 +5961,42 @@ manager.on('playerDisconnect', async (player) => {
                     }
                 }
                 await newPlayer.play();
-                isPlayingMusic = true; // Música recuperada
+                isPlayingMusic = true;
                 autosavePausedByMusic = true;
                 console.log(`Música recuperada tras desconexión: ${session.lastTrack.title}`);
             }
         }
+    } catch (error) {
+        console.error(`Error al reconectar en ${voiceChannelId}: ${error.message}`);
     }
 });
 
 manager.on('trackError', async (player, track, error) => {
     console.error(`Error en pista ${track.title}: ${error.message}`);
     const guildId = player.guild;
-    const voiceChannelId = '1344199685455478885';
-    if (player.voiceChannel === voiceChannelId && !player.playing && !player.paused) {
-        const session = dataStore.musicSessions[guildId] || {};
-        if (session.lastTrack) {
-            const res = await manager.search(session.lastTrack.uri, client.user);
-            if (res.tracks.length > 0) {
-                player.queue.add(res.tracks[0]);
-                if (session.queue && session.queue.length > 0) {
-                    for (const track of session.queue) {
-                        const trackRes = await manager.search(track.uri, client.user);
-                        if (trackRes.tracks.length > 0) player.queue.add(trackRes.tracks[0]);
-                    }
+    const session = dataStore.musicSessions[guildId] || {};
+    const voiceChannelId = session.voiceChannel;
+
+    if (!voiceChannelId || player.playing || player.paused) return;
+
+    if (session.lastTrack) {
+        const res = await manager.search(session.lastTrack.uri, client.user);
+        if (res.tracks.length > 0) {
+            player.queue.add(res.tracks[0]);
+            if (session.queue && session.queue.length > 0) {
+                for (const track of session.queue) {
+                    const trackRes = await manager.search(track.uri, client.user);
+                    if (trackRes.tracks.length > 0) player.queue.add(trackRes.tracks[0]);
                 }
-                await player.play();
-                isPlayingMusic = true; // Música recuperada
-                autosavePausedByMusic = true;
-                console.log(`Música recuperada tras error: ${session.lastTrack.title}`);
             }
+            await player.play();
+            isPlayingMusic = true;
+            autosavePausedByMusic = true;
+            console.log(`Música recuperada tras error: ${session.lastTrack.title}`);
         }
     }
 });
-
+    
 async function manejarJugar(message) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
     console.log(`Iniciando juego para ${userName}`);
@@ -6820,120 +6836,104 @@ client.once('ready', async () => {
     if (!dataStore.utilMessageTimestamps) dataStore.utilMessageTimestamps = {};
     if (!dataStore.utilMessageReactions) dataStore.utilMessageReactions = {};
 
-    // Conexión automática al canal de voz 1345936574096998410
-    const voiceChannelId = '1344199685455478885';
+    // Restaurar sesiones de música previas dinámicamente
+    for (const [guildId, session] of Object.entries(dataStore.musicSessions)) {
+        if (!session.voiceChannel || !session.lastTrack) continue;
 
-    let voiceChannel;
-    try {
-        voiceChannel = await client.channels.fetch(voiceChannelId, { force: true });
-    } catch (error) {
-        console.error(`Error al buscar el canal de voz ${voiceChannelId}: ${error.message}`);
-        return;
-    }
-
-    if (!voiceChannel) {
-        console.error('Canal de voz no encontrado.');
-        return;
-    }
-
-    const guildId = voiceChannel.guild.id;
-    if (!guildId) {
-        console.error('No se encontró el guild para el canal de voz.');
-        return;
-    }
-
-    if (voiceChannel.type !== 'GUILD_VOICE') {
-        console.error(`El canal ${voiceChannelId} no es un canal de voz. Tipo: ${voiceChannel.type}`);
-        return;
-    }
-
-    let player = manager.players.get(guildId);
-    if (!player) {
-        player = manager.create({
-            guild: guildId,
-            voiceChannel: voiceChannelId,
-            textChannel: voiceChannel.guild.channels.cache.find(ch => ch.type === 'GUILD_TEXT')?.id || null,
-        });
-    }
-
-    try {
-        await player.connect();
-        console.log(`Conectado al canal de voz ${voiceChannelId} automáticamente.`);
-
-        // Forzar autoplay para este canal
-        dataStore.musicSessions[guildId] = dataStore.musicSessions[guildId] || {};
-        dataStore.musicSessions[guildId].autoplay = true;
-        dataStoreModified = true;
-
-        // Restaurar música previa si existe en dataStore
-        const session = dataStore.musicSessions[guildId];
-        if (session && session.lastTrack && (!player.playing && !player.paused && player.queue.size === 0)) {
-            const res = await manager.search(session.lastTrack.uri, client.user);
-            if (res.tracks.length > 0) {
-                player.queue.add(res.tracks[0]);
-                if (session.queue && session.queue.length > 0) {
-                    for (const track of session.queue) {
-                        const trackRes = await manager.search(track.uri, client.user);
-                        if (trackRes.tracks.length > 0) player.queue.add(trackRes.tracks[0]);
-                    }
-                }
-                await player.play();
-                console.log(`Restaurada música previa: ${session.lastTrack.title}`);
-            }
-        } else if (!player.playing && !player.paused && player.queue.size === 0) {
-            const res = await manager.search('lofi beats', client.user);
-            if (res.tracks.length > 0) {
-                player.queue.add(res.tracks[0]);
-                await player.play();
-                console.log('Reproduciendo música inicial por defecto.');
-            }
+        const guild = client.guilds.cache.get(guildId);
+        if (!guild) {
+            console.log(`Guild ${guildId} no encontrado, omitiendo restauración.`);
+            continue;
         }
 
-        // Monitoreo para recuperar la música exacta si se detiene
-        setInterval(async () => {
-            const currentPlayer = manager.players.get(guildId);
-            const session = dataStore.musicSessions[guildId] || {};
+        const voiceChannel = guild.channels.cache.get(session.voiceChannel);
+        if (!voiceChannel || voiceChannel.type !== 'GUILD_VOICE') {
+            console.log(`Canal de voz ${session.voiceChannel} no encontrado o no es válido en guild ${guildId}.`);
+            continue;
+        }
 
-            if (!currentPlayer || !currentPlayer.voiceChannel) {
-                console.log('Player no encontrado o desconectado, intentando reconectar...');
-                const newPlayer = manager.create({
-                    guild: guildId,
-                    voiceChannel: voiceChannelId,
-                    textChannel: voiceChannel.guild.channels.cache.find(ch => ch.type === 'GUILD_TEXT')?.id || null,
-                });
-                await newPlayer.connect();
-                if (session.lastTrack) {
-                    const res = await manager.search(session.lastTrack.uri, client.user);
-                    if (res.tracks.length > 0) {
-                        newPlayer.queue.add(res.tracks[0]);
-                        if (session.queue && session.queue.length > 0) {
-                            for (const track of session.queue) {
-                                const trackRes = await manager.search(track.uri, client.user);
-                                if (trackRes.tracks.length > 0) newPlayer.queue.add(trackRes.tracks[0]);
-                            }
-                        }
-                        await newPlayer.play();
-                        console.log(`Música recuperada: ${session.lastTrack.title}`);
-                    }
-                }
-            } else if (!currentPlayer.playing && !currentPlayer.paused && currentPlayer.queue.size === 0 && session.lastTrack) {
-                console.log('Música parada sin cola, intentando recuperar la última pista...');
+        let player = manager.players.get(guildId);
+        if (!player) {
+            player = manager.create({
+                guild: guildId,
+                voiceChannel: session.voiceChannel,
+                textChannel: guild.channels.cache.find(ch => ch.type === 'GUILD_TEXT')?.id || null,
+            });
+        }
+
+        try {
+            await player.connect();
+            console.log(`Conectado al canal de voz ${session.voiceChannel} en guild ${guildId}.`);
+
+            // Restaurar música previa si existe en dataStore
+            if (!player.playing && !player.paused && player.queue.size === 0) {
                 const res = await manager.search(session.lastTrack.uri, client.user);
                 if (res.tracks.length > 0) {
-                    currentPlayer.queue.add(res.tracks[0]);
+                    player.queue.add(res.tracks[0]);
                     if (session.queue && session.queue.length > 0) {
                         for (const track of session.queue) {
                             const trackRes = await manager.search(track.uri, client.user);
-                            if (trackRes.tracks.length > 0) currentPlayer.queue.add(trackRes.tracks[0]);
+                            if (trackRes.tracks.length > 0) player.queue.add(trackRes.tracks[0]);
                         }
                     }
-                    await currentPlayer.play();
-                    console.log(`Música recuperada: ${session.lastTrack.title}`);
+                    await player.play();
+                    console.log(`Restaurada música previa en guild ${guildId}: ${session.lastTrack.title}`);
+                } else if (session.autoplay) {
+                    const res = await manager.search('lofi beats', client.user);
+                    if (res.tracks.length > 0) {
+                        player.queue.add(res.tracks[0]);
+                        await player.play();
+                        console.log(`Reproduciendo música por defecto (autoplay) en guild ${guildId}.`);
+                    }
                 }
             }
-        }, 30 * 1000); // Chequea cada 30 segundos
-    } catch (error) {
-        console.error(`Error al conectar o restaurar música: ${error.message}`);
+
+            // Monitoreo para recuperar la música si se detiene
+            setInterval(async () => {
+                const currentPlayer = manager.players.get(guildId);
+                const currentSession = dataStore.musicSessions[guildId] || {};
+
+                if (!currentPlayer || !currentPlayer.voiceChannel) {
+                    console.log(`Player no encontrado o desconectado en guild ${guildId}, intentando reconectar...`);
+                    const newPlayer = manager.create({
+                        guild: guildId,
+                        voiceChannel: session.voiceChannel,
+                        textChannel: guild.channels.cache.find(ch => ch.type === 'GUILD_TEXT')?.id || null,
+                    });
+                    await newPlayer.connect();
+                    if (currentSession.lastTrack) {
+                        const res = await manager.search(currentSession.lastTrack.uri, client.user);
+                        if (res.tracks.length > 0) {
+                            newPlayer.queue.add(res.tracks[0]);
+                            if (currentSession.queue && currentSession.queue.length > 0) {
+                                for (const track of currentSession.queue) {
+                                    const trackRes = await manager.search(track.uri, client.user);
+                                    if (trackRes.tracks.length > 0) newPlayer.queue.add(trackRes.tracks[0]);
+                                }
+                            }
+                            await newPlayer.play();
+                            console.log(`Música recuperada en guild ${guildId}: ${currentSession.lastTrack.title}`);
+                        }
+                    }
+                } else if (!currentPlayer.playing && !currentPlayer.paused && currentPlayer.queue.size === 0 && currentSession.lastTrack) {
+                    console.log(`Música parada sin cola en guild ${guildId}, intentando recuperar la última pista...`);
+                    const res = await manager.search(currentSession.lastTrack.uri, client.user);
+                    if (res.tracks.length > 0) {
+                        currentPlayer.queue.add(res.tracks[0]);
+                        if (currentSession.queue && currentSession.queue.length > 0) {
+                            for (const track of currentSession.queue) {
+                                const trackRes = await manager.search(track.uri, client.user);
+                                if (trackRes.tracks.length > 0) currentPlayer.queue.add(trackRes.tracks[0]);
+                            }
+                        }
+                        await currentPlayer.play();
+                        console.log(`Música recuperada en guild ${guildId}: ${currentSession.lastTrack.title}`);
+                    }
+                }
+            }, 30 * 1000); // Chequea cada 30 segundos
+        } catch (error) {
+            console.error(`Error al restaurar sesión en guild ${guildId}: ${error.message}`);
+        }
     }
 
     // Resto del código sin cambios (actualizaciones, mensajes a Belén, autosave, etc.)
