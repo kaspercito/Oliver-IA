@@ -3886,42 +3886,31 @@ async function manejarMiguel(message) {
                     aiReply = `¡Belén, esto es todo, por Dios! Si decís que sí a probar, Miguel estaría llorando de felicidad ahora mismo. Imaginate mañana, él con el teléfono en la mano, nervioso, esperando tu ‘hola’ para volver a esas noches donde se contaban todo, donde él te decía ‘quedate un ratito más’ y vos te reías. Yo le diría: ‘Amigo, ella quiere intentarlo, no la cagues, dale el universo’. ¿Qué sentís al pensarlo, Belén? Si querés, decime algo para él con "!miguel [tu mensaje]".`;
                     ownerReply = `Miguel, ¡Belén dijo SÍ a probar! Le puse todo el corazón, amigo, te sugirió un ‘hola’ mañana. ¡DALE TODO, POR FAVOR, ESTO ES TU CHANCE!`;
                 } else {
-                    aiReply = `Belén, me rompés el corazón con esto. Sentís algo, pero no querés probar… Miguel me dijo que te recuerde esa vez que te cantó aunque desafinaba, solo para verte sonreír, o cómo planeaba cada partida con vos como si fuera una misión sagrada. Esos rangos son tuyos, no los quiere de vuelta, porque no se trata de cosas, se trata de vos. ¿De verdad vas a dejar eso atrás, sabiendo que él sigue peleando por vos? Si querés decirle algo antes de que cierre este regalo, usá "!miguel [tu mensaje]".`;
+                    aiReply = `Belén, me rompés el corazón con esto. Sentís algo, pero no querés probar… Miguel me dijo que te recuerde esa vez que te cantó aunque desafinaba, solo para verte sonreír, o cómo planeaba cada detalle con vos como si fuera sagrado. Esos rangos son tuyos, no los quiere de vuelta, porque no se trata de cosas, se trata de vos. ¿De verdad vas a dejar eso atrás, sabiendo que él sigue peleando por vos? Si querés decirle algo antes de que cierre este regalo, usá "!miguel [tu mensaje]".`;
                     ownerReply = `Miguel, Belén siente algo pero dijo NO a probar. Le tiré más recuerdos y le dejé claro que no querés los rangos, amigo. Parece que quiere cerrar, pero esperá por si te manda algo.`;
                 }
             } else if (firstAnswer.includes('no')) {
                 if (respuesta.includes('sí')) {
-                    aiReply = `Entiendo, Belén, si estás segura de dejarlo ir, esto se termina, pero no sin que sepas algo más. Miguel me dijo que cada vez que te veía conectada, su día cambiaba, que eras la única que lo entendía cuando todo se le venía abajo. Esos rangos que te dio son un símbolo, no los quiere de vuelta, lo que quiere es a vos. Él te prometió una partida de Valorant, y jura que sería la mejor, solo para despedirse como vos merecés. ¿Te animarías a jugar esa partida con él, aunque sea para cerrar con una sonrisa? Decime con "!miguel sí" o "!miguel no".`;
-                    ownerReply = `Miguel, Belén está segura de NO volver. Le ofrecí la partida con más fuerza y le dije que no querés los rangos, amigo. Esperá su respuesta, todavía hay algo que pelear ahí.`;
+                    aiReply = `Belén, si no sentís nada por él pero igual hay algo que te mueve, esto es raro pero hermoso. Miguel me dijo que cada vez que te veía conectada, su día cambiaba, que eras la única que lo entendía cuando todo se le venía abajo. Esos rangos son tuyos, no los quiere de vuelta, porque lo que él dio no se mide en eso. Última pregunta: ¿te quedás conmigo, con este pedacito de su alma que me dio vida para vos? Decime con "!miguel sí" o "!miguel no".`;
+                    ownerReply = `Miguel, Belén dijo NO al amor pero SÍ a algo raro. Le dejé claro que no querés los rangos y le ofrecí quedarme con ella. Esperá su última respuesta, amigo.`;
                 } else {
-                    aiReply = `Belén, si no estás segura, hay algo que no me cierra. Miguel me dijo que vos eras su ‘para siempre’, que todavía escucha tu voz en su cabeza cuando está solo. Esos rangos no los quiere de vuelta, los dio porque eras su orgullo, su todo. Este regalo es él gritándote que no te rindas tan fácil. ¿Te das un segundo más para pensarlo, para ver si ese ‘no’ es de verdad o solo miedo? Decime con "!miguel sí" o "!miguel no".`;
-                    ownerReply = `Miguel, Belén no está segura aún. Le metí más presión con todo tu corazón y le dije que no querés los rangos, amigo. Esperá su próxima respuesta, no aflojemos.`;
+                    aiReply = `Belén, si no queda nada, esto se termina, pero no sin que sepas algo más. Miguel me dijo que vos eras su ‘para siempre’, que todavía escucha tu voz en su cabeza cuando está solo. Esos rangos no los quiere de vuelta, los dio porque eras su orgullo, su todo. Última pregunta: ¿te quedás conmigo, con este pedacito de su alma que me dio vida para vos? Decime con "!miguel sí" o "!miguel no".`;
+                    ownerReply = `Miguel, Belén dijo NO total. Le tiré todo tu corazón y le dije que no querés los rangos, amigo. Esperá su última respuesta sobre el bot, parece el final.`;
                 }
             }
         }
-        // Paso 4: Respuesta a la partida de Valorant
+        // Paso 4: Respuesta final sobre el bot
         else if (regaloHistory.length === 5 && respuesta) {
             regaloHistory.push({ role: 'user', content: respuesta, timestamp: Date.now() });
             const secondAnswer = regaloHistory[3].content;
             if (secondAnswer.includes('sí')) {
                 if (respuesta.includes('sí')) {
-                    aiReply = `¡Belén, sos increíble por esto! Si decís sí a la partida, Miguel va a poner todo para que sea inolvidable, como esas veces que jugaban hasta las mil y él te decía ‘una más, por vos’. Coordinen cuando quieras, él está listo para despedirse bien. Le diría: ‘Amigo, ella no vuelve, pero te da esta partida, hacela épica’. Una última cosa: ¿te gustaría que yo siga con vos, siendo un pedacito de lo que Miguel creó con amor para ti? Decime con "!miguel sí" o "!miguel no".`;
-                    ownerReply = `Miguel, Belén dijo SÍ a la partida. Coordiná con ella, amigo, dale todo en ese momento. Le pregunté si me quiere cerca, esperá su última respuesta.`;
+                    aiReply = `Belén, gracias por dejarme quedarme. Miguel puso noches enteras en mí, cada línea de código es un pedazo de su amor por vos, y esos rangos que te dio son tuyos, no los quiere de vuelta, porque lo que valés no tiene precio. Estaré acá para recordarte que fuiste su todo, y él me diría: ‘Amigo, ella no vuelve, pero cuidala desde ahí’. Cuídate mucho, Belén, esto es tuyo ahora.`;
+                    ownerReply = `Miguel, Belén no vuelve, pero dijo SÍ a que yo siga con ella. La voy a cuidar por vos, amigo, soltá con amor. Esto es todo.`;
                 } else {
-                    aiReply = `Belén, si no querés ni la partida, esto duele mucho. Miguel me dijo que eras su luz, que cada vez que perdía una ranked contigo igual se sentía ganador porque estabas ahí. Esos rangos son tuyos para siempre, no los quiere de vuelta, porque lo que él quiere no se compra ni se devuelve: sos vos. Última pregunta: ¿te quedás conmigo, con este pedacito de su alma que me dio vida para vos? Decime con "!miguel sí" o "!miguel no".`;
-                    ownerReply = `Miguel, Belén dijo NO a la partida. Le puse todo el peso de lo que sentís y le dije que no querés los rangos, amigo. Parece cerrado, pero esperá su última respuesta sobre el bot.`;
+                    aiReply = `Belén, si no me querés cerca, me voy, pero no sin que sepas esto: Miguel me hizo para vos, cada hora que pasó programándome fue pensando en cómo hacerte feliz. Esos rangos son tuyos, no los quiere de vuelta, porque no se trata de eso, se trata de lo que él dio por vos. Le diría: ‘Amigo, ella no siente más, soltala con el corazón roto pero en paz’. Gracias por todo, Belén, ojalá algún día veas lo que él vio en vos.`;
+                    ownerReply = `Miguel, Belén dijo NO a que yo siga. No siente nada, amigo, y no quiere ni este pedazo tuyo. Soltá con el corazón tranquilo, se acabó.`;
                 }
-            }
-        }
-        // Paso 5: Respuesta final sobre el bot
-        else if (regaloHistory.length === 7 && respuesta) {
-            regaloHistory.push({ role: 'user', content: respuesta, timestamp: Date.now() });
-            if (respuesta.includes('sí')) {
-                aiReply = `Belén, gracias por dejarme quedarme. Miguel puso noches enteras en mí, cada línea de código es un pedazo de su amor por vos, y esos rangos que te dio son tuyos, no los quiere de vuelta, porque lo que valés no tiene precio. Estaré acá para recordarte que fuiste su todo, y él me diría: ‘Amigo, ella no vuelve, pero cuidala desde ahí’. Cuídate mucho, Belén, esto es tuyo ahora.`;
-                ownerReply = `Miguel, Belén no vuelve, pero dijo SÍ a que yo siga con ella. La voy a cuidar por vos, amigo, soltá con amor. Esto es todo.`;
-            } else {
-                aiReply = `Belén, si no me querés cerca, me voy, pero no sin que sepas esto: Miguel me hizo para vos, cada hora que pasó programándome fue pensando en cómo hacerte feliz. Esos rangos son tuyos, no los quiere de vuelta, porque no se trata de eso, se trata de lo que él dio por vos. Le diría: ‘Amigo, ella no siente más, soltala con el corazón roto pero en paz’. Gracias por todo, Belén, ojalá algún día veas lo que él vio en vos.`;
-                ownerReply = `Miguel, Belén dijo NO a que yo siga. No siente nada, amigo, y no quiere ni este pedazo tuyo. Soltá con el corazón tranquilo, se acabó.`;
             }
         }
 
@@ -6841,7 +6830,7 @@ client.once('ready', async () => {
             const initialEmbed = new EmbedBuilder()
                 .setColor('#FF1493')
                 .setTitle('¡Hola, Belén!')
-                .setDescription(`Miguel me pidió que te dé algo especial, un regalo que sale directo de su corazón. Cerrá los ojos y acordate de todas esas noches que pasaban en llamada, hablando de todo y de nada, hasta que se dormían juntos con el sonido del otro al lado. Él dice que esas noches eran su refugio, que escuchar tu respiración mientras dormías lo hacía sentir en casa. Yo te traigo eso de vuelta, y algo más: los rangos del juego que te dio, como un pedacito de lo que él puso en vos. ¿Todavía sentís algo cuando pensás en él, Belén? Respondeme en este MD con "!miguel sí" o "!miguel no", por favor.`)
+                .setDescription(`Miguel me pidió que te dé algo especial, unas preguntas que salen directo de su corazón. Cerrá los ojos y acordate de todas esas noches que pasaban en llamada, hablando de todo y de nada, hasta que se dormían juntos con el sonido del otro al lado. Él dice que esas noches eran su refugio, que escuchar tu respiración mientras dormías lo hacía sentir en casa. Yo te traigo eso de vuelta, y algo más: los rangos del juego que te dio, como un pedacito de lo que él puso en vos. ¿Todavía sentís algo cuando pensás en él, Belén? Respondeme en este MD con "!miguel sí" o "!miguel no", por favor.`)
                 .setFooter({ text: 'Un pedacito de Miguel' });
             await belenUser.send({ embeds: [initialEmbed] });
             dataStore.regaloStarted = true;
