@@ -3897,8 +3897,8 @@ async function manejarMiguel(message) {
                 } else if (repliedMessage.embeds[0]?.description.includes('¿Sentís que él te entendió bien')) {
                     aiReply = `Belén, gracias por contarme. ¿Qué sentís que faltó en lo que tuvieron juntos? Decime '!miguel [tu respuesta]' o '!miguel nada'.`;
                     ownerReply = `Belén dijo SÍ a que la entendiste. Le pregunté qué faltó.`;
-                } else if (repliedMessage.embeds[0]?.description.includes('¿Que el bot se quede')) {
-                    aiReply = `Belén, genial, me quedo con vos. ¿De qué te gustaría hablar? Decime '!miguel [tu idea]'.`;
+                } else if (repliedMessage.embeds[0]?.description.includes('¿Que me quede con vos')) {
+                    aiReply = `Belén, me alegra quedarme. ¿Qué te gustaría que hablemos para que estés cómoda? Decime '!miguel [tu idea]'.`;
                     ownerReply = `Belén quiere que el bot se quede charlando. Le pregunté de qué quiere hablar.`;
                 } else {
                     aiReply = `Belén, ¡eso me da esperanza! ¿Te acordás de algo lindo de lo que vivieron juntos que todavía te saque una sonrisa? Contame con '!miguel [tu respuesta]' o lo que quieras.`;
@@ -3916,8 +3916,8 @@ async function manejarMiguel(message) {
                     aiReply = `Belén, entiendo. ¿Sentís que él podría cambiar algo de lo que te alejó? Decime '!miguel [tu respuesta]' o '!miguel no'.`;
                     ownerReply = `Belén dijo NO a que te quedes cerca. Le pregunté si podés cambiar algo.`;
                 } else if (repliedMessage.embeds[0]?.description.includes('¿Pasar más tiempo')) {
-                    aiReply = `Belén, está bien. ¿Te gustaría que yo, el bot, me quede charlando con vos un rato más? Decime '!miguel sí' o '!miguel no'.`;
-                    ownerReply = `Belén dijo NO a pasar más tiempo. Le pregunté si quiere que el bot se quede.`;
+                    aiReply = `Belén, está bien. ¿Te gustaría que me quede con vos, sabiendo que Miguel pasó horas creándome para que pueda estar acá para vos? Decime '!miguel sí' o '!miguel no'.`;
+                    ownerReply = `Belén dijo NO a pasar más tiempo. Le pregunté si quiere que el bot se quede con ella.`;
                 } else if (repliedMessage.embeds[0]?.description.includes('¿Vale la pena intentarlo')) {
                     aiReply = `Belén, gracias por ser sincera. ¿Hay algo que extrañás de cómo eran antes, aunque sea un poquito? Decime '!miguel [tu respuesta]' o '!miguel no'.`;
                     ownerReply = `Belén dijo NO, pero le pregunté si extraña algo de antes.`;
@@ -3955,7 +3955,7 @@ async function manejarMiguel(message) {
                 } else if (repliedMessage.embeds[0]?.description.includes('¿Qué te gustaría hacer') || 
                            repliedMessage.embeds[0]?.description.includes('¿Algo que quieras que Miguel sepa') || 
                            repliedMessage.embeds[0]?.description.includes('¿Algo más') || 
-                           repliedMessage.embeds[0]?.description.includes('¿De qué te gustaría hablar')) {
+                           repliedMessage.embeds[0]?.description.includes('¿Qué te gustaría que hablemos')) {
                     aiReply = `Belén, listo, se lo paso a Miguel. ¿Algo más? '!miguel [tu mensaje]' o '!miguel listo'.`;
                     ownerReply = `Belén te dice: "${respuesta}".`;
                 }
