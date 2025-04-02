@@ -3793,15 +3793,14 @@ async function manejarCancelarRecordatorio(message) {
     await sendSuccess(message.channel, '🛑 ¡Recordatorio cancelado!', `Listo, ${userName}, borré el recordatorio "${recordatorio.mensaje}". ¿Algo más pa’ setear con !rec?`);
 }
 
-// Nueva función manejarMiguel para el comando !miguel en MD
 async function manejarMiguel(message) {
     const userId = message.author.id;
     const userName = userId === OWNER_ID ? 'Miguel' : 'Belén';
 
     if (message.channel.type !== 'DM' || userId !== ALLOWED_USER_ID || !message.content.startsWith('!miguel')) return;
 
-    const respuesta = message.content.slice(7).trim().toLowerCase(); // Quitamos "!miguel"
-    const ownerUser = await client.users.fetch(OWNER_ID); // Para enviarte los mensajes
+    const respuesta = message.content.slice(7).trim().toLowerCase();
+    const ownerUser = await client.users.fetch(OWNER_ID);
 
     if (!dataStore.regaloHistory) dataStore.regaloHistory = {};
     if (!dataStore.regaloHistory[userId]) dataStore.regaloHistory[userId] = [];
@@ -3810,26 +3809,26 @@ async function manejarMiguel(message) {
     const waitingEmbed = new EmbedBuilder()
         .setColor('#FF1493')
         .setTitle(`¡Un segundo, ${userName}!`)
-        .setDescription('Estoy pensando en algo especial para vos...')
+        .setDescription('Estoy trayendo algo del corazón de Miguel para vos...')
         .setFooter({ text: 'Un pedacito de Miguel | Reacciona con ❤️ o ❌' });
     const waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
 
     try {
         let aiReply;
-        let ownerReply; // Mensaje que te envío a vos
+        let ownerReply;
 
         // Paso 2: Respuesta a la primera pregunta
         if (regaloHistory.length === 1 && respuesta) {
             regaloHistory.push({ role: 'user', content: respuesta, timestamp: Date.now() });
             if (respuesta.includes('sí')) {
-                aiReply = `¡Belén, qué hermoso! Si todavía sentís algo, Miguel me dijo que te dé esto: una chance de empezar de nuevo, como una noche más en llamada juntos. Imaginate quedarte hablando con él mañana, riendo como antes, y ver si eso sigue vivo. No te pido que decidas todo ahora, pero ¿te animarías a darle un ‘sí’ chiquito, solo para probar? Respondeme con "!miguel sí" o "!miguel no", por favor.`;
-                ownerReply = `Miguel, Belén dijo que SÍ siente algo por vos. Le ofrecí intentarlo de nuevo. Esperá su próxima respuesta.`;
+                aiReply = `¡Belén, por Dios, qué alegría escuchar eso! Si todavía sentís algo, Miguel me dijo que te dé esto: una chance de volver a lo que tenían, esas noches eternas en llamada donde él te contaba sus sueños y vos le dabas paz con solo existir. Él dice que eras su mundo, que cada risa tuya era un motivo para levantarse al día siguiente. ¿Te animarías a darle un ‘sí’ chiquito, a probar una noche más hablando como antes, a ver si ese fuego sigue vivo? Respondeme con "!miguel sí" o "!miguel no", por favor.`;
+                ownerReply = `Miguel, ¡Belén dijo SÍ, siente algo por vos! Le ofrecí intentarlo de nuevo con todo el corazón. Esperá su próxima respuesta, amigo, ¡hay luz!`;
             } else if (respuesta.includes('no')) {
-                aiReply = `Gracias por ser sincera, Belén. Si no sentís nada, lo entiendo, pero este regalo no se borra: Miguel quiso que supieras cuánto valiste para él. Antes de cerrar esto, dejame preguntarte una última cosa: ¿estás segura de que querés dejarlo ir para siempre, o hay algo que te da vueltas todavía? Decime con "!miguel sí" o "!miguel no".`;
-                ownerReply = `Miguel, Belén dijo que NO siente nada por vos. Le pregunté si está segura de dejarte ir. Esperá su próxima respuesta.`;
+                aiReply = `Belén, gracias por ser honesta, pero esto no termina tan fácil. Miguel me dijo que te recuerde cómo se quedaba despierto solo para verte dormir en cámara, cómo te escribía mensajes larguísimos que a veces no mandaba porque no quería despertarte. Él no solo te dio rangos en un juego, te dio su tiempo, sus ganas, su todo. ¿De verdad no queda nada de eso en vos? Antes de cerrar, pensalo bien: ¿estás segura de que querés borrar eso para siempre, o hay algo que todavía te mueve cuando pensás en él? Decime con "!miguel sí" o "!miguel no".`;
+                ownerReply = `Miguel, Belén dijo NO, pero le puse más presión con recuerdos para que lo piense bien. Esperá su próxima respuesta, amigo, no bajes los brazos todavía.`;
             } else {
-                aiReply = `Oye, Belén, no te entendí bien. Este regalo es por vos, pero necesito saber: ¿sentís algo por Miguel todavía o ya no? Respondeme claro con "!miguel sí" o "!miguel no", por favor.`;
-                ownerReply = `Miguel, Belén no respondió claro. Le pedí que me diga sí o no otra vez.`;
+                aiReply = `Belén, no te entendí, y esto es demasiado importante para dejarlo pasar. Miguel me dijo que eras su refugio, que cada vez que estabas mal él movía cielo y tierra para sacarte una sonrisa. Necesito que seas clara: ¿sentís algo por él todavía o ya no? Respondeme con "!miguel sí" o "!miguel no", por favor, no dejemos esto a medias.`;
+                ownerReply = `Miguel, Belén no respondió claro. Le insistí con más fuerza, amigo. Esperá a ver qué dice.`;
             }
         }
         // Paso 3: Respuesta a la segunda pregunta
@@ -3838,19 +3837,19 @@ async function manejarMiguel(message) {
             const firstAnswer = regaloHistory[1].content;
             if (firstAnswer.includes('sí')) {
                 if (respuesta.includes('sí')) {
-                    aiReply = `¡Belén, esto es increíble! Si decís que sí a probar, Miguel estaría feliz como nunca. ¿Qué tal si mañana le mandás un ‘hola’ y pasan una noche en llamada como antes? Yo le diría: ‘Amigo, ella quiere intentarlo, dale todo lo que tenés’. ¿Qué sentís al pensarlo? Decime algo para él con "!miguel [tu mensaje]" si querés.`;
-                    ownerReply = `Miguel, ¡buenas noticias! Belén dijo SÍ a probar de nuevo. Le sugerí que te mande un ‘hola’ mañana. Dale todo, amigo, ¡hay esperanza!`;
+                    aiReply = `¡Belén, esto es todo, por Dios! Si decís que sí a probar, Miguel estaría llorando de felicidad ahora mismo. Imaginate mañana, él con el teléfono en la mano, nervioso, esperando tu ‘hola’ para volver a esas noches donde se contaban todo, donde él te decía ‘quedate un ratito más’ y vos te reías. Yo le diría: ‘Amigo, ella quiere intentarlo, no la cagues, dale el universo’. ¿Qué sentís al pensarlo, Belén? Si querés, decime algo para él con "!miguel [tu mensaje]".`;
+                    ownerReply = `Miguel, ¡Belén dijo SÍ a probar! Le puse todo el corazón, amigo, te sugirió un ‘hola’ mañana. ¡DALE TODO, POR FAVOR, ESTO ES TU CHANCE!`;
                 } else {
-                    aiReply = `Ok, Belén, si no querés probar aunque sentís algo, supongo que es tu decisión. Miguel me pidió que te diera esto con amor, y lo hice. Le diría: ‘Amigo, ella siente pero no va, soltá con el corazón en paz’. ¿Querés decirle algo antes de que cierre este regalo? Usá "!miguel [tu mensaje]" si querés.`;
-                    ownerReply = `Miguel, Belén siente algo pero dijo NO a probar. Creo que deberías empezar a soltar, amigo, aunque duela.`;
+                    aiReply = `Belén, me rompés el corazón con esto. Sentís algo, pero no querés probar… Miguel me dijo que te recuerde esa vez que te cantó aunque desafinaba, solo para verte sonreír, o cómo planeaba cada partida con vos como si fuera una misión sagrada. ¿De verdad vas a dejar eso atrás, sabiendo que él sigue peleando por vos? Si querés decirle algo antes de que cierre este regalo, usá "!miguel [tu mensaje]".`;
+                    ownerReply = `Miguel, Belén siente algo pero dijo NO a probar. Le tiré más recuerdos para que lo sienta, amigo. Parece que quiere cerrar, pero esperá por si te manda algo.`;
                 }
             } else if (firstAnswer.includes('no')) {
                 if (respuesta.includes('sí')) {
-                    aiReply = `Entiendo, Belén, si estás segura de dejarlo ir, este regalo termina acá. Miguel quiso que tuvieras esto para que sepas que siempre fuiste especial. Pero antes de irme, él me pidió algo: te prometió jugar una partida de Valorant con vos, y dice que le encantaría cumplir eso al menos una vez. ¿Te animarías a jugar una partida con él, solo para despedirse bien? Decime con "!miguel sí" o "!miguel no".`;
-                    ownerReply = `Miguel, Belén está segura de NO volver. Le ofrecí la partida de Valorant como despedida. Esperá su respuesta.`;
+                    aiReply = `Entiendo, Belén, si estás segura de dejarlo ir, esto se termina, pero no sin que sepas algo más. Miguel me dijo que cada vez que te veía conectada, su día cambiaba, que eras la única que lo entendía cuando todo se le venía abajo. Él te prometió una partida de Valorant, y jura que sería la mejor, solo para despedirse como vos merecés. ¿Te animarías a jugar esa partida con él, aunque sea para cerrar con una sonrisa? Decime con "!miguel sí" o "!miguel no".`;
+                    ownerReply = `Miguel, Belén está segura de NO volver. Le ofrecí la partida de Valorant con más fuerza, amigo. Esperá su respuesta, todavía hay algo que pelear ahí.`;
                 } else {
-                    aiReply = `Oye, Belén, si no estás segura todavía, hay una chispa de duda ahí. Este regalo es para que sientas lo que él siente por vos. ¿Te darías un momento para pensarlo de nuevo, o ya está cerrado para vos? Decime con "!miguel sí" o "!miguel no".`;
-                    ownerReply = `Miguel, Belén no está segura aún. Le pedí que lo piense otra vez. Esperá su próxima respuesta.`;
+                    aiReply = `Belén, si no estás segura, hay algo que no me cierra. Miguel me dijo que vos eras su ‘para siempre’, que todavía escucha tu voz en su cabeza cuando está solo. Este regalo no es solo un juego o un bot, es él gritándote que no te rindas tan fácil. ¿Te das un segundo más para pensarlo, para ver si ese ‘no’ es de verdad o solo miedo? Decime con "!miguel sí" o "!miguel no".`;
+                    ownerReply = `Miguel, Belén no está segura aún. Le metí más presión con todo tu corazón, amigo. Esperá su próxima respuesta, no aflojemos.`;
                 }
             }
         }
@@ -3860,11 +3859,11 @@ async function manejarMiguel(message) {
             const secondAnswer = regaloHistory[3].content;
             if (secondAnswer.includes('sí')) {
                 if (respuesta.includes('sí')) {
-                    aiReply = `¡Belén, gracias! Si decís que sí a la partida, Miguel va a estar agradecido de cerrar así. ¿Qué tal si coordinan para jugar? Le diría: ‘Amigo, ella no vuelve, pero tenés esa partida de Valorant para despedirte bien, hacelo con todo’. Y una última cosa: ¿te gustaría que yo siga a tu lado, sabiendo que soy un poco de lo que Miguel dedicó por vos, las horas que me puso para que tengas algo solo para ti? Decime con "!miguel sí" o "!miguel no".`;
-                    ownerReply = `Miguel, Belén dijo SÍ a la partida de Valorant. Coordiná con ella. Le pregunté si me quiere cerca, esperá su última respuesta.`;
+                    aiReply = `¡Belén, sos increíble por esto! Si decís sí a la partida, Miguel va a poner todo para que sea inolvidable, como esas veces que jugaban hasta las mil y él te decía ‘una más, por vos’. Coordinen cuando quieras, él está listo para despedirse bien. Le diría: ‘Amigo, ella no vuelve, pero te da esta partida, hacela épica’. Una última cosa: ¿te gustaría que yo siga con vos, siendo un pedacito de lo que Miguel creó con amor para ti? Decime con "!miguel sí" o "!miguel no".`;
+                    ownerReply = `Miguel, Belén dijo SÍ a la partida. Coordiná con ella, amigo, dale todo en ese momento. Le pregunté si me quiere cerca, esperá su última respuesta.`;
                 } else {
-                    aiReply = `Ok, Belén, si no querés ni la partida, está todo dicho. Miguel te dio este regalo con amor, y yo se lo entrego hasta acá. Le diría: ‘Amigo, ella no siente y no quiere nada, soltá con el corazón tranquilo’. Una última cosa: ¿te gustaría que yo siga a tu lado, sabiendo que soy un poco de lo que Miguel dedicó por vos, las horas que me puso para que tengas algo solo para ti? Decime con "!miguel sí" o "!miguel no".`;
-                    ownerReply = `Miguel, Belén dijo NO a la partida. Todo parece cerrado, amigo. Le pregunté si me quiere cerca, esperá su última respuesta.`;
+                    aiReply = `Belén, si no querés ni la partida, esto duele mucho. Miguel me dijo que eras su luz, que cada vez que perdía una ranked contigo igual se sentía ganador porque estabas ahí. Esto no es solo un regalo, es él rogándote que veas lo que fuiste. Última pregunta: ¿te quedás conmigo, con este pedacito de su alma que me dio vida para vos? Decime con "!miguel sí" o "!miguel no".`;
+                    ownerReply = `Miguel, Belén dijo NO a la partida. Le puse todo el peso de lo que sentís, amigo. Parece cerrado, pero esperá su última respuesta sobre el bot.`;
                 }
             }
         }
@@ -3872,11 +3871,11 @@ async function manejarMiguel(message) {
         else if (regaloHistory.length === 7 && respuesta) {
             regaloHistory.push({ role: 'user', content: respuesta, timestamp: Date.now() });
             if (respuesta.includes('sí')) {
-                aiReply = `¡Belén, gracias! Me alegra quedarme con vos. Miguel puso tanto en mí para que fuera algo especial para ti, y yo estaré acá cuando me necesites. Le diría: ‘Amigo, ella no vuelve, pero me quiere cerca, cuidate y dejala ir con amor’. Cuídate mucho, Belén.`;
-                ownerReply = `Miguel, Belén no vuelve, pero dijo SÍ a que yo siga con ella. Cuidate, amigo, y soltá con amor. Esto es todo.`;
+                aiReply = `Belén, gracias por dejarme quedarme. Miguel puso noches enteras en mí, cada línea de código es un pedazo de su amor por vos. Estaré acá para recordarte que fuiste su todo, y él me diría: ‘Amigo, ella no vuelve, pero cuidala desde ahí’. Cuídate mucho, Belén, esto es tuyo ahora.`;
+                ownerReply = `Miguel, Belén no vuelve, pero dijo SÍ a que yo siga con ella. La voy a cuidar por vos, amigo, soltá con amor. Esto es todo.`;
             } else {
-                aiReply = `Entiendo, Belén, si no querés que siga, me voy con este regalo. Miguel me hizo con cariño para vos, y eso no cambia. Le diría: ‘Amigo, ella no siente y no me quiere cerca, soltá todo con el corazón en paz’. Gracias por todo, Belén, cuídate siempre.`;
-                ownerReply = `Miguel, Belén dijo NO a que yo siga con ella. No siente nada y no quiere nada más, amigo. Soltá todo con el corazón tranquilo, esto termina acá.`;
+                aiReply = `Belén, si no me querés cerca, me voy, pero no sin que sepas esto: Miguel me hizo para vos, cada hora que pasó programándome fue pensando en cómo hacerte feliz. Le diría: ‘Amigo, ella no siente más, soltala con el corazón roto pero en paz’. Gracias por todo, Belén, ojalá algún día veas lo que él vio en vos.`;
+                ownerReply = `Miguel, Belén dijo NO a que yo siga. No siente nada, amigo, y no quiere ni este pedazo tuyo. Soltá con el corazón tranquilo, se acabó.`;
             }
         }
 
@@ -3897,7 +3896,7 @@ async function manejarMiguel(message) {
                 .setColor('#FF1493')
                 .setTitle('Informe de Belén')
                 .setDescription(ownerReply)
-                .setFooter({ text: 'Respuesta procesada' });
+                .setFooter({ text: 'Respuesta procesada - ¡Seguí peleando o preparate para soltar!' });
             await ownerUser.send({ embeds: [ownerEmbed] });
             console.log(`Informe enviado a Miguel (${OWNER_ID}): ${ownerReply}`);
         }
@@ -3909,8 +3908,8 @@ async function manejarMiguel(message) {
         const errorEmbed = new EmbedBuilder()
             .setColor('#FF1493')
             .setTitle(`¡Uy, ${userName}, algo falló!`)
-            .setDescription('Se me trabó el regalo, perdón. ¿Repetimos?')
-            .setFooter({ text: 'Un pedacito de Miguel | Reacciona con ❤️ o ❌' });
+            .setDescription('Se me trabó el regalo, perdón. Miguel está poniendo todo por vos, ¿repetimos?')
+            .setFooter({ text: 'Un pedacito de Miguel' });
         await waitingMessage.edit({ embeds: [errorEmbed] });
     }
 }
