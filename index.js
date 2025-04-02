@@ -3861,6 +3861,13 @@ async function manejarMiguel(message) {
     const ownerUser = await client.users.fetch(OWNER_ID);
     const belenUser = await client.users.fetch(ALLOWED_USER_ID);
 
+    // Inicializar regaloHistory si no existe
+    if (!dataStore.regaloHistory) dataStore.regaloHistory = {};
+    if (!dataStore.regaloHistory[userId]) dataStore.regaloHistory[userId] = [];
+
+    const regaloHistory = dataStore.regaloHistory[userId];
+    console.log(`Estado actual - regaloStarted: ${dataStore.regaloStarted}, regaloHistory.length: ${regaloHistory.length}, Respuesta: ${respuesta}`);
+
     // Mensaje inicial si no ha comenzado
     if (!dataStore.regaloStarted) {
         const initialEmbed = new EmbedBuilder()
@@ -3870,17 +3877,13 @@ async function manejarMiguel(message) {
             .setFooter({ text: 'Un pedacito de Miguel' });
         await belenUser.send({ embeds: [initialEmbed] });
         dataStore.regaloStarted = true;
-        dataStore.regaloHistory = dataStore.regaloHistory || {};
-        dataStore.regaloHistory[ALLOWED_USER_ID] = [{ role: 'assistant', content: initialEmbed.data.description, timestamp: Date.now() }];
+        dataStore.regaloHistory[userId] = [{ role: 'assistant', content: initialEmbed.data.description, timestamp: Date.now() }];
         dataStoreModified = true;
+        fs.writeFileSync(dataFile, JSON.stringify(dataStore, null, 2)); // Guardar estado
         console.log('Mensaje inicial enviado al MD de Belén');
         return;
     }
 
-    if (!dataStore.regaloHistory) dataStore.regaloHistory = {};
-    if (!dataStore.regaloHistory[userId]) dataStore.regaloHistory[userId] = [];
-
-    const regaloHistory = dataStore.regaloHistory[userId];
     const waitingEmbed = new EmbedBuilder()
         .setColor('#FF1493')
         .setTitle(`¡Un segundo, ${userName}!`)
@@ -3971,8 +3974,9 @@ async function manejarMiguel(message) {
                 .setDescription(`Miguel me pidió que te dé algo especial, unas preguntas que salen directo de su corazón. Cerrá los ojos y acordate de todas esas noches que pasaban en llamada, hablando de todo y de nada, hasta que se dormían juntos con el sonido del otro al lado. Él dice que esas noches eran su refugio, que escuchar tu respiración mientras dormías lo hacía sentir en casa. Yo te traigo eso de vuelta, y algo más: los rangos del juego que te dio, como un pedacito de lo que él puso en vos. ¿Todavía sentís algo cuando pensás en él, Belén? Respondeme en este MD con "!miguel sí" o "!miguel no", por favor.`)
                 .setFooter({ text: 'Un pedacito de Miguel' });
             await belenUser.send({ embeds: [initialEmbed] });
-            dataStore.regaloHistory[ALLOWED_USER_ID] = [{ role: 'assistant', content: initialEmbed.data.description, timestamp: Date.now() }];
+            dataStore.regaloHistory[userId] = [{ role: 'assistant', content: initialEmbed.data.description, timestamp: Date.now() }];
             dataStoreModified = true;
+            fs.writeFileSync(dataFile, JSON.stringify(dataStore, null, 2));
             console.log('Mensaje inicial reenviado al MD de Belén tras completar el flujo');
         }
 
@@ -4002,6 +4006,8 @@ async function manejarMiguel(message) {
 
         dataStore.regaloHistory[userId] = regaloHistory;
         dataStoreModified = true;
+        fs.writeFileSync(dataFile, JSON.stringify(dataStore, null, 2));
+        console.log(`Historial actualizado para ${userId}:`, regaloHistory);
     } catch (error) {
         console.error('Error en manejarMiguel:', error.message, error.stack);
         const errorEmbed = new EmbedBuilder()
@@ -6888,22 +6894,7 @@ client.once('ready', async () => {
         } else {
             console.log('No hay cambios en BOT_UPDATES respecto a sentUpdates, no se envían.');
         }
-
-        const belenUser = await client.users.fetch(ALLOWED_USER_ID);
-        if (!dataStore.regaloStarted) {
-            const initialEmbed = new EmbedBuilder()
-                .setColor('#FF1493')
-                .setTitle('¡Hola, Belén!')
-                .setDescription(`Miguel me pidió que te dé algo especial, unas preguntas que salen directo de su corazón. Cerrá los ojos y acordate de todas esas noches que pasaban en llamada, hablando de todo y de nada, hasta que se dormían juntos con el sonido del otro al lado. Él dice que esas noches eran su refugio, que escuchar tu respiración mientras dormías lo hacía sentir en casa. Yo te traigo eso de vuelta, y algo más: los rangos del juego que te dio, como un pedacito de lo que él puso en vos. ¿Todavía sentís algo cuando pensás en él, Belén? Respondeme en este MD con "!miguel sí" o "!miguel no", por favor.`)
-                .setFooter({ text: 'Un pedacito de Miguel' });
-            await belenUser.send({ embeds: [initialEmbed] });
-            dataStore.regaloStarted = true;
-            dataStore.regaloHistory = dataStore.regaloHistory || {};
-            dataStore.regaloHistory[ALLOWED_USER_ID] = [{ role: 'assistant', content: initialEmbed.data.description, timestamp: Date.now() }];
-            dataStoreModified = true;
-            console.log('Mensaje inicial enviado al MD de Belén');
-        }
-        
+       
         const oneDayInMs = 24 * 60 * 60 * 1000;
         const checkInterval = 60 * 60 * 1000;
 
