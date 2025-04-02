@@ -571,7 +571,7 @@
       "mensaje": "tomar la pastilla rosada todos los días",
       "cuandoLlegue": false,
       "cuandoSalga": false,
-      "timestamp": 1743584400000,
+      "timestamp": 1743670800000,
       "creado": 1743208737942,
       "esRecurrente": true,
       "hora": 6,
@@ -636,7 +636,7 @@
       "mensaje": "despiértame todos los días",
       "cuandoLlegue": false,
       "cuandoSalga": false,
-      "timestamp": 1743588000000,
+      "timestamp": 1743674400000,
       "creado": 1743402095938,
       "esRecurrente": true,
       "hora": 7,
@@ -649,7 +649,7 @@
       "mensaje": "Hazme acuerdo de levantarme todos los días",
       "cuandoLlegue": false,
       "cuandoSalga": false,
-      "timestamp": 1743593400000,
+      "timestamp": 1743679800000,
       "creado": 1743485772718,
       "esRecurrente": true,
       "hora": 8,
@@ -706,6 +706,19 @@
       "esRecurrente": true,
       "hora": 20,
       "minutos": 0
+    },
+    {
+      "id": "715bd44c-320d-4c53-8cae-0e9d528608da",
+      "userId": "1023132788632862761",
+      "channelId": "1343749554905940058",
+      "mensaje": "despiértame",
+      "cuandoLlegue": false,
+      "cuandoSalga": false,
+      "timestamp": 1743600547590,
+      "creado": 1743596947591,
+      "esRecurrente": false,
+      "hora": null,
+      "minutos": null
     }
   ],
   "usedJokes": {
