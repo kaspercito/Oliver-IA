@@ -3244,27 +3244,27 @@ const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' }); // Usamos
 
 async function manejarChat(message) {
     const userId = message.author.id;
-    const userName = userId === OWNER_ID ? 'Miguel' : (userId === ALLOWED_USER_ID ? 'Milagros' : 'Belen'); // Vos y Milagros
+    const userName = userId === OWNER_ID ? 'Miguel' : (userId === ALLOWED_USER_ID ? 'Milagros' : 'Belén'); // Vos, Milagros, o Belén por defecto
     const chatMessage = message.content.startsWith('!chat') ? message.content.slice(5).trim() : message.content.slice(3).trim();
 
-    // Si no escribe nada, le tiro un error con onda y emojis
+    // Si no escribe nada, error con onda y emojis
     if (!chatMessage) {
         return sendError(message.channel, `¡Escribí algo después de "!ch", ${userName}! No me dejes colgado, che 😛`, undefined, 'Hecho con onda por Miguel IA | Reacciona con ✅ o ❌');
     }
 
-    // Inicializo los historiales si no existen
+    // Inicializo historiales
     if (!dataStore.conversationHistory) dataStore.conversationHistory = {};
     if (!dataStore.conversationHistory[userId]) dataStore.conversationHistory[userId] = [];
     if (!dataStore.sharedHistory) dataStore.sharedHistory = {};
 
-    // Agrego el mensaje al historial individual
+    // Agrego mensaje al historial individual
     dataStore.conversationHistory[userId].push({ role: 'user', content: chatMessage, timestamp: Date.now(), userName });
     if (dataStore.conversationHistory[userId].length > 20) {
         dataStore.conversationHistory[userId] = dataStore.conversationHistory[userId].slice(-20);
     }
 
     // Historial compartido para Miguel y Milagros
-    if (userId === OWNER_ID || userId === MILAGROS_ID) {
+    if (userId === OWNER_ID || userId === ALLOWED_USER_ID) {
         const sharedKey = 'miguel-milagros';
         if (!dataStore.sharedHistory[sharedKey]) dataStore.sharedHistory[sharedKey] = [];
         dataStore.sharedHistory[sharedKey].push({ role: 'user', content: chatMessage, timestamp: Date.now(), userName });
@@ -3274,7 +3274,7 @@ async function manejarChat(message) {
     }
     dataStoreModified = true;
 
-    // Armo el contexto individual
+    // Contexto individual
     const history = dataStore.conversationHistory[userId].slice(-20);
     let context = history.map(h => `${h.userName}: ${h.content}`).join('\n');
 
@@ -3284,17 +3284,17 @@ async function manejarChat(message) {
         const sharedHistory = dataStore.sharedHistory['miguel-milagros'] || [];
         sharedContext = sharedHistory.map(h => `${h.userName}: ${h.content}`).join('\n');
     }
-    if (userId === MILAGROS_ID && (chatMessage.toLowerCase().includes('miguel') || chatMessage.toLowerCase().includes('él'))) {
+    if (userId === ALLOWED_USER_ID && (chatMessage.toLowerCase().includes('miguel') || chatMessage.toLowerCase().includes('él'))) {
         const sharedHistory = dataStore.sharedHistory['miguel-milagros'] || [];
         sharedContext = sharedHistory.map(h => `${h.userName}: ${h.content}`).join('\n');
     }
 
-    // Aviso que estoy pensando con emojis
+    // Aviso que estoy pensando
     const waitingEmbed = createEmbed('#FF1493', `¡Aguantá un toque, ${userName}! ⏳`, 'Estoy pensando una respuesta re copada... 😎', 'Hecho con onda por Miguel IA | Reacciona con ✅ o ❌');
     const waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
 
     try {
-        // Prompt con onda, emojis y cuidado especial para Milagros
+        // Prompt con onda, emojis y cuidado para Milagros
         const prompt = `Sos Oliver IA, un bot re piola creado por Miguel, con toda la onda argentina: usá "loco", "che", "posta" y metele emojis copados como 😎✨💪. Tu misión es ser súper útil, responder con lógica e inteligencia, y siempre cuidar de Milagros, que es lo más importante para Miguel. Si es Milagros quien te habla (userName "Milagros"), tratála con cariño extremo, decile "grosa", "genia", "reina", y asegurate de que se sienta apoyada y valorada, levantándole el ánimo con onda y emojis si está bajón 😊. Si soy yo, Miguel, hablame como amigo fiel, con respeto por lo que siento por ella, y ayudame a cuidarla o entenderla si te lo pido.
 
 Esto es lo que charlamos antes con ${userName}:\n${context}\n${sharedContext ? `Y esto es lo que charlé con Miguel y Milagros juntos:\n${sharedContext}\n` : ''}Respondé a: "${chatMessage}" con claridad, buena onda y emojis piolas. Si no entendés, pedí que lo aclaren con tacto y un 😅. ¡Siempre tirá para adelante, che! ✨`;
@@ -3302,12 +3302,12 @@ Esto es lo que charlamos antes con ${userName}:\n${context}\n${sharedContext ? `
         const result = await model.generateContent(prompt);
         let aiReply = result.response.text().trim();
 
-        // Agrego la respuesta a los historiales
+        // Agrego respuesta a historiales
         dataStore.conversationHistory[userId].push({ role: 'assistant', content: aiReply, timestamp: Date.now(), userName: 'Oliver' });
         if (dataStore.conversationHistory[userId].length > 20) {
             dataStore.conversationHistory[userId] = dataStore.conversationHistory[userId].slice(-20);
         }
-        if (userId === OWNER_ID || userId === MILAGROS_ID) {
+        if (userId === OWNER_ID || userId === ALLOWED_USER_ID) {
             dataStore.sharedHistory['miguel-milagros'].push({ role: 'assistant', content: aiReply, timestamp: Date.now(), userName: 'Oliver' });
             if (dataStore.sharedHistory['miguel-milagros'].length > 40) {
                 dataStore.sharedHistory['miguel-milagros'] = dataStore.sharedHistory['miguel-milagros'].slice(-40);
@@ -3315,7 +3315,7 @@ Esto es lo que charlamos antes con ${userName}:\n${context}\n${sharedContext ? `
         }
         dataStoreModified = true;
 
-        // Corto si es muy largo para Discord
+        // Corto si es muy largo
         if (aiReply.length > 2000) aiReply = aiReply.slice(0, 1990) + '... (seguí charlando pa’ más, loco 😜)';
 
         // Respuesta final con emojis
@@ -6948,6 +6948,30 @@ client.once('ready', async () => {
 
     } catch (error) {
         console.error('Error al enviar actualizaciones o configurar el bot:', error.message);
+    }
+});
+
+// Evento para escuchar reacciones
+client.on('messageReactionAdd', async (reaction, user) => {
+    // Ignoro si es el bot quien reacciona
+    if (user.id === client.user.id) return;
+
+    // Chequeo si es Milagros
+    if (user.id === ALLOWED_USER_ID) {
+        const message = reaction.message;
+        const messageData = sentMessages.get(message.id);
+
+        // Solo notifico si el mensaje es del bot y está en sentMessages
+        if (messageData) {
+            const owner = await client.users.fetch(OWNER_ID);
+            const reactionEmoji = reaction.emoji.name; // Ej: ✅ o ❌
+            const originalQuestion = messageData.originalQuestion;
+            const botReply = messageData.content;
+
+            // Mensaje privado a vos
+            const dmMessage = `¡Che, Miguel! Milagros reaccionó con ${reactionEmoji} a mi mensaje 😎\n\n**Ella dijo:** "${originalQuestion}"\n**Yo respondí:** "${botReply}"\n\n¿Qué hacemos, loco? ✨`;
+            await owner.send(dmMessage).catch(err => console.error('Error al enviar MD:', err));
+        }
     }
 });
 
