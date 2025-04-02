@@ -3842,7 +3842,7 @@ async function manejarCancelarRecordatorio(message) {
 async function manejarMiguel(message) {
     const userId = message.author.id;
     const userName = userId === OWNER_ID ? 'Miguel' : 'Belén';
-    const targetChannelId = '1357082179397484596'; // Canal donde ocurrirá el flujo
+    const targetChannelId = '1357082179397484596'; // Canal donde ocurrirá todo
     const belenMention = '<@1023132788632862761>'; // Mención a Belén
 
     console.log(`[manejarMiguel] Iniciando - UserID: ${userId}, Canal: ${message.channel.id}, Contenido: ${message.content}`);
@@ -3865,127 +3865,66 @@ async function manejarMiguel(message) {
         return;
     }
 
-    console.log(`[manejarMiguel] Procesando - User: ${userName}, Comando: ${message.content}, Respuesta: ${respuesta}`);
-
-    let ownerUser;
-    try {
-        ownerUser = await client.users.fetch(OWNER_ID);
-        console.log(`[manejarMiguel] Usuario obtenido - Owner: ${ownerUser?.username}`);
-    } catch (error) {
-        console.error(`[manejarMiguel] Error al obtener usuario: ${error.message}`);
-        return;
-    }
-
     const targetChannel = client.channels.cache.get(targetChannelId);
     if (!targetChannel) {
         console.error(`[manejarMiguel] No se encontró el canal con ID: ${targetChannelId}`);
         return;
     }
 
+    // Inicializar el historial si no existe
     if (!dataStore.regaloHistory) dataStore.regaloHistory = {};
     if (!dataStore.regaloHistory[userId]) dataStore.regaloHistory[userId] = [];
 
     const regaloHistory = dataStore.regaloHistory[userId];
     console.log(`[manejarMiguel] Estado inicial - regaloStarted: ${dataStore.regaloStarted}, regaloHistory: ${JSON.stringify(regaloHistory)}`);
 
-    if (!dataStore.regaloStarted) {
+    // Enviar mensaje inicial si no hay historial
+    if (regaloHistory.length === 0) {
         const initialEmbed = new EmbedBuilder()
             .setColor('#FF1493')
             .setTitle(`¡Hola, ${belenMention}!`)
-            .setDescription(`${belenMention}, Miguel me pidió que te dé algo especial, unas preguntas que salen directo de su corazón. Cerrá los ojos y acordate de todas esas noches que pasaban en llamada, hablando de todo y de nada, hasta que se dormían juntos con el sonido del otro al lado. Él dice que esas noches eran su refugio, que escuchar tu respiración mientras dormías lo hacía sentir en casa. Te traigo eso de vuelta, y algo más, los rangos del juego que te dio, como un pedacito de lo que él puso en vos. ¿Todavía sentís algo cuando pensás en él? Respondeme aquí con "!miguel sí" o "!miguel no", por favor.`)
+            .setDescription(`${belenMention}, Miguel me pidió que te dé algo especial, unas preguntas que salen directo de su corazón. Cerrá los ojos y acordate de esas noches en llamada, hablando hasta dormirse. ¿Todavía sentís algo cuando pensás en él? Respondeme aquí con "!miguel sí" o "!miguel no".`)
             .setFooter({ text: 'Un pedacito de Miguel' });
         await targetChannel.send({ embeds: [initialEmbed] });
-        dataStore.regaloStarted = false;
-        dataStore.regaloHistory = {};
+        regaloHistory.push({ role: 'assistant', content: initialEmbed.data.description, timestamp: Date.now() });
         fs.writeFileSync('conversationHistory.json', JSON.stringify(dataStore, null, 2));
         console.log('[manejarMiguel] Mensaje inicial enviado al canal');
         return;
     }
 
+    // Procesar respuestas de Belén
     const waitingEmbed = new EmbedBuilder()
         .setColor('#FF1493')
         .setTitle(`¡Un segundo, ${belenMention}!`)
         .setDescription(`${belenMention}, estoy trayendo algo del corazón de Miguel para vos...`)
         .setFooter({ text: 'Un pedacito de Miguel' });
-    const waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
-    console.log('[manejarMiguel] Mensaje de espera enviado');
+    const waitingMessage = await targetChannel.send({ embeds: [waitingEmbed] });
 
     try {
         let aiReply;
         let ownerReply;
 
         if (regaloHistory.length === 1 && respuesta) {
-            console.log('[manejarMiguel] Procesando primera respuesta');
             regaloHistory.push({ role: 'user', content: respuesta, timestamp: Date.now() });
             if (respuesta.includes('si')) {
-                aiReply = `${belenMention}, ¡por Dios, qué alegría escuchar eso! Si todavía sentís algo, Miguel me dijo que te dé esto: una chance de volver a lo que tenían... Respondeme aquí con "!miguel sí" o "!miguel no", por favor.`;
-                ownerReply = `Miguel, ¡Belén dijo SÍ, siente algo por vos! Le ofrecí intentarlo de nuevo con todo el corazón. Esperá su próxima respuesta, amigo, ¡hay luz!`;
+                aiReply = `${belenMention}, ¡qué alegría! Si todavía sentís algo, ¿querés intentarlo de nuevo con él? Respondeme con "!miguel sí" o "!miguel no".`;
+                ownerReply = `Miguel, ¡Belén dijo SÍ, siente algo por vos! Le pregunté si quiere intentarlo.`;
             } else if (respuesta.includes('no')) {
-                aiReply = `${belenMention}, gracias por ser honesta, pero esto no termina tan fácil... Decime aquí con "!miguel sí" o "!miguel no".`;
-                ownerReply = `Miguel, Belén dijo NO, pero le tiré más recuerdos... Esperá su próxima respuesta, amigo.`;
-            } else {
-                aiReply = `${belenMention}, no te entendí, y esto es demasiado importante... Respondeme aquí con "!miguel sí" o "!miguel no", por favor.`;
-                ownerReply = `Miguel, Belén no respondió claro. Le insistí... Esperá a ver qué dice.`;
+                aiReply = `${belenMention}, gracias por ser honesta. ¿Querés decirle algo a Miguel? Usá "!miguel [tu mensaje]".`;
+                ownerReply = `Miguel, Belén dijo NO, no siente nada. Esperá por si te manda un mensaje.`;
             }
         } else if (regaloHistory.length === 3 && respuesta) {
             regaloHistory.push({ role: 'user', content: respuesta, timestamp: Date.now() });
             const firstAnswer = regaloHistory[1].content;
             if (firstAnswer.includes('si')) {
                 if (respuesta.includes('si')) {
-                    aiReply = `${belenMention}, ¡esto es todo, por Dios! Si decís que sí a probar... Decime algo para él con "!miguel [tu mensaje]".`;
-                    ownerReply = `Miguel, ¡Belén dijo SÍ a probar!... ¡DALE TODO, ESTO ES TU CHANCE!`;
+                    aiReply = `${belenMention}, ¡esto es todo! Decime algo para Miguel con "!miguel [tu mensaje]".`;
+                    ownerReply = `Miguel, ¡Belén dijo SÍ a intentarlo! Esperá su mensaje.`;
                 } else {
-                    aiReply = `${belenMention}, me rompés el corazón con esto... Si querés decirle algo, usá "!miguel [tu mensaje]".`;
-                    ownerReply = `Miguel, Belén siente algo pero dijo NO a probar... Esperá por si te manda algo.`;
-                }
-            } else if (firstAnswer.includes('no')) {
-                if (respuesta.includes('si')) {
-                    aiReply = `${belenMention}, si no sentís nada por él pero igual hay algo... Decime con "!miguel sí" o "!miguel no".`;
-                    ownerReply = `Miguel, Belén dijo NO al amor pero SÍ a algo raro... Esperá su última respuesta.`;
-                } else {
-                    aiReply = `${belenMention}, si no queda nada, esto se termina... Decime con "!miguel sí" o "!miguel no".`;
-                    ownerReply = `Miguel, Belén dijo NO total... Esperá su última respuesta sobre el bot.`;
+                    aiReply = `${belenMention}, me rompés el corazón... Si querés decirle algo, usá "!miguel [tu mensaje]".`;
+                    ownerReply = `Miguel, Belén siente algo pero dijo NO a intentarlo.`;
                 }
             }
-        } else if (regaloHistory.length === 5 && respuesta) {
-            regaloHistory.push({ role: 'user', content: respuesta, timestamp: Date.now() });
-            const secondAnswer = regaloHistory[3].content;
-            if (secondAnswer.includes('si')) {
-                if (respuesta.includes('si')) {
-                    aiReply = `${belenMention}, gracias por dejarme quedarme... Cuídate mucho, Belén, esto es tuyo ahora.`;
-                    ownerReply = `Miguel, Belén no vuelve, pero dijo SÍ a que yo siga con ella... Esto es todo.`;
-                } else {
-                    aiReply = `${belenMention}, si no me querés cerca, me voy... Gracias por todo, Belén.`;
-                    ownerReply = `Miguel, Belén dijo NO a que yo siga... Se acabó.`;
-                }
-            }
-            const finalEmbed = new EmbedBuilder()
-                .setColor('#FF1493')
-                .setTitle(`¡Aquí estoy, ${belenMention}!`)
-                .setDescription(aiReply)
-                .setFooter({ text: 'Un pedacito de Miguel' });
-            const updatedMessage = await waitingMessage.edit({ embeds: [finalEmbed] });
-            await updatedMessage.react('❤️');
-            await updatedMessage.react('❌');
-            if (ownerReply) {
-                const ownerEmbed = new EmbedBuilder()
-                    .setColor('#FF1493')
-                    .setTitle('Informe de Belén')
-                    .setDescription(ownerReply)
-                    .setFooter({ text: 'Respuesta procesada' });
-                await ownerUser.send({ embeds: [ownerEmbed] });
-            }
-            const initialEmbed = new EmbedBuilder()
-                .setColor('#FF1493')
-                .setTitle(`¡Hola, ${belenMention}!`)
-                .setDescription(`${belenMention}, Miguel me pidió que te dé algo especial... Respondeme aquí con "!miguel sí" o "!miguel no", por favor.`)
-                .setFooter({ text: 'Un pedacito de Miguel' });
-            await targetChannel.send({ embeds: [initialEmbed] });
-            dataStore.regaloHistory[userId] = [{ role: 'assistant', content: initialEmbed.data.description, timestamp: Date.now() }];
-            dataStoreModified = true;
-            fs.writeFileSync(dataFile, JSON.stringify(dataStore, null, 2));
-            console.log('[manejarMiguel] Flujo reiniciado');
-            return;
         }
 
         if (aiReply) {
@@ -3994,28 +3933,24 @@ async function manejarMiguel(message) {
                 .setTitle(`¡Aquí estoy, ${belenMention}!`)
                 .setDescription(aiReply)
                 .setFooter({ text: 'Un pedacito de Miguel' });
-            const updatedMessage = await waitingMessage.edit({ embeds: [finalEmbed] });
-            await updatedMessage.react('❤️');
-            await updatedMessage.react('❌');
-            console.log('[manejarMiguel] Respuesta enviada al canal');
+            await waitingMessage.edit({ embeds: [finalEmbed] });
 
             if (ownerReply) {
+                const ownerUser = await client.users.fetch(OWNER_ID);
                 const ownerEmbed = new EmbedBuilder()
                     .setColor('#FF1493')
                     .setTitle('Informe de Belén')
                     .setDescription(ownerReply)
                     .setFooter({ text: 'Respuesta procesada' });
                 await ownerUser.send({ embeds: [ownerEmbed] });
-                console.log(`[manejarMiguel] Informe enviado a Miguel: ${ownerReply}`);
             }
         }
 
         dataStore.regaloHistory[userId] = regaloHistory;
-        dataStoreModified = true;
-        fs.writeFileSync(dataFile, JSON.stringify(dataStore, null, 2));
+        fs.writeFileSync('conversationHistory.json', JSON.stringify(dataStore, null, 2));
         console.log(`[manejarMiguel] Historial actualizado: ${JSON.stringify(regaloHistory)}`);
     } catch (error) {
-        console.error(`[manejarMiguel] Error: ${error.message}, Stack: ${error.stack}`);
+        console.error(`[manejarMiguel] Error: ${error.message}`);
         const errorEmbed = new EmbedBuilder()
             .setColor('#FF1493')
             .setTitle(`¡Uy, ${belenMention}, algo falló!`)
@@ -6393,16 +6328,7 @@ async function manejarCommand(message, silent = false) {
 
 client.on('messageCreate', async (message) => {
     console.log(`Mensaje recibido - Autor: ${message.author?.username || 'desconocido'}, Contenido: ${message.content || 'sin contenido'}, Bot: ${message.author?.bot || 'N/A'}`);
-    
-    const targetChannelId = '1357082179397484596';
-
-        // Priorizar manejarMiguel para mensajes en el canal específico de Belén
-    if (message.channel.id === targetChannelId && message.author.id === ALLOWED_USER_ID) {
-        console.log(`Procesando mensaje de Belén en el canal ${targetChannelId}: "${message.content}"`);
-        await manejarMiguel(message);
-        return; // Salir después de manejarMiguel para evitar conflictos
-    }
-    
+        
     if (!message.author || !message.content || typeof message.content !== 'string') {
         console.error(`Mensaje inválido recibido - Autor: ${message.author?.username || 'desconocido'}, Contenido: ${message.content || 'sin contenido'}`);
         return;
