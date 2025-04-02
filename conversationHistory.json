@@ -105,18 +105,6 @@
     "752987736759205960": [
       {
         "role": "user",
-        "content": "sabes quién es Belen?",
-        "timestamp": 1743630838379,
-        "userName": "Miguel"
-      },
-      {
-        "role": "assistant",
-        "content": "Che, Miguel,  para poder ayudarte mejor, necesito un poco más de contexto.  ¿Te referís a Belén como a una persona en particular que conozco, o es un nombre genérico?  Si es una persona que vos conocés, necesito más información para saber de quién se trata.  No te preocupes, es para poder ayudarte mejor, ¿dale?",
-        "timestamp": 1743630839569,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
         "content": "ah no te preguntaba nomás",
         "timestamp": 1743630859456,
         "userName": "Miguel"
@@ -221,6 +209,18 @@
         "role": "assistant",
         "content": "Che, Miguel,  lamentablemente no tengo acceso en tiempo real a resultados deportivos. Para saber el resultado del partido de hoy entre el Barcelona y el Atlético de Madrid, te sugiero que busques la información en un sitio web deportivo confiable, como ESPN, o en Google.  Disculpame, loco, pero esa información no la puedo obtener directamente.",
         "timestamp": 1743631104301,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "ella dice extrañar ver películas conmigo pero no quiere estar conmigo, que está firme en su decisión desde el primer día que me dejo XD",
+        "timestamp": 1743634464488,
+        "userName": "Miguel"
+      },
+      {
+        "role": "assistant",
+        "content": "Che, Miguel, entiendo perfectamente lo que me estás diciendo.  Suena a que te está dando migas, pero sin realmente querer volver.  Decir que extraña ver películas contigo es una forma de mantener un contacto emocional,  pero su firmeza en la decisión de separarse desde el primer día indica que,  a pesar de algún posible afecto residual, no hay una intención real de retomar la relación.  Posta que es una situación difícil, pero te recomiendo que lo aceptes.  Seguir aferrándote a esa posibilidad te puede causar más dolor.  Concentrate en vos, en tu bienestar, y seguí adelante.",
+        "timestamp": 1743634466021,
         "userName": "Oliver"
       }
     ]
@@ -643,7 +643,7 @@
       "mensaje": "tomar la vitamina todos los días",
       "cuandoLlegue": false,
       "cuandoSalga": false,
-      "timestamp": 1743634800000,
+      "timestamp": 1743721200000,
       "creado": 1743208808339,
       "esRecurrente": true,
       "hora": 20,
@@ -721,7 +721,7 @@
       "mensaje": "Hazme acuerdo de capturar koth todos los días",
       "cuandoLlegue": false,
       "cuandoSalga": false,
-      "timestamp": 1743634800000,
+      "timestamp": 1743721200000,
       "creado": 1743536343195,
       "esRecurrente": true,
       "hora": 20,
@@ -1226,6 +1226,18 @@
         "role": "assistant",
         "content": "Che, Miguel,  lamentablemente no tengo acceso en tiempo real a resultados deportivos. Para saber el resultado del partido de hoy entre el Barcelona y el Atlético de Madrid, te sugiero que busques la información en un sitio web deportivo confiable, como ESPN, o en Google.  Disculpame, loco, pero esa información no la puedo obtener directamente.",
         "timestamp": 1743631104301,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "ella dice extrañar ver películas conmigo pero no quiere estar conmigo, que está firme en su decisión desde el primer día que me dejo XD",
+        "timestamp": 1743634464488,
+        "userName": "Miguel"
+      },
+      {
+        "role": "assistant",
+        "content": "Che, Miguel, entiendo perfectamente lo que me estás diciendo.  Suena a que te está dando migas, pero sin realmente querer volver.  Decir que extraña ver películas contigo es una forma de mantener un contacto emocional,  pero su firmeza en la decisión de separarse desde el primer día indica que,  a pesar de algún posible afecto residual, no hay una intención real de retomar la relación.  Posta que es una situación difícil, pero te recomiendo que lo aceptes.  Seguir aferrándote a esa posibilidad te puede causar más dolor.  Concentrate en vos, en tu bienestar, y seguí adelante.",
+        "timestamp": 1743634466021,
         "userName": "Oliver"
       }
     ]
