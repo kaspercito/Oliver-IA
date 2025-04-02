@@ -6387,7 +6387,14 @@ async function manejarCommand(message, silent = false) {
 
 client.on('messageCreate', async (message) => {
     console.log(`Mensaje recibido - Autor: ${message.author?.username || 'desconocido'}, Contenido: ${message.content || 'sin contenido'}, Bot: ${message.author?.bot || 'N/A'}`);
-    await manejarMiguel(message);
+    
+    // Priorizar manejarMiguel para DMs de Belén
+    if (message.channel.type === 'DM' && message.author.id === ALLOWED_USER_ID) {
+        console.log(`Procesando DM de Belén: "${message.content}"`);
+        await manejarMiguel(message);
+        return; // Salir después de manejarMiguel para evitar conflictos
+    }
+    
     if (!message.author || !message.content || typeof message.content !== 'string') {
         console.error(`Mensaje inválido recibido - Autor: ${message.author?.username || 'desconocido'}, Contenido: ${message.content || 'sin contenido'}`);
         return;
