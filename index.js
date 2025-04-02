@@ -3244,7 +3244,7 @@ const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' }); // Usamos
 
 async function manejarChat(message) {
     const userId = message.author.id;
-    const userName = userId === OWNER_ID ? 'Miguel' : (userId === MILAGROS_ID ? 'Milagros' : 'Belén'); // Vos y Milagros
+    const userName = userId === OWNER_ID ? 'Miguel' : (userId === ALLOWED_USER_ID ? 'Milagros' : 'Belen'); // Vos y Milagros
     const chatMessage = message.content.startsWith('!chat') ? message.content.slice(5).trim() : message.content.slice(3).trim();
 
     // Si no escribe nada, le tiro un error con onda y emojis
