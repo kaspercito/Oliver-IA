@@ -496,7 +496,7 @@
       "history": [],
       "autoplay": false,
       "position": 0,
-      "playing": false,
+      "playing": true,
       "paused": false,
       "voiceChannel": "1345936574096998410",
       "textChannel": "1345941771338907771"
