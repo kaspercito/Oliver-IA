@@ -4083,16 +4083,9 @@ async function manejarActualizaciones(message) {
 async function manejarPlay(message, args) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
     const guildId = message.guild.id;
-    const voiceChannelId = '1344199685455478885'; // Canal fijo
 
     if (!message.guild) {
         await sendError(message.channel, `Este comando solo funciona en servidores, ${userName}.`);
-        return false;
-    }
-
-    const voiceChannel = client.channels.cache.get(voiceChannelId);
-    if (!voiceChannel || voiceChannel.type !== 'GUILD_VOICE') {
-        await sendError(message.channel, `No encontré el canal fijo, ${userName}.`);
         return false;
     }
 
@@ -4107,14 +4100,12 @@ async function manejarPlay(message, args) {
     if (!player) {
         player = manager.create({
             guild: guildId,
-            voiceChannel: voiceChannelId,
             textChannel: message.channel.id,
         });
     }
 
     try {
         await player.connect();
-        console.log(`Conectado al canal de voz ${voiceChannelId}`);
     } catch (error) {
         console.error(`Error al conectar: ${error.message}`);
         await sendError(message.channel, `No pude conectarme al canal, ${userName}. Error: ${error.message}`);
