@@ -4080,6 +4080,7 @@ async function manejarActualizaciones(message) {
     }
 }
 
+const { joinVoiceChannel, getVoiceConnection } = require('@discordjs/voice');
 // Comando !play
 async function manejarPlay(message, args) {
     const userName = message.author.username;
