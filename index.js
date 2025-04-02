@@ -7254,17 +7254,24 @@ async function saveDataStore() {
                 `https://api.github.com/repos/${process.env.GITHUB_REPO}/contents/${process.env.GITHUB_FILE_PATH}`,
                 { headers: { 'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`, 'Accept': 'application/vnd.github+json' } }
             );
-            sha = response.data.sha;
+            sha = response.data.sha; // Obtener el sha actual
+            console.log(`SHA actual obtenido: ${sha}`);
         } catch (error) {
-            if (error.response?.status !== 404) throw error;
+            if (error.response?.status === 404) {
+                console.log('Archivo no existe aún, será creado.');
+                sha = undefined; // Si no existe, creamos el archivo sin sha
+            } else {
+                throw error; // Otro error, lo dejamos fallar
+            }
         }
+
         console.log(`Guardando ${dataStore.recordatorios.length} recordatorios: ${JSON.stringify(dataStore.recordatorios)}`);
         await axios.put(
             `https://api.github.com/repos/${process.env.GITHUB_REPO}/contents/${process.env.GITHUB_FILE_PATH}`,
             {
                 message: 'Actualizar historial y sesiones',
                 content: Buffer.from(JSON.stringify(dataStore, null, 2)).toString('base64'),
-                sha: sha || undefined,
+                sha: sha, // Usamos el sha actualizado
             },
             { headers: { 'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`, 'Accept': 'application/vnd.github+json' } }
         );
@@ -7274,7 +7281,36 @@ async function saveDataStore() {
         return true;
     } catch (error) {
         console.error('Error al guardar datos en GitHub:', error.message);
-        if (error.response) console.error('Detalles del error:', error.response.data);
+        if (error.response) {
+            console.error('Detalles del error:', error.response.data);
+            if (error.response.status === 409) {
+                console.log('Conflicto detectado (409), reintentando con SHA actualizado...');
+                // Reintentar una vez obteniendo el SHA fresco
+                try {
+                    const response = await axios.get(
+                        `https://api.github.com/repos/${process.env.GITHUB_REPO}/contents/${process.env.GITHUB_FILE_PATH}`,
+                        { headers: { 'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`, 'Accept': 'application/vnd.github+json' } }
+                    );
+                    const newSha = response.data.sha;
+                    await axios.put(
+                        `https://api.github.com/repos/${process.env.GITHUB_REPO}/contents/${process.env.GITHUB_FILE_PATH}`,
+                        {
+                            message: 'Actualizar historial y sesiones (reintento)',
+                            content: Buffer.from(JSON.stringify(dataStore, null, 2)).toString('base64'),
+                            sha: newSha,
+                        },
+                        { headers: { 'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`, 'Accept': 'application/vnd.github+json' } }
+                    );
+                    console.log('Datos guardados en GitHub tras reintento exitoso');
+                    userModified = false;
+                    autoModified = false;
+                    return true;
+                } catch (retryError) {
+                    console.error('Reintento falló:', retryError.message);
+                    throw retryError;
+                }
+            }
+        }
         throw error;
     }
 }
