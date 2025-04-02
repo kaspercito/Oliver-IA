@@ -3014,6 +3014,8 @@ async function manejarLyrics(message) {
         .replace(/\s*\(official audio\)/i, '')
         .replace(/\s*\(official lyric video\)/i, '')
         .replace(/\s*\(official music video\)/i, '')
+        .replace(/\s*\(video oficial\)/i, '')
+        .replace(/\s*\(oficial video\)/i, '')
         .replace(/\s*\(feat.*?\)/i, '')
         .replace(/\s*\[.*?\]/g, '')
         .replace(/corazn/i, 'corazón')
