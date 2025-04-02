@@ -3848,6 +3848,23 @@ async function manejarMiguel(message) {
     const respuesta = message.content.slice(7).trim().toLowerCase();
     const ownerUser = await client.users.fetch(OWNER_ID);
 
+    if (userId === OWNER_ID && respuesta === 'reset') {
+        const belenUser = await client.users.fetch(ALLOWED_USER_ID);
+        const initialEmbed = new EmbedBuilder()
+            .setColor('#FF1493')
+            .setTitle('¡Hola, Belén!')
+            .setDescription(`Miguel me pidió que te dé algo especial, unas preguntas que salen directo de su corazón. Cerrá los ojos y acordate de todas esas noches que pasaban en llamada, hablando de todo y de nada, hasta que se dormían juntos con el sonido del otro al lado. Él dice que esas noches eran su refugio, que escuchar tu respiración mientras dormías lo hacía sentir en casa. Yo te traigo eso de vuelta, y algo más: los rangos del juego que te dio, como un pedacito de lo que él puso en vos. ¿Todavía sentís algo cuando pensás en él, Belén? Respondeme en este MD con "!miguel sí" o "!miguel no", por favor.`)
+            .setFooter({ text: 'Un pedacito de Miguel' });
+        await belenUser.send({ embeds: [initialEmbed] });
+        dataStore.regaloStarted = true;
+        dataStore.regaloHistory = dataStore.regaloHistory || {};
+        dataStore.regaloHistory[ALLOWED_USER_ID] = [{ role: 'assistant', content: initialEmbed.data.description, timestamp: Date.now() }];
+        dataStoreModified = true;
+        console.log('Mensaje inicial reenviado al MD de Belén por comando reset');
+        await message.channel.send('Mensaje inicial reenviado a Belén.');
+        return;
+    }
+    
     if (!dataStore.regaloHistory) dataStore.regaloHistory = {};
     if (!dataStore.regaloHistory[userId]) dataStore.regaloHistory[userId] = [];
 
