@@ -5754,62 +5754,124 @@ manager.on('queueEnd', async player => {
                     player.play();
                     const embed = createEmbed('#FF1493', '🎵 ¡Autoplay improvisado!', 
                         `No encontré relacionados, pero te meto **${nextTrack.title}**, ${userName}. ¡Seguimos la fiesta, loco!`)
-                        .setThumbnail(nextTrack.thumbnail || 'https://i.imgur.com/defaultThumbnail.png'); // Thumbnail corregido
+                        .setThumbnail(nextTrack.thumbnail || 'https://i.imgur.com/defaultThumbnail.png');
                     await channel.send({ embeds: [embed] });
-                    return;
                 } else {
                     throw new Error('Ni el fallback funcionó, qué quilombo.');
                 }
-            }
-
-            // Paso 3: Buscamos temas relacionados
-            const related = await manager.search(`related:${trackIdentifier}`, client.user);
-            console.log(`Búsqueda relacionada: ${related.loadType}, tracks: ${related.tracks.length}`);
-
-            if (related.tracks.length > 0) {
-                const nextTrack = related.tracks[0];
-                player.queue.add(nextTrack);
-                player.play();
-                const durationStr = `${Math.floor(nextTrack.duration / 60000)}:${((nextTrack.duration % 60000) / 1000).toFixed(0).padStart(2, '0')}`;
-                const embed = createEmbed('#FF1493', '🎵 ¡Autoplay en acción!', 
-                    `Añadí **${nextTrack.title}** pa’ seguirla, ${userName}.  
-                    Duración: ${durationStr}  
-                    ¡A romperla toda, che!`)
-                    .setThumbnail(nextTrack.thumbnail || 'https://i.imgur.com/defaultThumbnail.png'); // Thumbnail corregido
-                await channel.send({ embeds: [embed] });
-                return;
             } else {
-                // Paso 4: Fallback si no hay relacionados
-                console.log('Sin temas relacionados, buscando fallback...');
-                const fallbackSearch = await manager.search('lofi beats', client.user);
-                if (fallbackSearch.tracks.length > 0) {
-                    const nextTrack = fallbackSearch.tracks[0];
+                // Paso 3: Buscamos temas relacionados
+                const related = await manager.search(`related:${trackIdentifier}`, client.user);
+                console.log(`Búsqueda relacionada: ${related.loadType}, tracks: ${related.tracks.length}`);
+
+                if (related.tracks.length > 0) {
+                    const nextTrack = related.tracks[0];
                     player.queue.add(nextTrack);
                     player.play();
-                    const embed = createEmbed('#FF1493', '🎵 ¡Autoplay improvisado!', 
-                        `No encontré relacionados, pero te meto **${nextTrack.title}**, ${userName}. ¡Seguimos, loco!`)
-                        .setThumbnail(nextTrack.thumbnail || 'https://i.imgur.com/defaultThumbnail.png'); // Thumbnail corregido
+                    const durationStr = `${Math.floor(nextTrack.duration / 60000)}:${((nextTrack.duration % 60000) / 1000).toFixed(0).padStart(2, '0')}`;
+                    const embed = createEmbed('#FF1493', '🎵 ¡Autoplay en acción!', 
+                        `Añadí **${nextTrack.title}** pa’ seguirla, ${userName}.  
+                        Duración: ${durationStr}  
+                        ¡A romperla toda, che!`)
+                        .setThumbnail(nextTrack.thumbnail || 'https://i.imgur.com/defaultThumbnail.png');
                     await channel.send({ embeds: [embed] });
-                    return;
+                } else {
+                    // Paso 4: Fallback si no hay relacionados
+                    console.log('Sin temas relacionados, buscando fallback...');
+                    const fallbackSearch = await manager.search('lofi beats', client.user);
+                    if (fallbackSearch.tracks.length > 0) {
+                        const nextTrack = fallbackSearch.tracks[0];
+                        player.queue.add(nextTrack);
+                        player.play();
+                        const embed = createEmbed('#FF1493', '🎵 ¡Autoplay improvisado!', 
+                            `No encontré relacionados, pero te meto **${nextTrack.title}**, ${userName}. ¡Seguimos, loco!`)
+                            .setThumbnail(nextTrack.thumbnail || 'https://i.imgur.com/defaultThumbnail.png');
+                        await channel.send({ embeds: [embed] });
+                    } else {
+                        throw new Error('No encontré ni relacionados ni fallback.');
+                    }
                 }
             }
 
-            throw new Error('No encontré ni relacionados ni fallback.');
+            // Guardar estado después de agregar una pista
+            dataStore.musicSessions[guildId] = {
+                ...dataStore.musicSessions[guildId],
+                queue: player.queue.map(t => ({
+                    title: t.title,
+                    uri: t.uri,
+                    duration: t.duration,
+                    thumbnail: t.thumbnail,
+                    requester: t.requester.id
+                })),
+                current: player.queue.current ? {
+                    title: player.queue.current.title,
+                    uri: player.queue.current.uri,
+                    duration: player.queue.current.duration,
+                    thumbnail: player.queue.current.thumbnail,
+                    requester: player.queue.current.requester.id
+                } : null,
+                playing: player.playing,
+                paused: player.paused,
+                position: player.position,
+                voiceChannel: player.voiceChannel,
+                textChannel: player.textChannel
+            };
+            autoModified = true;
+            await saveDataStore();
         } catch (error) {
             console.error(`Error en autoplay: ${error.message}`);
             const embed = createEmbed('#FF1493', '⚠️ Autoplay falló', 
-                `No pude encontrar temas, ${userName}. Error: ${error.message}. ¡Mandame algo con !play, che!`);
+                `No pude encontrar temas, ${userName}. Error: ${error.message}. ¡Mandame algo con !play, che! Sigo en el canal, loco.`);
             await channel.send({ embeds: [embed] });
-            player.destroy();
-            delete dataStore.musicSessions[guildId];
-            dataStoreModified = true;
+
+            // Limpiar estado pero no destruir
+            player.set('currentTrack', null);
+            player.queue.clear();
+            player.playing = false;
+            player.paused = false;
+
+            dataStore.musicSessions[guildId] = {
+                ...dataStore.musicSessions[guildId],
+                queue: [],
+                current: null,
+                playing: false,
+                paused: false,
+                position: 0
+            };
+            autoModified = true;
+            await saveDataStore();
         }
     } else if (channel) {
         await channel.send({ embeds: [createEmbed('#FF1493', '🏁 Cola terminada', 
-            `No hay más temas, ${userName}. ¡Añadí algo con !play o prendé el autoplay, loco!`)] });
-        player.destroy();
-        delete dataStore.musicSessions[guildId];
-        dataStoreModified = true;
+            `No hay más temas, ${userName}. ¡Añadí algo con !play o prendé el autoplay, loco! Sigo en el canal, che.`)] });
+
+        // Limpiar estado pero no destruir
+        player.set('currentTrack', null);
+        player.queue.clear();
+        player.playing = false;
+        player.paused = false;
+
+        dataStore.musicSessions[guildId] = {
+            ...dataStore.musicSessions[guildId],
+            queue: [],
+            current: null,
+            playing: false,
+            paused: false,
+            position: 0
+        };
+        autoModified = true;
+        await saveDataStore();
+    }
+
+    // Asegurarse de que el bot esté en el canal 1345936574096998410
+    if (player.voiceChannel !== '1345936574096998410') {
+        try {
+            player.setVoiceChannel('1345936574096998410');
+            await player.connect();
+            console.log(`Reubicado al canal 1345936574096998410 en guild ${guildId}`);
+        } catch (error) {
+            console.error(`Error al reubicar al canal: ${error.message}`);
+        }
     }
 });
 
