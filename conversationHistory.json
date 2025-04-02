@@ -482,7 +482,26 @@
     }
   },
   "updatesSent": true,
-  "musicSessions": {},
+  "musicSessions": {
+    "1134375138029211739": {
+      "queue": [],
+      "current": {
+        "title": "Música Para Dormir Profundamente En Menos De 5 Minutos; Musica Relajante Para Dormir #8",
+        "uri": "https://www.youtube.com/watch?v=CnHGab2JMYw",
+        "duration": 25761000,
+        "thumbnail": "https://img.youtube.com/vi/CnHGab2JMYw/default.jpg",
+        "requester": "752987736759205960"
+      },
+      "previous": null,
+      "history": [],
+      "autoplay": false,
+      "position": 0,
+      "playing": false,
+      "paused": false,
+      "voiceChannel": "1345936574096998410",
+      "textChannel": "1345941771338907771"
+    }
+  },
   "sentUpdates": [
     "¡Chat mejorado! Segunda respuesta automática al darle ❌, pa’ que sea más bacán y no pida detalles de una.",
     "Optimizado el código un poco, si te gustaría agregar algo más puedes solicitarlo, espero este bot cumpla con tus expectativas.",
