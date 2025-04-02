@@ -61,6 +61,19 @@ const manager = new Manager({
     },
 });
 
+// Eventos del manager (fuera del ready)
+manager.on('nodeConnect', (node) => {
+    console.log(`Nodo ${node.options.identifier} conectado`);
+});
+
+manager.on('nodeError', (node, error) => {
+    console.error(`Error en el nodo ${node.options.identifier}: ${error.message}`);
+});
+
+manager.on('nodeDisconnect', (node) => {
+    console.log(`Nodo ${node.options.identifier} desconectado, intentando reconectar...`);
+});
+
 // Lista de actualizaciones del bot (para mostrar a los usuarios)
 const BOT_UPDATES = [
     '¡Chat mejorado! Segunda respuesta automática al darle ❌, pa’ que sea más bacán y no pida detalles de una.',
@@ -6878,18 +6891,40 @@ client.once('ready', async () => {
 
     // Cargar dataStore al iniciar
     await initializeDataStore();
+    // Inicializar el manager primero
+    manager.init(client.user.id);
+    console.log('Manager de Erela.js inicializado');
 
-    // Restaurar reproductores de música (un solo bucle)
+    // Cargar dataStore al iniciar
+    await initializeDataStore();
+
+    // Esperar a que al menos un nodo esté conectado
+    if (manager.nodes.every(node => !node.connected)) {
+        console.error('No hay nodos de Lavalink conectados, esperando conexión...');
+        await new Promise((resolve) => {
+            manager.once('nodeConnect', () => {
+                console.log('Nodo conectado, procediendo con la restauración...');
+                resolve();
+            });
+        });
+    }
+
+    // Restaurar reproductores de música
     for (const guildId in dataStore.musicSessions) {
         const state = dataStore.musicSessions[guildId];
         let player = manager.players.get(guildId);
 
         if (!player) {
-            player = manager.create({
-                guild: guildId,
-                voiceChannel: '1345936574096998410', // Canal fijo
-                textChannel: state?.textChannel || '1345941771338907771' // Canal de texto por defecto
-            });
+            try {
+                player = manager.create({
+                    guild: guildId,
+                    voiceChannel: '1345936574096998410',
+                    textChannel: state?.textChannel || '1345941771338907771'
+                });
+            } catch (error) {
+                console.error(`Error al crear player para guild ${guildId}: ${error.message}`);
+                continue; // Saltar este guild si falla
+            }
         }
 
         if (state && state.queue?.length > 0) {
@@ -6915,9 +6950,8 @@ client.once('ready', async () => {
                 console.log(`Reproductor restaurado para guild ${guildId}, en pausa o sin música`);
             }
         } catch (error) {
-            console.error(`Error al restaurar reproductor para guild ${guildId}: ${error.message}`);
-            // No borramos el estado, para no perder datos
-            autoModified = true;
+            console.error(`Error al conectar reproductor para guild ${guildId}: ${error.message}`);
+            autoModified = true; // Marcar para guardar cambios si falla
         }
     }
     console.log('Restauración de música completa');
