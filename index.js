@@ -3879,33 +3879,55 @@ async function manejarMiguel(message) {
         let aiReply = '';
         let ownerReply = '';
 
-        // Estado inicial: primera pregunta con "!miguel"
+        // Inicio: primera pregunta
         if (respuesta === '' || respuesta === 'miguel') {
             aiReply = `Belén, Miguel me pidió que te hable de corazón. ¿Todavía sentís algo por él, aunque sea un pedacito de lo que fueron? Decime '!miguel sí' o '!miguel no'.`;
             ownerReply = 'Le hice la primera pregunta a Belén. Esperá a ver qué dice.';
         }
-        // Respuesta a "¿Sentís algo?"
+        // Respuesta a "¿Sentís algo?" o "¿Te gustaría que se quede?" o "¿Pasar más tiempo?"
         else if (respuesta === 'sí' || respuesta === 'si') {
             if (message.reference && message.reference.messageId) {
                 const repliedMessage = await targetChannel.messages.fetch(message.reference.messageId);
                 if (repliedMessage.embeds[0]?.description.includes('¿Te animarías a darle una chance')) {
-                    aiReply = `Belén, ¡eso es enorme! ¿Qué te gustaría que Miguel haga para empezar de nuevo? Decime '!miguel [tu idea]'.`;
-                    ownerReply = `¡Belén dijo SÍ a intentarlo! Le pedí una idea para empezar.`;
+                    aiReply = `Belén, ¡eso es enorme! ¿Te gustaría pasar más tiempo con él, como antes? Decime '!miguel sí' o '!miguel no'.`;
+                    ownerReply = `¡Belén dijo SÍ a que te quedes cerca! Le pregunté si quiere pasar más tiempo.`;
+                } else if (repliedMessage.embeds[0]?.description.includes('¿Pasar más tiempo')) {
+                    aiReply = `Belén, qué lindo. ¿Qué te gustaría hacer con él para volver a conectar? Decime '!miguel [tu idea]'.`;
+                    ownerReply = `¡Belén dijo SÍ a pasar más tiempo! Le pedí una idea para conectar.`;
+                } else if (repliedMessage.embeds[0]?.description.includes('¿Sentís que él te entendió bien')) {
+                    aiReply = `Belén, gracias por contarme. ¿Qué sentís que faltó en lo que tuvieron juntos? Decime '!miguel [tu respuesta]' o '!miguel nada'.`;
+                    ownerReply = `Belén dijo SÍ a que la entendiste. Le pregunté qué faltó.`;
+                } else if (repliedMessage.embeds[0]?.description.includes('¿Que el bot se quede')) {
+                    aiReply = `Belén, genial, me quedo con vos. ¿De qué te gustaría hablar? Decime '!miguel [tu idea]'.`;
+                    ownerReply = `Belén quiere que el bot se quede charlando. Le pregunté de qué quiere hablar.`;
                 } else {
-                    aiReply = `Belén, ¡eso me da esperanza! ¿Te acordás de algo lindo de lo que vivieron juntos que todavía te saque una sonrisa? Contame con '!miguel [tu respuesta]'.`;
+                    aiReply = `Belén, ¡eso me da esperanza! ¿Te acordás de algo lindo de lo que vivieron juntos que todavía te saque una sonrisa? Contame con '!miguel [tu respuesta]' o lo que quieras.`;
                     ownerReply = `Belén dijo SÍ, siente algo por vos. Le pedí que me cuente un recuerdo lindo.`;
                 }
             } else {
-                aiReply = `Belén, ¡eso me da esperanza! ¿Te acordás de algo lindo de lo que vivieron juntos que todavía te saque una sonrisa? Contame con '!miguel [tu respuesta]'.`;
+                aiReply = `Belén, ¡eso me da esperanza! ¿Te acordás de algo lindo de lo que vivieron juntos que todavía te saque una sonrisa? Contame con '!miguel [tu respuesta]' o lo que quieras.`;
                 ownerReply = `Belén dijo SÍ, siente algo por vos. Le pedí que me cuente un recuerdo lindo.`;
             }
         }
         else if (respuesta === 'no') {
             if (message.reference && message.reference.messageId) {
                 const repliedMessage = await targetChannel.messages.fetch(message.reference.messageId);
-                if (repliedMessage.embeds[0]?.description.includes('¿Vale la pena intentarlo')) {
+                if (repliedMessage.embeds[0]?.description.includes('¿Te animarías a darle una chance')) {
+                    aiReply = `Belén, entiendo. ¿Sentís que él podría cambiar algo de lo que te alejó? Decime '!miguel [tu respuesta]' o '!miguel no'.`;
+                    ownerReply = `Belén dijo NO a que te quedes cerca. Le pregunté si podés cambiar algo.`;
+                } else if (repliedMessage.embeds[0]?.description.includes('¿Pasar más tiempo')) {
+                    aiReply = `Belén, está bien. ¿Te gustaría que yo, el bot, me quede charlando con vos un rato más? Decime '!miguel sí' o '!miguel no'.`;
+                    ownerReply = `Belén dijo NO a pasar más tiempo. Le pregunté si quiere que el bot se quede.`;
+                } else if (repliedMessage.embeds[0]?.description.includes('¿Vale la pena intentarlo')) {
+                    aiReply = `Belén, gracias por ser sincera. ¿Hay algo que extrañás de cómo eran antes, aunque sea un poquito? Decime '!miguel [tu respuesta]' o '!miguel no'.`;
+                    ownerReply = `Belén dijo NO, pero le pregunté si extraña algo de antes.`;
+                } else if (repliedMessage.embeds[0]?.description.includes('¿Sentís que él te entendió bien')) {
+                    aiReply = `Belén, gracias por contarme. ¿Qué sentís que faltó en lo que tuvieron juntos? Decime '!miguel [tu respuesta]' o '!miguel nada'.`;
+                    ownerReply = `Belén dijo NO a que la entendiste. Le pregunté qué faltó.`;
+                } else if (repliedMessage.embeds[0]?.description.includes('¿Podría cambiar algo') || 
+                           repliedMessage.embeds[0]?.description.includes('¿Extrañás algo')) {
                     aiReply = `Belén, entiendo. ¿Hay algo que quieras que Miguel sepa antes de cerrar este capítulo? Decime '!miguel [tu mensaje]' o '!miguel listo'.`;
-                    ownerReply = `Belén dijo NO a intentarlo. Le pregunté si quiere decirte algo más.`;
+                    ownerReply = `Belén dijo NO a cambiar algo o extrañar. Le pregunté si quiere decirte algo más.`;
                 } else {
                     aiReply = `Belén, gracias por ser sincera. ¿Hay algo que él podría hacer diferente para que sientas que vale la pena intentarlo de nuevo? Decime '!miguel [tu respuesta]' o '!miguel nada'.`;
                     ownerReply = `Belén dijo NO, pero le pregunté si hay algo que puedas hacer para cambiar eso.`;
@@ -3915,36 +3937,48 @@ async function manejarMiguel(message) {
                 ownerReply = `Belén dijo NO, pero le pregunté si hay algo que puedas hacer para cambiar eso.`;
             }
         }
-        // Respuesta a "¿Algo lindo?" o "¿Algo diferente?"
-        else if (respuesta.startsWith('[') && respuesta.endsWith(']')) {
-            const mensaje = respuesta.slice(1, -1);
+        // Respuesta a preguntas abiertas
+        else if (respuesta !== 'nada' && respuesta !== 'más' && respuesta !== 'mas' && respuesta !== 'espacio' && respuesta !== 'listo') {
             if (message.reference && message.reference.messageId) {
                 const repliedMessage = await targetChannel.messages.fetch(message.reference.messageId);
                 if (repliedMessage.embeds[0]?.description.includes('¿Te acordás de algo lindo')) {
-                    aiReply = `Belén, qué lindo eso. Miguel dice que extraña esos momentos con vos. ¿Te animarías a darle una chance de volver a construir algo así? Decime '!miguel sí' o '!miguel no'.`;
-                    ownerReply = `Belén compartió un recuerdo: "${mensaje}". Le pregunté si te da una chance.`;
+                    aiReply = `Belén, qué lindo eso. Miguel dice que extraña esos momentos con vos. ¿Te gustaría que él se quede cerca, intentando recuperar lo que tenían? Decime '!miguel sí' o '!miguel no'.`;
+                    ownerReply = `Belén compartió un recuerdo: "${respuesta}". Le pregunté si quiere que te quedes cerca.`;
                 } else if (repliedMessage.embeds[0]?.description.includes('¿Algo que él podría hacer diferente')) {
-                    aiReply = `Belén, gracias por contarme. Se lo voy a pasar a Miguel para que lo tenga en cuenta. ¿Querés decirle algo más? Usá '!miguel [tu mensaje]' o '!miguel listo'.`;
-                    ownerReply = `Belén dijo que podrías intentar esto: "${mensaje}". Le pregunté si quiere decirte algo más.`;
-                } else if (repliedMessage.embeds[0]?.description.includes('¿Qué te gustaría que haga') || 
-                           repliedMessage.embeds[0]?.description.includes('¿Algo que quieras que Miguel sepa')) {
-                    aiReply = `Belén, listo, se lo paso a Miguel. ¿Algo más? '!miguel listo' si terminaste.`;
-                    ownerReply = `Belén te dice: "${mensaje}".`;
+                    aiReply = `Belén, gracias por contarme. Se lo voy a pasar a Miguel. ¿Sentís que él te entendió bien cuando estaban juntos? Decime '!miguel sí', '!miguel no' o '!miguel [tu respuesta]'.`;
+                    ownerReply = `Belén dijo que podrías intentar esto: "${respuesta}". Le pregunté si te entendió bien.`;
+                } else if (repliedMessage.embeds[0]?.description.includes('¿Extrañás algo') || 
+                           repliedMessage.embeds[0]?.description.includes('¿Podría cambiar algo') || 
+                           repliedMessage.embeds[0]?.description.includes('¿Faltó en lo que tuvieron')) {
+                    aiReply = `Belén, voy a pasarle eso a Miguel. ¿Querés que él te busque más o que te dé espacio por ahora? Decime '!miguel más' o '!miguel espacio'.`;
+                    ownerReply = `Belén dijo esto: "${respuesta}". Le pregunté si quiere que la busques o te alejes.`;
+                } else if (repliedMessage.embeds[0]?.description.includes('¿Qué te gustaría hacer') || 
+                           repliedMessage.embeds[0]?.description.includes('¿Algo que quieras que Miguel sepa') || 
+                           repliedMessage.embeds[0]?.description.includes('¿Algo más') || 
+                           repliedMessage.embeds[0]?.description.includes('¿De qué te gustaría hablar')) {
+                    aiReply = `Belén, listo, se lo paso a Miguel. ¿Algo más? '!miguel [tu mensaje]' o '!miguel listo'.`;
+                    ownerReply = `Belén te dice: "${respuesta}".`;
                 }
+            } else {
+                aiReply = `Belén, no te entendí bien. Usá '!miguel sí', '!miguel no', '!miguel [tu mensaje]', '!miguel nada', '!miguel más', '!miguel espacio' o '!miguel listo', dependiendo de lo que te pregunté antes.`;
+                ownerReply = `Belén dijo algo raro ("${respuesta}"). Le pedí que lo aclare.`;
             }
         }
         else if (respuesta === 'nada') {
-            aiReply = `Belén, está bien. Miguel solo quiere que sepas que sos importante para él. Si alguna vez querés hablarle, decime '!miguel [tu mensaje]'. ¿Algo más por ahora? '!miguel listo' si no.`;
-            ownerReply = `Belén dijo NO y que no hay nada que puedas hacer por ahora. Le dejé la puerta abierta para un mensaje.`;
+            aiReply = `Belén, está bien. ¿Hay algo que extrañás de cómo eran antes, aunque sea un poquito? Decime '!miguel [tu respuesta]' o '!miguel no'.`;
+            ownerReply = `Belén dijo NO y que no hay nada que puedas hacer por ahora. Le pregunté si extraña algo.`;
+        }
+        else if (respuesta === 'más' || respuesta === 'mas') {
+            aiReply = `Belén, gracias por decirme. Se lo voy a contar a Miguel. ¿Algo más por ahora? '!miguel [tu mensaje]' o '!miguel listo'.`;
+            ownerReply = `Belén quiere que la busques más. Te conté todo lo que dijo.`;
+        }
+        else if (respuesta === 'espacio') {
+            aiReply = `Belén, gracias por decirme. Se lo voy a contar a Miguel. ¿Algo más por ahora? '!miguel [tu mensaje]' o '!miguel listo'.`;
+            ownerReply = `Belén quiere que le des espacio. Te conté todo lo que dijo.`;
         }
         else if (respuesta === 'listo') {
-            aiReply = `Belén, gracias por hablar conmigo. Si alguna vez querés decirle algo a Miguel, ya sabés: '!miguel [tu mensaje]'. ¡Acá estoy!`;
+            aiReply = `Belén, gracias por hablar conmigo. Si alguna vez querés charlar o decirle algo a Miguel, ya sabés: '!miguel'. ¡Acá estoy!`;
             ownerReply = `Belén terminó por ahora. Te conté todo lo que dijo.`;
-        }
-        // Respuesta inválida
-        else {
-            aiReply = `Belén, no te entendí bien. Usá '!miguel sí', '!miguel no', '!miguel [tu mensaje]', '!miguel nada' o '!miguel listo', dependiendo de lo que te pregunté antes.`;
-            ownerReply = `Belén dijo algo raro ("${respuesta}"). Le pedí que lo aclare.`;
         }
 
         // Enviar respuesta al canal
@@ -6769,48 +6803,6 @@ client.once('ready', async () => {
     console.log(`¡Miguel IA está listo! Instancia: ${instanceId} - ${new Date().toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })}`);
     client.user.setPresence({ activities: [{ name: "Listo para ayudar a Milagros y Miguel", type: 0 }], status: 'dnd' });
 
-
-    const targetChannelId = '1357082179397484596';
-    const belenId = '1023132788632862761';
-    const miguelId = '752987736759205960';
-
-    // Chequeamos el canal
-    const targetChannel = client.channels.cache.get(targetChannelId);
-    if (!targetChannel) {
-        console.error(`[ready] No encontré el canal ${targetChannelId}`);
-        return;
-    }
-
-    // Inicializamos regaloHistory si no existe
-    if (!dataStore.regaloHistory) dataStore.regaloHistory = {};
-    if (!dataStore.regaloHistory[belenId]) dataStore.regaloHistory[belenId] = [];
-
-    const regaloHistory = dataStore.regaloHistory[belenId];
-
-    // Si el historial está vacío, enviamos el mensaje inicial
-    if (regaloHistory.length === 0) {
-        const belenMention = '<@1023132788632862761>';
-        const initialEmbed = new EmbedBuilder()
-            .setColor('#FF1493')
-            .setTitle(`¡Hola, ${belenMention}!`)
-            .setDescription(`${belenMention}, Miguel me pidió que te traiga algo especial. Pensá en esas noches en llamada, hablando hasta dormirse juntos. Él dice que eras su refugio, que te extraña con todo su corazón. ¿Todavía sentís algo por él? Respondeme aquí con "!miguel sí" o "!miguel no", por favor.`)
-            .setFooter({ text: 'Un pedacito de Miguel' });
-        
-        await targetChannel.send({ embeds: [initialEmbed] });
-        regaloHistory.push({ role: 'assistant', content: initialEmbed.data.description, timestamp: Date.now() });
-        fs.writeFileSync('conversationHistory.json', JSON.stringify(dataStore, null, 2));
-        console.log('[ready] Mensaje inicial enviado al canal');
-
-        // Notificamos a Miguel
-        const ownerUser = await client.users.fetch(miguelId);
-        const ownerEmbed = new EmbedBuilder()
-            .setColor('#FF1493')
-            .setTitle('¡Arrancamos, Miguel!')
-            .setDescription('Le mandé el mensaje inicial a Belén en el canal. Esperá a ver qué responde.')
-            .setFooter({ text: 'Un pedacito tuyo' });
-        await ownerUser.send({ embeds: [ownerEmbed] });
-    }
-    
     await initializeDataStore();
 
     if (dataStore.recordatorios && dataStore.recordatorios.length > 0) {
