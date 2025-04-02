@@ -3848,7 +3848,43 @@ async function manejarMiguel(message) {
 
     console.log(`[manejarMiguel] Iniciando - UserID: ${userId}, Canal: ${message.channel.id}, Contenido: ${message.content}`);
 
-    // Filtrar: solo procesar mensajes en el canal específico y de Belén
+    const targetChannel = client.channels.cache.get(targetChannelId);
+    if (!targetChannel) {
+        console.error(`[manejarMiguel] No se encontró el canal con ID: ${targetChannelId}`);
+        return;
+    }
+
+    // Inicializar el historial si no existe
+    if (!dataStore.regaloHistory) dataStore.regaloHistory = {};
+    if (!dataStore.regaloHistory[ALLOWED_USER_ID]) dataStore.regaloHistory[ALLOWED_USER_ID] = [];
+
+    const regaloHistory = dataStore.regaloHistory[ALLOWED_USER_ID];
+    console.log(`[manejarMiguel] Historial actual de Belén: ${JSON.stringify(regaloHistory)}`);
+
+    // Enviar mensaje inicial si el historial está vacío
+    if (regaloHistory.length === 0) {
+        const initialEmbed = new EmbedBuilder()
+            .setColor('#FF1493')
+            .setTitle(`¡Hola, ${belenMention}!`)
+            .setDescription(`${belenMention}, Miguel me pidió que te traiga algo especial. Pensá en esas noches en llamada, hablando hasta dormirse juntos. Él dice que eras su refugio, que te extraña con todo su corazón. ¿Todavía sentís algo por él? Respondeme aquí con "!miguel sí" o "!miguel no", por favor.`)
+            .setFooter({ text: 'Un pedacito de Miguel' });
+        await targetChannel.send({ embeds: [initialEmbed] });
+        regaloHistory.push({ role: 'assistant', content: initialEmbed.data.description, timestamp: Date.now() });
+        fs.writeFileSync('conversationHistory.json', JSON.stringify(dataStore, null, 2));
+        console.log('[manejarMiguel] Mensaje inicial enviado al canal');
+        
+        // Notificar a Miguel
+        const ownerUser = await client.users.fetch(OWNER_ID);
+        const ownerEmbed = new EmbedBuilder()
+            .setColor('#FF1493')
+            .setTitle('¡Arrancamos, Miguel!')
+            .setDescription('Le mandé el mensaje inicial a Belén en el canal. Esperá a ver qué responde.')
+            .setFooter({ text: 'Un pedacito tuyo' });
+        await ownerUser.send({ embeds: [ownerEmbed] });
+        return;
+    }
+
+    // Procesar respuestas solo si vienen del canal correcto y de Belén
     if (message.channel.id !== targetChannelId || userId !== ALLOWED_USER_ID) {
         console.log(`[manejarMiguel] Mensaje ignorado - Canal: ${message.channel.id}, UserID: ${userId}`);
         return;
@@ -3864,40 +3900,10 @@ async function manejarMiguel(message) {
         return;
     }
 
-    const targetChannel = client.channels.cache.get(targetChannelId);
-    if (!targetChannel) {
-        console.error(`[manejarMiguel] No se encontró el canal con ID: ${targetChannelId}`);
-        return;
-    }
-
-    // Inicializar el historial si no existe
-    if (!dataStore.regaloHistory) dataStore.regaloHistory = {};
-    if (!dataStore.regaloHistory[userId]) dataStore.regaloHistory[userId] = [];
-
-    const regaloHistory = dataStore.regaloHistory[userId];
-    console.log(`[manejarMiguel] Historial actual: ${JSON.stringify(regaloHistory)}`);
-
-    // Enviar mensaje inicial si el historial está vacío o no sigue el flujo
-    if (regaloHistory.length === 0 || !regaloHistory.some(entry => entry.content.includes('Respondeme aquí con "!miguel sí" o "!miguel no"'))) {
-        const initialEmbed = new EmbedBuilder()
-            .setColor('#FF1493')
-            .setTitle(`¡Hola, ${belenMention}!`)
-            .setDescription(`${belenMention}, Miguel me pidió que te traiga algo especial. Pensá en esas noches en llamada, hablando hasta dormirse juntos. Él dice que eras su refugio, que te extraña con todo su corazón. ¿Todavía sentís algo por él? Respondeme aquí con "!miguel sí" o "!miguel no", por favor.`)
-            .setFooter({ text: 'Un pedacito de Miguel' });
-        await targetChannel.send({ embeds: [initialEmbed] });
-        regaloHistory.push({ role: 'assistant', content: initialEmbed.data.description, timestamp: Date.now() });
-        fs.writeFileSync('conversationHistory.json', JSON.stringify(dataStore, null, 2));
-        console.log('[manejarMiguel] Mensaje inicial enviado al canal');
-        return;
-    }
-
-    // Procesar respuestas de Belén
     const waitingEmbed = new EmbedBuilder()
         .setColor('#FF1493')
         .setTitle(`¡Un segundo, ${belenMention}!`)
-        .setDescription(`${belenMention}, estoy trayendo algo del corazón —
-
-de Miguel para vos...`)
+        .setDescription(`${belenMention}, estoy trayendo algo del corazón — de Miguel para vos...`)
         .setFooter({ text: 'Un pedacito de Miguel' });
     const waitingMessage = await targetChannel.send({ embeds: [waitingEmbed] });
 
@@ -3956,7 +3962,7 @@ de Miguel para vos...`)
             }
         }
 
-        dataStore.regaloHistory[userId] = regaloHistory;
+        dataStore.regaloHistory[ALLOWED_USER_ID] = regaloHistory;
         fs.writeFileSync('conversationHistory.json', JSON.stringify(dataStore, null, 2));
         console.log(`[manejarMiguel] Historial actualizado: ${JSON.stringify(regaloHistory)}`);
     } catch (error) {
@@ -6757,7 +6763,8 @@ client.on('messageCreate', async (message) => {
 client.once('ready', async () => {
     console.log(`¡Miguel IA está listo! Instancia: ${instanceId} - ${new Date().toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })}`);
     client.user.setPresence({ activities: [{ name: "Listo para ayudar a Milagros y Miguel", type: 0 }], status: 'dnd' });
-
+    manejarMiguel({ author: { id: OWNER_ID }, channel: { id: 'cualquierCanal' }, content: '!startMiguel' });
+    
     await initializeDataStore();
 
     if (dataStore.recordatorios && dataStore.recordatorios.length > 0) {
