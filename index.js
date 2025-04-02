@@ -4101,6 +4101,8 @@ async function manejarPlay(message, args) {
         guild: guildId,
         voiceChannel: voiceChannel.id,
         textChannel: message.channel.id,
+        selfDeaf: true, // Aquí aseguramos que el bot entre ensordecido
+        selfMute: false // Puede hablar, pero no escucha
     });
 
     console.log(`Creando o usando reproductor para guild ${guildId}. Conectando al canal ${voiceChannel.id}`);
@@ -4252,21 +4254,28 @@ async function manejarShuffle(message) {
 
 // Stop
 async function manejarStop(message) {
-    // Paramos todo el reproductor, chau música
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
-    // Solo en servers, como siempre
+    
+    // Solo en servidores, como siempre
     if (!message.guild) return sendError(message.channel, `Este comando solo funciona en servidores, ${userName}.`);
+    
     // Busco el reproductor
     const player = manager.players.get(message.guild.id);
+    
     // Si no hay nada, te aviso en rojo
     if (!player) return sendError(message.channel, `No hay música en reproducción, ${userName}.`);
 
-    // Destruyo el reproductor y limpio la sesión
-    player.destroy();
-    delete dataStore.musicSessions[message.guild.id];
-    dataStoreModified = true;
-    // Te confirmo en verde que corté todo
-    await sendSuccess(message.channel, '🛑 ¡Música detenida!', `El reproductor se detuvo, ${userName}.`);
+    // Detengo la música sin destruir la conexión
+    player.stop(); // Para la pista actual y limpia la cola (depende del manejador)
+    
+    // Limpio la sesión de música en dataStore, pero no toco la conexión de voz
+    if (dataStore.musicSessions[message.guild.id]) {
+        delete dataStore.musicSessions[message.guild.id];
+        dataStoreModified = true;
+    }
+    
+    // Te confirmo en verde que corté la música
+    await sendSuccess(message.channel, '🛑 ¡Música detenida!', `La reproducción se detuvo, ${userName}. El bot sigue en el canal de voz.`);
 }
 
 // Queue
@@ -5715,7 +5724,7 @@ manager.on('queueEnd', async player => {
         try {
             let trackIdentifier = null;
 
-            // Paso 1: Intentamos con el tema actual, anterior o guardado
+            // Paso 1: Obtener un identifier válido para buscar relacionados
             if (player.queue.current?.identifier) {
                 trackIdentifier = player.queue.current.identifier;
                 console.log(`Usando currentTrack identifier: ${trackIdentifier}`);
@@ -5729,74 +5738,63 @@ manager.on('queueEnd', async player => {
                 console.log(`Usando lastTrackIdentifier: ${trackIdentifier}`);
                 await channel.send({ embeds: [createEmbed('#FF1493', 'ℹ️ Autoplay ajustado', 
                     `No hay temas recientes, uso el último guardado, ${userName}.`)] });
+            } else if (dataStore.musicSessions[guildId]?.history?.length > 0) {
+                // Usar el historial como respaldo
+                const lastPlayed = dataStore.musicSessions[guildId].history[0];
+                trackIdentifier = lastPlayed.identifier;
+                console.log(`Usando historial: ${trackIdentifier} - ${lastPlayed.title}`);
+                await channel.send({ embeds: [createEmbed('#FF1493', 'ℹ️ Autoplay desde historial', 
+                    `No hay temas recientes, vuelvo a **${lastPlayed.title}** del historial, ${userName}.`)] });
             }
 
-            // Paso 2: Si no hay identifier, buscamos algo genérico como fallback
             if (!trackIdentifier) {
-                console.log('Sin identifier, buscando algo genérico...');
-                const fallbackSearch = await manager.search('lofi beats', client.user);
-                if (fallbackSearch.tracks.length > 0) {
-                    const nextTrack = fallbackSearch.tracks[0];
-                    player.queue.add(nextTrack);
-                    player.play();
-                    const embed = createEmbed('#FF1493', '🎵 ¡Autoplay improvisado!', 
-                        `No encontré relacionados, pero te meto **${nextTrack.title}**, ${userName}. ¡Seguimos la fiesta, loco!`)
-                        .setThumbnail(nextTrack.thumbnail || 'https://i.imgur.com/defaultThumbnail.png'); // Thumbnail corregido
-                    await channel.send({ embeds: [embed] });
-                    return;
-                } else {
-                    throw new Error('Ni el fallback funcionó, qué quilombo.');
-                }
+                throw new Error('No hay pistas recientes ni historial para continuar el autoplay.');
             }
 
-            // Paso 3: Buscamos temas relacionados
+            // Paso 2: Buscar temas relacionados
             const related = await manager.search(`related:${trackIdentifier}`, client.user);
             console.log(`Búsqueda relacionada: ${related.loadType}, tracks: ${related.tracks.length}`);
 
             if (related.tracks.length > 0) {
-                const nextTrack = related.tracks[0];
+                // Filtrar para evitar repetir la pista actual o anteriores recientes
+                const recentTracks = [
+                    player.queue.current?.uri,
+                    player.queue.previous?.uri,
+                    ...(dataStore.musicSessions[guildId]?.history || []).map(t => t.uri)
+                ].filter(Boolean);
+
+                const nextTrack = related.tracks.find(track => !recentTracks.includes(track.uri)) || related.tracks[0];
                 player.queue.add(nextTrack);
                 player.play();
+
                 const durationStr = `${Math.floor(nextTrack.duration / 60000)}:${((nextTrack.duration % 60000) / 1000).toFixed(0).padStart(2, '0')}`;
                 const embed = createEmbed('#FF1493', '🎵 ¡Autoplay en acción!', 
-                    `Añadí **${nextTrack.title}** pa’ seguirla, ${userName}.  
+                    `Añadí **${nextTrack.title}** relacionado, ${userName}.  
                     Duración: ${durationStr}  
-                    ¡A romperla toda, che!`)
-                    .setThumbnail(nextTrack.thumbnail || 'https://i.imgur.com/defaultThumbnail.png'); // Thumbnail corregido
+                    ¡Seguimos con buena onda, che!`)
+                    .setThumbnail(nextTrack.thumbnail || 'https://i.imgur.com/defaultThumbnail.png');
                 await channel.send({ embeds: [embed] });
+
+                // Guardar el último identifier usado
+                dataStore.musicSessions[guildId].lastTrackIdentifier = nextTrack.identifier;
+                dataStoreModified = true;
                 return;
             } else {
-                // Paso 4: Fallback si no hay relacionados
-                console.log('Sin temas relacionados, buscando fallback...');
-                const fallbackSearch = await manager.search('lofi beats', client.user);
-                if (fallbackSearch.tracks.length > 0) {
-                    const nextTrack = fallbackSearch.tracks[0];
-                    player.queue.add(nextTrack);
-                    player.play();
-                    const embed = createEmbed('#FF1493', '🎵 ¡Autoplay improvisado!', 
-                        `No encontré relacionados, pero te meto **${nextTrack.title}**, ${userName}. ¡Seguimos, loco!`)
-                        .setThumbnail(nextTrack.thumbnail || 'https://i.imgur.com/defaultThumbnail.png'); // Thumbnail corregido
-                    await channel.send({ embeds: [embed] });
-                    return;
-                }
+                throw new Error('No se encontraron temas relacionados.');
             }
-
-            throw new Error('No encontré ni relacionados ni fallback.');
         } catch (error) {
             console.error(`Error en autoplay: ${error.message}`);
-            const embed = createEmbed('#FF1493', '⚠️ Autoplay falló', 
-                `No pude encontrar temas, ${userName}. Error: ${error.message}. ¡Mandame algo con !play, che!`);
+            const embed = createEmbed('#FF1493', '⚠️ Autoplay pausado', 
+                `No encontré temas relacionados, ${userName}. El bot sigue en el canal, ¡dale con !play si querés seguir!`);
             await channel.send({ embeds: [embed] });
-            player.destroy();
-            delete dataStore.musicSessions[guildId];
-            dataStoreModified = true;
+            // No destruimos el player, solo lo dejamos inactivo
+            return;
         }
     } else if (channel) {
         await channel.send({ embeds: [createEmbed('#FF1493', '🏁 Cola terminada', 
-            `No hay más temas, ${userName}. ¡Añadí algo con !play o prendé el autoplay, loco!`)] });
-        player.destroy();
-        delete dataStore.musicSessions[guildId];
-        dataStoreModified = true;
+            `No hay más temas, ${userName}. El bot sigue en el canal, ¡añadí algo con !play o prendé el autoplay, loco!`)] });
+        // No destruimos el player, se queda conectado
+        return;
     }
 });
 
@@ -6762,6 +6760,46 @@ client.once('ready', async () => {
         const channel = await client.channels.fetch(CHANNEL_ID);
         if (!channel) throw new Error('Canal no encontrado');
 
+    try {
+        const VOICE_CHANNEL_ID = '1345936574096998410'; // ID del canal de voz
+        const channel = await client.channels.fetch(CHANNEL_ID); // Canal de texto existente
+        if (!channel) throw new Error('Canal de texto no encontrado');
+    
+        // Función para conectar al canal de voz
+        const connectToVoiceChannel = () => {
+            const voiceChannel = client.channels.cache.get(VOICE_CHANNEL_ID);
+            if (!voiceChannel || voiceChannel.type !== 'GUILD_VOICE') {
+                console.error('El canal de voz no existe o no es un canal de voz válido.');
+                return;
+            }
+    
+            const connection = joinVoiceChannel({
+                channelId: VOICE_CHANNEL_ID,
+                guildId: voiceChannel.guild.id,
+                adapterCreator: voiceChannel.guild.voiceAdapterCreator,
+                selfDeaf: true, // El bot no se ensordece para poder "escuchar" si es necesario
+                selfMute: false, // El bot no se silencia, ajusta según necesites
+            });
+    
+            connection.on('stateChange', (oldState, newState) => {
+                console.log(`Estado de conexión cambió de ${oldState.status} a ${newState.status}`);
+                if (newState.status === 'disconnected') {
+                    console.log('Bot desconectado del canal de voz, intentando reconectar...');
+                    setTimeout(connectToVoiceChannel, 5000); // Reintenta después de 5 segundos
+                }
+            });
+    
+            console.log(`Conectado al canal de voz ${VOICE_CHANNEL_ID}`);
+        };
+    
+        // Verifica si ya está conectado, si no, conecta
+        const existingConnection = getVoiceConnection(client.user.id);
+        if (!existingConnection) {
+            connectToVoiceChannel();
+        } else {
+            console.log('El bot ya está conectado a un canal de voz.');
+        }
+        
         const userHistory = dataStore.conversationHistory[ALLOWED_USER_ID] || [];
         const historySummary = userHistory.length > 0
             ? userHistory.slice(-3).map(msg => `${msg.role === 'user' ? 'Luz' : 'Yo'}: ${msg.content}`).join('\n')
@@ -7087,12 +7125,6 @@ process.on('SIGINT', async () => {
     console.log('Guardando datos antes de salir...');
     await saveDataStore();
     process.exit();
-});
-
-
-client.on('raw', (d) => {
-    console.log('Evento raw recibido:', d.t);
-    manager.updateVoiceState(d);
 });
 
     // Iniciar el bot
