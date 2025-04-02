@@ -6829,6 +6829,7 @@ client.once('ready', async () => {
     if (!dataStore.utilMessageTimestamps) dataStore.utilMessageTimestamps = {};
     if (!dataStore.utilMessageReactions) dataStore.utilMessageReactions = {};
 
+    // Conexión automática al canal de voz 1345936574096998410
     const voiceChannelId = '1345936574096998410';
 
     let voiceChannel;
@@ -6896,57 +6897,52 @@ client.once('ready', async () => {
                 console.log('Reproduciendo música inicial por defecto.');
             }
         }
-    } catch (error) {
-        console.error(`Error al conectar o restaurar música: ${error.message}`);
-    }
-            // Monitoreo para recuperar la música exacta si se detiene
-            setInterval(async () => {
-                const currentPlayer = manager.players.get(guildId);
-                const session = dataStore.musicSessions[guildId] || {};
 
-                if (!currentPlayer || !currentPlayer.voiceChannel) {
-                    console.log('Player no encontrado o desconectado, intentando reconectar...');
-                    const newPlayer = manager.create({
-                        guild: guildId,
-                        voiceChannel: voiceChannelId,
-                        textChannel: voiceChannel.guild.channels.cache.find(ch => ch.type === 'GUILD_TEXT')?.id || null,
-                    });
-                    await newPlayer.connect();
-                    if (session.lastTrack) {
-                        const res = await manager.search(session.lastTrack.uri, client.user);
-                        if (res.tracks.length > 0) {
-                            newPlayer.queue.add(res.tracks[0]);
-                            if (session.queue && session.queue.length > 0) {
-                                for (const track of session.queue) {
-                                    const trackRes = await manager.search(track.uri, client.user);
-                                    if (trackRes.tracks.length > 0) newPlayer.queue.add(trackRes.tracks[0]);
-                                }
-                            }
-                            await newPlayer.play();
-                            console.log(`Música recuperada: ${session.lastTrack.title}`);
-                        }
-                    }
-                } else if (!currentPlayer.playing && !currentPlayer.paused && currentPlayer.queue.size === 0 && session.lastTrack) {
-                    console.log('Música parada sin cola, intentando recuperar la última pista...');
+        // Monitoreo para recuperar la música exacta si se detiene
+        setInterval(async () => {
+            const currentPlayer = manager.players.get(guildId);
+            const session = dataStore.musicSessions[guildId] || {};
+
+            if (!currentPlayer || !currentPlayer.voiceChannel) {
+                console.log('Player no encontrado o desconectado, intentando reconectar...');
+                const newPlayer = manager.create({
+                    guild: guildId,
+                    voiceChannel: voiceChannelId,
+                    textChannel: voiceChannel.guild.channels.cache.find(ch => ch.type === 'GUILD_TEXT')?.id || null,
+                });
+                await newPlayer.connect();
+                if (session.lastTrack) {
                     const res = await manager.search(session.lastTrack.uri, client.user);
                     if (res.tracks.length > 0) {
-                        currentPlayer.queue.add(res.tracks[0]);
+                        newPlayer.queue.add(res.tracks[0]);
                         if (session.queue && session.queue.length > 0) {
                             for (const track of session.queue) {
                                 const trackRes = await manager.search(track.uri, client.user);
-                                if (trackRes.tracks.length > 0) currentPlayer.queue.add(trackRes.tracks[0]);
+                                if (trackRes.tracks.length > 0) newPlayer.queue.add(trackRes.tracks[0]);
                             }
                         }
-                        await currentPlayer.play();
+                        await newPlayer.play();
                         console.log(`Música recuperada: ${session.lastTrack.title}`);
                     }
                 }
-            }, 30 * 1000); // Chequea cada 30 segundos
-        } else {
-            console.error('Canal de voz no encontrado o no es un canal de voz.');
-        }
-    } else {
-        console.error('No se encontró el guild para el canal de voz.');
+            } else if (!currentPlayer.playing && !currentPlayer.paused && currentPlayer.queue.size === 0 && session.lastTrack) {
+                console.log('Música parada sin cola, intentando recuperar la última pista...');
+                const res = await manager.search(session.lastTrack.uri, client.user);
+                if (res.tracks.length > 0) {
+                    currentPlayer.queue.add(res.tracks[0]);
+                    if (session.queue && session.queue.length > 0) {
+                        for (const track of session.queue) {
+                            const trackRes = await manager.search(track.uri, client.user);
+                            if (trackRes.tracks.length > 0) currentPlayer.queue.add(trackRes.tracks[0]);
+                        }
+                    }
+                    await currentPlayer.play();
+                    console.log(`Música recuperada: ${session.lastTrack.title}`);
+                }
+            }
+        }, 30 * 1000); // Chequea cada 30 segundos
+    } catch (error) {
+        console.error(`Error al conectar o restaurar música: ${error.message}`);
     }
 
     // Resto del código sin cambios (actualizaciones, mensajes a Belén, autosave, etc.)
