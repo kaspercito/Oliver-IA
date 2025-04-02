@@ -6829,59 +6829,76 @@ client.once('ready', async () => {
     if (!dataStore.utilMessageTimestamps) dataStore.utilMessageTimestamps = {};
     if (!dataStore.utilMessageReactions) dataStore.utilMessageReactions = {};
 
-    // Conexión automática al canal de voz 1345936574096998410
     const voiceChannelId = '1345936574096998410';
-    const guildId = client.channels.cache.get(voiceChannelId)?.guild.id;
 
-    if (guildId) {
-        const voiceChannel = client.channels.cache.get(voiceChannelId);
-        if (voiceChannel && voiceChannel.type === 'GUILD_VOICE') {
-            let player = manager.players.get(guildId);
-            if (!player) {
-                player = manager.create({
-                    guild: guildId,
-                    voiceChannel: voiceChannelId,
-                    textChannel: voiceChannel.guild.channels.cache.find(ch => ch.type === 'GUILD_TEXT')?.id || null,
-                });
-            }
+    let voiceChannel;
+    try {
+        voiceChannel = await client.channels.fetch(voiceChannelId, { force: true });
+    } catch (error) {
+        console.error(`Error al buscar el canal de voz ${voiceChannelId}: ${error.message}`);
+        return;
+    }
 
-            try {
-                await player.connect();
-                console.log(`Conectado al canal de voz ${voiceChannelId} automáticamente.`);
+    if (!voiceChannel) {
+        console.error('Canal de voz no encontrado.');
+        return;
+    }
 
-                // Forzar autoplay para este canal
-                dataStore.musicSessions[guildId] = dataStore.musicSessions[guildId] || {};
-                dataStore.musicSessions[guildId].autoplay = true;
-                dataStoreModified = true;
+    const guildId = voiceChannel.guild.id;
+    if (!guildId) {
+        console.error('No se encontró el guild para el canal de voz.');
+        return;
+    }
 
-                // Restaurar música previa si existe en dataStore
-                const session = dataStore.musicSessions[guildId];
-                if (session && session.lastTrack && (!player.playing && !player.paused && player.queue.size === 0)) {
-                    const res = await manager.search(session.lastTrack.uri, client.user);
-                    if (res.tracks.length > 0) {
-                        player.queue.add(res.tracks[0]);
-                        if (session.queue && session.queue.length > 0) {
-                            for (const track of session.queue) {
-                                const trackRes = await manager.search(track.uri, client.user);
-                                if (trackRes.tracks.length > 0) player.queue.add(trackRes.tracks[0]);
-                            }
-                        }
-                        await player.play();
-                        console.log(`Restaurada música previa: ${session.lastTrack.title}`);
-                    }
-                } else if (!player.playing && !player.paused && player.queue.size === 0) {
-                    // Si no hay música previa, iniciar con algo por defecto
-                    const res = await manager.search('lofi beats', client.user);
-                    if (res.tracks.length > 0) {
-                        player.queue.add(res.tracks[0]);
-                        await player.play();
-                        console.log('Reproduciendo música inicial por defecto.');
+    if (voiceChannel.type !== 'GUILD_VOICE') {
+        console.error(`El canal ${voiceChannelId} no es un canal de voz. Tipo: ${voiceChannel.type}`);
+        return;
+    }
+
+    let player = manager.players.get(guildId);
+    if (!player) {
+        player = manager.create({
+            guild: guildId,
+            voiceChannel: voiceChannelId,
+            textChannel: voiceChannel.guild.channels.cache.find(ch => ch.type === 'GUILD_TEXT')?.id || null,
+        });
+    }
+
+    try {
+        await player.connect();
+        console.log(`Conectado al canal de voz ${voiceChannelId} automáticamente.`);
+
+        // Forzar autoplay para este canal
+        dataStore.musicSessions[guildId] = dataStore.musicSessions[guildId] || {};
+        dataStore.musicSessions[guildId].autoplay = true;
+        dataStoreModified = true;
+
+        // Restaurar música previa si existe en dataStore
+        const session = dataStore.musicSessions[guildId];
+        if (session && session.lastTrack && (!player.playing && !player.paused && player.queue.size === 0)) {
+            const res = await manager.search(session.lastTrack.uri, client.user);
+            if (res.tracks.length > 0) {
+                player.queue.add(res.tracks[0]);
+                if (session.queue && session.queue.length > 0) {
+                    for (const track of session.queue) {
+                        const trackRes = await manager.search(track.uri, client.user);
+                        if (trackRes.tracks.length > 0) player.queue.add(trackRes.tracks[0]);
                     }
                 }
-            } catch (error) {
-                console.error(`Error al conectar o restaurar música: ${error.message}`);
+                await player.play();
+                console.log(`Restaurada música previa: ${session.lastTrack.title}`);
             }
-
+        } else if (!player.playing && !player.paused && player.queue.size === 0) {
+            const res = await manager.search('lofi beats', client.user);
+            if (res.tracks.length > 0) {
+                player.queue.add(res.tracks[0]);
+                await player.play();
+                console.log('Reproduciendo música inicial por defecto.');
+            }
+        }
+    } catch (error) {
+        console.error(`Error al conectar o restaurar música: ${error.message}`);
+    }
             // Monitoreo para recuperar la música exacta si se detiene
             setInterval(async () => {
                 const currentPlayer = manager.players.get(guildId);
