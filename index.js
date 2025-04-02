@@ -5718,7 +5718,7 @@ manager.on('nodeConnect', node => console.log(`Nodo ${node.options.identifier} c
 manager.on('nodeError', (node, error) => console.error(`Error en nodo ${node.options.identifier}: ${error.message}`));
 // Si un nodo falla, lo logueo con el error
 
-manager.on('queueEnd', async player => {
+manager.on('queueEnd', async (player) => {
     const channel = client.channels.cache.get(player.textChannel);
     const guildId = player.guild;
     const autoplay = dataStore.musicSessions[guildId]?.autoplay || false;
@@ -5751,7 +5751,7 @@ manager.on('queueEnd', async player => {
                 if (fallbackSearch.tracks.length > 0) {
                     const nextTrack = fallbackSearch.tracks[0];
                     player.queue.add(nextTrack);
-                    player.play();
+                    await player.play();
                     const embed = createEmbed('#FF1493', '🎵 ¡Autoplay improvisado!', 
                         `No encontré relacionados, pero te meto **${nextTrack.title}**, ${userName}. ¡Seguimos la fiesta, loco!`)
                         .setThumbnail(nextTrack.thumbnail || 'https://i.imgur.com/defaultThumbnail.png');
@@ -5767,7 +5767,7 @@ manager.on('queueEnd', async player => {
                 if (related.tracks.length > 0) {
                     const nextTrack = related.tracks[0];
                     player.queue.add(nextTrack);
-                    player.play();
+                    await player.play();
                     const durationStr = `${Math.floor(nextTrack.duration / 60000)}:${((nextTrack.duration % 60000) / 1000).toFixed(0).padStart(2, '0')}`;
                     const embed = createEmbed('#FF1493', '🎵 ¡Autoplay en acción!', 
                         `Añadí **${nextTrack.title}** pa’ seguirla, ${userName}.  
@@ -5782,7 +5782,7 @@ manager.on('queueEnd', async player => {
                     if (fallbackSearch.tracks.length > 0) {
                         const nextTrack = fallbackSearch.tracks[0];
                         player.queue.add(nextTrack);
-                        player.play();
+                        await player.play();
                         const embed = createEmbed('#FF1493', '🎵 ¡Autoplay improvisado!', 
                             `No encontré relacionados, pero te meto **${nextTrack.title}**, ${userName}. ¡Seguimos, loco!`)
                             .setThumbnail(nextTrack.thumbnail || 'https://i.imgur.com/defaultThumbnail.png');
@@ -5814,7 +5814,16 @@ manager.on('queueEnd', async player => {
                 paused: player.paused,
                 position: player.position,
                 voiceChannel: player.voiceChannel,
-                textChannel: player.textChannel
+                textChannel: player.textChannel,
+                previous: player.queue.previous ? {
+                    title: player.queue.previous.title,
+                    uri: player.queue.previous.uri,
+                    duration: player.queue.previous.duration,
+                    thumbnail: player.queue.previous.thumbnail,
+                    requester: player.queue.previous.requester.id
+                } : null,
+                history: dataStore.musicSessions[guildId]?.history || [],
+                autoplay: player.get('autoplay') || false
             };
             autoModified = true;
             await saveDataStore();
@@ -5836,7 +5845,9 @@ manager.on('queueEnd', async player => {
                 current: null,
                 playing: false,
                 paused: false,
-                position: 0
+                position: 0,
+                voiceChannel: player.voiceChannel,
+                textChannel: player.textChannel
             };
             autoModified = true;
             await saveDataStore();
@@ -5857,7 +5868,9 @@ manager.on('queueEnd', async player => {
             current: null,
             playing: false,
             paused: false,
-            position: 0
+            position: 0,
+            voiceChannel: player.voiceChannel,
+            textChannel: player.textChannel
         };
         autoModified = true;
         await saveDataStore();
@@ -5869,6 +5882,12 @@ manager.on('queueEnd', async player => {
             player.setVoiceChannel('1345936574096998410');
             await player.connect();
             console.log(`Reubicado al canal 1345936574096998410 en guild ${guildId}`);
+            dataStore.musicSessions[guildId] = {
+                ...dataStore.musicSessions[guildId],
+                voiceChannel: '1345936574096998410'
+            };
+            autoModified = true;
+            await saveDataStore();
         } catch (error) {
             console.error(`Error al reubicar al canal: ${error.message}`);
         }
@@ -6855,26 +6874,26 @@ client.once('ready', async () => {
     // Cargar dataStore al iniciar
     await initializeDataStore();
 
+    // Restaurar reproductores de música (un solo bucle)
     for (const guildId in dataStore.musicSessions) {
         const state = dataStore.musicSessions[guildId];
         let player = manager.players.get(guildId);
 
         if (!player) {
-            // Forzar conexión al canal específico si no hay reproductor
             player = manager.create({
                 guild: guildId,
                 voiceChannel: '1345936574096998410', // Canal fijo
-                textChannel: state?.textChannel || '1345941771338907771' // Reemplazá con un ID válido
+                textChannel: state?.textChannel || '1345941771338907771' // Canal de texto por defecto
             });
         }
 
-        if (state && state.queue.length > 0) {
+        if (state && state.queue?.length > 0) {
             player.queue.add(state.queue.map(t => new manager.Track(t)));
             if (state.current) player.queue.unshift(new manager.Track(state.current));
             if (state.previous) player.queue.previous = new manager.Track(state.previous);
-            player.position = state.position;
-            player.playing = state.playing;
-            player.paused = state.paused;
+            player.position = state.position || 0;
+            player.playing = state.playing || false;
+            player.paused = state.paused || false;
             player.set('autoplay', state.autoplay || false);
         }
 
@@ -6884,49 +6903,19 @@ client.once('ready', async () => {
                 player.setVoiceChannel('1345936574096998410');
                 await player.connect();
             }
-            if (state?.playing && !state?.paused) await player.play();
-            console.log(`Conectado a canal ${player.voiceChannel} en guild ${guildId}`);
-        } catch (error) {
-            console.error(`Error al conectar en guild ${guildId}: ${error.message}`);
-        }
-    }
-});
-    
-    // Restaurar reproductores de música
-    for (const guildId in dataStore.musicSessions) {
-        const state = dataStore.musicSessions[guildId];
-        if (state && state.voiceChannel) {
-            const player = manager.create({
-                guild: guildId,
-                voiceChannel: state.voiceChannel,
-                textChannel: state.textChannel,
-            });
-            player.queue.add(state.queue.map(t => new manager.Track(t)));
-            if (state.current) player.queue.unshift(new manager.Track(state.current));
-            if (state.previous) player.queue.previous = new manager.Track(state.previous);
-            player.position = state.position;
-            player.playing = state.playing;
-            player.paused = state.paused;
-            player.set('autoplay', state.autoplay || false);
-
-            try {
-                await player.connect();
-                if (state.playing && !state.paused) {
-                    await player.play();
-                    console.log(`Reproductor restaurado para guild ${guildId}, reproduciendo ${state.current?.title}`);
-                } else {
-                    console.log(`Reproductor restaurado para guild ${guildId}, en pausa`);
-                }
-            } catch (error) {
-                console.error(`Error al restaurar reproductor para guild ${guildId}: ${error.message}`);
-                delete dataStore.musicSessions[guildId]; // Limpiar si falla
-                autoModified = true;
-                await saveDataStore();
+            if (state?.playing && !state?.paused) {
+                await player.play();
+                console.log(`Reproductor restaurado para guild ${guildId}, reproduciendo ${state.current?.title}`);
+            } else {
+                console.log(`Reproductor restaurado para guild ${guildId}, en pausa o sin música`);
             }
+        } catch (error) {
+            console.error(`Error al restaurar reproductor para guild ${guildId}: ${error.message}`);
+            // No borramos el estado, para no perder datos
+            autoModified = true;
         }
     }
-    console.log('Restauración completa');
-});
+    console.log('Restauración de música completa');
 
     if (dataStore.recordatorios && dataStore.recordatorios.length > 0) {
         const ahoraUTC = Date.now();
