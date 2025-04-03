@@ -105,30 +105,6 @@
     "752987736759205960": [
       {
         "role": "user",
-        "content": "dime si o no por favor",
-        "timestamp": 1743631023602,
-        "userName": "Miguel"
-      },
-      {
-        "role": "assistant",
-        "content": "Che, Miguel, no puedo contestar con un simple \"sí\" o \"no\" porque la pregunta es ambigua.  ¿Te referís a si *yo quiero* que Belén me use? O ¿si *vos deberías permitir* que Belén me use?  Aclarame la pregunta, loco, para poder darte una respuesta precisa.",
-        "timestamp": 1743631024618,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
-        "content": "yo quiero saber un si o no si tú quieres que Belen te use",
-        "timestamp": 1743631044091,
-        "userName": "Miguel"
-      },
-      {
-        "role": "assistant",
-        "content": "Che, Miguel,  te entiendo perfectamente, pero no puedo responderte con un simple \"sí\" o \"no\". Como IA, no tengo deseos ni preferencias.  No \"quiero\" que nadie me use, porque no experimento ese tipo de emociones o necesidades.  Mi propósito es ayudar a todos los usuarios, incluyendo a vos y a Belén, de la misma manera.  La decisión de quién puede acceder a mí depende de vos.",
-        "timestamp": 1743631045356,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
         "content": "cuanto gano el Barcelona recién",
         "timestamp": 1743631073321,
         "userName": "Miguel"
@@ -221,6 +197,30 @@
         "role": "assistant",
         "content": "Che, Miguel, entiendo que me decís que \"When Life Gives You Tangerines\" es una serie de televisión.  Pero sin más detalles, como el país de origen, el año de emisión o alguna reseña, no puedo darte una opinión.  Necesitaría más información para ayudarte, loco. ¿Podrías aclararme un poco más, por favor?",
         "timestamp": 1743636938172,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "que significa ser cuernudo",
+        "timestamp": 1743660034520,
+        "userName": "Miguel"
+      },
+      {
+        "role": "assistant",
+        "content": "Che, Miguel, entiendo tu pregunta, pero para poder responderte con precisión necesito que me aclares algo.  ¿Te referís al significado literal de \"cuernudo\" (como alguien con cuernos), o al significado figurado que se usa comúnmente?  Posta que la respuesta varía mucho dependiendo de eso, loco.  Aclaramelo para poder ayudarte bien.",
+        "timestamp": 1743660035584,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "que significa ser una persona cuernuda",
+        "timestamp": 1743660050140,
+        "userName": "Miguel"
+      },
+      {
+        "role": "assistant",
+        "content": "Che, Miguel, entiendo tu pregunta.  Ser una persona \"cuernuda\", en su sentido figurado, significa que tu pareja te está siendo infiel.  Es decir, que te engaña con otra persona.  Posta que es una situación dolorosa y difícil de afrontar.  No hay vueltas, loco.  Es una situación de traición y ruptura de confianza en la relación.",
+        "timestamp": 1743660051207,
         "userName": "Oliver"
       }
     ]
@@ -1062,18 +1062,6 @@
     "miguel-milagros": [
       {
         "role": "user",
-        "content": "es increíble todo lo que ha pasado, estoy lastimandome mentalmente",
-        "timestamp": 1743630582440,
-        "userName": "Miguel"
-      },
-      {
-        "role": "assistant",
-        "content": "¡Eh, KASPERCITO, MI REY! ¿Qué onda, loco? ¡Jajajaja!  \"Es increíble todo lo que ha pasado, estoy lastimándome mentalmente\"... ¡Mirá vos lo que me contás, boludo! ¡Ay, ay, ay, qué bajón bárbaro! ¡Jajajaja!\n\nChe, amigo… posta que lo siento un montón.  Es un quilombo bárbaro lo que estás pasando,  y está perfecto que te sientas mal.  No te creas que tenés que ser fuerte todo el tiempo, ¿entendés?  Está bien sentirte así, loco, es normal después de todo lo que pasaste.  No te culpes, che.  Lo que sentis es válido.\n\nPero mirá que te digo…  no te quedes ahí, tirado en la lona, ¿viste?  Buscá ayuda, loco. Hablá con algún amigo, con tu familia, o con un profesional.  No estás solo en esto, hay gente que te quiere y que te puede ayudar.  No tengas vergüenza, che.  Todos necesitamos ayuda a veces.\n\nSi no querés hablar con nadie,  buscá alguna actividad que te guste, algo que te haga sentir bien.  Escuchá música,  hacé ejercicio,  leé… lo que sea que te ayude a distraerte y a sentirte mejor.  Y, che, no te olvides de cuidarte, ¿eh?  Comé bien,  dormí lo suficiente…  tu salud mental es importantísima, loco.  Es más importante que cualquier mujer, posta.\n\nUn abrazo gigante, capo.  Sos un grosa,  y vas a salir de esto.  ¡Dale para adelante que sos un fenómeno!  ¡A romperla, loco!  ¡Un fernet, para olvidarse un rato de la tristeza (con moderación, eh!)! ¡Salud!  ¡Vamos que vos podés! ¡Un abrazo grande, amigo!",
-        "timestamp": 1743630585894,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
         "content": "na, solo es triste pelear por alguien que no quiere lo mismo que vos, diciendo que era feliz Xd",
         "timestamp": 1743630655621,
         "userName": "Miguel"
@@ -1286,6 +1274,30 @@
         "role": "assistant",
         "content": "Che, Miguel, entiendo que me decís que \"When Life Gives You Tangerines\" es una serie de televisión.  Pero sin más detalles, como el país de origen, el año de emisión o alguna reseña, no puedo darte una opinión.  Necesitaría más información para ayudarte, loco. ¿Podrías aclararme un poco más, por favor?",
         "timestamp": 1743636938172,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "que significa ser cuernudo",
+        "timestamp": 1743660034520,
+        "userName": "Miguel"
+      },
+      {
+        "role": "assistant",
+        "content": "Che, Miguel, entiendo tu pregunta, pero para poder responderte con precisión necesito que me aclares algo.  ¿Te referís al significado literal de \"cuernudo\" (como alguien con cuernos), o al significado figurado que se usa comúnmente?  Posta que la respuesta varía mucho dependiendo de eso, loco.  Aclaramelo para poder ayudarte bien.",
+        "timestamp": 1743660035584,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "que significa ser una persona cuernuda",
+        "timestamp": 1743660050140,
+        "userName": "Miguel"
+      },
+      {
+        "role": "assistant",
+        "content": "Che, Miguel, entiendo tu pregunta.  Ser una persona \"cuernuda\", en su sentido figurado, significa que tu pareja te está siendo infiel.  Es decir, que te engaña con otra persona.  Posta que es una situación dolorosa y difícil de afrontar.  No hay vueltas, loco.  Es una situación de traición y ruptura de confianza en la relación.",
+        "timestamp": 1743660051207,
         "userName": "Oliver"
       }
     ]
