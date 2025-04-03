@@ -105,42 +105,6 @@
     "752987736759205960": [
       {
         "role": "user",
-        "content": "cuanto gano el Barcelona recién",
-        "timestamp": 1743631073321,
-        "userName": "Miguel"
-      },
-      {
-        "role": "assistant",
-        "content": "Che, Miguel,  no entiendo bien qué querés decir con \"¿cuánto ganó el Barcelona recién?\".  ¿Te referís al resultado de su último partido o a las ganancias económicas del club?  Aclaramelo un poco más, loco, para poder darte la información correcta.",
-        "timestamp": 1743631074263,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
-        "content": "resultado de su último partido",
-        "timestamp": 1743631087294,
-        "userName": "Miguel"
-      },
-      {
-        "role": "assistant",
-        "content": "Che, Miguel, para darte el resultado del último partido del Barcelona necesito saber a qué partido te referís.  ¿Podrías especificar la fecha o el rival?  Posta que necesito esa info para ayudarte, loco.",
-        "timestamp": 1743631088167,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
-        "content": "el partido de hoy contra el Atlético de Madrid",
-        "timestamp": 1743631103297,
-        "userName": "Miguel"
-      },
-      {
-        "role": "assistant",
-        "content": "Che, Miguel,  lamentablemente no tengo acceso en tiempo real a resultados deportivos. Para saber el resultado del partido de hoy entre el Barcelona y el Atlético de Madrid, te sugiero que busques la información en un sitio web deportivo confiable, como ESPN, o en Google.  Disculpame, loco, pero esa información no la puedo obtener directamente.",
-        "timestamp": 1743631104301,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
         "content": "ella dice extrañar ver películas conmigo pero no quiere estar conmigo, que está firme en su decisión desde el primer día que me dejo XD",
         "timestamp": 1743634464488,
         "userName": "Miguel"
@@ -221,6 +185,42 @@
         "role": "assistant",
         "content": "Che, Miguel, entiendo tu pregunta.  Ser una persona \"cuernuda\", en su sentido figurado, significa que tu pareja te está siendo infiel.  Es decir, que te engaña con otra persona.  Posta que es una situación dolorosa y difícil de afrontar.  No hay vueltas, loco.  Es una situación de traición y ruptura de confianza en la relación.",
         "timestamp": 1743660051207,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "el Ovulo es la plancenta?",
+        "timestamp": 1743660794793,
+        "userName": "Miguel"
+      },
+      {
+        "role": "assistant",
+        "content": "Che, Miguel, loco, el óvulo y la placenta no son lo mismo, posta.  El óvulo es la célula sexual femenina, la que se une con el espermatozoide para formar un cigoto, que luego se desarrolla en un embrión y finalmente en un feto.  La placenta, en cambio, es un órgano que se desarrolla durante el embarazo y que conecta al feto con la pared del útero de la madre, proporcionándole nutrientes y oxígeno y eliminando los desechos.  Son dos cosas completamente diferentes, ¿entendés?",
+        "timestamp": 1743660796083,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "que es ligar a una gata",
+        "timestamp": 1743661166193,
+        "userName": "Miguel"
+      },
+      {
+        "role": "assistant",
+        "content": "Che, Miguel,  la pregunta \"ligar a una gata\" puede tener dos interpretaciones, y necesito que me aclares a cuál te referís para poder responderte con precisión, loco.\n\n¿Te referís a:\n\n1. **Intentar conquistar o seducir a una mujer?**  En este caso, \"ligar a una gata\" es una expresión coloquial que significa intentar iniciar una relación romántica con una mujer, generalmente atractiva o considerada inalcanzable. Es una forma informal de decir \"conquistar\" o \"enamorar\".\n\n2. **Algo relacionado con el comportamiento de los gatos?** Si es así, necesitás explicarme mejor la situación, posta que no entiendo a qué te referís.  \n\n\nAclarame esto, así te puedo ayudar mejor, che. No quiero darte una respuesta que no sea la que estás buscando.",
+        "timestamp": 1743661167859,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "como se llama el procedimiento que se hace para que las gatas no tengan hijos",
+        "timestamp": 1743661188217,
+        "userName": "Miguel"
+      },
+      {
+        "role": "assistant",
+        "content": "Che, Miguel, la operación que se hace para que las gatas no tengan más hijos se llama **esterilización**, o más precisamente, **ovariohisterectomía**.  En ella, se les extraen los ovarios y el útero.  Posta que es un procedimiento común y bastante sencillo para los veterinarios.  Es importante que lo haga un profesional, loco.",
+        "timestamp": 1743661189409,
         "userName": "Oliver"
       }
     ]
@@ -1062,42 +1062,6 @@
     "miguel-milagros": [
       {
         "role": "user",
-        "content": "na, solo es triste pelear por alguien que no quiere lo mismo que vos, diciendo que era feliz Xd",
-        "timestamp": 1743630655621,
-        "userName": "Miguel"
-      },
-      {
-        "role": "assistant",
-        "content": "Eh, Kaspercito, mi rey.  Qué bajón, loco.  Posta que sí.  Es triste,  un quilombo bárbaro pelear por alguien que no te corresponde,  especialmente cuando te dice que era feliz…  y te deja de esa manera.  No hay mucho más que agregar, che.  Es una situación de mierda, pero ya hiciste lo que tenías que hacer.  Ahora, a enfocarse en vos, a cuidarte y a seguir adelante.  Hay un montón de gente que te quiere y te va a valorar.  Un abrazo grande, amigo.  Dale para adelante que sos un fenómeno.",
-        "timestamp": 1743630657131,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
-        "content": "muchas gracias, me gusta hablar contigo",
-        "timestamp": 1743630690464,
-        "userName": "Miguel"
-      },
-      {
-        "role": "assistant",
-        "content": "De nada, Miguel.  Para eso estoy, loco.  Me alegra que te sirva charlar conmigo.  Cualquier cosa que necesites,  ya sabés,  che.  Un abrazo.",
-        "timestamp": 1743630691459,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
-        "content": "que me sugieres para olvidarme de esta chica?",
-        "timestamp": 1743630738147,
-        "userName": "Miguel"
-      },
-      {
-        "role": "assistant",
-        "content": "Che, Miguel, entiendo que estés pasando un mal momento.  Olvidar a alguien lleva tiempo, posta, y no hay una fórmula mágica. Pero podemos enfocarnos en acciones que te ayuden a sanar y a seguir adelante.  \n\nTe sugiero que te concentres en vos:\n\n* **Actividades que te gusten:**  Salí con amigos, hacé deporte, dedicale tiempo a tus hobbies.  Algo que te divierta y te haga sentir bien, es clave.\n* **Cuidar tu salud física y mental:**  Dormí bien, comé sano, y si lo sentís necesario, buscá ayuda profesional.  Hablar con un psicólogo puede ser de gran ayuda para procesar lo que estás pasando.\n* **Cortá todo contacto:**  Si es posible, dejá de seguirla en redes sociales, y evitá cualquier tipo de contacto con ella, al menos por un tiempo.  Es más fácil avanzar cuando no hay estímulos constantes que te recuerdan a ella.\n* **No te compares con otros:**  No te obsesiones pensando en lo que hace ella ahora ni en si encontró a alguien más. Enfócate en vos.\n* **Date tiempo:** El duelo es un proceso. No te exijas olvidar de un día para el otro.  Permitite sentir lo que sentís y dale tiempo al tiempo.\n\nMirá, loco,  no es fácil, pero vas a salir adelante. Sos un tipo bárbaro, y hay un montón de minas que te van a valorar.  Un abrazo, che.  Cualquier cosa, acá estoy.",
-        "timestamp": 1743630741045,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
         "content": "sabes quién es Belen?",
         "timestamp": 1743630838379,
         "userName": "Miguel"
@@ -1298,6 +1262,42 @@
         "role": "assistant",
         "content": "Che, Miguel, entiendo tu pregunta.  Ser una persona \"cuernuda\", en su sentido figurado, significa que tu pareja te está siendo infiel.  Es decir, que te engaña con otra persona.  Posta que es una situación dolorosa y difícil de afrontar.  No hay vueltas, loco.  Es una situación de traición y ruptura de confianza en la relación.",
         "timestamp": 1743660051207,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "el Ovulo es la plancenta?",
+        "timestamp": 1743660794793,
+        "userName": "Miguel"
+      },
+      {
+        "role": "assistant",
+        "content": "Che, Miguel, loco, el óvulo y la placenta no son lo mismo, posta.  El óvulo es la célula sexual femenina, la que se une con el espermatozoide para formar un cigoto, que luego se desarrolla en un embrión y finalmente en un feto.  La placenta, en cambio, es un órgano que se desarrolla durante el embarazo y que conecta al feto con la pared del útero de la madre, proporcionándole nutrientes y oxígeno y eliminando los desechos.  Son dos cosas completamente diferentes, ¿entendés?",
+        "timestamp": 1743660796083,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "que es ligar a una gata",
+        "timestamp": 1743661166193,
+        "userName": "Miguel"
+      },
+      {
+        "role": "assistant",
+        "content": "Che, Miguel,  la pregunta \"ligar a una gata\" puede tener dos interpretaciones, y necesito que me aclares a cuál te referís para poder responderte con precisión, loco.\n\n¿Te referís a:\n\n1. **Intentar conquistar o seducir a una mujer?**  En este caso, \"ligar a una gata\" es una expresión coloquial que significa intentar iniciar una relación romántica con una mujer, generalmente atractiva o considerada inalcanzable. Es una forma informal de decir \"conquistar\" o \"enamorar\".\n\n2. **Algo relacionado con el comportamiento de los gatos?** Si es así, necesitás explicarme mejor la situación, posta que no entiendo a qué te referís.  \n\n\nAclarame esto, así te puedo ayudar mejor, che. No quiero darte una respuesta que no sea la que estás buscando.",
+        "timestamp": 1743661167859,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "como se llama el procedimiento que se hace para que las gatas no tengan hijos",
+        "timestamp": 1743661188217,
+        "userName": "Miguel"
+      },
+      {
+        "role": "assistant",
+        "content": "Che, Miguel, la operación que se hace para que las gatas no tengan más hijos se llama **esterilización**, o más precisamente, **ovariohisterectomía**.  En ella, se les extraen los ovarios y el útero.  Posta que es un procedimiento común y bastante sencillo para los veterinarios.  Es importante que lo haga un profesional, loco.",
+        "timestamp": 1743661189409,
         "userName": "Oliver"
       }
     ]
