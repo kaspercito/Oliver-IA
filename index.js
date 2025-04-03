@@ -6730,46 +6730,52 @@ client.once('ready', async () => {
         const lastSentReminder = dataStore.utilMessageTimestamps[`reminder_${CHANNEL_ID}`] || 0;
         const lastReaction = dataStore.utilMessageReactions[CHANNEL_ID] || 0;
 
-        setInterval(async () => {
-            try {
-                const now = Date.now();
-                const currentHour = new Date().getHours();
-                const lastSentUtil = dataStore.utilMessageTimestamps[`util_${CHANNEL_ID}`] || 0;
-                const lastSentReminder = dataStore.utilMessageTimestamps[`reminder_${CHANNEL_ID}`] || 0;
-                const lastReaction = dataStore.utilMessageReactions[CHANNEL_ID] || 0;
-        
-                if (now - lastSentUtil >= oneDayInMs && (!lastReaction || now - lastReaction >= oneDayInMs)) {
-                    const dailyUtilEmbed = createEmbed('#FF1493', '¡Che, Belén!', 
-                        '¿Te estoy siendo útil, grosa? ¡Contame cómo te va conmigo, dale!', 
-                        'Con cariño, Oliver IA | Reacciona con ✅ o ❌');
-                    const sentMessage = await channel.send({ embeds: [dailyUtilEmbed] });
-                    await sentMessage.react('✅');
-                    await sentMessage.react('❌');
-                    dataStore.utilMessageTimestamps[`util_${CHANNEL_ID}`] = now;
-                    sentMessages.set(sentMessage.id, { content: dailyUtilEmbed.description, message: sentMessage });
-                    autoModified = true;
-                    console.log(`Mensaje útil diario enviado al canal ${CHANNEL_ID} - ${new Date().toLocaleString('es-AR')}`);
-                }
-        
-                const reminderTimes = {
-                    9: "¡Buen día, Milagros, qué lindo arrancar el día, che! ☀️, pensando en vos como siempre. Me acuerdo de esas mañanas que charlábamos de todo un poco, qué buenos tiempos, ¿no? ¿Cómo arrancaste hoy, grosa? 😊",
-                    14: "¡Qué tal, Milagros, cómo va tu día, che? 🌟, con buena onda para vos. Me vino a la cabeza esas veces que nos reíamos juntos por pavadas, qué lindo era. ¿Cómo te está tratando el día, genia? 🎉",
-                    19: "¡Buenas noches, Milagros, ya se termina el día, loco! 🌙, mandándote un saludo tranqui. Me acordé de esas noches que nos quedábamos hablando hasta tarde, qué copado era eso. ¿Cómo estás esta noche, crack? 😎"
-                };
-        
-                if (Object.keys(reminderTimes).includes(String(currentHour)) && now - lastSentReminder >= 4 * 60 * 60 * 1000) {
-                    const reminder = reminderTimes[currentHour];
-                    const embed = createEmbed('#FF1493', '¡Un saludito para vos, Milagros!', 
-                        reminder, 'Con buena onda, Oliver IA');
-                    await channel.send({ embeds: [embed] });
-                    dataStore.utilMessageTimestamps[`reminder_${CHANNEL_ID}`] = now;
-                    autoModified = true;
-                    console.log(`Recordatorio enviado a Belén (${currentHour}:00) - ${new Date().toLocaleString('es-AR')}`);
-                }
-            } catch (error) {
-                console.error('Error en el intervalo combinado:', error.message);
-            }
-        }, checkInterval);
+setInterval(async () => {
+    try {
+        const now = Date.now();
+        const argentinaDate = new Date(now - 3 * 60 * 60 * 1000); // Ajuste a UTC-3 (Argentina)
+        const currentHour = argentinaDate.getHours();
+        const currentMinute = argentinaDate.getMinutes();
+        const lastSentReminder = dataStore.utilMessageTimestamps[`reminder_${CHANNEL_ID}`] || 0;
+        const oneDayInMs = 24 * 60 * 60 * 1000; // Un día en milisegundos
+
+        // Mensaje útil diario (sin cambios)
+        const lastSentUtil = dataStore.utilMessageTimestamps[`util_${CHANNEL_ID}`] || 0;
+        const lastReaction = dataStore.utilMessageReactions[CHANNEL_ID] || 0;
+        if (now - lastSentUtil >= oneDayInMs && (!lastReaction || now - lastReaction >= oneDayInMs)) {
+            const dailyUtilEmbed = createEmbed('#FF1493', '¡Eeeh, qué pasa!', 
+                '¿Te estoy dando una mano, capo? Contame qué onda conmigo, ¡dale que va!', 
+                'Con buena vibra, Oliver IA | Reacciona con ✅ o ❌');
+            const sentMessage = await channel.send({ embeds: [dailyUtilEmbed] });
+            await sentMessage.react('✅');
+            await sentMessage.react('❌');
+            dataStore.utilMessageTimestamps[`util_${CHANNEL_ID}`] = now;
+            sentMessages.set(sentMessage.id, { content: dailyUtilEmbed.description, message: sentMessage });
+            autoModified = true;
+            console.log(`Mensaje útil diario enviado al canal ${CHANNEL_ID} - ${new Date().toLocaleString('es-AR')}`);
+        }
+
+        // Recordatorios ajustados a 12 PM, 6 PM y 10 PM
+        const reminderTimes = {
+            12: "¡Qué tal, loco, mediodía a full, che! ☀️ ¿Cómo estás arrancando la jornada, crack? Si precisás algo, avisame que te doy una mano al toque, ¿eh?",
+            18: "¡Eeeh, las 6 de la tarde, loco! 🌆 ¿Cómo venís con el día, genia? Si querés charlar o que te ayude con algo, estoy a un grito, dale!",
+            22: "¡Noche tranqui, che, las 10 ya! 🌙 ¿Cómo cerrás el día, capo? Si necesitás un cable o solo querés tirar la onda, acá estoy, siempre piola!"
+        };
+
+        // Chequeamos si es la hora exacta (minuto 0) y si no se envió recientemente
+        if (currentMinute === 0 && Object.keys(reminderTimes).includes(String(currentHour)) && now - lastSentReminder >= oneDayInMs) {
+            const reminder = reminderTimes[currentHour];
+            const embed = createEmbed('#FF1493', '¡Un toque de atención, che!', 
+                reminder, 'Con onda, Oliver IA');
+            await channel.send({ embeds: [embed] });
+            dataStore.utilMessageTimestamps[`reminder_${CHANNEL_ID}`] = now;
+            autoModified = true;
+            console.log(`Recordatorio enviado (${currentHour}:00 AR) - ${new Date().toLocaleString('es-AR')}`);
+        }
+    } catch (error) {
+        console.error('Error en el intervalo combinado:', error.message);
+    }
+}, 60 * 1000); // Chequea cada minuto
 
         setInterval(async () => {
             const musicActive = manager.players.size > 0 || isPlayingMusic;
