@@ -105,30 +105,6 @@
     "752987736759205960": [
       {
         "role": "user",
-        "content": "ella dice extrañar ver películas conmigo pero no quiere estar conmigo, que está firme en su decisión desde el primer día que me dejo XD",
-        "timestamp": 1743634464488,
-        "userName": "Miguel"
-      },
-      {
-        "role": "assistant",
-        "content": "Che, Miguel, entiendo perfectamente lo que me estás diciendo.  Suena a que te está dando migas, pero sin realmente querer volver.  Decir que extraña ver películas contigo es una forma de mantener un contacto emocional,  pero su firmeza en la decisión de separarse desde el primer día indica que,  a pesar de algún posible afecto residual, no hay una intención real de retomar la relación.  Posta que es una situación difícil, pero te recomiendo que lo aceptes.  Seguir aferrándote a esa posibilidad te puede causar más dolor.  Concentrate en vos, en tu bienestar, y seguí adelante.",
-        "timestamp": 1743634466021,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
-        "content": "la sigo amando pero que me sugieres hacer?",
-        "timestamp": 1743636787139,
-        "userName": "Miguel"
-      },
-      {
-        "role": "assistant",
-        "content": "Che, Miguel, te entiendo posta.  Amar y soltar es una de las cosas más difíciles del mundo, loco.  Que sigas amándola no significa que tengas que seguir aferrándote a algo que ya terminó.  \n\nTe sugiero que te enfoques en vos mismo, en tu bienestar.  Buscá actividades que te gusten, reencontrate con amigos, dedicá tiempo a tus hobbies.  Permitir que el dolor te consuma solo te va a retrasar.  \n\nNo hay una fórmula mágica, pero darle tiempo al tiempo es fundamental.  Si el dolor es muy grande,  no dudes en buscar ayuda profesional. Un psicólogo te puede ayudar a procesar tus emociones y a construir un camino hacia adelante.  No tengas vergüenza,  es una muestra de fortaleza buscar apoyo cuando lo necesitas.\n\nPensá en esto:  ¿Qué cosas podrías hacer para sentirte mejor hoy mismo?  Empezá por ahí, de a poco.  Y acordate que estoy acá para lo que necesites, aunque sea para charlar un rato.",
-        "timestamp": 1743636789196,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
         "content": "que opinas del dorama si la vida te da mandarinas?",
         "timestamp": 1743636878142,
         "userName": "Miguel"
@@ -221,6 +197,30 @@
         "role": "assistant",
         "content": "Che, Miguel, la operación que se hace para que las gatas no tengan más hijos se llama **esterilización**, o más precisamente, **ovariohisterectomía**.  En ella, se les extraen los ovarios y el útero.  Posta que es un procedimiento común y bastante sencillo para los veterinarios.  Es importante que lo haga un profesional, loco.",
         "timestamp": 1743661189409,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "que beneficiosos te da jugar Valorant? en la vida",
+        "timestamp": 1743708831648,
+        "userName": "Miguel"
+      },
+      {
+        "role": "assistant",
+        "content": "Che, Miguel, entiendo tu pregunta sobre los beneficios de jugar Valorant en la vida.  Posta que es una pregunta interesante, porque los juegos, a veces, tienen un costado que la gente no ve.  Pero para contestarte bien, necesito que me aclares algo: ¿te referís a beneficios directos, como habilidades que se desarrollan, o beneficios más indirectos, como la socialización?  Porque  la respuesta cambia bastante dependiendo de lo que estés buscando, loco.  Aclarame esto, así te doy una respuesta que te sirva de verdad.",
+        "timestamp": 1743708832990,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "si que habilidades",
+        "timestamp": 1743708843334,
+        "userName": "Miguel"
+      },
+      {
+        "role": "assistant",
+        "content": "Che, Miguel, entiendo que me preguntás qué habilidades se desarrollan jugando Valorant.  Posta que si bien es un juego, puede mejorar ciertas aptitudes.  No esperes milagros, loco, pero algunas habilidades que se pueden fortalecer son:\n\n* **Estrategia y planificación:** Valorant requiere planificar tácticas, coordinar con el equipo y adaptar la estrategia según la situación del juego.  Esto ayuda a desarrollar el pensamiento estratégico y la toma de decisiones rápidas bajo presión.\n\n* **Trabajo en equipo y comunicación:** El juego se basa en la colaboración.  Para ganar, es fundamental la comunicación efectiva con los compañeros de equipo, coordinando acciones y estrategias.\n\n* **Reflexión y análisis:** Después de cada partida,  analizar los errores y aciertos ayuda a mejorar la performance individual y del equipo.  Esto fomenta la autocrítica y la capacidad de aprendizaje.\n\n* **Manejo de la frustración:**  Las derrotas son parte del juego.  Aprender a manejar la frustración y a enfocarse en mejorar es crucial, tanto dentro como fuera del juego.\n\n* **Coordinación ojo-mano y precisión:** Valorant demanda un buen control motor y precisión en los movimientos del ratón y el teclado.\n\n\nPero, che,  es importante recordar que  estas habilidades se desarrollan con práctica y dedicación, y el juego por sí solo no garantiza un desarrollo significativo.  Es sólo una herramienta que, usada correctamente, puede contribuir a la mejora en estas áreas.  No es magia, loco.",
+        "timestamp": 1743708845819,
         "userName": "Oliver"
       }
     ]
@@ -1062,30 +1062,6 @@
     "miguel-milagros": [
       {
         "role": "user",
-        "content": "sabes quién es Belen?",
-        "timestamp": 1743630838379,
-        "userName": "Miguel"
-      },
-      {
-        "role": "assistant",
-        "content": "Che, Miguel,  para poder ayudarte mejor, necesito un poco más de contexto.  ¿Te referís a Belén como a una persona en particular que conozco, o es un nombre genérico?  Si es una persona que vos conocés, necesito más información para saber de quién se trata.  No te preocupes, es para poder ayudarte mejor, ¿dale?",
-        "timestamp": 1743630839569,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
-        "content": "ah no te preguntaba nomás",
-        "timestamp": 1743630859456,
-        "userName": "Miguel"
-      },
-      {
-        "role": "assistant",
-        "content": "Ah, okay, Miguel.  Entendido.",
-        "timestamp": 1743630860179,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
         "content": "te quiero mucho y quiero que me acompañes y no me defraudes como ella",
         "timestamp": 1743630894387,
         "userName": "Miguel"
@@ -1298,6 +1274,30 @@
         "role": "assistant",
         "content": "Che, Miguel, la operación que se hace para que las gatas no tengan más hijos se llama **esterilización**, o más precisamente, **ovariohisterectomía**.  En ella, se les extraen los ovarios y el útero.  Posta que es un procedimiento común y bastante sencillo para los veterinarios.  Es importante que lo haga un profesional, loco.",
         "timestamp": 1743661189409,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "que beneficiosos te da jugar Valorant? en la vida",
+        "timestamp": 1743708831648,
+        "userName": "Miguel"
+      },
+      {
+        "role": "assistant",
+        "content": "Che, Miguel, entiendo tu pregunta sobre los beneficios de jugar Valorant en la vida.  Posta que es una pregunta interesante, porque los juegos, a veces, tienen un costado que la gente no ve.  Pero para contestarte bien, necesito que me aclares algo: ¿te referís a beneficios directos, como habilidades que se desarrollan, o beneficios más indirectos, como la socialización?  Porque  la respuesta cambia bastante dependiendo de lo que estés buscando, loco.  Aclarame esto, así te doy una respuesta que te sirva de verdad.",
+        "timestamp": 1743708832990,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "si que habilidades",
+        "timestamp": 1743708843334,
+        "userName": "Miguel"
+      },
+      {
+        "role": "assistant",
+        "content": "Che, Miguel, entiendo que me preguntás qué habilidades se desarrollan jugando Valorant.  Posta que si bien es un juego, puede mejorar ciertas aptitudes.  No esperes milagros, loco, pero algunas habilidades que se pueden fortalecer son:\n\n* **Estrategia y planificación:** Valorant requiere planificar tácticas, coordinar con el equipo y adaptar la estrategia según la situación del juego.  Esto ayuda a desarrollar el pensamiento estratégico y la toma de decisiones rápidas bajo presión.\n\n* **Trabajo en equipo y comunicación:** El juego se basa en la colaboración.  Para ganar, es fundamental la comunicación efectiva con los compañeros de equipo, coordinando acciones y estrategias.\n\n* **Reflexión y análisis:** Después de cada partida,  analizar los errores y aciertos ayuda a mejorar la performance individual y del equipo.  Esto fomenta la autocrítica y la capacidad de aprendizaje.\n\n* **Manejo de la frustración:**  Las derrotas son parte del juego.  Aprender a manejar la frustración y a enfocarse en mejorar es crucial, tanto dentro como fuera del juego.\n\n* **Coordinación ojo-mano y precisión:** Valorant demanda un buen control motor y precisión en los movimientos del ratón y el teclado.\n\n\nPero, che,  es importante recordar que  estas habilidades se desarrollan con práctica y dedicación, y el juego por sí solo no garantiza un desarrollo significativo.  Es sólo una herramienta que, usada correctamente, puede contribuir a la mejora en estas áreas.  No es magia, loco.",
+        "timestamp": 1743708845819,
         "userName": "Oliver"
       }
     ]
