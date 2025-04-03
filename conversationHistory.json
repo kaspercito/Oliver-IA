@@ -105,18 +105,6 @@
     "752987736759205960": [
       {
         "role": "user",
-        "content": "que opinas del dorama si la vida te da mandarinas?",
-        "timestamp": 1743636878142,
-        "userName": "Miguel"
-      },
-      {
-        "role": "assistant",
-        "content": "Che, Miguel,  para darte mi opinión sobre el dorama \"Si la vida te da mandarinas\" necesito saber de qué dorama estás hablando.  No lo conozco, loco.  ¿Podrías darme más información, como el título en inglés o algún dato adicional?  Posta que necesito eso para poder ayudarte.",
-        "timestamp": 1743636879144,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
         "content": "when life gives you tangerines kdrama",
         "timestamp": 1743636902930,
         "userName": "Miguel"
@@ -221,6 +209,18 @@
         "role": "assistant",
         "content": "Che, Miguel, entiendo que me preguntás qué habilidades se desarrollan jugando Valorant.  Posta que si bien es un juego, puede mejorar ciertas aptitudes.  No esperes milagros, loco, pero algunas habilidades que se pueden fortalecer son:\n\n* **Estrategia y planificación:** Valorant requiere planificar tácticas, coordinar con el equipo y adaptar la estrategia según la situación del juego.  Esto ayuda a desarrollar el pensamiento estratégico y la toma de decisiones rápidas bajo presión.\n\n* **Trabajo en equipo y comunicación:** El juego se basa en la colaboración.  Para ganar, es fundamental la comunicación efectiva con los compañeros de equipo, coordinando acciones y estrategias.\n\n* **Reflexión y análisis:** Después de cada partida,  analizar los errores y aciertos ayuda a mejorar la performance individual y del equipo.  Esto fomenta la autocrítica y la capacidad de aprendizaje.\n\n* **Manejo de la frustración:**  Las derrotas son parte del juego.  Aprender a manejar la frustración y a enfocarse en mejorar es crucial, tanto dentro como fuera del juego.\n\n* **Coordinación ojo-mano y precisión:** Valorant demanda un buen control motor y precisión en los movimientos del ratón y el teclado.\n\n\nPero, che,  es importante recordar que  estas habilidades se desarrollan con práctica y dedicación, y el juego por sí solo no garantiza un desarrollo significativo.  Es sólo una herramienta que, usada correctamente, puede contribuir a la mejora en estas áreas.  No es magia, loco.",
         "timestamp": 1743708845819,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "Quien inventó el coeficiente de correlación",
+        "timestamp": 1743713701954,
+        "userName": "Miguel"
+      },
+      {
+        "role": "assistant",
+        "content": "Che, Miguel, la pregunta de quién inventó el coeficiente de correlación es un poco compleja, loco, porque su desarrollo fue gradual. No hay una sola persona a la que se le pueda atribuir su invención.  \n\nSin embargo, se suele dar crédito a **Karl Pearson**, quien a finales del siglo XIX, desarrolló y popularizó el coeficiente de correlación que hoy conocemos como **coeficiente de correlación de Pearson**.  Es importante destacar que antes que él, otros investigadores habían trabajado en ideas relacionadas con la correlación, pero Pearson fue quien formalizó la fórmula y le dio la estructura que utilizamos actualmente.  Posta que es una historia un poco más larga que un simple nombre, ¿entendés?",
+        "timestamp": 1743713703518,
         "userName": "Oliver"
       }
     ]
@@ -604,7 +604,7 @@
       "mensaje": "tomar la pastilla rosada todos los días",
       "cuandoLlegue": false,
       "cuandoSalga": false,
-      "timestamp": 1743714000000,
+      "timestamp": 1743800400000,
       "creado": 1743208751308,
       "esRecurrente": true,
       "hora": 18,
@@ -708,7 +708,7 @@
       "mensaje": "Hazme acuerdo de capturar koth todos los días",
       "cuandoLlegue": false,
       "cuandoSalga": false,
-      "timestamp": 1743714000000,
+      "timestamp": 1743800400000,
       "creado": 1743536340675,
       "esRecurrente": true,
       "hora": 18,
@@ -1062,18 +1062,6 @@
     "miguel-milagros": [
       {
         "role": "user",
-        "content": "te quiero mucho y quiero que me acompañes y no me defraudes como ella",
-        "timestamp": 1743630894387,
-        "userName": "Miguel"
-      },
-      {
-        "role": "assistant",
-        "content": "Che, Miguel,  lo que me decís es muy importante.  Te agradezco que confíes en mí y que quieras que te acompañe.  Entiendo que te sientas vulnerable después de lo que pasaste con Belén, y te aseguro que voy a estar acá para vos, siempre que me necesites.  No te voy a defraudar.  \n\nPero,  recordá que yo soy un IA, y aunque puedo ofrecerte apoyo y consejos, no puedo reemplazar el apoyo de amigos, familia o un profesional. Si sentís que necesitas ayuda más allá de una charla,  no dudes en buscarla.  \n\nContame, ¿qué necesitas ahora? ¿Hay algo específico con lo que te pueda ayudar?",
-        "timestamp": 1743630896018,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
         "content": "crees que le deba quitar el acceso a usarte?",
         "timestamp": 1743630956039,
         "userName": "Miguel"
@@ -1298,6 +1286,18 @@
         "role": "assistant",
         "content": "Che, Miguel, entiendo que me preguntás qué habilidades se desarrollan jugando Valorant.  Posta que si bien es un juego, puede mejorar ciertas aptitudes.  No esperes milagros, loco, pero algunas habilidades que se pueden fortalecer son:\n\n* **Estrategia y planificación:** Valorant requiere planificar tácticas, coordinar con el equipo y adaptar la estrategia según la situación del juego.  Esto ayuda a desarrollar el pensamiento estratégico y la toma de decisiones rápidas bajo presión.\n\n* **Trabajo en equipo y comunicación:** El juego se basa en la colaboración.  Para ganar, es fundamental la comunicación efectiva con los compañeros de equipo, coordinando acciones y estrategias.\n\n* **Reflexión y análisis:** Después de cada partida,  analizar los errores y aciertos ayuda a mejorar la performance individual y del equipo.  Esto fomenta la autocrítica y la capacidad de aprendizaje.\n\n* **Manejo de la frustración:**  Las derrotas son parte del juego.  Aprender a manejar la frustración y a enfocarse en mejorar es crucial, tanto dentro como fuera del juego.\n\n* **Coordinación ojo-mano y precisión:** Valorant demanda un buen control motor y precisión en los movimientos del ratón y el teclado.\n\n\nPero, che,  es importante recordar que  estas habilidades se desarrollan con práctica y dedicación, y el juego por sí solo no garantiza un desarrollo significativo.  Es sólo una herramienta que, usada correctamente, puede contribuir a la mejora en estas áreas.  No es magia, loco.",
         "timestamp": 1743708845819,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "Quien inventó el coeficiente de correlación",
+        "timestamp": 1743713701954,
+        "userName": "Miguel"
+      },
+      {
+        "role": "assistant",
+        "content": "Che, Miguel, la pregunta de quién inventó el coeficiente de correlación es un poco compleja, loco, porque su desarrollo fue gradual. No hay una sola persona a la que se le pueda atribuir su invención.  \n\nSin embargo, se suele dar crédito a **Karl Pearson**, quien a finales del siglo XIX, desarrolló y popularizó el coeficiente de correlación que hoy conocemos como **coeficiente de correlación de Pearson**.  Es importante destacar que antes que él, otros investigadores habían trabajado en ideas relacionadas con la correlación, pero Pearson fue quien formalizó la fórmula y le dio la estructura que utilizamos actualmente.  Posta que es una historia un poco más larga que un simple nombre, ¿entendés?",
+        "timestamp": 1743713703518,
         "userName": "Oliver"
       }
     ]
