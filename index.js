@@ -39,16 +39,16 @@ const botTelegram = new TelegramBot(telegramToken, { polling: false }); // Polli
 const chatIdMiguel = '5965566827'; // Reemplazá con tu chat_id
 const chatIdBelen = '7894854634';  // Reemplazá con el chat_id de Belén
 
-// Configuración del administrador de música con Erela.js
 const manager = new Manager({
-    nodes: [
-        {
-            host: 'lava-v3.ajieblogs.eu.org', // Dirección del nodo de Lavalink (servidor para streaming de música).
-            port: 443, // Puerto del nodo.
-            password: 'https://dsc.gg/ajidevserver', // Contraseña para conectarse al nodo.
-            secure: true, // Usa conexión segura (HTTPS).
-        },
-    ],
+    nodes: [{
+        identifier: 'MainNode',
+        host: 'lava-v3.ajieblogs.eu.org',
+        port: 443,
+        password: 'https://dsc.gg/ajidevserver', // Ajustá si es otra
+        retryAmount: 5,
+        retryDelay: 1000,
+        secure: true
+    }],
     plugins: [
         new Spotify({
             clientID: process.env.SPOTIFY_CLIENT_ID, // ID de cliente de Spotify desde variables de entorno.
@@ -56,9 +56,9 @@ const manager = new Manager({
         }),
     ],
     send(id, payload) {
-        const guild = client.guilds.cache.get(id); // Obtiene el servidor (guild) por su ID.
-        if (guild) guild.shard.send(payload); // Envía datos al shard (fragmento de conexión) del servidor.
-    },
+        const guild = client.guilds.cache.get(id);
+        if (guild) guild.shard.send(payload);
+    }
 });
 
 // Lista de actualizaciones del bot (para mostrar a los usuarios)
@@ -5676,16 +5676,22 @@ async function manejarMilagros(message) {
 }
 
 // Eventos de música con Erela.js
-manager.on('nodeConnect', node => console.log(`Nodo ${node.options.identifier} conectado.`));
-// Cuando se conecta un nodo de Lavalink, lo logueo pa’ debug
+manager.on('nodeConnect', node => {
+    console.log(`Nodo ${node.options.identifier} conectado.`);
+});
 
 manager.on('nodeError', (node, error) => {
     console.error(`Error en nodo ${node.options.identifier}: ${error.message}`);
-    console.log('Datos recibidos:', error.data); // Esto debería mostrar más que [object Object]
+    console.log('Datos completos del error:', JSON.stringify(error, null, 2));
 });
 
 manager.on('nodeRaw', (node, payload) => {
-    console.log(`Raw payload del nodo ${node.options.identifier}:`, payload);
+    const nodeId = node && node.options ? node.options.identifier : 'Desconocido';
+    if (payload.op === 'ready') {
+        console.log(`"ready" recibido de ${nodeId}:`, JSON.stringify(payload, null, 2));
+    } else {
+        console.log(`Otro payload de ${nodeId}:`, JSON.stringify(payload, null, 2));
+    }
 });
 
 manager.on('queueEnd', async player => {
