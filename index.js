@@ -5680,9 +5680,12 @@ manager.on('nodeConnect', node => console.log(`Nodo ${node.options.identifier} c
 // Cuando se conecta un nodo de Lavalink, lo logueo pa’ debug
 
 manager.on('nodeError', (node, error) => {
-    console.error(`Nodo ${node.options.identifier} falló: ${error.message}`);
-    // Intentar reconectar manualmente
-    node.reconnect();
+    console.error(`Error en nodo ${node.options.identifier}: ${error.message}`);
+    console.log('Datos recibidos:', error.data); // Esto debería mostrar más que [object Object]
+});
+
+manager.on('nodeRaw', (node, payload) => {
+    console.log(`Raw payload del nodo ${node.options.identifier}:`, payload);
 });
 
 manager.on('queueEnd', async player => {
