@@ -742,19 +742,6 @@
       "esRecurrente": true,
       "hora": 20,
       "minutos": 0
-    },
-    {
-      "id": "15617de0-6732-418d-ab3f-6994f31e938b",
-      "userId": "1023132788632862761",
-      "channelId": "1343749554905940058",
-      "mensaje": "chupar el caramelo para la garganta",
-      "cuandoLlegue": false,
-      "cuandoSalga": false,
-      "timestamp": 1743727390508,
-      "creado": 1743723790508,
-      "esRecurrente": false,
-      "hora": null,
-      "minutos": null
     }
   ],
   "usedJokes": {
