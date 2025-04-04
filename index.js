@@ -3989,6 +3989,8 @@ async function manejarActualizaciones(message) {
     }
 }
 
+const { joinVoiceChannel, getVoiceConnection } = require('@discordjs/voice');
+
 async function manejarPlay(message, args) {
     const userName = message.author.username;
     const guildId = message.guild.id;
