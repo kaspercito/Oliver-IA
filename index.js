@@ -6167,7 +6167,7 @@ async function manejarCommand(message, silent = false) {
         await manejarPause(message);
     } 
     else if (content.startsWith('!join')) {
-        await manejarJoin(message,args);
+        await manejarJoin(message, args); // ¡args no está definido aquí!
     }
     else if (content === '!skip' || content === '!sk') {
         await manejarSkip(message);
