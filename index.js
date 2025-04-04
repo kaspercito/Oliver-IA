@@ -6755,11 +6755,12 @@ setInterval(async () => {
             console.log(`Mensaje útil diario enviado al canal ${CHANNEL_ID} - ${new Date().toLocaleString('es-AR')}`);
         }
 
-        // Recordatorios ajustados a 12 PM, 6 PM y 10 PM
+        // Recordatorios ajustados a 12 PM, 6 PM, 10 PM y 11 PM (el de 23:00 inventado con vos)
         const reminderTimes = {
             12: "¡Qué tal, loco, mediodía a full, che! ☀️ ¿Cómo estás arrancando la jornada, crack? Si precisás algo, avisame que te doy una mano al toque, ¿eh?",
             18: "¡Eeeh, las 6 de la tarde, loco! 🌆 ¿Cómo venís con el día, genia? Si querés charlar o que te ayude con algo, estoy a un grito, dale!",
-            22: "¡Noche tranqui, che, las 10 ya! 🌙 ¿Cómo cerrás el día, capo? Si necesitás un cable o solo querés tirar la onda, acá estoy, siempre piola!"
+            22: "¡Noche tranqui, che, las 10 ya! 🌙 ¿Cómo cerrás el día, capo? Si necesitás un cable o solo querés tirar la onda, acá estoy, siempre piola!",
+            23: "¡Eeeh, las 11 de la noche, loco! 🌃 Che, Belén, ¿todavía despierta, grosa? Me vino una flashada: imaginá que los perros del barrio arman un torneo de truco en la plaza, y Miguel, el loco ese, se anota de colado con un mazo trucho que encontró en la ferretería. ¡Un desastre! Si te pintó asomarte a ver el quilombo o algo antes de dormir, avisá, ¡me sumo a bancar las risas!"
         };
 
         // Chequeamos si es la hora exacta (minuto 0) y si no se envió recientemente
