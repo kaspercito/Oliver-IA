@@ -2206,28 +2206,6 @@ const obtenerResultados = async (message) => {
   }
 };
 
-const fetch = require('node-fetch');
-
-// Auto-ping para mantener el bot despierto
-function startAutoPing() {
-    const appUrl = process.env.RAILWAY_URL || 'https://tu-app.railway.app'; // Reemplazá con tu URL de Railway
-    const pingInterval = 4 * 60 * 1000; // 4 minutos (Railway duerme después de ~5-15 min de inactividad)
-
-    setInterval(async () => {
-        try {
-            const response = await fetch(`${appUrl}/ping`);
-            if (response.ok) {
-                console.log('Auto-ping exitoso, bot sigue despierto.');
-            } else {
-                console.error('Auto-ping falló:', response.statusText);
-            }
-        } catch (error) {
-            console.error('Error en auto-ping:', error.message);
-        }
-    }, pingInterval);
-}
-
-// Iniciar el servidor express (como antes)
 const express = require('express');
 const app = express();
 
@@ -2236,11 +2214,26 @@ app.get('/ping', (req, res) => {
     res.send('¡Bot awake y con pilas!');
 });
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 8080; // Usa el PORT de Railway o 8080 por defecto
 app.listen(PORT, () => {
     console.log(`Servidor de ping corriendo en el puerto ${PORT}`);
-    startAutoPing(); // Arranca el auto-ping cuando el servidor está listo
+    startAutoPing();
 });
+
+const fetch = require('node-fetch');
+function startAutoPing() {
+    const appUrl = process.env.RAILWAY_URL || 'https://oliver-ia-production.up.railway.app';
+    const pingInterval = 4 * 60 * 1000; // 4 minutos
+    setInterval(async () => {
+        try {
+            const response = await fetch(`${appUrl}/ping`);
+            if (response.ok) console.log('Auto-ping exitoso, bot sigue despierto.');
+            else console.error('Auto-ping falló:', response.statusText);
+        } catch (error) {
+            console.error('Error en auto-ping:', error.message);
+        }
+    }, pingInterval);
+}
 
 // Genero imágenes con Puppeteer y Axios, una locura que me tiré a hacer
 async function generateImage(prompt, style) {
