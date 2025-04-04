@@ -5685,14 +5685,6 @@ manager.on('nodeError', (node, error) => {
     console.log('Datos completos del error:', JSON.stringify(error, null, 2));
 });
 
-manager.on('nodeRaw', (node, payload) => {
-    const nodeId = node && node.options ? node.options.identifier : 'Desconocido';
-    if (payload.op === 'ready') {
-        console.log(`"ready" recibido de ${nodeId}:`, JSON.stringify(payload, null, 2));
-    } else {
-        console.log(`Otro payload de ${nodeId}:`, JSON.stringify(payload, null, 2));
-    }
-});
 
 manager.on('queueEnd', async player => {
     const channel = client.channels.cache.get(player.textChannel);
