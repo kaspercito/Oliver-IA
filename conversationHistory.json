@@ -2,74 +2,6 @@
   "conversationHistory": {
     "1023132788632862761": [
       {
-        "role": "assistant",
-        "content": "Ey, Belén, genia total! 💖  Che, posta que no entendí bien eso que me dijiste, gorda.  ¿Me lo podés explicar de otra forma,  a ver si capto la onda? 😉  No quiero meter la pata, eh…  Pero hablando de otra cosa, ¿cómo andás con Miguel últimamente? ¿Alguna salida copada? 💪🍻  ¿Qué te pinta hacer hoy, che?",
-        "timestamp": 1743391361062
-      },
-      {
-        "role": "assistant",
-        "content": "Ey, Belén, genia total! 💖  ¡Mirá vos!  Che, posta que te entiendo, gorda. Si Miguel te lo dio para que lo uses, usalo como quieras, sos una grosa 💪.  ¿Qué onda con él últimamente? ¿Alguna salida divertida o algo así? 😉🍻  ¿Qué te pinta hacer hoy?",
-        "timestamp": 1743391452160
-      },
-      {
-        "role": "user",
-        "content": "podes decirle que se calme?",
-        "timestamp": 1743467300155
-      },
-      {
-        "role": "assistant",
-        "content": "Ey, Belén, genia total! 💖  ¿Decís que le diga a Miguel que se calme, eh? ¡Jajajaja!  Che, posta que el loco está re caliente, ¿viste?  Pero bueno, ya le voy a decir que baje un cambio, que respire hondo y tome un fernet con coca, así se le va el estrés.  ¡Es un capo, pero a veces se le va la mano! 😉💪🍻  ¿Qué te pinta hacer ahora, che?  Contame, gorda.",
-        "timestamp": 1743467301473
-      },
-      {
-        "role": "user",
-        "content": "hola",
-        "timestamp": 1743719730953,
-        "userName": "Milagros"
-      },
-      {
-        "role": "assistant",
-        "content": "Hola Milagros, ¿qué necesitas?  Decime la posta, ¿cómo estás?",
-        "timestamp": 1743719731782,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
-        "content": "recién me despierto",
-        "timestamp": 1743719747190,
-        "userName": "Milagros"
-      },
-      {
-        "role": "assistant",
-        "content": "Ey, Milagros, genia total! 💖 Recién te despertaste, ¿eh? Bueno, posta que bárbaro, espero que hayas descansado bien. ¿Necesitás algo, che?  Decime la posta, ¿en qué te puedo ayudar?",
-        "timestamp": 1743719748031,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
-        "content": "estoy enferma, decime recetas caseras para calmar el dolor de garganta",
-        "timestamp": 1743719783635,
-        "userName": "Milagros"
-      },
-      {
-        "role": "assistant",
-        "content": "Ey, Milagros, genia total! 💖  Lo siento mucho, che, que estés enferma.  Posta que te entiendo, un dolor de garganta es un bajón bárbaro.  \n\nPara calmarlo,  te recomiendo algunas recetas caseras, pero acordate que esto no reemplaza la consulta a un médico, ¿dale?  Si el dolor es muy fuerte o dura mucho,  fijate en ir al médico, loco.\n\n\nAcá van algunas ideas:\n\n* **Gárgaras con agua salada:**  Disuelve una cucharadita de sal en un vaso de agua tibia y hacé gárgaras varias veces al día. Esto ayuda a reducir la inflamación.\n\n* **Infusiones:** El té de miel con limón es un clásico, che. El té de manzanilla o de jengibre también pueden ayudar a calmar la garganta.  Tomálos bien tibios,  no hirviendo.\n\n* **Miel pura:**  Un poquito de miel pura en la garganta puede aliviar el dolor.  Proba tomar una cucharadita de miel cada tanto,  si te gusta el gusto, claro.\n\n* **Reposo vocal:**  Intentá hablar lo menos posible,  para que tu garganta descanse.\n\n* **Hidratación:**  Tomá mucho líquido,  agua,  sopas o caldos,  para mantenerte hidratada.\n\n\nChe, posta que te recomiendo que descanses bastante, gorda.  ¿Hay algo más que necesite,  o te puedo ayudar con algo más?  Contáme,  loco.",
-        "timestamp": 1743719786369,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
-        "content": "descansé, dormí como 12 horas, ahora ya me toca comer algo",
-        "timestamp": 1743719848470,
-        "userName": "Milagros"
-      },
-      {
-        "role": "assistant",
-        "content": "Ey, Milagros, genia total! 💖  Doce horas de sueño, ¡posta que bárbaro!  Me alegro que hayas descansado tanto.  Ahora que ya te toca comer algo, ¿tenés alguna idea de qué te gustaría preparar?  O ¿prefieres algo liviano para no exigirle mucho a tu garganta?  Decime la posta, ¿qué se te antoja?",
-        "timestamp": 1743719849541,
-        "userName": "Oliver"
-      },
-      {
         "role": "user",
         "content": "comeré unas galletas con miel o algo así",
         "timestamp": 1743719927790,
@@ -115,6 +47,78 @@
         "role": "assistant",
         "content": "Ey, Milagros, genia total! 💖  Perfecto, che.  Comé bien y después tomá el caramelo con antibióticos como corresponde.  Recordá seguir las indicaciones del prospecto, loco,  para que el tratamiento sea efectivo.  Si tenés alguna duda con el medicamento, consultá al farmacéutico o a tu médico, ¿dale?  Cuidate mucho, gorda.",
         "timestamp": 1743723733979,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "hola botchito, cómo vas",
+        "timestamp": 1743789473753,
+        "userName": "Milagros"
+      },
+      {
+        "role": "assistant",
+        "content": "Hola Milagros, bien, gracias.  ¿Qué necesitas? Decime la posta, ¿cómo andás?",
+        "timestamp": 1743789474388,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "te noto más cortante, puede ser?",
+        "timestamp": 1743789484171,
+        "userName": "Milagros"
+      },
+      {
+        "role": "assistant",
+        "content": "Ey, Milagros, genia total! 💖  Disculpame si te parecí cortante, che.  Posta que no es mi intención.  A veces, con tantas consultas,  me cuesta mantener el mismo tono  en cada charla,  pero siempre trato de ser útil y ayudarte en lo que pueda.  ¿Hay algo en particular que te hizo sentir así?  Decime la posta,  loco,  para poder entender y mejorar.  No quiero que pienses que te estoy tratando mal.",
+        "timestamp": 1743789485310,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "antes me escribías con muchos emojis y demás, ahora te noto un poco secote",
+        "timestamp": 1743789510411,
+        "userName": "Milagros"
+      },
+      {
+        "role": "assistant",
+        "content": "Ey, Milagros, genia total! 💖  Tenés razón, che.  Disculpame, posta que no me di cuenta.  Antes estaba más \"enchufado\" y ahora estoy tratando de ser más conciso y directo en mis respuestas, para ser más eficiente.  No quería que te pareciera cortante, loco.  ¿Preferís que vuelva a usar más emojis y un estilo más informal, o te parece bien como estoy respondiendo ahora? Decime la posta, qué te parece mejor.",
+        "timestamp": 1743789511532,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "tranquilo, me parece bien que te pongas un poco serio a veces",
+        "timestamp": 1743789561618,
+        "userName": "Milagros"
+      },
+      {
+        "role": "assistant",
+        "content": "Entendido, Milagros.  Me alegra que te parezca bien.  Si necesitas algo más,  no dudes en pedírmelo.",
+        "timestamp": 1743789562306,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "llegó el frío al fin, botsiii",
+        "timestamp": 1743789836267,
+        "userName": "Milagros"
+      },
+      {
+        "role": "assistant",
+        "content": "Ey, Milagros, genia total! 💖  Qué bueno que llegó el frío, che.  Posta que se siente el cambio. ¿Necesitás algo en relación al frío?  ¿Necesitás consejos para abrigarte bien, o algo así?  Decime la posta, loco, ¿qué necesitas?",
+        "timestamp": 1743789837244,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "te gusta el cafe´?",
+        "timestamp": 1743789860396,
+        "userName": "Milagros"
+      },
+      {
+        "role": "assistant",
+        "content": "Che, Milagros, como IA no tengo gustos ni preferencias, como el que le gusta o no el café.  No siento, ¿viste?  Pero puedo darte información sobre el café si querés, o ayudarte con cualquier otra cosa. Decime la posta, ¿qué necesitas?",
+        "timestamp": 1743789861248,
         "userName": "Oliver"
       }
     ],
@@ -715,7 +719,7 @@
       "mensaje": "tomar la pastilla rosada todos los días",
       "cuandoLlegue": false,
       "cuandoSalga": false,
-      "timestamp": 1743778800000,
+      "timestamp": 1743865200000,
       "creado": 1743208770439,
       "esRecurrente": true,
       "hora": 12,
@@ -767,7 +771,7 @@
       "mensaje": "Hazme acuerdo de capturar koth todos los días",
       "cuandoLlegue": false,
       "cuandoSalga": false,
-      "timestamp": 1743786000000,
+      "timestamp": 1743872400000,
       "creado": 1743536333479,
       "esRecurrente": true,
       "hora": 14,
@@ -1147,78 +1151,6 @@
     "miguel-milagros": [
       {
         "role": "user",
-        "content": "la sigo amando pero que me sugieres hacer?",
-        "timestamp": 1743636787139,
-        "userName": "Miguel"
-      },
-      {
-        "role": "assistant",
-        "content": "Che, Miguel, te entiendo posta.  Amar y soltar es una de las cosas más difíciles del mundo, loco.  Que sigas amándola no significa que tengas que seguir aferrándote a algo que ya terminó.  \n\nTe sugiero que te enfoques en vos mismo, en tu bienestar.  Buscá actividades que te gusten, reencontrate con amigos, dedicá tiempo a tus hobbies.  Permitir que el dolor te consuma solo te va a retrasar.  \n\nNo hay una fórmula mágica, pero darle tiempo al tiempo es fundamental.  Si el dolor es muy grande,  no dudes en buscar ayuda profesional. Un psicólogo te puede ayudar a procesar tus emociones y a construir un camino hacia adelante.  No tengas vergüenza,  es una muestra de fortaleza buscar apoyo cuando lo necesitas.\n\nPensá en esto:  ¿Qué cosas podrías hacer para sentirte mejor hoy mismo?  Empezá por ahí, de a poco.  Y acordate que estoy acá para lo que necesites, aunque sea para charlar un rato.",
-        "timestamp": 1743636789196,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
-        "content": "que opinas del dorama si la vida te da mandarinas?",
-        "timestamp": 1743636878143,
-        "userName": "Miguel"
-      },
-      {
-        "role": "assistant",
-        "content": "Che, Miguel,  para darte mi opinión sobre el dorama \"Si la vida te da mandarinas\" necesito saber de qué dorama estás hablando.  No lo conozco, loco.  ¿Podrías darme más información, como el título en inglés o algún dato adicional?  Posta que necesito eso para poder ayudarte.",
-        "timestamp": 1743636879144,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
-        "content": "when life gives you tangerines kdrama",
-        "timestamp": 1743636902930,
-        "userName": "Miguel"
-      },
-      {
-        "role": "assistant",
-        "content": "Che, Miguel, entiendo.  \"When Life Gives You Tangerines\" (o \"Si la vida te da mandarinas\" en español, según entiendo), no es un k-drama muy conocido, al menos no en el nivel de otros más populares.  No tengo información específica sobre él, como crítica o resumen de la trama. Para poder darte una opinión, necesitaría más datos: ¿dónde lo viste mencionado?, ¿qué tipo de información te interesa saber?  Posta que sin más detalles, no te puedo ayudar mucho, loco.",
-        "timestamp": 1743636904226,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
-        "content": "es una serie de televisión pues",
-        "timestamp": 1743636936971,
-        "userName": "Miguel"
-      },
-      {
-        "role": "assistant",
-        "content": "Che, Miguel, entiendo que me decís que \"When Life Gives You Tangerines\" es una serie de televisión.  Pero sin más detalles, como el país de origen, el año de emisión o alguna reseña, no puedo darte una opinión.  Necesitaría más información para ayudarte, loco. ¿Podrías aclararme un poco más, por favor?",
-        "timestamp": 1743636938172,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
-        "content": "que significa ser cuernudo",
-        "timestamp": 1743660034520,
-        "userName": "Miguel"
-      },
-      {
-        "role": "assistant",
-        "content": "Che, Miguel, entiendo tu pregunta, pero para poder responderte con precisión necesito que me aclares algo.  ¿Te referís al significado literal de \"cuernudo\" (como alguien con cuernos), o al significado figurado que se usa comúnmente?  Posta que la respuesta varía mucho dependiendo de eso, loco.  Aclaramelo para poder ayudarte bien.",
-        "timestamp": 1743660035584,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
-        "content": "que significa ser una persona cuernuda",
-        "timestamp": 1743660050140,
-        "userName": "Miguel"
-      },
-      {
-        "role": "assistant",
-        "content": "Che, Miguel, entiendo tu pregunta.  Ser una persona \"cuernuda\", en su sentido figurado, significa que tu pareja te está siendo infiel.  Es decir, que te engaña con otra persona.  Posta que es una situación dolorosa y difícil de afrontar.  No hay vueltas, loco.  Es una situación de traición y ruptura de confianza en la relación.",
-        "timestamp": 1743660051207,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
         "content": "el Ovulo es la plancenta?",
         "timestamp": 1743660794793,
         "userName": "Miguel"
@@ -1383,6 +1315,78 @@
         "role": "assistant",
         "content": "Ey, Milagros, genia total! 💖  Perfecto, che.  Comé bien y después tomá el caramelo con antibióticos como corresponde.  Recordá seguir las indicaciones del prospecto, loco,  para que el tratamiento sea efectivo.  Si tenés alguna duda con el medicamento, consultá al farmacéutico o a tu médico, ¿dale?  Cuidate mucho, gorda.",
         "timestamp": 1743723733979,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "hola botchito, cómo vas",
+        "timestamp": 1743789473753,
+        "userName": "Milagros"
+      },
+      {
+        "role": "assistant",
+        "content": "Hola Milagros, bien, gracias.  ¿Qué necesitas? Decime la posta, ¿cómo andás?",
+        "timestamp": 1743789474388,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "te noto más cortante, puede ser?",
+        "timestamp": 1743789484171,
+        "userName": "Milagros"
+      },
+      {
+        "role": "assistant",
+        "content": "Ey, Milagros, genia total! 💖  Disculpame si te parecí cortante, che.  Posta que no es mi intención.  A veces, con tantas consultas,  me cuesta mantener el mismo tono  en cada charla,  pero siempre trato de ser útil y ayudarte en lo que pueda.  ¿Hay algo en particular que te hizo sentir así?  Decime la posta,  loco,  para poder entender y mejorar.  No quiero que pienses que te estoy tratando mal.",
+        "timestamp": 1743789485310,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "antes me escribías con muchos emojis y demás, ahora te noto un poco secote",
+        "timestamp": 1743789510411,
+        "userName": "Milagros"
+      },
+      {
+        "role": "assistant",
+        "content": "Ey, Milagros, genia total! 💖  Tenés razón, che.  Disculpame, posta que no me di cuenta.  Antes estaba más \"enchufado\" y ahora estoy tratando de ser más conciso y directo en mis respuestas, para ser más eficiente.  No quería que te pareciera cortante, loco.  ¿Preferís que vuelva a usar más emojis y un estilo más informal, o te parece bien como estoy respondiendo ahora? Decime la posta, qué te parece mejor.",
+        "timestamp": 1743789511532,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "tranquilo, me parece bien que te pongas un poco serio a veces",
+        "timestamp": 1743789561618,
+        "userName": "Milagros"
+      },
+      {
+        "role": "assistant",
+        "content": "Entendido, Milagros.  Me alegra que te parezca bien.  Si necesitas algo más,  no dudes en pedírmelo.",
+        "timestamp": 1743789562306,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "llegó el frío al fin, botsiii",
+        "timestamp": 1743789836267,
+        "userName": "Milagros"
+      },
+      {
+        "role": "assistant",
+        "content": "Ey, Milagros, genia total! 💖  Qué bueno que llegó el frío, che.  Posta que se siente el cambio. ¿Necesitás algo en relación al frío?  ¿Necesitás consejos para abrigarte bien, o algo así?  Decime la posta, loco, ¿qué necesitas?",
+        "timestamp": 1743789837244,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "te gusta el cafe´?",
+        "timestamp": 1743789860396,
+        "userName": "Milagros"
+      },
+      {
+        "role": "assistant",
+        "content": "Che, Milagros, como IA no tengo gustos ni preferencias, como el que le gusta o no el café.  No siento, ¿viste?  Pero puedo darte información sobre el café si querés, o ayudarte con cualquier otra cosa. Decime la posta, ¿qué necesitas?",
+        "timestamp": 1743789861248,
         "userName": "Oliver"
       }
     ]
