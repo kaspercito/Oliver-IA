@@ -3961,160 +3961,131 @@ async function manejarActualizaciones(message) {
     }
 }
 
-// Comando !join para conectar el bot manualmente
-async function manejarJoin(message, args) {
-    const userName = message.author.username;
-
-    if (args.length < 2) {
-        const embed = createEmbed('#FF1493', '⚠️ Uso incorrecto', 
-            `Uso: !join <guildId> <channelId>, ${userName}. Ejemplo: !join 123456789 987654321`);
-        return await message.channel.send({ embeds: [embed] });
-    }
-
-    const targetGuildId = args[0];
-    const targetChannelId = args[1];
-
-    const guild = client.guilds.cache.get(targetGuildId);
-    if (!guild) {
-        const embed = createEmbed('#FF1493', '⚠️ Servidor no encontrado', 
-            `No estoy en el servidor ${targetGuildId}, ${userName}.`);
-        return await message.channel.send({ embeds: [embed] });
-    }
-
-    const voiceChannel = guild.channels.cache.get(targetChannelId);
-    if (!voiceChannel || voiceChannel.type !== 'GUILD_VOICE') {
-        const embed = createEmbed('#FF1493', '⚠️ Canal inválido', 
-            `El canal ${targetChannelId} no es un canal de voz válido, ${userName}.`);
-        return await message.channel.send({ embeds: [embed] });
-    }
-
-    // Conectar al canal
-    let connection = getVoiceConnection(targetGuildId);
-    if (connection) connection.destroy();
-
-    connection = joinVoiceChannel({
-        channelId: targetChannelId,
-        guildId: targetGuildId,
-        adapterCreator: guild.voiceAdapterCreator,
-        selfDeaf: true,
-        selfMute: false,
-    });
-
-    const player = manager.create({
-        guild: targetGuildId,
-        voiceChannel: targetChannelId,
-        textChannel: message.channel.id, // Usamos el canal de texto donde se envió el comando
-        selfDeaf: true,
-    });
-
-    musicState.set(targetGuildId, {
-        player,
-        voiceChannelId: targetChannelId,
-        textChannelId: message.channel.id,
-    });
-
-    const embed = createEmbed('#FF1493', '✅ Conectado', 
-        `Me conecté al canal ${voiceChannel.name} en el servidor ${guild.name}, ${userName}. ¡Mandame un !play ahora!`);
-    await message.channel.send({ embeds: [embed] });
-}
-
 const { joinVoiceChannel, getVoiceConnection } = require('@discordjs/voice');
 // Comando !play
-// Modificar manejarPlay para usar una conexión existente
 async function manejarPlay(message, args) {
     const userName = message.author.username;
     const guildId = message.guild.id;
-    const voiceChannel = message.member?.voice.channel;
+    const voiceChannel = message.member.voice.channel;
 
-    // Si el usuario está en un canal de voz, conectar ahí
-    if (voiceChannel) {
-        let connection = getVoiceConnection(guildId);
-        if (!connection || connection.joinConfig.channelId !== voiceChannel.id) {
-            if (connection) connection.destroy();
-            connection = joinVoiceChannel({
-                channelId: voiceChannel.id,
-                guildId: guildId,
-                adapterCreator: message.guild.voiceAdapterCreator,
-                selfDeaf: true,
-                selfMute: false,
-            });
-            console.log(`Conectado al canal de voz ${voiceChannel.id} en ${guildId}`);
-        }
-
-        const player = manager.get(guildId) || manager.create({
-            guild: guildId,
-            voiceChannel: voiceChannel.id,
-            textChannel: message.channel.id,
-            selfDeaf: true,
-        });
-
-        musicState.set(guildId, {
-            player,
-            voiceChannelId: voiceChannel.id,
-            textChannelId: message.channel.id,
-        });
-    }
-
-    // Si no hay argumentos, informar estado
-    if (!args || args.length === 0) {
-        const state = musicState.get(guildId);
-        if (state) {
-            const embed = createEmbed('#FF1493', '🎶 Bot en llamada', 
-                `Ya estoy en el canal de voz, ${userName}. Mandame una canción con !play cuando quieras.`);
-            return await message.channel.send({ embeds: [embed] });
-        } else {
-            const embed = createEmbed('#FF1493', '⚠️ No conectado', 
-                `No estoy en ningún canal de voz, ${userName}. Usá !join <guildId> <channelId> primero.`);
-            return await message.channel.send({ embeds: [embed] });
-        }
-    }
-
-    // Buscar un servidor donde el bot esté conectado
-    let targetGuildId = null;
-    let state = null;
-    for (const [gid, s] of musicState) {
-        if (s.player && client.guilds.cache.get(gid)?.members.me?.voice.channel) {
-            targetGuildId = gid;
-            state = s;
-            break;
-        }
-    }
-
-    if (!targetGuildId) {
-        const embed = createEmbed('#FF1493', '⚠️ No conectado', 
-            `No estoy en ningún canal de voz, ${userName}. Usá !join <guildId> <channelId> primero.`);
+    if (!message.guild) {
+        const embed = createEmbed('#FF1493', '⚠️ Solo servidores', 
+            `Este comando solo funciona en servidores, ${userName}.`);
         return await message.channel.send({ embeds: [embed] });
     }
 
-    const player = state.player;
+    if (!voiceChannel) {
+        const embed = createEmbed('#FF1493', '⚠️ Unite a un canal', 
+            `Tenés que estar en un canal de voz primero, ${userName}.`);
+        return await message.channel.send({ embeds: [embed] });
+    }
+
+    if (!args || args.length === 0) {
+        const embed = createEmbed('#FF1493', '🎶 Bot en llamada', 
+            `Ya estoy en el canal de voz, ${userName}. Mandame una canción con !play cuando quieras.`);
+        return await message.channel.send({ embeds: [embed] });
+    }
+
+    // Verificar o establecer la conexión de voz
+    let connection = getVoiceConnection(guildId);
+    if (!connection || connection.joinConfig.channelId !== voiceChannel.id) {
+        if (connection) connection.destroy(); // Si está en otro canal, desconectamos primero
+        connection = joinVoiceChannel({
+            channelId: voiceChannel.id,
+            guildId: guildId,
+            adapterCreator: message.guild.voiceAdapterCreator,
+            selfDeaf: true,
+            selfMute: false,
+        });
+
+        connection.on('stateChange', (oldState, newState) => {
+            console.log(`Estado de conexión cambió de ${oldState.status} a ${newState.status}`);
+            if (newState.status === 'disconnected') {
+                console.log(`Bot desconectado del canal ${voiceChannel.id}, reconectando...`);
+                setTimeout(() => {
+                    joinVoiceChannel({
+                        channelId: voiceChannel.id,
+                        guildId: guildId,
+                        adapterCreator: message.guild.voiceAdapterCreator,
+                        selfDeaf: true,
+                        selfMute: false,
+                    });
+                }, 5000);
+            }
+        });
+        console.log(`Conectado al canal de voz ${voiceChannel.id}`);
+    }
+
+    // Configurar el reproductor
+    const player = manager.get(guildId) || manager.create({
+        guild: guildId,
+        voiceChannel: voiceChannel.id,
+        textChannel: message.channel.id,
+        selfDeaf: true,
+    });
+
+    // Verificar nodos Lavalink
+    if (!manager.nodes.some(node => node.connected)) {
+        console.error('No hay nodos Lavalink conectados.');
+        const embed = createEmbed('#FF1493', '⚠️ Error', 
+            `No hay nodos de música disponibles, ${userName}. Probá de nuevo más tarde.`);
+        return await message.channel.send({ embeds: [embed] });
+    }
+
     const searchQuery = args.join(' ');
     let res;
     try {
         res = await manager.search(searchQuery, message.author);
-        if (res.loadType === 'NO_MATCHES' || res.tracks.length === 0) {
-            const embed = createEmbed('#FF1493', '❌ No encontré nada', 
-                `No encontré nada con "${searchQuery}", ${userName}. Probá con otro tema.`);
-            return await message.channel.send({ embeds: [embed] });
-        }
-
-        if (res.loadType === 'PLAYLIST_LOADED') {
-            player.queue.add(res.tracks);
-            const embed = createEmbed('#FF1493', '🎶 Playlist agregada', 
-                `Agregué ${res.tracks.length} temas a la cola en el servidor ${client.guilds.cache.get(targetGuildId).name}, ${userName}.`);
-            await message.channel.send({ embeds: [embed] });
-        } else {
-            player.queue.add(res.tracks[0]);
-            const embed = createEmbed('#FF1493', '🎶 Tema agregado', 
-                `Agregué **${res.tracks[0].title}** a la cola en el servidor ${client.guilds.cache.get(targetGuildId).name}, ${userName}.`);
-            await message.channel.send({ embeds: [embed] });
-        }
-
-        if (!player.playing && !player.paused) await player.play();
     } catch (error) {
         console.error(`Error en búsqueda: ${error.message}`);
         const embed = createEmbed('#FF1493', '⚠️ Error', 
-            `No pude agregar "${searchQuery}", ${userName}. Error: ${error.message}`);
+            `No pude buscar "${searchQuery}", ${userName}. Error: ${error.message}`);
         return await message.channel.send({ embeds: [embed] });
+    }
+
+    if (res.loadType === 'NO_MATCHES' || res.tracks.length === 0) {
+        const embed = createEmbed('#FF1493', '❌ No encontré nada', 
+            `No encontré nada con "${searchQuery}", ${userName}. Probá con otro tema.`);
+        return await message.channel.send({ embeds: [embed] });
+    }
+
+    if (res.loadType === 'PLAYLIST_LOADED') {
+        player.queue.add(res.tracks);
+        const embed = createEmbed('#FF1493', '🎶 Playlist agregada', 
+            `Agregué ${res.tracks.length} temas a la cola, ${userName}. ¡A disfrutar!`)
+            .setThumbnail(res.tracks[0].thumbnail || 'https://i.imgur.com/defaultThumbnail.png');
+        await message.channel.send({ embeds: [embed] });
+    } else {
+        const trackUri = res.tracks[0].uri;
+        const isAlreadyInQueue = player.queue.some(track => track.uri === trackUri);
+        let embed;
+
+        if (isAlreadyInQueue) {
+            embed = createEmbed('#FF1493', '🎵 Tema ya en cola', 
+                `**${res.tracks[0].title}** ya está en la cola, ${userName}.`);
+        } else {
+            player.queue.add(res.tracks[0]);
+            embed = createEmbed('#FF1493', '🎶 Tema agregado', 
+                `Agregué **${res.tracks[0].title}** a la cola, ${userName}.`);
+        }
+        embed.setThumbnail(res.tracks[0].thumbnail || 'https://i.imgur.com/defaultThumbnail.png');
+        await message.channel.send({ embeds: [embed] });
+    }
+
+    if (!player.playing && !player.paused) {
+        console.log(`Forzando reproducción de ${player.queue[0]?.title || 'sin título'}`);
+        try {
+            await player.play();
+            console.log('Reproducción iniciada con éxito.');
+        } catch (error) {
+            console.error(`Error al reproducir: ${error.message}`);
+            const embed = createEmbed('#FF1493', '⚠️ Error', 
+                `No pude reproducir el tema, ${userName}. Error: ${error.message}. El bot sigue en ${voiceChannel.name}.`);
+            await message.channel.send({ embeds: [embed] });
+            // No destruimos el player, se queda en el canal
+        }
+    } else {
+        console.log(`Estado: playing=${player.playing}, paused=${player.paused}, queue.size=${player.queue.size}`);
     }
 }
 
@@ -6166,11 +6137,6 @@ async function manejarCommand(message, silent = false) {
     else if (content === '!pause' || content === '!pa') {
         await manejarPause(message);
     } 
-    else if (content.startsWith('!join')) {
-        const args = message.content.slice(5).trim().split(/ +/); // Extrae argumentos después de "!join"
-        console.log(`Argumentos extraídos para !join: ${args}`); // Para depurar
-        await manejarJoin(message, args);
-    }
     else if (content === '!skip' || content === '!sk') {
         await manejarSkip(message);
     } 
