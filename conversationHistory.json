@@ -518,7 +518,76 @@
     }
   },
   "updatesSent": true,
-  "musicSessions": {},
+  "musicSessions": {
+    "1134375138029211739": {
+      "history": [
+        {
+          "track": "QAAAjQIAJ0hhcnJ5IFN0eWxlcyAtIEZhbGxpbmcgKE9mZmljaWFsIFZpZGVvKQAMSGFycnkgU3R5bGVzAAAAAAADmeAAC29sR1NBVk9ra1RJAAEAK2h0dHBzOi8vd3d3LnlvdXR1YmUuY29tL3dhdGNoP3Y9b2xHU0FWT2trVEkAB3lvdXR1YmUAAAAAAAAAAA==",
+          "title": "Harry Styles - Falling (Official Video)",
+          "identifier": "olGSAVOkkTI",
+          "author": "Harry Styles",
+          "duration": 236000,
+          "isSeekable": true,
+          "isStream": false,
+          "uri": "https://www.youtube.com/watch?v=olGSAVOkkTI",
+          "thumbnail": "https://img.youtube.com/vi/olGSAVOkkTI/default.jpg",
+          "requester": {
+            "id": "1023132788632862761",
+            "bot": false,
+            "system": false,
+            "flags": 0,
+            "username": "dearluz",
+            "globalName": "Luz",
+            "discriminator": "0",
+            "avatar": "f584d1bf29d2da1e6c1fc2b2eb8ef061",
+            "banner": "a_2333bd1be4e00c3e3ad099681ef0caeb",
+            "accentColor": 15460580,
+            "avatarDecoration": null,
+            "avatarDecorationData": null,
+            "createdTimestamp": 1664004265698,
+            "defaultAvatarURL": "https://cdn.discordapp.com/embed/avatars/0.png",
+            "hexAccentColor": "#ebe8e4",
+            "tag": "dearluz",
+            "avatarURL": "https://cdn.discordapp.com/avatars/1023132788632862761/f584d1bf29d2da1e6c1fc2b2eb8ef061.webp",
+            "displayAvatarURL": "https://cdn.discordapp.com/avatars/1023132788632862761/f584d1bf29d2da1e6c1fc2b2eb8ef061.webp",
+            "bannerURL": "https://cdn.discordapp.com/banners/1023132788632862761/a_2333bd1be4e00c3e3ad099681ef0caeb.gif"
+          }
+        },
+        {
+          "track": "QAAAhwIAIE9uZSBEaXJlY3Rpb24gLSBTdG9yeSBvZiBNeSBMaWZlAA1PbmUgRGlyZWN0aW9uAAAAAAADyMAAC1ctVEVfWXM0aXdNAAEAK2h0dHBzOi8vd3d3LnlvdXR1YmUuY29tL3dhdGNoP3Y9Vy1URV9ZczRpd00AB3lvdXR1YmUAAAAAAAAAAA==",
+          "title": "One Direction - Story of My Life",
+          "identifier": "W-TE_Ys4iwM",
+          "author": "One Direction",
+          "duration": 248000,
+          "isSeekable": true,
+          "isStream": false,
+          "uri": "https://www.youtube.com/watch?v=W-TE_Ys4iwM",
+          "thumbnail": "https://img.youtube.com/vi/W-TE_Ys4iwM/default.jpg",
+          "requester": {
+            "id": "1023132788632862761",
+            "bot": false,
+            "system": false,
+            "flags": 0,
+            "username": "dearluz",
+            "globalName": "Luz",
+            "discriminator": "0",
+            "avatar": "f584d1bf29d2da1e6c1fc2b2eb8ef061",
+            "banner": "a_2333bd1be4e00c3e3ad099681ef0caeb",
+            "accentColor": 15460580,
+            "avatarDecoration": null,
+            "avatarDecorationData": null,
+            "createdTimestamp": 1664004265698,
+            "defaultAvatarURL": "https://cdn.discordapp.com/embed/avatars/0.png",
+            "hexAccentColor": "#ebe8e4",
+            "tag": "dearluz",
+            "avatarURL": "https://cdn.discordapp.com/avatars/1023132788632862761/f584d1bf29d2da1e6c1fc2b2eb8ef061.webp",
+            "displayAvatarURL": "https://cdn.discordapp.com/avatars/1023132788632862761/f584d1bf29d2da1e6c1fc2b2eb8ef061.webp",
+            "bannerURL": "https://cdn.discordapp.com/banners/1023132788632862761/a_2333bd1be4e00c3e3ad099681ef0caeb.gif"
+          }
+        }
+      ]
+    }
+  },
   "sentUpdates": [
     "¡Chat mejorado! Segunda respuesta automática al darle ❌, pa’ que sea más bacán y no pida detalles de una.",
     "Optimizado el código un poco, si te gustaría agregar algo más puedes solicitarlo, espero este bot cumpla con tus expectativas.",
@@ -607,7 +676,7 @@
       "mensaje": "tomar la pastilla rosada todos los días",
       "cuandoLlegue": false,
       "cuandoSalga": false,
-      "timestamp": 1743757200000,
+      "timestamp": 1743843600000,
       "creado": 1743208737942,
       "esRecurrente": true,
       "hora": 6,
@@ -633,7 +702,7 @@
       "mensaje": "tomar la pastilla rosada todos los días",
       "cuandoLlegue": false,
       "cuandoSalga": false,
-      "timestamp": 1743735600000,
+      "timestamp": 1743822000000,
       "creado": 1743208756920,
       "esRecurrente": true,
       "hora": 0,
