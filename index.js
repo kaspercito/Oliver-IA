@@ -2220,7 +2220,6 @@ app.listen(PORT, () => {
     startAutoPing();
 });
 
-const fetch = require('node-fetch');
 function startAutoPing() {
     const appUrl = process.env.RAILWAY_URL || 'https://oliver-ia-production.up.railway.app';
     const pingInterval = 4 * 60 * 1000; // 4 minutos
