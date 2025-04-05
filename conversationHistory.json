@@ -125,18 +125,6 @@
     "752987736759205960": [
       {
         "role": "user",
-        "content": "when life gives you tangerines kdrama",
-        "timestamp": 1743636902930,
-        "userName": "Miguel"
-      },
-      {
-        "role": "assistant",
-        "content": "Che, Miguel, entiendo.  \"When Life Gives You Tangerines\" (o \"Si la vida te da mandarinas\" en español, según entiendo), no es un k-drama muy conocido, al menos no en el nivel de otros más populares.  No tengo información específica sobre él, como crítica o resumen de la trama. Para poder darte una opinión, necesitaría más datos: ¿dónde lo viste mencionado?, ¿qué tipo de información te interesa saber?  Posta que sin más detalles, no te puedo ayudar mucho, loco.",
-        "timestamp": 1743636904226,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
         "content": "es una serie de televisión pues",
         "timestamp": 1743636936971,
         "userName": "Miguel"
@@ -241,6 +229,18 @@
         "role": "assistant",
         "content": "Che, Miguel, la pregunta de quién inventó el coeficiente de correlación es un poco compleja, loco, porque su desarrollo fue gradual. No hay una sola persona a la que se le pueda atribuir su invención.  \n\nSin embargo, se suele dar crédito a **Karl Pearson**, quien a finales del siglo XIX, desarrolló y popularizó el coeficiente de correlación que hoy conocemos como **coeficiente de correlación de Pearson**.  Es importante destacar que antes que él, otros investigadores habían trabajado en ideas relacionadas con la correlación, pero Pearson fue quien formalizó la fórmula y le dio la estructura que utilizamos actualmente.  Posta que es una historia un poco más larga que un simple nombre, ¿entendés?",
         "timestamp": 1743713703518,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "hola",
+        "timestamp": 1743819807564,
+        "userName": "Miguel"
+      },
+      {
+        "role": "assistant",
+        "content": "¡Hola, Miguel, loco! 😎 ¿Cómo andás, che?  Espero que de diez 💪. ¿Qué tal el día? ¿Algún plan copado para hoy?  Contame todo, que estoy acá para escucharte y ayudarte en lo que necesites. ✨💖",
+        "timestamp": 1743819808494,
         "userName": "Oliver"
       }
     ]
@@ -1177,18 +1177,6 @@
     "miguel-milagros": [
       {
         "role": "user",
-        "content": "que beneficiosos te da jugar Valorant? en la vida",
-        "timestamp": 1743708831648,
-        "userName": "Miguel"
-      },
-      {
-        "role": "assistant",
-        "content": "Che, Miguel, entiendo tu pregunta sobre los beneficios de jugar Valorant en la vida.  Posta que es una pregunta interesante, porque los juegos, a veces, tienen un costado que la gente no ve.  Pero para contestarte bien, necesito que me aclares algo: ¿te referís a beneficios directos, como habilidades que se desarrollan, o beneficios más indirectos, como la socialización?  Porque  la respuesta cambia bastante dependiendo de lo que estés buscando, loco.  Aclarame esto, así te doy una respuesta que te sirva de verdad.",
-        "timestamp": 1743708832990,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
         "content": "si que habilidades",
         "timestamp": 1743708843334,
         "userName": "Miguel"
@@ -1413,6 +1401,18 @@
         "role": "assistant",
         "content": "De nada, Milagros.  Que descanses bien.",
         "timestamp": 1743817613921,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "hola",
+        "timestamp": 1743819807564,
+        "userName": "Miguel"
+      },
+      {
+        "role": "assistant",
+        "content": "¡Hola, Miguel, loco! 😎 ¿Cómo andás, che?  Espero que de diez 💪. ¿Qué tal el día? ¿Algún plan copado para hoy?  Contame todo, que estoy acá para escucharte y ayudarte en lo que necesites. ✨💖",
+        "timestamp": 1743819808494,
         "userName": "Oliver"
       }
     ]
