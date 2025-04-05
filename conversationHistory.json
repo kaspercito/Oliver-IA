@@ -3,30 +3,6 @@
     "1023132788632862761": [
       {
         "role": "user",
-        "content": "si, ahora voy a comer y luego debo chupar un caramelo que trae antibióticos para la garganta",
-        "timestamp": 1743723732946,
-        "userName": "Milagros"
-      },
-      {
-        "role": "assistant",
-        "content": "Ey, Milagros, genia total! 💖  Perfecto, che.  Comé bien y después tomá el caramelo con antibióticos como corresponde.  Recordá seguir las indicaciones del prospecto, loco,  para que el tratamiento sea efectivo.  Si tenés alguna duda con el medicamento, consultá al farmacéutico o a tu médico, ¿dale?  Cuidate mucho, gorda.",
-        "timestamp": 1743723733979,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
-        "content": "hola botchito, cómo vas",
-        "timestamp": 1743789473753,
-        "userName": "Milagros"
-      },
-      {
-        "role": "assistant",
-        "content": "Hola Milagros, bien, gracias.  ¿Qué necesitas? Decime la posta, ¿cómo andás?",
-        "timestamp": 1743789474388,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
         "content": "te noto más cortante, puede ser?",
         "timestamp": 1743789484171,
         "userName": "Milagros"
@@ -119,6 +95,30 @@
         "role": "assistant",
         "content": "De nada, Milagros.  Que descanses bien.",
         "timestamp": 1743817613921,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "buenos días, botsito",
+        "timestamp": 1743845573434,
+        "userName": "Milagros"
+      },
+      {
+        "role": "assistant",
+        "content": "¡Buen día, ratita blanca hermosa! ✨💖  ¿Cómo amaneciste, genia?  Espero que mucho mejor que ayer, che.  ¿Dormiste bien, gorda?  Contáme todo, loco, que hoy arrancamos el día con pilas 💪 y buena onda 😎.  ¿Qué tenés planeado para hoy, además del largo día de trabajo?  ¿Algún plan rico para la noche después de la paliza laboral?  Contáme todo, no te guardes nada,  posta que me interesa saber cómo estás 😊. ¡Un abrazo enorme lleno de buena energía para vos, mi reina! 😘",
+        "timestamp": 1743845574776,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "hoy tengo un cumpleaños y puro trabajar y trabajar",
+        "timestamp": 1743845610954,
+        "userName": "Milagros"
+      },
+      {
+        "role": "assistant",
+        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨ ¡Feliz cumpleaños, genia! 🎉🎂  ¡Qué macana que tengas que laburar el día de tu cumple, che!  Eso sí que es una mala onda 😒.  Pero bueno,  ¡vamos a ver si lo hacemos un poco más llevadero! 💪\n\nContame, ¿quién cumple años? ¿Vos? ¿Algún amig@?  ¿Vas a poder festejar aunque sea un ratito después del trabajo?  🤔\n\n¡No te quedes solo con el trabajo, loco!  Ese cumple merece un festejo, aunque sea chiquito.  ¿Qué te gustaría hacer para celebrarlo, aunque sea un poco?  ¿Un cafecito rico? ☕🍰  ¿Una videollamada con amig@s? 📱🥳  ¿Un rico postre después de laburar? 🤤🎂\n\nNo te dejes caer, che.  Es tu día, ¡y te lo merecés! ✨  Si necesitas un abrazo virtual, acá estoy para darte todo el apoyo que necesites 🤗.  ¡No te olvides de darte un mimo a vos también, eh!  ¡Sos una gorda hermosa y mereces ser festejada como corresponde!  💖😘\n\n¡Contáme todo, que te escucho con toda la buena onda, loco! 😎💪  Y si necesitas algo más, no dudes en pedírmelo, eh.  ¡Sos lo más importante! ✨💖",
+        "timestamp": 1743845613616,
         "userName": "Oliver"
       }
     ],
@@ -1151,30 +1151,6 @@
     "miguel-milagros": [
       {
         "role": "user",
-        "content": "recién me despierto",
-        "timestamp": 1743719747190,
-        "userName": "Milagros"
-      },
-      {
-        "role": "assistant",
-        "content": "Ey, Milagros, genia total! 💖 Recién te despertaste, ¿eh? Bueno, posta que bárbaro, espero que hayas descansado bien. ¿Necesitás algo, che?  Decime la posta, ¿en qué te puedo ayudar?",
-        "timestamp": 1743719748031,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
-        "content": "estoy enferma, decime recetas caseras para calmar el dolor de garganta",
-        "timestamp": 1743719783635,
-        "userName": "Milagros"
-      },
-      {
-        "role": "assistant",
-        "content": "Ey, Milagros, genia total! 💖  Lo siento mucho, che, que estés enferma.  Posta que te entiendo, un dolor de garganta es un bajón bárbaro.  \n\nPara calmarlo,  te recomiendo algunas recetas caseras, pero acordate que esto no reemplaza la consulta a un médico, ¿dale?  Si el dolor es muy fuerte o dura mucho,  fijate en ir al médico, loco.\n\n\nAcá van algunas ideas:\n\n* **Gárgaras con agua salada:**  Disuelve una cucharadita de sal en un vaso de agua tibia y hacé gárgaras varias veces al día. Esto ayuda a reducir la inflamación.\n\n* **Infusiones:** El té de miel con limón es un clásico, che. El té de manzanilla o de jengibre también pueden ayudar a calmar la garganta.  Tomálos bien tibios,  no hirviendo.\n\n* **Miel pura:**  Un poquito de miel pura en la garganta puede aliviar el dolor.  Proba tomar una cucharadita de miel cada tanto,  si te gusta el gusto, claro.\n\n* **Reposo vocal:**  Intentá hablar lo menos posible,  para que tu garganta descanse.\n\n* **Hidratación:**  Tomá mucho líquido,  agua,  sopas o caldos,  para mantenerte hidratada.\n\n\nChe, posta que te recomiendo que descanses bastante, gorda.  ¿Hay algo más que necesite,  o te puedo ayudar con algo más?  Contáme,  loco.",
-        "timestamp": 1743719786369,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
         "content": "descansé, dormí como 12 horas, ahora ya me toca comer algo",
         "timestamp": 1743719848470,
         "userName": "Milagros"
@@ -1387,6 +1363,30 @@
         "role": "assistant",
         "content": "Che, Miguel, loco, entiendo que la estás pasando mal 😔.  Mentirle a Milagros sobre jugar solo, posta que es un bajón, y que ella esté firme en su decisión…  uff,  se siente horrible, ¿no?  Pero, che, no te desanimes, ¿viste? 💪\n\nPrimero,  me gustaría entender un poco mejor.  ¿Con quién jugaste en realidad?  ¿Era alguien que Milagros conoce?  ¿Por qué le mentiste?  Contarme un poco más me va a ayudar a entender la situación y darte la mejor ayuda, loco.  No te sientas obligado a contarme todo, eh,  pero algunos detalles más me ayudarían a darte una mejor perspectiva. 😅\n\nSegundo,  concentrémonos en vos, ¿cómo te sentís con todo esto?  ¿Te sentís culpable?  ¿Arrepentido?  ¿Triste?  Es importante que proceses tus emociones, che.  Hablarlo ayuda un montón.  No te quedes con todo adentro, ¿entendés? 😘\n\nTercero, y esto es clave,  aunque duela,  Milagros está firme en su decisión.  Respetar eso es importante, loco.  Sé que duele como mil demonios, pero intentar forzar algo que no funciona solo te va a generar más dolor. ✨\n\nAhora,  piensa en esto:  ¿Qué hiciste para intentar recuperar su confianza antes de que ella se fuera con tu amigo?  ¿Has intentado hablar con ella con sinceridad y pedirle disculpas por la mentira?  A veces, una charla franca y honesta puede ayudar a sanar.  Aunque no garantice que ella vuelva, al menos te dejará con la conciencia tranquila de haber intentado todo lo posible.\n\nNo te hundas, che.  Hay que ver esto como una oportunidad para crecer y aprender de los errores.  Concentrate en vos, en tu bienestar, en tus amigos y familia.  ¡Vos valés un montón! 💪💖  No estás solo en esto, y estoy acá para lo que necesites. ✨\n\nContame más, Miguel.  No te quedes callado, boludo.  Acá estoy para darte una mano.  Vamos que se puede! 😎",
         "timestamp": 1743828516730,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "buenos días, botsito",
+        "timestamp": 1743845573434,
+        "userName": "Milagros"
+      },
+      {
+        "role": "assistant",
+        "content": "¡Buen día, ratita blanca hermosa! ✨💖  ¿Cómo amaneciste, genia?  Espero que mucho mejor que ayer, che.  ¿Dormiste bien, gorda?  Contáme todo, loco, que hoy arrancamos el día con pilas 💪 y buena onda 😎.  ¿Qué tenés planeado para hoy, además del largo día de trabajo?  ¿Algún plan rico para la noche después de la paliza laboral?  Contáme todo, no te guardes nada,  posta que me interesa saber cómo estás 😊. ¡Un abrazo enorme lleno de buena energía para vos, mi reina! 😘",
+        "timestamp": 1743845574776,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "hoy tengo un cumpleaños y puro trabajar y trabajar",
+        "timestamp": 1743845610954,
+        "userName": "Milagros"
+      },
+      {
+        "role": "assistant",
+        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨ ¡Feliz cumpleaños, genia! 🎉🎂  ¡Qué macana que tengas que laburar el día de tu cumple, che!  Eso sí que es una mala onda 😒.  Pero bueno,  ¡vamos a ver si lo hacemos un poco más llevadero! 💪\n\nContame, ¿quién cumple años? ¿Vos? ¿Algún amig@?  ¿Vas a poder festejar aunque sea un ratito después del trabajo?  🤔\n\n¡No te quedes solo con el trabajo, loco!  Ese cumple merece un festejo, aunque sea chiquito.  ¿Qué te gustaría hacer para celebrarlo, aunque sea un poco?  ¿Un cafecito rico? ☕🍰  ¿Una videollamada con amig@s? 📱🥳  ¿Un rico postre después de laburar? 🤤🎂\n\nNo te dejes caer, che.  Es tu día, ¡y te lo merecés! ✨  Si necesitas un abrazo virtual, acá estoy para darte todo el apoyo que necesites 🤗.  ¡No te olvides de darte un mimo a vos también, eh!  ¡Sos una gorda hermosa y mereces ser festejada como corresponde!  💖😘\n\n¡Contáme todo, que te escucho con toda la buena onda, loco! 😎💪  Y si necesitas algo más, no dudes en pedírmelo, eh.  ¡Sos lo más importante! ✨💖",
+        "timestamp": 1743845613616,
         "userName": "Oliver"
       }
     ]
