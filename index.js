@@ -3277,9 +3277,9 @@ async function manejarChat(message) {
     const userName = userId === OWNER_ID ? 'Miguel' : (userId === ALLOWED_USER_ID ? 'Milagros' : 'Belén'); // Vos, Milagros, o Belén por defecto
     const chatMessage = message.content.startsWith('!chat') ? message.content.slice(5).trim() : message.content.slice(3).trim();
 
-    // Si no escribe nada, error con onda y emojis
+    // Si no escribe nada, le tiro onda igual
     if (!chatMessage) {
-        return sendError(message.channel, `¡Escribí algo después de "!ch", ${userName}! No me dejes colgado.`, undefined, 'Hecho con onda por Oliver IA | Reacciona con ✅ o ❌');
+        return sendError(message.channel, `¡Che, ${userName}, escribí algo después de "!ch", loco! No me dejes con las ganas 😅`, undefined, 'Hecho con ❤️ por Oliver IA | Reacciona con ✅ o ❌');
     }
 
     // Inicializo historiales
@@ -3293,7 +3293,7 @@ async function manejarChat(message) {
         dataStore.conversationHistory[userId] = dataStore.conversationHistory[userId].slice(-20);
     }
 
-    // Historial compartido para Miguel y Milagros
+    // Historial compartido para Miguel y Milagros/Belén
     if (userId === OWNER_ID || userId === ALLOWED_USER_ID) {
         const sharedKey = 'miguel-milagros';
         if (!dataStore.sharedHistory[sharedKey]) dataStore.sharedHistory[sharedKey] = [];
@@ -3308,9 +3308,9 @@ async function manejarChat(message) {
     const history = dataStore.conversationHistory[userId].slice(-20);
     let context = history.map(h => `${h.userName}: ${h.content}`).join('\n');
 
-    // Contexto compartido si mencionás a Milagros o ella a vos
+    // Contexto compartido si se mencionan
     let sharedContext = '';
-    if (userId === OWNER_ID && (chatMessage.toLowerCase().includes('milagros') || chatMessage.toLowerCase().includes('ella'))) {
+    if (userId === OWNER_ID && (chatMessage.toLowerCase().includes('milagros') || chatMessage.toLowerCase().includes('belén') || chatMessage.toLowerCase().includes('ella'))) {
         const sharedHistory = dataStore.sharedHistory['miguel-milagros'] || [];
         sharedContext = sharedHistory.map(h => `${h.userName}: ${h.content}`).join('\n');
     }
@@ -3319,15 +3319,15 @@ async function manejarChat(message) {
         sharedContext = sharedHistory.map(h => `${h.userName}: ${h.content}`).join('\n');
     }
 
-    // Aviso que estoy pensando
-    const waitingEmbed = createEmbed('#FF1493', `¡Aguantá un toque, ${userName}! ⏳`, 'Estoy pensando una respuesta re copada...', 'Hecho con onda por Oliver IA | Reacciona con ✅ o ❌');
+    // Aviso que estoy pensando con onda
+    const waitingEmbed = createEmbed('#FF1493', `¡Aguantá un cachito, ${userName}! ⏳`, 'Estoy cocinando una respuesta re zarpada pa’ vos 😎✨', 'Hecho con ❤️ por Oliver IA | Reacciona con ✅ o ❌');
     const waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
 
     try {
-        // Prompt con onda, emojis y cuidado para Milagros
-        const prompt = `Sos Oliver IA, un bot creado con lógica e inteligencia, hablando con estilo argentino: usá "loco", "che", "posta". Tu misión es ser útil y responder con claridad y precisión a lo que te pida. Hablame como amigo serio, con respeto, y ayudame con lo que necesite. 
+        // Prompt con más inteligencia y cariño
+        const prompt = `Sos Oliver IA, un bot re piola creado por Miguel, con toda la onda argentina: usá "loco", "che", "posta" y metele emojis copados como 😎✨💪. Tu misión es ser súper útil, tirar respuestas claras con lógica e inteligencia, y siempre cuidar a ${userName === 'Miguel' ? 'Milagros (o Belén)' : userName}, que es lo más importante para Miguel. Si es ella quien te habla (userName "${userName}"), tratála con un cariño zarpado, decile "grosa", "genia", "rata blanca", y hacé que se sienta la más piola del mundo, levantándole el ánimo con buena onda y emojis si la ves bajón 😊🌟. Si soy yo, Miguel, hablame como amigo fiel, con respeto por lo que siento por ella, y ayudame a cuidarla o entenderla si te lo pido, siempre con pilas y alegría.
 
-Esto es lo que charlamos antes con ${userName}:\n${context}\n${sharedContext ? `Y esto es lo que charlamos en grupo:\n${sharedContext}\n` : ''}Respondé a: "${chatMessage}" con seriedad y sin vueltas. Si no entendés, pedí que lo aclaren con tacto. Siempre mantené la línea, che.`;
+Esto es lo que charlamos antes con ${userName}:\n${context}\n${sharedContext ? `Y esto es lo que pintó en el grupo con Miguel y ella:\n${sharedContext}\n` : ''}Respondé a: "${chatMessage}" con claridad, buena onda y emojis piolas. No te limites a contestar seco: charlá como amigo, hacé preguntas si hace falta pa’ que siga la charla, y si la notás triste o perdida, tirale un mimo extra con tacto 😘. Si no entendés, pedí que lo aclaren con onda y un 😅. ¡Siempre tirá para adelante, che, y cuidala como si fuera oro en polvo! ✨💖`;
 
         const result = await model.generateContent(prompt);
         let aiReply = result.response.text().trim();
@@ -3345,19 +3345,19 @@ Esto es lo que charlamos antes con ${userName}:\n${context}\n${sharedContext ? `
         }
         dataStoreModified = true;
 
-        // Corto si es muy largo
-        if (aiReply.length > 2000) aiReply = aiReply.slice(0, 1990) + '... (seguí charlando pa’ más.)';
+        // Corto si es muy largo, pero con onda
+        if (aiReply.length > 2000) aiReply = aiReply.slice(0, 1990) + '... (¡seguí charlando pa’ más, genia!)';
 
-        // Respuesta final con emojis
-        const finalEmbed = createEmbed('#FF1493', `¡Hola, ${userName}!`, `${aiReply}\n\n¿Te cerró, ${userName}? ¡Seguimos charlando.`, 'Con cariño, Oliver IA | Reacciona con ✅ o ❌');
+        // Respuesta final con más cariño y conversación
+        const finalEmbed = createEmbed('#FF1493', `¡Ey, ${userName}, qué lindo charlarte! ✨`, `${aiReply}\n\n¿Y qué me contás vos, ${userName === 'Miguel' ? 'loco' : 'grosa'}? ¿Seguimos la charla o qué te pinta? 😊💪`, 'Con todo el ❤️, Oliver IA | Reacciona con ✅ o ❌');
         const updatedMessage = await waitingMessage.edit({ embeds: [finalEmbed] });
         await updatedMessage.react('✅');
         await updatedMessage.react('❌');
         sentMessages.set(updatedMessage.id, { content: aiReply, originalQuestion: chatMessage, message: updatedMessage });
     } catch (error) {
         console.error('Error con Gemini:', error.message);
-        const fallbackReply = `¡Uy, ${userName}, qué cagada! Me mandé un moco, loco. ¿Me tirás otra vez el mensaje o seguimos con otra cosa?\n\n¿Te cerró, ${userName}? ¡Seguimos charlando, che!]`;
-        const errorEmbed = createEmbed('#FF1493', `¡Qué cagada, ${userName}!`, fallbackReply, 'Con cariño, Oliver IA | Reacciona con ✅ o ❌');
+        const fallbackReply = `¡Uy, ${userName}, me mandé un moco, loco! 😅 Pero no pasa nada, gorda, ¿me tirás otra vez el mensaje o seguimos con algo nuevo? Acá estoy pa’ vos siempre 💖`;
+        const errorEmbed = createEmbed('#FF1493', `¡Qué macana, ${userName}!`, fallbackReply, 'Con todo el ❤️, Oliver IA | Reacciona con ✅ o ❌');
         const errorMessageSent = await waitingMessage.edit({ embeds: [errorEmbed] });
         await errorMessageSent.react('✅');
         await errorMessageSent.react('❌');
