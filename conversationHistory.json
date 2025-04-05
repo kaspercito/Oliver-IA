@@ -3,18 +3,6 @@
     "1023132788632862761": [
       {
         "role": "user",
-        "content": "comeré unas galletas con miel o algo así",
-        "timestamp": 1743719927790,
-        "userName": "Milagros"
-      },
-      {
-        "role": "assistant",
-        "content": "Ey, Milagros, genia total! 💖  Entendido, che.  Galletas con miel,  suena bien, liviano y rico para cuando tenés dolor de garganta.  Posta que es una buena opción.  ¿Necesitás algo más,  o te puedo ayudar con otra cosa?  Decime la posta, loco.",
-        "timestamp": 1743719928871,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
         "content": "ya hice la merienda, fui en busca de medicamentos y hasta me duché, pude hacerlo!",
         "timestamp": 1743723676499,
         "userName": "Milagros"
@@ -119,6 +107,18 @@
         "role": "assistant",
         "content": "Che, Milagros, como IA no tengo gustos ni preferencias, como el que le gusta o no el café.  No siento, ¿viste?  Pero puedo darte información sobre el café si querés, o ayudarte con cualquier otra cosa. Decime la posta, ¿qué necesitas?",
         "timestamp": 1743789861248,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "hola, botsito, por comer y dormir que mañana es un largo día de trabajo y no me permitieron el descanso :/",
+        "timestamp": 1743815196365,
+        "userName": "Milagros"
+      },
+      {
+        "role": "assistant",
+        "content": "Ey, Milagros, genia total! 💖  Che, lamento que hayas tenido un día tan complicado y que no hayas podido descansar.  Posta que eso es una cagada.  Concentrate en comer bien y dormir lo máximo posible esta noche, loco.  Un buen descanso es fundamental para afrontar un día largo de trabajo.  ¿Necesitas algo más para poder descansar mejor?  Decime la posta, ¿hay algo que te pueda ayudar?",
+        "timestamp": 1743815197483,
         "userName": "Oliver"
       }
     ],
@@ -647,7 +647,7 @@
   "utilMessageTimestamps": {
     "1343749554905940058": 1741702502300,
     "plan_1343749554905940058": 1741879435793,
-    "reminder_1343749554905940058": 1743728422511,
+    "reminder_1343749554905940058": 1743814825674,
     "util_1343749554905940058": 1743806204613
   },
   "utilMessageReactions": {
@@ -1151,18 +1151,6 @@
     "miguel-milagros": [
       {
         "role": "user",
-        "content": "el Ovulo es la plancenta?",
-        "timestamp": 1743660794793,
-        "userName": "Miguel"
-      },
-      {
-        "role": "assistant",
-        "content": "Che, Miguel, loco, el óvulo y la placenta no son lo mismo, posta.  El óvulo es la célula sexual femenina, la que se une con el espermatozoide para formar un cigoto, que luego se desarrolla en un embrión y finalmente en un feto.  La placenta, en cambio, es un órgano que se desarrolla durante el embarazo y que conecta al feto con la pared del útero de la madre, proporcionándole nutrientes y oxígeno y eliminando los desechos.  Son dos cosas completamente diferentes, ¿entendés?",
-        "timestamp": 1743660796083,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
         "content": "que es ligar a una gata",
         "timestamp": 1743661166193,
         "userName": "Miguel"
@@ -1387,6 +1375,18 @@
         "role": "assistant",
         "content": "Che, Milagros, como IA no tengo gustos ni preferencias, como el que le gusta o no el café.  No siento, ¿viste?  Pero puedo darte información sobre el café si querés, o ayudarte con cualquier otra cosa. Decime la posta, ¿qué necesitas?",
         "timestamp": 1743789861248,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "hola, botsito, por comer y dormir que mañana es un largo día de trabajo y no me permitieron el descanso :/",
+        "timestamp": 1743815196365,
+        "userName": "Milagros"
+      },
+      {
+        "role": "assistant",
+        "content": "Ey, Milagros, genia total! 💖  Che, lamento que hayas tenido un día tan complicado y que no hayas podido descansar.  Posta que eso es una cagada.  Concentrate en comer bien y dormir lo máximo posible esta noche, loco.  Un buen descanso es fundamental para afrontar un día largo de trabajo.  ¿Necesitas algo más para poder descansar mejor?  Decime la posta, ¿hay algo que te pueda ayudar?",
+        "timestamp": 1743815197483,
         "userName": "Oliver"
       }
     ]
