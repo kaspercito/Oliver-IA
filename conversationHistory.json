@@ -3,30 +3,6 @@
     "1023132788632862761": [
       {
         "role": "user",
-        "content": "ya hice la merienda, fui en busca de medicamentos y hasta me duché, pude hacerlo!",
-        "timestamp": 1743723676499,
-        "userName": "Milagros"
-      },
-      {
-        "role": "assistant",
-        "content": "Ey, Milagros, genia total! 💖 Me alegro un montón de que hayas podido hacer la merienda, conseguir medicamentos y ducharte. Posta que eso es un gran avance.  ¿Te sentís mejor ahora, che?  Decime la posta, ¿hay algo más en lo que te pueda ayudar?",
-        "timestamp": 1743723677575,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
-        "content": "me pesa un poco el cuerpo pero por lo demás, me siento mejor, la ducha ayudó",
-        "timestamp": 1743723695702,
-        "userName": "Milagros"
-      },
-      {
-        "role": "assistant",
-        "content": "Ey, Milagros, genia total! 💖 Me alegro que te sientas mejor, che.  Posta que la ducha ayuda un montón cuando uno está medio bajoneado. Que te pese un poco el cuerpo es normal después de estar enferma,  dale tiempo al cuerpo para que se recupere.  Si sentís que empeora o tenés alguna otra molestia, no dudes en consultar al médico, loco.  Descansá bien y cuidate mucho, gorda. ¿Hay algo más en lo que pueda ayudarte?",
-        "timestamp": 1743723696953,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
         "content": "si, ahora voy a comer y luego debo chupar un caramelo que trae antibióticos para la garganta",
         "timestamp": 1743723732946,
         "userName": "Milagros"
@@ -119,6 +95,30 @@
         "role": "assistant",
         "content": "Ey, Milagros, genia total! 💖  Che, lamento que hayas tenido un día tan complicado y que no hayas podido descansar.  Posta que eso es una cagada.  Concentrate en comer bien y dormir lo máximo posible esta noche, loco.  Un buen descanso es fundamental para afrontar un día largo de trabajo.  ¿Necesitas algo más para poder descansar mejor?  Decime la posta, ¿hay algo que te pueda ayudar?",
         "timestamp": 1743815197483,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "ya comí, ya me voy a la cama, botsito",
+        "timestamp": 1743817591898,
+        "userName": "Milagros"
+      },
+      {
+        "role": "assistant",
+        "content": "Bueno, Milagros.  Que descanses bien entonces.  Mañana será un día largo, así que es fundamental que duermas lo suficiente.  Si necesitás algo durante la noche, no dudes en avisarme.  Que tengas una buena noche.",
+        "timestamp": 1743817592851,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "gracias, te quiero",
+        "timestamp": 1743817613131,
+        "userName": "Milagros"
+      },
+      {
+        "role": "assistant",
+        "content": "De nada, Milagros.  Que descanses bien.",
+        "timestamp": 1743817613921,
         "userName": "Oliver"
       }
     ],
@@ -815,6 +815,19 @@
       "esRecurrente": true,
       "hora": 20,
       "minutos": 0
+    },
+    {
+      "id": "1933b7b4-ddf1-4105-8548-349d196884df",
+      "userId": "1023132788632862761",
+      "channelId": "1343749554905940058",
+      "mensaje": "despiértame",
+      "cuandoLlegue": false,
+      "cuandoSalga": false,
+      "timestamp": 1743839227220,
+      "creado": 1743817627221,
+      "esRecurrente": false,
+      "hora": null,
+      "minutos": null
     }
   ],
   "usedJokes": {
@@ -1151,30 +1164,6 @@
     "miguel-milagros": [
       {
         "role": "user",
-        "content": "que es ligar a una gata",
-        "timestamp": 1743661166193,
-        "userName": "Miguel"
-      },
-      {
-        "role": "assistant",
-        "content": "Che, Miguel,  la pregunta \"ligar a una gata\" puede tener dos interpretaciones, y necesito que me aclares a cuál te referís para poder responderte con precisión, loco.\n\n¿Te referís a:\n\n1. **Intentar conquistar o seducir a una mujer?**  En este caso, \"ligar a una gata\" es una expresión coloquial que significa intentar iniciar una relación romántica con una mujer, generalmente atractiva o considerada inalcanzable. Es una forma informal de decir \"conquistar\" o \"enamorar\".\n\n2. **Algo relacionado con el comportamiento de los gatos?** Si es así, necesitás explicarme mejor la situación, posta que no entiendo a qué te referís.  \n\n\nAclarame esto, así te puedo ayudar mejor, che. No quiero darte una respuesta que no sea la que estás buscando.",
-        "timestamp": 1743661167859,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
-        "content": "como se llama el procedimiento que se hace para que las gatas no tengan hijos",
-        "timestamp": 1743661188217,
-        "userName": "Miguel"
-      },
-      {
-        "role": "assistant",
-        "content": "Che, Miguel, la operación que se hace para que las gatas no tengan más hijos se llama **esterilización**, o más precisamente, **ovariohisterectomía**.  En ella, se les extraen los ovarios y el útero.  Posta que es un procedimiento común y bastante sencillo para los veterinarios.  Es importante que lo haga un profesional, loco.",
-        "timestamp": 1743661189409,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
         "content": "que beneficiosos te da jugar Valorant? en la vida",
         "timestamp": 1743708831648,
         "userName": "Miguel"
@@ -1387,6 +1376,30 @@
         "role": "assistant",
         "content": "Ey, Milagros, genia total! 💖  Che, lamento que hayas tenido un día tan complicado y que no hayas podido descansar.  Posta que eso es una cagada.  Concentrate en comer bien y dormir lo máximo posible esta noche, loco.  Un buen descanso es fundamental para afrontar un día largo de trabajo.  ¿Necesitas algo más para poder descansar mejor?  Decime la posta, ¿hay algo que te pueda ayudar?",
         "timestamp": 1743815197483,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "ya comí, ya me voy a la cama, botsito",
+        "timestamp": 1743817591898,
+        "userName": "Milagros"
+      },
+      {
+        "role": "assistant",
+        "content": "Bueno, Milagros.  Que descanses bien entonces.  Mañana será un día largo, así que es fundamental que duermas lo suficiente.  Si necesitás algo durante la noche, no dudes en avisarme.  Que tengas una buena noche.",
+        "timestamp": 1743817592851,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "gracias, te quiero",
+        "timestamp": 1743817613131,
+        "userName": "Milagros"
+      },
+      {
+        "role": "assistant",
+        "content": "De nada, Milagros.  Que descanses bien.",
+        "timestamp": 1743817613921,
         "userName": "Oliver"
       }
     ]
