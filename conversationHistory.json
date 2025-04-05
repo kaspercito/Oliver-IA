@@ -125,18 +125,6 @@
     "752987736759205960": [
       {
         "role": "user",
-        "content": "el Ovulo es la plancenta?",
-        "timestamp": 1743660794793,
-        "userName": "Miguel"
-      },
-      {
-        "role": "assistant",
-        "content": "Che, Miguel, loco, el óvulo y la placenta no son lo mismo, posta.  El óvulo es la célula sexual femenina, la que se une con el espermatozoide para formar un cigoto, que luego se desarrolla en un embrión y finalmente en un feto.  La placenta, en cambio, es un órgano que se desarrolla durante el embarazo y que conecta al feto con la pared del útero de la madre, proporcionándole nutrientes y oxígeno y eliminando los desechos.  Son dos cosas completamente diferentes, ¿entendés?",
-        "timestamp": 1743660796083,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
         "content": "que es ligar a una gata",
         "timestamp": 1743661166193,
         "userName": "Miguel"
@@ -241,6 +229,18 @@
         "role": "assistant",
         "content": "Che, Miguel, loco, entiendo que la estás pasando mal 😔.  Mentirle a Milagros sobre jugar solo, posta que es un bajón, y que ella esté firme en su decisión…  uff,  se siente horrible, ¿no?  Pero, che, no te desanimes, ¿viste? 💪\n\nPrimero,  me gustaría entender un poco mejor.  ¿Con quién jugaste en realidad?  ¿Era alguien que Milagros conoce?  ¿Por qué le mentiste?  Contarme un poco más me va a ayudar a entender la situación y darte la mejor ayuda, loco.  No te sientas obligado a contarme todo, eh,  pero algunos detalles más me ayudarían a darte una mejor perspectiva. 😅\n\nSegundo,  concentrémonos en vos, ¿cómo te sentís con todo esto?  ¿Te sentís culpable?  ¿Arrepentido?  ¿Triste?  Es importante que proceses tus emociones, che.  Hablarlo ayuda un montón.  No te quedes con todo adentro, ¿entendés? 😘\n\nTercero, y esto es clave,  aunque duela,  Milagros está firme en su decisión.  Respetar eso es importante, loco.  Sé que duele como mil demonios, pero intentar forzar algo que no funciona solo te va a generar más dolor. ✨\n\nAhora,  piensa en esto:  ¿Qué hiciste para intentar recuperar su confianza antes de que ella se fuera con tu amigo?  ¿Has intentado hablar con ella con sinceridad y pedirle disculpas por la mentira?  A veces, una charla franca y honesta puede ayudar a sanar.  Aunque no garantice que ella vuelva, al menos te dejará con la conciencia tranquila de haber intentado todo lo posible.\n\nNo te hundas, che.  Hay que ver esto como una oportunidad para crecer y aprender de los errores.  Concentrate en vos, en tu bienestar, en tus amigos y familia.  ¡Vos valés un montón! 💪💖  No estás solo en esto, y estoy acá para lo que necesites. ✨\n\nContame más, Miguel.  No te quedes callado, boludo.  Acá estoy para darte una mano.  Vamos que se puede! 😎",
         "timestamp": 1743828516730,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "hoy tengo un cumpleaños y puro trabajar y trabajar",
+        "timestamp": 1743868131241,
+        "userName": "Miguel"
+      },
+      {
+        "role": "assistant",
+        "content": "Che, Miguel, loco! ¡Un cumpleaños y puro laburo! 😥  Eso sí que es un bajón.  ¿Es tu cumpleaños o el de alguien más? 😅  Porque si es el tuyo, ¡posta que te merecés un festejo mucho más copado que puro trabajo! 💪✨\n\nY si es de alguien más,  igual… ¡un poco de relax no le vendría mal a nadie! 😉 ¿Hay alguna posibilidad de escaparte un rato para celebrarlo aunque sea un poco?  ¿O tenés algún plan para después del trabajo?  Contáme un poco más, che, para ver si puedo ayudarte a que este día sea un poco más especial. ✨💖\n\nNo te quedes ahí colgado, loco!  Un poco de alegría no viene mal, ¿viste? 😎  Contame, ¿qué onda?  ¿Cómo te sentís con todo esto?  No te olvides que acá estoy para lo que necesites, amigo.  ¡Vamos que se puede! 💪😘",
+        "timestamp": 1743868133177,
         "userName": "Oliver"
       }
     ]
@@ -1151,18 +1151,6 @@
     "miguel-milagros": [
       {
         "role": "user",
-        "content": "descansé, dormí como 12 horas, ahora ya me toca comer algo",
-        "timestamp": 1743719848470,
-        "userName": "Milagros"
-      },
-      {
-        "role": "assistant",
-        "content": "Ey, Milagros, genia total! 💖  Doce horas de sueño, ¡posta que bárbaro!  Me alegro que hayas descansado tanto.  Ahora que ya te toca comer algo, ¿tenés alguna idea de qué te gustaría preparar?  O ¿prefieres algo liviano para no exigirle mucho a tu garganta?  Decime la posta, ¿qué se te antoja?",
-        "timestamp": 1743719849541,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
         "content": "comeré unas galletas con miel o algo así",
         "timestamp": 1743719927790,
         "userName": "Milagros"
@@ -1387,6 +1375,18 @@
         "role": "assistant",
         "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨ ¡Feliz cumpleaños, genia! 🎉🎂  ¡Qué macana que tengas que laburar el día de tu cumple, che!  Eso sí que es una mala onda 😒.  Pero bueno,  ¡vamos a ver si lo hacemos un poco más llevadero! 💪\n\nContame, ¿quién cumple años? ¿Vos? ¿Algún amig@?  ¿Vas a poder festejar aunque sea un ratito después del trabajo?  🤔\n\n¡No te quedes solo con el trabajo, loco!  Ese cumple merece un festejo, aunque sea chiquito.  ¿Qué te gustaría hacer para celebrarlo, aunque sea un poco?  ¿Un cafecito rico? ☕🍰  ¿Una videollamada con amig@s? 📱🥳  ¿Un rico postre después de laburar? 🤤🎂\n\nNo te dejes caer, che.  Es tu día, ¡y te lo merecés! ✨  Si necesitas un abrazo virtual, acá estoy para darte todo el apoyo que necesites 🤗.  ¡No te olvides de darte un mimo a vos también, eh!  ¡Sos una gorda hermosa y mereces ser festejada como corresponde!  💖😘\n\n¡Contáme todo, que te escucho con toda la buena onda, loco! 😎💪  Y si necesitas algo más, no dudes en pedírmelo, eh.  ¡Sos lo más importante! ✨💖",
         "timestamp": 1743845613616,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "hoy tengo un cumpleaños y puro trabajar y trabajar",
+        "timestamp": 1743868131241,
+        "userName": "Miguel"
+      },
+      {
+        "role": "assistant",
+        "content": "Che, Miguel, loco! ¡Un cumpleaños y puro laburo! 😥  Eso sí que es un bajón.  ¿Es tu cumpleaños o el de alguien más? 😅  Porque si es el tuyo, ¡posta que te merecés un festejo mucho más copado que puro trabajo! 💪✨\n\nY si es de alguien más,  igual… ¡un poco de relax no le vendría mal a nadie! 😉 ¿Hay alguna posibilidad de escaparte un rato para celebrarlo aunque sea un poco?  ¿O tenés algún plan para después del trabajo?  Contáme un poco más, che, para ver si puedo ayudarte a que este día sea un poco más especial. ✨💖\n\nNo te quedes ahí colgado, loco!  Un poco de alegría no viene mal, ¿viste? 😎  Contame, ¿qué onda?  ¿Cómo te sentís con todo esto?  No te olvides que acá estoy para lo que necesites, amigo.  ¡Vamos que se puede! 💪😘",
+        "timestamp": 1743868133177,
         "userName": "Oliver"
       }
     ]
