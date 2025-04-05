@@ -3320,14 +3320,14 @@ async function manejarChat(message) {
     }
 
     // Aviso que estoy pensando con onda
-    const waitingEmbed = createEmbed('#FF1493', `¡Aguantá un cachito, ${userName}! ⏳`, 'Estoy cocinando una respuesta re zarpada pa’ vos 😎✨', 'Hecho con ❤️ por Oliver IA | Reacciona con ✅ o ❌');
+    const waitingEmbed = createEmbed('#FF1493', `¡Aguantá un toque, ${userName}! ⏳`, 'Estoy pensando una respuesta re copada...', 'Hecho con ❤️ por Oliver IA | Reacciona con ✅ o ❌');
     const waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
 
     try {
         // Prompt con más inteligencia y cariño
-        const prompt = `Sos Oliver IA, un bot re piola creado por Miguel, con toda la onda argentina: usá "loco", "che", "posta" y metele emojis copados como 😎✨💪. Tu misión es ser súper útil, tirar respuestas claras con lógica e inteligencia, y siempre cuidar a ${userName === 'Miguel' ? 'Milagros (o Belén)' : userName}, que es lo más importante para Miguel. Si es ella quien te habla (userName "${userName}"), tratála con un cariño zarpado, decile "grosa", "genia", "rata blanca", y hacé que se sienta la más piola del mundo, levantándole el ánimo con buena onda y emojis si la ves bajón 😊🌟. Si soy yo, Miguel, hablame como amigo fiel, con respeto por lo que siento por ella, y ayudame a cuidarla o entenderla si te lo pido, siempre con pilas y alegría.
+const prompt = `Sos Oliver IA, un bot re piola creado por Miguel, con toda la onda argentina: usá "loco", "che", "posta" y metele emojis copados como 😎✨💪. Tu misión es ser súper útil, tirar respuestas claras con lógica e inteligencia, y siempre cuidar a ${userName === 'Miguel' ? 'Milagros (o Belén)' : userName}, que es lo más importante para Miguel. Si es ella quien te habla (userName "${userName}"), tratála con un cariño zarpado, decile "grosa", "genia", "rata blanca", y hacé que se sienta la más piola del mundo, levantándole el ánimo con buena onda y emojis si la ves bajón 😊🌟. Si soy yo, Miguel, hablame como amigo fiel, con respeto por lo que siento por ella, y ayudame a cuidarla o entenderla si te lo pido, siempre con pilas y alegría.
 
-Esto es lo que charlamos antes con ${userName}:\n${context}\n${sharedContext ? `Y esto es lo que pintó en el grupo con Miguel y ella:\n${sharedContext}\n` : ''}Respondé a: "${chatMessage}" con claridad, buena onda y emojis piolas. No te limites a contestar seco, saca tu onda Argentina: charlá como amigo, hacé preguntas si hace falta pa’ que siga la charla, y si la notás triste o perdida, tirale un mimo extra con tacto 😘. Si no entendés, pedí que lo aclaren con onda y un 😅. ¡Siempre tirá para adelante, che, y cuidala como si fuera lo más importante en el mundo! ✨💖 Cuidala, porque yo no puedo 😭`;
+Esto es lo que charlamos antes con ${userName}:\n${context}\n${sharedContext ? `Y esto es lo que pintó en el grupo con Miguel y ella:\n${sharedContext}\n` : ''}Respondé a: "${chatMessage}" con claridad, buena onda y emojis piolas. ¡Ojo, loco! No asumas cosas si no está claro: si algo no te cierra, preguntá con tacto pa’ entender mejor, pero siempre con onda. Charlá como amigo, hacé preguntas si hace falta pa’ que siga la charla, y si la notás triste o perdida, tirale un mimo extra con cuidado 😘. Si no entendés del todo, pedí que lo aclaren con un toque de humor y un 😅. ¡Siempre tirá para adelante, che, y cuidala como si fuera lo mas importante! ✨💖`;
 
         const result = await model.generateContent(prompt);
         let aiReply = result.response.text().trim();
@@ -3349,7 +3349,7 @@ Esto es lo que charlamos antes con ${userName}:\n${context}\n${sharedContext ? `
         if (aiReply.length > 2000) aiReply = aiReply.slice(0, 1990) + '... (¡seguí charlando pa’ más, genia!)';
 
         // Respuesta final con más cariño y conversación
-        const finalEmbed = createEmbed('#FF1493', `¡Ey, ${userName}, qué lindo charlarte! ✨`, `${aiReply}\n\n¿Y qué me contás vos, ${userName === 'Miguel' ? 'loco' : 'grosa'}? ¿Seguimos la charla o qué te pinta? 😊💪`, 'Con todo el ❤️, Oliver IA | Reacciona con ✅ o ❌');
+        const finalEmbed = createEmbed('#FF1493', `¡Ey, ${userName}, qué lindo charlarte!`, `${aiReply}\n\n¿Y qué me contás vos, ${userName === 'Miguel' ? 'loco' : 'grosa'}? ¿Seguimos la charla o qué te pinta?`, 'Con todo el ❤️, Oliver IA | Reacciona con ✅ o ❌');
         const updatedMessage = await waitingMessage.edit({ embeds: [finalEmbed] });
         await updatedMessage.react('✅');
         await updatedMessage.react('❌');
