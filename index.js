@@ -3349,7 +3349,7 @@ Esto es lo que charlamos antes con ${userName}:\n${context}\n${sharedContext ? `
         if (aiReply.length > 2000) aiReply = aiReply.slice(0, 1990) + '... (¡seguí charlando pa’ más, genia!)';
 
         // Respuesta final con más cariño y conversación
-        const finalEmbed = createEmbed('#FF1493', `¡Ey, ${userName}, qué lindo charlarte!`, `${aiReply}\n\n¿Y qué me contás vos, ${userName === 'Miguel' ? 'loco' : 'grosa'}? ¿Seguimos la charla o qué te pinta?`, 'Con todo el ❤️, Oliver IA | Reacciona con ✅ o ❌');
+        const finalEmbed = createEmbed('#FF1493', `¡Hola, ${userName}!`, `${aiReply}\n\n¿Y qué me contás vos, ${userName === 'Miguel' ? 'loco' : 'grosa'}? ¿Seguimos la charla o qué te pinta?`, 'Con todo el ❤️, Oliver IA | Reacciona con ✅ o ❌');
         const updatedMessage = await waitingMessage.edit({ embeds: [finalEmbed] });
         await updatedMessage.react('✅');
         await updatedMessage.react('❌');
