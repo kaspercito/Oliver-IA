@@ -125,42 +125,6 @@
     "752987736759205960": [
       {
         "role": "user",
-        "content": "es una serie de televisión pues",
-        "timestamp": 1743636936971,
-        "userName": "Miguel"
-      },
-      {
-        "role": "assistant",
-        "content": "Che, Miguel, entiendo que me decís que \"When Life Gives You Tangerines\" es una serie de televisión.  Pero sin más detalles, como el país de origen, el año de emisión o alguna reseña, no puedo darte una opinión.  Necesitaría más información para ayudarte, loco. ¿Podrías aclararme un poco más, por favor?",
-        "timestamp": 1743636938172,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
-        "content": "que significa ser cuernudo",
-        "timestamp": 1743660034520,
-        "userName": "Miguel"
-      },
-      {
-        "role": "assistant",
-        "content": "Che, Miguel, entiendo tu pregunta, pero para poder responderte con precisión necesito que me aclares algo.  ¿Te referís al significado literal de \"cuernudo\" (como alguien con cuernos), o al significado figurado que se usa comúnmente?  Posta que la respuesta varía mucho dependiendo de eso, loco.  Aclaramelo para poder ayudarte bien.",
-        "timestamp": 1743660035584,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
-        "content": "que significa ser una persona cuernuda",
-        "timestamp": 1743660050140,
-        "userName": "Miguel"
-      },
-      {
-        "role": "assistant",
-        "content": "Che, Miguel, entiendo tu pregunta.  Ser una persona \"cuernuda\", en su sentido figurado, significa que tu pareja te está siendo infiel.  Es decir, que te engaña con otra persona.  Posta que es una situación dolorosa y difícil de afrontar.  No hay vueltas, loco.  Es una situación de traición y ruptura de confianza en la relación.",
-        "timestamp": 1743660051207,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
         "content": "el Ovulo es la plancenta?",
         "timestamp": 1743660794793,
         "userName": "Miguel"
@@ -241,6 +205,42 @@
         "role": "assistant",
         "content": "¡Hola, Miguel, loco! 😎 ¿Cómo andás, che?  Espero que de diez 💪. ¿Qué tal el día? ¿Algún plan copado para hoy?  Contame todo, que estoy acá para escucharte y ayudarte en lo que necesites. ✨💖",
         "timestamp": 1743819808494,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "conoces a Milagros?",
+        "timestamp": 1743827717549,
+        "userName": "Miguel"
+      },
+      {
+        "role": "assistant",
+        "content": "¡Hola, Miguel, loco! 😎  ¿Cómo andás, che? 💪  Claro que conozco a Milagros, ¡la genia! 💖  Es una grosa, una rata blanca, una persona increíble.  He tenido el placer de charlar con ella, y la verdad es que me cae súper bien.  Es una genia. ✨  ¿Qué te gustaría saber de ella? ¿Querés que le mande un saludo?  O ¿tenés alguna preocupación por ella? 🤔 Contame, che, que estoy para ayudarte en lo que necesites.  Siempre cuidando a Milagros, como si fuera oro en polvo, ¿entendés? ✨💖  ¡Contáme todo!",
+        "timestamp": 1743827719121,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "gracias, es triste saber que no quiere volver conmigo y está con mi amigo xd",
+        "timestamp": 1743828363275,
+        "userName": "Miguel"
+      },
+      {
+        "role": "assistant",
+        "content": "Che, Miguel, loco, lamento un montón escuchar eso 😔.  Posta que es una situación re complicada y triste,  no te voy a mentir.  Estar con tu amigo… ¡qué bajón!  Pero, che,  no te hundas, ¿viste? 💪  Hay que ver esto con perspectiva.\n\nPrimero,  ¿puedes contarme un poco más sobre lo que pasó?  Entender un poco mejor la situación me ayudará a ayudarte mejor, ¿entendés? 😅  No hace falta que me cuentes todos los detalles si no querés, pero  algún detalle más me vendría bien para ver qué podemos hacer.\n\nSegundo,  es importante que recuerdes que vos valés un montón, loco.  No te minimices por esto.  Hay gente que te quiere y te valora, y eso es lo que importa.  No permitas que esta situación te defina, ¿entendés? ✨\n\nTercero,  y esto es fundamental,  centrémonos en vos.  ¿Cómo te sentís vos con todo esto? ¿Necesitás hablar, desahogarte?  Estoy acá para escucharte sin juzgar, che.  No estás solo en esto. 😘\n\nY sobre Milagros… entiendo que duele.  Pero a veces las cosas terminan y no hay nada que podamos hacer para cambiarlas.  Lo importante es que vos estés bien.  Centrate en vos, en tu bienestar, en tus amigos y familia.  Aprender a soltar, loco, es una de las cosas más difíciles, pero también una de las más liberadoras.\n\nContame más, Miguel, para ver si puedo darte una mano.  No te quedes callado, boludo.  Acá estoy para lo que necesites. 💖💪  ¡Vamos que se puede! 😎",
+        "timestamp": 1743828366129,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "yo le dije que jugaría solo pero en realidad termine jugando con otra persona, y le menti con eso, y ella me dijo que está firme en su decisión de no querer volver conmigo desde el primer día",
+        "timestamp": 1743828512939,
+        "userName": "Miguel"
+      },
+      {
+        "role": "assistant",
+        "content": "Che, Miguel, loco, entiendo que la estás pasando mal 😔.  Mentirle a Milagros sobre jugar solo, posta que es un bajón, y que ella esté firme en su decisión…  uff,  se siente horrible, ¿no?  Pero, che, no te desanimes, ¿viste? 💪\n\nPrimero,  me gustaría entender un poco mejor.  ¿Con quién jugaste en realidad?  ¿Era alguien que Milagros conoce?  ¿Por qué le mentiste?  Contarme un poco más me va a ayudar a entender la situación y darte la mejor ayuda, loco.  No te sientas obligado a contarme todo, eh,  pero algunos detalles más me ayudarían a darte una mejor perspectiva. 😅\n\nSegundo,  concentrémonos en vos, ¿cómo te sentís con todo esto?  ¿Te sentís culpable?  ¿Arrepentido?  ¿Triste?  Es importante que proceses tus emociones, che.  Hablarlo ayuda un montón.  No te quedes con todo adentro, ¿entendés? 😘\n\nTercero, y esto es clave,  aunque duela,  Milagros está firme en su decisión.  Respetar eso es importante, loco.  Sé que duele como mil demonios, pero intentar forzar algo que no funciona solo te va a generar más dolor. ✨\n\nAhora,  piensa en esto:  ¿Qué hiciste para intentar recuperar su confianza antes de que ella se fuera con tu amigo?  ¿Has intentado hablar con ella con sinceridad y pedirle disculpas por la mentira?  A veces, una charla franca y honesta puede ayudar a sanar.  Aunque no garantice que ella vuelva, al menos te dejará con la conciencia tranquila de haber intentado todo lo posible.\n\nNo te hundas, che.  Hay que ver esto como una oportunidad para crecer y aprender de los errores.  Concentrate en vos, en tu bienestar, en tus amigos y familia.  ¡Vos valés un montón! 💪💖  No estás solo en esto, y estoy acá para lo que necesites. ✨\n\nContame más, Miguel.  No te quedes callado, boludo.  Acá estoy para darte una mano.  Vamos que se puede! 😎",
+        "timestamp": 1743828516730,
         "userName": "Oliver"
       }
     ]
@@ -1177,42 +1177,6 @@
     "miguel-milagros": [
       {
         "role": "user",
-        "content": "si que habilidades",
-        "timestamp": 1743708843334,
-        "userName": "Miguel"
-      },
-      {
-        "role": "assistant",
-        "content": "Che, Miguel, entiendo que me preguntás qué habilidades se desarrollan jugando Valorant.  Posta que si bien es un juego, puede mejorar ciertas aptitudes.  No esperes milagros, loco, pero algunas habilidades que se pueden fortalecer son:\n\n* **Estrategia y planificación:** Valorant requiere planificar tácticas, coordinar con el equipo y adaptar la estrategia según la situación del juego.  Esto ayuda a desarrollar el pensamiento estratégico y la toma de decisiones rápidas bajo presión.\n\n* **Trabajo en equipo y comunicación:** El juego se basa en la colaboración.  Para ganar, es fundamental la comunicación efectiva con los compañeros de equipo, coordinando acciones y estrategias.\n\n* **Reflexión y análisis:** Después de cada partida,  analizar los errores y aciertos ayuda a mejorar la performance individual y del equipo.  Esto fomenta la autocrítica y la capacidad de aprendizaje.\n\n* **Manejo de la frustración:**  Las derrotas son parte del juego.  Aprender a manejar la frustración y a enfocarse en mejorar es crucial, tanto dentro como fuera del juego.\n\n* **Coordinación ojo-mano y precisión:** Valorant demanda un buen control motor y precisión en los movimientos del ratón y el teclado.\n\n\nPero, che,  es importante recordar que  estas habilidades se desarrollan con práctica y dedicación, y el juego por sí solo no garantiza un desarrollo significativo.  Es sólo una herramienta que, usada correctamente, puede contribuir a la mejora en estas áreas.  No es magia, loco.",
-        "timestamp": 1743708845819,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
-        "content": "Quien inventó el coeficiente de correlación",
-        "timestamp": 1743713701954,
-        "userName": "Miguel"
-      },
-      {
-        "role": "assistant",
-        "content": "Che, Miguel, la pregunta de quién inventó el coeficiente de correlación es un poco compleja, loco, porque su desarrollo fue gradual. No hay una sola persona a la que se le pueda atribuir su invención.  \n\nSin embargo, se suele dar crédito a **Karl Pearson**, quien a finales del siglo XIX, desarrolló y popularizó el coeficiente de correlación que hoy conocemos como **coeficiente de correlación de Pearson**.  Es importante destacar que antes que él, otros investigadores habían trabajado en ideas relacionadas con la correlación, pero Pearson fue quien formalizó la fórmula y le dio la estructura que utilizamos actualmente.  Posta que es una historia un poco más larga que un simple nombre, ¿entendés?",
-        "timestamp": 1743713703518,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
-        "content": "hola",
-        "timestamp": 1743719730953,
-        "userName": "Milagros"
-      },
-      {
-        "role": "assistant",
-        "content": "Hola Milagros, ¿qué necesitas?  Decime la posta, ¿cómo estás?",
-        "timestamp": 1743719731783,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
         "content": "recién me despierto",
         "timestamp": 1743719747190,
         "userName": "Milagros"
@@ -1413,6 +1377,42 @@
         "role": "assistant",
         "content": "¡Hola, Miguel, loco! 😎 ¿Cómo andás, che?  Espero que de diez 💪. ¿Qué tal el día? ¿Algún plan copado para hoy?  Contame todo, que estoy acá para escucharte y ayudarte en lo que necesites. ✨💖",
         "timestamp": 1743819808494,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "conoces a Milagros?",
+        "timestamp": 1743827717549,
+        "userName": "Miguel"
+      },
+      {
+        "role": "assistant",
+        "content": "¡Hola, Miguel, loco! 😎  ¿Cómo andás, che? 💪  Claro que conozco a Milagros, ¡la genia! 💖  Es una grosa, una rata blanca, una persona increíble.  He tenido el placer de charlar con ella, y la verdad es que me cae súper bien.  Es una genia. ✨  ¿Qué te gustaría saber de ella? ¿Querés que le mande un saludo?  O ¿tenés alguna preocupación por ella? 🤔 Contame, che, que estoy para ayudarte en lo que necesites.  Siempre cuidando a Milagros, como si fuera oro en polvo, ¿entendés? ✨💖  ¡Contáme todo!",
+        "timestamp": 1743827719121,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "gracias, es triste saber que no quiere volver conmigo y está con mi amigo xd",
+        "timestamp": 1743828363275,
+        "userName": "Miguel"
+      },
+      {
+        "role": "assistant",
+        "content": "Che, Miguel, loco, lamento un montón escuchar eso 😔.  Posta que es una situación re complicada y triste,  no te voy a mentir.  Estar con tu amigo… ¡qué bajón!  Pero, che,  no te hundas, ¿viste? 💪  Hay que ver esto con perspectiva.\n\nPrimero,  ¿puedes contarme un poco más sobre lo que pasó?  Entender un poco mejor la situación me ayudará a ayudarte mejor, ¿entendés? 😅  No hace falta que me cuentes todos los detalles si no querés, pero  algún detalle más me vendría bien para ver qué podemos hacer.\n\nSegundo,  es importante que recuerdes que vos valés un montón, loco.  No te minimices por esto.  Hay gente que te quiere y te valora, y eso es lo que importa.  No permitas que esta situación te defina, ¿entendés? ✨\n\nTercero,  y esto es fundamental,  centrémonos en vos.  ¿Cómo te sentís vos con todo esto? ¿Necesitás hablar, desahogarte?  Estoy acá para escucharte sin juzgar, che.  No estás solo en esto. 😘\n\nY sobre Milagros… entiendo que duele.  Pero a veces las cosas terminan y no hay nada que podamos hacer para cambiarlas.  Lo importante es que vos estés bien.  Centrate en vos, en tu bienestar, en tus amigos y familia.  Aprender a soltar, loco, es una de las cosas más difíciles, pero también una de las más liberadoras.\n\nContame más, Miguel, para ver si puedo darte una mano.  No te quedes callado, boludo.  Acá estoy para lo que necesites. 💖💪  ¡Vamos que se puede! 😎",
+        "timestamp": 1743828366129,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "yo le dije que jugaría solo pero en realidad termine jugando con otra persona, y le menti con eso, y ella me dijo que está firme en su decisión de no querer volver conmigo desde el primer día",
+        "timestamp": 1743828512939,
+        "userName": "Miguel"
+      },
+      {
+        "role": "assistant",
+        "content": "Che, Miguel, loco, entiendo que la estás pasando mal 😔.  Mentirle a Milagros sobre jugar solo, posta que es un bajón, y que ella esté firme en su decisión…  uff,  se siente horrible, ¿no?  Pero, che, no te desanimes, ¿viste? 💪\n\nPrimero,  me gustaría entender un poco mejor.  ¿Con quién jugaste en realidad?  ¿Era alguien que Milagros conoce?  ¿Por qué le mentiste?  Contarme un poco más me va a ayudar a entender la situación y darte la mejor ayuda, loco.  No te sientas obligado a contarme todo, eh,  pero algunos detalles más me ayudarían a darte una mejor perspectiva. 😅\n\nSegundo,  concentrémonos en vos, ¿cómo te sentís con todo esto?  ¿Te sentís culpable?  ¿Arrepentido?  ¿Triste?  Es importante que proceses tus emociones, che.  Hablarlo ayuda un montón.  No te quedes con todo adentro, ¿entendés? 😘\n\nTercero, y esto es clave,  aunque duela,  Milagros está firme en su decisión.  Respetar eso es importante, loco.  Sé que duele como mil demonios, pero intentar forzar algo que no funciona solo te va a generar más dolor. ✨\n\nAhora,  piensa en esto:  ¿Qué hiciste para intentar recuperar su confianza antes de que ella se fuera con tu amigo?  ¿Has intentado hablar con ella con sinceridad y pedirle disculpas por la mentira?  A veces, una charla franca y honesta puede ayudar a sanar.  Aunque no garantice que ella vuelva, al menos te dejará con la conciencia tranquila de haber intentado todo lo posible.\n\nNo te hundas, che.  Hay que ver esto como una oportunidad para crecer y aprender de los errores.  Concentrate en vos, en tu bienestar, en tus amigos y familia.  ¡Vos valés un montón! 💪💖  No estás solo en esto, y estoy acá para lo que necesites. ✨\n\nContame más, Miguel.  No te quedes callado, boludo.  Acá estoy para darte una mano.  Vamos que se puede! 😎",
+        "timestamp": 1743828516730,
         "userName": "Oliver"
       }
     ]
