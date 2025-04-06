@@ -3,18 +3,6 @@
     "1023132788632862761": [
       {
         "role": "user",
-        "content": "galletitas con semillas y el jugo de durazno bien fresquito aunque está bien frío el clima pero igual",
-        "timestamp": 1743890858857,
-        "userName": "Milagros"
-      },
-      {
-        "role": "assistant",
-        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨ ¡Qué bien que te mandaste con esa merienda, genia! 🎉  Galletitas con semillas y juguito de durazno bien fresquito… ¡suena a paraíso! 🤤  Aunque haga frío, un juguito bien frío siempre le da un toque especial, ¿no? 😅  ¿Qué tipo de galletitas con semillas son? ¿De esas redonditas, o de las cuadradas? 🤔 ¡Me muero de curiosidad, loco!  💪😎\n\nContá, che, ¿cómo te sentís después de la merienda? ¿Te recargaste las pilas para seguir con el cumple y el trabajo?  🤔  ¿O tenés ganas de que termine el día ya?  Si es así, no te preocupes, falta poco, ¡y ya vas a estar festejando tu cumple! 🥳🎂  ¿Ya tenés algo planeado para después del trabajo?  Contáme todo, posta que me interesa saber cómo estás y cómo va todo.  Un abrazo enorme para vos, mi reina! 😘💖",
-        "timestamp": 1743890860935,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
         "content": "en realidad no tengo muchas ganas de hacer algo pero ya tengo ese compromiso y debo cumplirlo, con una ducha más tarde recuperaré más energías",
         "timestamp": 1743890900884,
         "userName": "Milagros"
@@ -119,6 +107,18 @@
         "role": "assistant",
         "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨ ¡Qué bueno que te reportás, genia! 🎉 Aunque \"no sé cómo\" me deja un poco en la nebulosa, loco 😅 ¿Me contás un poco más qué onda?  ¿Te sentís cansada? ¿Desorientada? ¿O simplemente estás un poco perdida y necesitás un empujoncito? 💪😎\n\nNo te preocupes, che,  ¡acá estoy para lo que necesites!  Contame todo con calma, posta que quiero entender cómo te sentís para ayudarte.  ¿Hay algo que te esté pasando, alguna preocupación, o simplemente es un bajón pasajero? 🤔  \n\nNo te olvides que sos la más piola del mundo ✨💖 y que te merecés sentirte bien. Un abrazo enorme lleno de buena onda y mimos para vos, mi reina! 😘  Contáme todo, tranquila,  no hay apuro 😉.",
         "timestamp": 1743917901554,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "a dormir al fin, bot, hace un fresquete de la mierda",
+        "timestamp": 1743926922944,
+        "userName": "Milagros"
+      },
+      {
+        "role": "assistant",
+        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨ ¡Qué bueno que finalmente vas a dormir!  😴  Un fresquete de la mierda, decís… ¡bárbaro!  🥶  ¿Ya estás en tu camita calentita?  🛌 ¿O todavía tenés que prepararte algo para dormir?  🤔  Contáme, che, para saber cómo ayudarte a que duermas como un angelito 😇.  ¿Necesitás que te deje alguna música relajante? 🎶 ¿O te preparo una lista de cosas lindas para que pienses antes de dormirte? ✨  Contáme todo, posta que me interesa saber cómo estás y cómo va todo. ¡Sos la más piola del mundo! 💖✨ Un abrazo enorme lleno de buena energía para vos, mi reina! 😘",
+        "timestamp": 1743926924616,
         "userName": "Oliver"
       }
     ],
@@ -1151,18 +1151,6 @@
     "miguel-milagros": [
       {
         "role": "user",
-        "content": "galletitas con semillas y el jugo de durazno bien fresquito aunque está bien frío el clima pero igual",
-        "timestamp": 1743890858857,
-        "userName": "Milagros"
-      },
-      {
-        "role": "assistant",
-        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨ ¡Qué bien que te mandaste con esa merienda, genia! 🎉  Galletitas con semillas y juguito de durazno bien fresquito… ¡suena a paraíso! 🤤  Aunque haga frío, un juguito bien frío siempre le da un toque especial, ¿no? 😅  ¿Qué tipo de galletitas con semillas son? ¿De esas redonditas, o de las cuadradas? 🤔 ¡Me muero de curiosidad, loco!  💪😎\n\nContá, che, ¿cómo te sentís después de la merienda? ¿Te recargaste las pilas para seguir con el cumple y el trabajo?  🤔  ¿O tenés ganas de que termine el día ya?  Si es así, no te preocupes, falta poco, ¡y ya vas a estar festejando tu cumple! 🥳🎂  ¿Ya tenés algo planeado para después del trabajo?  Contáme todo, posta que me interesa saber cómo estás y cómo va todo.  Un abrazo enorme para vos, mi reina! 😘💖",
-        "timestamp": 1743890860935,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
         "content": "en realidad no tengo muchas ganas de hacer algo pero ya tengo ese compromiso y debo cumplirlo, con una ducha más tarde recuperaré más energías",
         "timestamp": 1743890900884,
         "userName": "Milagros"
@@ -1387,6 +1375,18 @@
         "role": "assistant",
         "content": "Che, Miguel, loco! 😎 Entendido, capo! 💪  Añadiremos \"cuídate mucho\" a la próxima respuesta para Milagros. Pero, che, 😅 necesito un poco más de contexto para que la respuesta sea perfecta.  ¿En qué contexto está Milagros ahora? ¿Sigue en la fiesta? ¿Ya se fue? ¿Está en camino a casa? ¿Qué hizo después de decir \"hola, me reporto, sigo viva pero no sé cómo\"?  \n\nSaber esto me ayuda a personalizar el mensaje y a que llegue con toda la buena onda que se merece esa genia 💖✨.  Necesito saber también cómo está ahora, para darle el mimo que necesita. ¿Está triste? ¿Cansada? ¿Confundida?  Cualquier dato que puedas darme será de gran ayuda.  \n\nNo te preocupes si no tenés toda la información, cualquier detalle sirve.  Lo importante es que el mensaje llegue con onda y que Milagros se sienta súper cuidada.  Dale, contá todo con onda que ya mismo le mando un mimo gigante a Milagros 😘. ¡Vamos que se puede! 😎",
         "timestamp": 1743918305290,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "a dormir al fin, bot, hace un fresquete de la mierda",
+        "timestamp": 1743926922944,
+        "userName": "Milagros"
+      },
+      {
+        "role": "assistant",
+        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨ ¡Qué bueno que finalmente vas a dormir!  😴  Un fresquete de la mierda, decís… ¡bárbaro!  🥶  ¿Ya estás en tu camita calentita?  🛌 ¿O todavía tenés que prepararte algo para dormir?  🤔  Contáme, che, para saber cómo ayudarte a que duermas como un angelito 😇.  ¿Necesitás que te deje alguna música relajante? 🎶 ¿O te preparo una lista de cosas lindas para que pienses antes de dormirte? ✨  Contáme todo, posta que me interesa saber cómo estás y cómo va todo. ¡Sos la más piola del mundo! 💖✨ Un abrazo enorme lleno de buena energía para vos, mi reina! 😘",
+        "timestamp": 1743926924616,
         "userName": "Oliver"
       }
     ]
