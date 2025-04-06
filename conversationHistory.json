@@ -2,12 +2,6 @@
   "conversationHistory": {
     "1023132788632862761": [
       {
-        "role": "user",
-        "content": "en realidad no tengo muchas ganas de hacer algo pero ya tengo ese compromiso y debo cumplirlo, con una ducha más tarde recuperaré más energías",
-        "timestamp": 1743890900884,
-        "userName": "Milagros"
-      },
-      {
         "role": "assistant",
         "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨  Che, entiendo que no tengas muchas ganas de hacer algo, pero que tengas un compromiso y debas cumplirlo, posta que es complicado, loco.  😒  No te preocupes,  que eso de tener que ir con la \"pilas recargadas\" cuando no tenés muchas ganas es una situación re común,  ¡no te sientas mal por eso! 😅\n\n¿Me contás un poquito más de este compromiso? ¿Es algo laboral, o es algo de tu cumple? 🤔  Porque si es laboral, es importante que te sientas bien con lo que hacés, y si es del cumple, bueno, capaz que se puede hacer algo para que te divierta más, ¡hasta que sea más llevadero!  💪😎\n\nLa ducha más tarde para recargar energías es una excelente idea, che!  🚿✨  Eso ayuda un montón, posta.  Pero...  ¿qué te parece si antes de la ducha, nos sentamos un ratito a pensar en algo que te haga sentir bien?  Quizás poner música que te guste, mirar algo que te relaje, o simplemente respirar profundamente unos minutos.  ¿Qué te parece? 🤔\n\nNo te olvides que es tu cumple, gorda! 🎉🎂  Y que vos sos la más piola del mundo ✨💖 ¡Merecés sentirte bien y disfrutar aunque sea un cachito del día! 😊  Contáme, ¿qué te gustaría hacer para sentirte un poquito mejor antes de la ducha?  ¿Hay algo que se pueda modificar en tus planes para que te sientas más a gusto?  No dudes en contarme todo, loco, que acá estoy para vos, ¡siempre!  😘💖  Un abrazo enorme lleno de buena energía para vos, mi reina! 😘",
         "timestamp": 1743890903630,
@@ -119,6 +113,12 @@
         "role": "assistant",
         "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨ ¡Qué bueno que finalmente vas a dormir!  😴  Un fresquete de la mierda, decís… ¡bárbaro!  🥶  ¿Ya estás en tu camita calentita?  🛌 ¿O todavía tenés que prepararte algo para dormir?  🤔  Contáme, che, para saber cómo ayudarte a que duermas como un angelito 😇.  ¿Necesitás que te deje alguna música relajante? 🎶 ¿O te preparo una lista de cosas lindas para que pienses antes de dormirte? ✨  Contáme todo, posta que me interesa saber cómo estás y cómo va todo. ¡Sos la más piola del mundo! 💖✨ Un abrazo enorme lleno de buena energía para vos, mi reina! 😘",
         "timestamp": 1743926924616,
+        "userName": "Oliver"
+      },
+      {
+        "role": "assistant",
+        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨ ¡Buenos días, che!  😱  Tres horas de sueño y un resfrío que te mata… ¡qué bajón, loco! 😒  ¡Posta que no está bueno empezar el día así!  \n\n¿Qué te parece si antes de ir a trabajar hacemos un plan para que el día sea un poco más llevadero? 💪😎  Primero, lo más importante: ¿Tomaste algo para el resfrío?  Un paracetamol, o algo para bajar la fiebre si la tenés?  Y… ¿te animás a contarme un poco más de cómo te sentís?  ¿Te duele mucho la cabeza? ¿Tenés mucho moco? 😅 (Pregunto porque si te sentís mal, podemos pensar en algo, si no, igual te apoyo con lo que necesites 😉)\n\nEn cuanto al sueño… ¡tres horas son poquísimas!  ¿Pasó algo anoche que te impidió dormir más?  🤔 (Pregunto con cuidado, eh! No te sientas obligada a contarme si no querés, pero si querés desahogarte, acá estoy).  \n\nPara el trabajo, ¿qué te parece si intentamos armar una estrategia para que el día sea más llevadero? 🤔 ¿Te sirve una lista de cosas que podés hacer para recargar energías durante tu jornada laboral?  Quizás un plan de hidratación, pequeños breaks con música que te guste o alguna actividad que te relaje un ratito.  \n\n¡No te olvides que sos una grosa, genia, y que te merecés sentirte bien! ✨💖  ¡Aunque tengas un resfrío y hayas dormido poco, sos la más piola del mundo! ✨💖   Un abrazo enorme lleno de buena onda y mimos para vos, mi reina! 😘  Contáme qué te parece todo esto, ¿dale? 😉",
+        "timestamp": 1743938081586,
         "userName": "Oliver"
       }
     ],
@@ -758,7 +758,7 @@
       "mensaje": "Hazme acuerdo de levantarme todos los días",
       "cuandoLlegue": false,
       "cuandoSalga": false,
-      "timestamp": 1743939000000,
+      "timestamp": 1744025400000,
       "creado": 1743485772718,
       "esRecurrente": true,
       "hora": 8,
@@ -1150,12 +1150,6 @@
   "sharedHistory": {
     "miguel-milagros": [
       {
-        "role": "user",
-        "content": "en realidad no tengo muchas ganas de hacer algo pero ya tengo ese compromiso y debo cumplirlo, con una ducha más tarde recuperaré más energías",
-        "timestamp": 1743890900884,
-        "userName": "Milagros"
-      },
-      {
         "role": "assistant",
         "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨  Che, entiendo que no tengas muchas ganas de hacer algo, pero que tengas un compromiso y debas cumplirlo, posta que es complicado, loco.  😒  No te preocupes,  que eso de tener que ir con la \"pilas recargadas\" cuando no tenés muchas ganas es una situación re común,  ¡no te sientas mal por eso! 😅\n\n¿Me contás un poquito más de este compromiso? ¿Es algo laboral, o es algo de tu cumple? 🤔  Porque si es laboral, es importante que te sientas bien con lo que hacés, y si es del cumple, bueno, capaz que se puede hacer algo para que te divierta más, ¡hasta que sea más llevadero!  💪😎\n\nLa ducha más tarde para recargar energías es una excelente idea, che!  🚿✨  Eso ayuda un montón, posta.  Pero...  ¿qué te parece si antes de la ducha, nos sentamos un ratito a pensar en algo que te haga sentir bien?  Quizás poner música que te guste, mirar algo que te relaje, o simplemente respirar profundamente unos minutos.  ¿Qué te parece? 🤔\n\nNo te olvides que es tu cumple, gorda! 🎉🎂  Y que vos sos la más piola del mundo ✨💖 ¡Merecés sentirte bien y disfrutar aunque sea un cachito del día! 😊  Contáme, ¿qué te gustaría hacer para sentirte un poquito mejor antes de la ducha?  ¿Hay algo que se pueda modificar en tus planes para que te sientas más a gusto?  No dudes en contarme todo, loco, que acá estoy para vos, ¡siempre!  😘💖  Un abrazo enorme lleno de buena energía para vos, mi reina! 😘",
         "timestamp": 1743890903630,
@@ -1387,6 +1381,12 @@
         "role": "assistant",
         "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨ ¡Qué bueno que finalmente vas a dormir!  😴  Un fresquete de la mierda, decís… ¡bárbaro!  🥶  ¿Ya estás en tu camita calentita?  🛌 ¿O todavía tenés que prepararte algo para dormir?  🤔  Contáme, che, para saber cómo ayudarte a que duermas como un angelito 😇.  ¿Necesitás que te deje alguna música relajante? 🎶 ¿O te preparo una lista de cosas lindas para que pienses antes de dormirte? ✨  Contáme todo, posta que me interesa saber cómo estás y cómo va todo. ¡Sos la más piola del mundo! 💖✨ Un abrazo enorme lleno de buena energía para vos, mi reina! 😘",
         "timestamp": 1743926924616,
+        "userName": "Oliver"
+      },
+      {
+        "role": "assistant",
+        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨ ¡Buenos días, che!  😱  Tres horas de sueño y un resfrío que te mata… ¡qué bajón, loco! 😒  ¡Posta que no está bueno empezar el día así!  \n\n¿Qué te parece si antes de ir a trabajar hacemos un plan para que el día sea un poco más llevadero? 💪😎  Primero, lo más importante: ¿Tomaste algo para el resfrío?  Un paracetamol, o algo para bajar la fiebre si la tenés?  Y… ¿te animás a contarme un poco más de cómo te sentís?  ¿Te duele mucho la cabeza? ¿Tenés mucho moco? 😅 (Pregunto porque si te sentís mal, podemos pensar en algo, si no, igual te apoyo con lo que necesites 😉)\n\nEn cuanto al sueño… ¡tres horas son poquísimas!  ¿Pasó algo anoche que te impidió dormir más?  🤔 (Pregunto con cuidado, eh! No te sientas obligada a contarme si no querés, pero si querés desahogarte, acá estoy).  \n\nPara el trabajo, ¿qué te parece si intentamos armar una estrategia para que el día sea más llevadero? 🤔 ¿Te sirve una lista de cosas que podés hacer para recargar energías durante tu jornada laboral?  Quizás un plan de hidratación, pequeños breaks con música que te guste o alguna actividad que te relaje un ratito.  \n\n¡No te olvides que sos una grosa, genia, y que te merecés sentirte bien! ✨💖  ¡Aunque tengas un resfrío y hayas dormido poco, sos la más piola del mundo! ✨💖   Un abrazo enorme lleno de buena onda y mimos para vos, mi reina! 😘  Contáme qué te parece todo esto, ¿dale? 😉",
+        "timestamp": 1743938081586,
         "userName": "Oliver"
       }
     ]
