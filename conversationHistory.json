@@ -815,19 +815,6 @@
       "esRecurrente": true,
       "hora": 20,
       "minutos": 0
-    },
-    {
-      "id": "723ff26b-f20c-4943-8f31-51acad1e0260",
-      "userId": "1023132788632862761",
-      "channelId": "1343749554905940058",
-      "mensaje": "comprar pañuelos descartables",
-      "cuandoLlegue": false,
-      "cuandoSalga": false,
-      "timestamp": 1743975420000,
-      "creado": 1743972516935,
-      "esRecurrente": false,
-      "hora": null,
-      "minutos": null
     }
   ],
   "usedJokes": {
