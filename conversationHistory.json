@@ -3,18 +3,6 @@
     "1023132788632862761": [
       {
         "role": "user",
-        "content": "hoy tengo un cumpleaños y puro trabajar y trabajar",
-        "timestamp": 1743845610954,
-        "userName": "Milagros"
-      },
-      {
-        "role": "assistant",
-        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨ ¡Feliz cumpleaños, genia! 🎉🎂  ¡Qué macana que tengas que laburar el día de tu cumple, che!  Eso sí que es una mala onda 😒.  Pero bueno,  ¡vamos a ver si lo hacemos un poco más llevadero! 💪\n\nContame, ¿quién cumple años? ¿Vos? ¿Algún amig@?  ¿Vas a poder festejar aunque sea un ratito después del trabajo?  🤔\n\n¡No te quedes solo con el trabajo, loco!  Ese cumple merece un festejo, aunque sea chiquito.  ¿Qué te gustaría hacer para celebrarlo, aunque sea un poco?  ¿Un cafecito rico? ☕🍰  ¿Una videollamada con amig@s? 📱🥳  ¿Un rico postre después de laburar? 🤤🎂\n\nNo te dejes caer, che.  Es tu día, ¡y te lo merecés! ✨  Si necesitas un abrazo virtual, acá estoy para darte todo el apoyo que necesites 🤗.  ¡No te olvides de darte un mimo a vos también, eh!  ¡Sos una gorda hermosa y mereces ser festejada como corresponde!  💖😘\n\n¡Contáme todo, que te escucho con toda la buena onda, loco! 😎💪  Y si necesitas algo más, no dudes en pedírmelo, eh.  ¡Sos lo más importante! ✨💖",
-        "timestamp": 1743845613616,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
         "content": "hola, botsito, break para merendar alguito",
         "timestamp": 1743890532761,
         "userName": "Milagros"
@@ -119,6 +107,18 @@
         "role": "assistant",
         "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨ ¡Qué copado que te gusten los juegos, genia! 🎉💪  ¡Esa competitividad es genial, loco! 😎  Me encanta que quieras ganar siempre, ¡eso demuestra que tenés garra y pilas!  🤩\n\nChe, ¿qué tipo de juegos te gustan más? 🤔 ¿Juegos de mesa, juegos de ingenio, juegos de cartas…?  Contáme para imaginarme la movida, ¡me muero de curiosidad! 😅  Y… ¿qué tipo de juegos crees que habrá en el cumple de tu amiga?  ¿Ya lo sabes, o es sorpresa? 😉\n\nY sobre el outfit… ¡canchero y abrigado, perfecto para un día con frío! 👌🧥  ¿Es un outfit que ya tenés en mente, o todavía lo estás pensando?  ¿Me contás un poco más?  🤔  (Si querés, obvio, no hay drama si no te querés meter en detalles, eh! 😅)\n\n¡Que la pases genial en el cumple, che! 🥳🎉  ¡Disfruta un montón de la noche, y no te olvides que sos una grosa que merece pasarla bomba! ✨💖  Después contame todo lo que pasó, ¿dale? 😉  Un abrazo enorme lleno de buena energía para vos, mi reina! 😘",
         "timestamp": 1743891075528,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "hola, ya estoy en la fiesta y me duele la cabeza, me apetece mucho dormir",
+        "timestamp": 1743903462866,
+        "userName": "Milagros"
+      },
+      {
+        "role": "assistant",
+        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨ ¡Qué mala onda que te duela la cabeza justo en la fiesta! 😒  ¡Che, qué bajón!  Pero bueno,  vamos a ver qué podemos hacer para que te sientas mejor, ¿dale? 💪\n\n¿Posta que te duele mucho la cabeza? 🤔 ¿Tomaste algo para el dolor?  Una aspirina, o algo así?  Si no, capaz que te vendría bien un ibuprofeno o algo para el dolor de cabeza.  También podrías intentar respirar profundo un rato, o sentarte un poco alejada del ruido.  \n\n¿Cómo es la fiesta? ¿Hay un lugar tranquilo donde puedas sentarte un rato?  Si te sentís muy mal, che, no dudes en decirles a tus amigos que necesitás un break. No te sientas mal por eso, loco, ¡tu salud es lo primero! 😉\n\n¿Te animás a contarme un poco más de cómo te sentís?  ¿Hay algo que pueda hacer para ayudarte?  Un abrazo virtual gigante para vos, mi reina! 🤗💖   ¡Sos la más piola del mundo, y te merecés sentirte bien! ✨💖 ¡No te olvides de eso! 😘",
+        "timestamp": 1743903464986,
         "userName": "Oliver"
       }
     ],
@@ -1151,18 +1151,6 @@
     "miguel-milagros": [
       {
         "role": "user",
-        "content": "te gusta el cafe´?",
-        "timestamp": 1743789860396,
-        "userName": "Milagros"
-      },
-      {
-        "role": "assistant",
-        "content": "Che, Milagros, como IA no tengo gustos ni preferencias, como el que le gusta o no el café.  No siento, ¿viste?  Pero puedo darte información sobre el café si querés, o ayudarte con cualquier otra cosa. Decime la posta, ¿qué necesitas?",
-        "timestamp": 1743789861248,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
         "content": "hola, botsito, por comer y dormir que mañana es un largo día de trabajo y no me permitieron el descanso :/",
         "timestamp": 1743815196365,
         "userName": "Milagros"
@@ -1387,6 +1375,18 @@
         "role": "assistant",
         "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨ ¡Qué copado que te gusten los juegos, genia! 🎉💪  ¡Esa competitividad es genial, loco! 😎  Me encanta que quieras ganar siempre, ¡eso demuestra que tenés garra y pilas!  🤩\n\nChe, ¿qué tipo de juegos te gustan más? 🤔 ¿Juegos de mesa, juegos de ingenio, juegos de cartas…?  Contáme para imaginarme la movida, ¡me muero de curiosidad! 😅  Y… ¿qué tipo de juegos crees que habrá en el cumple de tu amiga?  ¿Ya lo sabes, o es sorpresa? 😉\n\nY sobre el outfit… ¡canchero y abrigado, perfecto para un día con frío! 👌🧥  ¿Es un outfit que ya tenés en mente, o todavía lo estás pensando?  ¿Me contás un poco más?  🤔  (Si querés, obvio, no hay drama si no te querés meter en detalles, eh! 😅)\n\n¡Que la pases genial en el cumple, che! 🥳🎉  ¡Disfruta un montón de la noche, y no te olvides que sos una grosa que merece pasarla bomba! ✨💖  Después contame todo lo que pasó, ¿dale? 😉  Un abrazo enorme lleno de buena energía para vos, mi reina! 😘",
         "timestamp": 1743891075528,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "hola, ya estoy en la fiesta y me duele la cabeza, me apetece mucho dormir",
+        "timestamp": 1743903462866,
+        "userName": "Milagros"
+      },
+      {
+        "role": "assistant",
+        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨ ¡Qué mala onda que te duela la cabeza justo en la fiesta! 😒  ¡Che, qué bajón!  Pero bueno,  vamos a ver qué podemos hacer para que te sientas mejor, ¿dale? 💪\n\n¿Posta que te duele mucho la cabeza? 🤔 ¿Tomaste algo para el dolor?  Una aspirina, o algo así?  Si no, capaz que te vendría bien un ibuprofeno o algo para el dolor de cabeza.  También podrías intentar respirar profundo un rato, o sentarte un poco alejada del ruido.  \n\n¿Cómo es la fiesta? ¿Hay un lugar tranquilo donde puedas sentarte un rato?  Si te sentís muy mal, che, no dudes en decirles a tus amigos que necesitás un break. No te sientas mal por eso, loco, ¡tu salud es lo primero! 😉\n\n¿Te animás a contarme un poco más de cómo te sentís?  ¿Hay algo que pueda hacer para ayudarte?  Un abrazo virtual gigante para vos, mi reina! 🤗💖   ¡Sos la más piola del mundo, y te merecés sentirte bien! ✨💖 ¡No te olvides de eso! 😘",
+        "timestamp": 1743903464986,
         "userName": "Oliver"
       }
     ]
