@@ -6755,14 +6755,34 @@ client.once('ready', async () => {
 setInterval(async () => {
     try {
         const now = Date.now();
-        const argentinaDate = new Date(now - 3 * 60 * 60 * 1000); // Ajuste a UTC-3 (Argentina)
+        const argentinaDate = new Date(now - 3 * 60 * 60 * 1000); // UTC-3 (Argentina)
         const currentHour = argentinaDate.getHours();
         const currentMinute = argentinaDate.getMinutes();
-        const oneDayInMs = 24 * 60 * 60 * 1000; // Un día en milisegundos
+        const oneDayInMs = 24 * 60 * 60 * 1000;
 
-        console.log(`Hora actual en Argentina: ${currentHour}:${currentMinute} - ${new Date().toLocaleString('es-AR')}`);
+        // Recordatorios
+        const reminderTimes = {
+            12: "¡Qué tal, loco, mediodía a full, che! ☀️ ¿Cómo estás arrancando la jornada, crack? Si precisás algo, avisame que te doy una mano al toque, ¿eh?",
+            18: "¡Eeeh, las 6 de la tarde, loco! 🌆 ¿Cómo venís con el día, genia? Si querés charlar o que te ayude con algo, estoy a un grito, dale!",
+            22: "¡Noche tranqui, che, las 10 ya! 🌙 ¿Cómo cerrás el día, capo? Si necesitás un cable o solo querés tirar la onda, acá estoy, siempre piola!",
+            23: "¡Eeeh, las 11 de la noche, loco! 🌃 Che, Belén, ¿todavía despierta, grosa? Me vino una flashada: imaginá que los perros del barrio arman un torneo de truco en la plaza, y Miguel, el loco ese, se anota de colado con un mazo trucho que encontró en la ferretería. ¡Un desastre! Si te pintó asomarte a ver el quilombo o algo antes de dormir, avisá, ¡me sumo a bancar las risas!",
+            0: "¡Medianoche, che! 🌌 ¿Cómo te cayó el día, genia? Si estás en una de esas noches raras, ¿hay algo que extrañes o que te levante el ánimo? Capaz que charlar con alguien suma, ¿no? Acá estoy para tirar buena vibra."
+        };
 
-        // Mensaje útil diario (sin cambios)
+        // Chequeo de recordatorios
+        if (currentMinute === 0 && reminderTimes[currentHour]) {
+            const lastSentReminder = dataStore.utilMessageTimestamps[`reminder_${CHANNEL_ID}_${currentHour}`] || 0;
+            if (now - lastSentReminder >= oneDayInMs) {
+                const reminder = reminderTimes[currentHour];
+                const embed = createEmbed('#FF1493', '¡Un toque de atención, che!', reminder, 'Con onda, Oliver IA');
+                await channel.send({ embeds: [embed] });
+                dataStore.utilMessageTimestamps[`reminder_${CHANNEL_ID}_${currentHour}`] = now;
+                autoModified = true;
+                console.log(`Recordatorio enviado (${currentHour}:00 AR) - ${new Date().toLocaleString('es-AR')}`);
+            }
+        }
+
+        // Mensaje útil diario (lo dejo igual, parece que funciona)
         const lastSentUtil = dataStore.utilMessageTimestamps[`util_${CHANNEL_ID}`] || 0;
         const lastReaction = dataStore.utilMessageReactions[CHANNEL_ID] || 0;
         if (now - lastSentUtil >= oneDayInMs && (!lastReaction || now - lastReaction >= oneDayInMs)) {
@@ -6777,36 +6797,10 @@ setInterval(async () => {
             autoModified = true;
             console.log(`Mensaje útil diario enviado al canal ${CHANNEL_ID} - ${new Date().toLocaleString('es-AR')}`);
         }
-
-        // Recordatorios ajustados a 12 PM, 6 PM, 10 PM, 11 PM y 12 AM
-        const reminderTimes = {
-            12: "¡Qué tal, loco, mediodía a full, che! ☀️ ¿Cómo estás arrancando la jornada, crack? Si precisás algo, avisame que te doy una mano al toque, ¿eh?",
-            18: "¡Eeeh, las 6 de la tarde, loco! 🌆 ¿Cómo venís con el día, genia? Si querés charlar o que te ayude con algo, estoy a un grito, dale!",
-            22: "¡Noche tranqui, che, las 10 ya! 🌙 ¿Cómo cerrás el día, capo? Si necesitás un cable o solo querés tirar la onda, acá estoy, siempre piola!",
-            23: "¡Eeeh, las 11 de la noche, loco! 🌃 Che, Belén, ¿todavía despierta, grosa? Me vino una flashada: imaginá que los perros del barrio arman un torneo de truco en la plaza, y Miguel, el loco ese, se anota de colado con un mazo trucho que encontró en la ferretería. ¡Un desastre! Si te pintó asomarte a ver el quilombo o algo antes de dormir, avisá, ¡me sumo a bancar las risas!",
-            0: "¡Medianoche, che! 🌌 ¿Cómo te cayó el día, genia? Si estás en una de esas noches raras, ¿hay algo que extrañes o que te levante el ánimo? Capaz que charlar con alguien suma, ¿no? Acá estoy para tirar buena vibra."
-        };
-
-        // Chequeamos si es la hora exacta (minuto 0) y si no se envió recientemente
-        if (currentMinute === 0 && Object.keys(reminderTimes).includes(String(currentHour))) {
-            const lastSentReminder = dataStore.utilMessageTimestamps[`reminder_${CHANNEL_ID}_${currentHour}`] || 0;
-            console.log(`Chequeando recordatorio para ${currentHour}:00 - Último envío: ${new Date(lastSentReminder).toLocaleString('es-AR')} - Diferencia: ${(now - lastSentReminder) / (60 * 60 * 1000)} horas`);
-            if (now - lastSentReminder >= oneDayInMs) {
-                const reminder = reminderTimes[currentHour];
-                const embed = createEmbed('#FF1493', '¡Un toque de atención, che!', 
-                    reminder, 'Con onda, Oliver IA');
-                await channel.send({ embeds: [embed] });
-                dataStore.utilMessageTimestamps[`reminder_${CHANNEL_ID}_${currentHour}`] = now;
-                autoModified = true;
-                console.log(`Recordatorio enviado (${currentHour}:00 AR) - ${new Date().toLocaleString('es-AR')}`);
-            } else {
-                console.log(`No se envía ${currentHour}:00 - Todavía no pasaron 24 horas`);
-            }
-        }
     } catch (error) {
-        console.error('Error en el intervalo combinado:', error.message);
+        console.error('Error en el intervalo:', error.message);
     }
-}, 60 * 1000); // Chequea cada minuto
+}, 60 * 1000); // Cada minuto
 
         setInterval(async () => {
             const musicActive = manager.players.size > 0 || isPlayingMusic;
