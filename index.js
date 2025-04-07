@@ -6750,8 +6750,6 @@ client.once('ready', async () => {
                 const currentMinute = argentinaDate.getMinutes();
                 const oneDayInMs = 24 * 60 * 60 * 1000;
 
-                console.log(`Chequeando hora: ${currentHour}:${currentMinute} AR - ${new Date().toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })}`);
-
                 const reminderTimes = {
                     12: "¡Qué tal, loco, mediodía a full, che! ☀️ ¿Cómo estás arrancando la jornada, crack? Si precisás algo, avisame que te doy una mano al toque, ¿eh?",
                     18: "¡Eeeh, las 6 de la tarde, loco! 🌆 ¿Cómo venís con el día, genia? Si querés charlar o que te ayude con algo, estoy a un grito, dale!",
