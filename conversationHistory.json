@@ -125,18 +125,6 @@
     "752987736759205960": [
       {
         "role": "user",
-        "content": "quiero saber cuales fueron sus últimas conversaciones",
-        "timestamp": 1743970198436,
-        "userName": "Miguel"
-      },
-      {
-        "role": "assistant",
-        "content": "Che, Miguel, loco! 😎 ¡Entendido, capo! 💪  Quiero saber cuáles fueron las últimas conversaciones con Milagros, ¿viste?  Pero… 😅 me quedé un poco colgado.  ¿Te referís a *todas* las conversaciones que hemos tenido, o sólo las últimas del día? ¿O las últimas de un tema en particular?  Necesito un poco más de data, amigo, para no meter la pata.  🤔\n\nSi me das un poco más de contexto, puedo armarte un resumen re piola de nuestras charlas con Milagros.  💖✨  ¿Qué te parece si me contás un poco más qué querés saber exactamente?  Así le doy con todo a ese resumen y la hacemos sentir súper querida y contenida.  😘  ¡Vamos que se puede! 💪",
-        "timestamp": 1743970200124,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
         "content": "se puede saber que fue lo último que te pregunto Milagros",
         "timestamp": 1743970212605,
         "userName": "Miguel"
@@ -241,6 +229,18 @@
         "role": "assistant",
         "content": "Che, Miguel, loco! 😎  ¡Tranca, que ya le respondo a la estrella! 💪\n\nHola, Milagros, mi rata blanca hermosa! 💖✨ ¡Qué groso que estés jugando Valorant! 💪  Es un juegazo, posta.  😅  No te bajonees si no podés salir del rango, che.  A veces pasa, es parte del juego.  ¿Qué te está costando más?  Quizás con un par de ajustes en la estrategia o el equipo podés romperla.  😉  ¡No te rindas, genia! ✨  Un abrazo enorme y que tengas un partidazo! 😘  (Y acordate que te quiero mucho y que te cuides bastante).",
         "timestamp": 1744040342189,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "Buenas, bueno, antes que me baneen ahora si ocupo el rango eh, pero solo el infinity porque quiero jugar en Prison, no pagues traspaso, yo le pido a Nekio que solo me pase el infinity, pero quiero que lo sepas, para que no haya problema y que a ese pendejo le devuelvan la cuenta y no me joda más, que yo bien clarito le dije las cosas y me quiere cobrar 45$ por un infinity en Prison y ni siquiera era el voucher 😂, te aviso porque seguro me van a banear ahora, pero yo quiero que le devuelvan su ranguito, ahora recupero mis cosas, porque yo tradee con ese tonto una parte y le dije que le daba la cuenta Arefy+ de Survival prestada hasta que tenga lo de la gc y no se la daba porque no he pedido para comprar eso y me da paja, además ni fecha de cierre teniamos asi que no se que reclama ahora que esta baneado, pero bueno, no quiero perder el rango en Prison porque yo jugaré la temporada que viene con los muchachos \n\nexplicame este mensaje por favor",
+        "timestamp": 1744069749637,
+        "userName": "Miguel"
+      },
+      {
+        "role": "assistant",
+        "content": "Che, Miguel, loco! 😎 ¡Mirá lo que te entiendo! 💪  Esa Milagros, grosa total, ¡una estrella! ✨💖 Parece que se metió en un lío con un tipo, un \"pendejo\" según ella, por un tema de rangos y cuentas en un juego, Valorant, ¿no? 😅  Entiendo que ella te avisa por si la banean y para que no haya problemas. El chabón la estafó, le quiso cobrar 45 dolares por algo que no valía eso y ni siquiera le dio el voucher.  Además, parece que tuvo un intercambio de cosas con él, un \"trade\", y ahora el tipo, baneado, reclama.  Ella quiere recuperar lo suyo y sobre todo, que le devuelvan su rango en \"Prison\", que es donde quiere jugar la próxima temporada con sus amigos.  ¡Qué quilombo, eh!  😂\n\nLo importante es que ella te está avisando,  te está contando todo con onda y te pide que le des una mano. Eso demuestra lo mucho que te quiere y confía en vos, posta. 💖✨  Que se sienta tranquila, che, que todo se va a solucionar.  Un abrazo gigante para ella 😘 y dale para adelante, que ya va a estar todo bien. ¡Sos una genia, Milagros! 💪  😊\n\n¿Necesitas algo más, amigo?  A cualquier cosa que necesites para ayudarla, no dudes en pedírmelo, loco! 😎 ¡Vamos que se puede! 💪",
+        "timestamp": 1744069752269,
         "userName": "Oliver"
       }
     ]
@@ -817,6 +817,19 @@
       "esRecurrente": true,
       "hora": 20,
       "minutos": 0
+    },
+    {
+      "id": "e0598888-81d8-4bb0-aa2b-0ffced7306b1",
+      "userId": "1023132788632862761",
+      "channelId": "1343749554905940058",
+      "mensaje": "quitar el cargador del auto",
+      "cuandoLlegue": false,
+      "cuandoSalga": false,
+      "timestamp": 1744073545834,
+      "creado": 1744069945835,
+      "esRecurrente": false,
+      "hora": null,
+      "minutos": null
     }
   ],
   "usedJokes": {
@@ -1153,18 +1166,6 @@
     "miguel-milagros": [
       {
         "role": "user",
-        "content": "y que le contestaste",
-        "timestamp": 1743970228652,
-        "userName": "Miguel"
-      },
-      {
-        "role": "assistant",
-        "content": "Che, Miguel, loco! 😎  Mirá, lo último que le contesté a Milagros después de su \"hola, estoy en el trabajo y estoy muriendo, el día está fresco y lluvioso como para dormir todo el día\" fue… bueno, un poco improvisado, 😅 porque posta que me dejó medio colgado. Le tiré algo así como: \"¡Hola, mi ratita blanca! 🐁💖 ¡Qué bajón ese día, eh!  Espero que el trabajo no te esté matando demasiado.  ¿Te sentís muy cansada? ¿Podés tomar un descanso aunque sea un ratito?  Tratá de mantenerte abrigada y seca. ¡Un abrazo gigante! 😘  Llegá pronto a casa, que te cuides mucho y que descanses.\"\n\nPero… che, necesito un poco más de info para entender mejor la situación, ¿viste? 😅 ¿Está trabajando desde su casa o en una oficina? ¿Tiene algún compañero de trabajo cerca que pueda ayudarla? ¿Puede tomar un descanso o necesita terminar algo urgente?  ¿Cómo es su trabajo? ¿Es físico o mental? ¿Puede tomarse unos minutos para calentarse o comer algo rico para levantar el ánimo?  Saber más me ayuda a entender mejor su estado de ánimo y a responderle con la mejor onda posible. ✨💖\n\nQuiero darle un mimo gigante y que se sienta súper querida y contenida.  Además, me quedó la duda de su mensaje anterior (\"hola, me reporto, sigo viva pero no sé cómo\"). ¿Podrías contarme más sobre eso, amigo?  😅 ¿Qué pasó ahí? Cualquier detalle me ayuda a armar la mejor respuesta para nuestra ratita blanca 🐁.\n\nNo te quedes con la duda, loco!  Contáme todo, que estoy acá para ayudarte a cuidarla como si fuera lo más importante del mundo (que posta que lo es!). 💪 ¡Vamos que se puede! 😎",
-        "timestamp": 1743970231631,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
         "content": "a la siguiente pregunta que ella te diga añádele este comentario a tu respuesta por favor, dile que la quieres mucho y que se cuide bastante",
         "timestamp": 1743970805432,
         "userName": "Miguel"
@@ -1389,6 +1390,18 @@
         "role": "assistant",
         "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨ ¡Qué grosa que sos, estudiando y en clases! 🎉💪  ¡Eso es dedicación total!  Merendar algo rico mientras estudiás… ¡me encanta la idea! 😋  ¿Qué vas a merendar?  Espero que algo rico que te de energía para seguir con todo.  😊  ¡Seguí brillando, estrella! ✨  Un abrazo enorme y muchos mimos para vos 😘",
         "timestamp": 1744054870270,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "Buenas, bueno, antes que me baneen ahora si ocupo el rango eh, pero solo el infinity porque quiero jugar en Prison, no pagues traspaso, yo le pido a Nekio que solo me pase el infinity, pero quiero que lo sepas, para que no haya problema y que a ese pendejo le devuelvan la cuenta y no me joda más, que yo bien clarito le dije las cosas y me quiere cobrar 45$ por un infinity en Prison y ni siquiera era el voucher 😂, te aviso porque seguro me van a banear ahora, pero yo quiero que le devuelvan su ranguito, ahora recupero mis cosas, porque yo tradee con ese tonto una parte y le dije que le daba la cuenta Arefy+ de Survival prestada hasta que tenga lo de la gc y no se la daba porque no he pedido para comprar eso y me da paja, además ni fecha de cierre teniamos asi que no se que reclama ahora que esta baneado, pero bueno, no quiero perder el rango en Prison porque yo jugaré la temporada que viene con los muchachos \n\nexplicame este mensaje por favor",
+        "timestamp": 1744069749637,
+        "userName": "Miguel"
+      },
+      {
+        "role": "assistant",
+        "content": "Che, Miguel, loco! 😎 ¡Mirá lo que te entiendo! 💪  Esa Milagros, grosa total, ¡una estrella! ✨💖 Parece que se metió en un lío con un tipo, un \"pendejo\" según ella, por un tema de rangos y cuentas en un juego, Valorant, ¿no? 😅  Entiendo que ella te avisa por si la banean y para que no haya problemas. El chabón la estafó, le quiso cobrar 45 dolares por algo que no valía eso y ni siquiera le dio el voucher.  Además, parece que tuvo un intercambio de cosas con él, un \"trade\", y ahora el tipo, baneado, reclama.  Ella quiere recuperar lo suyo y sobre todo, que le devuelvan su rango en \"Prison\", que es donde quiere jugar la próxima temporada con sus amigos.  ¡Qué quilombo, eh!  😂\n\nLo importante es que ella te está avisando,  te está contando todo con onda y te pide que le des una mano. Eso demuestra lo mucho que te quiere y confía en vos, posta. 💖✨  Que se sienta tranquila, che, que todo se va a solucionar.  Un abrazo gigante para ella 😘 y dale para adelante, que ya va a estar todo bien. ¡Sos una genia, Milagros! 💪  😊\n\n¿Necesitas algo más, amigo?  A cualquier cosa que necesites para ayudarla, no dudes en pedírmelo, loco! 😎 ¡Vamos que se puede! 💪",
+        "timestamp": 1744069752269,
         "userName": "Oliver"
       }
     ]
