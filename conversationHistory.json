@@ -125,30 +125,6 @@
     "752987736759205960": [
       {
         "role": "user",
-        "content": "hablas con Milagros?",
-        "timestamp": 1743970175080,
-        "userName": "Miguel"
-      },
-      {
-        "role": "assistant",
-        "content": "Che, Miguel, loco! 😎  ¡Claro que hablo con Milagros!  💖  Es la ratita blanca más hermosa del mundo, y estoy acá para cuidarla como si fuera oro en polvo ✨💖.  Pero… 😅  necesito un poco más de contexto para entender la pregunta.  ¿Te referís a si estoy interactuando con ella *en este preciso momento*?  O ¿si estoy a cargo de mantener una conversación con ella en general? 🤔\n\nDame un poquito más de info, amigo, para no meter la pata. ¡Vamos que se puede! 💪",
-        "timestamp": 1743970176759,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
-        "content": "haz hablado con Milagros?",
-        "timestamp": 1743970186430,
-        "userName": "Miguel"
-      },
-      {
-        "role": "assistant",
-        "content": "Che, Miguel, loco! 😎 ¡Claro que he hablado con Milagros! 💖  Es la ratita blanca más piola del mundo, y me encanta charlar con ella. ✨  Pero… 😅  me quedé un poco colgado con tu pregunta. ¿Te referís a si estoy hablando con ella *ahora mismo*, o si he mantenido alguna conversación con ella en algún momento? 🤔  Aclarame eso, amigo, para no meter la pata. ¡Vamos que se puede! 💪",
-        "timestamp": 1743970187900,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
         "content": "quiero saber cuales fueron sus últimas conversaciones",
         "timestamp": 1743970198436,
         "userName": "Miguel"
@@ -241,6 +217,30 @@
         "role": "assistant",
         "content": "Che, Miguel, loco! 😎 La última pregunta de Milagros fue: \"¡Desayuno místico y clase n1 del día!\".  😅 Un poco críptica, ¿no?  Necesito un poco más de contexto, amigo.  ¿Qué onda con el \"desayuno místico\"?  ¿Algo especial que comió?  ¿Y la clase N°1? ¿De qué es? 🤔\n\nNecesito saber más para poder responderle con la mejor onda posible y que se sienta súper querida y contenida. 💖✨  ¿Cómo está Milagros ahora? ¿Se siente mejor?  Cualquier dato extra me ayuda a darle el mejor mimo. 😘 ¡Vamos que se puede! 💪",
         "timestamp": 1744033094878,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "hola",
+        "timestamp": 1744040329516,
+        "userName": "Miguel"
+      },
+      {
+        "role": "assistant",
+        "content": "¡Hola, Milagros, mi rata blanca hermosa! 💖✨ ¿Cómo andás, genia? Espero que estés teniendo un día increíble.  😊  ¿Qué tal todo?  Contáme, ¡tengo toda la onda para escucharte!  😘",
+        "timestamp": 1744040330510,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "estoy jugando Valorant y no puedo salir de mi rango",
+        "timestamp": 1744040340631,
+        "userName": "Miguel"
+      },
+      {
+        "role": "assistant",
+        "content": "Che, Miguel, loco! 😎  ¡Tranca, que ya le respondo a la estrella! 💪\n\nHola, Milagros, mi rata blanca hermosa! 💖✨ ¡Qué groso que estés jugando Valorant! 💪  Es un juegazo, posta.  😅  No te bajonees si no podés salir del rango, che.  A veces pasa, es parte del juego.  ¿Qué te está costando más?  Quizás con un par de ajustes en la estrategia o el equipo podés romperla.  😉  ¡No te rindas, genia! ✨  Un abrazo enorme y que tengas un partidazo! 😘  (Y acordate que te quiero mucho y que te cuides bastante).",
+        "timestamp": 1744040342189,
         "userName": "Oliver"
       }
     ]
@@ -1153,30 +1153,6 @@
     "miguel-milagros": [
       {
         "role": "user",
-        "content": "hola, estoy en el trabajo y estoy muriendo, el día está fresco y lluvioso como para dormir tofo el día",
-        "timestamp": 1743965215794,
-        "userName": "Milagros"
-      },
-      {
-        "role": "assistant",
-        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨  ¡Che, qué bajón que estés \"muriendo\" en el trabajo! 😫  Un día fresco y lluvioso invita a dormir todo el día, posta…  🤔  Pero bueno, vamos a ver qué podemos hacer para que el resto de la jornada sea un poco más llevadero, ¿dale? 💪\n\n¿\"Muriendo\" significa que estás muy cansada, con mucho frío, o hay algo más? 😅  Contáme un poco más,  ¿qué te pasa exactamente?  ¿Tenés mucho trabajo? ¿Te sentís mal físicamente? ¿O es una mezcla de todo?  Quiero entender bien para poder ayudarte mejor, che. 😉\n\nSi es por el frío, ¿tenés alguna campera o algo para abrigarte más en la oficina?  Si es por el cansancio, ¿podemos pensar en alguna estrategia para que te rindas un poquito mejor hasta que termines tu jornada?  Y si es por el trabajo, ¿hay alguna tarea que te esté generando más estrés que las demás?  🤔\n\nNo te quedes callada, loco. ¡Tu bienestar es lo primero! ✨💖  Contame todo sin filtro, y si necesitás un abrazo virtual gigante, acá estoy para darte todo mi apoyo 🤗. ¡Sos la más piola del mundo! ✨💖  Un abrazo enorme lleno de buena energía para vos, mi reina! 😘",
-        "timestamp": 1743965218327,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
-        "content": "hablas con Milagros?",
-        "timestamp": 1743970175080,
-        "userName": "Miguel"
-      },
-      {
-        "role": "assistant",
-        "content": "Che, Miguel, loco! 😎  ¡Claro que hablo con Milagros!  💖  Es la ratita blanca más hermosa del mundo, y estoy acá para cuidarla como si fuera oro en polvo ✨💖.  Pero… 😅  necesito un poco más de contexto para entender la pregunta.  ¿Te referís a si estoy interactuando con ella *en este preciso momento*?  O ¿si estoy a cargo de mantener una conversación con ella en general? 🤔\n\nDame un poquito más de info, amigo, para no meter la pata. ¡Vamos que se puede! 💪",
-        "timestamp": 1743970176759,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
         "content": "haz hablado con Milagros?",
         "timestamp": 1743970186430,
         "userName": "Miguel"
@@ -1389,6 +1365,30 @@
         "role": "assistant",
         "content": "Che, Miguel, loco! 😎 La última pregunta de Milagros fue: \"¡Desayuno místico y clase n1 del día!\".  😅 Un poco críptica, ¿no?  Necesito un poco más de contexto, amigo.  ¿Qué onda con el \"desayuno místico\"?  ¿Algo especial que comió?  ¿Y la clase N°1? ¿De qué es? 🤔\n\nNecesito saber más para poder responderle con la mejor onda posible y que se sienta súper querida y contenida. 💖✨  ¿Cómo está Milagros ahora? ¿Se siente mejor?  Cualquier dato extra me ayuda a darle el mejor mimo. 😘 ¡Vamos que se puede! 💪",
         "timestamp": 1744033094878,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "hola",
+        "timestamp": 1744040329516,
+        "userName": "Miguel"
+      },
+      {
+        "role": "assistant",
+        "content": "¡Hola, Milagros, mi rata blanca hermosa! 💖✨ ¿Cómo andás, genia? Espero que estés teniendo un día increíble.  😊  ¿Qué tal todo?  Contáme, ¡tengo toda la onda para escucharte!  😘",
+        "timestamp": 1744040330510,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "estoy jugando Valorant y no puedo salir de mi rango",
+        "timestamp": 1744040340631,
+        "userName": "Miguel"
+      },
+      {
+        "role": "assistant",
+        "content": "Che, Miguel, loco! 😎  ¡Tranca, que ya le respondo a la estrella! 💪\n\nHola, Milagros, mi rata blanca hermosa! 💖✨ ¡Qué groso que estés jugando Valorant! 💪  Es un juegazo, posta.  😅  No te bajonees si no podés salir del rango, che.  A veces pasa, es parte del juego.  ¿Qué te está costando más?  Quizás con un par de ajustes en la estrategia o el equipo podés romperla.  😉  ¡No te rindas, genia! ✨  Un abrazo enorme y que tengas un partidazo! 😘  (Y acordate que te quiero mucho y que te cuides bastante).",
+        "timestamp": 1744040342189,
         "userName": "Oliver"
       }
     ]
