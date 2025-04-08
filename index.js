@@ -4403,15 +4403,11 @@ function getCombinedRankingEmbed(userId, username) {
     // Lista de trivia por categoría
     let triviaList = '**📚 Trivia por Categoría**\n';
     categorias.forEach(categoria => {
-        const miguelStats = dataStore.triviaStats[OWNER_ID]?.[categoria] || { correct: 0, total: 0 };
-        const miguelScore = miguelStats.correct;
-        const miguelPercentage = miguelStats.total > 0 ? Math.round((miguelScore / miguelStats.total) * 100) : 0;
         const luzStats = dataStore.triviaStats[ALLOWED_USER_ID]?.[categoria] || { correct: 0, total: 0 };
         const luzScore = luzStats.correct;
         const luzPercentage = luzStats.total > 0 ? Math.round((luzScore / luzStats.total) * 100) : 0;
 
         const ranking = [
-            { name: 'Miguel', score: miguelScore, percentage: miguelPercentage },
             { name: 'Belén', score: luzScore, percentage: luzPercentage }
         ].sort((a, b) => b.score - a.score);
 
@@ -4422,10 +4418,8 @@ function getCombinedRankingEmbed(userId, username) {
     });
 
     // Récords de PPM
-    const miguelPPMRecord = dataStore.personalPPMRecords[OWNER_ID]?.best || { ppm: 0, timestamp: null };
     const luzPPMRecord = dataStore.personalPPMRecords[ALLOWED_USER_ID]?.best || { ppm: 0, timestamp: null };
     const ppmRanking = [
-        { name: 'Miguel', ppm: miguelPPMRecord.ppm, timestamp: miguelPPMRecord.timestamp },
         { name: 'Belén', ppm: luzPPMRecord.ppm, timestamp: luzPPMRecord.timestamp }
     ].sort((a, b) => b.ppm - a.ppm);
     let ppmList = ppmRanking.map(participant => 
@@ -4438,7 +4432,6 @@ function getCombinedRankingEmbed(userId, username) {
     const miguelReactionWins = dataStore.reactionWins[OWNER_ID]?.wins || 0;
     const luzReactionWins = dataStore.reactionWins[ALLOWED_USER_ID]?.wins || 0;
     const reactionRanking = [
-        { name: 'Miguel', wins: miguelReactionWins },
         { name: 'Belén', wins: luzReactionWins }
     ].sort((a, b) => b.wins - a.wins);
     const reactionList = reactionRanking.map(participant => 
@@ -4446,10 +4439,8 @@ function getCombinedRankingEmbed(userId, username) {
     ).join('\n');
 
     // Adivinanzas
-    const miguelAdivinanzaStats = dataStore.adivinanzaStats[OWNER_ID] || { correct: 0, total: 0 };
     const luzAdivinanzaStats = dataStore.adivinanzaStats[ALLOWED_USER_ID] || { correct: 0, total: 0 };
     const adivinanzaRanking = [
-        { name: 'Miguel', correct: miguelAdivinanzaStats.correct, percentage: miguelAdivinanzaStats.total > 0 ? Math.round((miguelAdivinanzaStats.correct / miguelAdivinanzaStats.total) * 100) : 0 },
         { name: 'Belén', correct: luzAdivinanzaStats.correct, percentage: luzAdivinanzaStats.total > 0 ? Math.round((luzAdivinanzaStats.correct / luzAdivinanzaStats.total) * 100) : 0 }
     ].sort((a, b) => b.correct - a.correct);
     const adivinanzaList = adivinanzaRanking.map(participant => 
@@ -6650,8 +6641,8 @@ client.on('messageCreate', async (message) => {
 
 // Eventos
 client.once('ready', async () => {
-    console.log(`¡Miguel IA está listo! Instancia: ${instanceId} - ${new Date().toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })}`);
-    client.user.setPresence({ activities: [{ name: "Listo para ayudar a Milagros y Miguel", type: 0 }], status: 'dnd' });
+    console.log(`¡Oliver IA está listo! Instancia: ${instanceId} - ${new Date().toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })}`);
+    client.user.setPresence({ activities: [{ name: "Listo para ayudar a Milagros", type: 0 }], status: 'dnd' });
 
     await initializeDataStore();
 
@@ -6892,24 +6883,19 @@ client.once('ready', async () => {
     }
 });
 
-// Evento para escuchar reacciones
 client.on('messageReactionAdd', async (reaction, user) => {
-    // Ignoro si es el bot quien reacciona
     if (user.id === client.user.id) return;
 
-    // Chequeo si es Milagros
     if (user.id === ALLOWED_USER_ID) {
         const message = reaction.message;
         const messageData = sentMessages.get(message.id);
 
-        // Solo notifico si el mensaje es del bot y está en sentMessages
         if (messageData) {
             const owner = await client.users.fetch(OWNER_ID);
             const reactionEmoji = reaction.emoji.name; // Ej: ✅ o ❌
             const originalQuestion = messageData.originalQuestion;
             const botReply = messageData.content;
 
-            // Mensaje privado a vos
             const dmMessage = `¡Che, Miguel! Milagros reaccionó con ${reactionEmoji} a mi mensaje 😎\n\n**Ella dijo:** "${originalQuestion}"\n**Yo respondí:** "${botReply}"\n\n¿Qué hacemos, loco? ✨`;
             await owner.send(dmMessage).catch(err => console.error('Error al enviar MD:', err));
         }
