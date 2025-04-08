@@ -708,7 +708,7 @@
       "mensaje": "tomar la pastilla rosada todos los días",
       "cuandoLlegue": false,
       "cuandoSalga": false,
-      "timestamp": 1744081200000,
+      "timestamp": 1744167600000,
       "creado": 1743208756920,
       "esRecurrente": true,
       "hora": 0,
@@ -817,19 +817,6 @@
       "esRecurrente": true,
       "hora": 20,
       "minutos": 0
-    },
-    {
-      "id": "e0598888-81d8-4bb0-aa2b-0ffced7306b1",
-      "userId": "1023132788632862761",
-      "channelId": "1343749554905940058",
-      "mensaje": "quitar el cargador del auto",
-      "cuandoLlegue": false,
-      "cuandoSalga": false,
-      "timestamp": 1744073545834,
-      "creado": 1744069945835,
-      "esRecurrente": false,
-      "hora": null,
-      "minutos": null
     }
   ],
   "usedJokes": {
