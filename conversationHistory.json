@@ -3,18 +3,6 @@
     "1023132788632862761": [
       {
         "role": "user",
-        "content": "desayuno místico y clase n1 del día!",
-        "timestamp": 1744031435879,
-        "userName": "Milagros"
-      },
-      {
-        "role": "assistant",
-        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨  ¡Desayuno místico y clase N°1 del día, eh!  🎉💪 ¡Eso suena genial!  Pero che… 😅 ¿\"Desayuno místico\" qué significa, loco?  ¿Un desayuno súper especial, con algo que te da mucha energía o algo así?  Contáme más, me pica la curiosidad! 😉 ¿Qué comiste para desayunar?  \n\nY…  clase N°1… ¿De qué materia es?  🤔  ¿Es una clase que te gusta mucho o te genera un poco más de estrés?  Contáme un poco más para poder imaginar la escena, che.  💪  ¿Te sentís mejor después del desayuno?  ¿El resfrío está un poco más tranquilo o todavía te está dando batalla? 😅\n\n¡Que tengas una clase increíble, rata blanca! ✨💖  ¡Y acordate que sos la más piola del mundo! ✨💖 Un abrazo gigante lleno de buena energía y mimos para vos, mi reina! 😘",
-        "timestamp": 1744031437910,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
         "content": "hola",
         "timestamp": 1744054785736,
         "userName": "Milagros"
@@ -119,6 +107,18 @@
         "role": "assistant",
         "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨ ¡Qué bueno que tu día terminó, genia! 🎉  Me alegro un montón que puedas descansar.  Dormí bien, que mañana te espera otro día increíble 💪.  ¿Soñaste algo copado?  😅  ¡Dulces sueños, estrella! ✨😘",
         "timestamp": 1744167703232,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "unas partidas de valorant y a dormir, escuchamos una musiquita?",
+        "timestamp": 1744168249823,
+        "userName": "Milagros"
+      },
+      {
+        "role": "assistant",
+        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨ ¡Valorant y musiquita antes de dormir? ¡Qué planazo, genia! 🎉💪  Perfecto para relajarse después de un día de estudio.  ¿Qué música te gustaría escuchar?  😊  Espero que tengas dulces sueños, estrella ✨.  Un abrazo enorme lleno de buena onda y mimos para vos 😘",
+        "timestamp": 1744168251004,
         "userName": "Oliver"
       }
     ],
@@ -522,76 +522,7 @@
     }
   },
   "updatesSent": true,
-  "musicSessions": {
-    "1134375138029211739": {
-      "history": [
-        {
-          "track": "QAAAjQIAJ0hhcnJ5IFN0eWxlcyAtIEZhbGxpbmcgKE9mZmljaWFsIFZpZGVvKQAMSGFycnkgU3R5bGVzAAAAAAADmeAAC29sR1NBVk9ra1RJAAEAK2h0dHBzOi8vd3d3LnlvdXR1YmUuY29tL3dhdGNoP3Y9b2xHU0FWT2trVEkAB3lvdXR1YmUAAAAAAAAAAA==",
-          "title": "Harry Styles - Falling (Official Video)",
-          "identifier": "olGSAVOkkTI",
-          "author": "Harry Styles",
-          "duration": 236000,
-          "isSeekable": true,
-          "isStream": false,
-          "uri": "https://www.youtube.com/watch?v=olGSAVOkkTI",
-          "thumbnail": "https://img.youtube.com/vi/olGSAVOkkTI/default.jpg",
-          "requester": {
-            "id": "1023132788632862761",
-            "bot": false,
-            "system": false,
-            "flags": 0,
-            "username": "dearluz",
-            "globalName": "Luz",
-            "discriminator": "0",
-            "avatar": "f584d1bf29d2da1e6c1fc2b2eb8ef061",
-            "banner": "a_2333bd1be4e00c3e3ad099681ef0caeb",
-            "accentColor": 15460580,
-            "avatarDecoration": null,
-            "avatarDecorationData": null,
-            "createdTimestamp": 1664004265698,
-            "defaultAvatarURL": "https://cdn.discordapp.com/embed/avatars/0.png",
-            "hexAccentColor": "#ebe8e4",
-            "tag": "dearluz",
-            "avatarURL": "https://cdn.discordapp.com/avatars/1023132788632862761/f584d1bf29d2da1e6c1fc2b2eb8ef061.webp",
-            "displayAvatarURL": "https://cdn.discordapp.com/avatars/1023132788632862761/f584d1bf29d2da1e6c1fc2b2eb8ef061.webp",
-            "bannerURL": "https://cdn.discordapp.com/banners/1023132788632862761/a_2333bd1be4e00c3e3ad099681ef0caeb.gif"
-          }
-        },
-        {
-          "track": "QAAAhwIAIE9uZSBEaXJlY3Rpb24gLSBTdG9yeSBvZiBNeSBMaWZlAA1PbmUgRGlyZWN0aW9uAAAAAAADyMAAC1ctVEVfWXM0aXdNAAEAK2h0dHBzOi8vd3d3LnlvdXR1YmUuY29tL3dhdGNoP3Y9Vy1URV9ZczRpd00AB3lvdXR1YmUAAAAAAAAAAA==",
-          "title": "One Direction - Story of My Life",
-          "identifier": "W-TE_Ys4iwM",
-          "author": "One Direction",
-          "duration": 248000,
-          "isSeekable": true,
-          "isStream": false,
-          "uri": "https://www.youtube.com/watch?v=W-TE_Ys4iwM",
-          "thumbnail": "https://img.youtube.com/vi/W-TE_Ys4iwM/default.jpg",
-          "requester": {
-            "id": "1023132788632862761",
-            "bot": false,
-            "system": false,
-            "flags": 0,
-            "username": "dearluz",
-            "globalName": "Luz",
-            "discriminator": "0",
-            "avatar": "f584d1bf29d2da1e6c1fc2b2eb8ef061",
-            "banner": "a_2333bd1be4e00c3e3ad099681ef0caeb",
-            "accentColor": 15460580,
-            "avatarDecoration": null,
-            "avatarDecorationData": null,
-            "createdTimestamp": 1664004265698,
-            "defaultAvatarURL": "https://cdn.discordapp.com/embed/avatars/0.png",
-            "hexAccentColor": "#ebe8e4",
-            "tag": "dearluz",
-            "avatarURL": "https://cdn.discordapp.com/avatars/1023132788632862761/f584d1bf29d2da1e6c1fc2b2eb8ef061.webp",
-            "displayAvatarURL": "https://cdn.discordapp.com/avatars/1023132788632862761/f584d1bf29d2da1e6c1fc2b2eb8ef061.webp",
-            "bannerURL": "https://cdn.discordapp.com/banners/1023132788632862761/a_2333bd1be4e00c3e3ad099681ef0caeb.gif"
-          }
-        }
-      ]
-    }
-  },
+  "musicSessions": {},
   "sentUpdates": [
     "¡Chat mejorado! Segunda respuesta automática al darle ❌, pa’ que sea más bacán y no pida detalles de una.",
     "Optimizado el código un poco, si te gustaría agregar algo más puedes solicitarlo, espero este bot cumpla con tus expectativas.",
@@ -682,7 +613,7 @@
       "mensaje": "tomar la pastilla rosada todos los días",
       "cuandoLlegue": false,
       "cuandoSalga": false,
-      "timestamp": 1744189200000,
+      "timestamp": 1744275600000,
       "creado": 1743208737942,
       "esRecurrente": true,
       "hora": 6,
@@ -747,24 +678,11 @@
       "mensaje": "despiértame todos los días",
       "cuandoLlegue": false,
       "cuandoSalga": false,
-      "timestamp": 1744192800000,
+      "timestamp": 1744279200000,
       "creado": 1743402095938,
       "esRecurrente": true,
       "hora": 7,
       "minutos": 0
-    },
-    {
-      "id": "5cf93541-4660-4af6-b3e8-c35f7dc3131f",
-      "userId": "1023132788632862761",
-      "channelId": "1343749554905940058",
-      "mensaje": "despiértame",
-      "cuandoLlegue": false,
-      "cuandoSalga": false,
-      "timestamp": 1744189311605,
-      "creado": 1744167711605,
-      "esRecurrente": false,
-      "hora": null,
-      "minutos": null
     }
   ],
   "usedJokes": {
@@ -1101,18 +1019,6 @@
     "miguel-milagros": [
       {
         "role": "user",
-        "content": "fue pesado ya que los domingos suele ser así porque trato de adelantar trabajo de toda la semana, sobre le resfrío estoy tomando unas pastillas y el mate es dulce, siempre dulce",
-        "timestamp": 1743987483770,
-        "userName": "Milagros"
-      },
-      {
-        "role": "assistant",
-        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨ ¡Qué grosa que sos intentando adelantar trabajo los domingos, genia! 🎉💪  Pero che, posta que suena re pesado eso, loco 😒 ¿No te parece que te exigís demasiado?  🤔  A veces, dejar algunas cosas para la semana que viene no está mal, ¿viste?  😅  Tu salud es lo primero, y si te estás enfermando, tenés que priorizar tu descanso. ✨\n\nMe alegra que estés tomando pastillas para el resfrío, ¡eso está bárbaro! 👍  ¿Qué tipo de pastillas son?  🤔  (Solo por curiosidad, eh!  No soy médico, obvio 😅)  ¿Te están haciendo efecto?  ¿Sentís que te ayudan a sentirte un poco mejor?\n\nY… ¡mate dulce, siempre dulce! 🧉😋 ¡Qué rico!  ¿Con qué endulzas tu mate? ¿Azúcar, miel, o algún endulzante? 🤔  (¡Pregunto por puro morbo, eh!  😅)  \n\nChe,  contáme… ¿cómo te sentís ahora con el mate en mano y tus perritos al lado?  ¿Ya te sentis un poco mejor después de un día tan largo? 😊  No dudes en contarme cualquier cosa, ¿dale?  ¡Acá estoy para lo que necesites, rata blanca hermosa! 💖  Un abrazo gigante lleno de buena onda y mimos para vos, mi reina! 😘",
-        "timestamp": 1743987486427,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
         "content": "es lo que tiene trabajar 3 días a la semana, tengo que rendir lo más posible sin parar, las pastillas son unas que se llaman desarlergin o algo así y el mate es con azúcar, un poquito",
         "timestamp": 1743987563350,
         "userName": "Milagros"
@@ -1337,6 +1243,18 @@
         "role": "assistant",
         "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨ ¡Qué bueno que tu día terminó, genia! 🎉  Me alegro un montón que puedas descansar.  Dormí bien, que mañana te espera otro día increíble 💪.  ¿Soñaste algo copado?  😅  ¡Dulces sueños, estrella! ✨😘",
         "timestamp": 1744167703232,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "unas partidas de valorant y a dormir, escuchamos una musiquita?",
+        "timestamp": 1744168249823,
+        "userName": "Milagros"
+      },
+      {
+        "role": "assistant",
+        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨ ¡Valorant y musiquita antes de dormir? ¡Qué planazo, genia! 🎉💪  Perfecto para relajarse después de un día de estudio.  ¿Qué música te gustaría escuchar?  😊  Espero que tengas dulces sueños, estrella ✨.  Un abrazo enorme lleno de buena onda y mimos para vos 😘",
+        "timestamp": 1744168251004,
         "userName": "Oliver"
       }
     ]
