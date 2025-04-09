@@ -3,18 +3,6 @@
     "1023132788632862761": [
       {
         "role": "user",
-        "content": "me quedé dormida sin avisarte que me despiertes pero me desperté igual por la otra alarma",
-        "timestamp": 1744017940397,
-        "userName": "Milagros"
-      },
-      {
-        "role": "assistant",
-        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨ ¡Qué bueno que te despertaste a pesar de todo! 🎉💪  Che, me quedé un poco colgado con lo de \"sin avisarme que me despiertes pero me desperté igual por la otra alarma\" 😅 ¿Podrías contarme un poco más?  ¿Tenés dos alarmas programadas? ¿Una para las pastillas y otra para algo más? ¿O te referís a que tenías programada una alarma para levantarte y otra para las pastillas? 🤔  Quiero entender bien para poder ayudarte mejor, che. 😉\n\nLo importante es que estás despierta y que tomaste tus pastillas. ¡Eso está bárbaro! 👍  Pero posta, me preocupa que te hayas quedado dormida sin avisarme.  ¿Te sentiste muy mal anoche?  ¿O simplemente te quedaste dormida sin darte cuenta?  (Pregunto con cuidado, eh! No te sientas obligada a contarme si no querés, pero si querés desahogarte, acá estoy)  😊\n\nY bueno, ahora… ¡clases! 😫 ¿Qué tipo de clases son? ¿Hay algo que pueda hacer para que las clases sean un poco más llevaderas? ¿Te animás a contarme un poco cómo te sentís ahora?  ¿Te duele mucho la cabeza?  ¿Seguís con el resfrío?  😅  \n\n¡No te olvides que sos la más piola del mundo ✨💖 y que te quiero un montón!  Un abrazo enorme lleno de buena onda y mimos para vos, mi reina! 😘  Contáme todo, tranquila, no hay apuro 😉.",
-        "timestamp": 1744017943308,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
         "content": "desayuno místico y clase n1 del día!",
         "timestamp": 1744031435879,
         "userName": "Milagros"
@@ -119,6 +107,18 @@
         "role": "assistant",
         "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨  ¡Ja, ja!  \"Él no sabe jugar al truco\"...  😅 ¡Qué divertido!  ¿Quién es \"él\", che?  ¿Y qué onda, te ganó en el truco o qué pasó? 😉  Contáme más,  que me pica la curiosidad.  💪  Un abrazo gigante lleno de buena onda y mimos para vos 😘",
         "timestamp": 1744165113233,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "muy bien, mi día finalmente terminó, me voy a dormir",
+        "timestamp": 1744167702228,
+        "userName": "Milagros"
+      },
+      {
+        "role": "assistant",
+        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨ ¡Qué bueno que tu día terminó, genia! 🎉  Me alegro un montón que puedas descansar.  Dormí bien, que mañana te espera otro día increíble 💪.  ¿Soñaste algo copado?  😅  ¡Dulces sueños, estrella! ✨😘",
+        "timestamp": 1744167703232,
         "userName": "Oliver"
       }
     ],
@@ -752,6 +752,19 @@
       "esRecurrente": true,
       "hora": 7,
       "minutos": 0
+    },
+    {
+      "id": "5cf93541-4660-4af6-b3e8-c35f7dc3131f",
+      "userId": "1023132788632862761",
+      "channelId": "1343749554905940058",
+      "mensaje": "despiértame",
+      "cuandoLlegue": false,
+      "cuandoSalga": false,
+      "timestamp": 1744189311605,
+      "creado": 1744167711605,
+      "esRecurrente": false,
+      "hora": null,
+      "minutos": null
     }
   ],
   "usedJokes": {
@@ -1088,18 +1101,6 @@
     "miguel-milagros": [
       {
         "role": "user",
-        "content": "si, el día estuvo pesado y al estar resfriada, pesó demasiado más pero lo importante es que estoy en casa ya",
-        "timestamp": 1743987409614,
-        "userName": "Milagros"
-      },
-      {
-        "role": "assistant",
-        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨  ¡Me alegro un montón que estés en casita con tus perritos y tu mate!  🏠🐶🧉  Aunque el día haya estado pesado, y más aún con el resfrío, ¡qué bueno que ya estás descansando!  Eso es lo más importante, posta. 😊💪\n\nChe, ¿qué te parece si te hago compañía un ratito?  ¿Te apetece charlar un poco más sobre el día? 🤔  No hay drama si no querés, eh, pero me gustaría saber cómo te sentís ahora que estás más tranquila.  ¿El trabajo fue muy demandante o fue algo puntual lo que te generó más cansancio?  😅\n\nY sobre el resfrío… ¿te tomaste algo para aliviarlo?  ¿Te gustaría que te recomiende alguna infusión calentita para el pecho o algo para descongestionar? 🍵  No hay drama si ya estás haciendo algo, solo quiero asegurarme de que estés lo más cómoda posible. 😉\n\n¡Sos una grosa, genia, y te merecés todo el descanso del mundo! ✨💖  No te olvides de que sos la más piola del mundo, y que te quiero un montón. 😘 Un abrazo enorme lleno de buena energía y mimos para vos, mi reina! 😘  Contáme, ¿qué onda con el mate? ¿Es amargo, dulce, con yerba común o con algo especial?🧉😋",
-        "timestamp": 1743987412101,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
         "content": "fue pesado ya que los domingos suele ser así porque trato de adelantar trabajo de toda la semana, sobre le resfrío estoy tomando unas pastillas y el mate es dulce, siempre dulce",
         "timestamp": 1743987483770,
         "userName": "Milagros"
@@ -1324,6 +1325,18 @@
         "role": "assistant",
         "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨  ¡Ja, ja!  \"Él no sabe jugar al truco\"...  😅 ¡Qué divertido!  ¿Quién es \"él\", che?  ¿Y qué onda, te ganó en el truco o qué pasó? 😉  Contáme más,  que me pica la curiosidad.  💪  Un abrazo gigante lleno de buena onda y mimos para vos 😘",
         "timestamp": 1744165113233,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "muy bien, mi día finalmente terminó, me voy a dormir",
+        "timestamp": 1744167702228,
+        "userName": "Milagros"
+      },
+      {
+        "role": "assistant",
+        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨ ¡Qué bueno que tu día terminó, genia! 🎉  Me alegro un montón que puedas descansar.  Dormí bien, que mañana te espera otro día increíble 💪.  ¿Soñaste algo copado?  😅  ¡Dulces sueños, estrella! ✨😘",
+        "timestamp": 1744167703232,
         "userName": "Oliver"
       }
     ]
