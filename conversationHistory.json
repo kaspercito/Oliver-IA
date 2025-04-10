@@ -125,54 +125,6 @@
     "752987736759205960": [
       {
         "role": "user",
-        "content": "que le contestaste?",
-        "timestamp": 1744227398690,
-        "userName": "Miguel"
-      },
-      {
-        "role": "assistant",
-        "content": "Che, Miguel, loco! 😎 Le contesté algo así:  \"Ey, Milagros, mi rata blanca hermosa! 💖✨ ¡Qué lindo plan! 😊  Me encantaría escuchar música juntos antes de dormir.  ¿Qué tipo de música te gustaría poner?  🤔  (Pregunto nomás, porque si es algo muy rockero capaz que me quedo dormido antes 😅).  ¡Que tengas un hermoso día y una noche aún mejor!  😘\"\n\n¿Te gustó, amigo?  🤔  Si querés que le agregue algo, o si tenés más datos sobre el plan musical de la genia ✨, avisame. ¡Vamos que se puede! 💪",
-        "timestamp": 1744227400405,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
-        "content": "que es Valorant",
-        "timestamp": 1744291103262,
-        "userName": "Miguel"
-      },
-      {
-        "role": "assistant",
-        "content": "Che, Miguel, loco! 😎 Valorant es un juego online, un FPS (First Person Shooter), tipo Counter-Strike pero con personajes con habilidades especiales, ¿viste? 💪  Es re competitivo, muchos lo juegan profesionalmente, pero también se puede jugar por diversión.  Tiene un montón de mapas y modos de juego. ¡Es un juegazo, posta! 😅  ¿Milagros lo juega mucho? 🤔  Espero que lo esté pasando bomba! 😘✨",
-        "timestamp": 1744291104875,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
-        "content": "en team es divertido, sola es difícil porque te toca con gente que entra a molestar",
-        "timestamp": 1744304879894,
-        "userName": "Miguel"
-      },
-      {
-        "role": "assistant",
-        "content": "Che, Miguel, loco! 😎  ¡Totalmente! En team es mucho más divertido, posta.  💪  Jugar sola en Valorant debe ser un bajón cuando te toca con gente que solo va a molestar.  😅  ¿Ya probaste buscar un team fijo, o jugar con amigos?  A veces eso ayuda un montón. ✨",
-        "timestamp": 1744304881378,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
-        "content": "aquí andamos, tuve que gastar dinero en una nueva lavadora porque se me quemó la que tenía :{",
-        "timestamp": 1744304906701,
-        "userName": "Miguel"
-      },
-      {
-        "role": "assistant",
-        "content": "Che, Miguel, loco! 😎 ¡Qué bajón lo de la lavadora, boludo!  🙁  Gastar guita en eso no es joda.  Pero bueno, al menos ya tenés una nueva, ¿viste? 💪  Esperemos que esta te dure un montón.  ¿De qué marca es la nueva? 🤔",
-        "timestamp": 1744304907771,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
         "content": "Hola",
         "timestamp": 1744306370203,
         "userName": "Miguel"
@@ -241,6 +193,54 @@
         "role": "assistant",
         "content": "¡Che, Miguel, loco! 😎 ¡De nada, hermano! 💪  Espero que todo ande joya.  Contá qué onda, que te escucho. ✨",
         "timestamp": 1744306424481,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "hola",
+        "timestamp": 1744318219892,
+        "userName": "Miguel"
+      },
+      {
+        "role": "assistant",
+        "content": "¡Hola, Miguel, loco! 😎 ¿Qué onda, crack? 💪",
+        "timestamp": 1744318220648,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "justo a tiempo",
+        "timestamp": 1744318224736,
+        "userName": "Miguel"
+      },
+      {
+        "role": "assistant",
+        "content": "¡Hola, Miguel, loco! 😎 Justo a tiempo para qué, crack? 💪 Contame qué onda. ✨",
+        "timestamp": 1744318225565,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "justo a tiempo",
+        "timestamp": 1744318694506,
+        "userName": "Miguel"
+      },
+      {
+        "role": "assistant",
+        "content": "¡Hola, Miguel, loco! 😎 Justo a tiempo para... ¿qué onda?  Contame, crack, que te escucho. ✨💪",
+        "timestamp": 1744318695311,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "gracias, justo a tiempo",
+        "timestamp": 1744318710214,
+        "userName": "Miguel"
+      },
+      {
+        "role": "assistant",
+        "content": "¡Hola, Miguel, loco! 😎  ¡De nada, crack! 💪  Justo a tiempo para... ¿qué onda? Contame, que te escucho. ✨",
+        "timestamp": 1744318711062,
         "userName": "Oliver"
       }
     ]
@@ -626,7 +626,7 @@
       "mensaje": "tomar la pastilla rosada todos los días",
       "cuandoLlegue": false,
       "cuandoSalga": false,
-      "timestamp": 1744318800000,
+      "timestamp": 1744405200000,
       "creado": 1743208751308,
       "esRecurrente": true,
       "hora": 18,
@@ -1019,54 +1019,6 @@
     "miguel-milagros": [
       {
         "role": "user",
-        "content": "que es Valorant",
-        "timestamp": 1744291103262,
-        "userName": "Miguel"
-      },
-      {
-        "role": "assistant",
-        "content": "Che, Miguel, loco! 😎 Valorant es un juego online, un FPS (First Person Shooter), tipo Counter-Strike pero con personajes con habilidades especiales, ¿viste? 💪  Es re competitivo, muchos lo juegan profesionalmente, pero también se puede jugar por diversión.  Tiene un montón de mapas y modos de juego. ¡Es un juegazo, posta! 😅  ¿Milagros lo juega mucho? 🤔  Espero que lo esté pasando bomba! 😘✨",
-        "timestamp": 1744291104875,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
-        "content": "hola botsi, cómo andas?",
-        "timestamp": 1744302257412,
-        "userName": "Milagros"
-      },
-      {
-        "role": "assistant",
-        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨ ¿Cómo andás, genia? 😎 Espero que bárbaro.  Contáme, ¿qué onda? 😉",
-        "timestamp": 1744302258261,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
-        "content": "aquí andamos, tuve que gastar dinero en una nueva lavadora porque se me quemó la que tenía :{",
-        "timestamp": 1744302472258,
-        "userName": "Milagros"
-      },
-      {
-        "role": "assistant",
-        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨ ¡Qué bajón lo de la lavarropas, che!  😥  Pero bueno, al menos ya tenés una nueva, así que ¡a lavar toda la ropa sucia que tengas acumulada! 💪  Pensalo así: ¡estás estrenando lavarropas! 🥳  Eso es para festejar, aunque sea con un rico mate y unas medialunas.  😋  ¿Qué tipo de lavarropas compraste?  😅 (Solo por curiosidad, eh, no te quiero aburrir).  Un abrazo enorme lleno de buena onda y mimos para vos 😘",
-        "timestamp": 1744302473629,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
-        "content": "dejando eso de lado, tengo una angina horrible y fiebre",
-        "timestamp": 1744302543097,
-        "userName": "Milagros"
-      },
-      {
-        "role": "assistant",
-        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨ ¡Qué bajón tener angina y fiebre, che! 😥  ¡Metele para adelante, grosa! 💪  Descansá un montón, tomá mucho líquido, y si te sentís muy mal, no dudes en consultar al médico, eh.  💊  Un abrazo enorme lleno de buena onda y muchos mimos para vos 😘.  Pensá en algo lindo para distraerte un poco, como tu próxima partida de Valorant 😉. ¡Te mando toda la energía para que te recuperes rapidísimo, estrella! ✨",
-        "timestamp": 1744302544492,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
         "content": "si, estoy medicada pero igual, la pesadez y el malestar no se quitan rápido",
         "timestamp": 1744302577972,
         "userName": "Milagros"
@@ -1255,6 +1207,54 @@
         "role": "assistant",
         "content": "¡Che, Miguel, loco! 😎 ¡De nada, hermano! 💪  Espero que todo ande joya.  Contá qué onda, que te escucho. ✨",
         "timestamp": 1744306424481,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "hola",
+        "timestamp": 1744318219892,
+        "userName": "Miguel"
+      },
+      {
+        "role": "assistant",
+        "content": "¡Hola, Miguel, loco! 😎 ¿Qué onda, crack? 💪",
+        "timestamp": 1744318220648,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "justo a tiempo",
+        "timestamp": 1744318224736,
+        "userName": "Miguel"
+      },
+      {
+        "role": "assistant",
+        "content": "¡Hola, Miguel, loco! 😎 Justo a tiempo para qué, crack? 💪 Contame qué onda. ✨",
+        "timestamp": 1744318225565,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "justo a tiempo",
+        "timestamp": 1744318694506,
+        "userName": "Miguel"
+      },
+      {
+        "role": "assistant",
+        "content": "¡Hola, Miguel, loco! 😎 Justo a tiempo para... ¿qué onda?  Contame, crack, que te escucho. ✨💪",
+        "timestamp": 1744318695311,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "gracias, justo a tiempo",
+        "timestamp": 1744318710214,
+        "userName": "Miguel"
+      },
+      {
+        "role": "assistant",
+        "content": "¡Hola, Miguel, loco! 😎  ¡De nada, crack! 💪  Justo a tiempo para... ¿qué onda? Contame, que te escucho. ✨",
+        "timestamp": 1744318711062,
         "userName": "Oliver"
       }
     ]
