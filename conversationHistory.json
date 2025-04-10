@@ -685,19 +685,6 @@
       "minutos": 0
     },
     {
-      "id": "5d199855-7fb0-4c21-aa62-774baeb9d04d",
-      "userId": "1023132788632862761",
-      "channelId": "1343749554905940058",
-      "mensaje": "despiértame",
-      "cuandoLlegue": false,
-      "cuandoSalga": false,
-      "timestamp": 1744312835846,
-      "creado": 1744305635847,
-      "esRecurrente": false,
-      "hora": null,
-      "minutos": null
-    },
-    {
       "id": "63a40019-de6b-4e98-a4fc-710aadde114b",
       "userId": "1023132788632862761",
       "channelId": "1343749554905940058",
