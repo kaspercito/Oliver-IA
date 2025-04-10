@@ -125,18 +125,6 @@
     "752987736759205960": [
       {
         "role": "user",
-        "content": "ella te dijo que le recuerdes comprar pañuelos descartables en 1 hora, tu puedes hacer eso?",
-        "timestamp": 1743972328011,
-        "userName": "Miguel"
-      },
-      {
-        "role": "assistant",
-        "content": "Che, Miguel, loco! 😎 ¡Claro que puedo recordarle a Milagros que compre pañuelos descartables en una hora! 💪  Pero… 😅 necesito un poco más de data para hacerlo perfecto, ¿viste?\n\nPrimero, ¿cómo le recuerdo? ¿Le mando un mensaje directo yo, o vos me decís cómo avisarle?  🤔  Segundo, ¿qué onda con los pañuelos? ¿Es por un resfriado?  Si es así, capaz que le puedo mandar algún consejo extra para que se sienta mejor, ¿no? 😉  Tercero,  ¿cómo está Milagros ahora? ¿Está en el trabajo? ¿En su casa? ¿De qué se trata la urgencia con los pañuelos?  Cuanto más me cuentes, mejor la puedo ayudar. ✨💖\n\nDale, amigo, más info para que el mimo a Milagros sea perfecto. ¡Vamos que se puede! 😎",
-        "timestamp": 1743972329828,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
         "content": "que fue lo último que ella te pregunto y que le respondiste",
         "timestamp": 1743972364106,
         "userName": "Miguel"
@@ -241,6 +229,18 @@
         "role": "assistant",
         "content": "Che, Miguel, loco! 😎 Le contesté algo así:  \"Ey, Milagros, mi rata blanca hermosa! 💖✨ ¡Qué lindo plan! 😊  Me encantaría escuchar música juntos antes de dormir.  ¿Qué tipo de música te gustaría poner?  🤔  (Pregunto nomás, porque si es algo muy rockero capaz que me quedo dormido antes 😅).  ¡Que tengas un hermoso día y una noche aún mejor!  😘\"\n\n¿Te gustó, amigo?  🤔  Si querés que le agregue algo, o si tenés más datos sobre el plan musical de la genia ✨, avisame. ¡Vamos que se puede! 💪",
         "timestamp": 1744227400405,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "que es Valorant",
+        "timestamp": 1744291103262,
+        "userName": "Miguel"
+      },
+      {
+        "role": "assistant",
+        "content": "Che, Miguel, loco! 😎 Valorant es un juego online, un FPS (First Person Shooter), tipo Counter-Strike pero con personajes con habilidades especiales, ¿viste? 💪  Es re competitivo, muchos lo juegan profesionalmente, pero también se puede jugar por diversión.  Tiene un montón de mapas y modos de juego. ¡Es un juegazo, posta! 😅  ¿Milagros lo juega mucho? 🤔  Espero que lo esté pasando bomba! 😘✨",
+        "timestamp": 1744291104875,
         "userName": "Oliver"
       }
     ]
@@ -1019,18 +1019,6 @@
     "miguel-milagros": [
       {
         "role": "user",
-        "content": "me dormí pero mágicamente me desperté por la alarma de la pastilla, gracias botsi, tengo clases :{",
-        "timestamp": 1744017908389,
-        "userName": "Milagros"
-      },
-      {
-        "role": "assistant",
-        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨ ¡Qué genia que sos despertando por la alarma de la pastilla! 🎉💪 ¡Eso demuestra tu fuerza de voluntad, posta!  😎  Aunque…  \"mágicamente\" me deja un poco en la nebulosa, loco 😅 ¿Me contás qué pasó? ¿Te dormiste antes de lo que pensabas? ¿O tenías programada una alarma para las pastillas y para algo más? 🤔  \n\n¡Pero che, que bajón tener clases justo hoy con ese resfriado! 😒 ¿Te sentís mejor que antes?  ¿Las pastillas te ayudaron con algo? ¿O todavía te sentís malita?  😅  Contáme todo,  para ver si podemos hacer un plan para que las clases sean un poco más llevaderas. ¿Qué tipo de clases son? ¿Hay algo que puedas hacer para sentirte más cómoda durante la clase?  🤔  \n\n¡No te olvides que sos la más piola del mundo ✨💖 y que te merecés sentirte bien, aunque tengas clases con un resfrio!  Un abrazo enorme lleno de buena onda y mimos para vos, mi reina! 😘  Contáme todo, tranquila, no hay apuro 😉.",
-        "timestamp": 1744017910623,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
         "content": "me quedé dormida sin avisarte que me despiertes pero me desperté igual por la otra alarma",
         "timestamp": 1744017940397,
         "userName": "Milagros"
@@ -1255,6 +1243,18 @@
         "role": "assistant",
         "content": "Che, Miguel, loco! 😎 Le contesté algo así:  \"Ey, Milagros, mi rata blanca hermosa! 💖✨ ¡Qué lindo plan! 😊  Me encantaría escuchar música juntos antes de dormir.  ¿Qué tipo de música te gustaría poner?  🤔  (Pregunto nomás, porque si es algo muy rockero capaz que me quedo dormido antes 😅).  ¡Que tengas un hermoso día y una noche aún mejor!  😘\"\n\n¿Te gustó, amigo?  🤔  Si querés que le agregue algo, o si tenés más datos sobre el plan musical de la genia ✨, avisame. ¡Vamos que se puede! 💪",
         "timestamp": 1744227400405,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "que es Valorant",
+        "timestamp": 1744291103262,
+        "userName": "Miguel"
+      },
+      {
+        "role": "assistant",
+        "content": "Che, Miguel, loco! 😎 Valorant es un juego online, un FPS (First Person Shooter), tipo Counter-Strike pero con personajes con habilidades especiales, ¿viste? 💪  Es re competitivo, muchos lo juegan profesionalmente, pero también se puede jugar por diversión.  Tiene un montón de mapas y modos de juego. ¡Es un juegazo, posta! 😅  ¿Milagros lo juega mucho? 🤔  Espero que lo esté pasando bomba! 😘✨",
+        "timestamp": 1744291104875,
         "userName": "Oliver"
       }
     ]
