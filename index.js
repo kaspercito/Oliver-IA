@@ -3926,7 +3926,7 @@ async function manejarResponder(message) {
 }
 
 async function manejarMiguel(message) {
-    // Comando solo pa’ Belén pa’ mandar un embed al canal con ID 1343749554905940058
+    // Comando solo pa’ Miguel pa’ mandar un embed al canal con ID 1343749554905940058
     const userName = message.author.id === OWNER_ID ? 'Belén' : 'Miguel';
     // Si no sos Belén, chau, no podés usarlo
     if (message.author.id !== OWNER_ID) return;
@@ -3959,8 +3959,8 @@ async function manejarMiguel(message) {
 
     try {
         // Armo un embed azul con el mensaje
-        const responseEmbed = createEmbed('#1E90FF', '📬 Mensaje de Belén',
-            `Belén dice: "${args || 'Sin texto, pero mirá las imágenes si hay.'}"`);
+        const responseEmbed = createEmbed('#1E90FF', '📬 Mensaje de Miguel',
+            `Miguel dice: "${args || 'Sin texto, pero mirá las imágenes si hay.'}"`);
         
         // Mando el embed al canal específico con los adjuntos si hay
         console.log(`[${instanceId}] Enviando mensaje al canal...`);
