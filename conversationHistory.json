@@ -125,42 +125,6 @@
     "752987736759205960": [
       {
         "role": "user",
-        "content": "Hola",
-        "timestamp": 1744306370203,
-        "userName": "Miguel"
-      },
-      {
-        "role": "assistant",
-        "content": "¡Hola, Miguel, loco! 😎 ¿Qué onda, crack? 💪",
-        "timestamp": 1744306370860,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
-        "content": "como estas?",
-        "timestamp": 1744306374943,
-        "userName": "Miguel"
-      },
-      {
-        "role": "assistant",
-        "content": "¡Hola, Miguel, loco! 😎 ¿Cómo andás, crack? 💪  Estoy joya, che!  ¿Y vos cómo andás?  Contá que onda,  que te escucho.",
-        "timestamp": 1744306375820,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
-        "content": "iré a comer",
-        "timestamp": 1744306381821,
-        "userName": "Miguel"
-      },
-      {
-        "role": "assistant",
-        "content": "Oliver: ¡Buen provecho, Miguel, loco! 😎  Que comas rico, amigo.  💪  Contá después qué tal estuvo.",
-        "timestamp": 1744306382606,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
         "content": "iré a comer",
         "timestamp": 1744306391014,
         "userName": "Miguel"
@@ -241,6 +205,42 @@
         "role": "assistant",
         "content": "¡Hola, Miguel, loco! 😎  ¡De nada, crack! 💪  Justo a tiempo para... ¿qué onda? Contame, que te escucho. ✨",
         "timestamp": 1744318711062,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "estoy en un compromiso, fue la boda de mi prima y el bautizo de la hija de su hermana",
+        "timestamp": 1744496118477,
+        "userName": "Miguel"
+      },
+      {
+        "role": "assistant",
+        "content": "¡Che, Miguel, loco! 😎 ¡Qué buena onda que hayas ido a la boda y el bautismo! ¡Doble celebración, posta! 💪  ¡Un montón de felicidad para toda la familia! ✨ Espero que lo hayas pasado genial.  Contame qué tal estuvo todo.",
+        "timestamp": 1744496119426,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "sigo aquí jajajs",
+        "timestamp": 1744496134020,
+        "userName": "Miguel"
+      },
+      {
+        "role": "assistant",
+        "content": "¡Hola, Miguel, loco! 😎  Seguís en la boda y el bautismo, ¡qué copado!  💪  Espero que la estés pasando genial. ✨",
+        "timestamp": 1744496134792,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "digamos, es en un bar y lo que están tomando es cerveza, yo ando tomando Coca Cola y hay un ruido increíble",
+        "timestamp": 1744496189793,
+        "userName": "Miguel"
+      },
+      {
+        "role": "assistant",
+        "content": "¡Che, Miguel, loco! 😎  ¡Qué quilombo bárbaro en ese bar!  😅  Coca Cola en medio del ruido y la cerveza... ¡Aguante la Coca! 💪  Contá después cómo sigue la cosa, crack. ✨",
+        "timestamp": 1744496190675,
         "userName": "Oliver"
       }
     ]
@@ -1029,42 +1029,6 @@
     "miguel-milagros": [
       {
         "role": "user",
-        "content": "si, estoy medicada pero igual, la pesadez y el malestar no se quitan rápido",
-        "timestamp": 1744302577972,
-        "userName": "Milagros"
-      },
-      {
-        "role": "assistant",
-        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨  Che,  lo siento un montón que te sientas mal a pesar de la medicación.  😥  A veces estas cosas llevan su tiempo, posta.  Concentrate en descansar lo máximo posible y en cuidarte mucho, grosa 💪.  No te olvides de tomar muchos líquidos y de comer algo rico aunque sea solo un poquito para tener energía 😊.  ¡Te mando un abrazo gigante lleno de buena onda y muchos mimos para que te mejores rápido, estrella! ✨😘  Pensá en algo lindo, como esa próxima partida de Valorant que te espera 😉.",
-        "timestamp": 1744302579345,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
-        "content": "imposible jugar al valorant, ayer hice mi primer ice en competencia y perdimos",
-        "timestamp": 1744302640918,
-        "userName": "Milagros"
-      },
-      {
-        "role": "assistant",
-        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨ ¡Qué bajón perder en tu primer Ice de competencia, che!  😥 Pero ¡ey!,  ¡sos una grosa por animarte a participar! 💪  ¡Eso demuestra un montón de valentía y espíritu competitivo! 😎  Un primer Ice siempre es una experiencia de aprendizaje,  y seguro que la próxima te va mucho mejor.  😉  No te bajonees, posta, que lo importante es que lo intentaste y que seguís aprendiendo.  Un abrazo enorme lleno de buena onda y mimos para vos 😘.  ¡A recuperarte bien para la próxima, estrella! ✨",
-        "timestamp": 1744302642771,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
-        "content": "en team es divertido, sola es difícil porque te toca con gente que entra a molestar",
-        "timestamp": 1744302706146,
-        "userName": "Milagros"
-      },
-      {
-        "role": "assistant",
-        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨  ¡Posta que es un bajón jugar sola al Valorant y encontrarte con gente que solo quiere molestar!  😥  En team es re divertido, como decís,  la onda es otra 💪.  Quizás podrías buscar un team fijo,  o  un grupo de Discord donde busquen jugadores para jugar juntos,  así te evitás esas experiencias negativas. 😉  ¡Sos una genia por jugar al Valorant, loco! 😎  Un abrazo enorme lleno de buena onda y muchos mimos para vos 😘.  ¡Seguí brillando, estrella! ✨",
-        "timestamp": 1744302707484,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
         "content": "en team es divertido, sola es difícil porque te toca con gente que entra a molestar",
         "timestamp": 1744304879894,
         "userName": "Miguel"
@@ -1266,7 +1230,53 @@
         "content": "¡Hola, Miguel, loco! 😎  ¡De nada, crack! 💪  Justo a tiempo para... ¿qué onda? Contame, que te escucho. ✨",
         "timestamp": 1744318711062,
         "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "estoy en un compromiso, fue la boda de mi prima y el bautizo de la hija de su hermana",
+        "timestamp": 1744496118477,
+        "userName": "Miguel"
+      },
+      {
+        "role": "assistant",
+        "content": "¡Che, Miguel, loco! 😎 ¡Qué buena onda que hayas ido a la boda y el bautismo! ¡Doble celebración, posta! 💪  ¡Un montón de felicidad para toda la familia! ✨ Espero que lo hayas pasado genial.  Contame qué tal estuvo todo.",
+        "timestamp": 1744496119426,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "sigo aquí jajajs",
+        "timestamp": 1744496134020,
+        "userName": "Miguel"
+      },
+      {
+        "role": "assistant",
+        "content": "¡Hola, Miguel, loco! 😎  Seguís en la boda y el bautismo, ¡qué copado!  💪  Espero que la estés pasando genial. ✨",
+        "timestamp": 1744496134792,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "digamos, es en un bar y lo que están tomando es cerveza, yo ando tomando Coca Cola y hay un ruido increíble",
+        "timestamp": 1744496189793,
+        "userName": "Miguel"
+      },
+      {
+        "role": "assistant",
+        "content": "¡Che, Miguel, loco! 😎  ¡Qué quilombo bárbaro en ese bar!  😅  Coca Cola en medio del ruido y la cerveza... ¡Aguante la Coca! 💪  Contá después cómo sigue la cosa, crack. ✨",
+        "timestamp": 1744496190675,
+        "userName": "Oliver"
       }
     ]
+  },
+  "userStatus": {
+    "752987736759205960": {
+      "status": "en compromiso",
+      "timestamp": 1744496118477
+    },
+    "1023132788632862761": {
+      "status": "tranqui",
+      "timestamp": 1744496118477
+    }
   }
 }
