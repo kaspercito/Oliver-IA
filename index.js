@@ -3925,7 +3925,7 @@ async function manejarResponder(message) {
     }
 }
 
-async function ManejarMiguel(message) {
+async function manejarMiguel(message) {
     // Comando solo pa’ Belén pa’ mandar un embed al canal con ID 1343749554905940058
     const userName = message.author.id === OWNER_ID ? 'Belén' : 'Miguel';
     // Si no sos Belén, chau, no podés usarlo
