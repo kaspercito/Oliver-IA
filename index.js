@@ -6703,35 +6703,26 @@ client.on('messageCreate', async (message) => {
 client.once('ready', async () => {
     console.log(`¡Oliver IA está listo! Instancia: ${instanceId} - ${new Date().toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })}`);
     client.user.setPresence({ activities: [{ name: "Listo para ayudar a Milagros", type: 0 }], status: 'dnd' });
+    // Borrar el último mensaje del canal
     try {
-        // Busca el canal por ID
         const channel = await client.channels.fetch('1343749554905940058');
         if (!channel) {
             console.error('No se encontró el canal con ID 1343749554905940058');
-            return;
-        }
-
-        // Verifica que el canal sea de tipo texto
-        if (!channel.isTextBased()) {
+        } else if (!channel.isTextBased()) {
             console.error('El canal no es de tipo texto');
-            return;
-        }
-
-        // Obtén los últimos mensajes (limit: 1 para el último)
-        const messages = await channel.messages.fetch({ limit: 1 });
-        const lastMessage = messages.first();
-
-        // Si hay un último mensaje, bórralo
-        if (lastMessage) {
-            await lastMessage.delete();
-            console.log(`Último mensaje borrado en el canal ${channel.name}`);
         } else {
-            console.log('No hay mensajes en el canal para borrar');
+            const messages = await channel.messages.fetch({ limit: 1 });
+            const lastMessage = messages.first();
+            if (lastMessage) {
+                await lastMessage.delete();
+                console.log(`Último mensaje borrado en el canal ${channel.name}`);
+            } else {
+                console.log('No hay mensajes en el canal para borrar');
+            }
         }
     } catch (error) {
         console.error('Error al intentar borrar el último mensaje:', error.message);
     }
-});
     await initializeDataStore();
 
     if (dataStore.recordatorios && dataStore.recordatorios.length > 0) {
