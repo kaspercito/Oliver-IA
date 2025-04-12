@@ -3925,6 +3925,59 @@ async function manejarResponder(message) {
     }
 }
 
+async function ManejarMiguel(message) {
+    // Comando solo pa’ Belén pa’ mandar un embed al canal con ID 1343749554905940058
+    const userName = message.author.id === OWNER_ID ? 'Belén' : 'Miguel';
+    // Si no sos Belén, chau, no podés usarlo
+    if (message.author.id !== OWNER_ID) return;
+
+    // Logueo pa’ debug, pa’ ver qué pasa
+    console.log(`[${instanceId}] Ejecutando !miguel por ${userName} con contenido: "${message.content}"`);
+
+    // Saco el mensaje después de !miguel
+    const args = message.content.slice(7).trim();
+    // Si no escribiste nada, te pido algo en rojo
+    if (!args) {
+        console.log(`[${instanceId}] Error: No hay argumentos en !miguel`);
+        return sendError(message.channel, `Escribí algo después de "!miguel", ${userName}. ¿Qué querés mandar al canal?`);
+    }
+
+    // Busco el canal pa’ mandarle el mensaje
+    let targetChannel;
+    try {
+        targetChannel = await client.channels.fetch('1343749554905940058');
+        console.log(`[${instanceId}] Canal (1343749554905940058) obtenido con éxito`);
+    } catch (error) {
+        // Si no encuentro el canal, te aviso en rojo
+        console.error(`[${instanceId}] Error al obtener canal: ${error.message}`);
+        return sendError(message.channel, '❌ ¡No pude encontrar el canal!', `Error: ${error.message}, ${userName}.`);
+    }
+
+    // Chequeo si hay adjuntos pa’ incluirlos
+    const attachments = message.attachments.size > 0 ? message.attachments.map(att => ({ attachment: att.url })) : [];
+    console.log(`[${instanceId}] Preparando envío al canal (1343749554905940058), adjuntos: ${attachments.length}`);
+
+    try {
+        // Armo un embed azul con el mensaje
+        const responseEmbed = createEmbed('#1E90FF', '📬 Mensaje de Belén',
+            `Belén dice: "${args || 'Sin texto, pero mirá las imágenes si hay.'}"`);
+        
+        // Mando el embed al canal específico con los adjuntos si hay
+        console.log(`[${instanceId}] Enviando mensaje al canal...`);
+        await targetChannel.send({ embeds: [responseEmbed], files: attachments });
+        console.log(`[${instanceId}] Mensaje enviado exitosamente al canal`);
+
+        // Confirmo en verde que salió todo bien
+        await sendSuccess(message.channel, '✅ ¡Mensaje enviado!',
+            `Mandé tu mensaje al canal, ${userName}. ¡Ya está ahí, loco!`);
+    } catch (error) {
+        // Si falla el envío, te aviso en rojo
+        console.error(`[${instanceId}] Error al enviar mensaje al canal: ${error.message}`);
+        await sendError(message.channel, '❌ ¡No pude mandar el mensaje al canal!',
+            `Algo falló, ${userName}. Error: ${error.message}. ¿El bot tiene permisos en ese canal?`);
+    }
+}
+
 // Actualizaciones
 async function manejarActualizaciones(message) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
@@ -6190,6 +6243,9 @@ async function manejarCommand(message, silent = false) {
     else if (content.startsWith('!responder') || content.startsWith('!resp')) {
         await manejarResponder(message);
     }
+    else if (content.startsWith('!miguel') {
+        await manejarMiguel(message);
+    }
     else if (content.startsWith('!idea') || content.startsWith('!id')) {
         await manejarIdea(message);
     }    
@@ -6746,11 +6802,11 @@ client.once('ready', async () => {
                 const oneDayInMs = 24 * 60 * 60 * 1000;
 
                 const reminderTimes = {
-                    12: "¡Qué tal, loco, mediodía a full, che! ☀️ ¿Cómo estás arrancando la jornada, crack? Si precisás algo, avisame que te doy una mano al toque, ¿eh?",
-                    18: "¡Eeeh, las 6 de la tarde, loco! 🌆 ¿Cómo venís con el día, genia? Si querés charlar o que te ayude con algo, estoy a un grito, dale!",
-                    22: "¡Noche tranqui, che, las 10 ya! 🌙 ¿Cómo cerrás el día, capo? Si necesitás un cable o solo querés tirar la onda, acá estoy, siempre piola!",
-                    23: "¡Eeeh, las 11 de la noche, loco! 🌃 Che, Belén, ¿todavía despierta, grosa? Me vino una flashada: imaginá que los perros del barrio arman un torneo de truco en la plaza, y Miguel, el loco ese, se anota de colado con un mazo trucho que encontró en la ferretería. ¡Un desastre! Si te pintó asomarte a ver el quilombo o algo antes de dormir, avisá, ¡me sumo a bancar las risas!",
-                    0: "¡Medianoche, che! 🌌 ¿Cómo te cayó el día, genia? Si estás en una de esas noches raras, ¿hay algo que extrañes o que te levante el ánimo? Capaz que charlar con alguien suma, ¿no? Acá estoy para tirar buena vibra."
+                    12: "¡Mediodía, loco, a full! ☀️ ¿Cómo arrancás la jornada, crack? Si estás con mil cosas o querés un break, avisame y te echo una mano, ¿sí?",
+                    18: "¡Las 6 de la tarde, che! 🌆 ¿Cómo pinta el día, genia? Si querés charlar, tirar ideas o necesitas algo, estoy a un mensaje, ¡dale!",
+                    22: "¡10 de la noche, noche tranqui! 🌙 ¿Cómo venís cerrando el día, capo? Si te pinta desconectar o charlar un rato, acá estoy, siempre listo!",
+                    23: "¡11 de la noche, loco! 🌃 Ey, Belén, ¿todavía en la movida? Me imaginé una locura: los perros del barrio armando una carrera bajo la luna, y Miguel, el loco ese, apostando por un perrito que solo quiere dormir, ¡ja! Si estás con ganas de reírte un rato o charlar antes de descansar, avisá, ¿eh?",
+                    0: "¡Medianoche total! 🌌 ¿Cómo te fue el día, genia? Si estás en modo reflexivo o querés compartir una vibra, contame. Acá estoy para sumar buena onda."
                 };
 
                 if (currentMinute === 0 && reminderTimes[currentHour]) {
