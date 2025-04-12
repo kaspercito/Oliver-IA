@@ -6243,7 +6243,7 @@ async function manejarCommand(message, silent = false) {
     else if (content.startsWith('!responder') || content.startsWith('!resp')) {
         await manejarResponder(message);
     }
-    else if (content.startsWith('!miguel') {
+    else if (content.startsWith('!miguel')) {
         await manejarMiguel(message);
     }
     else if (content.startsWith('!idea') || content.startsWith('!id')) {
