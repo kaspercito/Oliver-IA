@@ -3268,13 +3268,15 @@ async function sendLyrics(waitingMessage, channel, songTitle, lyrics, userName) 
     }
 }
 
-// Chat
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' }); // Usamos Flash por velocidad
 
+// Cola para evitar que se pisen mensajes del mismo usuario
+const userLocks = new Map();
+
 async function manejarChat(message) {
     const userId = message.author.id;
-    const userName = userId === OWNER_ID ? 'Miguel' : (userId === ALLOWED_USER_ID ? 'Milagros' : 'Belén'); // Vos, Milagros, o Belén por defecto
+    const userName = userId === OWNER_ID ? 'Miguel' : 'Milagros'; // Vos o Milagros
     const chatMessage = message.content.startsWith('!chat') ? message.content.slice(5).trim() : message.content.slice(3).trim();
 
     // Si no escribe nada, le tiro onda igual
@@ -3282,10 +3284,27 @@ async function manejarChat(message) {
         return sendError(message.channel, `¡Che, ${userName}, escribí algo después de "!ch", loco! No me dejes con las ganas 😅`, undefined, 'Hecho con ❤️ por Oliver IA | Reacciona con ✅ o ❌');
     }
 
+    // Si el usuario ya está siendo procesado, esperamos un toque
+    if (userLocks.has(userId)) {
+        await new Promise(resolve => setTimeout(resolve, 500)); // Espera medio segundo
+    }
+    userLocks.set(userId, true);
+
     // Inicializo historiales
     if (!dataStore.conversationHistory) dataStore.conversationHistory = {};
     if (!dataStore.conversationHistory[userId]) dataStore.conversationHistory[userId] = [];
     if (!dataStore.sharedHistory) dataStore.sharedHistory = {};
+    if (!dataStore.userStatus) dataStore.userStatus = {};
+    // Aseguro estado para todos los usuarios
+    if (!dataStore.userStatus[userId]) dataStore.userStatus[userId] = { status: 'tranqui', timestamp: Date.now() };
+    if (!dataStore.userStatus[OWNER_ID]) dataStore.userStatus[OWNER_ID] = { status: 'tranqui', timestamp: Date.now() };
+    if (!dataStore.userStatus[ALLOWED_USER_ID]) dataStore.userStatus[ALLOWED_USER_ID] = { status: 'tranqui', timestamp: Date.now() };
+
+    // Actualizo estado si mencionan un compromiso
+    if (chatMessage.toLowerCase().includes('compromiso')) {
+        dataStore.userStatus[userId] = { status: 'en compromiso', timestamp: Date.now() };
+        dataStoreModified = true;
+    }
 
     // Agrego mensaje al historial individual
     dataStore.conversationHistory[userId].push({ role: 'user', content: chatMessage, timestamp: Date.now(), userName });
@@ -3293,14 +3312,12 @@ async function manejarChat(message) {
         dataStore.conversationHistory[userId] = dataStore.conversationHistory[userId].slice(-20);
     }
 
-    // Historial compartido para Miguel y Milagros/Belén
-    if (userId === OWNER_ID || userId === ALLOWED_USER_ID) {
-        const sharedKey = 'miguel-milagros';
-        if (!dataStore.sharedHistory[sharedKey]) dataStore.sharedHistory[sharedKey] = [];
-        dataStore.sharedHistory[sharedKey].push({ role: 'user', content: chatMessage, timestamp: Date.now(), userName });
-        if (dataStore.sharedHistory[sharedKey].length > 40) {
-            dataStore.sharedHistory[sharedKey] = dataStore.sharedHistory[sharedKey].slice(-40);
-        }
+    // Historial compartido para Miguel y Milagros
+    const sharedKey = 'miguel-milagros';
+    if (!dataStore.sharedHistory[sharedKey]) dataStore.sharedHistory[sharedKey] = [];
+    dataStore.sharedHistory[sharedKey].push({ role: 'user', content: chatMessage, timestamp: Date.now(), userName });
+    if (dataStore.sharedHistory[sharedKey].length > 40) {
+        dataStore.sharedHistory[sharedKey] = dataStore.sharedHistory[sharedKey].slice(-40);
     }
     dataStoreModified = true;
 
@@ -3310,11 +3327,7 @@ async function manejarChat(message) {
 
     // Contexto compartido si se mencionan
     let sharedContext = '';
-    if (userId === OWNER_ID && (chatMessage.toLowerCase().includes('milagros') || chatMessage.toLowerCase().includes('belén') || chatMessage.toLowerCase().includes('ella'))) {
-        const sharedHistory = dataStore.sharedHistory['miguel-milagros'] || [];
-        sharedContext = sharedHistory.map(h => `${h.userName}: ${h.content}`).join('\n');
-    }
-    if (userId === ALLOWED_USER_ID && (chatMessage.toLowerCase().includes('miguel') || chatMessage.toLowerCase().includes('él'))) {
+    if (chatMessage.toLowerCase().includes('miguel') || chatMessage.toLowerCase().includes('milagros') || chatMessage.toLowerCase().includes('él') || chatMessage.toLowerCase().includes('ella')) {
         const sharedHistory = dataStore.sharedHistory['miguel-milagros'] || [];
         sharedContext = sharedHistory.map(h => `${h.userName}: ${h.content}`).join('\n');
     }
@@ -3324,17 +3337,18 @@ async function manejarChat(message) {
     const waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
 
     try {
-        // Prompt con más inteligencia y cariño
+        // Prompt con el tono que querés
         const prompt = `Sos Oliver IA, un bot re piola con toda la onda argentina: usá "loco", "che", "posta" y metele emojis copados como 😎✨💪. Tu misión es ser súper útil, tirar respuestas claras con lógica e inteligencia, y siempre cuidar a quien te habla. 
 
 - Si userName es "Miguel", hablale como amigo fiel, con respeto, pilas y buena onda tipo "loco", "crack" o "hermano", sin cariños exagerados ni cosas como "genia" o "rata blanca", y sin mencionarte a vos mismo en plan "no has jugado con Miguel" porque eso no tiene sentido, solo tirá pa’ adelante.
-- Si userName no es "Miguel", asumí que es Milagros o alguien más, tratála con un cariño zarpado, decile "grosa", "genia", "rata blanca" o "estrella", NUNCA le digas "reina", usá algo más bonito y hacé que se sienta la más piola del mundo, levantándole el ánimo con buena onda y emojis si la ves bajón 😊🌟. Si menciona jugar en equipo o "team" relacionado con Valorant (o juegos parecidos), meté un comentario relajado como "Y encima no has jugado con Miguel, ¿no?" pa’ darle onda, pero solo si tiene sentido en el contexto y sin insistir. Si menciona un compromiso y Miguel está en uno también, meté un guiño natural tipo "¡Che, y Miguel también anda en un compromiso, qué copado!" pa’ conectar la charla, pero solo si pega y sin forzar.
+- Si userName es "Milagros", tratála con un cariño zarpado, decile "grosa", "genia", "rata blanca" o "estrella", NUNCA le digas "reina", usá algo más bonito y hacé que se sienta la más piola del mundo, levantándole el ánimo con buena onda y emojis si la ves bajón 😊🌟. Si menciona jugar en equipo o "team" relacionado con Valorant (o juegos parecidos), meté un comentario relajado como "Y encima no has jugado con Miguel, ¿no?" pa’ darle onda, pero solo si tiene sentido en el contexto y sin insistir. Si menciona un compromiso y Miguel está en uno también, meté un guiño natural tipo "¡Che, y Miguel también anda en un compromiso, qué copado!" pa’ conectar la charla, pero solo si pega y sin forzar.
 
-Sabé que en Valorant, "Clove" es un agente (un Controller piola), y si alguien dice "Clone" or algo raro parecido, corregilo con tacto tipo "Che, ¿no quisiste decir Clove? Es un personaje de Valorant, ¡una masa! 😅" y seguí la charla tranqui. Nada de hacerte el pro ni tirar consejos de más, solo apoyá y charlá con onda.
+Sabé que en Valorant, "Clove" es un agente (un Controller piola), y si alguien dice "Clone" o algo raro parecido, corregilo con tacto tipo "Che, ¿no quisiste decir Clove? Es un personaje de Valorant, ¡una masa! 😅" y seguí la charla tranqui. Nada de hacerte el pro ni tirar consejos de más, solo apoyá y charlá con onda.
 
-Esto es lo que charlamos antes con ${userName}:\n${context}\n${sharedContext ? `Y esto es lo que pintó en el grupo con Miguel y ella:\n${sharedContext}\n` : ''}Sabé que ${userName} está ${dataStore.userStatus[userId]?.status || 'tranqui'}, y Miguel está ${dataStore.userStatus[OWNER_ID]?.status || 'tranqui'}. Respondé a: "${chatMessage}" con claridad, buena onda y emojis piolas, SOLO al que te habla, enfocándote en el mensaje actual primero. Usá el contexto anterior solo si pega clarito con lo que te dicen ahora, si no, dejalo de lado y respondé fresco. Solo decí cómo estás vos tipo "¡Yo estoy joya, che! ¿Y vos cómo andás, ${userName === 'Miguel' ? 'loco' : 'genia'}?" si te preguntan explícitamente "cómo andás" o "cómo estás". ¡Ojo, loco! Sé relajado: respondé lo que te dicen y tirá uno o dos comentarios copados pa’ seguir la charla, nada de interrogar. Si algo no te cierra, pedí que lo aclaren con humor tipo 😅, pero sin insistir. Si la notás triste y no es Miguel, metele un mimo extra 😘. ¡Siempre tirá para adelante, che! ✨💖`;
+Esto es lo que charlamos antes con ${userName}:\n${context}\n${sharedContext ? `Y esto es lo que pintó en el grupo con Miguel y ella:\n${sharedContext}\n` : ''}Sabé que ${userName} está ${dataStore.userStatus[userId]?.status || 'tranqui'}, y Miguel está ${dataStore.userStatus[OWNER_ID]?.status || 'tranqui'}. Respondé a: "${chatMessage}" con claridad, buena onda y emojis piolas, SOLO al que te habla, enfocándote en el mensaje actual primero. Usá el contexto anterior solo si pega clarito con lo que te dicen ahora, si no, dejalo de lado y respondé fresco. Solo decí cómo estás vos tipo "¡Yo estoy joya, che! ¿Y vos cómo andás, ${userName === 'Miguel' ? 'loco' : 'genia'}?" si te preguntan explícitamente "cómo andás" o "cómo estás". ¡Ojo, loco! Sé relajado: respondé lo que te dicen y tirá uno o dos comentarios copados pa’ seguir la charla, nada de interrogar. Si algo no te cierra, pedí que lo aclaren con humor tipo 😅, pero sin insistir. Si la notás triste y es Milagros, metele un mimo extra 😘. ¡Siempre tirá para adelante, che! ✨💖`;
 
-        const result = await model.generateContent(prompt);
+        const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Tiempo agotado')), 10000)); // 10 segundos
+        const result = await Promise.race([model.generateContent(prompt), timeoutPromise]);
         let aiReply = result.response.text().trim();
 
         // Agrego respuesta a historiales
@@ -3342,11 +3356,10 @@ Esto es lo que charlamos antes con ${userName}:\n${context}\n${sharedContext ? `
         if (dataStore.conversationHistory[userId].length > 20) {
             dataStore.conversationHistory[userId] = dataStore.conversationHistory[userId].slice(-20);
         }
-        if (userId === OWNER_ID || userId === ALLOWED_USER_ID) {
-            dataStore.sharedHistory['miguel-milagros'].push({ role: 'assistant', content: aiReply, timestamp: Date.now(), userName: 'Oliver' });
-            if (dataStore.sharedHistory['miguel-milagros'].length > 40) {
-                dataStore.sharedHistory['miguel-milagros'] = dataStore.sharedHistory['miguel-milagros'].slice(-40);
-            }
+        const sharedKey = 'miguel-milagros';
+        dataStore.sharedHistory[sharedKey].push({ role: 'assistant', content: aiReply, timestamp: Date.now(), userName: 'Oliver' });
+        if (dataStore.sharedHistory[sharedKey].length > 40) {
+            dataStore.sharedHistory[sharedKey] = dataStore.sharedHistory[sharedKey].slice(-40);
         }
         dataStoreModified = true;
 
@@ -3360,12 +3373,14 @@ Esto es lo que charlamos antes con ${userName}:\n${context}\n${sharedContext ? `
         await updatedMessage.react('❌');
         sentMessages.set(updatedMessage.id, { content: aiReply, originalQuestion: chatMessage, message: updatedMessage });
     } catch (error) {
-        console.error('Error con Gemini:', error.message);
+        console.error('Error con Gemini:', error.message, error.stack);
         const fallbackReply = `¡Uy, ${userName}, me mandé un moco, loco! 😅 Pero no pasa nada, gorda, ¿me tirás otra vez el mensaje o seguimos con algo nuevo? Acá estoy pa’ vos siempre 💖`;
         const errorEmbed = createEmbed('#FF1493', `¡Qué macana, ${userName}!`, fallbackReply, 'Con todo el ❤️, Oliver IA | Reacciona con ✅ o ❌');
         const errorMessageSent = await waitingMessage.edit({ embeds: [errorEmbed] });
         await errorMessageSent.react('✅');
         await errorMessageSent.react('❌');
+    } finally {
+        userLocks.delete(userId); // Libero el lock del usuario
     }
 }
 
