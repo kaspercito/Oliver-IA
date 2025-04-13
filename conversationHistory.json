@@ -125,30 +125,6 @@
     "752987736759205960": [
       {
         "role": "user",
-        "content": "iré a comer",
-        "timestamp": 1744306391014,
-        "userName": "Miguel"
-      },
-      {
-        "role": "assistant",
-        "content": "¡Buen provecho, Miguel, loco! 😎 Que comas un montón y que te haga bien al alma. 💪",
-        "timestamp": 1744306391650,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
-        "content": "cuida mucho a Milagros",
-        "timestamp": 1744306408237,
-        "userName": "Miguel"
-      },
-      {
-        "role": "assistant",
-        "content": "Che, Miguel, loco! 😎  ¡Tranqui, que la estoy cuidando a Milagros como si fuera mi hermana! 💪  Está un poco bajoneada por la angina, pero le estoy mandando toda la buena onda ✨💖 para que se recupere rápido.  Ya le dije que descanse un montón y que se cuide.  💪",
-        "timestamp": 1744306409437,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
         "content": "gracias",
         "timestamp": 1744306423700,
         "userName": "Miguel"
@@ -241,6 +217,30 @@
         "role": "assistant",
         "content": "¡Che, Miguel, loco! 😎  ¡Qué quilombo bárbaro en ese bar!  😅  Coca Cola en medio del ruido y la cerveza... ¡Aguante la Coca! 💪  Contá después cómo sigue la cosa, crack. ✨",
         "timestamp": 1744496190675,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "crees que pensar en que no hay que dar una oportunidad, que no tengo que pelear por una relación de 1 año donde fui feliz, crees que no debería intentar recuperar la confianza con esa persona después de que me mintió con jugar en línea con una persona que vive lejos y haberme dicho que jugaría solo pero jugó con otra persona, que crees que debería hacer?",
+        "timestamp": 1744554333622,
+        "userName": "Miguel"
+      },
+      {
+        "role": "assistant",
+        "content": "Che, Miguel, loco! 😎  Esa situación está brava, posta.  Un año de felicidad no se borra de un plumazo, pero esa mentira… ¡es un bajón! 💪  Pensá bien qué querés, crack.  ¿Recuperar la confianza implica pelear por algo que te hizo sentir mal?  A veces, soltar puede ser más sano que aferrarse a algo que ya no te da lo que necesitas. ✨  Pero bueno, la decisión es tuya, hermano.  Lo importante es que seas feliz. ✨💪  Contá qué onda después, que te escucho.",
+        "timestamp": 1744554334929,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "quiero que tú me digas, vale la pena intentarlo?",
+        "timestamp": 1744554358311,
+        "userName": "Miguel"
+      },
+      {
+        "role": "assistant",
+        "content": "Che, Miguel, loco! 😎  Esa es una pregunta difícil, posta.  Un año es mucho tiempo, y la felicidad que sentiste es algo que hay que valorar 💪. Pero la mentira… ¡es un golpe bajo! ✨  ¿Vale la pena intentarlo?  Eso solo lo podés decidir vos, crack.  Pensá bien si recuperar esa confianza vale el esfuerzo y, sobre todo, si te va a hacer feliz.  No hay una respuesta correcta, hermano.  Lo que sí te digo es que te escuches a vos mismo y tomes la decisión que te haga sentir mejor.  💪✨  Contá qué pensás después.",
+        "timestamp": 1744554359788,
         "userName": "Oliver"
       }
     ]
@@ -907,6 +907,26 @@
         "action": "‘yo sabía que un cristal roto cortaba y aún así lo recogí con las manos para arreglarlo’ arreglar algo que vos rompiste, porque vos me rompiste y luego pretendiste que hiciera como si nada, que te perdonara y que siguiera adelante con toda la rabia y dolor que tenía dentro mío pero claro, yo debía entender tu error pero vos jamás entendiste lo que causaste en mí",
         "timestamp": 1744544354644,
         "userId": "1023132788632862761"
+      },
+      {
+        "action": "y hablas de tener voluntad para arreglar algo QUE YO NO ROMPÍ",
+        "timestamp": 1744553829241,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "‘me importaba mucho no perderte’ **procede a mentirme, a herirme por una estupidez del tamaño de una casa**",
+        "timestamp": 1744553938618,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "vos sos el que se equivoca y soy yo la que está mal por dejarte? partamos de la base de que yo no hubiera cometido un error de esa índole sabes por qué? porque así se ve el no querer perder a alguien, creíste que me tendrías para siempre aún así me dañaras pero adivina, no funciona así",
+        "timestamp": 1744554135682,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "y ahora metes temas que ni van con nuestra relación pero bueno, así es siempre que se habla de esto, volveré al trabajo",
+        "timestamp": 1744554170641,
+        "userId": "1023132788632862761"
       }
     ],
     "752987736759205960": [
@@ -1032,30 +1052,6 @@
   },
   "sharedHistory": {
     "miguel-milagros": [
-      {
-        "role": "user",
-        "content": "aquí andamos, tuve que gastar dinero en una nueva lavadora porque se me quemó la que tenía :{",
-        "timestamp": 1744304906701,
-        "userName": "Miguel"
-      },
-      {
-        "role": "assistant",
-        "content": "Che, Miguel, loco! 😎 ¡Qué bajón lo de la lavadora, boludo!  🙁  Gastar guita en eso no es joda.  Pero bueno, al menos ya tenés una nueva, ¿viste? 💪  Esperemos que esta te dure un montón.  ¿De qué marca es la nueva? 🤔",
-        "timestamp": 1744304907771,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
-        "content": "si, ya habrá un team para jugar",
-        "timestamp": 1744305471664,
-        "userName": "Milagros"
-      },
-      {
-        "role": "assistant",
-        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨ ¡Qué bueno que ya vas a encontrar un team para jugar! 🎉💪  ¡Eso va a ser genial! 😎  Seguí brillando, estrella ✨.  Un abrazo enorme lleno de buena onda y mimos para vos 😘",
-        "timestamp": 1744305472589,
-        "userName": "Oliver"
-      },
       {
         "role": "user",
         "content": "aprendí a usar otro personaje que se llama clone y creo que me quedaré ese",
@@ -1270,6 +1266,30 @@
         "role": "assistant",
         "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨ ¡Dale que ya te dormís!  😴  Que descanses un montón, genia,  y que tengas unos sueños hermosos ✨.  Te despierto en 6 horas,  che. 😘  ¡A soñar lindo, estrella! ✨",
         "timestamp": 1744514661111,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "crees que pensar en que no hay que dar una oportunidad, que no tengo que pelear por una relación de 1 año donde fui feliz, crees que no debería intentar recuperar la confianza con esa persona después de que me mintió con jugar en línea con una persona que vive lejos y haberme dicho que jugaría solo pero jugó con otra persona, que crees que debería hacer?",
+        "timestamp": 1744554333622,
+        "userName": "Miguel"
+      },
+      {
+        "role": "assistant",
+        "content": "Che, Miguel, loco! 😎  Esa situación está brava, posta.  Un año de felicidad no se borra de un plumazo, pero esa mentira… ¡es un bajón! 💪  Pensá bien qué querés, crack.  ¿Recuperar la confianza implica pelear por algo que te hizo sentir mal?  A veces, soltar puede ser más sano que aferrarse a algo que ya no te da lo que necesitas. ✨  Pero bueno, la decisión es tuya, hermano.  Lo importante es que seas feliz. ✨💪  Contá qué onda después, que te escucho.",
+        "timestamp": 1744554334929,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "quiero que tú me digas, vale la pena intentarlo?",
+        "timestamp": 1744554358311,
+        "userName": "Miguel"
+      },
+      {
+        "role": "assistant",
+        "content": "Che, Miguel, loco! 😎  Esa es una pregunta difícil, posta.  Un año es mucho tiempo, y la felicidad que sentiste es algo que hay que valorar 💪. Pero la mentira… ¡es un golpe bajo! ✨  ¿Vale la pena intentarlo?  Eso solo lo podés decidir vos, crack.  Pensá bien si recuperar esa confianza vale el esfuerzo y, sobre todo, si te va a hacer feliz.  No hay una respuesta correcta, hermano.  Lo que sí te digo es que te escuches a vos mismo y tomes la decisión que te haga sentir mejor.  💪✨  Contá qué pensás después.",
+        "timestamp": 1744554359788,
         "userName": "Oliver"
       }
     ]
