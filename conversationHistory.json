@@ -3,18 +3,6 @@
     "1023132788632862761": [
       {
         "role": "user",
-        "content": "aquí andamos, tuve que gastar dinero en una nueva lavadora porque se me quemó la que tenía :{",
-        "timestamp": 1744302472258,
-        "userName": "Milagros"
-      },
-      {
-        "role": "assistant",
-        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨ ¡Qué bajón lo de la lavarropas, che!  😥  Pero bueno, al menos ya tenés una nueva, así que ¡a lavar toda la ropa sucia que tengas acumulada! 💪  Pensalo así: ¡estás estrenando lavarropas! 🥳  Eso es para festejar, aunque sea con un rico mate y unas medialunas.  😋  ¿Qué tipo de lavarropas compraste?  😅 (Solo por curiosidad, eh, no te quiero aburrir).  Un abrazo enorme lleno de buena onda y mimos para vos 😘",
-        "timestamp": 1744302473629,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
         "content": "dejando eso de lado, tengo una angina horrible y fiebre",
         "timestamp": 1744302543097,
         "userName": "Milagros"
@@ -119,6 +107,18 @@
         "role": "assistant",
         "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨  Che,  que descanses un montón, grosa 💪.  Necesitás dormir para que se te pase ese malestar, posta.  ¡Que duermas como un angelito y mañana estés mucho mejor! 😊  Te mando un abrazo gigante lleno de buena onda y muchos mimos para que te recuperes rapidísimo, estrella! ✨😘  ¡A soñar lindo! 😴",
         "timestamp": 1744305630026,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "mi día finalizó, despiértame en 6 horas",
+        "timestamp": 1744514660167,
+        "userName": "Milagros"
+      },
+      {
+        "role": "assistant",
+        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨ ¡Dale que ya te dormís!  😴  Que descanses un montón, genia,  y que tengas unos sueños hermosos ✨.  Te despierto en 6 horas,  che. 😘  ¡A soñar lindo, estrella! ✨",
+        "timestamp": 1744514661111,
         "userName": "Oliver"
       }
     ],
@@ -683,6 +683,19 @@
       "esRecurrente": true,
       "hora": 7,
       "minutos": 0
+    },
+    {
+      "id": "53548628-e2f7-4c52-b82a-ccbc4a19e551",
+      "userId": "1023132788632862761",
+      "channelId": "1343749554905940058",
+      "mensaje": "despiértame",
+      "cuandoLlegue": false,
+      "cuandoSalga": false,
+      "timestamp": 1744536267012,
+      "creado": 1744514667013,
+      "esRecurrente": false,
+      "hora": null,
+      "minutos": null
     }
   ],
   "usedJokes": {
@@ -1029,18 +1042,6 @@
     "miguel-milagros": [
       {
         "role": "user",
-        "content": "en team es divertido, sola es difícil porque te toca con gente que entra a molestar",
-        "timestamp": 1744304879894,
-        "userName": "Miguel"
-      },
-      {
-        "role": "assistant",
-        "content": "Che, Miguel, loco! 😎  ¡Totalmente! En team es mucho más divertido, posta.  💪  Jugar sola en Valorant debe ser un bajón cuando te toca con gente que solo va a molestar.  😅  ¿Ya probaste buscar un team fijo, o jugar con amigos?  A veces eso ayuda un montón. ✨",
-        "timestamp": 1744304881378,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
         "content": "aquí andamos, tuve que gastar dinero en una nueva lavadora porque se me quemó la que tenía :{",
         "timestamp": 1744304906701,
         "userName": "Miguel"
@@ -1265,6 +1266,18 @@
         "role": "assistant",
         "content": "¡Che, Miguel, loco! 😎  ¡Qué quilombo bárbaro en ese bar!  😅  Coca Cola en medio del ruido y la cerveza... ¡Aguante la Coca! 💪  Contá después cómo sigue la cosa, crack. ✨",
         "timestamp": 1744496190675,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "mi día finalizó, despiértame en 6 horas",
+        "timestamp": 1744514660167,
+        "userName": "Milagros"
+      },
+      {
+        "role": "assistant",
+        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨ ¡Dale que ya te dormís!  😴  Que descanses un montón, genia,  y que tengas unos sueños hermosos ✨.  Te despierto en 6 horas,  che. 😘  ¡A soñar lindo, estrella! ✨",
+        "timestamp": 1744514661111,
         "userName": "Oliver"
       }
     ]
