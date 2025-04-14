@@ -6872,65 +6872,87 @@ client.once('ready', async () => {
 
         setInterval(async () => {
             const musicActive = manager.players.size > 0 || isPlayingMusic;
-
+        
             if (musicActive && !autosavePausedByMusic) {
                 autosavePausedByMusic = true;
                 console.log('Música sonando, pauso el guardado.');
+                const channel = await client.channels.fetch(CHANNEL_ID);
                 if (channel) {
                     await channel.send({ embeds: [createEmbed('#FF1493', '🎵 Autosave en pausa', 
                         '¡Pará un cacho! El guardado automático se frenó porque estás con la música a full.')] });
                 }
                 return;
             }
-
+        
             if (!musicActive && autosavePausedByMusic) {
                 autosavePausedByMusic = false;
                 console.log('Música parada, reanudo el guardado.');
+                const channel = await client.channels.fetch(CHANNEL_ID);
                 if (channel) {
                     await channel.send({ embeds: [createEmbed('#FF1493', '💾 Autosave de vuelta', 
                         'La música paró, así que el guardado automático arrancó de nuevo, ¡dale!')] });
                 }
             }
-
+        
             if (!autosaveEnabled) {
                 console.log('Autosave desactivado, no guardo.');
                 return;
             }
-
+        
+            // Validamos si hay cambios reales comparando con previousDataStore
+            const currentDataStoreString = JSON.stringify(dataStore, null, 2);
+            if (previousDataStore !== null && currentDataStoreString === previousDataStore) {
+                console.log('No hay cambios reales en dataStore, omitiendo autosave');
+                userModified = false;
+                autoModified = false;
+                return;
+            }
+        
             if (!userModified && !autoModified) {
                 console.log('Nada que guardar, tranqui.');
                 return;
             }
-
+        
             console.log(`Preparando autosave con ${dataStore.recordatorios.length} recordatorios: ${JSON.stringify(dataStore.recordatorios)}`);
             if (userModified) {
                 console.log('Avisando que voy a guardar en 5 minutos...');
+                const channel = await client.channels.fetch(CHANNEL_ID);
                 if (channel) {
                     await channel.send({ embeds: [createEmbed('#FF1493', '⏰ Ojo al dato', 
                         '¡Atenti, che! En 5 minutos guardo todo automáticamente.')] });
                 }
             }
-
+        
             setTimeout(async () => {
                 if (!autosaveEnabled || autosavePausedByMusic) {
                     console.log('Guardado cancelado: autosave off o música on.');
                     return;
                 }
-                if (!userModified && !autoModified) {
-                    console.log('Nada que guardar en el timeout, tranqui.');
+        
+                // Validamos nuevamente antes de guardar
+                const finalDataStoreString = JSON.stringify(dataStore, null, 2);
+                if (previousDataStore !== null && finalDataStoreString === previousDataStore) {
+                    console.log('No hay cambios reales en el timeout, omitiendo guardado');
+                    userModified = false;
+                    autoModified = false;
                     return;
                 }
+        
                 try {
                     await saveDataStore();
                     console.log('Autosave completado con éxito');
-                    if (userModified && channel) {
-                        await channel.send({ embeds: [createEmbed('#FF1493', '💾 ¡Listo el pollo!', 
-                            'Datos guardados al toque, ¡tranqui!')] });
+                    if (userModified) {
+                        const channel = await client.channels.fetch(CHANNEL_ID);
+                        if (channel) {
+                            await channel.send({ embeds: [createEmbed('#FF1493', '💾 ¡Listo el pollo!', 
+                                'Datos guardados al toque, ¡tranqui!')] });
+                        }
                     }
                     userModified = false;
                     autoModified = false;
                 } catch (error) {
                     console.error(`Error en autosave: ${error.message}`);
+                    const channel = await client.channels.fetch(CHANNEL_ID);
                     if (channel) {
                         await channel.send({ embeds: [createEmbed('#FF1493', '¡Qué cagada!', 
                             'No pude guardar los datos en GitHub, loco. Error: ' + error.message)] });
@@ -6982,6 +7004,8 @@ client.on('messageReactionAdd', async (reaction, user) => {
 async function initializeDataStore() {
     dataStore = await loadDataStore();
     console.log(`dataStore inicializado con ${dataStore.recordatorios.length} recordatorios: ${JSON.stringify(dataStore.recordatorios)}`);
+    // Inicializamos previousDataStore con el estado inicial
+    previousDataStore = JSON.stringify(dataStore, null, 2);
 }
 
 async function loadDataStore() {
@@ -7027,12 +7051,27 @@ async function loadDataStore() {
     }
 }
 
+// Variable global para almacenar el estado anterior de dataStore
+let previousDataStore = null;
+
 async function saveDataStore() {
     if (!userModified && !autoModified) {
         console.log('Nada que guardar, userModified y autoModified son false');
         return false;
     }
+
     try {
+        // Convertimos el dataStore actual a string para comparar
+        const currentDataStoreString = JSON.stringify(dataStore, null, 2);
+
+        // Si previousDataStore existe y es igual al actual, no guardamos
+        if (previousDataStore !== null && currentDataStoreString === previousDataStore) {
+            console.log('No hay cambios reales en dataStore, omitiendo guardado');
+            userModified = false;
+            autoModified = false;
+            return false;
+        }
+
         let sha;
         try {
             const response = await axios.get(
@@ -7043,16 +7082,20 @@ async function saveDataStore() {
         } catch (error) {
             if (error.response?.status !== 404) throw error;
         }
+
         console.log(`Guardando ${dataStore.recordatorios.length} recordatorios: ${JSON.stringify(dataStore.recordatorios)}`);
         await axios.put(
             `https://api.github.com/repos/${process.env.GITHUB_REPO}/contents/${process.env.GITHUB_FILE_PATH}`,
             {
                 message: 'Actualizar historial y sesiones',
-                content: Buffer.from(JSON.stringify(dataStore, null, 2)).toString('base64'),
+                content: Buffer.from(currentDataStoreString).toString('base64'),
                 sha: sha || undefined,
             },
             { headers: { 'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`, 'Accept': 'application/vnd.github+json' } }
         );
+
+        // Actualizamos el estado anterior
+        previousDataStore = currentDataStoreString;
         console.log('Datos guardados en GitHub con éxito');
         userModified = false;
         autoModified = false;
