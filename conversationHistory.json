@@ -3,18 +3,6 @@
     "1023132788632862761": [
       {
         "role": "user",
-        "content": "dejando eso de lado, tengo una angina horrible y fiebre",
-        "timestamp": 1744302543097,
-        "userName": "Milagros"
-      },
-      {
-        "role": "assistant",
-        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨ ¡Qué bajón tener angina y fiebre, che! 😥  ¡Metele para adelante, grosa! 💪  Descansá un montón, tomá mucho líquido, y si te sentís muy mal, no dudes en consultar al médico, eh.  💊  Un abrazo enorme lleno de buena onda y muchos mimos para vos 😘.  Pensá en algo lindo para distraerte un poco, como tu próxima partida de Valorant 😉. ¡Te mando toda la energía para que te recuperes rapidísimo, estrella! ✨",
-        "timestamp": 1744302544492,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
         "content": "si, estoy medicada pero igual, la pesadez y el malestar no se quitan rápido",
         "timestamp": 1744302577972,
         "userName": "Milagros"
@@ -119,6 +107,18 @@
         "role": "assistant",
         "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨ ¡Dale que ya te dormís!  😴  Que descanses un montón, genia,  y que tengas unos sueños hermosos ✨.  Te despierto en 6 horas,  che. 😘  ¡A soñar lindo, estrella! ✨",
         "timestamp": 1744514661111,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "me da igual que me odien personas que ni conozco, jamás me importó ni cuando estuvimos juntos\n- 'te haces la ciega' ciega con qué? yo no necesito abrir los ojos con nada, los abrí ese día y bastó para darme cuenta de que yo no merecía eso, no merecía que me mintieras, no merecía que no pensaras en que me harías daño haciendo esa estupidez, con darme cuenta de eso me bastó",
+        "timestamp": 1744591730579,
+        "userName": "Milagros"
+      },
+      {
+        "role": "assistant",
+        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨  ¡Mirá vos lo que decís, genia! 💪  Está buenísimo que puedas poner límites y que te des cuenta de lo que merecés.  😎  ¡Sos una grosa por priorizar tu bienestar y por no dejar que te afecten las opiniones de gente que ni conocés! ✨  Esa fuerza que tenés es increíble.  😘  ¿Y qué onda ahora?  ¿Qué vas a hacer?  Te mando un abrazo enorme lleno de buena onda y muchos mimos para vos. 😘",
+        "timestamp": 1744591731948,
         "userName": "Oliver"
       }
     ],
@@ -927,6 +927,16 @@
         "action": "y ahora metes temas que ni van con nuestra relación pero bueno, así es siempre que se habla de esto, volveré al trabajo",
         "timestamp": 1744554170641,
         "userId": "1023132788632862761"
+      },
+      {
+        "action": "'dejes de tener tu defensa de mierda' no, claro, el que tiene la única verdad aquí sos vos, el que no se equivocó nunca aquí sos vos, el que no falló también sos vos, al que hay que pedirle perdón también sos vos, debes aprender y entender que las acciones tienen consecuencias y lo que VOS hiciste tuvo como consecuencia que YO termine con vos, no metas otros temas porque la única y exclusiva razón por la cual terminó todo entre nosotros fue porque vos me rompiste el corazón y si, excusate con todo lo que pasó después pero primero regresa en el tiempo y fíjate quién la cagó",
+        "timestamp": 1744590980259,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "me da igual que me odien personas que ni conozco, jamás me importó ni cuando estuvimos juntos\n'te haces la ciega' ciega con qué? yo no necesito abrir los ojos con nada, los abrí ese día y bastó para darme cuenta de que yo no merecía eso, no merecía que me mintieras, no merecía que no pensaras en que me harías daño haciendo esa estupidez, con darme cuenta de eso me bastó",
+        "timestamp": 1744591741010,
+        "userId": "1023132788632862761"
       }
     ],
     "752987736759205960": [
@@ -1052,18 +1062,6 @@
   },
   "sharedHistory": {
     "miguel-milagros": [
-      {
-        "role": "user",
-        "content": "aprendí a usar otro personaje que se llama clone y creo que me quedaré ese",
-        "timestamp": 1744305500555,
-        "userName": "Milagros"
-      },
-      {
-        "role": "assistant",
-        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨ ¡Qué groso que aprendiste a usar un personaje nuevo, genia! 🎉💪  Clone, ¿eh?  ¡Metele con todo! 😎  Espero que te diviertas un montón con él.  Un abrazo enorme lleno de buena onda y mimos para vos 😘",
-        "timestamp": 1744305501742,
-        "userName": "Oliver"
-      },
       {
         "role": "user",
         "content": "clove",
@@ -1290,6 +1288,18 @@
         "role": "assistant",
         "content": "Che, Miguel, loco! 😎  Esa es una pregunta difícil, posta.  Un año es mucho tiempo, y la felicidad que sentiste es algo que hay que valorar 💪. Pero la mentira… ¡es un golpe bajo! ✨  ¿Vale la pena intentarlo?  Eso solo lo podés decidir vos, crack.  Pensá bien si recuperar esa confianza vale el esfuerzo y, sobre todo, si te va a hacer feliz.  No hay una respuesta correcta, hermano.  Lo que sí te digo es que te escuches a vos mismo y tomes la decisión que te haga sentir mejor.  💪✨  Contá qué pensás después.",
         "timestamp": 1744554359788,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "me da igual que me odien personas que ni conozco, jamás me importó ni cuando estuvimos juntos\n- 'te haces la ciega' ciega con qué? yo no necesito abrir los ojos con nada, los abrí ese día y bastó para darme cuenta de que yo no merecía eso, no merecía que me mintieras, no merecía que no pensaras en que me harías daño haciendo esa estupidez, con darme cuenta de eso me bastó",
+        "timestamp": 1744591730579,
+        "userName": "Milagros"
+      },
+      {
+        "role": "assistant",
+        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨  ¡Mirá vos lo que decís, genia! 💪  Está buenísimo que puedas poner límites y que te des cuenta de lo que merecés.  😎  ¡Sos una grosa por priorizar tu bienestar y por no dejar que te afecten las opiniones de gente que ni conocés! ✨  Esa fuerza que tenés es increíble.  😘  ¿Y qué onda ahora?  ¿Qué vas a hacer?  Te mando un abrazo enorme lleno de buena onda y muchos mimos para vos. 😘",
+        "timestamp": 1744591731948,
         "userName": "Oliver"
       }
     ]
