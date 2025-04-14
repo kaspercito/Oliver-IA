@@ -3,18 +3,6 @@
     "1023132788632862761": [
       {
         "role": "user",
-        "content": "si, estoy medicada pero igual, la pesadez y el malestar no se quitan rápido",
-        "timestamp": 1744302577972,
-        "userName": "Milagros"
-      },
-      {
-        "role": "assistant",
-        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨  Che,  lo siento un montón que te sientas mal a pesar de la medicación.  😥  A veces estas cosas llevan su tiempo, posta.  Concentrate en descansar lo máximo posible y en cuidarte mucho, grosa 💪.  No te olvides de tomar muchos líquidos y de comer algo rico aunque sea solo un poquito para tener energía 😊.  ¡Te mando un abrazo gigante lleno de buena onda y muchos mimos para que te mejores rápido, estrella! ✨😘  Pensá en algo lindo, como esa próxima partida de Valorant que te espera 😉.",
-        "timestamp": 1744302579345,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
         "content": "imposible jugar al valorant, ayer hice mi primer ice en competencia y perdimos",
         "timestamp": 1744302640918,
         "userName": "Milagros"
@@ -119,6 +107,18 @@
         "role": "assistant",
         "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨  ¡Mirá vos lo que decís, genia! 💪  Está buenísimo que puedas poner límites y que te des cuenta de lo que merecés.  😎  ¡Sos una grosa por priorizar tu bienestar y por no dejar que te afecten las opiniones de gente que ni conocés! ✨  Esa fuerza que tenés es increíble.  😘  ¿Y qué onda ahora?  ¿Qué vas a hacer?  Te mando un abrazo enorme lleno de buena onda y muchos mimos para vos. 😘",
         "timestamp": 1744591731948,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "por qué cuando enciendo la pc solo se me prende una pantalla cuando tengo dos?",
+        "timestamp": 1744592932662,
+        "userName": "Milagros"
+      },
+      {
+        "role": "assistant",
+        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨  Che,  a ver si entiendo... ¿tenés dos monitores y solo se te prende uno cuando encendés la PC? 🤔  Puede ser varias cosas, posta.  A veces es un cable mal conectado,  o el monitor que no funciona tiene algún problema con el cable de alimentación o con la conexión a la PC.  También puede ser la configuración de la PC, que no esté detectando la segunda pantalla.  😅  ¿Probaste revisando los cables y asegurándote de que estén bien conectados a ambos monitores y a la PC?  💪  Si eso no funciona,  quizás podrías buscar ayuda online,  hay un montón de tutoriales que te pueden guiar.  ¡Sos una genia, loco! 😎  Un abrazo enorme lleno de buena onda y muchos mimos para vos 😘.  ¡Seguí brillando, estrella! ✨",
+        "timestamp": 1744592934444,
         "userName": "Oliver"
       }
     ],
@@ -580,7 +580,7 @@
     "plan_1343749554905940058": 1741879435793,
     "reminder_1343749554905940058": 1743901240312,
     "util_1343749554905940058": 1744564212546,
-    "reminder_1343749554905940058_22": 1744506040430,
+    "reminder_1343749554905940058_22": 1744592459968,
     "reminder_1343749554905940058_23": 1744509651538
   },
   "utilMessageReactions": {
@@ -937,6 +937,121 @@
         "action": "me da igual que me odien personas que ni conozco, jamás me importó ni cuando estuvimos juntos\n'te haces la ciega' ciega con qué? yo no necesito abrir los ojos con nada, los abrí ese día y bastó para darme cuenta de que yo no merecía eso, no merecía que me mintieras, no merecía que no pensaras en que me harías daño haciendo esa estupidez, con darme cuenta de eso me bastó",
         "timestamp": 1744591741010,
         "userId": "1023132788632862761"
+      },
+      {
+        "action": "pretendes que tuviera consideración con vos luego de ser novios cuando vos no la tuviste conmigo ni siéndolo xd tremendo, qué pretencioso y si, es un caso perdido",
+        "timestamp": 1744591869292,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "y por qué deberísa p",
+        "timestamp": 1744592191473,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "y por qué deberías preguntarle a tus amigos qué tan buen novio o mal novio fuiste? acaso saliste con ellos? acaso ellos sabían todo lo que hablábamos, lo que nos decíamos, cuando peléabamos, cuando no? wtf",
+        "timestamp": 1744592226711,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "no me sorprendería, la verdad, pero wow, rarísimo",
+        "timestamp": 1744592237478,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "y otra cosa, yo no estoy generalizando, sos vos el que debería aprender a leer, yo no estoy metiendo un año en la misma bolsa, yo estoy hablando de lo que me hiciste el último día que estuvimos juntos, así que aprende a interpretar lo que digo y no entiendas loq ue se te canet",
+        "timestamp": 1744592276133,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "dale, contales todo así vienen a bardearme a mi MD como niñitos de tribu",
+        "timestamp": 1744592323694,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "para bardearme fueron los primeros pero para hablarme de cómo me sentía cuando VOS, EL GRAN AMIGO KASPER, me cagó, no apareció ninguno",
+        "timestamp": 1744592342995,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "si, anda a hablarles a todos ellos",
+        "timestamp": 1744592348401,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "imaginate lo que me importa, no me importó que no me escribieran cuando su amiguito la cagó conmigo imaginate ahora",
+        "timestamp": 1744592414772,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "pero claro, vos y ellos me van a venir a hablar de ser 'buena gente'",
+        "timestamp": 1744592428391,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "se, seguí con eso de 'valorar' yo no la cagué, yo hubiera pensado mil veces antes de hacer lo que vos hiciste y eso es lo que siempre nos va a diferenciar, yo no me cargué nuestra relación, fuiste vos",
+        "timestamp": 1744592496100,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "muchas veces se me pasó por la cabeza eso de 'un error lo comete cualquiera, perdónalo y seguí' pero sabes qué me contestaba y me daba vueltas también? que no es un error que comete cualquiera, porque YO NO LO HUBIERA HECHO entonces YO ESPERABA LO MISMO PARA MÍ Y QUÉ RECIBÍ¡ QUE ME TRATES COMO UNA ESTÚPIDA QUE EXAGERABA TODO Y QUE ESTABA PENSANDO CUALQUIER COSA Y NO SÉ QUÉ MAS XD",
+        "timestamp": 1744592576314,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "hacer qué? wtf si cuidaba cada paso que daba para NO molestarte, no me jodas y vos ahí a las primeritas haciéndote el chupa ortos que bastante bien te sale, 'me invitaron yo no invité' jklajlkdjasklgj me da una bronca, te lo juro, me repugna",
+        "timestamp": 1744592682256,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "ya no quiero hablar, me revuelve el estómago de pensarlo, justamente como ese mismo día, cómo algo tan estúpido valió más que cuidar mis sentimientos, no lo puedo creer",
+        "timestamp": 1744592710109,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "sin palabras las comparaciones que haces, pero bueno, allá vos con tu pensamiento",
+        "timestamp": 1744592754995,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "te molestaba que entrara al jueguito, imaginate si te mentía con que me iba a jugar sola y terminaba jugando con un tipo con el que tuve un pasado en común xddddddd",
+        "timestamp": 1744592794323,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "más vale, o crees que fue fácil para mí? no sabes cómo la pasé entonces no asumas cosas que desconoces, porque mientras yo la pasaba como el orto vos estabas con tus amiguitos viendo cómo persuadirme de la cagada que te habías mandado, eso no es luchar por algo que queres, eso es ESTAR ARREPENTIDO DE HABERTE MANDADO UNA CAGADA CUANDO YA ES TARDE PORQUE DEBES CUIDAR A LA PERSONA CON LAQ UE ESTÁS ANTES ED LASTIMAR,LA, NO ESPUÉS, CÓMO MIERDA DE LO TENGO QUE EXPLICAR",
+        "timestamp": 1744592867154,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "xd increíble, nada más para decir, chico, nos vemos",
+        "timestamp": 1744592919682,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "se, también odié la vida cuando la única persona que amaba en el mundo me decepcionó, pero qué podía hacer? bancármela sola",
+        "timestamp": 1744593066397,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "xd tremendo",
+        "timestamp": 1744593134224,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "poniendo eso me termino de dar cuenta de que no entendes nada",
+        "timestamp": 1744593291646,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "tan solo mira cómo escribía, todas esas noches donde vos me decías esas cosas y decías que eras feliz compartiendo conmigo, yo me iba a llorar, pero claro, dos lados de la moneda xd qué vas a saberlo",
+        "timestamp": 1744593341591,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "me estás jodiendo? xd dios mío, nada",
+        "timestamp": 1744593499448,
+        "userId": "1023132788632862761"
       }
     ],
     "752987736759205960": [
@@ -1062,18 +1177,6 @@
   },
   "sharedHistory": {
     "miguel-milagros": [
-      {
-        "role": "user",
-        "content": "clove",
-        "timestamp": 1744305510671,
-        "userName": "Milagros"
-      },
-      {
-        "role": "assistant",
-        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨  Che, clove... 😅 ¿Te referís a \"Clone\"?  Si es así, ¡qué genial que estés probando personajes nuevos! 💪  ¡A romperla con ese personaje, genia! 🎉",
-        "timestamp": 1744305511622,
-        "userName": "Oliver"
-      },
       {
         "role": "user",
         "content": "CLOVE",
@@ -1300,6 +1403,18 @@
         "role": "assistant",
         "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨  ¡Mirá vos lo que decís, genia! 💪  Está buenísimo que puedas poner límites y que te des cuenta de lo que merecés.  😎  ¡Sos una grosa por priorizar tu bienestar y por no dejar que te afecten las opiniones de gente que ni conocés! ✨  Esa fuerza que tenés es increíble.  😘  ¿Y qué onda ahora?  ¿Qué vas a hacer?  Te mando un abrazo enorme lleno de buena onda y muchos mimos para vos. 😘",
         "timestamp": 1744591731948,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "por qué cuando enciendo la pc solo se me prende una pantalla cuando tengo dos?",
+        "timestamp": 1744592932662,
+        "userName": "Milagros"
+      },
+      {
+        "role": "assistant",
+        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨  Che,  a ver si entiendo... ¿tenés dos monitores y solo se te prende uno cuando encendés la PC? 🤔  Puede ser varias cosas, posta.  A veces es un cable mal conectado,  o el monitor que no funciona tiene algún problema con el cable de alimentación o con la conexión a la PC.  También puede ser la configuración de la PC, que no esté detectando la segunda pantalla.  😅  ¿Probaste revisando los cables y asegurándote de que estén bien conectados a ambos monitores y a la PC?  💪  Si eso no funciona,  quizás podrías buscar ayuda online,  hay un montón de tutoriales que te pueden guiar.  ¡Sos una genia, loco! 😎  Un abrazo enorme lleno de buena onda y muchos mimos para vos 😘.  ¡Seguí brillando, estrella! ✨",
+        "timestamp": 1744592934444,
         "userName": "Oliver"
       }
     ]
