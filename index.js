@@ -4095,6 +4095,7 @@ async function manejarPlay(message, args) {
     const searchQuery = args.join(' ').trim();
     console.log(`Procesando !play con query: "${searchQuery}"`);
 
+    // Verificar o establecer la conexión de voz
     let connection = getVoiceConnection(guildId);
     if (!connection || connection.joinConfig.channelId !== voiceChannel.id) {
         if (connection) {
@@ -4121,14 +4122,27 @@ async function manejarPlay(message, args) {
         console.log(`Conectado al canal de voz ${voiceChannel.id}`);
     }
 
-    const player = manager.get(guildId) || manager.create({
-        guild: guildId,
-        voiceChannel: voiceChannel.id,
-        textChannel: message.channel.id,
-        selfDeaf: true,
-    });
-    console.log(`Reproductor configurado para guild ${guildId}`);
+    // Crear o recuperar el reproductor, asegurando un estado limpio
+    let player = manager.get(guildId);
+    if (!player) {
+        player = manager.create({
+            guild: guildId,
+            voiceChannel: voiceChannel.id,
+            textChannel: message.channel.id,
+            selfDeaf: true,
+        });
+        console.log(`Nuevo reproductor creado para guild ${guildId}`);
+    } else {
+        // Limpiar estado si está detenido o en pausa
+        if (!player.playing && player.paused) {
+            player.set('trackEnded', true);
+            player.queue.clear();
+            console.log(`Reproductor limpiado para guild ${guildId}`);
+        }
+    }
+    console.log(`Reproductor configurado: playing=${player.playing}, paused=${player.paused}, cola=${player.queue.size}`);
 
+    // Verificar nodos Lavalink
     if (!manager.nodes.some(node => node.connected)) {
         console.error('No hay nodos Lavalink conectados.');
         const embed = createEmbed('#FF1493', '⚠️ Error', 
@@ -4141,7 +4155,7 @@ async function manejarPlay(message, args) {
         let query = searchQuery;
         let isPodcast = false;
         let isPlaylist = false;
-        let cleanUrl = searchQuery.split('?')[0]; // Definir cleanUrl aquí
+        const cleanUrl = searchQuery.split('?')[0];
 
         if (searchQuery.includes('open.spotify.com')) {
             const urlMatch = cleanUrl.match(/(?:intl-[a-z]+\/)?(episode|show|track|playlist)\/([a-zA-Z0-9]+)/);
@@ -4211,8 +4225,8 @@ async function manejarPlay(message, args) {
             await message.channel.send({ embeds: [embed] });
         } else {
             const track = res.tracks[0];
-            // Validación más flexible
-            if (!track || !track.uri || typeof track.title !== 'string') {
+            // Validación simplificada y robusta
+            if (!track || !track.uri || !track.title || typeof track.title !== 'string') {
                 console.error('Pista inválida:', JSON.stringify(track));
                 const embed = createEmbed('#FF1493', '⚠️ Error', 
                     `La pista no es válida, ${userName}. Probá con otro enlace.`);
@@ -4240,6 +4254,8 @@ async function manejarPlay(message, args) {
             await message.channel.send({ embeds: [embed] });
         }
 
+        // Forzar reproducción si no está sonando
+        console.log(`Estado antes de reproducir: playing=${player.playing}, paused=${player.paused}, cola=${player.queue.size}`);
         if (!player.playing && !player.paused && player.queue.size > 0) {
             console.log(`Reproduciendo: ${player.queue[0]?.title || 'sin título'}`);
             try {
@@ -4251,8 +4267,10 @@ async function manejarPlay(message, args) {
                     `No pude reproducir, ${userName}. Error: ${error.message}.`);
                 await message.channel.send({ embeds: [embed] });
             }
-        } else {
-            console.log(`Estado: playing=${player.playing}, paused=${player.paused}, cola=${player.queue.size}`);
+        } else if (player.paused) {
+            // Si está pausado, reanudar
+            player.pause(false);
+            console.log('Reproductor reanudado.');
         }
     } catch (error) {
         console.error(`Error procesando: ${error.message}`);
@@ -4354,10 +4372,10 @@ async function manejarStop(message) {
     if (!player) return sendError(message.channel, `No hay música en reproducción, ${userName}.`);
 
     // Limpiar la cola y detener la reproducción
-    player.queue.clear(); // Borra todos los temas en la cola
-    player.stop(); // Para el tema actual
-    player.set('currentTrack', null); // Limpia la pista actual para evitar que se reanude
-    player.set('trackEnded', true); // Marca como terminado para que no haya confusión
+    player.queue.clear();
+    player.stop();
+    player.set('currentTrack', null);
+    player.set('trackEnded', true);
 
     // Limpiar la sesión de música en dataStore
     if (dataStore.musicSessions[message.guild.id]) {
@@ -4365,8 +4383,8 @@ async function manejarStop(message) {
         dataStoreModified = true;
     }
     
-    // Destruir el reproductor para que no quede colgado
-    manager.players.delete(message.guild.id);
+    // Destruir el reproductor y asegurar que no quede colgado
+    player.destroy();
     console.log(`Reproductor destruido en guild ${message.guild.id}`);
 
     await sendSuccess(message.channel, '🛑 ¡Música detenida!', 
