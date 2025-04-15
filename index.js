@@ -4141,9 +4141,9 @@ async function manejarPlay(message, args) {
         let query = searchQuery;
         let isPodcast = false;
         let isPlaylist = false;
+        let cleanUrl = searchQuery.split('?')[0]; // Definir cleanUrl aquí
 
         if (searchQuery.includes('open.spotify.com')) {
-            const cleanUrl = searchQuery.split('?')[0];
             const urlMatch = cleanUrl.match(/(?:intl-[a-z]+\/)?(episode|show|track|playlist)\/([a-zA-Z0-9]+)/);
             if (urlMatch) {
                 const type = urlMatch[1];
@@ -4211,7 +4211,8 @@ async function manejarPlay(message, args) {
             await message.channel.send({ embeds: [embed] });
         } else {
             const track = res.tracks[0];
-            if (!track || !track.uri || !track.title) {
+            // Validación más flexible
+            if (!track || !track.uri || typeof track.title !== 'string') {
                 console.error('Pista inválida:', JSON.stringify(track));
                 const embed = createEmbed('#FF1493', '⚠️ Error', 
                     `La pista no es válida, ${userName}. Probá con otro enlace.`);
@@ -4219,7 +4220,7 @@ async function manejarPlay(message, args) {
             }
 
             const isPodcast = track.uri.includes('spotify:episode') || track.uri.includes('spotify:show');
-            const isAlreadyInQueue = player.queue.some(t => t.uri === track.uri);
+            const isAlreadyInQueue = player.queue.some(t => t && t.uri === track.uri);
 
             let embed;
             if (isAlreadyInQueue) {
