@@ -4088,7 +4088,7 @@ async function manejarPlay(message, args) {
 
     if (!args || args.length === 0) {
         const embed = createEmbed('#FF1493', '🎶 Bot en llamada', 
-            `Ya estoy en el canal de voz, ${userName}. Mandame una canción o podcast con !play cuando quieras.`);
+            `Ya estoy en el canal de voz, ${userName}. Mandame una canción, podcast o playlist con !play.`);
         return await message.channel.send({ embeds: [embed] });
     }
 
@@ -4140,10 +4140,11 @@ async function manejarPlay(message, args) {
     try {
         let query = searchQuery;
         let isPodcast = false;
+        let isPlaylist = false;
 
         if (searchQuery.includes('open.spotify.com')) {
             const cleanUrl = searchQuery.split('?')[0];
-            const urlMatch = cleanUrl.match(/(episode|show|track)\/([a-zA-Z0-9]+)/);
+            const urlMatch = cleanUrl.match(/(?:intl-[a-z]+\/)?(episode|show|track|playlist)\/([a-zA-Z0-9]+)/);
             if (urlMatch) {
                 const type = urlMatch[1];
                 const id = urlMatch[2];
@@ -4158,50 +4159,67 @@ async function manejarPlay(message, args) {
                 } else if (type === 'track') {
                     query = `spotify:track:${id}`;
                     console.log(`Procesando pista: ${query}`);
+                } else if (type === 'playlist') {
+                    query = `spotify:playlist:${id}`;
+                    isPlaylist = true;
+                    console.log(`Procesando playlist: ${query}`);
                 }
             } else {
                 console.log(`URL inválida: ${searchQuery}`);
                 const embed = createEmbed('#FF1493', '⚠️ URL inválida', 
-                    `La URL "${searchQuery}" no parece válida, ${userName}.`);
+                    `La URL "${searchQuery}" no es válida, ${userName}. Usá una URL de canción, episodio, show o playlist de Spotify.`);
                 return await message.channel.send({ embeds: [embed] });
             }
         }
 
         console.log(`Buscando: "${query}"`);
         res = await manager.search(query, message.author);
-        console.log(`Resultado: loadType=${res.loadType}, tracks=${res.tracks.length}`);
+        console.log(`Resultado: loadType=${res.loadType}, tracks=${res.tracks?.length || 0}`);
 
-        if (isPodcast && (res.loadType === 'NO_MATCHES' || res.loadType === 'LOAD_FAILED' || res.tracks.length === 0)) {
-            console.log(`Reintentando con URL: ${searchQuery.split('?')[0]}`);
-            res = await manager.search(searchQuery.split('?')[0], message.author);
-            console.log(`Reintento: loadType=${res.loadType}, tracks=${res.tracks.length}`);
+        if ((isPodcast || isPlaylist) && (res.loadType === 'NO_MATCHES' || res.loadType === 'LOAD_FAILED' || !res.tracks || res.tracks.length === 0)) {
+            console.log(`Reintentando con URL limpia: ${cleanUrl}`);
+            res = await manager.search(cleanUrl, message.author);
+            console.log(`Reintento: loadType=${res.loadType}, tracks=${res.tracks?.length || 0}`);
+        }
+
+        if ((isPodcast || isPlaylist) && (res.loadType === 'NO_MATCHES' || res.loadType === 'LOAD_FAILED' || !res.tracks || res.tracks.length === 0)) {
+            console.log(`Reintentando con query original: ${searchQuery}`);
+            res = await manager.search(searchQuery, message.author);
+            console.log(`Reintento final: loadType=${res.loadType}, tracks=${res.tracks?.length || 0}`);
         }
     } catch (error) {
         console.error(`Error en búsqueda: ${error.message}`);
         const embed = createEmbed('#FF1493', '⚠️ Error', 
-            `No pude buscar "${searchQuery}", ${userName}. Error: ${error.message}.`);
+            `No pude buscar "${searchQuery}", ${userName}. Error: ${error.message}. Verificá las credenciales o el enlace.`);
         return await message.channel.send({ embeds: [embed] });
     }
 
-    if (res.loadType === 'NO_MATCHES' || res.loadType === 'LOAD_FAILED' || res.tracks.length === 0) {
+    if (res.loadType === 'NO_MATCHES' || res.loadType === 'LOAD_FAILED' || !res.tracks || res.tracks.length === 0) {
         console.log(`Búsqueda fallida para "${searchQuery}"`);
         const embed = createEmbed('#FF1493', '❌ No encontré nada', 
-            `No encontré "${searchQuery}", ${userName}. Verificá el enlace o probá otro.`);
+            `No encontré "${searchQuery}", ${userName}. Verificá que el enlace sea válido o probá otro.`);
         return await message.channel.send({ embeds: [embed] });
     }
 
     try {
         if (res.loadType === 'PLAYLIST_LOADED') {
+            console.log(`Agregando playlist: ${res.tracks.length} pistas`);
             player.queue.add(res.tracks);
             const embed = createEmbed('#FF1493', '🎶 Playlist agregada', 
                 `Agregué ${res.tracks.length} temas a la cola, ${userName}.`);
-            console.log(`Playlist agregada: ${res.tracks.length} pistas`);
+            console.log(`Playlist agregada, cola: ${player.queue.size}`);
             await message.channel.send({ embeds: [embed] });
         } else {
             const track = res.tracks[0];
+            if (!track || !track.uri || !track.title) {
+                console.error('Pista inválida:', JSON.stringify(track));
+                const embed = createEmbed('#FF1493', '⚠️ Error', 
+                    `La pista no es válida, ${userName}. Probá con otro enlace.`);
+                return await message.channel.send({ embeds: [embed] });
+            }
+
             const isPodcast = track.uri.includes('spotify:episode') || track.uri.includes('spotify:show');
-            const trackUri = track.uri;
-            const isAlreadyInQueue = player.queue.some(t => t.uri === trackUri);
+            const isAlreadyInQueue = player.queue.some(t => t.uri === track.uri);
 
             let embed;
             if (isAlreadyInQueue) {
@@ -4209,9 +4227,9 @@ async function manejarPlay(message, args) {
                     `**${track.title}** ya está en la cola, ${userName}.`);
                 console.log(`Pista ya en cola: ${track.title}`);
             } else {
-                console.log(`Agregando: ${track.title}`);
+                console.log(`Agregando: ${track.title}, cola antes: ${player.queue.size}`);
                 player.queue.add(track);
-                console.log(`Agregada: ${track.title}, cola: ${player.queue.size}`);
+                console.log(`Agregada: ${track.title}, cola después: ${player.queue.size}`);
                 embed = createEmbed('#FF1493', isPodcast ? '🎙️ Podcast agregado' : '🎶 Tema agregado', 
                     isPodcast 
                         ? `Agregué el podcast **${track.title}** a la cola, ${userName}.`
