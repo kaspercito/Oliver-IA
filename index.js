@@ -4157,26 +4157,43 @@ async function manejarPlay(message, args) {
     const searchQuery = args.join(' ');
     let res;
     try {
-        // Detectar si es un enlace de Spotify (podcast o playlist)
+        console.log(`Iniciando búsqueda para: ${searchQuery}`);
         if (searchQuery.includes('open.spotify.com')) {
             if (searchQuery.includes('/show/') || searchQuery.includes('/episode/')) {
-                // Es un podcast o episodio
-                console.log(`Buscando podcast o episodio de Spotify: ${searchQuery}`);
+                console.log(`Detectado enlace de podcast/episodio: ${searchQuery}`);
                 res = await manager.search(searchQuery, message.author);
             } else {
-                // Es una playlist o pista
-                console.log(`Buscando playlist o pista de Spotify: ${searchQuery}`);
+                console.log(`Detectado enlace de playlist/pista: ${searchQuery}`);
                 res = await manager.search(searchQuery, message.author);
             }
         } else {
-            // Búsqueda normal (por nombre o término)
-            console.log(`Buscando término general: ${searchQuery}`);
+            console.log(`Búsqueda por término: ${searchQuery}`);
             res = await manager.search(searchQuery, message.author);
         }
+        if (!res) {
+            console.error('La búsqueda devolvió undefined/null');
+            const embed = createEmbed('#FF1493', '⚠️ Error interno', 
+                `Algo salió mal al buscar "${searchQuery}", ${userName}. Probá de nuevo más tarde.`);
+            return await message.channel.send({ embeds: [embed] });
+        }
+        console.log('Detalles de la búsqueda:', {
+            loadType: res.loadType,
+            tracks: res.tracks?.map(t => t.title) || [],
+            exception: res.exception ? JSON.stringify(res.exception) : 'ninguna',
+        });
     } catch (error) {
-        console.error(`Error en búsqueda: ${error.message}`);
+        console.error(`Error en búsqueda de "${searchQuery}": ${error.message}`);
+        console.error('Stack trace:', error.stack);
+        let errorMessage = 'Desconocido';
+        if (error.message.includes('401') || error.message.includes('token')) {
+            errorMessage = 'Problema de autenticación con Spotify. Contactá al admin.';
+        } else if (error.message.includes('429')) {
+            errorMessage = 'Demasiadas solicitudes a Spotify. Esperá un poco.';
+        } else if (error.message.includes('404')) {
+            errorMessage = 'El episodio no está disponible o no existe.';
+        }
         const embed = createEmbed('#FF1493', '⚠️ Error', 
-            `No pude buscar "${searchQuery}", ${userName}. Error: ${error.message}`);
+            `No pude buscar "${searchQuery}", ${userName}. Error: ${errorMessage}. Probá de nuevo o con otro enlace.`);
         return await message.channel.send({ embeds: [embed] });
     }
     if (res.loadType === 'NO_MATCHES' || res.tracks.length === 0) {
