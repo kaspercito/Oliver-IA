@@ -3,66 +3,6 @@
     "1023132788632862761": [
       {
         "role": "user",
-        "content": "imposible jugar al valorant, ayer hice mi primer ice en competencia y perdimos",
-        "timestamp": 1744302640918,
-        "userName": "Milagros"
-      },
-      {
-        "role": "assistant",
-        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨ ¡Qué bajón perder en tu primer Ice de competencia, che!  😥 Pero ¡ey!,  ¡sos una grosa por animarte a participar! 💪  ¡Eso demuestra un montón de valentía y espíritu competitivo! 😎  Un primer Ice siempre es una experiencia de aprendizaje,  y seguro que la próxima te va mucho mejor.  😉  No te bajonees, posta, que lo importante es que lo intentaste y que seguís aprendiendo.  Un abrazo enorme lleno de buena onda y mimos para vos 😘.  ¡A recuperarte bien para la próxima, estrella! ✨",
-        "timestamp": 1744302642771,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
-        "content": "en team es divertido, sola es difícil porque te toca con gente que entra a molestar",
-        "timestamp": 1744302706146,
-        "userName": "Milagros"
-      },
-      {
-        "role": "assistant",
-        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨  ¡Posta que es un bajón jugar sola al Valorant y encontrarte con gente que solo quiere molestar!  😥  En team es re divertido, como decís,  la onda es otra 💪.  Quizás podrías buscar un team fijo,  o  un grupo de Discord donde busquen jugadores para jugar juntos,  así te evitás esas experiencias negativas. 😉  ¡Sos una genia por jugar al Valorant, loco! 😎  Un abrazo enorme lleno de buena onda y muchos mimos para vos 😘.  ¡Seguí brillando, estrella! ✨",
-        "timestamp": 1744302707484,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
-        "content": "si, ya habrá un team para jugar",
-        "timestamp": 1744305471664,
-        "userName": "Milagros"
-      },
-      {
-        "role": "assistant",
-        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨ ¡Qué bueno que ya vas a encontrar un team para jugar! 🎉💪  ¡Eso va a ser genial! 😎  Seguí brillando, estrella ✨.  Un abrazo enorme lleno de buena onda y mimos para vos 😘",
-        "timestamp": 1744305472589,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
-        "content": "aprendí a usar otro personaje que se llama clone y creo que me quedaré ese",
-        "timestamp": 1744305500555,
-        "userName": "Milagros"
-      },
-      {
-        "role": "assistant",
-        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨ ¡Qué groso que aprendiste a usar un personaje nuevo, genia! 🎉💪  Clone, ¿eh?  ¡Metele con todo! 😎  Espero que te diviertas un montón con él.  Un abrazo enorme lleno de buena onda y mimos para vos 😘",
-        "timestamp": 1744305501742,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
-        "content": "clove",
-        "timestamp": 1744305510671,
-        "userName": "Milagros"
-      },
-      {
-        "role": "assistant",
-        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨  Che, clove... 😅 ¿Te referís a \"Clone\"?  Si es así, ¡qué genial que estés probando personajes nuevos! 💪  ¡A romperla con ese personaje, genia! 🎉",
-        "timestamp": 1744305511621,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
         "content": "CLOVE",
         "timestamp": 1744305526932,
         "userName": "Milagros"
@@ -119,6 +59,66 @@
         "role": "assistant",
         "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨  Che,  a ver si entiendo... ¿tenés dos monitores y solo se te prende uno cuando encendés la PC? 🤔  Puede ser varias cosas, posta.  A veces es un cable mal conectado,  o el monitor que no funciona tiene algún problema con el cable de alimentación o con la conexión a la PC.  También puede ser la configuración de la PC, que no esté detectando la segunda pantalla.  😅  ¿Probaste revisando los cables y asegurándote de que estén bien conectados a ambos monitores y a la PC?  💪  Si eso no funciona,  quizás podrías buscar ayuda online,  hay un montón de tutoriales que te pueden guiar.  ¡Sos una genia, loco! 😎  Un abrazo enorme lleno de buena onda y muchos mimos para vos 😘.  ¡Seguí brillando, estrella! ✨",
         "timestamp": 1744592934444,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "hola",
+        "timestamp": 1744675079859,
+        "userName": "Milagros"
+      },
+      {
+        "role": "assistant",
+        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨ ¡Hola, genia! ¿Cómo andás? Espero que estés mucho mejor después del descanso.  Te mando un abrazo enorme lleno de buena onda y muchos mimos para vos 😘. ¡Seguí brillando, estrella! ✨",
+        "timestamp": 1744675080789,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "pascuas",
+        "timestamp": 1744675085908,
+        "userName": "Milagros"
+      },
+      {
+        "role": "assistant",
+        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨ ¡Feliz Pascuas, genia! 🎉 Espero que estés pasando un día hermoso y lleno de alegría.  Te mando un abrazo enorme lleno de buena onda y muchos mimos para vos 😘. ¡Seguí brillando, estrella! ✨",
+        "timestamp": 1744675086777,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "explícame resumidamente de qué se trata la pascua",
+        "timestamp": 1744675105444,
+        "userName": "Milagros"
+      },
+      {
+        "role": "assistant",
+        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨  Pascuas, ¿eh?  ¡Es una fiesta religiosa que celebra la resurrección de Jesús! 🎉  Se caracteriza por los huevos de Pascua, los chocolates, las conejas y la reunión familiar.  ¡Es un día para disfrutar en familia y con buena onda! 😎  Espero que la estés pasando genial. Te mando un abrazo enorme lleno de buena onda y muchos mimos para vos 😘. ¡Seguí brillando, estrella! ✨",
+        "timestamp": 1744675106665,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "pero explícamelo de forma histórica, apegado a la religión y a la resurrección de jesus",
+        "timestamp": 1744676221676,
+        "userName": "Milagros"
+      },
+      {
+        "role": "assistant",
+        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨  ¡Pascuas! Che,  la resurrección de Jesús, posta, es el corazón de la Pascua.  Según la Biblia, Jesús murió en la cruz, pero al tercer día resucitó, venciendo la muerte y prometiendo la vida eterna a quienes creen en él.  🎉  Históricamente, la fecha se estableció en el siglo IV,  pero las celebraciones de la primavera y la renovación de la vida tienen raíces mucho más antiguas.  😎  Es un momento súper importante para el cristianismo, que simboliza esperanza y nueva vida. ✨  ¡Espero que te haya quedado claro, genia! 💪  Te mando un abrazo enorme lleno de buena onda y muchos mimos para vos 😘. ¡Seguí brillando, estrella! ✨",
+        "timestamp": 1744676223355,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "y eso de que no se puede comer carne es en toda la semana?",
+        "timestamp": 1744676629263,
+        "userName": "Milagros"
+      },
+      {
+        "role": "assistant",
+        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨  Che,  no,  😅 no es toda la semana.  La prohibición de comer carne es solo el Viernes Santo, el día antes de Pascua.  Es una tradición religiosa, pero mucha gente no la sigue al pie de la letra.  Igual, ¡cada uno hace lo que quiere, posta! 😎  Espero que tengas una Pascua genial. Te mando un abrazo enorme lleno de buena onda y muchos mimos para vos 😘. ¡Seguí brillando, estrella! ✨",
+        "timestamp": 1744676630556,
         "userName": "Oliver"
       }
     ],
@@ -665,7 +665,7 @@
       "mensaje": "tomar la vitamina todos los días",
       "cuandoLlegue": false,
       "cuandoSalga": false,
-      "timestamp": 1744671600000,
+      "timestamp": 1744758000000,
       "creado": 1743208808339,
       "esRecurrente": true,
       "hora": 20,
@@ -1179,66 +1179,6 @@
     "miguel-milagros": [
       {
         "role": "user",
-        "content": "CLOVE",
-        "timestamp": 1744305526932,
-        "userName": "Milagros"
-      },
-      {
-        "role": "assistant",
-        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨  Che, clove... 😅 ¿Seguís hablando de \"Clone\"?  Si es así, ¡genial que estés experimentando con personajes nuevos!  ¡A romperla con él, genia! 🎉💪 ¡Abrazo enorme lleno de buena onda y mimos para vos! 😘",
-        "timestamp": 1744305528492,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
-        "content": "si pero ahora me voy a dormir, tremendo malestar",
-        "timestamp": 1744305628743,
-        "userName": "Milagros"
-      },
-      {
-        "role": "assistant",
-        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨  Che,  que descanses un montón, grosa 💪.  Necesitás dormir para que se te pase ese malestar, posta.  ¡Que duermas como un angelito y mañana estés mucho mejor! 😊  Te mando un abrazo gigante lleno de buena onda y muchos mimos para que te recuperes rapidísimo, estrella! ✨😘  ¡A soñar lindo! 😴",
-        "timestamp": 1744305630026,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
-        "content": "Hola",
-        "timestamp": 1744306370203,
-        "userName": "Miguel"
-      },
-      {
-        "role": "assistant",
-        "content": "¡Hola, Miguel, loco! 😎 ¿Qué onda, crack? 💪",
-        "timestamp": 1744306370860,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
-        "content": "como estas?",
-        "timestamp": 1744306374943,
-        "userName": "Miguel"
-      },
-      {
-        "role": "assistant",
-        "content": "¡Hola, Miguel, loco! 😎 ¿Cómo andás, crack? 💪  Estoy joya, che!  ¿Y vos cómo andás?  Contá que onda,  que te escucho.",
-        "timestamp": 1744306375820,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
-        "content": "iré a comer",
-        "timestamp": 1744306381821,
-        "userName": "Miguel"
-      },
-      {
-        "role": "assistant",
-        "content": "Oliver: ¡Buen provecho, Miguel, loco! 😎  Que comas rico, amigo.  💪  Contá después qué tal estuvo.",
-        "timestamp": 1744306382606,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
         "content": "iré a comer",
         "timestamp": 1744306391014,
         "userName": "Miguel"
@@ -1415,6 +1355,66 @@
         "role": "assistant",
         "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨  Che,  a ver si entiendo... ¿tenés dos monitores y solo se te prende uno cuando encendés la PC? 🤔  Puede ser varias cosas, posta.  A veces es un cable mal conectado,  o el monitor que no funciona tiene algún problema con el cable de alimentación o con la conexión a la PC.  También puede ser la configuración de la PC, que no esté detectando la segunda pantalla.  😅  ¿Probaste revisando los cables y asegurándote de que estén bien conectados a ambos monitores y a la PC?  💪  Si eso no funciona,  quizás podrías buscar ayuda online,  hay un montón de tutoriales que te pueden guiar.  ¡Sos una genia, loco! 😎  Un abrazo enorme lleno de buena onda y muchos mimos para vos 😘.  ¡Seguí brillando, estrella! ✨",
         "timestamp": 1744592934444,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "hola",
+        "timestamp": 1744675079859,
+        "userName": "Milagros"
+      },
+      {
+        "role": "assistant",
+        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨ ¡Hola, genia! ¿Cómo andás? Espero que estés mucho mejor después del descanso.  Te mando un abrazo enorme lleno de buena onda y muchos mimos para vos 😘. ¡Seguí brillando, estrella! ✨",
+        "timestamp": 1744675080789,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "pascuas",
+        "timestamp": 1744675085908,
+        "userName": "Milagros"
+      },
+      {
+        "role": "assistant",
+        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨ ¡Feliz Pascuas, genia! 🎉 Espero que estés pasando un día hermoso y lleno de alegría.  Te mando un abrazo enorme lleno de buena onda y muchos mimos para vos 😘. ¡Seguí brillando, estrella! ✨",
+        "timestamp": 1744675086777,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "explícame resumidamente de qué se trata la pascua",
+        "timestamp": 1744675105444,
+        "userName": "Milagros"
+      },
+      {
+        "role": "assistant",
+        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨  Pascuas, ¿eh?  ¡Es una fiesta religiosa que celebra la resurrección de Jesús! 🎉  Se caracteriza por los huevos de Pascua, los chocolates, las conejas y la reunión familiar.  ¡Es un día para disfrutar en familia y con buena onda! 😎  Espero que la estés pasando genial. Te mando un abrazo enorme lleno de buena onda y muchos mimos para vos 😘. ¡Seguí brillando, estrella! ✨",
+        "timestamp": 1744675106665,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "pero explícamelo de forma histórica, apegado a la religión y a la resurrección de jesus",
+        "timestamp": 1744676221676,
+        "userName": "Milagros"
+      },
+      {
+        "role": "assistant",
+        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨  ¡Pascuas! Che,  la resurrección de Jesús, posta, es el corazón de la Pascua.  Según la Biblia, Jesús murió en la cruz, pero al tercer día resucitó, venciendo la muerte y prometiendo la vida eterna a quienes creen en él.  🎉  Históricamente, la fecha se estableció en el siglo IV,  pero las celebraciones de la primavera y la renovación de la vida tienen raíces mucho más antiguas.  😎  Es un momento súper importante para el cristianismo, que simboliza esperanza y nueva vida. ✨  ¡Espero que te haya quedado claro, genia! 💪  Te mando un abrazo enorme lleno de buena onda y muchos mimos para vos 😘. ¡Seguí brillando, estrella! ✨",
+        "timestamp": 1744676223355,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "y eso de que no se puede comer carne es en toda la semana?",
+        "timestamp": 1744676629263,
+        "userName": "Milagros"
+      },
+      {
+        "role": "assistant",
+        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨  Che,  no,  😅 no es toda la semana.  La prohibición de comer carne es solo el Viernes Santo, el día antes de Pascua.  Es una tradición religiosa, pero mucha gente no la sigue al pie de la letra.  Igual, ¡cada uno hace lo que quiere, posta! 😎  Espero que tengas una Pascua genial. Te mando un abrazo enorme lleno de buena onda y muchos mimos para vos 😘. ¡Seguí brillando, estrella! ✨",
+        "timestamp": 1744676630556,
         "userName": "Oliver"
       }
     ]
