@@ -6823,11 +6823,11 @@ client.once('ready', async () => {
                 const oneDayInMs = 24 * 60 * 60 * 1000;
 
                 const reminderTimes = {
-                    12: "¡Mediodía, loco, a full! ☀️ ¿Cómo arrancás la jornada, crack? Si estás con mil cosas o querés un break, avisame y te echo una mano, ¿sí?",
-                    18: "¡Las 6 de la tarde, che! 🌆 ¿Cómo pinta el día, genia? Si querés charlar, tirar ideas o necesitas algo, estoy a un mensaje, ¡dale!",
-                    22: "¡10 de la noche, noche tranqui! 🌙 ¿Cómo venís cerrando el día, capo? Si te pinta desconectar o charlar un rato, acá estoy, siempre listo!",
-                    23: "¡11 de la noche, loco! 🌃 Ey, Belén, ¿todavía en la movida? Me imaginé una locura: los perros del barrio armando una carrera bajo la luna, y Miguel, el loco ese, apostando por un perrito que solo quiere dormir, ¡ja! Si estás con ganas de reírte un rato o charlar antes de descansar, avisá, ¿eh?",
-                    0: "¡Medianoche total! 🌌 ¿Cómo te fue el día, genia? Si estás en modo reflexivo o querés compartir una vibra, contame. Acá estoy para sumar buena onda."
+                    12: "¡Mediodía a pleno, che! 🌞 ¿Cómo arrancás la tarde, crack? Si estás con todo o querés parar un segundo pa’ tomar aire, mandame un grito y seguimos la charla, ¿eh? 😎",
+                    18: "¡6 de la tarde, loco! 🌅 ¿Qué tal pinta tu día, genia? Si tenés ganas de tirar una idea loca o solo charlar un toque, estoy acá pa’ sumar pilas, ¡dale! 💪",
+                    22: "¡10 de la noche, pura calma! 🌠 ¿Cómo venís cerrando, capo? Si querés reírte un rato o contarme qué onda, estoy a un mensaje, siempre con buena onda. 😅",
+                    23: "¡11 de la noche, che! 🌜 Ey, Belén, ¿seguís en la jugada? Me pintó imaginar a Miguel organizando un asado nocturno con los perros del barrio mirando con hambre, ¡ja! Si te pinta charlar o tirar una risa antes de dormir, avisá, ¿sí? ✨",
+                    0: "¡Medianoche, todo tranqui! 🌃 ¿Qué tal estuvo tu día, genia? Si estás en mood de contar algo o querés una vibra piola, escribime y le damos un cierre zarpado al día. 😊"
                 };
 
                 if (currentMinute === 0 && reminderTimes[currentHour]) {
