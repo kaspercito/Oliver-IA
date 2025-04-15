@@ -4191,20 +4191,28 @@ async function manejarPlay(message, args) {
                 return await message.channel.send({ embeds: [embed] });
             }
         }
+
         console.log(`Buscando en erela.js: "${query}"`);
         res = await manager.search(query, message.author);
         console.log(`Resultado de búsqueda: loadType=${res.loadType}, tracks=${res.tracks.length}`);
+
+        // Reintentar si es un episodio y falla
+        if (isPodcast && (res.loadType === 'NO_MATCHES' || res.tracks.length === 0)) {
+            console.log(`Reintentando búsqueda con URL completa: ${searchQuery}`);
+            res = await manager.search(searchQuery, message.author);
+            console.log(`Resultado de reintento: loadType=${res.loadType}, tracks=${res.tracks.length}`);
+        }
     } catch (error) {
         console.error(`Error en búsqueda: ${error.message}`);
         const embed = createEmbed('#FF1493', '⚠️ Error', 
-            `No pude buscar "${searchQuery}", ${userName}. Error: ${error.message}. Probá con otro enlace o nombre.`);
+            `No pude buscar "${searchQuery}", ${userName}. Error: ${error.message}. Asegurate de que el enlace sea válido o probá con otro.`);
         return await message.channel.send({ embeds: [embed] });
     }
 
     if (res.loadType === 'NO_MATCHES' || res.tracks.length === 0) {
         console.log(`Búsqueda fallida: NO_MATCHES para "${searchQuery}"`);
         const embed = createEmbed('#FF1493', '❌ No encontré nada', 
-            `No encontré nada con "${searchQuery}", ${userName}. Probá con otro enlace o nombre.`);
+            `No encontré nada con "${searchQuery}", ${userName}. Verificá que el episodio esté disponible o probá con otro enlace.`);
         return await message.channel.send({ embeds: [embed] });
     }
 
@@ -4228,6 +4236,7 @@ async function manejarPlay(message, args) {
                     `**${track.title}** ya está en la cola, ${userName}.`);
                 console.log(`Pista ya en cola: ${track.title}`);
             } else {
+                console.log(`Agregando pista a la cola: ${track.title}`);
                 player.queue.add(track);
                 embed = createEmbed('#FF1493', isPodcast ? '🎙️ Podcast agregado' : '🎶 Tema agregado', 
                     isPodcast 
@@ -4253,7 +4262,7 @@ async function manejarPlay(message, args) {
         } else {
             console.log(`Estado del reproductor: playing=${player.playing}, paused=${player.paused}, queue.size=${player.queue.size}`);
             if (player.queue.size === 0) {
-                console.log('Cola vacía después de agregar pista, posible error.');
+                console.error('Cola vacía después de agregar pista, posible error.');
                 const embed = createEmbed('#FF1493', '⚠️ Error', 
                     `No se pudo agregar la pista a la cola, ${userName}. Probá de nuevo.`);
                 await message.channel.send({ embeds: [embed] });
