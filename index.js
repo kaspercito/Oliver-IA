@@ -4180,20 +4180,20 @@ async function manejarPlay(message, args) {
     } else {
         const trackUri = res.tracks[0].uri;
         const isAlreadyInQueue = player.queue.some(track => track.uri === trackUri);
+        const isPodcast = searchQuery.toLowerCase().includes('podcast'); // Verificar si es un podcast
         let embed;
-
+    
         if (isAlreadyInQueue) {
-            embed = createEmbed('#FF1493', '🎵 Tema ya en cola', 
+            embed = createEmbed('#FF1493', isPodcast ? '🎙️ Podcast ya en cola' : '🎵 Tema ya en cola', 
                 `**${res.tracks[0].title}** ya está en la cola, ${userName}.`);
         } else {
             player.queue.add(res.tracks[0]);
-            embed = createEmbed('#FF1493', '🎶 Tema agregado', 
+            embed = createEmbed('#FF1493', isPodcast ? '🎙️ Podcast agregado' : '🎶 Tema agregado', 
                 `Agregué **${res.tracks[0].title}** a la cola, ${userName}.`);
         }
         embed.setThumbnail(res.tracks[0].thumbnail || 'https://i.imgur.com/defaultThumbnail.png');
         await message.channel.send({ embeds: [embed] });
     }
-
     if (!player.playing && !player.paused) {
         console.log(`Forzando reproducción de ${player.queue[0]?.title || 'sin título'}`);
         try {
