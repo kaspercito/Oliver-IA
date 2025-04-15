@@ -4095,7 +4095,6 @@ async function manejarPlay(message, args) {
     const searchQuery = args.join(' ').trim();
     console.log(`Procesando !play con query: "${searchQuery}"`);
 
-    // Verificar o establecer la conexión de voz
     let connection = getVoiceConnection(guildId);
     if (!connection || connection.joinConfig.channelId !== voiceChannel.id) {
         if (connection) {
@@ -4122,7 +4121,6 @@ async function manejarPlay(message, args) {
         console.log(`Conectado al canal de voz ${voiceChannel.id}`);
     }
 
-    // Crear o recuperar el reproductor, asegurando un estado limpio
     let player = manager.get(guildId);
     if (!player) {
         player = manager.create({
@@ -4133,16 +4131,16 @@ async function manejarPlay(message, args) {
         });
         console.log(`Nuevo reproductor creado para guild ${guildId}`);
     } else {
-        // Limpiar estado si está detenido o en pausa
-        if (!player.playing && player.paused) {
-            player.set('trackEnded', true);
+        // Asegurar que el reproductor esté limpio después de !stop
+        if (!player.playing && (player.paused || player.get('trackEnded'))) {
             player.queue.clear();
+            player.set('trackEnded', false);
+            player.set('currentTrack', null);
             console.log(`Reproductor limpiado para guild ${guildId}`);
         }
     }
     console.log(`Reproductor configurado: playing=${player.playing}, paused=${player.paused}, cola=${player.queue.size}`);
 
-    // Verificar nodos Lavalink
     if (!manager.nodes.some(node => node.connected)) {
         console.error('No hay nodos Lavalink conectados.');
         const embed = createEmbed('#FF1493', '⚠️ Error', 
@@ -4225,8 +4223,8 @@ async function manejarPlay(message, args) {
             await message.channel.send({ embeds: [embed] });
         } else {
             const track = res.tracks[0];
-            // Validación simplificada y robusta
-            if (!track || !track.uri || !track.title || typeof track.title !== 'string') {
+            // Validación más flexible
+            if (!track || !track.uri) {
                 console.error('Pista inválida:', JSON.stringify(track));
                 const embed = createEmbed('#FF1493', '⚠️ Error', 
                     `La pista no es válida, ${userName}. Probá con otro enlace.`);
@@ -4239,26 +4237,29 @@ async function manejarPlay(message, args) {
             let embed;
             if (isAlreadyInQueue) {
                 embed = createEmbed('#FF1493', isPodcast ? '🎙️ Podcast ya en cola' : '🎵 Tema ya en cola', 
-                    `**${track.title}** ya está en la cola, ${userName}.`);
-                console.log(`Pista ya en cola: ${track.title}`);
+                    `**${track.title || 'Sin título'}** ya está en la cola, ${userName}.`);
+                console.log(`Pista ya en cola: ${track.title || 'Sin título'}`);
             } else {
-                console.log(`Agregando: ${track.title}, cola antes: ${player.queue.size}`);
+                console.log(`Agregando: ${track.title || 'Sin título'}, cola antes: ${player.queue.size}`);
                 player.queue.add(track);
-                console.log(`Agregada: ${track.title}, cola después: ${player.queue.size}`);
+                console.log(`Agregada: ${track.title || 'Sin título'}, cola después: ${player.queue.size}`);
                 embed = createEmbed('#FF1493', isPodcast ? '🎙️ Podcast agregado' : '🎶 Tema agregado', 
                     isPodcast 
-                        ? `Agregué el podcast **${track.title}** a la cola, ${userName}.`
-                        : `Agregué **${track.title}** a la cola, ${userName}.`);
+                        ? `Agregué el podcast **${track.title || 'Sin título'}** a la cola, ${userName}.`
+                        : `Agregué **${track.title || 'Sin título'}** a la cola, ${userName}.`);
             }
             embed.setThumbnail(track.thumbnail || 'https://i.imgur.com/defaultThumbnail.png');
             await message.channel.send({ embeds: [embed] });
         }
 
-        // Forzar reproducción si no está sonando
         console.log(`Estado antes de reproducir: playing=${player.playing}, paused=${player.paused}, cola=${player.queue.size}`);
-        if (!player.playing && !player.paused && player.queue.size > 0) {
+        if (!player.playing && player.queue.size > 0) {
             console.log(`Reproduciendo: ${player.queue[0]?.title || 'sin título'}`);
             try {
+                if (player.paused) {
+                    player.pause(false);
+                    console.log('Reproductor reanudado.');
+                }
                 await player.play();
                 console.log('Reproducción iniciada.');
             } catch (error) {
@@ -4267,10 +4268,6 @@ async function manejarPlay(message, args) {
                     `No pude reproducir, ${userName}. Error: ${error.message}.`);
                 await message.channel.send({ embeds: [embed] });
             }
-        } else if (player.paused) {
-            // Si está pausado, reanudar
-            player.pause(false);
-            console.log('Reproductor reanudado.');
         }
     } catch (error) {
         console.error(`Error procesando: ${error.message}`);
@@ -4372,10 +4369,11 @@ async function manejarStop(message) {
     if (!player) return sendError(message.channel, `No hay música en reproducción, ${userName}.`);
 
     // Limpiar la cola y detener la reproducción
-    player.queue.clear();
-    player.stop();
-    player.set('currentTrack', null);
-    player.set('trackEnded', true);
+    player.queue.clear(); // Borra todos los temas en la cola
+    player.stop(); // Para el tema actual
+    player.set('currentTrack', null); // Limpia la pista actual
+    player.set('trackEnded', true); // Marca como terminado
+    player.pause(true); // Pausa el reproductor para evitar que intente reproducir algo
 
     // Limpiar la sesión de música en dataStore
     if (dataStore.musicSessions[message.guild.id]) {
@@ -4383,9 +4381,8 @@ async function manejarStop(message) {
         dataStoreModified = true;
     }
     
-    // Destruir el reproductor y asegurar que no quede colgado
-    player.destroy();
-    console.log(`Reproductor destruido en guild ${message.guild.id}`);
+    // NO destruir el reproductor para mantener la conexión de voz
+    console.log(`Música detenida en guild ${message.guild.id}, reproductor pausado`);
 
     await sendSuccess(message.channel, '🛑 ¡Música detenida!', 
         `La música paró de una, ${userName}. Silencio total, ¡listo!`);
