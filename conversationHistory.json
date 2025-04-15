@@ -125,42 +125,6 @@
     "752987736759205960": [
       {
         "role": "user",
-        "content": "gracias",
-        "timestamp": 1744306423700,
-        "userName": "Miguel"
-      },
-      {
-        "role": "assistant",
-        "content": "¡Che, Miguel, loco! 😎 ¡De nada, hermano! 💪  Espero que todo ande joya.  Contá qué onda, que te escucho. ✨",
-        "timestamp": 1744306424481,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
-        "content": "hola",
-        "timestamp": 1744318219892,
-        "userName": "Miguel"
-      },
-      {
-        "role": "assistant",
-        "content": "¡Hola, Miguel, loco! 😎 ¿Qué onda, crack? 💪",
-        "timestamp": 1744318220648,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
-        "content": "justo a tiempo",
-        "timestamp": 1744318224736,
-        "userName": "Miguel"
-      },
-      {
-        "role": "assistant",
-        "content": "¡Hola, Miguel, loco! 😎 Justo a tiempo para qué, crack? 💪 Contame qué onda. ✨",
-        "timestamp": 1744318225565,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
         "content": "justo a tiempo",
         "timestamp": 1744318694506,
         "userName": "Miguel"
@@ -241,6 +205,42 @@
         "role": "assistant",
         "content": "Che, Miguel, loco! 😎  Esa es una pregunta difícil, posta.  Un año es mucho tiempo, y la felicidad que sentiste es algo que hay que valorar 💪. Pero la mentira… ¡es un golpe bajo! ✨  ¿Vale la pena intentarlo?  Eso solo lo podés decidir vos, crack.  Pensá bien si recuperar esa confianza vale el esfuerzo y, sobre todo, si te va a hacer feliz.  No hay una respuesta correcta, hermano.  Lo que sí te digo es que te escuches a vos mismo y tomes la decisión que te haga sentir mejor.  💪✨  Contá qué pensás después.",
         "timestamp": 1744554359788,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "hola",
+        "timestamp": 1744729174219,
+        "userName": "Miguel"
+      },
+      {
+        "role": "assistant",
+        "content": "¡Hola, Miguel, loco! 😎 ¿Qué onda, crack?  Espero que la celebración haya estado genial. 💪",
+        "timestamp": 1744729174997,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "como?",
+        "timestamp": 1744729182089,
+        "userName": "Miguel"
+      },
+      {
+        "role": "assistant",
+        "content": "¡Hola, Miguel, loco! 😎 ¿\"Cómo?\"...  ¿Te referís a cómo estoy?  Ando joya, che.  💪  Contame qué onda, que te escucho. ✨",
+        "timestamp": 1744729182943,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "nono, como que la celebración haya estado genial bro",
+        "timestamp": 1744729199981,
+        "userName": "Miguel"
+      },
+      {
+        "role": "assistant",
+        "content": "¡Che, Miguel, loco! 😎  Ah, sí, la celebración… ¿cómo estuvo? 😅  Contame qué onda, que te escucho.  💪",
+        "timestamp": 1744729200844,
         "userName": "Oliver"
       }
     ]
@@ -653,7 +653,7 @@
       "mensaje": "tomar la pastilla rosada todos los días",
       "cuandoLlegue": false,
       "cuandoSalga": false,
-      "timestamp": 1744729200000,
+      "timestamp": 1744815600000,
       "creado": 1743208770439,
       "esRecurrente": true,
       "hora": 12,
@@ -1180,42 +1180,6 @@
     "miguel-milagros": [
       {
         "role": "user",
-        "content": "iré a comer",
-        "timestamp": 1744306391014,
-        "userName": "Miguel"
-      },
-      {
-        "role": "assistant",
-        "content": "¡Buen provecho, Miguel, loco! 😎 Que comas un montón y que te haga bien al alma. 💪",
-        "timestamp": 1744306391650,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
-        "content": "cuida mucho a Milagros",
-        "timestamp": 1744306408237,
-        "userName": "Miguel"
-      },
-      {
-        "role": "assistant",
-        "content": "Che, Miguel, loco! 😎  ¡Tranqui, que la estoy cuidando a Milagros como si fuera mi hermana! 💪  Está un poco bajoneada por la angina, pero le estoy mandando toda la buena onda ✨💖 para que se recupere rápido.  Ya le dije que descanse un montón y que se cuide.  💪",
-        "timestamp": 1744306409437,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
-        "content": "gracias",
-        "timestamp": 1744306423700,
-        "userName": "Miguel"
-      },
-      {
-        "role": "assistant",
-        "content": "¡Che, Miguel, loco! 😎 ¡De nada, hermano! 💪  Espero que todo ande joya.  Contá qué onda, que te escucho. ✨",
-        "timestamp": 1744306424481,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
         "content": "hola",
         "timestamp": 1744318219892,
         "userName": "Miguel"
@@ -1416,6 +1380,42 @@
         "role": "assistant",
         "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨  Che,  no,  😅 no es toda la semana.  La prohibición de comer carne es solo el Viernes Santo, el día antes de Pascua.  Es una tradición religiosa, pero mucha gente no la sigue al pie de la letra.  Igual, ¡cada uno hace lo que quiere, posta! 😎  Espero que tengas una Pascua genial. Te mando un abrazo enorme lleno de buena onda y muchos mimos para vos 😘. ¡Seguí brillando, estrella! ✨",
         "timestamp": 1744676630556,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "hola",
+        "timestamp": 1744729174219,
+        "userName": "Miguel"
+      },
+      {
+        "role": "assistant",
+        "content": "¡Hola, Miguel, loco! 😎 ¿Qué onda, crack?  Espero que la celebración haya estado genial. 💪",
+        "timestamp": 1744729174997,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "como?",
+        "timestamp": 1744729182089,
+        "userName": "Miguel"
+      },
+      {
+        "role": "assistant",
+        "content": "¡Hola, Miguel, loco! 😎 ¿\"Cómo?\"...  ¿Te referís a cómo estoy?  Ando joya, che.  💪  Contame qué onda, que te escucho. ✨",
+        "timestamp": 1744729182943,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "nono, como que la celebración haya estado genial bro",
+        "timestamp": 1744729199981,
+        "userName": "Miguel"
+      },
+      {
+        "role": "assistant",
+        "content": "¡Che, Miguel, loco! 😎  Ah, sí, la celebración… ¿cómo estuvo? 😅  Contame qué onda, que te escucho.  💪",
+        "timestamp": 1744729200844,
         "userName": "Oliver"
       }
     ]
