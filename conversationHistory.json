@@ -3,18 +3,6 @@
     "1023132788632862761": [
       {
         "role": "user",
-        "content": "CLOVE",
-        "timestamp": 1744305526932,
-        "userName": "Milagros"
-      },
-      {
-        "role": "assistant",
-        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨  Che, clove... 😅 ¿Seguís hablando de \"Clone\"?  Si es así, ¡genial que estés experimentando con personajes nuevos!  ¡A romperla con él, genia! 🎉💪 ¡Abrazo enorme lleno de buena onda y mimos para vos! 😘",
-        "timestamp": 1744305528492,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
         "content": "si pero ahora me voy a dormir, tremendo malestar",
         "timestamp": 1744305628743,
         "userName": "Milagros"
@@ -119,6 +107,18 @@
         "role": "assistant",
         "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨  Che,  no,  😅 no es toda la semana.  La prohibición de comer carne es solo el Viernes Santo, el día antes de Pascua.  Es una tradición religiosa, pero mucha gente no la sigue al pie de la letra.  Igual, ¡cada uno hace lo que quiere, posta! 😎  Espero que tengas una Pascua genial. Te mando un abrazo enorme lleno de buena onda y muchos mimos para vos 😘. ¡Seguí brillando, estrella! ✨",
         "timestamp": 1744676630556,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "me quedé dormida escuchando la música y al final no asistí a una clase de consulta!",
+        "timestamp": 1744759802183,
+        "userName": "Milagros"
+      },
+      {
+        "role": "assistant",
+        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨  ¡Qué bajón que te hayas quedado dormida!  Pero che,  no te preocupes demasiado,  a veces pasa.  Escuchar música relaja un montón,  posta.  😅 ¿Podrás recuperar esa clase de consulta de alguna manera?  Quizás hablando con el profesor o revisando los materiales. ¡Sos una genia, igual! 💪  ¡Toda la vibra pa’ vos, grosa! ✨",
+        "timestamp": 1744759803433,
         "userName": "Oliver"
       }
     ],
@@ -1180,18 +1180,6 @@
     "miguel-milagros": [
       {
         "role": "user",
-        "content": "hola",
-        "timestamp": 1744318219892,
-        "userName": "Miguel"
-      },
-      {
-        "role": "assistant",
-        "content": "¡Hola, Miguel, loco! 😎 ¿Qué onda, crack? 💪",
-        "timestamp": 1744318220648,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
         "content": "justo a tiempo",
         "timestamp": 1744318224736,
         "userName": "Miguel"
@@ -1416,6 +1404,18 @@
         "role": "assistant",
         "content": "¡Che, Miguel, loco! 😎  Ah, sí, la celebración… ¿cómo estuvo? 😅  Contame qué onda, que te escucho.  💪",
         "timestamp": 1744729200844,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "me quedé dormida escuchando la música y al final no asistí a una clase de consulta!",
+        "timestamp": 1744759802183,
+        "userName": "Milagros"
+      },
+      {
+        "role": "assistant",
+        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨  ¡Qué bajón que te hayas quedado dormida!  Pero che,  no te preocupes demasiado,  a veces pasa.  Escuchar música relaja un montón,  posta.  😅 ¿Podrás recuperar esa clase de consulta de alguna manera?  Quizás hablando con el profesor o revisando los materiales. ¡Sos una genia, igual! 💪  ¡Toda la vibra pa’ vos, grosa! ✨",
+        "timestamp": 1744759803433,
         "userName": "Oliver"
       }
     ]
