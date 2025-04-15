@@ -581,7 +581,8 @@
     "reminder_1343749554905940058": 1743901240312,
     "util_1343749554905940058": 1744650639848,
     "reminder_1343749554905940058_22": 1744592459968,
-    "reminder_1343749554905940058_23": 1744682447051
+    "reminder_1343749554905940058_23": 1744682447051,
+    "reminder_1343749554905940058_0": 1744686047066
   },
   "utilMessageReactions": {
     "1343749554905940058": 1742417343374
@@ -683,6 +684,19 @@
       "esRecurrente": true,
       "hora": 7,
       "minutos": 0
+    },
+    {
+      "id": "5af98cab-e5cb-4fa9-971c-def7b30e8ea6",
+      "userId": "1023132788632862761",
+      "channelId": "1343749554905940058",
+      "mensaje": "despiértame",
+      "cuandoLlegue": false,
+      "cuandoSalga": false,
+      "timestamp": 1744708820179,
+      "creado": 1744687220179,
+      "esRecurrente": false,
+      "hora": null,
+      "minutos": null
     }
   ],
   "usedJokes": {
