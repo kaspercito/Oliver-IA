@@ -4132,11 +4132,11 @@ async function manejarPlay(message, args) {
         console.log(`Nuevo reproductor creado para guild ${guildId}`);
     } else {
         // Limpiar estado si está detenido o pausado
-        if (!player.playing && (player.paused || player.get('trackEnded'))) {
+        if (!player.playing) {
             player.queue.clear();
             player.set('trackEnded', false);
             player.set('currentTrack', null);
-            player.pause(false); // Despausar para preparar reproducción
+            player.pause(false);
             console.log(`Reproductor limpiado para guild ${guildId}`);
         }
     }
@@ -4224,7 +4224,7 @@ async function manejarPlay(message, args) {
             await message.channel.send({ embeds: [embed] });
         } else {
             const track = res.tracks[0];
-            // Validación ultra flexible
+            // Validación mínima
             if (!track || !track.uri) {
                 console.error('Pista inválida:', JSON.stringify(track));
                 const embed = createEmbed('#FF1493', '⚠️ Error', 
@@ -4257,10 +4257,7 @@ async function manejarPlay(message, args) {
         if (!player.playing && player.queue.size > 0) {
             console.log(`Reproduciendo: ${player.queue[0]?.title || 'sin título'}`);
             try {
-                if (player.paused) {
-                    player.pause(false);
-                    console.log('Reproductor reanudado.');
-                }
+                player.pause(false); // Asegurar que no esté pausado
                 await player.play();
                 console.log('Reproducción iniciada.');
             } catch (error) {
@@ -4374,7 +4371,8 @@ async function manejarStop(message) {
     player.stop();
     player.set('currentTrack', null);
     player.set('trackEnded', true);
-    player.pause(true); // Pausar explícitamente
+    player.pause(true);
+    player.set('stoppedByUser', true); // Marcar que fue un stop intencional
 
     // Limpiar la sesión de música en dataStore
     if (dataStore.musicSessions[message.guild.id]) {
@@ -5828,7 +5826,13 @@ manager.on('queueEnd', async player => {
     const channel = client.channels.cache.get(player.textChannel);
     const guildId = player.guild;
     const autoplay = dataStore.musicSessions[guildId]?.autoplay || false;
-    const userName = player.queue.current?.requester?.id === OWNER_ID ? 'Miguel' : 'Belén';
+
+    // Evitar queueEnd si el usuario ejecutó !stop
+    if (player.get('stoppedByUser')) {
+        console.log(`queueEnd ignorado en guild ${guildId} porque fue un !stop.`);
+        player.set('stoppedByUser', false);
+        return;
+    }
 
     console.log(`Cola terminó en guild ${guildId}. Autoplay: ${autoplay}, Tracks en cola: ${player.queue.size}`);
 
@@ -5849,7 +5853,7 @@ manager.on('queueEnd', async player => {
                 player.play();
                 console.log(`Autoplay agregó: ${nextTrack.title}`);
                 const embed = createEmbed('#FF1493', '🎵 Autoplay en acción!', 
-                    `Añadí **${nextTrack.title}**, ${userName}. ¡Seguimos!`);
+                    `Añadí **${nextTrack.title}**. ¡Seguimos!`);
                 await channel.send({ embeds: [embed] });
             } else {
                 throw new Error('No se encontraron temas relacionados.');
@@ -5857,13 +5861,13 @@ manager.on('queueEnd', async player => {
         } catch (error) {
             console.error(`Error en autoplay: ${error.message}`);
             const embed = createEmbed('#FF1493', '⚠️ Autoplay pausado', 
-                `No encontré más temas, ${userName}. El bot sigue en el canal.`);
+                `No encontré más temas. El bot sigue en el canal.`);
             await channel.send({ embeds: [embed] });
         }
     } else if (channel) {
         console.log('Cola terminó sin autoplay.');
         const embed = createEmbed('#FF1493', '🏁 Cola terminada', 
-            `No hay más temas, ${userName}. ¡Agregá algo con !play!`);
+            `No hay más temas. ¡Agregá algo con !play!`);
         await channel.send({ embeds: [embed] });
     }
 });
@@ -5875,14 +5879,10 @@ manager.on('trackStart', async (player, track) => {
         return;
     }
 
-    const currentTrack = player.get('currentTrack');
-    if (currentTrack === track.uri) {
-        console.log(`Pista ${track.title} ya está en reproducción, ignorando trackStart. URI: ${track.uri}`);
-        return;
-    }
     console.log(`trackStart para ${track.title}, URI: ${track.uri}, seteando como pista actual.`);
     player.set('currentTrack', track.uri);
     player.set('trackEnded', false);
+    player.set('stoppedByUser', false); // Resetear bandera de stop
 
     console.log(`Iniciando pista: ${track.title} en guild ${player.guild}, queue.size=${player.queue.size}`);
 
@@ -5942,30 +5942,25 @@ manager.on('trackEnd', (player, track) => {
     console.log(`trackEnd disparado para: ${track.title}, guild: ${player.guild}, queue.size: ${player.queue.size}, URI: ${track.uri}`);
     const intervalo = player.get('progressInterval');
     const progressMessage = player.get('progressMessage');
-    const userName = track.requester.id === OWNER_ID ? 'Miguel' : 'Belén';
-    const currentTrackUri = player.get('currentTrack');
 
-    // Verificación estricta: solo procesamos si es la pista actual y no terminó antes
-    if (player.get('trackEnded') || (currentTrackUri && currentTrackUri !== track.uri)) {
-        console.log(`Ignorando trackEnd para ${track.title}. Ya terminó o no es la pista actual (current: ${currentTrackUri}).`);
+    if (player.get('trackEnded') || player.get('stoppedByUser')) {
+        console.log(`Ignorando trackEnd para ${track.title}. Ya terminó o fue detenido por usuario.`);
         return;
     }
     console.log(`Procesando trackEnd para ${track.title}, marcando como terminado.`);
     player.set('trackEnded', true);
 
-    // Actualizamos el embed al 100%
     if (progressMessage && track) {
         const durationStr = `${Math.floor(track.duration / 60000)}:${((track.duration % 60000) / 1000).toFixed(0).padStart(2, '0')}`;
         const bossBar = crearBossBar(track.duration, track.duration);
 
-        const finalEmbed = createEmbed('#FF1493', `🎶 Tema terminado pa’ ${userName}`, '¡Ya fue, che!')
+        const finalEmbed = createEmbed('#FF1493', `🎶 Tema terminado`, '¡Ya fue, che!')
             .addFields(
                 { name: '⏹️ Terminado', value: `**${track.title}**`, inline: false },
                 { name: '⏳ Duración', value: durationStr, inline: true },
                 { name: '📊 Progreso', value: `${bossBar} ${durationStr} / ${durationStr}`, inline: true }
             )
             .setThumbnail(track.thumbnail || 'https://i.imgur.com/defaultThumbnail.png')
-            .setFooter({ text: `Oliver IA - Música con onda | Pedido por ${userName}`, iconURL: client.user.avatarURL() })
             .setTimestamp();
 
         progressMessage.edit({ embeds: [finalEmbed] }).catch(err => console.error('Error editando embed final:', err));
