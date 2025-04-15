@@ -4088,14 +4088,14 @@ async function manejarPlay(message, args) {
 
     if (!args || args.length === 0) {
         const embed = createEmbed('#FF1493', '🎶 Bot en llamada', 
-            `Ya estoy en el canal de voz, ${userName}. Mandame una canción con !play cuando quieras.`);
+            `Ya estoy en el canal de voz, ${userName}. Mandame una canción o podcast con !play cuando quieras.`);
         return await message.channel.send({ embeds: [embed] });
     }
 
     // Verificar o establecer la conexión de voz
     let connection = getVoiceConnection(guildId);
     if (!connection || connection.joinConfig.channelId !== voiceChannel.id) {
-        if (connection) connection.destroy(); // Si está en otro canal, desconectamos primero
+        if (connection) connection.destroy();
         connection = joinVoiceChannel({
             channelId: voiceChannel.id,
             guildId: guildId,
@@ -4104,7 +4104,6 @@ async function manejarPlay(message, args) {
             selfMute: false,
         });
 
-        // Manejo robusto de desconexiones
         connection.on('stateChange', (oldState, newState) => {
             console.log(`Estado de conexión cambió de ${oldState.status} a ${newState.status}`);
             if (newState.status === 'disconnected') {
@@ -4157,7 +4156,23 @@ async function manejarPlay(message, args) {
     const searchQuery = args.join(' ');
     let res;
     try {
-        res = await manager.search(searchQuery, message.author);
+        // Detectar si es un podcast
+        const isPodcast = args[0].toLowerCase() === 'podcast' || searchQuery.includes('spotify.com/show') || searchQuery.includes('spotify.com/episode');
+        let query = searchQuery;
+
+        if (isPodcast) {
+            // Si se especifica "podcast", quitamos la palabra para la búsqueda
+            if (args[0].toLowerCase() === 'podcast') {
+                query = args.slice(1).join(' ');
+            }
+            // Agregamos prefijo para buscar específicamente podcasts en Spotify
+            query = `show:${query}`;
+            console.log(`Buscando podcast: ${query}`);
+        } else {
+            console.log(`Buscando música o podcast: ${query}`);
+        }
+
+        res = await manager.search(query, message.author);
     } catch (error) {
         console.error(`Error en búsqueda: ${error.message}`);
         const embed = createEmbed('#FF1493', '⚠️ Error', 
@@ -4167,7 +4182,7 @@ async function manejarPlay(message, args) {
 
     if (res.loadType === 'NO_MATCHES' || res.tracks.length === 0) {
         const embed = createEmbed('#FF1493', '❌ No encontré nada', 
-            `No encontré nada con "${searchQuery}", ${userName}. Probá con otro tema.`);
+            `No encontré nada con "${searchQuery}", ${userName}. Probá con otro tema o podcast.`);
         return await message.channel.send({ embeds: [embed] });
     }
 
@@ -4178,19 +4193,26 @@ async function manejarPlay(message, args) {
             .setThumbnail(res.tracks[0].thumbnail || 'https://i.imgur.com/defaultThumbnail.png');
         await message.channel.send({ embeds: [embed] });
     } else {
-        const trackUri = res.tracks[0].uri;
-        const isAlreadyInQueue = player.queue.some(track => track.uri === trackUri);
+        const track = res.tracks[0];
+        const isPodcast = track.uri.includes('spotify:episode') || track.uri.includes('spotify:show');
+        const trackUri = track.uri;
+        const isAlreadyInQueue = player.queue.some(t => t.uri === trackUri);
         let embed;
 
         if (isAlreadyInQueue) {
-            embed = createEmbed('#FF1493', '🎵 Tema ya en cola', 
-                `**${res.tracks[0].title}** ya está en la cola, ${userName}.`);
+            embed = createEmbed('#FF1493', isPodcast ? '🎙️ Podcast ya en cola' : '🎵 Tema ya en cola', 
+                `**${track.title}** ya está en la cola, ${userName}.`);
         } else {
-            player.queue.add(res.tracks[0]);
-            embed = createEmbed('#FF1493', '🎶 Tema agregado', 
-                `Agregué **${res.tracks[0].title}** a la cola, ${userName}.`);
+            player.queue.add(track);
+            embed = createEmbed('#FF1493', isPodcast ? '🎙️ Podcast agregado' : '🎶 Tema agregado', 
+                isPodcast 
+                    ? `Agregué el podcast **${track.title}** a la cola, ${userName}.`
+                    : `Agregué **${track.title}** a la cola, ${userName}.`);
         }
-        embed.setThumbnail(res.tracks[0].thumbnail || 'https://i.imgur.com/defaultThumbnail.png');
+        embed.setThumbnail(track.thumbnail || 'https://i.imgur.com/defaultThumbnail.png');
+        if (isPodcast && track.description) {
+            embed.setDescription(track.description.length > 200 ? track.description.substring(0, 197) + '...' : track.description);
+        }
         await message.channel.send({ embeds: [embed] });
     }
 
@@ -4202,7 +4224,7 @@ async function manejarPlay(message, args) {
         } catch (error) {
             console.error(`Error al reproducir: ${error.message}`);
             const embed = createEmbed('#FF1493', '⚠️ Error', 
-                `No pude reproducir el tema, ${userName}. Error: ${error.message}. El bot sigue en ${voiceChannel.name}.`);
+                `No pude reproducir el tema o podcast, ${userName}. Error: ${error.message}. El bot sigue en ${voiceChannel.name}.`);
             await message.channel.send({ embeds: [embed] });
         }
     } else {
