@@ -6702,6 +6702,7 @@ client.on('messageCreate', async (message) => {
         const embed = createEmbed('#FF1493', `¡Comandos de música para vos, ${userName}!`,
             '¡Poné el ritmo con estos comandos, loco!\n' +
             '- **!pl / !play [canción/URL]**: Tiro un tema para que suene.\n' +
+            '- **!pl podcast / !play podcast [nombre]**: Pon el nombre de un podcast para reproducirlo.\n' +
             '- **!pa / !pause**: Pauso o sigo la música, vos elegís.\n' +
             '- **!sh / !shuffle**: Mezclo toda la lista de reproducción.\n' +
             '- **!sk / !skip**: Salto al próximo tema, al toque.\n' +
