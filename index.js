@@ -4131,11 +4131,12 @@ async function manejarPlay(message, args) {
         });
         console.log(`Nuevo reproductor creado para guild ${guildId}`);
     } else {
-        // Asegurar que el reproductor esté limpio después de !stop
+        // Limpiar estado si está detenido o pausado
         if (!player.playing && (player.paused || player.get('trackEnded'))) {
             player.queue.clear();
             player.set('trackEnded', false);
             player.set('currentTrack', null);
+            player.pause(false); // Despausar para preparar reproducción
             console.log(`Reproductor limpiado para guild ${guildId}`);
         }
     }
@@ -4223,7 +4224,7 @@ async function manejarPlay(message, args) {
             await message.channel.send({ embeds: [embed] });
         } else {
             const track = res.tracks[0];
-            // Validación más flexible
+            // Validación ultra flexible
             if (!track || !track.uri) {
                 console.error('Pista inválida:', JSON.stringify(track));
                 const embed = createEmbed('#FF1493', '⚠️ Error', 
@@ -4369,11 +4370,11 @@ async function manejarStop(message) {
     if (!player) return sendError(message.channel, `No hay música en reproducción, ${userName}.`);
 
     // Limpiar la cola y detener la reproducción
-    player.queue.clear(); // Borra todos los temas en la cola
-    player.stop(); // Para el tema actual
-    player.set('currentTrack', null); // Limpia la pista actual
-    player.set('trackEnded', true); // Marca como terminado
-    player.pause(true); // Pausa el reproductor para evitar que intente reproducir algo
+    player.queue.clear();
+    player.stop();
+    player.set('currentTrack', null);
+    player.set('trackEnded', true);
+    player.pause(true); // Pausar explícitamente
 
     // Limpiar la sesión de música en dataStore
     if (dataStore.musicSessions[message.guild.id]) {
@@ -4381,7 +4382,6 @@ async function manejarStop(message) {
         dataStoreModified = true;
     }
     
-    // NO destruir el reproductor para mantener la conexión de voz
     console.log(`Música detenida en guild ${message.guild.id}, reproductor pausado`);
 
     await sendSuccess(message.channel, '🛑 ¡Música detenida!', 
