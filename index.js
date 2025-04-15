@@ -4157,87 +4157,43 @@ async function manejarPlay(message, args) {
     const searchQuery = args.join(' ');
     let res;
     try {
-        console.log(`Iniciando búsqueda para: ${searchQuery}`);
-        if (searchQuery.includes('open.spotify.com')) {
-            if (searchQuery.includes('/show/') || searchQuery.includes('/episode/')) {
-                console.log(`Detectado enlace de podcast/episodio: ${searchQuery}`);
-                res = await manager.search(searchQuery, message.author);
-            } else {
-                console.log(`Detectado enlace de playlist/pista: ${searchQuery}`);
-                res = await manager.search(searchQuery, message.author);
-            }
-        } else {
-            console.log(`Búsqueda por término: ${searchQuery}`);
-            res = await manager.search(searchQuery, message.author);
-        }
-        if (!res) {
-            console.error('La búsqueda devolvió undefined/null');
-            const embed = createEmbed('#FF1493', '⚠️ Error interno', 
-                `Algo salió mal al buscar "${searchQuery}", ${userName}. Probá de nuevo más tarde.`);
-            return await message.channel.send({ embeds: [embed] });
-        }
-        console.log('Detalles de la búsqueda:', {
-            loadType: res.loadType,
-            tracks: res.tracks?.map(t => t.title) || [],
-            exception: res.exception ? JSON.stringify(res.exception, null, 2) : 'ninguna',
-        });
-    
-        // Manejar LOAD_FAILED explícitamente
-        if (res.loadType === 'LOAD_FAILED') {
-            console.error('Búsqueda fallida:', res.exception);
-            const embed = createEmbed('#FF1493', '⚠️ Error al cargar', 
-                `No pude cargar "${searchQuery}", ${userName}. Razón: ${res.exception?.message || 'Desconocida'}. Probá con otro episodio.`);
-            return await message.channel.send({ embeds: [embed] });
-        }
+        res = await manager.search(searchQuery, message.author);
     } catch (error) {
-        console.error(`Error en búsqueda de "${searchQuery}": ${error.message}`);
-        console.error('Stack trace:', error.stack);
-        let errorMessage = 'Desconocido';
-        if (error.message.includes('401') || error.message.includes('token')) {
-            errorMessage = 'Problema de autenticación con Spotify. Contactá al admin.';
-        } else if (error.message.includes('429')) {
-            errorMessage = 'Demasiadas solicitudes a Spotify. Esperá un poco.';
-        } else if (error.message.includes('404')) {
-            errorMessage = 'El episodio no está disponible o no existe.';
-        }
+        console.error(`Error en búsqueda: ${error.message}`);
         const embed = createEmbed('#FF1493', '⚠️ Error', 
-            `No pude buscar "${searchQuery}", ${userName}. Error: ${errorMessage}. Probá de nuevo o con otro enlace.`);
+            `No pude buscar "${searchQuery}", ${userName}. Error: ${error.message}`);
         return await message.channel.send({ embeds: [embed] });
     }
+
     if (res.loadType === 'NO_MATCHES' || res.tracks.length === 0) {
         const embed = createEmbed('#FF1493', '❌ No encontré nada', 
             `No encontré nada con "${searchQuery}", ${userName}. Probá con otro tema.`);
         return await message.channel.send({ embeds: [embed] });
     }
-    if (res.loadType === 'NO_MATCHES' || res.tracks.length === 0) {
-    const embed = createEmbed('#FF1493', '❌ No encontré nada', 
-        `No encontré nada con "${searchQuery}", ${userName}. Probá con otro tema o podcast.`);
-    return await message.channel.send({ embeds: [embed] });
-    }
-    if (res.loadType === 'PLAYLIST_LOADED' || res.loadType === 'SHOW_LOADED') {
-        // Manejar tanto playlists como shows de podcasts
+
+    if (res.loadType === 'PLAYLIST_LOADED') {
         player.queue.add(res.tracks);
-        const embed = createEmbed('#FF1493', res.loadType === 'SHOW_LOADED' ? '🎙️ Podcast agregado' : '🎶 Playlist agregada', 
-            `Agregué ${res.tracks.length} ${res.loadType === 'SHOW_LOADED' ? 'episodios' : 'temas'} a la cola, ${userName}. ¡A disfrutar!`)
+        const embed = createEmbed('#FF1493', '🎶 Playlist agregada', 
+            `Agregué ${res.tracks.length} temas a la cola, ${userName}. ¡A disfrutar!`)
             .setThumbnail(res.tracks[0].thumbnail || 'https://i.imgur.com/defaultThumbnail.png');
         await message.channel.send({ embeds: [embed] });
     } else {
         const trackUri = res.tracks[0].uri;
         const isAlreadyInQueue = player.queue.some(track => track.uri === trackUri);
         let embed;
-    
+
         if (isAlreadyInQueue) {
-            embed = createEmbed('#FF1493', res.loadType === 'TRACK_LOADED' && searchQuery.includes('/episode/') ? '🎙️ Episodio ya en cola' : '🎵 Tema ya en cola', 
+            embed = createEmbed('#FF1493', '🎵 Tema ya en cola', 
                 `**${res.tracks[0].title}** ya está en la cola, ${userName}.`);
         } else {
             player.queue.add(res.tracks[0]);
-            embed = createEmbed('#FF1493', res.loadType === 'TRACK_LOADED' && searchQuery.includes('/episode/') ? '🎙️ Episodio agregado' : '🎶 Tema agregado', 
+            embed = createEmbed('#FF1493', '🎶 Tema agregado', 
                 `Agregué **${res.tracks[0].title}** a la cola, ${userName}.`);
         }
         embed.setThumbnail(res.tracks[0].thumbnail || 'https://i.imgur.com/defaultThumbnail.png');
         await message.channel.send({ embeds: [embed] });
     }
-    
+
     if (!player.playing && !player.paused) {
         console.log(`Forzando reproducción de ${player.queue[0]?.title || 'sin título'}`);
         try {
@@ -5812,27 +5768,12 @@ manager.on('queueEnd', async player => {
     if (autoplay && channel) {
         try {
             let trackIdentifier = player.queue.current?.identifier || player.queue.previous?.identifier;
-            let isPodcast = player.queue.current?.uri?.includes('episode') || player.queue.previous?.uri?.includes('episode');
-            let searchQuery;
-
-            if (isPodcast) {
-                // Si es un podcast, buscamos más episodios del mismo show
-                const showId = player.queue.current?.show?.id || player.queue.previous?.show?.id;
-                if (!showId) throw new Error('No se encontró el ID del show.');
-                searchQuery = `spotify:show:${showId}`;
-                console.log(`Autoplay para podcast, buscando más episodios del show ${showId}`);
-            } else {
-                // Si es música, buscamos pistas relacionadas
-                searchQuery = `related:${trackIdentifier}`;
-                console.log(`Autoplay para música, buscando pistas relacionadas con ${trackIdentifier}`);
-            }
-
-            if (!trackIdentifier && !searchQuery) {
-                console.log('No hay identifier o show disponible para autoplay.');
+            if (!trackIdentifier) {
+                console.log('No hay identifier disponible para autoplay.');
                 throw new Error('Sin pistas recientes para continuar.');
             }
 
-            const related = await manager.search(searchQuery, client.user);
+            const related = await manager.search(`related:${trackIdentifier}`, client.user);
             console.log(`Búsqueda relacionada: ${related.loadType}, tracks: ${related.tracks.length}`);
 
             if (related.tracks.length > 0) {
@@ -5840,22 +5781,22 @@ manager.on('queueEnd', async player => {
                 player.queue.add(nextTrack);
                 player.play();
                 console.log(`Autoplay agregó: ${nextTrack.title}`);
-                const embed = createEmbed('#FF1493', isPodcast ? '🎙️ Autoplay de podcast' : '🎵 Autoplay en acción!', 
+                const embed = createEmbed('#FF1493', '🎵 Autoplay en acción!', 
                     `Añadí **${nextTrack.title}**, ${userName}. ¡Seguimos!`);
                 await channel.send({ embeds: [embed] });
             } else {
-                throw new Error('No se encontraron temas o episodios relacionados.');
+                throw new Error('No se encontraron temas relacionados.');
             }
         } catch (error) {
             console.error(`Error en autoplay: ${error.message}`);
             const embed = createEmbed('#FF1493', '⚠️ Autoplay pausado', 
-                `No encontré más temas o episodios, ${userName}. El bot sigue en el canal.`);
+                `No encontré más temas, ${userName}. El bot sigue en el canal.`);
             await channel.send({ embeds: [embed] });
         }
     } else if (channel) {
         console.log('Cola terminó sin autoplay.');
         const embed = createEmbed('#FF1493', '🏁 Cola terminada', 
-            `No hay más temas o episodios, ${userName}. ¡Agregá algo con !play!`);
+            `No hay más temas, ${userName}. ¡Agregá algo con !play!`);
         await channel.send({ embeds: [embed] });
     }
 });
@@ -5883,14 +5824,11 @@ manager.on('trackStart', async (player, track) => {
     const durationFormatted = `${Math.floor(durationSeconds / 60)}:${(durationSeconds % 60).toString().padStart(2, '0')}`;
 
     let thumbnail = track.thumbnail;
-    if (!thumbnail && track.uri?.includes('spotify')) {
-        console.log(`Thumbnail no disponible, intentando fallback para ${track.uri}`);
-        if (track.uri.includes('episode')) {
-            // Para episodios de podcast, usar la imagen del show si está disponible
-            thumbnail = track.show?.thumbnail || 'https://i.imgur.com/defaultPodcastThumbnail.png';
-        } else {
-            thumbnail = `https://img.youtube.com/vi/${track.identifier}/hqdefault.jpg`;
-        }
+    if (!thumbnail && track.uri && track.uri.includes('spotify')) {
+        console.log(`Thumbnail no disponible, intentando con Spotify para ${track.uri}`);
+    }
+    if (!thumbnail && track.identifier) {
+        thumbnail = `https://img.youtube.com/vi/${track.identifier}/hqdefault.jpg`;
     }
     if (!thumbnail) {
         thumbnail = 'https://i.imgur.com/defaultThumbnail.png';
@@ -5908,7 +5846,7 @@ manager.on('trackStart', async (player, track) => {
         const emptyBars = totalBars - filledBars;
         const bossBar = '▬'.repeat(filledBars) + '🔘' + '▬'.repeat(emptyBars);
 
-        const embed = createEmbed('#FF1493', track.uri.includes('episode') ? '🎙️ Reproduciendo podcast' : '▶️ Sonando ahora',
+        const embed = createEmbed('#FF1493', '▶️ Sonando ahora',
             `**${track.title}**\n⏳ Duración: ${durationFormatted}\n📊 Progreso: ${bossBar} ${positionFormatted} / ${durationFormatted}`)
             .setThumbnail(thumbnail);
         return embed;
