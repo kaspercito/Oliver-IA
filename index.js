@@ -28,7 +28,6 @@ const client = new Client({
 });
 
 const discordTogether = new DiscordTogether(client);
-// Definición de constantes importantes
 const OWNER_ID = '752987736759205960'; // ID del dueño del bot (probablemente el desarrollador).
 const ALLOWED_USER_ID = '1023132788632862761'; // ID de un usuario permitido (Belén, en este caso).
 const CHANNEL_ID = '1343749554905940058'; // ID del canal principal donde el bot interactúa.
