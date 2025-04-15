@@ -4153,20 +4153,38 @@ async function manejarPlay(message, args) {
         return await message.channel.send({ embeds: [embed] });
     }
 
-    const searchQuery = args.join(' ');
+    const searchQuery = args.join(' ').trim();
     let res;
     try {
-        // Detectar si es un podcast
-        const isPodcast = args[0].toLowerCase() === 'podcast' || searchQuery.includes('spotify.com/show') || searchQuery.includes('spotify.com/episode');
         let query = searchQuery;
+        let isPodcast = false;
 
-        if (isPodcast) {
-            // Si se especifica "podcast", quitamos la palabra para la búsqueda
-            if (args[0].toLowerCase() === 'podcast') {
-                query = args.slice(1).join(' ');
+        // Detectar si es una URL de Spotify
+        if (searchQuery.includes('open.spotify.com')) {
+            // Extraer el tipo y ID de la URL
+            const urlMatch = searchQuery.match(/(episode|show|track)\/([a-zA-Z0-9]+)/);
+            if (urlMatch) {
+                const type = urlMatch[1];
+                const id = urlMatch[2];
+                if (type === 'episode') {
+                    query = `spotify:episode:${id}`;
+                    isPodcast = true;
+                    console.log(`Procesando episodio de Spotify: ${query}`);
+                } else if (type === 'show') {
+                    query = `show:${id}`;
+                    isPodcast = true;
+                    console.log(`Procesando show de Spotify: ${query}`);
+                } else if (type === 'track') {
+                    query = `spotify:track:${id}`;
+                    console.log(`Procesando pista de Spotify: ${query}`);
+                }
+            } else {
+                throw new Error('URL de Spotify no válida.');
             }
-            // Agregamos prefijo para buscar específicamente podcasts en Spotify
-            query = `show:${query}`;
+        } else if (args[0].toLowerCase() === 'podcast') {
+            // Búsqueda de podcast por nombre
+            query = `show:${args.slice(1).join(' ')}`;
+            isPodcast = true;
             console.log(`Buscando podcast: ${query}`);
         } else {
             console.log(`Buscando música o podcast: ${query}`);
@@ -4176,13 +4194,13 @@ async function manejarPlay(message, args) {
     } catch (error) {
         console.error(`Error en búsqueda: ${error.message}`);
         const embed = createEmbed('#FF1493', '⚠️ Error', 
-            `No pude buscar "${searchQuery}", ${userName}. Error: ${error.message}`);
+            `No pude buscar "${searchQuery}", ${userName}. Error: ${error.message}. Asegurate de que la URL o el nombre sean correctos.`);
         return await message.channel.send({ embeds: [embed] });
     }
 
     if (res.loadType === 'NO_MATCHES' || res.tracks.length === 0) {
         const embed = createEmbed('#FF1493', '❌ No encontré nada', 
-            `No encontré nada con "${searchQuery}", ${userName}. Probá con otro tema o podcast.`);
+            `No encontré nada con "${searchQuery}", ${userName}. Probá con otro tema, episodio o podcast.`);
         return await message.channel.send({ embeds: [embed] });
     }
 
