@@ -4179,8 +4179,16 @@ async function manejarPlay(message, args) {
         console.log('Detalles de la búsqueda:', {
             loadType: res.loadType,
             tracks: res.tracks?.map(t => t.title) || [],
-            exception: res.exception ? JSON.stringify(res.exception) : 'ninguna',
+            exception: res.exception ? JSON.stringify(res.exception, null, 2) : 'ninguna',
         });
+    
+        // Manejar LOAD_FAILED explícitamente
+        if (res.loadType === 'LOAD_FAILED') {
+            console.error('Búsqueda fallida:', res.exception);
+            const embed = createEmbed('#FF1493', '⚠️ Error al cargar', 
+                `No pude cargar "${searchQuery}", ${userName}. Razón: ${res.exception?.message || 'Desconocida'}. Probá con otro episodio.`);
+            return await message.channel.send({ embeds: [embed] });
+        }
     } catch (error) {
         console.error(`Error en búsqueda de "${searchQuery}": ${error.message}`);
         console.error('Stack trace:', error.stack);
