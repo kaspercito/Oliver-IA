@@ -29,7 +29,7 @@ const client = new Client({
 
 const discordTogether = new DiscordTogether(client);
 const OWNER_ID = '752987736759205960'; // ID del dueño del bot (probablemente el desarrollador).
-const ALLOWED_USER_ID = '752987736759205960'; // ID de un usuario permitido (Belén, en este caso).
+const ALLOWED_USER_ID = '1023132788632862761'; // ID de un usuario permitido (Belén, en este caso).
 const CHANNEL_ID = '1343749554905940058'; // ID del canal principal donde el bot interactúa.
 const API_URL = 'https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-2-1'; // URL de la API de Stable Diffusion para generar imágenes.
 const API_TOKEN = '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'; // Token de autenticación para la API de Hugging Face.
