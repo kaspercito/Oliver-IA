@@ -3,42 +3,6 @@
     "1023132788632862761": [
       {
         "role": "user",
-        "content": "si pero ahora me voy a dormir, tremendo malestar",
-        "timestamp": 1744305628743,
-        "userName": "Milagros"
-      },
-      {
-        "role": "assistant",
-        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨  Che,  que descanses un montón, grosa 💪.  Necesitás dormir para que se te pase ese malestar, posta.  ¡Que duermas como un angelito y mañana estés mucho mejor! 😊  Te mando un abrazo gigante lleno de buena onda y muchos mimos para que te recuperes rapidísimo, estrella! ✨😘  ¡A soñar lindo! 😴",
-        "timestamp": 1744305630026,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
-        "content": "mi día finalizó, despiértame en 6 horas",
-        "timestamp": 1744514660167,
-        "userName": "Milagros"
-      },
-      {
-        "role": "assistant",
-        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨ ¡Dale que ya te dormís!  😴  Que descanses un montón, genia,  y que tengas unos sueños hermosos ✨.  Te despierto en 6 horas,  che. 😘  ¡A soñar lindo, estrella! ✨",
-        "timestamp": 1744514661111,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
-        "content": "me da igual que me odien personas que ni conozco, jamás me importó ni cuando estuvimos juntos\n- 'te haces la ciega' ciega con qué? yo no necesito abrir los ojos con nada, los abrí ese día y bastó para darme cuenta de que yo no merecía eso, no merecía que me mintieras, no merecía que no pensaras en que me harías daño haciendo esa estupidez, con darme cuenta de eso me bastó",
-        "timestamp": 1744591730579,
-        "userName": "Milagros"
-      },
-      {
-        "role": "assistant",
-        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨  ¡Mirá vos lo que decís, genia! 💪  Está buenísimo que puedas poner límites y que te des cuenta de lo que merecés.  😎  ¡Sos una grosa por priorizar tu bienestar y por no dejar que te afecten las opiniones de gente que ni conocés! ✨  Esa fuerza que tenés es increíble.  😘  ¿Y qué onda ahora?  ¿Qué vas a hacer?  Te mando un abrazo enorme lleno de buena onda y muchos mimos para vos. 😘",
-        "timestamp": 1744591731948,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
         "content": "por qué cuando enciendo la pc solo se me prende una pantalla cuando tengo dos?",
         "timestamp": 1744592932662,
         "userName": "Milagros"
@@ -119,6 +83,42 @@
         "role": "assistant",
         "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨  ¡Qué bajón que te hayas quedado dormida!  Pero che,  no te preocupes demasiado,  a veces pasa.  Escuchar música relaja un montón,  posta.  😅 ¿Podrás recuperar esa clase de consulta de alguna manera?  Quizás hablando con el profesor o revisando los materiales. ¡Sos una genia, igual! 💪  ¡Toda la vibra pa’ vos, grosa! ✨",
         "timestamp": 1744759803433,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "hola?",
+        "timestamp": 1744826223660,
+        "userName": "Milagros"
+      },
+      {
+        "role": "assistant",
+        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨  ¡Hola, genia! ¿Qué onda? 😊",
+        "timestamp": 1744826224516,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "tengo una tv que cuando la enciendo hace ruido pero cuando pongo un canal, no tiene volumen, sabes por qué?",
+        "timestamp": 1744826272923,
+        "userName": "Milagros"
+      },
+      {
+        "role": "assistant",
+        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨  Che, qué bajón eso de la tele, ¡posta!  🤔  Que hace ruido al encenderse pero después no tiene volumen cuando pones un canal…  Puede ser varias cosas, loco.  A veces es el volumen mismo de la tele que está bajado al mínimo, o puede que haya algún problema con los parlantes o la conexión de audio.  😅 ¿Probaste revisar eso?  Si sigue igual, capaz que necesita una revisada más a fondo. ¡Sos una genia, igual! 💪 ¡A meterle pilas, rata blanca! ✨",
+        "timestamp": 1744826274827,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "ya intenté todo eso pero nada de nada, pero se ve que es algo de configuración porque la y tv tiene sonido",
+        "timestamp": 1744826353813,
+        "userName": "Milagros"
+      },
+      {
+        "role": "assistant",
+        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨\n\nChe,  si ya revisaste todo y la tele tiene sonido pero no sale por los parlantes cuando pones un canal…  🤔  ¡posta que es raro!  Puede ser alguna configuración medio escondida,  o algún setting que se haya modificado sin querer.  😅  A veces, las TVs tienen opciones de salida de audio que se pueden cambiar (como salida óptica, HDMI ARC, etc.), capaz hay que revisar eso. Si no encontrás nada,  quizás podrías buscar en internet el modelo de tu tele y \"problemas de audio\"  para ver si hay algún tutorial o solución específica.  ¡Sos una genia, igual! 💪 ¡Toda la vibra pa’ vos, grosa! ✨",
+        "timestamp": 1744826355573,
         "userName": "Oliver"
       }
     ],
@@ -653,7 +653,7 @@
       "mensaje": "tomar la pastilla rosada todos los días",
       "cuandoLlegue": false,
       "cuandoSalga": false,
-      "timestamp": 1744815600000,
+      "timestamp": 1744902000000,
       "creado": 1743208770439,
       "esRecurrente": true,
       "hora": 12,
@@ -1180,42 +1180,6 @@
     "miguel-milagros": [
       {
         "role": "user",
-        "content": "justo a tiempo",
-        "timestamp": 1744318224736,
-        "userName": "Miguel"
-      },
-      {
-        "role": "assistant",
-        "content": "¡Hola, Miguel, loco! 😎 Justo a tiempo para qué, crack? 💪 Contame qué onda. ✨",
-        "timestamp": 1744318225565,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
-        "content": "justo a tiempo",
-        "timestamp": 1744318694506,
-        "userName": "Miguel"
-      },
-      {
-        "role": "assistant",
-        "content": "¡Hola, Miguel, loco! 😎 Justo a tiempo para... ¿qué onda?  Contame, crack, que te escucho. ✨💪",
-        "timestamp": 1744318695311,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
-        "content": "gracias, justo a tiempo",
-        "timestamp": 1744318710214,
-        "userName": "Miguel"
-      },
-      {
-        "role": "assistant",
-        "content": "¡Hola, Miguel, loco! 😎  ¡De nada, crack! 💪  Justo a tiempo para... ¿qué onda? Contame, que te escucho. ✨",
-        "timestamp": 1744318711062,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
         "content": "estoy en un compromiso, fue la boda de mi prima y el bautizo de la hija de su hermana",
         "timestamp": 1744496118477,
         "userName": "Miguel"
@@ -1416,6 +1380,42 @@
         "role": "assistant",
         "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨  ¡Qué bajón que te hayas quedado dormida!  Pero che,  no te preocupes demasiado,  a veces pasa.  Escuchar música relaja un montón,  posta.  😅 ¿Podrás recuperar esa clase de consulta de alguna manera?  Quizás hablando con el profesor o revisando los materiales. ¡Sos una genia, igual! 💪  ¡Toda la vibra pa’ vos, grosa! ✨",
         "timestamp": 1744759803433,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "hola?",
+        "timestamp": 1744826223660,
+        "userName": "Milagros"
+      },
+      {
+        "role": "assistant",
+        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨  ¡Hola, genia! ¿Qué onda? 😊",
+        "timestamp": 1744826224516,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "tengo una tv que cuando la enciendo hace ruido pero cuando pongo un canal, no tiene volumen, sabes por qué?",
+        "timestamp": 1744826272923,
+        "userName": "Milagros"
+      },
+      {
+        "role": "assistant",
+        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨  Che, qué bajón eso de la tele, ¡posta!  🤔  Que hace ruido al encenderse pero después no tiene volumen cuando pones un canal…  Puede ser varias cosas, loco.  A veces es el volumen mismo de la tele que está bajado al mínimo, o puede que haya algún problema con los parlantes o la conexión de audio.  😅 ¿Probaste revisar eso?  Si sigue igual, capaz que necesita una revisada más a fondo. ¡Sos una genia, igual! 💪 ¡A meterle pilas, rata blanca! ✨",
+        "timestamp": 1744826274827,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "ya intenté todo eso pero nada de nada, pero se ve que es algo de configuración porque la y tv tiene sonido",
+        "timestamp": 1744826353813,
+        "userName": "Milagros"
+      },
+      {
+        "role": "assistant",
+        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨\n\nChe,  si ya revisaste todo y la tele tiene sonido pero no sale por los parlantes cuando pones un canal…  🤔  ¡posta que es raro!  Puede ser alguna configuración medio escondida,  o algún setting que se haya modificado sin querer.  😅  A veces, las TVs tienen opciones de salida de audio que se pueden cambiar (como salida óptica, HDMI ARC, etc.), capaz hay que revisar eso. Si no encontrás nada,  quizás podrías buscar en internet el modelo de tu tele y \"problemas de audio\"  para ver si hay algún tutorial o solución específica.  ¡Sos una genia, igual! 💪 ¡Toda la vibra pa’ vos, grosa! ✨",
+        "timestamp": 1744826355573,
         "userName": "Oliver"
       }
     ]
