@@ -3,18 +3,6 @@
     "1023132788632862761": [
       {
         "role": "user",
-        "content": "por qué cuando enciendo la pc solo se me prende una pantalla cuando tengo dos?",
-        "timestamp": 1744592932662,
-        "userName": "Milagros"
-      },
-      {
-        "role": "assistant",
-        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨  Che,  a ver si entiendo... ¿tenés dos monitores y solo se te prende uno cuando encendés la PC? 🤔  Puede ser varias cosas, posta.  A veces es un cable mal conectado,  o el monitor que no funciona tiene algún problema con el cable de alimentación o con la conexión a la PC.  También puede ser la configuración de la PC, que no esté detectando la segunda pantalla.  😅  ¿Probaste revisando los cables y asegurándote de que estén bien conectados a ambos monitores y a la PC?  💪  Si eso no funciona,  quizás podrías buscar ayuda online,  hay un montón de tutoriales que te pueden guiar.  ¡Sos una genia, loco! 😎  Un abrazo enorme lleno de buena onda y muchos mimos para vos 😘.  ¡Seguí brillando, estrella! ✨",
-        "timestamp": 1744592934444,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
         "content": "hola",
         "timestamp": 1744675079859,
         "userName": "Milagros"
@@ -119,6 +107,18 @@
         "role": "assistant",
         "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨\n\nChe,  si ya revisaste todo y la tele tiene sonido pero no sale por los parlantes cuando pones un canal…  🤔  ¡posta que es raro!  Puede ser alguna configuración medio escondida,  o algún setting que se haya modificado sin querer.  😅  A veces, las TVs tienen opciones de salida de audio que se pueden cambiar (como salida óptica, HDMI ARC, etc.), capaz hay que revisar eso. Si no encontrás nada,  quizás podrías buscar en internet el modelo de tu tele y \"problemas de audio\"  para ver si hay algún tutorial o solución específica.  ¡Sos una genia, igual! 💪 ¡Toda la vibra pa’ vos, grosa! ✨",
         "timestamp": 1744826355573,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "hasta que por fin aparecer",
+        "timestamp": 1744921704977,
+        "userName": "Milagros"
+      },
+      {
+        "role": "assistant",
+        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨  ¡Qué bueno que aparecí, eh! 😅  ¿Qué onda?  Contáme, ¿cómo andás?  ¡Toda la vibra pa’ vos, grosa! ✨",
+        "timestamp": 1744921707118,
         "userName": "Oliver"
       }
     ],
@@ -579,7 +579,7 @@
     "1343749554905940058": 1741702502300,
     "plan_1343749554905940058": 1741879435793,
     "reminder_1343749554905940058": 1743901240312,
-    "util_1343749554905940058": 1744832218301,
+    "util_1343749554905940058": 1744921142438,
     "reminder_1343749554905940058_22": 1744765213540,
     "reminder_1343749554905940058_23": 1744682447051,
     "reminder_1343749554905940058_0": 1744686047066
@@ -614,7 +614,7 @@
       "mensaje": "tomar la pastilla rosada todos los días",
       "cuandoLlegue": false,
       "cuandoSalga": false,
-      "timestamp": 1744880400000,
+      "timestamp": 1744966800000,
       "creado": 1743208737942,
       "esRecurrente": true,
       "hora": 6,
@@ -640,7 +640,7 @@
       "mensaje": "tomar la pastilla rosada todos los días",
       "cuandoLlegue": false,
       "cuandoSalga": false,
-      "timestamp": 1744858800000,
+      "timestamp": 1744945200000,
       "creado": 1743208756920,
       "esRecurrente": true,
       "hora": 0,
@@ -653,7 +653,7 @@
       "mensaje": "tomar la pastilla rosada todos los días",
       "cuandoLlegue": false,
       "cuandoSalga": false,
-      "timestamp": 1744902000000,
+      "timestamp": 1744988400000,
       "creado": 1743208770439,
       "esRecurrente": true,
       "hora": 12,
@@ -679,7 +679,7 @@
       "mensaje": "despiértame todos los días",
       "cuandoLlegue": false,
       "cuandoSalga": false,
-      "timestamp": 1744884000000,
+      "timestamp": 1744970400000,
       "creado": 1743402095938,
       "esRecurrente": true,
       "hora": 7,
@@ -1180,18 +1180,6 @@
     "miguel-milagros": [
       {
         "role": "user",
-        "content": "estoy en un compromiso, fue la boda de mi prima y el bautizo de la hija de su hermana",
-        "timestamp": 1744496118477,
-        "userName": "Miguel"
-      },
-      {
-        "role": "assistant",
-        "content": "¡Che, Miguel, loco! 😎 ¡Qué buena onda que hayas ido a la boda y el bautismo! ¡Doble celebración, posta! 💪  ¡Un montón de felicidad para toda la familia! ✨ Espero que lo hayas pasado genial.  Contame qué tal estuvo todo.",
-        "timestamp": 1744496119426,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
         "content": "sigo aquí jajajs",
         "timestamp": 1744496134020,
         "userName": "Miguel"
@@ -1416,6 +1404,18 @@
         "role": "assistant",
         "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨\n\nChe,  si ya revisaste todo y la tele tiene sonido pero no sale por los parlantes cuando pones un canal…  🤔  ¡posta que es raro!  Puede ser alguna configuración medio escondida,  o algún setting que se haya modificado sin querer.  😅  A veces, las TVs tienen opciones de salida de audio que se pueden cambiar (como salida óptica, HDMI ARC, etc.), capaz hay que revisar eso. Si no encontrás nada,  quizás podrías buscar en internet el modelo de tu tele y \"problemas de audio\"  para ver si hay algún tutorial o solución específica.  ¡Sos una genia, igual! 💪 ¡Toda la vibra pa’ vos, grosa! ✨",
         "timestamp": 1744826355573,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "hasta que por fin aparecer",
+        "timestamp": 1744921704977,
+        "userName": "Milagros"
+      },
+      {
+        "role": "assistant",
+        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨  ¡Qué bueno que aparecí, eh! 😅  ¿Qué onda?  Contáme, ¿cómo andás?  ¡Toda la vibra pa’ vos, grosa! ✨",
+        "timestamp": 1744921707118,
         "userName": "Oliver"
       }
     ]
