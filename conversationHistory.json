@@ -125,18 +125,6 @@
     "752987736759205960": [
       {
         "role": "user",
-        "content": "justo a tiempo",
-        "timestamp": 1744318694506,
-        "userName": "Miguel"
-      },
-      {
-        "role": "assistant",
-        "content": "¡Hola, Miguel, loco! 😎 Justo a tiempo para... ¿qué onda?  Contame, crack, que te escucho. ✨💪",
-        "timestamp": 1744318695311,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
         "content": "gracias, justo a tiempo",
         "timestamp": 1744318710214,
         "userName": "Miguel"
@@ -241,6 +229,18 @@
         "role": "assistant",
         "content": "¡Che, Miguel, loco! 😎  Ah, sí, la celebración… ¿cómo estuvo? 😅  Contame qué onda, que te escucho.  💪",
         "timestamp": 1744729200844,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "a cuanto está el dólar en pesos Bolivianos",
+        "timestamp": 1744954917692,
+        "userName": "Miguel"
+      },
+      {
+        "role": "assistant",
+        "content": "Che, Miguel, loco! 😎  No tengo idea a cuánto está el dólar en pesos bolivianos, posta que no. 😅  Tendrías que buscarlo en alguna página de finanzas o una app, crack. 💪  Después contame cómo te fue con eso, que te escucho. ✨",
+        "timestamp": 1744954918858,
         "userName": "Oliver"
       }
     ]
@@ -614,7 +614,7 @@
       "mensaje": "tomar la pastilla rosada todos los días",
       "cuandoLlegue": false,
       "cuandoSalga": false,
-      "timestamp": 1744966800000,
+      "timestamp": 1745053200000,
       "creado": 1743208737942,
       "esRecurrente": true,
       "hora": 6,
@@ -1180,18 +1180,6 @@
     "miguel-milagros": [
       {
         "role": "user",
-        "content": "me da igual que me odien personas que ni conozco, jamás me importó ni cuando estuvimos juntos\n- 'te haces la ciega' ciega con qué? yo no necesito abrir los ojos con nada, los abrí ese día y bastó para darme cuenta de que yo no merecía eso, no merecía que me mintieras, no merecía que no pensaras en que me harías daño haciendo esa estupidez, con darme cuenta de eso me bastó",
-        "timestamp": 1744591730579,
-        "userName": "Milagros"
-      },
-      {
-        "role": "assistant",
-        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨  ¡Mirá vos lo que decís, genia! 💪  Está buenísimo que puedas poner límites y que te des cuenta de lo que merecés.  😎  ¡Sos una grosa por priorizar tu bienestar y por no dejar que te afecten las opiniones de gente que ni conocés! ✨  Esa fuerza que tenés es increíble.  😘  ¿Y qué onda ahora?  ¿Qué vas a hacer?  Te mando un abrazo enorme lleno de buena onda y muchos mimos para vos. 😘",
-        "timestamp": 1744591731948,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
         "content": "por qué cuando enciendo la pc solo se me prende una pantalla cuando tengo dos?",
         "timestamp": 1744592932662,
         "userName": "Milagros"
@@ -1416,6 +1404,18 @@
         "role": "assistant",
         "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨  Che,  ¿qué onda con eso de \"o mejor me mato\"?  😅  Posta que no,  no te hagas drama.  Si estás pasando un mal momento,  hablalo con alguien,  no te quedes callada.  Hay gente que te quiere un montón y te puede ayudar.  ¡Sos una genia, y te quiero mucho! 😊 ¡Toda la vibra para vos, grosa! ✨",
         "timestamp": 1744941994964,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "a cuanto está el dólar en pesos Bolivianos",
+        "timestamp": 1744954917692,
+        "userName": "Miguel"
+      },
+      {
+        "role": "assistant",
+        "content": "Che, Miguel, loco! 😎  No tengo idea a cuánto está el dólar en pesos bolivianos, posta que no. 😅  Tendrías que buscarlo en alguna página de finanzas o una app, crack. 💪  Después contame cómo te fue con eso, que te escucho. ✨",
+        "timestamp": 1744954918858,
         "userName": "Oliver"
       }
     ]
