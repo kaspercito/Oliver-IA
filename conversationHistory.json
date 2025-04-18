@@ -3,42 +3,6 @@
     "1023132788632862761": [
       {
         "role": "user",
-        "content": "explícame resumidamente de qué se trata la pascua",
-        "timestamp": 1744675105444,
-        "userName": "Milagros"
-      },
-      {
-        "role": "assistant",
-        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨  Pascuas, ¿eh?  ¡Es una fiesta religiosa que celebra la resurrección de Jesús! 🎉  Se caracteriza por los huevos de Pascua, los chocolates, las conejas y la reunión familiar.  ¡Es un día para disfrutar en familia y con buena onda! 😎  Espero que la estés pasando genial. Te mando un abrazo enorme lleno de buena onda y muchos mimos para vos 😘. ¡Seguí brillando, estrella! ✨",
-        "timestamp": 1744675106665,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
-        "content": "pero explícamelo de forma histórica, apegado a la religión y a la resurrección de jesus",
-        "timestamp": 1744676221676,
-        "userName": "Milagros"
-      },
-      {
-        "role": "assistant",
-        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨  ¡Pascuas! Che,  la resurrección de Jesús, posta, es el corazón de la Pascua.  Según la Biblia, Jesús murió en la cruz, pero al tercer día resucitó, venciendo la muerte y prometiendo la vida eterna a quienes creen en él.  🎉  Históricamente, la fecha se estableció en el siglo IV,  pero las celebraciones de la primavera y la renovación de la vida tienen raíces mucho más antiguas.  😎  Es un momento súper importante para el cristianismo, que simboliza esperanza y nueva vida. ✨  ¡Espero que te haya quedado claro, genia! 💪  Te mando un abrazo enorme lleno de buena onda y muchos mimos para vos 😘. ¡Seguí brillando, estrella! ✨",
-        "timestamp": 1744676223355,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
-        "content": "y eso de que no se puede comer carne es en toda la semana?",
-        "timestamp": 1744676629263,
-        "userName": "Milagros"
-      },
-      {
-        "role": "assistant",
-        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨  Che,  no,  😅 no es toda la semana.  La prohibición de comer carne es solo el Viernes Santo, el día antes de Pascua.  Es una tradición religiosa, pero mucha gente no la sigue al pie de la letra.  Igual, ¡cada uno hace lo que quiere, posta! 😎  Espero que tengas una Pascua genial. Te mando un abrazo enorme lleno de buena onda y muchos mimos para vos 😘. ¡Seguí brillando, estrella! ✨",
-        "timestamp": 1744676630556,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
         "content": "me quedé dormida escuchando la música y al final no asistí a una clase de consulta!",
         "timestamp": 1744759802183,
         "userName": "Milagros"
@@ -119,6 +83,42 @@
         "role": "assistant",
         "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨\n\nChe,  que te aburriste y estás viendo texture packs de cielos en Minecraft… ¡posta que es una buena forma de pasar el rato!  😅  Hay unos cielos hermosos, eh…  ¿Ya encontraste alguno que te guste mucho?  ¡Seguí rompiéndola, genia! 💪",
         "timestamp": 1744938396159,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "jajaja qué",
+        "timestamp": 1744941961001,
+        "userName": "Milagros"
+      },
+      {
+        "role": "assistant",
+        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨  jaja, ¿Qué onda con ese \"jaja qué\"? 😅  Contá, ¿qué te hace reír? ¡Seguí brillando, estrella! ✨",
+        "timestamp": 1744941961894,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "métodos para curar el dolor de ovarios casero!",
+        "timestamp": 1744941976899,
+        "userName": "Milagros"
+      },
+      {
+        "role": "assistant",
+        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨\n\nChe,  lo del dolor de ovarios…  😅  posta que es un bajón.  Para eso casero,  te recomiendo que pruebes con una almohadilla térmica con calorcito suave, o una bolsa de agua caliente.  También, un buen baño caliente puede ayudar bastante.  Si el dolor es muy fuerte o te dura mucho,  es mejor que consultes a un médico o ginecólogo, eh.  ¡No te quedes callada, grosa! 💪 ¡Toda la vibra pa’ vos! ✨",
+        "timestamp": 1744941978205,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "o mejor me mato",
+        "timestamp": 1744941993833,
+        "userName": "Milagros"
+      },
+      {
+        "role": "assistant",
+        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨  Che,  ¿qué onda con eso de \"o mejor me mato\"?  😅  Posta que no,  no te hagas drama.  Si estás pasando un mal momento,  hablalo con alguien,  no te quedes callada.  Hay gente que te quiere un montón y te puede ayudar.  ¡Sos una genia, y te quiero mucho! 😊 ¡Toda la vibra para vos, grosa! ✨",
+        "timestamp": 1744941994964,
         "userName": "Oliver"
       }
     ],
@@ -581,7 +581,7 @@
     "reminder_1343749554905940058": 1743901240312,
     "util_1343749554905940058": 1744921142438,
     "reminder_1343749554905940058_22": 1744938036043,
-    "reminder_1343749554905940058_23": 1744682447051,
+    "reminder_1343749554905940058_23": 1744941630649,
     "reminder_1343749554905940058_0": 1744686047066
   },
   "utilMessageReactions": {
@@ -1180,42 +1180,6 @@
     "miguel-milagros": [
       {
         "role": "user",
-        "content": "mi día finalizó, despiértame en 6 horas",
-        "timestamp": 1744514660167,
-        "userName": "Milagros"
-      },
-      {
-        "role": "assistant",
-        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨ ¡Dale que ya te dormís!  😴  Que descanses un montón, genia,  y que tengas unos sueños hermosos ✨.  Te despierto en 6 horas,  che. 😘  ¡A soñar lindo, estrella! ✨",
-        "timestamp": 1744514661111,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
-        "content": "crees que pensar en que no hay que dar una oportunidad, que no tengo que pelear por una relación de 1 año donde fui feliz, crees que no debería intentar recuperar la confianza con esa persona después de que me mintió con jugar en línea con una persona que vive lejos y haberme dicho que jugaría solo pero jugó con otra persona, que crees que debería hacer?",
-        "timestamp": 1744554333622,
-        "userName": "Miguel"
-      },
-      {
-        "role": "assistant",
-        "content": "Che, Miguel, loco! 😎  Esa situación está brava, posta.  Un año de felicidad no se borra de un plumazo, pero esa mentira… ¡es un bajón! 💪  Pensá bien qué querés, crack.  ¿Recuperar la confianza implica pelear por algo que te hizo sentir mal?  A veces, soltar puede ser más sano que aferrarse a algo que ya no te da lo que necesitas. ✨  Pero bueno, la decisión es tuya, hermano.  Lo importante es que seas feliz. ✨💪  Contá qué onda después, que te escucho.",
-        "timestamp": 1744554334929,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
-        "content": "quiero que tú me digas, vale la pena intentarlo?",
-        "timestamp": 1744554358311,
-        "userName": "Miguel"
-      },
-      {
-        "role": "assistant",
-        "content": "Che, Miguel, loco! 😎  Esa es una pregunta difícil, posta.  Un año es mucho tiempo, y la felicidad que sentiste es algo que hay que valorar 💪. Pero la mentira… ¡es un golpe bajo! ✨  ¿Vale la pena intentarlo?  Eso solo lo podés decidir vos, crack.  Pensá bien si recuperar esa confianza vale el esfuerzo y, sobre todo, si te va a hacer feliz.  No hay una respuesta correcta, hermano.  Lo que sí te digo es que te escuches a vos mismo y tomes la decisión que te haga sentir mejor.  💪✨  Contá qué pensás después.",
-        "timestamp": 1744554359788,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
         "content": "me da igual que me odien personas que ni conozco, jamás me importó ni cuando estuvimos juntos\n- 'te haces la ciega' ciega con qué? yo no necesito abrir los ojos con nada, los abrí ese día y bastó para darme cuenta de que yo no merecía eso, no merecía que me mintieras, no merecía que no pensaras en que me harías daño haciendo esa estupidez, con darme cuenta de eso me bastó",
         "timestamp": 1744591730579,
         "userName": "Milagros"
@@ -1416,6 +1380,42 @@
         "role": "assistant",
         "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨\n\nChe,  que te aburriste y estás viendo texture packs de cielos en Minecraft… ¡posta que es una buena forma de pasar el rato!  😅  Hay unos cielos hermosos, eh…  ¿Ya encontraste alguno que te guste mucho?  ¡Seguí rompiéndola, genia! 💪",
         "timestamp": 1744938396159,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "jajaja qué",
+        "timestamp": 1744941961001,
+        "userName": "Milagros"
+      },
+      {
+        "role": "assistant",
+        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨  jaja, ¿Qué onda con ese \"jaja qué\"? 😅  Contá, ¿qué te hace reír? ¡Seguí brillando, estrella! ✨",
+        "timestamp": 1744941961894,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "métodos para curar el dolor de ovarios casero!",
+        "timestamp": 1744941976899,
+        "userName": "Milagros"
+      },
+      {
+        "role": "assistant",
+        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨\n\nChe,  lo del dolor de ovarios…  😅  posta que es un bajón.  Para eso casero,  te recomiendo que pruebes con una almohadilla térmica con calorcito suave, o una bolsa de agua caliente.  También, un buen baño caliente puede ayudar bastante.  Si el dolor es muy fuerte o te dura mucho,  es mejor que consultes a un médico o ginecólogo, eh.  ¡No te quedes callada, grosa! 💪 ¡Toda la vibra pa’ vos! ✨",
+        "timestamp": 1744941978205,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "o mejor me mato",
+        "timestamp": 1744941993833,
+        "userName": "Milagros"
+      },
+      {
+        "role": "assistant",
+        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨  Che,  ¿qué onda con eso de \"o mejor me mato\"?  😅  Posta que no,  no te hagas drama.  Si estás pasando un mal momento,  hablalo con alguien,  no te quedes callada.  Hay gente que te quiere un montón y te puede ayudar.  ¡Sos una genia, y te quiero mucho! 😊 ¡Toda la vibra para vos, grosa! ✨",
+        "timestamp": 1744941994964,
         "userName": "Oliver"
       }
     ]
