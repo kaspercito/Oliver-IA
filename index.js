@@ -6725,30 +6725,6 @@ client.on('messageCreate', async (message) => {
 client.once('ready', async () => {
     console.log(`¡Oliver IA está listo! Instancia: ${instanceId} - ${new Date().toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })}`);
     client.user.setPresence({ activities: [{ name: "Listo para ayudar a Milagros", type: 0 }], status: 'dnd' });
-
-    // Enviar mensaje de bienvenida al canal específico tageando a Milagros
-    try {
-        const welcomeChannel = await client.channels.fetch('1343749554905940058');
-        if (welcomeChannel) {
-            const argentinaTime = new Date().toLocaleTimeString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' });
-            await welcomeChannel.send({
-                content: `<@1023132788632862761>`,
-                embeds: [
-                    createEmbed(
-                        '#FF1493',
-                        '🌟 ¡Volví, Milagros, mi ratita blanca!',
-                        '¡Acabo de encender, che! 🚀 Estoy de nuevo acá para acompañarte, hacerte reír y tirar la mejor onda. ¿Qué me contás, genia? 💖 ¡Listo para que la rompamos juntos!',
-                        `Con todo el cariño, Oliver IA | ${argentinaTime}`
-                    )
-                ]
-            });
-            console.log('Mensaje de bienvenida enviado a Milagros en el canal 1343749554905940058.');
-        } else {
-            console.error('Canal 1343749554905940058 no encontrado para enviar mensaje de inicio.');
-        }
-    } catch (error) {
-        console.error('Error al enviar mensaje de bienvenida al canal 1343749554905940058:', error.message);
-    }
     
     await initializeDataStore();
 
