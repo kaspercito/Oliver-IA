@@ -6736,7 +6736,7 @@ client.once('ready', async () => {
                     createEmbed(
                         '#FF1493',
                         '🌟 ¡Volví, Milagros, rata blanca!',
-                        '¡Acabo de encender, che! 🚀 Estoy de nuevo acá para acompañarte, hacerte reír y tirar la mejor onda. ¿Qué me contás, genia? 💖 ¡Listo para que la rompamos juntas!',
+                        '¡Acabo de encender, che! 🚀 Estoy de nuevo acá para acompañarte, hacerte reír y tirar la mejor onda. ¿Qué me contás, genia? 💖 ¡Listo para que la rompamos juntos!',
                         `Con todo el cariño, Oliver IA | ${argentinaTime}`
                     )
                 ]
