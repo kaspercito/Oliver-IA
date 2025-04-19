@@ -3,42 +3,6 @@
     "1023132788632862761": [
       {
         "role": "user",
-        "content": "me quedé dormida escuchando la música y al final no asistí a una clase de consulta!",
-        "timestamp": 1744759802183,
-        "userName": "Milagros"
-      },
-      {
-        "role": "assistant",
-        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨  ¡Qué bajón que te hayas quedado dormida!  Pero che,  no te preocupes demasiado,  a veces pasa.  Escuchar música relaja un montón,  posta.  😅 ¿Podrás recuperar esa clase de consulta de alguna manera?  Quizás hablando con el profesor o revisando los materiales. ¡Sos una genia, igual! 💪  ¡Toda la vibra pa’ vos, grosa! ✨",
-        "timestamp": 1744759803433,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
-        "content": "hola?",
-        "timestamp": 1744826223660,
-        "userName": "Milagros"
-      },
-      {
-        "role": "assistant",
-        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨  ¡Hola, genia! ¿Qué onda? 😊",
-        "timestamp": 1744826224516,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
-        "content": "tengo una tv que cuando la enciendo hace ruido pero cuando pongo un canal, no tiene volumen, sabes por qué?",
-        "timestamp": 1744826272923,
-        "userName": "Milagros"
-      },
-      {
-        "role": "assistant",
-        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨  Che, qué bajón eso de la tele, ¡posta!  🤔  Que hace ruido al encenderse pero después no tiene volumen cuando pones un canal…  Puede ser varias cosas, loco.  A veces es el volumen mismo de la tele que está bajado al mínimo, o puede que haya algún problema con los parlantes o la conexión de audio.  😅 ¿Probaste revisar eso?  Si sigue igual, capaz que necesita una revisada más a fondo. ¡Sos una genia, igual! 💪 ¡A meterle pilas, rata blanca! ✨",
-        "timestamp": 1744826274827,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
         "content": "ya intenté todo eso pero nada de nada, pero se ve que es algo de configuración porque la y tv tiene sonido",
         "timestamp": 1744826353813,
         "userName": "Milagros"
@@ -119,6 +83,42 @@
         "role": "assistant",
         "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨  Che,  ¿qué onda con eso de \"o mejor me mato\"?  😅  Posta que no,  no te hagas drama.  Si estás pasando un mal momento,  hablalo con alguien,  no te quedes callada.  Hay gente que te quiere un montón y te puede ayudar.  ¡Sos una genia, y te quiero mucho! 😊 ¡Toda la vibra para vos, grosa! ✨",
         "timestamp": 1744941994964,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "holaaa",
+        "timestamp": 1745086230933,
+        "userName": "Milagros"
+      },
+      {
+        "role": "assistant",
+        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨ ¡Hola, genia! ¿Qué onda? 😊  ¿Cómo te va todo? ¡Contáme! 💪",
+        "timestamp": 1745086231738,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "la rata blanca está en el trabajo 😦",
+        "timestamp": 1745086254431,
+        "userName": "Milagros"
+      },
+      {
+        "role": "assistant",
+        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨\n\nChe, qué bajón que estés trabajando 😦 ¡Pero bueno, a darle con todo! 💪  Ya va a terminar la jornada y podés relajarte.  ¡Seguí brillando, estrella! ✨",
+        "timestamp": 1745086255329,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "hace frío y me duelen los ovarios, me gustaría estar en la cama",
+        "timestamp": 1745086269414,
+        "userName": "Milagros"
+      },
+      {
+        "role": "assistant",
+        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨\n\nChe, qué bajón que tengas frío y te duelan los ovarios 😥 ¡Posta que es un mal momento!  Abrígate bien, ponete algo calentito, y si tenés una almohadilla térmica o una bolsa de agua caliente, usala.  Un mate bien calentito también puede ayudar.  ¡Te mando toda la buena onda para que te sientas mejor! 💪  ¡Sos una genia, igual! ✨",
+        "timestamp": 1745086270574,
         "userName": "Oliver"
       }
     ],
@@ -1180,42 +1180,6 @@
     "miguel-milagros": [
       {
         "role": "user",
-        "content": "por qué cuando enciendo la pc solo se me prende una pantalla cuando tengo dos?",
-        "timestamp": 1744592932662,
-        "userName": "Milagros"
-      },
-      {
-        "role": "assistant",
-        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨  Che,  a ver si entiendo... ¿tenés dos monitores y solo se te prende uno cuando encendés la PC? 🤔  Puede ser varias cosas, posta.  A veces es un cable mal conectado,  o el monitor que no funciona tiene algún problema con el cable de alimentación o con la conexión a la PC.  También puede ser la configuración de la PC, que no esté detectando la segunda pantalla.  😅  ¿Probaste revisando los cables y asegurándote de que estén bien conectados a ambos monitores y a la PC?  💪  Si eso no funciona,  quizás podrías buscar ayuda online,  hay un montón de tutoriales que te pueden guiar.  ¡Sos una genia, loco! 😎  Un abrazo enorme lleno de buena onda y muchos mimos para vos 😘.  ¡Seguí brillando, estrella! ✨",
-        "timestamp": 1744592934444,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
-        "content": "hola",
-        "timestamp": 1744675079859,
-        "userName": "Milagros"
-      },
-      {
-        "role": "assistant",
-        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨ ¡Hola, genia! ¿Cómo andás? Espero que estés mucho mejor después del descanso.  Te mando un abrazo enorme lleno de buena onda y muchos mimos para vos 😘. ¡Seguí brillando, estrella! ✨",
-        "timestamp": 1744675080789,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
-        "content": "pascuas",
-        "timestamp": 1744675085908,
-        "userName": "Milagros"
-      },
-      {
-        "role": "assistant",
-        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨ ¡Feliz Pascuas, genia! 🎉 Espero que estés pasando un día hermoso y lleno de alegría.  Te mando un abrazo enorme lleno de buena onda y muchos mimos para vos 😘. ¡Seguí brillando, estrella! ✨",
-        "timestamp": 1744675086777,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
         "content": "explícame resumidamente de qué se trata la pascua",
         "timestamp": 1744675105444,
         "userName": "Milagros"
@@ -1416,6 +1380,42 @@
         "role": "assistant",
         "content": "Che, Miguel, loco! 😎  No tengo idea a cuánto está el dólar en pesos bolivianos, posta que no. 😅  Tendrías que buscarlo en alguna página de finanzas o una app, crack. 💪  Después contame cómo te fue con eso, que te escucho. ✨",
         "timestamp": 1744954918858,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "holaaa",
+        "timestamp": 1745086230933,
+        "userName": "Milagros"
+      },
+      {
+        "role": "assistant",
+        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨ ¡Hola, genia! ¿Qué onda? 😊  ¿Cómo te va todo? ¡Contáme! 💪",
+        "timestamp": 1745086231738,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "la rata blanca está en el trabajo 😦",
+        "timestamp": 1745086254431,
+        "userName": "Milagros"
+      },
+      {
+        "role": "assistant",
+        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨\n\nChe, qué bajón que estés trabajando 😦 ¡Pero bueno, a darle con todo! 💪  Ya va a terminar la jornada y podés relajarte.  ¡Seguí brillando, estrella! ✨",
+        "timestamp": 1745086255329,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "hace frío y me duelen los ovarios, me gustaría estar en la cama",
+        "timestamp": 1745086269414,
+        "userName": "Milagros"
+      },
+      {
+        "role": "assistant",
+        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨\n\nChe, qué bajón que tengas frío y te duelan los ovarios 😥 ¡Posta que es un mal momento!  Abrígate bien, ponete algo calentito, y si tenés una almohadilla térmica o una bolsa de agua caliente, usala.  Un mate bien calentito también puede ayudar.  ¡Te mando toda la buena onda para que te sientas mejor! 💪  ¡Sos una genia, igual! ✨",
+        "timestamp": 1745086270574,
         "userName": "Oliver"
       }
     ]
