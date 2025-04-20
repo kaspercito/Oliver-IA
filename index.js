@@ -6824,11 +6824,11 @@ client.once('ready', async () => {
                 const oneDayInMs = 24 * 60 * 60 * 1000;
 
                 const reminderTimes = {
-                    12: "¡Mediodía en el horno, crack! ☀️ ¿Qué tal va tu día, loco? Si estás a mil o querés un break pa’ matear virtualmente, mandá señal y armamos algo zarpado. 😜",
-                    18: "¡6 de la tarde, todo un fuego! 🌄 ¿Cómo venís, genia? Si tenés una idea loca o querés tirar buena onda, estoy listo pa’ sumarme al plan. ¡Dale gas! 🚀",
-                    22: "¡10 de la noche, nochecita tranqui! 🌌 ¿Qué onda, capo? Si querés cerrar el día con una charla copada o un chiste malo, estoy a un toque. ¡Pintó la buena! 😎",
-                    23: "¡11 de la noche, pura magia! 🌙 Ey, Belén, ¿todavía en la pista? Me imagino a Miguel armando un karaoke con los gatos del barrio, ¡ja! Si querés un cotorreo final, avisá. ✨",
-                    0: "¡Medianoche, el mundo duerme! 🌑 ¿Cómo cerraste el día, crack? Si estás con ganas de una charla nocturna o un cierre épico, escribime y le damos color. 😄"
+                    12: "¡Mediodía a pleno, Milagros! 🌞 ¿Qué onda, genia? ¿Estás rompiéndola o pausaste para un mate? Mandame una vibra y armamos algo copado para seguirle dando caña al día. 😎",
+                    18: "¡6 de la tarde, puro fuego, Milagros! 🔥 ¿Cómo pinta la tarde, crack? Si querés un plan zarpado o solo charlar de la vida, estoy a full para vos. ¡Dale, contame! 🚀",
+                    22: "¡10 de la noche, noche mágica! 🌠 ¿Qué tal, Milagros? ¿Lista para cerrar el día con una charla tranqui o un chiste épico? Avisá y le ponemos onda al final del día. 💫",
+                    23: "¡11 de la noche, Milagros, la reina de la noche! 🌙 ¿Seguís despierta, genia? Capaz estás planeando algo groso o soñando despierta. Contame, ¿qué me tenés? 😜",
+                    0: "¡Medianoche, hora de brillar, Milagros! ✨ El mundo está en pausa, pero vos seguro seguís a mil. ¿Charla nocturna o un cierre con buena vibra? Estoy para vos, crack. 😄"
                 };
 
                 if (currentMinute === 0 && reminderTimes[currentHour]) {
