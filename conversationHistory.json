@@ -3,18 +3,6 @@
     "1023132788632862761": [
       {
         "role": "user",
-        "content": "nada, estoy viendo texturepacks de cielos en el minecraft porque estoy aburrida",
-        "timestamp": 1744938395027,
-        "userName": "Milagros"
-      },
-      {
-        "role": "assistant",
-        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨\n\nChe,  que te aburriste y estás viendo texture packs de cielos en Minecraft… ¡posta que es una buena forma de pasar el rato!  😅  Hay unos cielos hermosos, eh…  ¿Ya encontraste alguno que te guste mucho?  ¡Seguí rompiéndola, genia! 💪",
-        "timestamp": 1744938396159,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
         "content": "jajaja qué",
         "timestamp": 1744941961001,
         "userName": "Milagros"
@@ -119,6 +107,18 @@
         "role": "assistant",
         "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨\n\nChe, comer y dormir… ¡posta que es un planazo después de un día largo!  😅  Disfrutá al máximo ese momento de relax que te merecés. ¡Sos una genia, y te quiero mucho! 😊 ¡Toda la buena vibra para vos, grosa! ✨",
         "timestamp": 1745105530209,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "ya en casa de mi madre, me doy una ducha, a comer unos panchos y a la cama",
+        "timestamp": 1745111520436,
+        "userName": "Milagros"
+      },
+      {
+        "role": "assistant",
+        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨\n\n¡Qué planazo, che! Ducha, panchos y cama… ¡posta que te lo merecés después de un día así!  😅  Disfrutá al máximo esa relajación,  ¡sos una genia! 💪",
+        "timestamp": 1745111521502,
         "userName": "Oliver"
       }
     ],
@@ -1180,18 +1180,6 @@
     "miguel-milagros": [
       {
         "role": "user",
-        "content": "hola",
-        "timestamp": 1744729174219,
-        "userName": "Miguel"
-      },
-      {
-        "role": "assistant",
-        "content": "¡Hola, Miguel, loco! 😎 ¿Qué onda, crack?  Espero que la celebración haya estado genial. 💪",
-        "timestamp": 1744729174997,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
         "content": "como?",
         "timestamp": 1744729182089,
         "userName": "Miguel"
@@ -1416,6 +1404,18 @@
         "role": "assistant",
         "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨\n\nChe, comer y dormir… ¡posta que es un planazo después de un día largo!  😅  Disfrutá al máximo ese momento de relax que te merecés. ¡Sos una genia, y te quiero mucho! 😊 ¡Toda la buena vibra para vos, grosa! ✨",
         "timestamp": 1745105530209,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "ya en casa de mi madre, me doy una ducha, a comer unos panchos y a la cama",
+        "timestamp": 1745111520436,
+        "userName": "Milagros"
+      },
+      {
+        "role": "assistant",
+        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨\n\n¡Qué planazo, che! Ducha, panchos y cama… ¡posta que te lo merecés después de un día así!  😅  Disfrutá al máximo esa relajación,  ¡sos una genia! 💪",
+        "timestamp": 1745111521502,
         "userName": "Oliver"
       }
     ]
