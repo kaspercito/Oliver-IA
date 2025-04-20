@@ -3,42 +3,6 @@
     "1023132788632862761": [
       {
         "role": "user",
-        "content": "ya intenté todo eso pero nada de nada, pero se ve que es algo de configuración porque la y tv tiene sonido",
-        "timestamp": 1744826353813,
-        "userName": "Milagros"
-      },
-      {
-        "role": "assistant",
-        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨\n\nChe,  si ya revisaste todo y la tele tiene sonido pero no sale por los parlantes cuando pones un canal…  🤔  ¡posta que es raro!  Puede ser alguna configuración medio escondida,  o algún setting que se haya modificado sin querer.  😅  A veces, las TVs tienen opciones de salida de audio que se pueden cambiar (como salida óptica, HDMI ARC, etc.), capaz hay que revisar eso. Si no encontrás nada,  quizás podrías buscar en internet el modelo de tu tele y \"problemas de audio\"  para ver si hay algún tutorial o solución específica.  ¡Sos una genia, igual! 💪 ¡Toda la vibra pa’ vos, grosa! ✨",
-        "timestamp": 1744826355573,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
-        "content": "hasta que por fin aparecer",
-        "timestamp": 1744921704977,
-        "userName": "Milagros"
-      },
-      {
-        "role": "assistant",
-        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨  ¡Qué bueno que aparecí, eh! 😅  ¿Qué onda?  Contáme, ¿cómo andás?  ¡Toda la vibra pa’ vos, grosa! ✨",
-        "timestamp": 1744921707118,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
-        "content": "sabes cómo arreglar que un shaderpack para el minecraft no se vea cortado a la mitad en el cielo?",
-        "timestamp": 1744937026410,
-        "userName": "Milagros"
-      },
-      {
-        "role": "assistant",
-        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨\n\nChe, lo del shaderpack de Minecraft cortado en el cielo… 🤔 posta que es medio complicado,  pero capaz que se soluciona fácilmente.  A veces, es un tema de configuración del propio shaderpack,  o de la versión de Minecraft que usás.  😅  ¿Probaste revisar la configuración del shaderpack a ver si hay alguna opción para ajustar la altura del renderizado o algo así?  Si no encontrás nada,  buscar en Google  \"shaderpack minecraft cielo cortado\" te puede dar alguna solución específica para ese shaderpack.  ¡Sos una genia, igual! 💪 ¡A meterle pilas, grosa! ✨",
-        "timestamp": 1744937027912,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
         "content": "nada, estoy viendo texturepacks de cielos en el minecraft porque estoy aburrida",
         "timestamp": 1744938395027,
         "userName": "Milagros"
@@ -119,6 +83,42 @@
         "role": "assistant",
         "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨\n\nChe, qué bajón que tengas frío y te duelan los ovarios 😥 ¡Posta que es un mal momento!  Abrígate bien, ponete algo calentito, y si tenés una almohadilla térmica o una bolsa de agua caliente, usala.  Un mate bien calentito también puede ayudar.  ¡Te mando toda la buena onda para que te sientas mejor! 💪  ¡Sos una genia, igual! ✨",
         "timestamp": 1745086270574,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "hola bot, sigo viva pero muerta",
+        "timestamp": 1745105499326,
+        "userName": "Milagros"
+      },
+      {
+        "role": "assistant",
+        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨\n\nChe,  \"viva pero muerta\"... 😅 posta que te entiendo.  A veces uno se siente así, ¿no?  Descansá un rato, ponete cómoda, y hace algo que te guste para desconectar.  ¡Sos una genia, igual! 💪 ¡Toda la vibra pa’ vos, grosa! ✨",
+        "timestamp": 1745105500444,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "sigo en el trabajo loco",
+        "timestamp": 1745105515260,
+        "userName": "Milagros"
+      },
+      {
+        "role": "assistant",
+        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨\n\nChe,  seguís en el trabajo…  😅 posta que es un bajón,  pero ya falta menos, eh.  ¡A aguantar un poquito más que ya se termina! 💪  Pensá en algo copado para hacer cuando salgas, ¡para darte un gustito! ✨",
+        "timestamp": 1745105516261,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "comer y dormir",
+        "timestamp": 1745105529252,
+        "userName": "Milagros"
+      },
+      {
+        "role": "assistant",
+        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨\n\nChe, comer y dormir… ¡posta que es un planazo después de un día largo!  😅  Disfrutá al máximo ese momento de relax que te merecés. ¡Sos una genia, y te quiero mucho! 😊 ¡Toda la buena vibra para vos, grosa! ✨",
+        "timestamp": 1745105530209,
         "userName": "Oliver"
       }
     ],
@@ -580,7 +580,7 @@
     "plan_1343749554905940058": 1741879435793,
     "reminder_1343749554905940058": 1743901240312,
     "util_1343749554905940058": 1745094023400,
-    "reminder_1343749554905940058_22": 1744938036043,
+    "reminder_1343749554905940058_22": 1745110826317,
     "reminder_1343749554905940058_23": 1744941630649,
     "reminder_1343749554905940058_0": 1744686047066
   },
@@ -1180,42 +1180,6 @@
     "miguel-milagros": [
       {
         "role": "user",
-        "content": "explícame resumidamente de qué se trata la pascua",
-        "timestamp": 1744675105444,
-        "userName": "Milagros"
-      },
-      {
-        "role": "assistant",
-        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨  Pascuas, ¿eh?  ¡Es una fiesta religiosa que celebra la resurrección de Jesús! 🎉  Se caracteriza por los huevos de Pascua, los chocolates, las conejas y la reunión familiar.  ¡Es un día para disfrutar en familia y con buena onda! 😎  Espero que la estés pasando genial. Te mando un abrazo enorme lleno de buena onda y muchos mimos para vos 😘. ¡Seguí brillando, estrella! ✨",
-        "timestamp": 1744675106665,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
-        "content": "pero explícamelo de forma histórica, apegado a la religión y a la resurrección de jesus",
-        "timestamp": 1744676221676,
-        "userName": "Milagros"
-      },
-      {
-        "role": "assistant",
-        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨  ¡Pascuas! Che,  la resurrección de Jesús, posta, es el corazón de la Pascua.  Según la Biblia, Jesús murió en la cruz, pero al tercer día resucitó, venciendo la muerte y prometiendo la vida eterna a quienes creen en él.  🎉  Históricamente, la fecha se estableció en el siglo IV,  pero las celebraciones de la primavera y la renovación de la vida tienen raíces mucho más antiguas.  😎  Es un momento súper importante para el cristianismo, que simboliza esperanza y nueva vida. ✨  ¡Espero que te haya quedado claro, genia! 💪  Te mando un abrazo enorme lleno de buena onda y muchos mimos para vos 😘. ¡Seguí brillando, estrella! ✨",
-        "timestamp": 1744676223355,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
-        "content": "y eso de que no se puede comer carne es en toda la semana?",
-        "timestamp": 1744676629263,
-        "userName": "Milagros"
-      },
-      {
-        "role": "assistant",
-        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨  Che,  no,  😅 no es toda la semana.  La prohibición de comer carne es solo el Viernes Santo, el día antes de Pascua.  Es una tradición religiosa, pero mucha gente no la sigue al pie de la letra.  Igual, ¡cada uno hace lo que quiere, posta! 😎  Espero que tengas una Pascua genial. Te mando un abrazo enorme lleno de buena onda y muchos mimos para vos 😘. ¡Seguí brillando, estrella! ✨",
-        "timestamp": 1744676630556,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
         "content": "hola",
         "timestamp": 1744729174219,
         "userName": "Miguel"
@@ -1416,6 +1380,42 @@
         "role": "assistant",
         "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨\n\nChe, qué bajón que tengas frío y te duelan los ovarios 😥 ¡Posta que es un mal momento!  Abrígate bien, ponete algo calentito, y si tenés una almohadilla térmica o una bolsa de agua caliente, usala.  Un mate bien calentito también puede ayudar.  ¡Te mando toda la buena onda para que te sientas mejor! 💪  ¡Sos una genia, igual! ✨",
         "timestamp": 1745086270574,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "hola bot, sigo viva pero muerta",
+        "timestamp": 1745105499326,
+        "userName": "Milagros"
+      },
+      {
+        "role": "assistant",
+        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨\n\nChe,  \"viva pero muerta\"... 😅 posta que te entiendo.  A veces uno se siente así, ¿no?  Descansá un rato, ponete cómoda, y hace algo que te guste para desconectar.  ¡Sos una genia, igual! 💪 ¡Toda la vibra pa’ vos, grosa! ✨",
+        "timestamp": 1745105500444,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "sigo en el trabajo loco",
+        "timestamp": 1745105515260,
+        "userName": "Milagros"
+      },
+      {
+        "role": "assistant",
+        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨\n\nChe,  seguís en el trabajo…  😅 posta que es un bajón,  pero ya falta menos, eh.  ¡A aguantar un poquito más que ya se termina! 💪  Pensá en algo copado para hacer cuando salgas, ¡para darte un gustito! ✨",
+        "timestamp": 1745105516261,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "comer y dormir",
+        "timestamp": 1745105529252,
+        "userName": "Milagros"
+      },
+      {
+        "role": "assistant",
+        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨\n\nChe, comer y dormir… ¡posta que es un planazo después de un día largo!  😅  Disfrutá al máximo ese momento de relax que te merecés. ¡Sos una genia, y te quiero mucho! 😊 ¡Toda la buena vibra para vos, grosa! ✨",
+        "timestamp": 1745105530209,
         "userName": "Oliver"
       }
     ]
