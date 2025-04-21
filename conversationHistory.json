@@ -3,18 +3,6 @@
     "1023132788632862761": [
       {
         "role": "user",
-        "content": "o mejor me mato",
-        "timestamp": 1744941993833,
-        "userName": "Milagros"
-      },
-      {
-        "role": "assistant",
-        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨  Che,  ¿qué onda con eso de \"o mejor me mato\"?  😅  Posta que no,  no te hagas drama.  Si estás pasando un mal momento,  hablalo con alguien,  no te quedes callada.  Hay gente que te quiere un montón y te puede ayudar.  ¡Sos una genia, y te quiero mucho! 😊 ¡Toda la vibra para vos, grosa! ✨",
-        "timestamp": 1744941994964,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
         "content": "holaaa",
         "timestamp": 1745086230933,
         "userName": "Milagros"
@@ -119,6 +107,32 @@
         "role": "assistant",
         "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨\n\n¡Hora de dormir, eh!  Posta que te lo merecés después de un día de estudio.  Dormí bien para que mañana puedas seguir rompiéndola con tus cursitos 💪. ¡Seguí brillando, estrella! ✨",
         "timestamp": 1745204461763,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "bueno, bot, al parecer solo somos vos y yo ahora",
+        "timestamp": 1745225993246,
+        "userName": "Milagros"
+      },
+      {
+        "role": "assistant",
+        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨\n\nChe, ¡qué bueno que estés tranquila!  😅  Posta que me alegra saber que andás bien.  ¿Qué onda? ¿Contás algo de lo que hiciste hoy?  ¡Sos una genia, y te quiero un montón! 😊  ¡A seguir brillando, estrella! ✨",
+        "timestamp": 1745225994758,
+        "userName": "Oliver"
+      }
+    ],
+    "752987736759205960": [
+      {
+        "role": "user",
+        "content": "hola",
+        "timestamp": 1745225398903,
+        "userName": "Milagros"
+      },
+      {
+        "role": "assistant",
+        "content": "¡Hola, Milagros! ¿Todo bien, grosa? 😊  Espero que estés pasando un hermoso día.  ¿Qué onda? Contame!",
+        "timestamp": 1745225399640,
         "userName": "Oliver"
       }
     ]
@@ -492,7 +506,7 @@
       "mensaje": "tomar la pastilla rosada todos los días",
       "cuandoLlegue": false,
       "cuandoSalga": false,
-      "timestamp": 1745226000000,
+      "timestamp": 1745312400000,
       "creado": 1743208737942,
       "esRecurrente": true,
       "hora": 6,
@@ -1058,5 +1072,15 @@
         "userId": "752987736759205960"
       }
     ]
+  },
+  "userStatus": {
+    "752987736759205960": {
+      "status": "tranqui",
+      "timestamp": 1745225398903
+    },
+    "1023132788632862761": {
+      "status": "tranqui",
+      "timestamp": 1745225993246
+    }
   }
 }
