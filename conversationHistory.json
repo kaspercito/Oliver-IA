@@ -142,6 +142,18 @@
         "score": 5
       }
     },
+    "752987736759205960": {
+      "username": "mihkario",
+      "capitales": {
+        "score": 7
+      },
+      "matematicas": {
+        "score": 14
+      },
+      "disney": {
+        "score": 26
+      }
+    }
   },
   "personalPPMRecords": {
     "1023132788632862761": {
@@ -243,15 +255,70 @@
           "timestamp": "2025-03-15T03:44:48.000Z"
         }
       ]
+    },
+    "752987736759205960": {
+      "best": {
+        "ppm": 110,
+        "timestamp": "2025-03-03T03:20:50.111Z"
+      },
+      "attempts": [
+        {
+          "ppm": 110,
+          "timestamp": "2025-03-03T03:20:50.111Z"
+        },
+        {
+          "ppm": 90,
+          "timestamp": "2025-03-03T03:19:41.269Z"
+        },
+        {
+          "ppm": 86,
+          "timestamp": "2025-03-03T03:20:23.259Z"
+        },
+        {
+          "ppm": 80,
+          "timestamp": "2025-03-03T03:20:38.331Z"
+        },
+        {
+          "ppm": 75,
+          "timestamp": "2025-03-03T03:19:54.430Z"
+        },
+        {
+          "ppm": 70,
+          "timestamp": "2025-03-03T12:34:59.287Z"
+        },
+        {
+          "ppm": 59,
+          "timestamp": "2025-03-03T12:35:20.872Z"
+        },
+        {
+          "ppm": 57,
+          "timestamp": "2025-03-03T12:15:23.671Z"
+        },
+        {
+          "ppm": 50,
+          "timestamp": "2025-03-03T12:34:39.668Z"
+        }
+      ]
     }
   },
   "reactionWins": {
     "1023132788632862761": {
       "username": "dearluz",
       "wins": 82
+    },
+    "752987736759205960": {
+      "username": "kaspercito",
+      "wins": 58
     }
   },
   "activeSessions": {
+    "752987736759205960": {
+      "usedAdivinanzas": [
+        "Soy amarillo, soy brillante, me ves en la noche, ¿qué soy, amigo?",
+        "Me usás pa’ freír, soy caliente y aceitoso, ¿qué soy, che?",
+        "Me usás pa’ peinarte, tengo dientes pero no muerdo, ¿qué soy, che?"
+      ]
+    },
     "1023132788632862761": {
       "usedAdivinanzas": [
         "Me usás pa’ limpiar, soy amarillo y esponjoso, ¿qué soy, che?",
