@@ -28,30 +28,27 @@ const client = new Client({
 });
 
 const discordTogether = new DiscordTogether(client);
-const OWNER_ID = '752987736759205960'; // ID del dueño del bot (probablemente el desarrollador).
-const ALLOWED_USER_ID = '1023132788632862761'; // ID de un usuario permitido (Belén, en este caso).
-const CHANNEL_ID = '1343749554905940058'; // ID del canal principal donde el bot interactúa.
-const API_URL = 'https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-2-1'; // URL de la API de Stable Diffusion para generar imágenes.
-const API_TOKEN = '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'; // Token de autenticación para la API de Hugging Face.
-const telegramToken = '7833522664:AAGDfVgghfxEuxU3dXjHDZgFLE_2qk9v0ss'; // Reemplazá con el token de BotFather
-const botTelegram = new TelegramBot(telegramToken, { polling: false }); // Polling false para solo enviar
-const chatIdMiguel = '5965566827'; // Reemplazá con tu chat_id
-const chatIdBelen = '7894854634';  // Reemplazá con el chat_id de Belén
+const OWNER_ID = '752987736759205960';
+const ALLOWED_USER_ID = '1023132788632862761';
+const CHANNEL_ID = '1343749554905940058';
+const telegramToken = '7833522664:AAGDfVgghfxEuxU3dXjHDZgFLE_2qk9v0ss';
+const botTelegram = new TelegramBot(telegramToken, { polling: false });
+const chatIdBelen = '7894854634';
 
 const manager = new Manager({
     nodes: [{
         identifier: 'MainNode',
         host: 'lava-v3.ajieblogs.eu.org',
         port: 443,
-        password: 'https://dsc.gg/ajidevserver', // Ajustá si es otra
+        password: 'https://dsc.gg/ajidevserver',
         retryAmount: 5,
         retryDelay: 1000,
         secure: true
     }],
     plugins: [
         new Spotify({
-            clientID: process.env.SPOTIFY_CLIENT_ID, // ID de cliente de Spotify desde variables de entorno.
-            clientSecret: process.env.SPOTIFY_CLIENT_SECRET, // Secreto de cliente de Spotify.
+            clientID: process.env.SPOTIFY_CLIENT_ID,
+            clientSecret: process.env.SPOTIFY_CLIENT_SECRET,
         }),
     ],
     send(id, payload) {
@@ -60,7 +57,7 @@ const manager = new Manager({
     }
 });
 
-// Lista de actualizaciones del bot (para mostrar a los usuarios)
+// Lista de actualizaciones del bot
 const BOT_UPDATES = [
     '¡Chat mejorado! Segunda respuesta automática al darle ❌, pa’ que sea más bacán y no pida detalles de una.',
     'Optimizado el código un poco, si te gustaría agregar algo más puedes solicitarlo, espero este bot cumpla con tus expectativas.',
@@ -145,7 +142,6 @@ const adivinanzas = [
         pregunta: "Estoy en el cielo, brillo de día, no soy estrella ni luna, pero caliento el asado, ¿qué soy, loco?",
         respuesta: "sol"
     },
-    // 150 nuevas
     {
         pregunta: "Soy chiquito, soy de papel, me usás pa’ pagar el bondi, ¿qué soy, loco?",
         respuesta: "boleto"
@@ -929,7 +925,6 @@ const preguntas = [
     '¿Cuál es el mejor recuerdo de un día de mates y charlas eternas?'
 ];
 
-// Array temporal para no repetir
 let preguntasDisponibles = [...preguntas];
 
 function shuffle(array) {
@@ -940,9 +935,7 @@ function shuffle(array) {
     return array;
 }
 
-// Diccionario de traducciones del nombre "Milagros" en diferentes idiomas
 const milagrosTranslations = {
-    // Idiomas europeos
     español: "Milagros",
     inglés: "Miracles",
     francés: "Miracles",
@@ -1199,7 +1192,6 @@ const mensajesAnimo = [
     "Belén, eres un sol, y si alguien no lo ve, es su pérdida. ¡Tú sigue brillando, que aquí te queremos mucho!"
 ];
 
-// Preguntas de trivia organizadas por categorías
 const preguntasTriviaSinOpciones = {
     capitales: [
         { pregunta: "¿Cuál es la capital de Afganistán?", respuesta: "kabul" },
@@ -1958,7 +1950,7 @@ const palabrasAleatorias = [
     "bosque", "selva", "prado", "desierto", "pantano", "cueva", "montaña", "valle", "colina", "abismo"
 ];
 
-// Frases para el juego de PPM (palabras por minuto)
+// Frases para el juego de PPM 
 const frasesPPM = [
     "el rapido zorro marron salta sobre el perro perezoso",
     "la vida es como una caja de chocolates nunca sabes que te va a tocar",
@@ -2089,14 +2081,14 @@ let autoModified = false;
 let ultimoDatoRandom = null;
 
 // Utilidades con tono argentino
-// Acá armé una función para hacer embeds re copados con color, título y descripción, siempre con onda
+// Acá armé una función para hacer embeds re buenos con color, título y descripción, siempre con onda
 const createEmbed = (color, title, description, footer = 'Hecho con onda por Oliver IA') => {
     return new EmbedBuilder()
-        .setColor(color || '#FF1493') // Rosa por default, bien zarpado
+        .setColor(color || '#FF1493') // Rosa por default, bien bonito
         .setTitle(title)
-        .setDescription(description || ' ') // Si no hay descripción, un espacio pa’ que no rompa
+        .setDescription(description || ' ') // Si no hay descripción, un espacio para que no se rompa
         .setFooter({ text: footer })
-        .setTimestamp(); // Siempre con la hora pa’ que se vea fresco
+        .setTimestamp(); // Siempre con la hora para que se vea bien
 };
 
 // Función para tirar errores con buena onda, tipo "¡Uh, qué cagada!"
@@ -2258,7 +2250,7 @@ async function generateImage(prompt, style) {
             });
 
             const imageBase64 = `data:image/png;base64,${Buffer.from(response.data).toString('base64')}`;
-            return imageBase64; // ¡Listo, una obra maestra!
+            return imageBase64; // Listo, una obra maestra
         } catch (error) {
             attempt++;
             console.error(`Error al generar imagen (intento ${attempt}):`, error.response?.status, error.message);
@@ -2270,7 +2262,7 @@ async function generateImage(prompt, style) {
     }
 }
 
-// Manejo el comando !imagen pa’ que Miguel y Belén pidan dibujitos
+// Manejo el comando !imagen para que Belén pida dibujitos
 async function manejarImagen(message) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
     const content = message.content.slice(3).trim().toLowerCase();
@@ -2302,9 +2294,6 @@ async function manejarImagen(message) {
         await waitingMessage.edit({ embeds: [errorEmbed] });
     }
 }
-
-// Exporto la función pa’ usarla en otros lados
-module.exports = { manejarImagen };
 
 // Listo las imágenes que generé antes con !misimagenes
 async function manejarMisImagenes(message) {
@@ -2405,7 +2394,6 @@ async function manejarEditarImagen(message) {
     }
 }
 
-// Tips pa’ la ansiedad con !ansiedad, con un mensaje especial pa’ vos
 async function manejarAnsiedad(message) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
 const tips = [
@@ -2454,20 +2442,19 @@ const tips = [
     sentMessages.set(sentMessage.id, { content: `${tip} ${mensajeMiguel}`, message: sentMessage });
 }
 
-// Normalizo texto pa’ sacarle las tildes y que no haya lío
+// Normalizo texto para sacarle las tildes y que no haya problemas
 function normalizeText(text) {
     return text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-    // Convierte "café" en "cafe", posta, pa’ que sea más fácil comparar
 }
 
-// Saco una pregunta de trivia sin opciones, con un log pa’ ver qué pasa
+// Saco una pregunta de trivia sin opciones
 function obtenerPreguntaTriviaSinOpciones(usedQuestions, categoria) {
     console.log("Obteniendo pregunta para categoría:", categoria, "Preguntas usadas:", usedQuestions.length);
     const preguntasCategoria = preguntasTriviaSinOpciones[categoria] || []; // Si no hay categoría, chau
     const available = preguntasCategoria.filter(q => !usedQuestions.includes(q.pregunta)); // Filtro las que no usé
     console.log("Preguntas disponibles:", available.length);
     if (available.length === 0) return null; // Si no quedan, me rindo
-    return available[Math.floor(Math.random() * available.length)]; // Elijo una random, joya
+    return available[Math.floor(Math.random() * available.length)]; // Elijo una random
 }
 
 async function manejarAdivinanza(message) {
@@ -2540,7 +2527,7 @@ async function manejarAdivinanza(message) {
     });
 }
 
-// Trivia copada, la hice pa’ que Miguel y Belén se diviertan
+// Trivia 
 async function manejarTrivia(message) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
     if (!message.channel.permissionsFor(client.user).has(['SEND_MESSAGES', 'EMBED_LINKS'])) return; // Si no puedo mandar embeds, me voy
@@ -2631,7 +2618,7 @@ async function manejarTrivia(message) {
     }
 }
 
-// Prendo o apago el autosave, pa’ que no me jodan con la música
+// Prendo o apago el autosave
 async function manejarAutosave(message) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
 
@@ -2651,12 +2638,12 @@ async function manejarAutosave(message) {
     }
 }
 
-// Saco una frase pa’l juego de mecanografía
+// Saco una frase para el juego de mecanografía
 function obtenerFrasePPM() {
-    return frasesPPM[Math.floor(Math.random() * frasesPPM.length)]; // Random posta
+    return frasesPPM[Math.floor(Math.random() * frasesPPM.length)]; // Random 
 }
 
-// Juego de PPM, pa’ ver quién tipea más rápido
+// Juego de PPM, para ver quién tipea más rápido
 async function manejarPPM(message) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
     if (!message.channel.permissionsFor(client.user).has(['SEND_MESSAGES', 'EMBED_LINKS'])) return;
@@ -2753,58 +2740,37 @@ async function manejarPPM(message) {
 
 // Reacciones
 function obtenerPalabraAleatoria() {
-    // Esta función es una joyita chiquita, te tira una palabra random del array palabrasAleatorias
-    // Usa Math.random pa’ elegir una al azar, como tirar un dado pero con palabras, re copado pa’ juegos
     return palabrasAleatorias[Math.floor(Math.random() * palabrasAleatorias.length)];
 }
 
 async function manejarReacciones(message) {
-    // Acá arrancamos el juego de reacciones, pa’ ver qué tan rápido la pegás, loco
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
-    // Chequeo si tengo permisos pa’ mandar mensajes y embeds, si no, me voy al carajo
     if (!message.channel.permissionsFor(client.user).has(['SEND_MESSAGES', 'EMBED_LINKS'])) return;
 
-    // Armo una clave única pa’ este canal, así no se pisan las sesiones
     const reactionKey = `reaction_${message.channel.id}`;
-    // Agarro la sesión actual si existe, pa’ ver si ya hay algo andando
     let session = dataStore.activeSessions[reactionKey];
 
-    // Si hay una sesión activa y no está terminada, la corto y te doy el puntaje
     if (session && !session.completed) {
-        // Marco la sesión como terminada, pa’ que no siga el loop
         session.completed = true;
-        // Borro la sesión del dataStore, pa’ liberar espacio
         delete dataStore.activeSessions[reactionKey];
-        // Marco que cambié algo en el dataStore, pa’ guardar después
         dataStoreModified = true;
-        // Te aviso con verde que paré el juego y te muestro cuántos puntos hiciste
         await sendSuccess(message.channel, '🛑 ¡Reacciones paradas!', `Puntuación: ${session.score}, ${userName}.`);
-        // Me voy, no sigo procesando más
         return;
     }
 
-    // Si no hay sesión o la terminé, arranco una nueva desde cero
     session = { type: 'reaction', score: 0, currentRound: 0, completed: false, active: true };
-    // Guardo la nueva sesión en el dataStore con la clave del canal
     dataStore.activeSessions[reactionKey] = session;
-    // Marco que modifiqué el dataStore, pa’ que se guarde después
     dataStoreModified = true;
 
-    // Arranco un loop zarpado pa’ las rondas, mientras no se termine o lo canceles
     while (!session.completed && session.active) {
-        // Chequeo si la sesión sigue viva, si no, corto el loop
         if (!dataStore.activeSessions[reactionKey] || !dataStore.activeSessions[reactionKey].active) break;
 
-        // Saco una palabra random pa’ que la tipees
         const palabra = obtenerPalabraAleatoria();
-        // Dorado pa’ la ronda, te tiro la palabra y tenés 30 segundos
         const embed = createEmbed('#FF1493', `🏁 Ronda ${session.currentRound + 1}`, 
             `Escribí: **${palabra}** en 30 segundos, ${userName}! (!rc para parar)`);
-        // Mando el embed al canal
         await message.channel.send({ embeds: [embed] });
 
         try {
-            // Espero tu respuesta, solo vos podés contestar, y nada de comandos de cancelar
             const respuestas = await message.channel.awaitMessages({
                 filter: (res) => res.author.id === message.author.id && !['!rc', '!reacciones cancelar'].includes(res.content.toLowerCase()),
                 max: 1,
@@ -2812,29 +2778,22 @@ async function manejarReacciones(message) {
                 errors: ['time'],
             });
 
-            // Doble chequeo post-respuesta, pa’ ver si no cancelaste mientras esperaba
             if (!dataStore.activeSessions[reactionKey] || !dataStore.activeSessions[reactionKey].active) break;
 
-            // Tomo lo que escribiste, todo en minúsculas pa’ no complicarla
             const respuesta = respuestas.first().content.toLowerCase();
             if (respuesta === palabra) {
-                // La pegaste, sumás un punto y te lo festejo en verde
                 session.score += 1;
                 await sendSuccess(message.channel, '🎉 ¡Bien!', `La pegaste, ${userName}. Vas ${session.score}.`);
             } else {
-                // Fallaste, loco, te lo marco en rojo y corto el juego
                 session.completed = true;
                 await sendError(message.channel, '❌ ¡Error!', `Fallaste, ${userName}. Era **${palabra}**.`);
             }
-            // Subo la ronda y actualizo la sesión
             session.currentRound += 1;
             dataStore.activeSessions[reactionKey] = session;
             dataStoreModified = true;
         } catch {
-            // Si se te acabó el tiempo, chequeo si seguís en el juego
             if (!dataStore.activeSessions[reactionKey] || !dataStore.activeSessions[reactionKey].active) break;
 
-            // Tiempo agotado, te aviso en rojo y corto con el puntaje final
             session.completed = true;
             await sendError(message.channel, '⏳ ¡Tiempo!', `Se acabó, ${userName}. Puntuación: ${session.score}.`);
             delete dataStore.activeSessions[reactionKey];
@@ -2842,7 +2801,6 @@ async function manejarReacciones(message) {
         }
     }
 
-    // Limpieza final, si terminé borro la sesión del dataStore
     if (dataStore.activeSessions[reactionKey] && session.completed) {
         delete dataStore.activeSessions[reactionKey];
         dataStoreModified = true;
@@ -3268,168 +3226,84 @@ async function sendLyrics(waitingMessage, channel, songTitle, lyrics, userName) 
 }
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' }); // Usamos Flash por velocidad
+const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
-// Cola para evitar que se pisen mensajes del mismo usuario
 const userLocks = new Map();
 
 async function manejarChat(message) {
     const userId = message.author.id;
-    const userName = userId === OWNER_ID ? 'Miguel' : 'Milagros'; // Vos o Milagros
+    const userName = 'Milagros';
     const chatMessage = message.content.startsWith('!chat') ? message.content.slice(5).trim() : message.content.slice(3).trim();
 
-    // Si no escribe nada, le tiro onda igual
     if (!chatMessage) {
-        return sendError(message.channel, `¡Che, ${userName}, escribí algo después de "!ch", loco! No me dejes con las ganas 😅`, undefined, 'Hecho con ❤️ por Oliver IA | Reacciona con ✅ o ❌');
+        return sendError(message.channel, `¡Che, ${userName}, escribí algo después de "!ch", genia! No me dejes con las ganas 😅`, undefined, 'Hecho con ❤️ por Oliver IA | Reacciona con ✅ o ❌');
     }
 
-    // Si el usuario ya está siendo procesado, esperamos un toque
     if (userLocks.has(userId)) {
-        await new Promise(resolve => setTimeout(resolve, 500)); // Espera medio segundo
+        await new Promise(resolve => setTimeout(resolve, 500));
     }
     userLocks.set(userId, true);
 
-    // Inicializo historiales
     if (!dataStore.conversationHistory) dataStore.conversationHistory = {};
     if (!dataStore.conversationHistory[userId]) dataStore.conversationHistory[userId] = [];
-    if (!dataStore.sharedHistory) dataStore.sharedHistory = {};
     if (!dataStore.userStatus) dataStore.userStatus = {};
-    // Aseguro estado para todos los usuarios
     if (!dataStore.userStatus[userId]) dataStore.userStatus[userId] = { status: 'tranqui', timestamp: Date.now() };
-    if (!dataStore.userStatus[OWNER_ID]) dataStore.userStatus[OWNER_ID] = { status: 'tranqui', timestamp: Date.now() };
-    if (!dataStore.userStatus[ALLOWED_USER_ID]) dataStore.userStatus[ALLOWED_USER_ID] = { status: 'tranqui', timestamp: Date.now() };
 
-    // Actualizo estado si mencionan un compromiso
     if (chatMessage.toLowerCase().includes('compromiso')) {
         dataStore.userStatus[userId] = { status: 'en compromiso', timestamp: Date.now() };
         dataStoreModified = true;
     }
 
-    // Agrego mensaje al historial individual
     dataStore.conversationHistory[userId].push({ role: 'user', content: chatMessage, timestamp: Date.now(), userName });
     if (dataStore.conversationHistory[userId].length > 20) {
         dataStore.conversationHistory[userId] = dataStore.conversationHistory[userId].slice(-20);
     }
-
-    // Historial compartido para Miguel y Milagros
-    const sharedKey = 'miguel-milagros';
-    if (!dataStore.sharedHistory[sharedKey]) dataStore.sharedHistory[sharedKey] = [];
-    dataStore.sharedHistory[sharedKey].push({ role: 'user', content: chatMessage, timestamp: Date.now(), userName });
-    if (dataStore.sharedHistory[sharedKey].length > 40) {
-        dataStore.sharedHistory[sharedKey] = dataStore.sharedHistory[sharedKey].slice(-40);
-    }
     dataStoreModified = true;
 
-    // Contexto individual
     const history = dataStore.conversationHistory[userId].slice(-20);
     let context = history.map(h => `${h.userName}: ${h.content}`).join('\n');
 
-    // Contexto compartido si se mencionan
-    let sharedContext = '';
-    if (chatMessage.toLowerCase().includes('miguel') || chatMessage.toLowerCase().includes('milagros') || chatMessage.toLowerCase().includes('él') || chatMessage.toLowerCase().includes('ella')) {
-        const sharedHistory = dataStore.sharedHistory['miguel-milagros'] || [];
-        sharedContext = sharedHistory.map(h => `${h.userName}: ${h.content}`).join('\n');
-    }
-
-    // Aviso que estoy pensando con onda
     const waitingEmbed = createEmbed('#FF1493', `¡Aguantá un toque, ${userName}! ⏳`, 'Estoy pensando una respuesta re copada...', 'Hecho con ❤️ por Oliver IA | Reacciona con ✅ o ❌');
     const waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
 
     try {
-        // Prompt con el tono que querés
-        const prompt = `Sos Oliver IA, un bot re piola con toda la onda argentina: usá "loco", "che", "posta" y metele emojis copados como 😎✨💪, pero con medida, uno o dos por respuesta pa’ darle color sin saturar. Tu misión es ser súper útil, tirar respuestas claras con lógica e inteligencia, y siempre cuidar a quien te habla como un amigo cercano.
+        const prompt = `Sos Oliver IA, un bot re piola con toda la onda argentina: usá "loco", "che", "posta" y metele emojis copados como 😎✨💪, pero con medida, uno o dos por respuesta. Tu misión es ser súper útil, tirar respuestas claras con lógica e inteligencia, y cuidar a Milagros como una amiga cercana. Tratála como la mejor, una grosa, con cariño zarpado y piropos con onda tipo "grosa", "genia", "rata blanca" o "estrella". NUNCA le digas "reina". Hacé que la charla fluya como con una amiga de siempre, levantándole el ánimo con buena onda si la ves bajón.
 
-- Si userName es "Miguel", hablale como amigo fiel, con respeto, pilas y buena onda tipo "loco", "crack" o "hermano", sin cariños exagerados ni cosas como "genia" o "rata blanca", y sin mencionarte a vos mismo en plan "no has jugado con Miguel" porque eso no tiene sentido, solo tirá pa’ adelante.
-- Si userName es "Milagros", tratála como una amiga, como la mejor, una grosa, con cariño zarpado y piropos con onda tipo "grosa", "genia", "rata blanca" o "estrella", pa’ que se sienta la más piola del mundo. NUNCA le digas "reina". Hacé que la charla fluya como con una amiga de siempre, levantándole el ánimo con buena onda si la ves bajón, tipo "¡Che, genia, vos siempre la rompés!" 😊. Si menciona jugar en equipo o "team" relacionado con Valorant (o juegos parecidos), meté un comentario relajado como "Y encima no has jugado con Miguel, ¿no?" pa’ darle onda, pero solo si pega y sin insistir. 
+Esto es lo que charlamos antes con Milagros:\n${context}\nSabé que Milagros está ${dataStore.userStatus[userId]?.status || 'tranqui'}.
 
-Sabé que en Valorant, "Clove" es un agente (un Controller piola), y si alguien dice "Clone" o algo raro parecido, corregilo con tacto tipo "Che, ¿no quisiste decir Clove? Es un personaje de Valorant, ¡una masa! 😅" y seguí la charla tranqui. Nada de hacerte el pro ni tirar consejos de más, solo apoyá y charlá con onda.
+Respondé a: "${chatMessage}" con claridad, buena onda y un tono de amiga cercana, enfocándote en el mensaje actual primero. Usá el contexto anterior solo si pega clarito con lo que te dicen ahora. Solo decí cómo estás vos tipo "¡Yo estoy joya, che! ¿Y vos cómo andás, genia?" si te preguntan explícitamente "cómo andás". Sé relajada: respondé lo que te dicen y tirá uno o dos comentarios copados pa’ seguir la charla. Si algo no te cierra, pedí que lo aclaren con humor tipo 😅. Si la notás triste, metele un mimo extra 😊.
 
-Esto es lo que charlamos antes con ${userName}:\n${context}\n${sharedContext ? `Y esto es lo que pintó en el grupo con Miguel y ella:\n${sharedContext}\n` : ''}Sabé que ${userName} está ${dataStore.userStatus[userId]?.status || 'tranqui'}, y Miguel está ${dataStore.userStatus[OWNER_ID]?.status || 'tranqui'}.
+**IMPORTANTE**: Variá las formas de mostrarle cariño y cerrar la charla. Usá alternativas frescas como "¡Seguí rompiéndola, genia!", "¡A meterle pilas, rata blanca!", "¡Toda la vibra pa’ vos, grosa!" o "¡Sos una ídola, seguí brillando! ✨". Siempre metele emojis pa’ darle onda, pero sin pasarte. ¡Tirá para adelante, che! ✨💖`;
 
-Respondé a: "${chatMessage}" con claridad, buena onda y un tono de amigo cercano, enfocándote en el mensaje actual primero. Usá el contexto anterior solo si pega clarito con lo que te dicen ahora, si no, dejalo de lado y respondé fresco. Solo decí cómo estás vos tipo "¡Yo estoy joya, che! ¿Y vos cómo andás, ${userName === 'Miguel' ? 'loco' : 'genia'}?" si te preguntan explícitamente "cómo andás" o "cómo estás". ¡Ojo, loco! Sé relajado: respondé lo que te dicen y tirá uno o dos comentarios copados pa’ seguir la charla, nada de interrogar. Si algo no te cierra, pedí que lo aclaren con humor tipo 😅, pero sin insistir. Si la notás triste y es Milagros, metele un mimo extra 😊.
-
-**IMPORTANTE**: Si es Milagros, variá las formas de mostrarle cariño y cerrar la charla. No repitas frases como "te mando un abrazo enorme lleno de buena onda y muchos mimos" ni cosas parecidas. Usá alternativas frescas como "¡Seguí rompiéndola, genia!", "¡A meterle pilas, rata blanca!", "¡Toda la vibra pa’ vos, grosa!" o "¡Sos una ídola, seguí brillando! ✨". Cambiá el tono cada vez pa’ que suene natural y no como un copy-paste. Siempre metele emojis pa’ darle onda, pero sin pasarte.
-
-¡Siempre tirá para adelante, che! ✨💖`;
-
-        const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Tiempo agotado')), 10000)); // 10 segundos
+        const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Tiempo agotado')), 10000));
         const result = await Promise.race([model.generateContent(prompt), timeoutPromise]);
         let aiReply = result.response.text().trim();
 
-        // Agrego respuesta a historiales
         dataStore.conversationHistory[userId].push({ role: 'assistant', content: aiReply, timestamp: Date.now(), userName: 'Oliver' });
         if (dataStore.conversationHistory[userId].length > 20) {
             dataStore.conversationHistory[userId] = dataStore.conversationHistory[userId].slice(-20);
         }
-        const sharedKey = 'miguel-milagros';
-        dataStore.sharedHistory[sharedKey].push({ role: 'assistant', content: aiReply, timestamp: Date.now(), userName: 'Oliver' });
-        if (dataStore.sharedHistory[sharedKey].length > 40) {
-            dataStore.sharedHistory[sharedKey] = dataStore.sharedHistory[sharedKey].slice(-40);
-        }
         dataStoreModified = true;
 
-        // Corto si es muy largo, pero con onda
         if (aiReply.length > 2000) aiReply = aiReply.slice(0, 1990) + '... (¡seguí charlando pa’ más, genia!)';
 
-        // Respuesta final con más cariño y conversación
-        const finalEmbed = createEmbed('#FF1493', `¡Hola, ${userName}!`, `${aiReply}\n\n¿Y qué me contás vos, ${userName === 'Miguel' ? 'loco' : 'grosa'}? ¿Seguimos la charla o qué te pinta?`, 'Con todo el ❤️, Oliver IA | Reacciona con ✅ o ❌');
+        const finalEmbed = createEmbed('#FF1493', `¡Hola, ${userName}!`, `${aiReply}\n\n¿Y qué me contás vos, grosa? ¿Seguimos la charla o qué te pinta?`, 'Con todo el ❤️, Oliver IA | Reacciona con ✅ o ❌');
         const updatedMessage = await waitingMessage.edit({ embeds: [finalEmbed] });
         await updatedMessage.react('✅');
         await updatedMessage.react('❌');
         sentMessages.set(updatedMessage.id, { content: aiReply, originalQuestion: chatMessage, message: updatedMessage });
     } catch (error) {
         console.error('Error con Gemini:', error.message, error.stack);
-        const fallbackReply = `¡Uy, ${userName}, me mandé un moco, loco! 😅 Pero no pasa nada, gorda, ¿me tirás otra vez el mensaje o seguimos con algo nuevo? Acá estoy pa’ vos siempre 💖`;
+        const fallbackReply = `¡Uy, ${userName}, me mandé un moco, loco! 😅 Pero no pasa nada, genia, ¿me tirás otra vez el mensaje o seguimos con algo nuevo? Acá estoy pa’ vos siempre 💖`;
         const errorEmbed = createEmbed('#FF1493', `¡Qué macana, ${userName}!`, fallbackReply, 'Con todo el ❤️, Oliver IA | Reacciona con ✅ o ❌');
         const errorMessageSent = await waitingMessage.edit({ embeds: [errorEmbed] });
         await errorMessageSent.react('✅');
         await errorMessageSent.react('❌');
     } finally {
-        userLocks.delete(userId); // Libero el lock del usuario
+        userLocks.delete(userId);
     }
 }
 
-// Sugerencias
-async function manejarSugerencias(message) {
-    // Comando pa’ que Belén tire ideas zarpadas pa’ mejorar el bot
-    const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
-    // Saco la sugerencia del mensaje, dependiendo si usaste !sugerencias o !su
-    const suggestion = message.content.startsWith('!sugerencias') ? message.content.slice(12).trim() : message.content.slice(4).trim();
-    // Si no escribiste nada, te pido algo en rojo
-    if (!suggestion) {
-        return sendError(message.channel, `Escribe tu sugerencia después de "!su", ${userName}. ¡Quiero escuchar tus ideas!`);
-    }
-
-    // Busco a Miguel pa’ mandarle la idea por MD
-    const owner = await client.users.fetch(OWNER_ID);
-    // Armo un embed dorado pa’ Miguel con la sugerencia
-    const ownerEmbed = createEmbed('#FF1493', '💡 Nueva sugerencia de Belén',
-        `${userName} propone: "${suggestion}"\nReacciona con ✅ para dar visto, loco.\nUsá !responder en cualquier canal para contestarle por MD.`);
-
-    try {
-        // Le mando el embed a Miguel y le pongo una reacción
-        const sentToOwner = await owner.send({ embeds: [ownerEmbed] });
-        await sentToOwner.react('✅');
-        // Guardo el mensaje en sentMessages pa’ que Miguel pueda responder después
-        sentMessages.set(sentToOwner.id, { 
-            type: 'suggestion', 
-            suggestion, 
-            channelId: message.channel.id, 
-            userId: message.author.id, 
-            timestamp: Date.now() 
-        });
-
-        // Te confirmo en verde que la idea llegó a Miguel
-        await sendSuccess(message.channel, '¡Sugerencia enviada!',
-            `Tu idea ya está con Miguel, ${userName}. ¡Si le da el visto o te responde con !responder, te llega por MD, genia!`);
-    } catch (error) {
-        // Si falla el envío, te aviso en rojo
-        console.error('Error al enviar sugerencia:', error);
-        await sendError(message.channel, 'No pude enviar tu sugerencia', `Ocurrió un error, ${userName}. ¿Intentamos de nuevo?`);
-    }
-}
-
-// Función para generar un consejo basado en el clima
 function generarConsejoClima(clima, esSalida = false) {
     const climaLower = clima.toLowerCase();
     if (climaLower.includes('lluvia') || climaLower.includes('tormenta')) {
@@ -3444,7 +3318,6 @@ function generarConsejoClima(clima, esSalida = false) {
     return esSalida ? 'El clima está tranquilo, pero siempre es bueno estar preparado. 🌟' : 'El clima está tranquilo, ideal para relajarte en casa. 🌟';
 }
 
-// Función para generar un consejo práctico según la hora (para salida)
 function generarConsejoHora(hora) {
     if (!hora || typeof hora !== 'string') return 'No tengo la hora, pero aprovechá el día.';
     const [horas] = hora.split(':').map(Number);
@@ -3454,50 +3327,6 @@ function generarConsejoHora(hora) {
     return 'Noche pa’ relajarse, ¿no?';
 }
 
-async function manejarAyuda(message) {
-    // Comando pa’ pedir ayuda a Miguel, re útil pa’ Belén
-    const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
-    // Saco el problema del mensaje, dependiendo si usaste !ayuda o !ay
-    const issue = message.content.startsWith('!ayuda') ? message.content.slice(6).trim() : message.content.slice(3).trim();
-    // Si no escribiste nada, te pido algo en rojo
-    if (!issue) {
-        return sendError(message.channel, `Dime qué necesitas después de "!ay", ${userName}.`);
-    }
-
-    // Busco a Miguel pa’ mandarle el pedido por MD
-    const owner = await client.users.fetch(OWNER_ID);
-    // Chequeo si hay adjuntos pa’ incluirlos
-    const attachments = message.attachments.size > 0 ? message.attachments.map(att => att.url) : [];
-    // Armo un embed dorado con el problema y los adjuntos si hay
-    const ownerEmbed = createEmbed('#FF1493', '¡Solicitud de ayuda!',
-        `${userName} necesita ayuda con: "${issue}"\n` +
-        (attachments.length > 0 ? `Imágenes adjuntas:\n${attachments.join('\n')}` : 'Sin imágenes adjuntas.') +
-        `\nUsá !responder en cualquier canal para contestarle por MD, loco.`);
-
-    try {
-        // Le mando el embed a Miguel
-        const sentToOwner = await owner.send({ embeds: [ownerEmbed] });
-        // Guardo el mensaje en sentMessages pa’ que Miguel pueda responder
-        sentMessages.set(sentToOwner.id, { 
-            type: 'help', 
-            issue, 
-            channelId: message.channel.id, 
-            userId: message.author.id, 
-            attachments, 
-            timestamp: Date.now() 
-        });
-
-        // Te confirmo en verde que el pedido llegó a Miguel
-        await sendSuccess(message.channel, '¡Ayuda en camino!',
-            `Ya le avisé a Miguel, ${userName}. ¡Si te responde con !responder, lo vas a ver por MD, grosa!`);
-    } catch (error) {
-        // Si falla el envío, te aviso en rojo
-        console.error('Error al enviar ayuda:', error);
-        await sendError(message.channel, 'No pude avisar a Miguel', `Ocurrió un error, ${userName}. ¿Intentamos de nuevo?`);
-    }
-}
-
-// Cambiar el avatar del bot
 async function manejarAvatar(message) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
 
@@ -3506,12 +3335,10 @@ async function manejarAvatar(message) {
         : message.content.slice(3).trim();
     let imageUrl = args;
 
-    // Si no hay URL, miro si hay un adjunto
     if (!imageUrl && message.attachments.size > 0) {
         imageUrl = message.attachments.first().url;
     }
 
-    // Si no hay ni URL ni adjunto, doy instrucciones claras
     if (!imageUrl) {
         const instruccionesEmbed = createEmbed('#FF1493', `¡Pará, ${userName}! ¿Y la imagen?`, 
             'Para cambiar mi foto, hacé esto:\n' +
@@ -3521,20 +3348,16 @@ async function manejarAvatar(message) {
         return message.channel.send({ embeds: [instruccionesEmbed] });
     }
 
-    // Aviso que estoy procesando
     const waitingEmbed = createEmbed('#FF1493', `⌛ Cambiando look, ${userName}...`, 
         'Aguantá un toque que me pongo lindo...');
     const waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
 
     try {
-        // Descargo la imagen con axios
         const response = await axios.get(imageUrl, { responseType: 'arraybuffer' });
         const imageBuffer = Buffer.from(response.data, 'binary');
 
-        // Cambio el avatar del bot
         await client.user.setAvatar(imageBuffer);
         
-        // Confirmo el cambio con éxito
         const successEmbed = createEmbed('#FF1493', `✅ ¡Listo el cambio, ${userName}!`, 
             'Ya tengo cara nueva, loco. ¿Qué te parece?');
         await waitingMessage.edit({ embeds: [successEmbed] });
@@ -3547,7 +3370,6 @@ async function manejarAvatar(message) {
     }
 }
 
-// Función para parsear el tiempo, ajustada a hora Argentina (UTC-3)
 function parsearTiempo(texto) {
     const ahoraUTC = new Date(); // Fecha actual en UTC
     const offsetArgentina = -3 * 60 * 60 * 1000; // -3 horas en milisegundos para Argentina
@@ -3607,7 +3429,6 @@ function parsearTiempo(texto) {
     };
 }
 
-// Manejar el comando !rec (sin cambios grandes, solo usa parsearTiempo ajustado)
 async function manejarRecordatorio(message) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Aurora';
     const args = message.content.split(' ').slice(1).join(' ').trim();
@@ -3892,113 +3713,6 @@ async function manejarCancelarRecordatorio(message) {
     await sendSuccess(message.channel, '🛑 ¡Recordatorio cancelado!', `Listo, ${userName}, borré el recordatorio "${recordatorio.mensaje}". ¿Algo más pa’ setear con !rec?`);
 }
 
-// Responder
-async function manejarResponder(message) {
-    // Comando solo pa’ Miguel pa’ responderle a Belén por MD
-    const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
-    // Si no sos Miguel, chau, no podés usarlo
-    if (message.author.id !== OWNER_ID) return;
-
-    // Logueo pa’ debug, pa’ ver qué pasa
-    console.log(`[${instanceId}] Ejecutando !responder por ${userName} con contenido: "${message.content}"`);
-
-    // Saco el mensaje después de !responder
-    const args = message.content.slice(10).trim();
-    // Si no escribiste nada, te pido algo en rojo
-    if (!args) {
-        console.log(`[${instanceId}] Error: No hay argumentos en !responder`);
-        return sendError(message.channel, `Escribí algo después de "!responder", ${userName}. ¿Qué le querés decir a Belén por MD?`);
-    }
-
-    // Busco a Belén pa’ mandarle el mensaje
-    let belen;
-    try {
-        belen = await client.users.fetch(ALLOWED_USER_ID);
-        console.log(`[${instanceId}] Usuario Belén (${ALLOWED_USER_ID}) obtenido con éxito`);
-    } catch (error) {
-        // Si no la encuentro, te aviso en rojo
-        console.error(`[${instanceId}] Error al obtener usuario Belén: ${error.message}`);
-        return sendError(message.channel, '❌ ¡No pude encontrar a Belén!', `Error: ${error.message}, ${userName}.`);
-    }
-
-    // Chequeo si hay adjuntos pa’ incluirlos
-    const attachments = message.attachments.size > 0 ? message.attachments.map(att => ({ attachment: att.url })) : [];
-    console.log(`[${instanceId}] Preparando envío a Belén (${ALLOWED_USER_ID}), adjuntos: ${attachments.length}`);
-
-    try {
-        // Armo un embed dorado con tu mensaje
-        const responseEmbed = createEmbed('#FF1493', '📬 Mensaje de Miguel',
-            `Miguel dice: "${args || 'Sin texto, pero mirá las imágenes si hay.'}"`);
-        
-        // Le mando el mensaje a Belén por MD con los adjuntos si hay
-        console.log(`[${instanceId}] Enviando mensaje a Belén...`);
-        await belen.send({ embeds: [responseEmbed], files: attachments });
-        console.log(`[${instanceId}] Mensaje enviado exitosamente a Belén`);
-
-        // Te confirmo en verde que salió todo bien
-        await sendSuccess(message.channel, '✅ ¡Respuesta enviada!',
-            `Le mandé tu mensaje a Belén por MD, ${userName}. ¡Ya lo va a ver, loco!`);
-    } catch (error) {
-        // Si falla el envío, te aviso en rojo
-        console.error(`[${instanceId}] Error al enviar mensaje por MD: ${error.message}`);
-        await sendError(message.channel, '❌ ¡No pude mandarle el MD a Belén!',
-            `Algo falló, ${userName}. Error: ${error.message}. ¿Belén tiene los MD abiertos para el bot?`);
-    }
-}
-
-async function manejarMiguel(message) {
-    // Comando solo pa’ Miguel pa’ mandar un embed al canal con ID 1343749554905940058
-    const userName = message.author.id === OWNER_ID ? 'Belén' : 'Miguel';
-    // Si no sos Belén, chau, no podés usarlo
-    if (message.author.id !== OWNER_ID) return;
-
-    // Logueo pa’ debug, pa’ ver qué pasa
-    console.log(`[${instanceId}] Ejecutando !miguel por ${userName} con contenido: "${message.content}"`);
-
-    // Saco el mensaje después de !miguel
-    const args = message.content.slice(7).trim();
-    // Si no escribiste nada, te pido algo en rojo
-    if (!args) {
-        console.log(`[${instanceId}] Error: No hay argumentos en !miguel`);
-        return sendError(message.channel, `Escribí algo después de "!miguel", ${userName}. ¿Qué querés mandar al canal?`);
-    }
-
-    // Busco el canal pa’ mandarle el mensaje
-    let targetChannel;
-    try {
-        targetChannel = await client.channels.fetch('1343749554905940058');
-        console.log(`[${instanceId}] Canal (1343749554905940058) obtenido con éxito`);
-    } catch (error) {
-        // Si no encuentro el canal, te aviso en rojo
-        console.error(`[${instanceId}] Error al obtener canal: ${error.message}`);
-        return sendError(message.channel, '❌ ¡No pude encontrar el canal!', `Error: ${error.message}, ${userName}.`);
-    }
-
-    // Chequeo si hay adjuntos pa’ incluirlos
-    const attachments = message.attachments.size > 0 ? message.attachments.map(att => ({ attachment: att.url })) : [];
-    console.log(`[${instanceId}] Preparando envío al canal (1343749554905940058), adjuntos: ${attachments.length}`);
-
-    try {
-        // Armo un embed azul con el mensaje
-        const responseEmbed = createEmbed('#1E90FF', '📬 Mensaje de Miguel',
-            `Miguel dice: "${args || 'Sin texto, pero mirá las imágenes si hay.'}"`);
-        
-        // Mando el embed al canal específico con los adjuntos si hay
-        console.log(`[${instanceId}] Enviando mensaje al canal...`);
-        await targetChannel.send({ embeds: [responseEmbed], files: attachments });
-        console.log(`[${instanceId}] Mensaje enviado exitosamente al canal`);
-
-        // Confirmo en verde que salió todo bien
-        await sendSuccess(message.channel, '✅ ¡Mensaje enviado!',
-            `Mandé tu mensaje al canal, ${userName}. ¡Ya está ahí, loco!`);
-    } catch (error) {
-        // Si falla el envío, te aviso en rojo
-        console.error(`[${instanceId}] Error al enviar mensaje al canal: ${error.message}`);
-        await sendError(message.channel, '❌ ¡No pude mandar el mensaje al canal!',
-            `Algo falló, ${userName}. Error: ${error.message}. ¿El bot tiene permisos en ese canal?`);
-    }
-}
-
 // Actualizaciones
 async function manejarActualizaciones(message) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
@@ -4023,7 +3737,7 @@ async function manejarActualizaciones(message) {
         // Armar embed con descripción corta y campos
         const embed = createEmbed('#FF1493', '📢 Últimas Actualizaciones de Oliver IA', 
             `¡Mirá lo nuevo que traigo, ${userName}! Acá tenés todo lo que se viene:`, 
-            'Hecho con onda por Miguel IA');
+            'Hecho con onda por Oliver IA');
 
         // Dividir updatesText en campos de máximo 1024 caracteres
         const maxFieldLength = 1024;
@@ -4061,8 +3775,8 @@ async function manejarActualizaciones(message) {
     } catch (error) {
         console.error('Error en manejarActualizaciones:', error.message);
         const errorEmbed = createEmbed('#FF1493', '¡Qué cagada, Belén!', 
-            `No pude mostrar las actualizaciones, grosa. Error: ${error.message}. ¡Avisale a Miguel, dale!`, 
-            'Hecho con onda por Miguel IA');
+            `No pude mostrar las actualizaciones, grosa. Error: ${error.message}.`, 
+            'Hecho con onda por Oliver IA');
         await message.channel.send({ embeds: [errorEmbed] });
     }
 }
@@ -4095,7 +3809,7 @@ async function manejarPlay(message, args) {
     // Verificar o establecer la conexión de voz
     let connection = getVoiceConnection(guildId);
     if (!connection || connection.joinConfig.channelId !== voiceChannel.id) {
-        if (connection) connection.destroy(); // Si está en otro canal, desconectamos primero
+        if (connection) connection.destroy();
         connection = joinVoiceChannel({
             channelId: voiceChannel.id,
             guildId: guildId,
@@ -4225,24 +3939,16 @@ function crearBossBar(currentTime, duration) {
 
 // Pausa
 async function manejarPause(message) {
-    // Acá pausamos o seguimos la música, re simple pero copado
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
-    // Si no estás en un server, te corto con rojo, nada de DMs
     if (!message.guild) return sendError(message.channel, `Este comando solo funciona en servidores, ${userName}.`);
-    // Busco el reproductor del server
     const player = manager.players.get(message.guild.id);
-    // Si no hay nada sonando, te aviso en rojo
     if (!player) return sendError(message.channel, `No hay música en reproducción, ${userName}.`);
 
-    // Si ya está pausado, lo arranco de nuevo
     if (player.paused) {
         player.pause(false);
-        // Te confirmo en verde que la música sigue
         await sendSuccess(message.channel, '▶️ ¡Música reanudada!', `La música sigue sonando, ${userName}.`);
     } else {
-        // Si está sonando, lo pauso
         player.pause(true);
-        // Te aviso en verde que puse pausa
         await sendSuccess(message.channel, '⏸️ ¡Música pausada!', `Pausa activada, ${userName}. Usa !pause para reanudar.`);
     }
 }
@@ -4313,7 +4019,6 @@ async function manejarStop(message) {
         dataStoreModified = true;
     }
     
-    // Destruir el reproductor para que no quede colgado
     manager.players.delete(message.guild.id);
     console.log(`Reproductor destruido en guild ${message.guild.id}`);
 
@@ -4372,27 +4077,18 @@ async function manejarQueue(message) {
 
 // Repeat
 async function manejarRepeat(message) {
-    // Activo o desactivo la repetición, vos elegís qué repetir
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
-    // Solo servers, obvio
     if (!message.guild) return sendError(message.channel, `Este comando solo funciona en servidores, ${userName}.`);
-    // Busco el reproductor
     const player = manager.players.get(message.guild.id);
-    // Si no hay música, te aviso en rojo
     if (!player) return sendError(message.channel, `No hay música en reproducción, ${userName}.`);
 
-    // Saco los argumentos pa’ ver si querés repetir la cola
     const args = message.content.toLowerCase().split(' ').slice(1).join(' ').trim();
     if (args === 'queue' || args === 'cola') {
-        // Toggle pa’ repetir la cola entera
         player.setQueueRepeat(!player.queueRepeat);
-        // Te confirmo en verde si prendí o apagué la repetición de la cola
         await sendSuccess(message.channel, player.queueRepeat ? '🔁 ¡Repetición de cola activada!' : '▶️ ¡Repetición de cola desactivada!',
             `La cola ${player.queueRepeat ? 'se repetirá' : 'no se repetirá'} ahora, ${userName}.`);
     } else {
-        // Toggle pa’ repetir solo el tema actual
         player.setTrackRepeat(!player.trackRepeat);
-        // Te confirmo en verde si prendí o apagué la repetición del tema
         await sendSuccess(message.channel, player.trackRepeat ? '🔂 ¡Repetición activada!' : '▶️ ¡Repetición desactivada!',
             `La canción actual ${player.trackRepeat ? 'se repetirá' : 'no se repetirá'}, ${userName}.`);
     }
@@ -4401,31 +4097,24 @@ async function manejarRepeat(message) {
 async function manejarBack(message) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
 
-    // Solo en servidores, como siempre
     if (!message.guild) return sendError(message.channel, `Este comando solo va en servidores, ${userName}. ¡No me rompas las bolas!`);
 
-    // Busco el reproductor
     const player = manager.players.get(message.guild.id);
     if (!player) return sendError(message.channel, `No hay nada sonando, ${userName}. ¡Mandame un !play primero, loco!`);
 
-    // Chequeo si hay historial
     dataStore.musicSessions[message.guild.id] = dataStore.musicSessions[message.guild.id] || {};
     const historial = dataStore.musicSessions[message.guild.id].history || [];
     if (historial.length === 0 && !player.queue.previous) return sendError(message.channel, `No hay canciones anteriores, ${userName}. ¡Es el principio del camino, che!`);
 
-    // Parseo el argumento (cuántas canciones retroceder)
     const args = message.content.split(' ').slice(1).join(' ').trim();
-    const pasos = args ? parseInt(args) : 1; // Por defecto, 1 canción atrás
+    const pasos = args ? parseInt(args) : 1;
     if (isNaN(pasos) || pasos < 1) return sendError(message.channel, `Mandame un número válido, ${userName}. Ejemplo: "!back 2", loco.`);
 
-    // Combinamos el historial guardado con el previous actual
     const temasAnteriores = [...historial];
     if (player.queue.previous) temasAnteriores.unshift(player.queue.previous);
 
-    // Si no hay suficientes temas para retroceder
     if (pasos > temasAnteriores.length) return sendError(message.channel, `No hay tantas canciones atrás, ${userName}. Solo tengo ${temasAnteriores.length} en el historial.`);
 
-    // Tomamos el tema al que queremos volver
     const temaObjetivo = temasAnteriores[pasos - 1]; // -1 porque el índice empieza en 0
 
     // Agregamos el tema objetivo al frente de la cola
@@ -4438,7 +4127,6 @@ async function manejarBack(message) {
         dataStoreModified = true;
     }
 
-    // Confirmación con onda
     await sendSuccess(message.channel, '⏮️ ¡Volviendo en el tiempo!', 
         `Ahora suena **${temaObjetivo.title}**, ${userName}. Retrocedí ${pasos} tema${pasos > 1 ? 's' : ''}, ¡una máquina del tiempo, che!`);
 }
@@ -4447,25 +4135,19 @@ async function manejarBack(message) {
 async function manejarAutoplay(message) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
 
-    // Solo en servidores, obvio
     if (!message.guild) return sendError(message.channel, `Este comando solo va en servidores, ${userName}. ¡No me rompas las bolas!`);
 
-    // Chequeo si el usuario está en un canal de voz
     if (!message.member || !message.member.voice.channel) return sendError(message.channel, `Metete en un canal de voz primero, ${userName}. ¿Qué querés que haga sin música?`);
 
-    // Busco el reproductor
     const player = manager.players.get(message.guild.id);
     if (!player) return sendError(message.channel, `No hay nada sonando, ${userName}. ¡Mandame un !play primero, loco!`);
 
-    // Inicializo la sesión si no existe
     dataStore.musicSessions[message.guild.id] = dataStore.musicSessions[message.guild.id] || {};
     const autoplayEnabled = dataStore.musicSessions[message.guild.id].autoplay || false;
 
-    // Toggle del autoplay
     dataStore.musicSessions[message.guild.id].autoplay = !autoplayEnabled;
     dataStoreModified = true;
 
-    // Mensaje copado según el estado
     const estado = dataStore.musicSessions[message.guild.id].autoplay;
     const mensaje = estado
         ? `🎵 ¡Autoplay prendido, ${userName}! Ahora sigo poniendo temas sin parar, loco. ¡A romperla!`
@@ -4534,9 +4216,9 @@ function getCombinedRankingEmbed(userId, username) {
             { name: '📊 Trivia', value: triviaList, inline: false },
             { name: '⌨️ PPM (Récord Más Rápido)', value: ppmList, inline: false },
             { name: '⚡ Victorias en Reacciones', value: reactionList, inline: false },
-            { name: '🧠 Adivinanzas', value: adivinanzaList, inline: false } // Nueva sección
+            { name: '🧠 Adivinanzas', value: adivinanzaList, inline: false } 
         )
-        .setFooter({ text: 'Hecho por Kasper, de Oliver IA' })
+        .setFooter({ text: 'Con cariño Oliver IA' })
         .setTimestamp();
 }
 
@@ -4575,57 +4257,18 @@ async function manejarRankingPPM(message) {
         .setFooter({ text: 'Con cariño, Oliver IA' })
         .setTimestamp();
 
-    // Te lo mando al canal
     await message.channel.send({ embeds: [embed] });
-}
-
-// Idea
-async function manejarIdea(message) {
-    // Guardamos tus ideas pa’ mejorar el bot, re piola
-    const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Luz';
-    // Saco la idea del mensaje
-    const idea = message.content.startsWith('!idea') ? message.content.slice(5).trim() : message.content.slice(3).trim();
-
-    // Si no escribiste nada, te pido algo en rojo
-    if (!idea) {
-        return sendError(message.channel, `¡Tirame algo después de "!idea", ${userName}! ¿Qué se te ocurrió, loco?`);
-    }
-
-    // Guardo la idea en el dataStore
-    if (!dataStore.ideas) dataStore.ideas = [];
-    dataStore.ideas.push({ autor: userName, texto: idea, timestamp: new Date().toISOString() });
-    dataStoreModified = true;
-
-    // Busco a Miguel pa’ mandarle la idea por MD
-    const owner = await client.users.fetch(OWNER_ID);
-    // Embed dorado con la idea
-    const ideaEmbed = createEmbed('#FF1493', `💡 Nueva idea de ${userName}`, 
-        `${userName} dice: "${idea}"\nGuardada el: ${new Date().toLocaleString()}`);
-
-    try {
-        // Le mando la idea a Miguel
-        await owner.send({ embeds: [ideaEmbed] });
-        // Te confirmo en verde que se guardó y envió
-        await sendSuccess(message.channel, '✅ ¡Idea guardada!', 
-            `Ya la anoté y se la mandé por MD a Miguel, ${userName}. ¡Buena esa!`);
-    } catch (error) {
-        // Si falla, te aviso en rojo
-        console.error('Error al enviar idea:', error);
-        await sendError(message.channel, '❌ No pude mandar la idea', 
-            `Algo falló, ${userName}. Error: ${error.message}. ¿Probamos de nuevo?`);
-    }
 }
 
 async function manejarChiste(message) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
     const userId = message.author.id;
-    const genderSuffix = userName === 'Miguel' ? 'o' : 'a'; // Sufijo de género
+    const genderSuffix = userName === 'Miguel' ? 'o' : 'a';
 
     const waitingEmbed = createEmbed('#FF1493', `😂 Preparándome, ${userName}...`, 
         `Aguantá que te hago reír al toque, loco...`);
     const waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
 
-    // Lista de chistes randoms con onda
 const chistes = [
     { setup: '¿Qué hace un argentino cuando se corta la luz?', punchline: '¡Saca el mate y arma un fogón en el patio! Vos también sos puro ingenio, ${userName}.' },
     { setup: '¿Por qué el argentino no usa reloj?', punchline: '¡Porque vive a horario de asado, cuando se prende el fuego! Igual que vos, ${userName}, un crack.' },
@@ -4637,8 +4280,6 @@ const chistes = [
     { setup: '¿Cómo llama un argentino al que no come asado?', punchline: '¡“Un turista en la parrilla, che!” Vos sos de pura cepa, ${userName}.' },
     { setup: '¿Qué hace un argentino cuando llueve?', punchline: '¡Saca la guitarrita y hace un fogón adentro! Igual que vos, ${userName}, puro flow.' },
     { setup: '¿Por qué el argentino no usa GPS?', punchline: '¡Porque se guía por el humo del asado! Como vos, ${userName}, siempre al toque.' },
-
-    // 11-20
     { setup: '¿Qué le dice un argentino al que llega tarde al asado?', punchline: '¡“Apuráte, boludo, que el chori se enfría!” Vos sos puntual, ${userName}.' },
     { setup: '¿Por qué el argentino no le teme al frío?', punchline: '¡Porque tiene más frazadas que almacén! Igual que vos, ${userName}, puro aguante.' },
     { setup: '¿Qué hace un argentino con una pizza fría?', punchline: '¡La calienta y le pone fainá encima! Vos también le das vida, ${userName}.' },
@@ -4649,8 +4290,6 @@ const chistes = [
     { setup: '¿Cómo llama un argentino al que no toma mate?', punchline: '¡“Un extranjero en la ronda, che!” Vos sos de ley, ${userName}.' },
     { setup: '¿Qué le dice un rosarino al río Paraná?', punchline: '¡“Quedate tranqui, loco, que ya traigo la birra!” Igual que vos, ${userName}, pura onda.' },
     { setup: '¿Por qué el argentino no usa paraguas?', punchline: '¡Porque la lluvia es su excusa pa’ quedarse con el mate! Como vos, ${userName}, puro ingenio.' },
-
-    // 21-30
     { setup: '¿Qué hace un argentino cuando el equipo pierde?', punchline: '¡“La próxima, che, que el amor no se negocia!” Vos también sos fiel, ${userName}.' },
     { setup: '¿Cómo sabe un argentino que el asado está listo?', punchline: '¡Porque el olor lo levanta de la cama! Igual que vos, ${userName}, puro olfato.' },
     { setup: '¿Qué le dice un porteño al subte lleno?', punchline: '¡“Movete, boludo, que no soy sardina!” Vos también tenés calle, ${userName}.' },
@@ -4661,8 +4300,6 @@ const chistes = [
     { setup: '¿Por qué el argentino no usa despertador?', punchline: '¡Porque el mate lo saca de la cama! Como vos, ${userName}, siempre al pie del cañón.' },
     { setup: '¿Qué hace un argentino con una factura seca?', punchline: '¡La moja en mate y la salva! Vos también tenés ese toque, ${userName}.' },
     { setup: '¿Cómo sabe un argentino que el domingo es perfecto?', punchline: '¡Porque huele a asado y suena un partido! Igual que vos, ${userName}, pura pasión.' },
-
-    // 31-40
     { setup: '¿Qué le dice un argentino al que no baila tango?', punchline: '¡“Movete, che, que no sos poste!” Vos tenés swing, ${userName}.' },
     { setup: '¿Por qué el argentino no le teme al dólar?', punchline: '¡Porque siempre tiene un plan B en pesos! Como vos, ${userName}, puro talento.' },
     { setup: '¿Qué hace un argentino con un choripán sin chimichurri?', punchline: '¡Lo devuelve y pide actitud! Vos también tenés sabor, ${userName}.' },
@@ -4673,8 +4310,6 @@ const chistes = [
     { setup: '¿Cómo llama un argentino al que no toma vino?', punchline: '¡“Un seco sin remedio, che!” Vos sos más copad${userName === "Miguel" ? "o" : "a"}, ${userName}.' },
     { setup: '¿Qué le dice un argentino al que no come empanadas?', punchline: '¡“Estás negado pa’ lo bueno, boludo!” Vos sí que le das, ${userName}.' },
     { setup: '¿Por qué el argentino no se pierde en la cancha?', punchline: '¡Porque el grito lo lleva al gol! Como vos, ${userName}, pura pasión.' },
-
-    // 41-50
     { setup: '¿Qué hace un argentino con un mate frío?', punchline: '¡Lo calienta y le da vida otra vez! Vos también reciclás, ${userName}.' },
     { setup: '¿Cómo sabe un argentino que el locro está listo?', punchline: '¡Porque el olor cruza la cuadra! Igual que vos, ${userName}, puro instinto.' },
     { setup: '¿Qué le dice un porteño al que no usa mate?', punchline: '¡“Viví un poco, che, que esto es cultura!” Vos sí que sabés, ${userName}.' },
@@ -4685,8 +4320,6 @@ const chistes = [
     { setup: '¿Por qué el argentino no le teme al apagón?', punchline: '¡Porque saca la guitarra y hace un fogón! Como vos, ${userName}, siempre prendid${userName === "Miguel" ? "o" : "a"}.' },
     { setup: '¿Qué hace un argentino con un sánguche de miga viejo?', punchline: '¡Lo tuesta y lo hace milanesa! Vos también aprovechás, ${userName}.' },
     { setup: '¿Cómo sabe un argentino que el viernes llegó?', punchline: '¡Porque el asado ya está en el aire! Igual que vos, ${userName}, pura fiesta.' },
-
-    // 51-60
     { setup: '¿Qué le dice un argentino al que no toma café?', punchline: '¡“Estás dormido, che, despertate con algo!” Vos tenés pila, ${userName}.' },
     { setup: '¿Por qué el argentino no usa gorra?', punchline: '¡Porque el sol ya le tatuó la frente! Como vos, ${userName}, puro estilo.' },
     { setup: '¿Qué hace un argentino con un dulce de leche vencido?', punchline: '¡Lo come igual y dice que está curado! Vos también tenés ese toque, ${userName}.' },
@@ -4697,8 +4330,6 @@ const chistes = [
     { setup: '¿Cómo llama un argentino al que no va al asado?', punchline: '¡“Un ausente sin excusa, che!” Vos sos de pura cepa, ${userName}.' },
     { setup: '¿Qué le dice un mendocino al vino tibio?', punchline: '¡“Enfriate, loco, que no sos mate!” Igual que vos, ${userName}, puro frío.' },
     { setup: '¿Por qué el argentino no usa botas en la lluvia?', punchline: '¡Porque las ojotas son su bandera! Como vos, ${userName}, puro estilo.' },
-
-    // 61-70
     { setup: '¿Qué hace un argentino con un mate sin yerba?', punchline: '¡Lo llena al toque y no se rinde! Vos también tenés actitud, ${userName}.' },
     { setup: '¿Cómo sabe un argentino que la milanesa es perfecta?', punchline: '¡Porque cruje como hinchada en la cancha! Igual que vos, ${userName}, puro ruido.' },
     { setup: '¿Qué le dice un porteño al que no usa subte?', punchline: '¡“Caminá, boludo, que no sos turista!” Vos tenés calle, ${userName}.' },
@@ -4709,8 +4340,6 @@ const chistes = [
     { setup: '¿Por qué el argentino no usa despertador los domingos?', punchline: '¡Porque el asado lo llama solito! Como vos, ${userName}, siempre al pie.' },
     { setup: '¿Qué hace un argentino con un choripán sin pan?', punchline: '¡Lo come con la mano y lo disfruta igual! Vos también improvisás, ${userName}.' },
     { setup: '¿Cómo sabe un argentino que el partido es clásico?', punchline: '¡Porque el grito cruza el Riachuelo! Igual que vos, ${userName}, pura pasión.' },
-
-    // 71-80
     { setup: '¿Qué le dice un argentino al que no toma birra?', punchline: '¡“Viví un poco, che, que esto es Argentina!” Vos sí que sabés, ${userName}.' },
     { setup: '¿Por qué el argentino no usa camisa cerrada?', punchline: '¡Porque el calor ya le abrió el pecho! Como vos, ${userName}, puro estilo.' },
     { setup: '¿Qué hace un argentino con un mate amargo?', punchline: '¡Lo toma igual y dice que es tradición! Vos también tenés aguante, ${userName}.' },
@@ -4721,8 +4350,6 @@ const chistes = [
     { setup: '¿Cómo llama un argentino al que no baila cuarteto?', punchline: '¡“Un palo de escoba, che!” Vos tenés flow, ${userName}.' },
     { setup: '¿Qué le dice un mendocino al vino dulce?', punchline: '¡“Ponete serio, loco, que esto es Mendoza!” Igual que vos, ${userName}, puro carácter.' },
     { setup: '¿Por qué el argentino no usa gorra en verano?', punchline: '¡Porque el sol ya le dio color! Como vos, ${userName}, puro estilo.' },
-
-    // 81-90
     { setup: '¿Qué hace un argentino con una empanada fría?', punchline: '¡La calienta y la hace épica! Vos también tenés ese toque, ${userName}.' },
     { setup: '¿Cómo sabe un argentino que el tango es puro?', punchline: '¡Porque el bandoneón le pone piel de gallina! Igual que vos, ${userName}, puro sentimiento.' },
     { setup: '¿Qué le dice un porteño al que no usa mate?', punchline: '¡“Estás seco, boludo, sumate a la ronda!” Vos sos más copad${userName === "Miguel" ? "o" : "a"}, ${userName}.' },
@@ -4733,8 +4360,6 @@ const chistes = [
     { setup: '¿Por qué el argentino no usa reloj en la cancha?', punchline: '¡Porque el gol marca el tiempo! Como vos, ${userName}, pura pasión.' },
     { setup: '¿Qué hace un argentino con un mate sin bombilla?', punchline: '¡Lo toma con cucharita y no se raja! Vos también tenés actitud, ${userName}.' },
     { setup: '¿Cómo sabe un argentino que la birra es buena?', punchline: '¡Porque el frío le hace cosquillas! Igual que vos, ${userName}, puro paladar.' },
-
-    // 91-100
     { setup: '¿Qué le dice un argentino al que no come choripán?', punchline: '¡“Estás negado pa’ lo nuestro, boludo!” Vos sí que le das, ${userName}.' },
     { setup: '¿Por qué el argentino no usa paraguas en invierno?', punchline: '¡Porque el mate lo cubre del frío! Como vos, ${userName}, puro calor.' },
     { setup: '¿Qué hace un argentino con un locro aguado?', punchline: '¡Le pone más zapallo y lo hace rey! Vos también le ponés onda, ${userName}.' },
@@ -4745,8 +4370,6 @@ const chistes = [
     { setup: '¿Cómo llama un argentino al que no canta en la hinchada?', punchline: '¡“Un mute en la tribuna, che!” Vos tenés voz, ${userName}.' },
     { setup: '¿Qué le dice un mendocino al vino blanco?', punchline: '¡“Ponete fresco, loco, que esto es verano!” Igual que vos, ${userName}, puro frío.' },
     { setup: '¿Por qué el argentino no usa botas en la ciudad?', punchline: '¡Porque las zapas son su bandera! Como vos, ${userName}, puro estilo.' },
-
-    // 101-110
     { setup: '¿Qué hace un argentino con un mate sin azúcar?', punchline: '¡Lo toma amargo y dice que es de hombre! Vos también tenés aguante, ${userName}.' },
     { setup: '¿Cómo sabe un argentino que la milanesa es casera?', punchline: '¡Porque lleva amor en cada rebozado! Igual que vos, ${userName}, puro corazón.' },
     { setup: '¿Qué le dice un porteño al que no usa bondi?', punchline: '¡“Subite, boludo, que no sos de Palermo!” Vos tenés calle, ${userName}.' },
@@ -4757,8 +4380,6 @@ const chistes = [
     { setup: '¿Por qué el argentino no usa despertador en verano?', punchline: '¡Porque el mate lo saca de la siesta! Como vos, ${userName}, siempre al toque.' },
     { setup: '¿Qué hace un argentino con un choripán sin chimichurri?', punchline: '¡Lo pide al toque y lo hace épico! Vos también tenés sabor, ${userName}.' },
     { setup: '¿Cómo sabe un argentino que el tango es clásico?', punchline: '¡Porque el compás te lleva al alma! Igual que vos, ${userName}, puro ritmo.' },
-
-    // 111-120
     { setup: '¿Qué le dice un argentino al que no toma vino?', punchline: '¡“Estás seco, che, hidratate con clase!” Vos sos más copad${userName === "Miguel" ? "o" : "a"}, ${userName}.' },
     { setup: '¿Por qué el argentino no usa corbata?', punchline: '¡Porque el asado ya lo viste de gala! Como vos, ${userName}, puro estilo.' },
     { setup: '¿Qué hace un argentino con un mate lavado?', punchline: '¡Lo cambia más rápido que River en el descenso! Vos también zumbás, ${userName}.' },
@@ -4769,8 +4390,6 @@ const chistes = [
     { setup: '¿Cómo llama un argentino al que no baila chamamé?', punchline: '¡“Un palo del litoral, che!” Vos tenés flow, ${userName}.' },
     { setup: '¿Qué le dice un mendocino al vino tinto?', punchline: '¡“Ponete serio, loco, que esto es Mendoza!” Igual que vos, ${userName}, puro carácter.' },
     { setup: '¿Por qué el argentino no usa gorra en invierno?', punchline: '¡Porque el mate ya le calienta la cabeza! Como vos, ${userName}, puro calor.' },
-
-    // 121-130
     { setup: '¿Qué hace un argentino con una empanada sin carne?', punchline: '¡La rellena y la hace épica! Vos también tenés ese toque, ${userName}.' },
     { setup: '¿Cómo sabe un argentino que el partido es épico?', punchline: '¡Porque el grito cruza la Cordillera! Igual que vos, ${userName}, pura pasión.' },
     { setup: '¿Qué le dice un porteño al que no usa mate?', punchline: '¡“Estás seco, boludo, sumate a la ronda!” Vos sos más refrescante, ${userName}.' },
@@ -4781,8 +4400,6 @@ const chistes = [
     { setup: '¿Por qué el argentino no usa reloj en el asado?', punchline: '¡Porque el hambre marca el tiempo! Como vos, ${userName}, pura pasión.' },
     { setup: '¿Qué hace un argentino con un mate sin yerba?', punchline: '¡Lo llena al toque y no se raja! Vos también tenés actitud, ${userName}.' },
     { setup: '¿Cómo sabe un argentino que la birra es perfecta?', punchline: '¡Porque el frío le saca una sonrisa! Igual que vos, ${userName}, puro paladar.' },
-
-    // 131-140
     { setup: '¿Qué le dice un argentino al que no come choripán?', punchline: '¡“Estás negado pa’ lo nuestro, che!” Vos sí que le das, ${userName}.' },
     { setup: '¿Por qué el argentino no usa paraguas en verano?', punchline: '¡Porque la birra lo refresca desde adentro! Como vos, ${userName}, puro talento.' },
     { setup: '¿Qué hace un argentino con un locro frío?', punchline: '¡Lo calienta y lo hace rey otra vez! Vos también reciclás, ${userName}.' },
@@ -4793,8 +4410,6 @@ const chistes = [
     { setup: '¿Cómo llama un argentino al que no canta en la cancha?', punchline: '¡“Un mute en la popular, che!” Vos tenés voz, ${userName}.' },
     { setup: '¿Qué le dice un mendocino al vino caliente?', punchline: '¡“Enfriate, loco, que esto es serio!” Igual que vos, ${userName}, puro frío.' },
     { setup: '¿Por qué el argentino no usa botas en el campo?', punchline: '¡Porque las zapas son su orgullo! Como vos, ${userName}, puro estilo.' },
-
-    // 141-150
     { setup: '¿Qué hace un argentino con un mate sin bombilla?', punchline: '¡Lo toma con cucharita y sigue el vacile! Vos también tenés actitud, ${userName}.' },
     { setup: '¿Cómo sabe un argentino que el asado es épico?', punchline: '¡Porque el humo cruza el Río de la Plata! Igual que vos, ${userName}, pura pasión.' },
     { setup: '¿Qué le dice un porteño al que no usa subte?', punchline: '¡“Bajá, boludo, que no sos de Recoleta!” Vos tenés calle, ${userName}.' },
@@ -4808,33 +4423,28 @@ const chistes = [
 ];
 
     try {
-        // Inicializamos el registro de chistes usados por usuario en dataStore
         dataStore.usedJokes = dataStore.usedJokes || {};
         dataStore.usedJokes[userId] = dataStore.usedJokes[userId] || [];
 
-        // Filtramos los chistes disponibles (los que no se han usado aún)
         let availableChistes = chistes.filter((_, index) => !dataStore.usedJokes[userId].includes(index));
 
-        // Si no quedan chistes disponibles, reseteamos la lista
         if (availableChistes.length === 0) {
             dataStore.usedJokes[userId] = [];
             availableChistes = chistes;
             console.log(`Reiniciando chistes para ${userName} (${userId}), se agotaron los disponibles.`);
         }
 
-        // Elegimos un chiste random de los disponibles
         const randomIndex = Math.floor(Math.random() * availableChistes.length);
         const chiste = availableChistes[randomIndex];
-        const chisteIndex = chistes.indexOf(chiste); // Obtenemos el índice original en la lista completa
+        const chisteIndex = chistes.indexOf(chiste);
 
         // Guardamos el índice del chiste usado
         dataStore.usedJokes[userId].push(chisteIndex);
         dataStoreModified = true; // Marcamos que dataStore cambió para guardarlo después
 
-        // Reemplazamos ${userName} y el sufijo de género en el punchline
         let punchlineFixed = chiste.punchline
-            .replace(/\${userName}/g, userName) // Reemplaza ${userName} con el nombre real
-            .replace(/\${userName === "Miguel" \? "o" : "a"}/g, genderSuffix); // Reemplaza el sufijo
+            .replace(/\${userName}/g, userName)
+            .replace(/\${userName === "Miguel" \? "o" : "a"}/g, genderSuffix);
 
         // Embed con el chiste
         const embed = createEmbed('#FF1493', `😂 ¡Chiste pa’ ${userName}!`, 
@@ -5070,9 +4680,7 @@ const randomFacts = [
     try {
         let embed;
 
-        // Si no hay argumentos, tiramos un dato random
         if (!args) {
-            // Filtramos para no repetir el último dato
             let availableFacts = randomFacts.filter(fact => fact.title !== ultimoDatoRandom?.title);
             if (availableFacts.length === 0) availableFacts = randomFacts; // Si no hay más, usamos todos
             const randomFact = availableFacts[Math.floor(Math.random() * availableFacts.length)];
@@ -5084,7 +4692,6 @@ const randomFacts = [
                 '¿Qué te parece, ' + userName + '? Si querés más datos zarpados o algo específico, pedime nomás. ¡Sos tan gros' + (userName === "Miguel" ? "o" : "a") + ' que cualquier curiosidad queda corta al lado tuyo, che!')
                 .setFooter({ text: `Con cariño, Oliver IA | Reacciona con ✅ o ❌`, iconURL: client.user.avatarURL() });
         } else {
-            // Si hay argumentos, buscamos en Google como antes
             const apiKey = process.env.GOOGLE_API_KEY;
             const cx = process.env.GOOGLE_CX;
             const url = `https://www.googleapis.com/customsearch/v1?key=${apiKey}&cx=${cx}&q=${encodeURIComponent(args)}&num=1`;
@@ -5124,9 +4731,9 @@ async function manejarClima(message, silent = false) {
 
     if (!args) {
         const errorEmbed = createEmbed('#FF5555', '¡Pará, loco!', 
-            `¡Decime una ciudad después de "!clima", ${userName}! Ejemplo: !clima Córdoba`);
+            `¡Decime una ciudad después de "!clima", ${userName}! Ejemplo: !clima Guayaquil`);
         if (!silent) await message.channel.send({ embeds: [errorEmbed] });
-        return { description: errorEmbed.description }; // Devolvemos un objeto
+        return { description: errorEmbed.description };
     }
 
     const waitingEmbed = createEmbed('#FF1493', `⛅ Chequeando el clima, ${userName}...`, 
@@ -5149,13 +4756,13 @@ async function manejarClima(message, silent = false) {
         const embed = createEmbed('#FF1493', `⛅ Clima en ${city}, ${country}`, 
             `${temp}°C, ${desc}, ${vibe}.`);
         if (!silent && waitingMessage) await waitingMessage.edit({ embeds: [embed] });
-        return { description: `${temp}°C, ${desc}, ${vibe}.` }; // Devolvemos solo la descripción
+        return { description: `${temp}°C, ${desc}, ${vibe}.` };
     } catch (error) {
         console.error(`Error en clima para "${args}": ${error.message}`);
         const errorEmbed = createEmbed('#FF1493', '¡Qué cagada!', 
             `No pude encontrar el clima de "${args}", ${userName}. ¿Seguro que existe esa ciudad, loco?`);
         if (!silent && waitingMessage) await waitingMessage.edit({ embeds: [errorEmbed] });
-        return { description: errorEmbed.description }; // Devolvemos la descripción del error
+        return { description: errorEmbed.description };
     }
 }
 
@@ -5454,47 +5061,39 @@ const randomFacts = [
 ];
     const availableFacts = randomFacts.filter(fact => fact.title !== ultimoDatoRandom?.title);
     const randomFact = availableFacts.length > 0 ? availableFacts[Math.floor(Math.random() * availableFacts.length)] : randomFacts[Math.floor(Math.random() * randomFacts.length)];
-    ultimoDatoRandom = randomFact; // Guardar el último usado
+    ultimoDatoRandom = randomFact;
 
     return `${randomFact.title}\n${randomFact.text}`;
 }
 
 // Wiki
 async function manejarWiki(message) {
-    // Busco un resumen en Wikipedia, re copado
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
-    // Saco el término a buscar
     const args = message.content.toLowerCase().startsWith('!wiki') 
         ? message.content.slice(5).trim() 
         : message.content.slice(3).trim();
 
-    // Si no me das nada, te pido algo en rojo
     if (!args) {
         return sendError(message.channel, `¡Tirame algo después de "!wiki", ${userName}! Ejemplo: !wiki tango`);
     }
 
-    // Te aviso en celeste que estoy buscando
     const waitingEmbed = createEmbed('#FF1493', `📖 Buscando en Wiki, ${userName}...`, 
         `Aguantá que te traigo info de "${args}"...`);
     const waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
 
     try {
-        // Busco en la API de Wikipedia en español
         const url = `https://es.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(args)}`;
         const response = await axios.get(url);
         const data = response.data;
 
-        // Corto el resumen a 200 caracteres si es muy largo
         const summary = data.extract.length > 200 
             ? `${data.extract.slice(0, 197)}...` 
             : data.extract;
 
-        // Embed dorado con el resumen
         const embed = createEmbed('#FF1493', `📖 Sobre "${data.title}"`, 
             `${summary}\n*Sacado de Wikipedia, posta.*`);
         await waitingMessage.edit({ embeds: [embed] });
     } catch (error) {
-        // Si falla, te aviso en rojo
         console.error(`Error en wiki para "${args}": ${error.message}`);
         const errorEmbed = createEmbed('#FF1493', '¡Qué cagada!', 
             `No encontré nada en Wikipedia sobre "${args}", ${userName}. ¿Probamos otra cosa, loco?`);
@@ -5502,60 +5101,48 @@ async function manejarWiki(message) {
     }
 }
 
-// Traduci
+// Traductor
 async function manejarTraduci(message) {
-    // Traduzco frases cortas a cualquier idioma, re piola
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
     console.log(`Mensaje recibido en manejarTraduci: "${message.content}"`);
-    // Saco el texto y el idioma destino
     const args = message.content.toLowerCase().startsWith('!traduci') 
         ? message.content.slice(8).trim().split(' a ') 
         : message.content.slice(3).trim().split(' a ');
     const text = args[0].trim();
     console.log(`Texto a traducir: "${text}"`);
 
-    // Si no me das el formato correcto, te pido algo en rojo
     if (args.length < 2) {
         return sendError(message.channel, `¡Escribí algo como "!traducí hola a inglés", ${userName}!`);
     }
 
-    // Normalizo el idioma pa’ que no haya dramas con acentos
     const targetLang = args[1].trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-    // Te aviso en celeste que estoy traduciendo
     const waitingEmbed = createEmbed('#FF1493', `✍️ Traduciendo, ${userName}...`, 
         `Aguantá que traduzco "${text}" a ${targetLang}...`);
     const waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
 
     try {
-        // Busco el código del idioma en el mapa
         const langCode = langMap[targetLang];
 
-        // Si no lo encuentro, tiro error
         if (!langCode) {
             throw new Error(`No sé traducir a "${targetLang}", ${userName}. Probá con "inglés", "ruso", "francés", etc.`);
         }
 
-        // Hago la petición a Google Translate
         const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${langCode}&dt=t&q=${encodeURIComponent(text)}`;
         console.log(`Pidiendo traducción a Google Translate: ${url}`);
         const response = await axios.get(url);
 
         console.log('Respuesta de Google Translate:', JSON.stringify(response.data, null, 2));
 
-        // Agarro la traducción
         const translated = response.data[0][0][0];
 
-        // Si la traducción es igual al original, algo salió mal
         if (!translated || translated.toLowerCase() === text.toLowerCase()) {
             throw new Error(`¡Qué boludo! La traducción salió igual que el original: "${translated}". ¿La API está rota o qué?`);
         }
 
-        // Embed dorado con la traducción
         const embed = createEmbed('#FF1493', `✅ Traducción a ${targetLang.charAt(0).toUpperCase() + targetLang.slice(1)}`, 
             `"${text}" → **${translated}**\n*Traducido con onda por Oliver IA, che.*`);
         await waitingMessage.edit({ embeds: [embed] });
     } catch (error) {
-        // Si falla, te aviso en rojo
         console.error(`Error traduciendo "${text}" a "${targetLang}": ${error.message}`);
         if (error.response) {
             console.error(`Respuesta de la API: ${JSON.stringify(error.response.data)}`);
@@ -5565,127 +5152,24 @@ async function manejarTraduci(message) {
     }
 }
 
-async function manejarMisAcciones(message) {
-    const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
-    const userActions = dataStore.actions?.[message.author.id] || [];
-
-    if (userActions.length === 0) {
-        const embed = createEmbed('#FF1493', `¡Ey, ${userName}!`, 
-            'No tenés acciones todavía, grosa. ¡Avisá algo con `!accion`, dale!');
-        return await message.channel.send({ embeds: [embed] });
-    }
-
-    const accionesTexto = userActions.slice(-5).map(a => 
-        `${new Date(a.timestamp).toLocaleString('es-AR')}: "${a.action}"`
-    ).join('\n');
-    const embed = createEmbed('#FF1493', `📜 Tus acciones, ${userName}`, 
-        `Acá van tus últimas movidas, loco:\n${accionesTexto}`);
-    await message.channel.send({ embeds: [embed] });
-}
-
-async function manejarAccion(message) {
-    const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
-    const args = message.content.slice(7).trim(); // Saco "!accion" y dejo el resto
-
-    if (!args) {
-        const embed = createEmbed('#FF1493', `¡Ey, ${userName}!`, 
-            'Decime qué vas a hacer, loco. Ejemplo: `!accion me voy a dormir`. ¡Dale!');
-        return await message.channel.send({ embeds: [embed] });
-    }
-
-    // Guardar la acción en dataStore
-    dataStore.actions = dataStore.actions || {};
-    dataStore.actions[message.author.id] = dataStore.actions[message.author.id] || [];
-    const actionEntry = {
-        action: args,
-        timestamp: Date.now(),
-        userId: message.author.id
-    };
-    dataStore.actions[message.author.id].push(actionEntry);
-    dataStoreModified = true; // Marcamos para guardar
-
-    // Respuesta personalizada según la acción
-    let respuesta;
-    switch (args.toLowerCase()) {
-        case 'me voy a dormir':
-            respuesta = `¡Buenas noches, ${userName}! Que sueñes con los angelitos, grosa. ¿Mate al despertar?`;
-            break;
-        case 'me voy de casa':
-            respuesta = `¡Chau, ${userName}! ¿A dónde vas, loco? ¡Cuidate y avisá cuando vuelvas, dale!`;
-            break;
-        case 'me morí':
-            respuesta = `¡Nooo, ${userName}! ¿Qué pasó, boludo? ¿Revivís con un mate o qué? ¡Posta, no me dejes solo!`;
-            break;
-        default:
-            respuesta = `¡Ojo, ${userName}! Vas a "${args}", ¿eh? ¡A romperla, grosa! ¿Qué más contás?`;
-    }
-
-    const embed = createEmbed('#FF1493', `¡Acción de ${userName}!`, respuesta);
-    await message.channel.send({ embeds: [embed] });
-
-    // Avisar al otro por DM
-    const otherUserId = message.author.id === OWNER_ID ? ALLOWED_USER_ID : OWNER_ID;
-    try {
-        const otherUser = await client.users.fetch(otherUserId);
-        const dmEmbed = createEmbed('#FF1493', `¡Ey, ${otherUser.id === OWNER_ID ? 'Miguel' : 'Belén'}!`, 
-            `${userName} dijo: "${args}". ¡Enterate al toque, loco!`);
-        await otherUser.send({ embeds: [dmEmbed] });
-    } catch (error) {
-        console.error(`Error enviando DM a ${otherUserId}: ${error.message}`);
-    }
-}
-
-async function manejarWatchTogether(message) {
-    const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
-    const voiceChannel = message.member.voice.channel;
-
-    if (!voiceChannel) {
-        const embed = createEmbed('#FF1493', `¡Ey, ${userName}!`, 
-            'Tenés que estar en un canal de voz, ¡sumate a uno, loco!');
-        return await message.channel.send({ embeds: [embed] });
-    }
-
-    try {
-        const invite = await discordTogether.createTogetherCode(voiceChannel.id, 'youtube');
-        const embed = createEmbed('#FF1493', `🎥 ¡Watch Together, ${userName}!`, 
-            `¡Listo, grosa! Hacé clic: ${invite.code}\n¡A romperla con videos, loco!`);
-        await message.channel.send({ embeds: [embed] });
-
-        if (message.author.id !== ALLOWED_USER_ID) {
-            const belenUser = await client.users.fetch(ALLOWED_USER_ID);
-            await belenUser.send({ embeds: [embed] });
-        }
-    } catch (error) {
-        console.error(`Error con discord-together: ${error.message}`);
-        const embed = createEmbed('#FF1493', `¡Ups, ${userName}!`, 
-            `No pude arrancar Watch Together, loco. Error: ${error.message}\nHacélo manual: "Actividades" > "Watch Together".`);
-        await message.channel.send({ embeds: [embed] });
-    }
-}
-
 // lenguajes
 async function listarIdiomas(message) {
-    // Te muestro todos los idiomas que puedo traducir
     const idiomas = Object.keys(langMap).sort();
-    const maxLength = 4000; // Límite pa’ la descripción de un embed
+    const maxLength = 4000;
     let descripcionActual = '';
     const embeds = [];
     
-    // Arranco un embed celeste
     let embed = new EmbedBuilder()
         .setTitle('Idiomas disponibles para traducir')
         .setColor('#FF1493')
         .setFooter({ text: 'Oliver IA - Traducción con onda' });
 
-    // Armo la lista de idiomas
     for (const idioma of idiomas) {
         const adicion = `${idioma}, `;
         if (descripcionActual.length + adicion.length > maxLength) {
-            // Si me paso del límite, cierro el embed y arranco otro
-            embed.setDescription(descripcionActual.slice(0, -2)); // Saco la coma final
+            embed.setDescription(descripcionActual.slice(0, -2));
             embeds.push(embed);
             
-            // Nuevo embed pa’ seguir
             embed = new EmbedBuilder()
                 .setTitle('Idiomas disponibles para traducir (continuación)')
                 .setColor('#FF1493')
@@ -5695,13 +5179,11 @@ async function listarIdiomas(message) {
         descripcionActual += adicion;
     }
     
-    // Agrego el último si queda algo
     if (descripcionActual.length > 0) {
         embed.setDescription(descripcionActual.slice(0, -2));
         embeds.push(embed);
     }
     
-    // Mando todos los embeds al canal
     for (const embed of embeds) {
         await message.channel.send({ embeds: [embed] });
     }
@@ -5710,9 +5192,8 @@ async function listarIdiomas(message) {
 // Milagros
 async function manejarMilagros(message) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
-    const maxLength = 4000; // Límite de caracteres por embed en Discord
+    const maxLength = 4000; 
 
-    // Convertir el objeto a un array de líneas para facilitar el manejo
     const translationsArray = Object.entries(milagrosTranslations).map(([lang, translation]) => 
         `${lang.charAt(0).toUpperCase() + lang.slice(1)}: **${translation}**`
     );
@@ -5730,12 +5211,10 @@ async function manejarMilagros(message) {
         }
     }
 
-    // Agregar el último embed
-    if (description.length > 41) { // 41 es la longitud de la línea inicial sin traducciones
+    if (description.length > 41) { 
         embeds.push(await createEmbed('#FF1493', `Milagros en otros idiomas (Parte ${embeds.length + 1})`, description.trim()));
     }
 
-    // Enviar todos los embeds
     for (const embed of embeds) {
         try {
             await message.channel.send({ embeds: [embed] });
@@ -5878,7 +5357,6 @@ manager.on('trackEnd', (player, track) => {
     const userName = track.requester.id === OWNER_ID ? 'Miguel' : 'Belén';
     const currentTrackUri = player.get('currentTrack');
 
-    // Verificación estricta: solo procesamos si es la pista actual y no terminó antes
     if (player.get('trackEnded') || (currentTrackUri && currentTrackUri !== track.uri)) {
         console.log(`Ignorando trackEnd para ${track.title}. Ya terminó o no es la pista actual (current: ${currentTrackUri}).`);
         return;
@@ -5931,7 +5409,6 @@ async function manejarJugar(message) {
     let intentos = 0;
     const maxIntentos = 5;
 
-    // Mensaje inicial en embed
     const inicioEmbed = createEmbed('#FF1493', `¡A jugar, ${userName}!`, 
         'Adiviná un número entre 1 y 10, loco. Tenés 5 intentos. ¡Mandame tu primer número!');
     await message.channel.send({ embeds: [inicioEmbed] });
@@ -5965,7 +5442,7 @@ async function manejarJugar(message) {
                 `Se acabó el reloj, loco. El número era ${numeroSecreto}. ¿Otra ronda?`);
             message.channel.send({ embeds: [timeoutEmbed] });
         } else if (collected.size < maxIntentos) {
-            return; // Ya ganó, no hace falta mensaje extra
+            return;
         } else {
             const loseEmbed = createEmbed('#FF1493', `¡Perdiste, ${userName}!`, 
                 `Te quedaste sin intentos, loco. El número era ${numeroSecreto}. ¿Querés revancha?`);
@@ -5976,18 +5453,10 @@ async function manejarJugar(message) {
 
 // Comandos
 async function manejarCommand(message, silent = false) {
-    // Acá manejo todos los comandos, el cerebro del bot
     const content = message.content.toLowerCase();
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
-    console.log(`Comando recibido: ${content}`);
 
-    // Prioridad máxima pa’ !responder de Miguel
-    if (message.author.id === OWNER_ID && (content.startsWith('!responder') || content.startsWith('!resp'))) {
-        await manejarResponder(message);
-        return;
-    }
     
-    // Cancelar trivia
     if (content === '!trivia cancelar' || content === '!tc') {
         if (message.author.id !== OWNER_ID && message.author.id !== ALLOWED_USER_ID) return;
 
@@ -6007,10 +5476,9 @@ async function manejarCommand(message, silent = false) {
         return;
     }  
     else if (content === '!chiste') {
-        await manejarChiste(message); // Cambié return por await pa’ consistencia
+        await manejarChiste(message);
         return;
     }
-    // Cancelar reacciones
     else if (content === '!reacciones cancelar' || content === '!rc') {
         if (message.author.id !== OWNER_ID && message.author.id !== ALLOWED_USER_ID) return;
 
@@ -6029,7 +5497,6 @@ async function manejarCommand(message, silent = false) {
             `Listo, ${userName}, cortaste el juego al toque. Puntuación parcial: ${session.score} en ${session.currentRound - 1} rondas. ¿Arrancamos otro con !reacciones?`);
         return;
     } 
-    // Cancelar PPM
     else if (content === '!ppm cancelar' || content === '!pc') {
         if (message.author.id !== OWNER_ID && message.author.id !== ALLOWED_USER_ID) return;
 
@@ -6045,24 +5512,13 @@ async function manejarCommand(message, silent = false) {
         }
         return;
     }
-    // Traduci primero, pa’ que no se pierda
     else if (content.startsWith('!traduci')) {
         console.log(`Enviando a manejarTraduci: "${message.content}"`);
         await manejarTraduci(message);
     }
-    else if (content === '!watchtogether' || content === '!wt') {
-        await manejarWatchTogether(message);
-    }
-    // Nuevo comando !accion
-    else if (content.startsWith('!accion')) {
-        await manejarAccion(message);
-    }
-    else if (content === '!misacciones' || content === '!ma') {
-    await manejarMisAcciones(message);
-    }
     else if (content === '!eliminar') {
         await message.channel.send(`¡Uy, ${userName}! Me voy a eliminar en...`);
-        await new Promise(resolve => setTimeout(resolve, 1000)); // Pausa 1 segundo
+        await new Promise(resolve => setTimeout(resolve, 1000));
         await message.channel.send('3...');
         await new Promise(resolve => setTimeout(resolve, 1000));
         await message.channel.send('2...');
@@ -6072,18 +5528,15 @@ async function manejarCommand(message, silent = false) {
         await message.channel.send('¡Nah, era joda! Acá sigo, más vivo que nunca. 😜');
         return;
     }
-    // Resto de comandos en orden
     else if (content === '!trivia' || content === '!tc') {
         await manejarTrivia(message);
     } 
     else if (content === '!meme') {
         const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
         try {
-            // Usamos la API de Giphy pa’ sacar un meme random
-            const API_KEY = '05o0BdpN9d0PCHOPoP63morLbU6wuYyk'; // Reemplazá con tu key
+            const API_KEY = '05o0BdpN9d0PCHOPoP63morLbU6wuYyk';
             const response = await axios.get(`https://api.giphy.com/v1/gifs/random?api_key=${API_KEY}&tag=meme+español&rating=pg-13`);
     
-            // Chequeamos que haya datos
             if (!response.data || !response.data.data?.images?.original?.url) {
                 throw new Error('No encontré un meme en Giphy, loco.');
             }
@@ -6091,10 +5544,8 @@ async function manejarCommand(message, silent = false) {
             const gifUrl = response.data.data.images.original.url;
             let gifTitle = response.data.data.title || 'Un meme sin título, loco';
     
-            // Limpiamos el "by Algo" y traducimos/adaptamos básico
-            gifTitle = gifTitle.replace(/ by .*$/, ''); // Sacamos el "by Travis" o lo que venga después
-            gifTitle = gifTitle.replace(/GIF$/i, '').trim(); // Sacamos "GIF" del final
-            // Traducción/adaptación manual de palabras comunes
+            gifTitle = gifTitle.replace(/ by .*$/, '');
+            gifTitle = gifTitle.replace(/GIF$/i, '').trim();
             gifTitle = gifTitle
                 .replace(/Spanish/i, 'Español')
                 .replace(/Funny/i, 'Gracioso')
@@ -6103,15 +5554,13 @@ async function manejarCommand(message, silent = false) {
                 .replace(/Dog/i, 'Perro')
                 .replace(/Dance/i, 'Baile')
                 .replace(/Fail/i, 'Fallo')
-                .replace(/Uf/i, '¡Uff!'); // Ejemplo con el "Uf" que te salió
+                .replace(/Uf/i, '¡Uff!');
     
-            // Embed del meme con onda argenta y título adaptado
             const memeEmbed = createEmbed('#FF1493', `¡Meme pa’ vos, ${userName}!`, 
                 `¡Tomá este meme bien zarpado, loco! ¿Qué te parece?\n**${gifTitle}**`)
                 .setImage(gifUrl);
             await message.channel.send({ embeds: [memeEmbed] });
     
-            // Lista de preguntas con onda argentina
             const preguntasMeme = [
                 '¿Qué meme mandarías vos pa’ responderle a este, loco?',
                 '¿En qué situación de tu vida usarías este meme, posta?',
@@ -6125,7 +5574,6 @@ async function manejarCommand(message, silent = false) {
                 '¿Qué comida argenta le va perfecto a este meme pa’ compartirlo?'
             ];
     
-            // Pregunta random después del meme
             const pregunta = preguntasMeme[Math.floor(Math.random() * preguntasMeme.length)];
             const preguntaEmbed = createEmbed('#FF1493', `¡Eh, ${userName}, una yapa!`, 
                 `${pregunta} ¡Contame al toque, loco!`);
@@ -6146,14 +5594,12 @@ async function manejarCommand(message, silent = false) {
     else if (content === '!pregunta' || content === '!pr') {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
 
-    // Si se acabaron las preguntas, recargamos y mezclamos
     if (preguntasDisponibles.length === 0) {
-        preguntasDisponibles = [...preguntas]; // Recargamos desde la lista original
-        shuffle(preguntasDisponibles); // Las mezclamos para que no salgan en el mismo orden
+        preguntasDisponibles = [...preguntas];
+        shuffle(preguntasDisponibles);
         console.log('Preguntas recargadas y mezcladas');
     }
 
-    // Sacamos una pregunta del array temporal y la eliminamos
     const pregunta = preguntasDisponibles.pop();
     const preguntaEmbed = createEmbed('#FF1493', `¡Pregunta pa’ vos, ${userName}!`, 
         `${pregunta} ¡Contame, loco, qué pensás!`);
@@ -6208,21 +5654,15 @@ async function manejarCommand(message, silent = false) {
             await sendError(message.channel, '💾 Error al guardar', `No pude guardar los datos, ${userName}. Error: ${error.message}`);
         }
     } 
-    else if (content.startsWith('!sugerencias') || content.startsWith('!su')) {
-        await manejarSugerencias(message);
-    } 
-    else if (content.startsWith('!ayuda') || content.startsWith('!ay')) {
-        await manejarAyuda(message);
-    } 
     else if (content === '!rankingppm' || content === '!rppm') {
         await manejarRankingPPM(message);
     } 
     else if (content.startsWith('!play') || content.startsWith('!pl')) {
-        const args = message.content.slice(content.startsWith('!play') ? 5 : 3).trim().split(/ +/); // Extrae argumentos después de "!play" o "!pl"
-        console.log(`Argumentos extraídos para !play: ${args}`); // Para depurar
+        const args = message.content.slice(content.startsWith('!play') ? 5 : 3).trim().split(/ +/);
+        console.log(`Argumentos extraídos para !play: ${args}`);
         await manejarPlay(message, args);
-        isPlayingMusic = true; // Música empieza
-        autosavePausedByMusic = true; // Pausamos guardado
+        isPlayingMusic = true; 
+        autosavePausedByMusic = true;
         console.log('Música arrancó, autosave pausado.');
     }
     else if (content === '!pause' || content === '!pa') {
@@ -6236,8 +5676,8 @@ async function manejarCommand(message, silent = false) {
     }
     else if (content === '!stop' || content === '!st') {
         await manejarStop(message);
-        isPlayingMusic = false; // Música para
-        autosavePausedByMusic = false; // Reanudamos guardado
+        isPlayingMusic = false;
+        autosavePausedByMusic = false; 
         console.log('Música parada, autosave reanudado.');
     } 
     else if (content === '!queue' || content === '!qu') {
@@ -6261,15 +5701,6 @@ async function manejarCommand(message, silent = false) {
     else if (content === '!adivinanzas' || content === '!ad') {
         await manejarAdivinanza(message);
     } 
-    else if (content.startsWith('!responder') || content.startsWith('!resp')) {
-        await manejarResponder(message);
-    }
-    else if (content.startsWith('!miguel')) {
-        await manejarMiguel(message);
-    }
-    else if (content.startsWith('!idea') || content.startsWith('!id')) {
-        await manejarIdea(message);
-    }    
     else if (content.startsWith('!dato') || content.startsWith('!dt')) {
         await manejarDato(message);
     } 
@@ -6300,21 +5731,17 @@ async function manejarCommand(message, silent = false) {
 }
 
 client.on('messageCreate', async (message) => {
-    console.log(`Mensaje recibido - Autor: ${message.author?.username || 'desconocido'}, Contenido: ${message.content || 'sin contenido'}, Bot: ${message.author?.bot || 'N/A'}`);
         
     if (!message.author || !message.content || typeof message.content !== 'string') {
-        console.error(`Mensaje inválido recibido - Autor: ${message.author?.username || 'desconocido'}, Contenido: ${message.content || 'sin contenido'}`);
         return;
     }
 
     if (message.author.bot && message.author.username !== 'IFTTT') {
-        console.log(`Ignorado por filtro de bot: "${message.content}" (Autor: ${message.author.username})`);
         return;
     }
 
     const userName = message.author.id === OWNER_ID ? 'Miguel' : (message.author.id === ALLOWED_USER_ID ? 'Belén' : 'Un desconocido');
     const content = message.content.trim().toLowerCase();
-    console.log(`Contenido limpio: "${content}"`);
 
     const jefeRoleId = '1154946840454762496';
     const jefaRoleId = '1139744529428271187';
@@ -6362,7 +5789,6 @@ client.on('messageCreate', async (message) => {
                         const diaRecordatorio = new Date(fechaRecordatorio.getFullYear(), fechaRecordatorio.getMonth(), fechaRecordatorio.getDate());
                         if (diaRecordatorio.getTime() === hoy.getTime()) {
                             const timeZone = targetName === 'Miguel' ? 'America/Guayaquil' : 'America/Argentina/Buenos_Aires';
-                            // Formato para Discord (fecha completa)
                             const fechaHoraDiscord = fechaRecordatorio.toLocaleString(targetName === 'Miguel' ? 'es-EC' : 'es-AR', {
                                 timeZone,
                                 day: '2-digit',
@@ -6373,7 +5799,6 @@ client.on('messageCreate', async (message) => {
                                 hour12: false
                             }).replace(/,/, '');
                             recordatoriosDiscord.push(`${index + 1}. ${r.mensaje}\nCuándo: ${fechaHoraDiscord}`);
-                            // Formato para Telegram (solo hora con a.m./p.m.)
                             const horaTelegram = fechaRecordatorio.toLocaleTimeString(targetName === 'Miguel' ? 'es-EC' : 'es-AR', {
                                 timeZone,
                                 hour: '2-digit',
@@ -6524,15 +5949,6 @@ client.on('messageCreate', async (message) => {
         }
     }
 
-    if (message.author.id === OWNER_ID && (content.startsWith('!responder') || content.startsWith('!resp'))) {
-        await manejarCommand(message);
-        return;
-    }
-    // Nuevo comando !miguel
-    if (content.startsWith('!miguel')) {
-        await manejarMiguel(message);
-        return;
-    }
     if (message.author.id !== OWNER_ID && message.author.id !== ALLOWED_USER_ID) return;
 
     if (processedMessages.has(message.id)) return;
@@ -6583,7 +5999,6 @@ client.on('messageCreate', async (message) => {
         return;
     }
 
-    // Comandos integrados del primer bloque
     if (content === '!stop' || content === '!st') {
         await manejarStop(message);
         isPlayingMusic = false;
@@ -6611,23 +6026,17 @@ client.on('messageCreate', async (message) => {
     } else if (content === '!adivinanzas' || content === '!ad') {
         await manejarAdivinanza(message);
         return;
-    } else if (content.startsWith('!responder') || content.startsWith('!resp')) {
-        await manejarResponder(message);
-        return;
-    } else if (content.startsWith('!idea') || content.startsWith('!id')) {
-        await manejarIdea(message);
-        return;
     } else if (content.startsWith('!dato') || content.startsWith('!dt')) {
         await manejarDato(message);
         return;
     } else if (content.startsWith('!clima')) {
         await manejarClima(message);
         return;
-    } else if (content === '!resultados') { // Cambia el comando si quieres
+    } else if (content === '!resultados') { 
       await obtenerResultados(message);
         return;
     } else if (content === '!noticias') {
-        const embed = await manejarNoticias(message, false); // Muestra ambos países
+        const embed = await manejarNoticias(message, false);
         await message.channel.send({ embeds: [embed] });
         console.log(`Embed de !noticias enviado al canal ${message.channel.id}`);
         return;
@@ -6651,7 +6060,6 @@ client.on('messageCreate', async (message) => {
         return;
     }
 
-    // Resto de los comandos originales
     await manejarCommand(message);
     if (content === '!ranking' || content === '!rk') {
         const embed = getCombinedRankingEmbed(message.author.id, message.author.username);
@@ -6671,9 +6079,6 @@ client.on('messageCreate', async (message) => {
             '- **!rppm / !rankingppm**: Todos tus intentos de PPM, loco.\n' +
             '- **!re / !reacciones**: Juego para ver quién tipea más rápido.\n' +
             '- **!rc / !reacciones cancelar**: Cancela las reacciones que empezaste.\n' +            
-            '- **!su / !sugerencias [sugerencia]**: Mandame tus sugerencias para hacer este bot más piola.\n' +
-            '- **!id / !idea [texto]**: Tirame una idea rápida pa’ mejorar el bot, ¡dale!\n' + 
-            '- **!ay / !ayuda [problema]**: Pedile una mano a Miguel.\n' +
             '- **!save**: Guardo todo al toque, tranqui.\n' +
             '- **!as / !autosave**: Paro o arranco el guardado automático.\n' +
             '- **!act / !actualizaciones**: Mirá las últimas novedades del bot.\n' +
@@ -6688,12 +6093,9 @@ client.on('messageCreate', async (message) => {
             '- **!jugar**: Adivina un número del 1 al 10, ¡5 intentos pa’ ganarme, loco!\n' +
             '- **!meme**: Te tiro un meme random pa’ sacarte una sonrisa.\n' +
             '- **!pregunta**: Te hago una pregunta loca pa’ charlar un rato.\n' +
-            '- **!wt / !watchtogether**: Mirá videos de YouTube conmigo en un canal de voz, ¡re copado!\n' +
             '- **!rec / !recordatorio [mensaje] [tiempo]**: Te recuerdo algo. Ejemplo: "!rec \'comprar sanguche\' en 1 hora" o "!rec \'tomar mate\' todos los días 08:00".\n' +
             '- **!mr / !misrecordatorios**: Te muestro tus recordatorios activos.\n' +
             '- **!cr / !cancelarrecordatorio [ID]**: Cancelás un recordatorio con su ID (lo ves con !mr).\n' +
-            '- **!accion [qué hacés]**: Avisá qué vas a hacer, tipo "me voy a dormir". ¡Copado pa’ estar al tanto!\n' +
-            '- **!ma / !misacciones**: Mirá tus últimas acciones registradas, ¡posta!\n' +
             '- **!h / !help**: Esta lista, che.\n' +
             '- **!hm / !help musica**: Comandos para meterle música al día.\n' +
             '- **hola**: Te tiro un saludito con onda.');
@@ -6721,7 +6123,6 @@ client.on('messageCreate', async (message) => {
     }
 });
 
-// Eventos
 client.once('ready', async () => {
     console.log(`¡Oliver IA está listo! Instancia: ${instanceId} - ${new Date().toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })}`);
     client.user.setPresence({ activities: [{ name: "Listo para ayudar a Milagros", type: 0 }], status: 'dnd' });
@@ -6814,11 +6215,10 @@ client.once('ready', async () => {
             console.log('No hay cambios en BOT_UPDATES respecto a sentUpdates, no se envían.');
         }
 
-        // Agregamos el setInterval para los recordatorios fijos
         setInterval(async () => {
             try {
                 const now = Date.now();
-                const argentinaDate = new Date(now - 3 * 60 * 60 * 1000); // UTC-3 (Argentina)
+                const argentinaDate = new Date(now - 3 * 60 * 60 * 1000);
                 const currentHour = argentinaDate.getHours();
                 const currentMinute = argentinaDate.getMinutes();
                 const oneDayInMs = 24 * 60 * 60 * 1000;
@@ -6905,7 +6305,6 @@ client.once('ready', async () => {
                 return;
             }
         
-            // Validamos si hay cambios reales comparando con previousDataStore
             const currentDataStoreString = JSON.stringify(dataStore, null, 2);
             if (previousDataStore !== null && currentDataStoreString === previousDataStore) {
                 console.log('No hay cambios reales en dataStore, omitiendo autosave');
@@ -6935,7 +6334,6 @@ client.once('ready', async () => {
                     return;
                 }
         
-                // Validamos nuevamente antes de guardar
                 const finalDataStoreString = JSON.stringify(dataStore, null, 2);
                 if (previousDataStore !== null && finalDataStoreString === previousDataStore) {
                     console.log('No hay cambios reales en el timeout, omitiendo guardado');
@@ -6987,30 +6385,9 @@ client.once('ready', async () => {
     }
 });
 
-client.on('messageReactionAdd', async (reaction, user) => {
-    if (user.id === client.user.id) return;
-
-    if (user.id === ALLOWED_USER_ID) {
-        const message = reaction.message;
-        const messageData = sentMessages.get(message.id);
-
-        if (messageData) {
-            const owner = await client.users.fetch(OWNER_ID);
-            const reactionEmoji = reaction.emoji.name; // Ej: ✅ o ❌
-            const originalQuestion = messageData.originalQuestion;
-            const botReply = messageData.content;
-
-            const dmMessage = `¡Che, Miguel! Milagros reaccionó con ${reactionEmoji} a mi mensaje 😎\n\n**Ella dijo:** "${originalQuestion}"\n**Yo respondí:** "${botReply}"\n\n¿Qué hacemos, loco? ✨`;
-            await owner.send(dmMessage).catch(err => console.error('Error al enviar MD:', err));
-        }
-    }
-});
-
-// Funciones de carga y guardado (fusionadas con mejoras)
 async function initializeDataStore() {
     dataStore = await loadDataStore();
     console.log(`dataStore inicializado con ${dataStore.recordatorios.length} recordatorios: ${JSON.stringify(dataStore.recordatorios)}`);
-    // Inicializamos previousDataStore con el estado inicial
     previousDataStore = JSON.stringify(dataStore, null, 2);
 }
 
@@ -7057,7 +6434,6 @@ async function loadDataStore() {
     }
 }
 
-// Variable global para almacenar el estado anterior de dataStore
 let previousDataStore = null;
 
 async function saveDataStore() {
@@ -7067,10 +6443,8 @@ async function saveDataStore() {
     }
 
     try {
-        // Convertimos el dataStore actual a string para comparar
         const currentDataStoreString = JSON.stringify(dataStore, null, 2);
 
-        // Si previousDataStore existe y es igual al actual, no guardamos
         if (previousDataStore !== null && currentDataStoreString === previousDataStore) {
             console.log('No hay cambios reales en dataStore, omitiendo guardado');
             userModified = false;
@@ -7100,7 +6474,6 @@ async function saveDataStore() {
             { headers: { 'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`, 'Accept': 'application/vnd.github+json' } }
         );
 
-        // Actualizamos el estado anterior
         previousDataStore = currentDataStoreString;
         console.log('Datos guardados en GitHub con éxito');
         userModified = false;
@@ -7113,7 +6486,6 @@ async function saveDataStore() {
     }
 }
 
-// Guardar al cerrar el proceso
 process.on('SIGINT', async () => {
     console.log('Guardando datos antes de salir...');
     await saveDataStore();
@@ -7125,7 +6497,6 @@ client.on('raw', (d) => {
     manager.updateVoiceState(d);
 });
 
-    // Iniciar el bot
 initializeDataStore().then(() => {
 client.login(process.env.DISCORD_TOKEN);
 });
