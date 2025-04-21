@@ -3,18 +3,6 @@
     "1023132788632862761": [
       {
         "role": "user",
-        "content": "jajaja qué",
-        "timestamp": 1744941961001,
-        "userName": "Milagros"
-      },
-      {
-        "role": "assistant",
-        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨  jaja, ¿Qué onda con ese \"jaja qué\"? 😅  Contá, ¿qué te hace reír? ¡Seguí brillando, estrella! ✨",
-        "timestamp": 1744941961894,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
         "content": "métodos para curar el dolor de ovarios casero!",
         "timestamp": 1744941976899,
         "userName": "Milagros"
@@ -119,6 +107,18 @@
         "role": "assistant",
         "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨\n\n¡Qué planazo, che! Ducha, panchos y cama… ¡posta que te lo merecés después de un día así!  😅  Disfrutá al máximo esa relajación,  ¡sos una genia! 💪",
         "timestamp": 1745111521502,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "sigo despierta haciendo mis cursitos",
+        "timestamp": 1745200884048,
+        "userName": "Milagros"
+      },
+      {
+        "role": "assistant",
+        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨\n\n¡Qué grosa que sos, estudiando a esta hora! 💪  Seguí así, que la constancia te va a llevar lejos.  ¡A darle con todo! ✨",
+        "timestamp": 1745200885070,
         "userName": "Oliver"
       }
     ],
@@ -581,7 +581,7 @@
     "reminder_1343749554905940058": 1743901240312,
     "util_1343749554905940058": 1745180433081,
     "reminder_1343749554905940058_22": 1745110826317,
-    "reminder_1343749554905940058_23": 1745114401178,
+    "reminder_1343749554905940058_23": 1745200824552,
     "reminder_1343749554905940058_0": 1744686047066
   },
   "utilMessageReactions": {
@@ -1180,18 +1180,6 @@
     "miguel-milagros": [
       {
         "role": "user",
-        "content": "como?",
-        "timestamp": 1744729182089,
-        "userName": "Miguel"
-      },
-      {
-        "role": "assistant",
-        "content": "¡Hola, Miguel, loco! 😎 ¿\"Cómo?\"...  ¿Te referís a cómo estoy?  Ando joya, che.  💪  Contame qué onda, que te escucho. ✨",
-        "timestamp": 1744729182943,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
         "content": "nono, como que la celebración haya estado genial bro",
         "timestamp": 1744729199981,
         "userName": "Miguel"
@@ -1416,6 +1404,18 @@
         "role": "assistant",
         "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨\n\n¡Qué planazo, che! Ducha, panchos y cama… ¡posta que te lo merecés después de un día así!  😅  Disfrutá al máximo esa relajación,  ¡sos una genia! 💪",
         "timestamp": 1745111521502,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "sigo despierta haciendo mis cursitos",
+        "timestamp": 1745200884048,
+        "userName": "Milagros"
+      },
+      {
+        "role": "assistant",
+        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨\n\n¡Qué grosa que sos, estudiando a esta hora! 💪  Seguí así, que la constancia te va a llevar lejos.  ¡A darle con todo! ✨",
+        "timestamp": 1745200885070,
         "userName": "Oliver"
       }
     ]
