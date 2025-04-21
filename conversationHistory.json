@@ -3,18 +3,6 @@
     "1023132788632862761": [
       {
         "role": "user",
-        "content": "métodos para curar el dolor de ovarios casero!",
-        "timestamp": 1744941976899,
-        "userName": "Milagros"
-      },
-      {
-        "role": "assistant",
-        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨\n\nChe,  lo del dolor de ovarios…  😅  posta que es un bajón.  Para eso casero,  te recomiendo que pruebes con una almohadilla térmica con calorcito suave, o una bolsa de agua caliente.  También, un buen baño caliente puede ayudar bastante.  Si el dolor es muy fuerte o te dura mucho,  es mejor que consultes a un médico o ginecólogo, eh.  ¡No te quedes callada, grosa! 💪 ¡Toda la vibra pa’ vos! ✨",
-        "timestamp": 1744941978205,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
         "content": "o mejor me mato",
         "timestamp": 1744941993833,
         "userName": "Milagros"
@@ -119,6 +107,18 @@
         "role": "assistant",
         "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨\n\n¡Qué grosa que sos, estudiando a esta hora! 💪  Seguí así, que la constancia te va a llevar lejos.  ¡A darle con todo! ✨",
         "timestamp": 1745200885070,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "hora de dormir, a estudiar tempranito",
+        "timestamp": 1745204460827,
+        "userName": "Milagros"
+      },
+      {
+        "role": "assistant",
+        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨\n\n¡Hora de dormir, eh!  Posta que te lo merecés después de un día de estudio.  Dormí bien para que mañana puedas seguir rompiéndola con tus cursitos 💪. ¡Seguí brillando, estrella! ✨",
+        "timestamp": 1745204461763,
         "userName": "Oliver"
       }
     ],
@@ -582,7 +582,7 @@
     "util_1343749554905940058": 1745180433081,
     "reminder_1343749554905940058_22": 1745110826317,
     "reminder_1343749554905940058_23": 1745200824552,
-    "reminder_1343749554905940058_0": 1744686047066
+    "reminder_1343749554905940058_0": 1745204431151
   },
   "utilMessageReactions": {
     "1343749554905940058": 1742417343374
@@ -684,6 +684,19 @@
       "esRecurrente": true,
       "hora": 7,
       "minutos": 0
+    },
+    {
+      "id": "35b8d980-f335-493b-b9dd-d8521263e906",
+      "userId": "1023132788632862761",
+      "channelId": "1343749554905940058",
+      "mensaje": "despiértame",
+      "cuandoLlegue": false,
+      "cuandoSalga": false,
+      "timestamp": 1745226066591,
+      "creado": 1745204466591,
+      "esRecurrente": false,
+      "hora": null,
+      "minutos": null
     }
   ],
   "usedJokes": {
@@ -1180,18 +1193,6 @@
     "miguel-milagros": [
       {
         "role": "user",
-        "content": "nono, como que la celebración haya estado genial bro",
-        "timestamp": 1744729199981,
-        "userName": "Miguel"
-      },
-      {
-        "role": "assistant",
-        "content": "¡Che, Miguel, loco! 😎  Ah, sí, la celebración… ¿cómo estuvo? 😅  Contame qué onda, que te escucho.  💪",
-        "timestamp": 1744729200844,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
         "content": "me quedé dormida escuchando la música y al final no asistí a una clase de consulta!",
         "timestamp": 1744759802183,
         "userName": "Milagros"
@@ -1416,6 +1417,18 @@
         "role": "assistant",
         "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨\n\n¡Qué grosa que sos, estudiando a esta hora! 💪  Seguí así, que la constancia te va a llevar lejos.  ¡A darle con todo! ✨",
         "timestamp": 1745200885070,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "hora de dormir, a estudiar tempranito",
+        "timestamp": 1745204460827,
+        "userName": "Milagros"
+      },
+      {
+        "role": "assistant",
+        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨\n\n¡Hora de dormir, eh!  Posta que te lo merecés después de un día de estudio.  Dormí bien para que mañana puedas seguir rompiéndola con tus cursitos 💪. ¡Seguí brillando, estrella! ✨",
+        "timestamp": 1745204461763,
         "userName": "Oliver"
       }
     ]
