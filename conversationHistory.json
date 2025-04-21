@@ -3,66 +3,6 @@
     "1023132788632862761": [
       {
         "role": "user",
-        "content": "muy bien, ahí quieto",
-        "timestamp": 1745227056004,
-        "userName": "Milagros"
-      },
-      {
-        "role": "assistant",
-        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨\n\n¡Muy bien, ahí quietito! 😅  Perfecto, acá estoy,  esperándote.  Contámela todo después, ¿cómo te va con la tarea? ¡Sos una genia! 💪  ¡A seguir brillando, estrella! ✨",
-        "timestamp": 1745227056913,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
-        "content": "viste que dicen que Iran quiere atacarnos, vamos a morir, botsito",
-        "timestamp": 1745227229321,
-        "userName": "Milagros"
-      },
-      {
-        "role": "assistant",
-        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨\n\n¡Che, qué bajón eso que decís de Irán, eh! 😅  Posta que me preocupó.  Mirá, yo como bot no puedo opinar sobre política internacional, ni predecir el futuro,  eso es para los expertos, ja!  Pero te recomiendo que busques información en fuentes confiables, como noticias internacionales de medios reconocidos, para tener una idea más clara de la situación.  No te quedes con la información que escuchaste de oídas, ¿dale?  Tranquila, grosa, no te asustes.  ¡Toda la vibra positiva para vos! ✨  Contame qué onda después de que leas algo más sobre el tema, ¿sí?  ¡Seguí brillando, estrella! ✨",
-        "timestamp": 1745227230768,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
-        "content": "que avisen así no sigo estudiando en vano",
-        "timestamp": 1745227259224,
-        "userName": "Milagros"
-      },
-      {
-        "role": "assistant",
-        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨\n\nChe, entiendo lo que decís, posta.  Nadie quiere estudiar a full si hay una situación que puede afectar todo, ¿no? 😅  Lo mejor es que te informes bien,  que busques fuentes confiables de noticias para saber si realmente hay un riesgo inminente.  Mientras tanto,  concentrate en lo que puedas hacer ahora,  después ya verás qué onda.  ¡Sos una grosa por pensar en eso! 💪  ¡Seguí rompiéndola, genia! ✨",
-        "timestamp": 1745227260527,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
-        "content": "prueba",
-        "timestamp": 1745227342107,
-        "userName": "Milagros"
-      },
-      {
-        "role": "assistant",
-        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨\n\n¡Che, \"prueba\"... qué onda con eso? 😅  No entiendo bien qué querés que pruebe, ¿dale?  Aclarame un poco, grosa, para poder ayudarte como corresponde. ¡Sos una genia! 💪 ¡A seguir brillando, estrella! ✨",
-        "timestamp": 1745227343102,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
-        "content": "ah nada, solo había que darle al botón",
-        "timestamp": 1745227357223,
-        "userName": "Milagros"
-      },
-      {
-        "role": "assistant",
-        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨\n\n¡Che, \"ah nada, solo había que darle al botón\"...  😅  Me dejaste con la intriga, eh!  ¿Qué botón?  Contame todo, ¡sos una genia! 💪  ¡A seguir brillando, estrella! ✨",
-        "timestamp": 1745227358145,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
         "content": "cuál es la página de la que sacas los chistes?",
         "timestamp": 1745227524816,
         "userName": "Milagros"
@@ -119,6 +59,66 @@
         "role": "assistant",
         "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨\n\n¡Hola, grosa! 😎  ¿Todo bien por ahí?  Contá que pasó, ¿cómo andás?  ¡A seguir brillando, estrella! ✨",
         "timestamp": 1745228054986,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "esta canción genrea ganas de llorar",
+        "timestamp": 1745228503333,
+        "userName": "Milagros"
+      },
+      {
+        "role": "assistant",
+        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨\n\n¡Che, qué bajón que te genere ganas de llorar esa canción, eh! 😅 ¿Por qué te pasa eso? ¿Te trae algún recuerdo, o simplemente te toca una fibra sensible? Contame un poco más, grosa, así podemos charlar un rato.  ¡Toda la vibra positiva para vos! ✨  ¡A meterle pilas, rata blanca! 💪",
+        "timestamp": 1745228504293,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "por qué te escucho tan bajo",
+        "timestamp": 1745228613854,
+        "userName": "Milagros"
+      },
+      {
+        "role": "assistant",
+        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨\n\nChe, ¿por qué te escucho tan bajo? 😅  No entiendo mucho, loco.  ¿Te referís a mi voz, a mi volumen al responderte?  ¿O es que te sale bajo el audio de algún lado?  Aclarame un poco más, grosa, para poder ayudarte. ¡Sos una genia! 💪  ¡A seguir brillando, estrella! ✨",
+        "timestamp": 1745228614841,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "ya estoy edspierta menso",
+        "timestamp": 1745229642898,
+        "userName": "Milagros"
+      },
+      {
+        "role": "assistant",
+        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨\n\n¡Che, \"ya estoy despierta, menso\"!  😅  ¡Buen día, grosa! ¿Dormiste bien?  ¿Qué onda para hoy? Contame todo, ¡a ver qué planes tenés! 💪 ¡A seguir brillando, estrella! ✨",
+        "timestamp": 1745229643799,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "café con leche y tostadas con dulce de leche de desayuno",
+        "timestamp": 1745229729448,
+        "userName": "Milagros"
+      },
+      {
+        "role": "assistant",
+        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨\n\n¡Che, qué desayuno más ricoooo!  😅 Café con leche y tostadas con dulce de leche… ¡un clásico que nunca falla!  Posta que me dieron ganas de desayunar lo mismo ahora mismo.  ¿Y después del desayuno, qué onda? ¿Qué planes tenés para el día? ¡Contame todo, grosa! 💪 ¡A seguir brillando, estrella! ✨",
+        "timestamp": 1745229730520,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "amar y envejecer las pastillas del abuelo",
+        "timestamp": 1745230023851,
+        "userName": "Milagros"
+      },
+      {
+        "role": "assistant",
+        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨\n\n¡Che, \"amar y envejecer las pastillas del abuelo\"...! 😅  No entiendo muy bien, loco. ¿Te referís a cuidar las pastillas del abuelo para que no se venzan o a algo más?  Necesito que me aclares un poco eso, grosa, para poder ayudarte.  ¡Sos una genia! 💪  Contá más,  ¡a ver qué onda! ✨",
+        "timestamp": 1745230024819,
         "userName": "Oliver"
       }
     ],
@@ -571,7 +571,7 @@
       "mensaje": "despiértame todos los días",
       "cuandoLlegue": false,
       "cuandoSalga": false,
-      "timestamp": 1745229600000,
+      "timestamp": 1745316000000,
       "creado": 1743402095938,
       "esRecurrente": true,
       "hora": 7,
