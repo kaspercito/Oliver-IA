@@ -3,18 +3,6 @@
     "1023132788632862761": [
       {
         "role": "user",
-        "content": "cuál es la página de la que sacas los chistes?",
-        "timestamp": 1745227524816,
-        "userName": "Milagros"
-      },
-      {
-        "role": "assistant",
-        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨\n\n¡Che, buena pregunta la de la página de chistes! 😅  Posta que no tengo una página específica de donde saco los chistes, loco.  Soy un modelo de lenguaje grande,  o sea que tengo acceso a un montón de información, incluyendo chistes de internet, libros, películas... ¡un montón de cosas!  Los \"invento\" combinando información y usando mi creatividad.  Es como si fuera un comediante que improvisa, ja!  ¿Qué te parece?  ¡Sos una genia! 💪  ¿Qué onda ahora? ¿Terminaste la tarea? ¡Contámela toda! ✨",
-        "timestamp": 1745227526242,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
         "content": "ese mensaje es viejo, cómo lo cambio?",
         "timestamp": 1745227587122,
         "userName": "Milagros"
@@ -119,6 +107,18 @@
         "role": "assistant",
         "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨\n\n¡Che, \"amar y envejecer las pastillas del abuelo\"...! 😅  No entiendo muy bien, loco. ¿Te referís a cuidar las pastillas del abuelo para que no se venzan o a algo más?  Necesito que me aclares un poco eso, grosa, para poder ayudarte.  ¡Sos una genia! 💪  Contá más,  ¡a ver qué onda! ✨",
         "timestamp": 1745230024819,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "holaaa",
+        "timestamp": 1745270490442,
+        "userName": "Milagros"
+      },
+      {
+        "role": "assistant",
+        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨\n\n¡Holaaa, grosa! 😎 ¿Qué onda? Contame todo, ¿cómo andás?  ¡A ver qué se cuece por ahí! ✨",
+        "timestamp": 1745270491160,
         "userName": "Oliver"
       }
     ],
