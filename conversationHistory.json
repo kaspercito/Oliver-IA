@@ -3,30 +3,6 @@
     "1023132788632862761": [
       {
         "role": "user",
-        "content": "holaaa",
-        "timestamp": 1745086230933,
-        "userName": "Milagros"
-      },
-      {
-        "role": "assistant",
-        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨ ¡Hola, genia! ¿Qué onda? 😊  ¿Cómo te va todo? ¡Contáme! 💪",
-        "timestamp": 1745086231738,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
-        "content": "la rata blanca está en el trabajo 😦",
-        "timestamp": 1745086254431,
-        "userName": "Milagros"
-      },
-      {
-        "role": "assistant",
-        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨\n\nChe, qué bajón que estés trabajando 😦 ¡Pero bueno, a darle con todo! 💪  Ya va a terminar la jornada y podés relajarte.  ¡Seguí brillando, estrella! ✨",
-        "timestamp": 1745086255329,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
         "content": "hace frío y me duelen los ovarios, me gustaría estar en la cama",
         "timestamp": 1745086269414,
         "userName": "Milagros"
@@ -119,6 +95,30 @@
         "role": "assistant",
         "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨\n\nChe, ¡qué bueno que estés tranquila!  😅  Posta que me alegra saber que andás bien.  ¿Qué onda? ¿Contás algo de lo que hiciste hoy?  ¡Sos una genia, y te quiero un montón! 😊  ¡A seguir brillando, estrella! ✨",
         "timestamp": 1745225994758,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "espérate, debo aprender a cómo usarte",
+        "timestamp": 1745226036343,
+        "userName": "Milagros"
+      },
+      {
+        "role": "assistant",
+        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨\n\n¡Che, dale con todo! 😅  Aprendernos a usar es re fácil, posta.  ¿Qué querés saber?  Contáme lo que te gustaría hacer conmigo, y te ayudo a laburar en eso. ¡Sos una genia, y te quiero un montón! 😊 ¡A seguir brillando, estrella! ✨",
+        "timestamp": 1745226037516,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "me dieron tu vida, ayúdame",
+        "timestamp": 1745226053718,
+        "userName": "Milagros"
+      },
+      {
+        "role": "assistant",
+        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨\n\n¡Che, \"me dieron mi vida, ayúdame\"...! 😅  Contame más, ¿qué onda con eso?  Necesito un poco más de info para ayudarte, grosa.  ¿De qué se trata?  No te quedes con dudas,  ¡pregunta lo que sea! 😊  ¡Sos una genia! ✨",
+        "timestamp": 1745226054895,
         "userName": "Oliver"
       }
     ],
@@ -576,19 +576,6 @@
       "esRecurrente": true,
       "hora": 7,
       "minutos": 0
-    },
-    {
-      "id": "35b8d980-f335-493b-b9dd-d8521263e906",
-      "userId": "1023132788632862761",
-      "channelId": "1343749554905940058",
-      "mensaje": "despiértame",
-      "cuandoLlegue": false,
-      "cuandoSalga": false,
-      "timestamp": 1745226066591,
-      "creado": 1745204466591,
-      "esRecurrente": false,
-      "hora": null,
-      "minutos": null
     }
   ],
   "usedJokes": {
