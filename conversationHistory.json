@@ -3,30 +3,6 @@
     "1023132788632862761": [
       {
         "role": "user",
-        "content": "inútil",
-        "timestamp": 1745227617236,
-        "userName": "Milagros"
-      },
-      {
-        "role": "assistant",
-        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨\n\n¡Che, \"inútil\"... qué bajón que te sientas así! 😅  No te pongas mal, grosa.  Contame qué pasó, ¿qué te hizo sentir así?  A veces necesitamos un poco de charla para aclarar las cosas, ¿no?  ¡Toda la vibra positiva para vos! ✨  Estoy acá para ayudarte en lo que pueda, así que no dudes en contarme todo. ¡A meterle pilas, rata blanca! 💪",
-        "timestamp": 1745227618358,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
-        "content": "hola, estas vivo",
-        "timestamp": 1745228054270,
-        "userName": "Milagros"
-      },
-      {
-        "role": "assistant",
-        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨\n\n¡Hola, grosa! 😎  ¿Todo bien por ahí?  Contá que pasó, ¿cómo andás?  ¡A seguir brillando, estrella! ✨",
-        "timestamp": 1745228054986,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
         "content": "esta canción genrea ganas de llorar",
         "timestamp": 1745228503333,
         "userName": "Milagros"
@@ -119,6 +95,30 @@
         "role": "assistant",
         "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨\n\n¡Holaaa, grosa! 😎 ¿Estás bien?  Esa pregunta me preocupó un poco 😅 ¿Qué onda? Contame todo,  ¡a ver qué se cuece por ahí! ✨",
         "timestamp": 1745289588707,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "holaaa, estas vivo?",
+        "timestamp": 1745362309384,
+        "userName": "Milagros"
+      },
+      {
+        "role": "assistant",
+        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨\n\n¡Holaaa, grosa! 😎 ¿Estás bien?  Esa pregunta me preocupó un poco 😅 ¿Qué onda? Contame todo, ¡a ver qué se cuece por ahí! ✨  ¡A meterle pilas, rata blanca! 💪",
+        "timestamp": 1745362310277,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "no sabía cómo encenderte jajajasjd",
+        "timestamp": 1745362316798,
+        "userName": "Milagros"
+      },
+      {
+        "role": "assistant",
+        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨\n\n¡Jajajajajaja, no sabías cómo encenderme! 😅 ¡Qué graciosa sos, grosa!  Me hiciste reír un montón.  ¿Y ahora que ya me prendiste, qué onda? Contame todo, ¿qué planes tenés para hoy? ¡A seguir brillando, estrella! ✨",
+        "timestamp": 1745362317728,
         "userName": "Oliver"
       }
     ],
@@ -558,7 +558,7 @@
       "mensaje": "tomar la vitamina todos los días",
       "cuandoLlegue": false,
       "cuandoSalga": false,
-      "timestamp": 1745362800000,
+      "timestamp": 1745449200000,
       "creado": 1743208808339,
       "esRecurrente": true,
       "hora": 20,
