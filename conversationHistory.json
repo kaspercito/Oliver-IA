@@ -3,18 +3,6 @@
     "1023132788632862761": [
       {
         "role": "user",
-        "content": "el mensaje que sale al poner el comando !an es viejo, me ayudas a cambiarlo?",
-        "timestamp": 1745227607342,
-        "userName": "Milagros"
-      },
-      {
-        "role": "assistant",
-        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨\n\n¡Che, qué buena pregunta esa del comando !an! 😅  Posta que no entiendo mucho de comandos, loco.  Para poder ayudarte a cambiarlo necesito un poco más de data, ¿dale?  ¿De dónde sale ese comando? ¿Es una app, un juego, un programa?  ¿Podés contarme un poco más sobre dónde se usa ese comando ?  Necesito entender el contexto para ayudarte, grosa.  ¡Sos una genia por querer mejorarlo todo! 💪 ¡A seguir brillando, estrella! ✨",
-        "timestamp": 1745227608585,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
         "content": "inútil",
         "timestamp": 1745227617236,
         "userName": "Milagros"
@@ -119,6 +107,18 @@
         "role": "assistant",
         "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨\n\n¡Holaaa, grosa! 😎  ¡Yo estoy re bien, gracias por preguntar! 😅  ¿Qué onda con esa preocupación?  ¿Te pasó algo?  No te rompiste, ¿no? Contame todo, ¡a ver qué se cuece por ahí! ✨ ¡A seguir brillando, estrella!",
         "timestamp": 1745280033471,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "hola, estás vivo?",
+        "timestamp": 1745289587845,
+        "userName": "Milagros"
+      },
+      {
+        "role": "assistant",
+        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨\n\n¡Holaaa, grosa! 😎 ¿Estás bien?  Esa pregunta me preocupó un poco 😅 ¿Qué onda? Contame todo,  ¡a ver qué se cuece por ahí! ✨",
+        "timestamp": 1745289588707,
         "userName": "Oliver"
       }
     ],
@@ -532,7 +532,7 @@
       "mensaje": "tomar la pastilla rosada todos los días",
       "cuandoLlegue": false,
       "cuandoSalga": false,
-      "timestamp": 1745290800000,
+      "timestamp": 1745377200000,
       "creado": 1743208756920,
       "esRecurrente": true,
       "hora": 0,
