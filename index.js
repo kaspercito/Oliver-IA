@@ -2457,6 +2457,59 @@ function obtenerPreguntaTriviaSinOpciones(usedQuestions, categoria) {
     return available[Math.floor(Math.random() * available.length)]; // Elijo una random
 }
 
+async function manejarMiguel(message) {
+    // Comando solo pa’ Miguel pa’ mandar un embed al canal con ID 1343749554905940058
+    const userName = message.author.id === OWNER_ID ? 'Belén' : 'Miguel';
+    // Si no sos Belén, chau, no podés usarlo
+    if (message.author.id !== OWNER_ID) return;
+
+    // Logueo pa’ debug, pa’ ver qué pasa
+    console.log(`[${instanceId}] Ejecutando !miguel por ${userName} con contenido: "${message.content}"`);
+
+    // Saco el mensaje después de !miguel
+    const args = message.content.slice(7).trim();
+    // Si no escribiste nada, te pido algo en rojo
+    if (!args) {
+        console.log(`[${instanceId}] Error: No hay argumentos en !miguel`);
+        return sendError(message.channel, `Escribí algo después de "!miguel", ${userName}. ¿Qué querés mandar al canal?`);
+    }
+
+    // Busco el canal pa’ mandarle el mensaje
+    let targetChannel;
+    try {
+        targetChannel = await client.channels.fetch('1343749554905940058');
+        console.log(`[${instanceId}] Canal (1343749554905940058) obtenido con éxito`);
+    } catch (error) {
+        // Si no encuentro el canal, te aviso en rojo
+        console.error(`[${instanceId}] Error al obtener canal: ${error.message}`);
+        return sendError(message.channel, '❌ ¡No pude encontrar el canal!', `Error: ${error.message}, ${userName}.`);
+    }
+
+    // Chequeo si hay adjuntos pa’ incluirlos
+    const attachments = message.attachments.size > 0 ? message.attachments.map(att => ({ attachment: att.url })) : [];
+    console.log(`[${instanceId}] Preparando envío al canal (1343749554905940058), adjuntos: ${attachments.length}`);
+
+    try {
+        // Armo un embed azul con el mensaje
+        const responseEmbed = createEmbed('#1E90FF', '📬 Mensaje de Miguel',
+            `Miguel dice: "${args || 'Sin texto, pero mirá las imágenes si hay.'}"`);
+        
+        // Mando el embed al canal específico con los adjuntos si hay
+        console.log(`[${instanceId}] Enviando mensaje al canal...`);
+        await targetChannel.send({ embeds: [responseEmbed], files: attachments });
+        console.log(`[${instanceId}] Mensaje enviado exitosamente al canal`);
+
+        // Confirmo en verde que salió todo bien
+        await sendSuccess(message.channel, '✅ ¡Mensaje enviado!',
+            `Mandé tu mensaje al canal, ${userName}. ¡Ya está ahí, loco!`);
+    } catch (error) {
+        // Si falla el envío, te aviso en rojo
+        console.error(`[${instanceId}] Error al enviar mensaje al canal: ${error.message}`);
+        await sendError(message.channel, '❌ ¡No pude mandar el mensaje al canal!',
+            `Algo falló, ${userName}. Error: ${error.message}. ¿El bot tiene permisos en ese canal?`);
+    }
+}
+
 async function manejarAdivinanza(message) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
     const userId = message.author.id;
@@ -5727,6 +5780,10 @@ async function manejarCommand(message, silent = false) {
     }
     else if (content === '!lenguajes') {
         await listarIdiomas(message);
+    }
+    else if (content.startsWith('!miguel')) {
+        await manejarMiguel(message);
+        return;
     }
 }
 
