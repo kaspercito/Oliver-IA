@@ -16,6 +16,7 @@ const path = require('path');
 require('dotenv').config();
 
 // Creación del cliente de Discord
+// Creación del cliente de Discord
 const client = new Client({
     intents: [
         GatewayIntentBits.Guilds, // Permite acceder a información de servidores.
@@ -26,6 +27,7 @@ const client = new Client({
         GatewayIntentBits.GuildVoiceStates, // Necesario para manejar estados de voz (para música).
     ]
 });
+
 
 // Crear instancias de otros componentes
 const discordTogether = new DiscordTogether(client);
