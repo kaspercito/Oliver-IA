@@ -27,14 +27,16 @@ const client = new Client({
     ],
 });
 
+// Crear instancias de otros componentes
 const discordTogether = new DiscordTogether(client);
 const OWNER_ID = '752987736759205960';
 const ALLOWED_USER_ID = '1023132788632862761';
 const CHANNEL_ID = '1343749554905940058';
-const telegramToken = '7833522664:AAGDfVgghfxEuxU3dXjHDZgFLE_2qk9v0ss';
+const telegramToken = process.env.TELEGRAM_TOKEN; // Utiliza una variable de entorno
 const botTelegram = new TelegramBot(telegramToken, { polling: false });
 const chatIdBelen = '7894854634';
 
+// Configuración del Manager de erela.js
 const manager = new Manager({
     nodes: [{
         identifier: 'MainNode',
