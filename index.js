@@ -24,7 +24,7 @@ const client = new Client({
         GatewayIntentBits.DirectMessageReactions, // Permite leer reacciones en mensajes directos.
         GatewayIntentBits.MessageContent, // Permite leer el contenido de los mensajes.
         GatewayIntentBits.GuildVoiceStates, // Necesario para manejar estados de voz (para música).
-    ],
+    ]
 });
 
 // Crear instancias de otros componentes
