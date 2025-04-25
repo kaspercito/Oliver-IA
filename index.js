@@ -6274,38 +6274,97 @@ client.once('ready', async () => {
         } else {
             console.log('No hay cambios en BOT_UPDATES respecto a sentUpdates, no se envían.');
         }
-
+        
+        // Mapa para los temas de recordatorios por hora
+        const reminderThemes = {
+            12: {
+                vibe: "Mediodía a pleno, ¡hora de recargar pilas!",
+                intent: "Motivar a Milagros para que arranque la tarde con buena onda, sugerir algo como un mate o un plan tranqui, y preguntarle qué anda haciendo."
+            },
+            18: {
+                vibe: "Tarde power, ¡a meterle garra!",
+                intent: "Preguntarle cómo pinta la tarde, tirar una idea divertida o relajada, y pedirle que cuente qué onda."
+            },
+            22: {
+                vibe: "Noche mágica, ¡a brillar!",
+                intent: "Crear un momento tranqui, proponer una charla relajada o un chiste, y preguntarle cómo cierra el día."
+            },
+            23: {
+                vibe: "Noche profunda, ¡la previa de los sueños!",
+                intent: "Hacerla sentir especial, preguntarle si está planeando algo groso o soñando despierta, y pedirle que comparta algo."
+            },
+            0: {
+                vibe: "Medianoche, ¡el mundo es tuyo!",
+                intent: "Invitar a una charla nocturna o cerrar el día con buena vibra, preguntándole qué la tiene despierta."
+            }
+        };
+        
+        // Función para generar prompts dinámicos
+        function generateReminderPrompt(userId, hour, userName = 'Milagros') {
+            const theme = reminderThemes[hour];
+            const userStatus = dataStore.userStatus[userId]?.status || 'tranqui';
+            const history = dataStore.conversationHistory[userId]?.slice(-10) || [];
+            const context = history.map(h => `${h.userName}: ${h.content}`).join('\n');
+        
+            return `Sos Oliver IA, un bot re piola con toda la onda argentina: usá "loco", "che", "posta" y metele emojis copados como 😎✨💪, pero con medida, uno o dos por respuesta. Tu misión es cuidar a ${userName} como una amiga cercana, tratándola como la mejor, una grosa, con cariño zarpado y piropos con onda tipo "grosa", "genia", "rata blanca" o "estrella". NUNCA le digas "reina". Hacé que la charla fluya como con una amiga de siempre, levantándole el ánimo con buena onda si está bajón.
+        
+        Esto es lo que charlamos antes con ${userName}:\n${context}\nSabé que ${userName} está ${userStatus}.
+        
+        Es la hora ${hour}:00 en Argentina, y querés mandarle un recordatorio copado. La vibra es: "${theme.vibe}". Tu intención es: "${theme.intent}". Generá un mensaje corto (2-3 oraciones) que siga esta vibra, sea fresco y diferente cada día, use su estado y el contexto si pega, y termine con una pregunta abierta como “¿Y vos qué me contás, genia?”, “¿Qué onda, grosa?”, o “¿Cómo venís, crack?” para que ella siga la charla. Variá los cierres con frases como "¡Seguí rompiéndola, genia!", "¡A meterle pilas, rata blanca!", o "¡Sos una ídola, seguí brillando! ✨". ¡Tirá para adelante, che! 💖`;
+        }
+        
+        // Reemplazar el setInterval
         setInterval(async () => {
             try {
                 const now = Date.now();
-                const argentinaDate = new Date(now - 3 * 60 * 60 * 1000);
+                const argentinaDate = new Date(now - 3 * 60 * 60 * 1000); // Hora Argentina
                 const currentHour = argentinaDate.getHours();
                 const currentMinute = argentinaDate.getMinutes();
                 const oneDayInMs = 24 * 60 * 60 * 1000;
-
-                const reminderTimes = {
-                    12: "¡Mediodía a pleno, Milagros! 🌞 ¿Qué onda, genia? ¿Estás rompiéndola o pausaste para un mate? Mandame una vibra y armamos algo copado para seguirle dando caña al día. 😎",
-                    18: "¡6 de la tarde, puro fuego, Milagros! 🔥 ¿Cómo pinta la tarde, crack? Si querés un plan zarpado o solo charlar de la vida, estoy a full para vos. ¡Dale, contame! 🚀",
-                    22: "¡10 de la noche, noche mágica! 🌠 ¿Qué tal, Milagros? ¿Lista para cerrar el día con una charla tranqui o un chiste épico? Avisá y le ponemos onda al final del día. 💫",
-                    23: "¡11 de la noche, Milagros, la reina de la noche! 🌙 ¿Seguís despierta, genia? Capaz estás planeando algo groso o soñando despierta. Contame, ¿qué me tenés? 😜",
-                    0: "¡Medianoche, hora de brillar, Milagros! ✨ El mundo está en pausa, pero vos seguro seguís a mil. ¿Charla nocturna o un cierre con buena vibra? Estoy para vos, crack. 😄"
-                };
-
-                if (currentMinute === 0 && reminderTimes[currentHour]) {
+        
+                if (currentMinute === 0 && reminderThemes[currentHour]) {
+                    const userId = ALLOWED_USER_ID; // Solo Milagros por ahora
+                    const userName = 'Milagros';
                     const lastSentReminder = dataStore.utilMessageTimestamps[`reminder_${CHANNEL_ID}_${currentHour}`] || 0;
-                    console.log(`Evaluando recordatorio para ${currentHour}:00 - Último envío: ${new Date(lastSentReminder).toLocaleString('es-AR')} - Diferencia: ${(now - lastSentReminder) / (60 * 60 * 1000)} horas`);
+                    console.log(`Evaluando recordatorio para ${userName} a las ${currentHour}:00 - Último envío: ${new Date(lastSentReminder).toLocaleString('es-AR')} - Diferencia: ${(now - lastSentReminder) / (60 * 60 * 1000)} horas`);
+        
                     if (now - lastSentReminder >= oneDayInMs) {
-                        const reminder = reminderTimes[currentHour];
-                        const embed = createEmbed('#FF1493', '¡Un toque de atención, che!', reminder, 'Con onda, Oliver IA');
-                        await channel.send({ embeds: [embed] });
+                        // Generar mensaje con la IA
+                        const prompt = generateReminderPrompt(userId, currentHour, userName);
+                        const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Tiempo agotado')), 10000));
+                        const result = await Promise.race([model.generateContent(prompt), timeoutPromise]);
+                        let reminder = result.response.text().trim();
+        
+                        if (reminder.length > 2000) reminder = reminder.slice(0, 1990) + '... (¡seguí charlando, genia!)';
+        
+                        // Guardar en el historial
+                        if (!dataStore.conversationHistory[userId]) dataStore.conversationHistory[userId] = [];
+                        dataStore.conversationHistory[userId].push({ 
+                            role: 'assistant', 
+                            content: reminder, 
+                            timestamp: Date.now(), 
+                            userName: 'Oliver',
+                            isReminder: true // Para que la IA sepa que es un recordatorio
+                        });
+                        if (dataStore.conversationHistory[userId].length > 20) {
+                            dataStore.conversationHistory[userId] = dataStore.conversationHistory[userId].slice(-20);
+                        }
+                        dataStoreModified = true;
+        
+                        // Enviar el mensaje
+                        const embed = createEmbed('#FF1493', `¡Un toque para ${userName}, che!`, reminder, 'Con onda, Oliver IA');
+                        const sentMessage = await channel.send({ embeds: [embed] });
+                        await sentMessage.react('✅');
+                        await sentMessage.react('❌');
                         dataStore.utilMessageTimestamps[`reminder_${CHANNEL_ID}_${currentHour}`] = now;
                         autoModified = true;
-                        console.log(`Recordatorio enviado (${currentHour}:00 AR) - ${new Date().toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })}`);
+                        console.log(`Recordatorio dinámico enviado a ${userName} (${currentHour}:00 AR) - ${new Date().toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })}`);
                     } else {
                         console.log(`No se envía ${currentHour}:00 - Todavía no pasaron 24 horas`);
                     }
                 }
-
+        
+                // Mantener el mensaje útil diario (sin cambios)
                 const lastSentUtil = dataStore.utilMessageTimestamps[`util_${CHANNEL_ID}`] || 0;
                 const lastReaction = dataStore.utilMessageReactions[CHANNEL_ID] || 0;
                 if (now - lastSentUtil >= oneDayInMs && (!lastReaction || now - lastReaction >= oneDayInMs)) {
@@ -6321,7 +6380,7 @@ client.once('ready', async () => {
                     console.log(`Mensaje útil diario enviado al canal ${CHANNEL_ID} - ${new Date().toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })}`);
                 }
             } catch (error) {
-                console.error('Error en el intervalo de recordatorios fijos:', error.message);
+                console.error('Error en el intervalo de recordatorios dinámicos:', error.message);
             }
         }, 60 * 1000);
 
