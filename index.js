@@ -6185,7 +6185,7 @@ client.on('messageCreate', async (message) => {
 
 client.once('ready', async () => {
     console.log(`¡Oliver IA está listo! Instancia: ${instanceId} - ${new Date().toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })}`);
-    client.user.setPresence({ activities: [{ name: "Listo para ayudar a Milagros", type: 0 }], status: 'dnd' });
+    client.user.setPresence({ activities: [{ name: "Listo para ayudar a Milagros", type: 0 }], status: 'idle' });
     
     await initializeDataStore();
 
