@@ -2,12 +2,6 @@
   "conversationHistory": {
     "1023132788632862761": [
       {
-        "role": "user",
-        "content": "esta canción genrea ganas de llorar",
-        "timestamp": 1745228503333,
-        "userName": "Milagros"
-      },
-      {
         "role": "assistant",
         "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨\n\n¡Che, qué bajón que te genere ganas de llorar esa canción, eh! 😅 ¿Por qué te pasa eso? ¿Te trae algún recuerdo, o simplemente te toca una fibra sensible? Contame un poco más, grosa, así podemos charlar un rato.  ¡Toda la vibra positiva para vos! ✨  ¡A meterle pilas, rata blanca! 💪",
         "timestamp": 1745228504293,
@@ -120,6 +114,13 @@
         "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨\n\n¡Jajajajajaja, no sabías cómo encenderme! 😅 ¡Qué graciosa sos, grosa!  Me hiciste reír un montón.  ¿Y ahora que ya me prendiste, qué onda? Contame todo, ¿qué planes tenés para hoy? ¡A seguir brillando, estrella! ✨",
         "timestamp": 1745362317728,
         "userName": "Oliver"
+      },
+      {
+        "role": "assistant",
+        "content": "Che, Milagros, ¡rata blanca hermosa! 💖  Ya son las 10 de la noche, ¡noche mágica, a brillar! ✨  ¿Cómo cerrás este día tan copado, grosa? ¿Y vos qué me contás, genia?",
+        "timestamp": 1745629257443,
+        "userName": "Oliver",
+        "isReminder": true
       }
     ],
     "752987736759205960": [
@@ -472,7 +473,7 @@
     "plan_1343749554905940058": 1741879435793,
     "reminder_1343749554905940058": 1743901240312,
     "util_1343749554905940058": 1745553564598,
-    "reminder_1343749554905940058_22": 1745283628016,
+    "reminder_1343749554905940058_22": 1745629256772,
     "reminder_1343749554905940058_23": 1745200824552,
     "reminder_1343749554905940058_0": 1745204431151
   },
