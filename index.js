@@ -5514,7 +5514,7 @@ async function manejarCommand(message, silent = false) {
 
     
     if (content === '!trivia cancelar' || content === '!tc') {
-        if (message.author.id !== OWNER_ID) return;
+        if (message.author.id !== OWNER_ID && message.author.id !== ALLOWED_USER_ID) return;
 
         const channelProgress = dataStore.activeSessions[`trivia_${message.channel.id}`];
         if (!channelProgress || channelProgress.type !== 'trivia') {
@@ -5536,7 +5536,7 @@ async function manejarCommand(message, silent = false) {
         return;
     }
     else if (content === '!reacciones cancelar' || content === '!rc') {
-        if (message.author.id !== OWNER_ID) return;
+        if (message.author.id !== OWNER_ID && message.author.id !== ALLOWED_USER_ID) return;
 
         const session = dataStore.activeSessions[`reaction_${message.channel.id}`];
         if (!session || session.type !== 'reaction' || session.completed) {
@@ -5554,7 +5554,7 @@ async function manejarCommand(message, silent = false) {
         return;
     } 
     else if (content === '!ppm cancelar' || content === '!pc') {
-        if (message.author.id !== OWNER_ID) return;
+        if (message.author.id !== OWNER_ID && message.author.id !== ALLOWED_USER_ID) return;
 
         const ppmKey = `ppm_${message.author.id}`;
         const session = dataStore.activeSessions[ppmKey];
@@ -6009,7 +6009,7 @@ client.on('messageCreate', async (message) => {
         }
     }
 
-    if (message.author.id !== OWNER_ID) return;
+    if (message.author.id !== OWNER_ID && message.author.id !== ALLOWED_USER_ID) return;
 
     if (processedMessages.has(message.id)) return;
     processedMessages.set(message.id, Date.now());
