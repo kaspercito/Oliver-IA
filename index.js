@@ -2205,21 +2205,22 @@ const app = express();
 
 app.get('/ping', (req, res) => {
     console.log('Recibí un ping, ¡estoy vivo!');
-    res.status(200).send('¡Bot awake y con pilas!');
+    res.send('¡Bot awake y con pilas!');
 });
 
-const PORT = process.env.PORT || 8080;
+const PORT = process.env.PORT || 8080; // Render sets process.env.PORT
 app.listen(PORT, () => {
     console.log(`Servidor de ping corriendo en el puerto ${PORT}`);
     startAutoPing();
 });
 
 function startAutoPing() {
-    const appUrl = process.env.RENDER_EXTERNAL_HOSTNAME || 'https://oliver-ia.onrender.com';
+    // Use Render's assigned URL or set it in environment variables
+    const appUrl = process.env.APP_URL || 'https://oliver-ia.onrender.com'; // Replace with your Render URL
     const pingInterval = 4 * 60 * 1000; // 4 minutes
     setInterval(async () => {
         try {
-            const response = await fetch(`${appUrl}/ping`, { method: 'GET' });
+            const response = await fetch(`${appUrl}/ping`);
             if (response.ok) {
                 console.log('Auto-ping exitoso, bot sigue despierto.');
             } else {
