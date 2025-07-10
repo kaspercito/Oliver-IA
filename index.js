@@ -2200,6 +2200,7 @@ const obtenerResultados = async (message) => {
   }
 };
 
+
 const express = require('express');
 const app = express();
 
@@ -2215,9 +2216,13 @@ app.listen(PORT, () => {
 });
 
 function startAutoPing() {
-    // Use Render's assigned URL or set it in environment variables
-    const appUrl = process.env.APP_URL || 'https://oliver-ia.onrender.com'; // Replace with your Render URL
-    const pingInterval = 4 * 60 * 1000; // 4 minutes
+    const appUrl = process.env.APP_URL || 'https://oliver-ia.onrender.com';
+    console.log('URL usada para auto-ping:', appUrl); // Log para depuración
+    if (!appUrl.startsWith('http://') && !appUrl.startsWith('https://')) {
+        console.error('Error: appUrl no es una URL absoluta válida:', appUrl);
+        return;
+    }
+    const pingInterval = 4 * 60 * 1000; // 4 minutos
     setInterval(async () => {
         try {
             const response = await fetch(`${appUrl}/ping`);
