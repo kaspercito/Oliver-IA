@@ -4212,7 +4212,7 @@ async function manejarAutoplay(message) {
     await sendSuccess(message.channel, estado ? '🎵 ¡Autoplay activado!' : '⏹️ ¡Autoplay desactivado!', mensaje);
 }
 
-// Ranking con top por categoría para Trivia, Reacciones y PPM
+// Ranking con top por categoría para Trivia, Reacciones, PPM y Adivinanzas
 function getCombinedRankingEmbed(userId, username) {
     const categorias = Object.keys(preguntasTriviaSinOpciones);
     
@@ -4220,11 +4220,15 @@ function getCombinedRankingEmbed(userId, username) {
     let triviaList = '**📚 Trivia por Categoría**\n';
     categorias.forEach(categoria => {
         const luzStats = dataStore.triviaStats[ALLOWED_USER_ID]?.[categoria] || { correct: 0, total: 0 };
+        const miguelStats = dataStore.triviaStats[OWNER_ID]?.[categoria] || { correct: 0, total: 0 };
         const luzScore = luzStats.correct;
+        const miguelScore = miguelStats.correct;
         const luzPercentage = luzStats.total > 0 ? Math.round((luzScore / luzStats.total) * 100) : 0;
+        const miguelPercentage = miguelStats.total > 0 ? Math.round((miguelScore / miguelStats.total) * 100) : 0;
 
         const ranking = [
-            { name: 'Belén', score: luzScore, percentage: luzPercentage }
+            { name: 'Belén', score: luzScore, percentage: luzPercentage },
+            { name: 'Miguel', score: miguelScore, percentage: miguelPercentage }
         ].sort((a, b) => b.score - a.score);
 
         triviaList += `\n**${categoria.charAt(0).toUpperCase() + categoria.slice(1)}** 🎲\n` +
@@ -4235,8 +4239,10 @@ function getCombinedRankingEmbed(userId, username) {
 
     // Récords de PPM
     const luzPPMRecord = dataStore.personalPPMRecords[ALLOWED_USER_ID]?.best || { ppm: 0, timestamp: null };
+    const miguelPPMRecord = dataStore.personalPPMRecords[OWNER_ID]?.best || { ppm: 0, timestamp: null };
     const ppmRanking = [
-        { name: 'Belén', ppm: luzPPMRecord.ppm, timestamp: luzPPMRecord.timestamp }
+        { name: 'Belén', ppm: luzPPMRecord.ppm, timestamp: luzPPMRecord.timestamp },
+        { name: 'Miguel', ppm: miguelPPMRecord.ppm, timestamp: miguelPPMRecord.timestamp }
     ].sort((a, b) => b.ppm - a.ppm);
     let ppmList = ppmRanking.map(participant => 
         participant.ppm > 0 
@@ -4248,7 +4254,8 @@ function getCombinedRankingEmbed(userId, username) {
     const miguelReactionWins = dataStore.reactionWins[OWNER_ID]?.wins || 0;
     const luzReactionWins = dataStore.reactionWins[ALLOWED_USER_ID]?.wins || 0;
     const reactionRanking = [
-        { name: 'Belén', wins: luzReactionWins }
+        { name: 'Belén', wins: luzReactionWins },
+        { name: 'Miguel', wins: miguelReactionWins }
     ].sort((a, b) => b.wins - a.wins);
     const reactionList = reactionRanking.map(participant => 
         `> 🌟 ${participant.name} - **${participant.wins} Reacciones**`
@@ -4256,8 +4263,10 @@ function getCombinedRankingEmbed(userId, username) {
 
     // Adivinanzas
     const luzAdivinanzaStats = dataStore.adivinanzaStats[ALLOWED_USER_ID] || { correct: 0, total: 0 };
+    const miguelAdivinanzaStats = dataStore.adivinanzaStats[OWNER_ID] || { correct: 0, total: 0 };
     const adivinanzaRanking = [
-        { name: 'Belén', correct: luzAdivinanzaStats.correct, percentage: luzAdivinanzaStats.total > 0 ? Math.round((luzAdivinanzaStats.correct / luzAdivinanzaStats.total) * 100) : 0 }
+        { name: 'Belén', correct: luzAdivinanzaStats.correct, percentage: luzAdivinanzaStats.total > 0 ? Math.round((luzAdivinanzaStats.correct / luzAdivinanzaStats.total) * 100) : 0 },
+        { name: 'Miguel', correct: miguelAdivinanzaStats.correct, percentage: miguelAdivinanzaStats.total > 0 ? Math.round((miguelAdivinanzaStats.correct / miguelAdivinanzaStats.total) * 100) : 0 }
     ].sort((a, b) => b.correct - a.correct);
     const adivinanzaList = adivinanzaRanking.map(participant => 
         `> 🌟 ${participant.name}: **${participant.correct} aciertos** (${participant.percentage}% acertadas)`
