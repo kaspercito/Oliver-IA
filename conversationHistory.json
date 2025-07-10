@@ -184,6 +184,18 @@
         "content": "Che, Miguel, ¡qué pregunta, loco! 😅  Milagros es una genia, una grosa total.  Siempre buena onda, una amigaza posta.  ¿Qué más querés saber?  Contá que te pasa, no te quedes con la duda 😉",
         "timestamp": 1752177189659,
         "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "que opinas de esta frase no te mereces nada malo, pero tampoco algo bueno",
+        "timestamp": 1752185444405,
+        "userName": "Miguel"
+      },
+      {
+        "role": "user",
+        "content": "hola?",
+        "timestamp": 1752185454185,
+        "userName": "Miguel"
       }
     ]
   },
@@ -643,7 +655,7 @@
       "mensaje": "tomar la vitamina todos los días",
       "cuandoLlegue": false,
       "cuandoSalga": false,
-      "timestamp": 1752188400000,
+      "timestamp": 1752274800000,
       "creado": 1743208808339,
       "esRecurrente": true,
       "hora": 20,
