@@ -2,12 +2,6 @@
   "conversationHistory": {
     "1023132788632862761": [
       {
-        "role": "assistant",
-        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨\n\n¡Che, qué bajón que te genere ganas de llorar esa canción, eh! 😅 ¿Por qué te pasa eso? ¿Te trae algún recuerdo, o simplemente te toca una fibra sensible? Contame un poco más, grosa, así podemos charlar un rato.  ¡Toda la vibra positiva para vos! ✨  ¡A meterle pilas, rata blanca! 💪",
-        "timestamp": 1745228504293,
-        "userName": "Oliver"
-      },
-      {
         "role": "user",
         "content": "por qué te escucho tan bajo",
         "timestamp": 1745228613854,
@@ -119,6 +113,13 @@
         "role": "assistant",
         "content": "Che, Milagros, ¡rata blanca hermosa! 💖  Ya son las 10 de la noche, ¡noche mágica, a brillar! ✨  ¿Cómo cerrás este día tan copado, grosa? ¿Y vos qué me contás, genia?",
         "timestamp": 1745629257443,
+        "userName": "Oliver",
+        "isReminder": true
+      },
+      {
+        "role": "assistant",
+        "content": "Che, Milagros, ¡rata blanca hermosa! 💖  ¡Mediodía a pleno, loco! 😎  Hora de recargar pilas con un matecito bien amargo, ¿o algún plan tranqui que tengas en mente?  ¿Qué onda, grosa?",
+        "timestamp": 1752159631127,
         "userName": "Oliver",
         "isReminder": true
       }
@@ -475,7 +476,8 @@
     "util_1343749554905940058": 1752121555461,
     "reminder_1343749554905940058_22": 1745629256772,
     "reminder_1343749554905940058_23": 1745200824552,
-    "reminder_1343749554905940058_0": 1745204431151
+    "reminder_1343749554905940058_0": 1745204431151,
+    "reminder_1343749554905940058_12": 1752159629390
   },
   "utilMessageReactions": {
     "1343749554905940058": 1742417343374
