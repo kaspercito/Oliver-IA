@@ -3,30 +3,6 @@
     "1023132788632862761": [
       {
         "role": "user",
-        "content": "por qué te escucho tan bajo",
-        "timestamp": 1745228613854,
-        "userName": "Milagros"
-      },
-      {
-        "role": "assistant",
-        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨\n\nChe, ¿por qué te escucho tan bajo? 😅  No entiendo mucho, loco.  ¿Te referís a mi voz, a mi volumen al responderte?  ¿O es que te sale bajo el audio de algún lado?  Aclarame un poco más, grosa, para poder ayudarte. ¡Sos una genia! 💪  ¡A seguir brillando, estrella! ✨",
-        "timestamp": 1745228614841,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
-        "content": "ya estoy edspierta menso",
-        "timestamp": 1745229642898,
-        "userName": "Milagros"
-      },
-      {
-        "role": "assistant",
-        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨\n\n¡Che, \"ya estoy despierta, menso\"!  😅  ¡Buen día, grosa! ¿Dormiste bien?  ¿Qué onda para hoy? Contame todo, ¡a ver qué planes tenés! 💪 ¡A seguir brillando, estrella! ✨",
-        "timestamp": 1745229643799,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
         "content": "café con leche y tostadas con dulce de leche de desayuno",
         "timestamp": 1745229729448,
         "userName": "Milagros"
@@ -122,6 +98,30 @@
         "timestamp": 1752159631127,
         "userName": "Oliver",
         "isReminder": true
+      },
+      {
+        "role": "user",
+        "content": "hola bot",
+        "timestamp": 1752182986888,
+        "userName": "Milagros"
+      },
+      {
+        "role": "assistant",
+        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖\n\n¡Holaaa, grosa! 😎 ¿Qué onda? Contame todo, ¿cómo andás?  ¡A ver qué se cuece por ahí! ✨",
+        "timestamp": 1752182988358,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "cómo estás? r",
+        "timestamp": 1752182994219,
+        "userName": "Milagros"
+      },
+      {
+        "role": "assistant",
+        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖\n\n¡Holaaa, grosa! 😎 ¿Cómo estás?  \"r\"  😅 ¿Eso quiere decir que estás bien,  o que estás respondiendo rápido? ¡Necesito más datos, genia!  Contame todo, ¡a ver qué onda! ✨ ¡A seguir brillando, estrella!",
+        "timestamp": 1752182996900,
+        "userName": "Oliver"
       }
     ],
     "752987736759205960": [
