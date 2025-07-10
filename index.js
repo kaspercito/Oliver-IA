@@ -2201,27 +2201,31 @@ const obtenerResultados = async (message) => {
 };
 
 const express = require('express');
+const fetch = require('node-fetch');
 const app = express();
 
 app.get('/ping', (req, res) => {
     console.log('Recibí un ping, ¡estoy vivo!');
-    res.send('¡Bot awake y con pilas!');
+    res.status(200).send('¡Bot awake y con pilas!');
 });
 
-const PORT = process.env.PORT || 8080; // Usa el PORT de Railway o 8080 por defecto
+const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
     console.log(`Servidor de ping corriendo en el puerto ${PORT}`);
     startAutoPing();
 });
 
 function startAutoPing() {
-    const appUrl = process.env.RAILWAY_URL || 'https://oliver-ia-production.up.railway.app';
-    const pingInterval = 4 * 60 * 1000;
+    const appUrl = process.env.RENDER_EXTERNAL_HOSTNAME || 'https://oliver-ia.onrender.com';
+    const pingInterval = 4 * 60 * 1000; // 4 minutes
     setInterval(async () => {
         try {
-            const response = await fetch(`${appUrl}/ping`);
-            if (response.ok) console.log('Auto-ping exitoso, bot sigue despierto.');
-            else console.error('Auto-ping falló:', response.statusText);
+            const response = await fetch(`${appUrl}/ping`, { method: 'GET' });
+            if (response.ok) {
+                console.log('Auto-ping exitoso, bot sigue despierto.');
+            } else {
+                console.error('Auto-ping falló:', response.statusText);
+            }
         } catch (error) {
             console.error('Error en auto-ping:', error.message);
         }
