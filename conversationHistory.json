@@ -577,19 +577,6 @@
       "esRecurrente": true,
       "hora": 7,
       "minutos": 0
-    },
-    {
-      "id": "640a39d6-9f2f-4420-ba9c-85b65ac199f7",
-      "userId": "752987736759205960",
-      "channelId": "1328170231008464958",
-      "mensaje": "comprar agua",
-      "cuandoLlegue": false,
-      "cuandoSalga": false,
-      "timestamp": 1752195600000,
-      "creado": 1752121593562,
-      "esRecurrente": false,
-      "hora": null,
-      "minutos": null
     }
   ],
   "usedJokes": {
