@@ -136,6 +136,54 @@
         "content": "¡Hola, Milagros! ¿Todo bien, grosa? 😊  Espero que estés pasando un hermoso día.  ¿Qué onda? Contame!",
         "timestamp": 1745225399640,
         "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "hola",
+        "timestamp": 1752177115214,
+        "userName": "Miguel"
+      },
+      {
+        "role": "assistant",
+        "content": "Hola, Miguel! ¿Todo bien, loco? 😎  ¿Qué onda? Contame qué necesitas, a ver si te puedo dar una mano.",
+        "timestamp": 1752177116124,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "que te pregunte antes",
+        "timestamp": 1752177125715,
+        "userName": "Miguel"
+      },
+      {
+        "role": "assistant",
+        "content": "Che, Miguel, ¡no hay drama, loco!  Preguntame lo que quieras, posta.  No hace falta pedir permiso,  siempre es un placer ayudarte 😎.  A ver, ¿qué onda?  Contame todo.",
+        "timestamp": 1752177130250,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "me siento mal",
+        "timestamp": 1752177137946,
+        "userName": "Miguel"
+      },
+      {
+        "role": "assistant",
+        "content": "Che, Miguel, me pone mal que te sientas mal, loco.  Contame un poco más, ¿qué te pasa?  A ver si entre los dos podemos encontrarle la vuelta 💪. No te quedes callado, posta.  Hablar hace bien,  y siempre es mejor con un amigo.  Contá, no te guardes nada. 😉",
+        "timestamp": 1752177139885,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "que opinas de Milagros",
+        "timestamp": 1752177188365,
+        "userName": "Miguel"
+      },
+      {
+        "role": "assistant",
+        "content": "Che, Miguel, ¡qué pregunta, loco! 😅  Milagros es una genia, una grosa total.  Siempre buena onda, una amigaza posta.  ¿Qué más querés saber?  Contá que te pasa, no te quedes con la duda 😉",
+        "timestamp": 1752177189659,
+        "userName": "Oliver"
       }
     ]
   },
@@ -416,7 +464,41 @@
     }
   },
   "updatesSent": true,
-  "musicSessions": {},
+  "musicSessions": {
+    "1008091219961860189": {
+      "autoplay": true,
+      "history": [
+        {
+          "track": "QAAAkQIAKENocmlzdGlhbiBNZWllciAtIEFsZ3VpZW4gZnQuIEdpYW4gTWFyY28AD0NocmlzdGlhbiBNZWllcgAAAAAABBL4AAs3U3RVZXFsVHNMbwABACtodHRwczovL3d3dy55b3V0dWJlLmNvbS93YXRjaD92PTdTdFVlcWxUc0xvAAd5b3V0dWJlAAAAAAAAAAA=",
+          "title": "Christian Meier - Alguien ft. Gian Marco",
+          "identifier": "7StUeqlTsLo",
+          "author": "Christian Meier",
+          "duration": 267000,
+          "isSeekable": true,
+          "isStream": false,
+          "uri": "https://www.youtube.com/watch?v=7StUeqlTsLo",
+          "thumbnail": "https://img.youtube.com/vi/7StUeqlTsLo/default.jpg",
+          "requester": {
+            "id": "752987736759205960",
+            "bot": false,
+            "system": false,
+            "flags": 256,
+            "username": "mihkario",
+            "globalName": "Kaspercito",
+            "discriminator": "0",
+            "avatar": "3f663b4832b4f3981669477182e7127f",
+            "avatarDecoration": null,
+            "avatarDecorationData": null,
+            "createdTimestamp": 1599596666279,
+            "defaultAvatarURL": "https://cdn.discordapp.com/embed/avatars/5.png",
+            "tag": "mihkario",
+            "avatarURL": "https://cdn.discordapp.com/avatars/752987736759205960/3f663b4832b4f3981669477182e7127f.webp",
+            "displayAvatarURL": "https://cdn.discordapp.com/avatars/752987736759205960/3f663b4832b4f3981669477182e7127f.webp"
+          }
+        }
+      ]
+    }
+  },
   "sentUpdates": [
     "¡Chat mejorado! Segunda respuesta automática al darle ❌, pa’ que sea más bacán y no pida detalles de una.",
     "Optimizado el código un poco, si te gustaría agregar algo más puedes solicitarlo, espero este bot cumpla con tus expectativas.",
@@ -522,7 +604,7 @@
       "mensaje": "tomar la pastilla rosada todos los días",
       "cuandoLlegue": false,
       "cuandoSalga": false,
-      "timestamp": 1752181200000,
+      "timestamp": 1752267600000,
       "creado": 1743208751308,
       "esRecurrente": true,
       "hora": 18,
