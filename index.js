@@ -5985,15 +5985,6 @@ client.on('messageCreate', async (message) => {
     } else if (content.startsWith('!wiki')) {
         await manejarWiki(message);
         return;
-    } else if (content.startsWith('!imagen') || content.startsWith('!im')) {
-        await manejarImagen(message);
-        return;
-    } else if (content === '!misimagenes') {
-        await manejarMisImagenes(message);
-        return;
-    } else if (content.startsWith('!editarimagen') || content.startsWith('!ei')) {
-        await manejarEditarImagen(message);
-        return;
     } else if (content.startsWith('!ansiedad') || content.startsWith('!an')) {
         await manejarAnsiedad(message);
         return;
