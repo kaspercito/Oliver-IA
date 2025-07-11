@@ -2208,26 +2208,33 @@ app.get('/ping', (req, res) => {
     res.send('¡Bot awake y con pilas!');
 });
 
-const PORT = process.env.PORT || 8080; // Usa el PORT de Railway o 8080 por defecto
+const PORT = process.env.PORT || 8080; // Render sets process.env.PORT
 app.listen(PORT, () => {
     console.log(`Servidor de ping corriendo en el puerto ${PORT}`);
     startAutoPing();
 });
 
 function startAutoPing() {
-    const appUrl = process.env.RAILWAY_URL || 'https://oliver-ia-production.up.railway.app';
-    const pingInterval = 4 * 60 * 1000;
+    const appUrl = process.env.APP_URL || 'https://oliver-ia.onrender.com';
+    console.log('URL usada para auto-ping:', appUrl); // Log para depuración
+    if (!appUrl.startsWith('http://') && !appUrl.startsWith('https://')) {
+        console.error('Error: appUrl no es una URL absoluta válida:', appUrl);
+        return;
+    }
+    const pingInterval = 4 * 60 * 1000; // 4 minutos
     setInterval(async () => {
         try {
             const response = await fetch(`${appUrl}/ping`);
-            if (response.ok) console.log('Auto-ping exitoso, bot sigue despierto.');
-            else console.error('Auto-ping falló:', response.statusText);
+            if (response.ok) {
+                console.log('Auto-ping exitoso, bot sigue despierto.');
+            } else {
+                console.error('Auto-ping falló:', response.statusText);
+            }
         } catch (error) {
             console.error('Error en auto-ping:', error.message);
         }
     }, pingInterval);
 }
-
 
 async function manejarAnsiedad(message) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
