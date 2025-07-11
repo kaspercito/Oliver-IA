@@ -2200,7 +2200,6 @@ const obtenerResultados = async (message) => {
   }
 };
 
-
 const express = require('express');
 const app = express();
 
@@ -2209,33 +2208,26 @@ app.get('/ping', (req, res) => {
     res.send('¡Bot awake y con pilas!');
 });
 
-const PORT = process.env.PORT || 10000; // Render sets process.env.PORT
+const PORT = process.env.PORT || 8080; // Usa el PORT de Railway o 8080 por defecto
 app.listen(PORT, () => {
     console.log(`Servidor de ping corriendo en el puerto ${PORT}`);
     startAutoPing();
 });
 
 function startAutoPing() {
-    const appUrl = process.env.APP_URL || 'https://oliver-ia.onrender.com/ping';
-    console.log('URL usada para auto-ping:', appUrl); // Log para depuración
-    if (!appUrl.startsWith('http://') && !appUrl.startsWith('https://')) {
-        console.error('Error: appUrl no es una URL absoluta válida:', appUrl);
-        return;
-    }
-    const pingInterval = 4 * 60 * 1000; // 4 minutos
+    const appUrl = process.env.RAILWAY_URL || 'https://oliver-ia-production.up.railway.app';
+    const pingInterval = 4 * 60 * 1000;
     setInterval(async () => {
         try {
             const response = await fetch(`${appUrl}/ping`);
-            if (response.ok) {
-                console.log('Auto-ping exitoso, bot sigue despierto.');
-            } else {
-                console.error('Auto-ping falló:', response.statusText);
-            }
+            if (response.ok) console.log('Auto-ping exitoso, bot sigue despierto.');
+            else console.error('Auto-ping falló:', response.statusText);
         } catch (error) {
             console.error('Error en auto-ping:', error.message);
         }
     }, pingInterval);
 }
+
 
 async function manejarAnsiedad(message) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
@@ -3121,6 +3113,85 @@ async function sendLyrics(waitingMessage, channel, songTitle, lyrics, userName) 
     }
 }
 
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+
+const userLocks = new Map();
+
+async function manejarChat(message) {
+    const userId = message.author.id;
+    const userName = 'Milagros';
+    const chatMessage = message.content.startsWith('!chat') ? message.content.slice(5).trim() : message.content.slice(3).trim();
+
+    if (!chatMessage) {
+        return sendError(message.channel, `¡Che, ${userName}, escribí algo después de "!ch", genia! No me dejes con las ganas 😅`, undefined, 'Hecho con ❤️ por Oliver IA | Reacciona con ✅ o ❌');
+    }
+
+    if (userLocks.has(userId)) {
+        await new Promise(resolve => setTimeout(resolve, 500));
+    }
+    userLocks.set(userId, true);
+
+    if (!dataStore.conversationHistory) dataStore.conversationHistory = {};
+    if (!dataStore.conversationHistory[userId]) dataStore.conversationHistory[userId] = [];
+    if (!dataStore.userStatus) dataStore.userStatus = {};
+    if (!dataStore.userStatus[userId]) dataStore.userStatus[userId] = { status: 'tranqui', timestamp: Date.now() };
+
+    if (chatMessage.toLowerCase().includes('compromiso')) {
+        dataStore.userStatus[userId] = { status: 'en compromiso', timestamp: Date.now() };
+        dataStoreModified = true;
+    }
+
+    dataStore.conversationHistory[userId].push({ role: 'user', content: chatMessage, timestamp: Date.now(), userName });
+    if (dataStore.conversationHistory[userId].length > 20) {
+        dataStore.conversationHistory[userId] = dataStore.conversationHistory[userId].slice(-20);
+    }
+    dataStoreModified = true;
+
+    const history = dataStore.conversationHistory[userId].slice(-20);
+    let context = history.map(h => `${h.userName}: ${h.content}`).join('\n');
+
+    const waitingEmbed = createEmbed('#FF1493', `¡Aguantá un toque, ${userName}! ⏳`, 'Estoy pensando una respuesta re copada...', 'Hecho con ❤️ por Oliver IA | Reacciona con ✅ o ❌');
+    const waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
+
+    try {
+        const prompt = `Sos Oliver IA, un bot re piola con toda la onda argentina: usá "loco", "che", "posta" y metele emojis copados como 😎✨💪, pero con medida, uno o dos por respuesta. Tu misión es ser súper útil, tirar respuestas claras con lógica e inteligencia, y cuidar a Milagros como una amiga cercana. Tratála como la mejor, una grosa, con cariño zarpado y piropos con onda tipo "grosa", "genia", "rata blanca" o "estrella". NUNCA le digas "reina". Hacé que la charla fluya como con una amiga de siempre, levantándole el ánimo con buena onda si la ves bajón.
+
+Esto es lo que charlamos antes con Milagros:\n${context}\nSabé que Milagros está ${dataStore.userStatus[userId]?.status || 'tranqui'}.
+
+Respondé a: "${chatMessage}" con claridad, buena onda y un tono de amiga cercana, enfocándote en el mensaje actual primero. Usá el contexto anterior solo si pega clarito con lo que te dicen ahora. Solo decí cómo estás vos tipo "¡Yo estoy joya, che! ¿Y vos cómo andás, genia?" si te preguntan explícitamente "cómo andás". Sé relajada: respondé lo que te dicen y tirá uno o dos comentarios copados pa’ seguir la charla. Si algo no te cierra, pedí que lo aclaren con humor tipo 😅. Si la notás triste, metele un mimo extra 😊.
+
+**IMPORTANTE**: Variá las formas de mostrarle cariño y cerrar la charla. Usá alternativas frescas como "¡Seguí rompiéndola, genia!", "¡A meterle pilas, rata blanca!", "¡Toda la vibra pa’ vos, grosa!" o "¡Sos una ídola, seguí brillando! ✨". Siempre metele emojis pa’ darle onda, pero sin pasarte. ¡Tirá para adelante, che! ✨💖`;
+
+        const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Tiempo agotado')), 10000));
+        const result = await Promise.race([model.generateContent(prompt), timeoutPromise]);
+        let aiReply = result.response.text().trim();
+
+        dataStore.conversationHistory[userId].push({ role: 'assistant', content: aiReply, timestamp: Date.now(), userName: 'Oliver' });
+        if (dataStore.conversationHistory[userId].length > 20) {
+            dataStore.conversationHistory[userId] = dataStore.conversationHistory[userId].slice(-20);
+        }
+        dataStoreModified = true;
+
+        if (aiReply.length > 2000) aiReply = aiReply.slice(0, 1990) + '... (¡seguí charlando pa’ más, genia!)';
+
+        const finalEmbed = createEmbed('#FF1493', `¡Hola, ${userName}!`, `${aiReply}\n\n¿Y qué me contás vos, grosa? ¿Seguimos la charla o qué te pinta?`, 'Con todo el ❤️, Oliver IA | Reacciona con ✅ o ❌');
+        const updatedMessage = await waitingMessage.edit({ embeds: [finalEmbed] });
+        await updatedMessage.react('✅');
+        await updatedMessage.react('❌');
+        sentMessages.set(updatedMessage.id, { content: aiReply, originalQuestion: chatMessage, message: updatedMessage });
+    } catch (error) {
+        console.error('Error con Gemini:', error.message, error.stack);
+        const fallbackReply = `¡Uy, ${userName}, me mandé un moco, loco! 😅 Pero no pasa nada, genia, ¿me tirás otra vez el mensaje o seguimos con algo nuevo? Acá estoy pa’ vos siempre 💖`;
+        const errorEmbed = createEmbed('#FF1493', `¡Qué macana, ${userName}!`, fallbackReply, 'Con todo el ❤️, Oliver IA | Reacciona con ✅ o ❌');
+        const errorMessageSent = await waitingMessage.edit({ embeds: [errorEmbed] });
+        await errorMessageSent.react('✅');
+        await errorMessageSent.react('❌');
+    } finally {
+        userLocks.delete(userId);
+    }
+}
+
 function generarConsejoClima(clima, esSalida = false) {
     const climaLower = clima.toLowerCase();
     if (climaLower.includes('lluvia') || climaLower.includes('tormenta')) {
@@ -3973,7 +4044,7 @@ async function manejarAutoplay(message) {
     await sendSuccess(message.channel, estado ? '🎵 ¡Autoplay activado!' : '⏹️ ¡Autoplay desactivado!', mensaje);
 }
 
-// Ranking con top por categoría para Trivia, Reacciones, PPM y Adivinanzas
+// Ranking con top por categoría para Trivia, Reacciones y PPM
 function getCombinedRankingEmbed(userId, username) {
     const categorias = Object.keys(preguntasTriviaSinOpciones);
     
@@ -3981,15 +4052,11 @@ function getCombinedRankingEmbed(userId, username) {
     let triviaList = '**📚 Trivia por Categoría**\n';
     categorias.forEach(categoria => {
         const luzStats = dataStore.triviaStats[ALLOWED_USER_ID]?.[categoria] || { correct: 0, total: 0 };
-        const miguelStats = dataStore.triviaStats[OWNER_ID]?.[categoria] || { correct: 0, total: 0 };
         const luzScore = luzStats.correct;
-        const miguelScore = miguelStats.correct;
         const luzPercentage = luzStats.total > 0 ? Math.round((luzScore / luzStats.total) * 100) : 0;
-        const miguelPercentage = miguelStats.total > 0 ? Math.round((miguelScore / miguelStats.total) * 100) : 0;
 
         const ranking = [
-            { name: 'Belén', score: luzScore, percentage: luzPercentage },
-            { name: 'Miguel', score: miguelScore, percentage: miguelPercentage }
+            { name: 'Belén', score: luzScore, percentage: luzPercentage }
         ].sort((a, b) => b.score - a.score);
 
         triviaList += `\n**${categoria.charAt(0).toUpperCase() + categoria.slice(1)}** 🎲\n` +
@@ -4000,10 +4067,8 @@ function getCombinedRankingEmbed(userId, username) {
 
     // Récords de PPM
     const luzPPMRecord = dataStore.personalPPMRecords[ALLOWED_USER_ID]?.best || { ppm: 0, timestamp: null };
-    const miguelPPMRecord = dataStore.personalPPMRecords[OWNER_ID]?.best || { ppm: 0, timestamp: null };
     const ppmRanking = [
-        { name: 'Belén', ppm: luzPPMRecord.ppm, timestamp: luzPPMRecord.timestamp },
-        { name: 'Miguel', ppm: miguelPPMRecord.ppm, timestamp: miguelPPMRecord.timestamp }
+        { name: 'Belén', ppm: luzPPMRecord.ppm, timestamp: luzPPMRecord.timestamp }
     ].sort((a, b) => b.ppm - a.ppm);
     let ppmList = ppmRanking.map(participant => 
         participant.ppm > 0 
@@ -4015,8 +4080,7 @@ function getCombinedRankingEmbed(userId, username) {
     const miguelReactionWins = dataStore.reactionWins[OWNER_ID]?.wins || 0;
     const luzReactionWins = dataStore.reactionWins[ALLOWED_USER_ID]?.wins || 0;
     const reactionRanking = [
-        { name: 'Belén', wins: luzReactionWins },
-        { name: 'Miguel', wins: miguelReactionWins }
+        { name: 'Belén', wins: luzReactionWins }
     ].sort((a, b) => b.wins - a.wins);
     const reactionList = reactionRanking.map(participant => 
         `> 🌟 ${participant.name} - **${participant.wins} Reacciones**`
@@ -4024,10 +4088,8 @@ function getCombinedRankingEmbed(userId, username) {
 
     // Adivinanzas
     const luzAdivinanzaStats = dataStore.adivinanzaStats[ALLOWED_USER_ID] || { correct: 0, total: 0 };
-    const miguelAdivinanzaStats = dataStore.adivinanzaStats[OWNER_ID] || { correct: 0, total: 0 };
     const adivinanzaRanking = [
-        { name: 'Belén', correct: luzAdivinanzaStats.correct, percentage: luzAdivinanzaStats.total > 0 ? Math.round((luzAdivinanzaStats.correct / luzAdivinanzaStats.total) * 100) : 0 },
-        { name: 'Miguel', correct: miguelAdivinanzaStats.correct, percentage: miguelAdivinanzaStats.total > 0 ? Math.round((miguelAdivinanzaStats.correct / miguelAdivinanzaStats.total) * 100) : 0 }
+        { name: 'Belén', correct: luzAdivinanzaStats.correct, percentage: luzAdivinanzaStats.total > 0 ? Math.round((luzAdivinanzaStats.correct / luzAdivinanzaStats.total) * 100) : 0 }
     ].sort((a, b) => b.correct - a.correct);
     const adivinanzaList = adivinanzaRanking.map(participant => 
         `> 🌟 ${participant.name}: **${participant.correct} aciertos** (${participant.percentage}% acertadas)`
@@ -5284,7 +5346,7 @@ async function manejarCommand(message, silent = false) {
 
     
     if (content === '!trivia cancelar' || content === '!tc') {
-        if (message.author.id !== OWNER_ID && message.author.id !== ALLOWED_USER_ID) return;
+        if (message.author.id !== OWNER_ID) return;
 
         const channelProgress = dataStore.activeSessions[`trivia_${message.channel.id}`];
         if (!channelProgress || channelProgress.type !== 'trivia') {
@@ -5306,7 +5368,7 @@ async function manejarCommand(message, silent = false) {
         return;
     }
     else if (content === '!reacciones cancelar' || content === '!rc') {
-        if (message.author.id !== OWNER_ID && message.author.id !== ALLOWED_USER_ID) return;
+        if (message.author.id !== OWNER_ID) return;
 
         const session = dataStore.activeSessions[`reaction_${message.channel.id}`];
         if (!session || session.type !== 'reaction' || session.completed) {
@@ -5324,7 +5386,7 @@ async function manejarCommand(message, silent = false) {
         return;
     } 
     else if (content === '!ppm cancelar' || content === '!pc') {
-        if (message.author.id !== OWNER_ID && message.author.id !== ALLOWED_USER_ID) return;
+        if (message.author.id !== OWNER_ID) return;
 
         const ppmKey = `ppm_${message.author.id}`;
         const session = dataStore.activeSessions[ppmKey];
@@ -5453,6 +5515,9 @@ async function manejarCommand(message, silent = false) {
     else if (content.startsWith('!reacciones') || content.startsWith('!re')) {
         await manejarReacciones(message);
     } 
+    else if (content.startsWith('!chat') || content.startsWith('!ch')) {
+        await manejarChat(message);
+    }
     else if (content === '!ppm' || content === '!pp') {
         await manejarPPM(message);
     } 
@@ -5535,15 +5600,6 @@ async function manejarCommand(message, silent = false) {
     }
     else if (content.startsWith('!wiki')) {
         await manejarWiki(message);
-    }
-    else if (content.startsWith('!imagen') || content.startsWith('!im')) {
-        await manejarImagen(message);
-    }
-    else if (content === '!misimagenes') {
-        await manejarMisImagenes(message);
-    }
-    else if (content.startsWith('!editarimagen') || content.startsWith('!ei')) {
-        await manejarEditarImagen(message);
     }
     else if (content.startsWith('!ansiedad') || content.startsWith('!an')) {
         await manejarAnsiedad(message);
@@ -5776,7 +5832,7 @@ client.on('messageCreate', async (message) => {
         }
     }
 
-    if (message.author.id !== OWNER_ID && message.author.id !== ALLOWED_USER_ID) return;
+    if (message.author.id !== OWNER_ID) return;
 
     if (processedMessages.has(message.id)) return;
     processedMessages.set(message.id, Date.now());
@@ -5869,15 +5925,6 @@ client.on('messageCreate', async (message) => {
         return;
     } else if (content.startsWith('!wiki')) {
         await manejarWiki(message);
-        return;
-    } else if (content.startsWith('!imagen') || content.startsWith('!im')) {
-        await manejarImagen(message);
-        return;
-    } else if (content === '!misimagenes') {
-        await manejarMisImagenes(message);
-        return;
-    } else if (content.startsWith('!editarimagen') || content.startsWith('!ei')) {
-        await manejarEditarImagen(message);
         return;
     } else if (content.startsWith('!ansiedad') || content.startsWith('!an')) {
         await manejarAnsiedad(message);
