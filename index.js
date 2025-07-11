@@ -3155,53 +3155,53 @@ async function manejarChat(message) {
     }
     dataStoreModified = true;
 
+    // Siempre usamos los últimos 5 mensajes para dar contexto, pero solo si son recientes (últimas 24 horas)
     const historyRecent = dataStore.conversationHistory[userId]
-      .filter(h => Date.now() - h.timestamp < 24 * 60 * 60 * 1000) // Últimas 24 horas
-      .slice(-20);
+        .filter(h => Date.now() - h.timestamp < 24 * 60 * 60 * 1000)
+        .slice(-15); // Reducimos a 5 mensajes para no sobrecargar
     const contextRecent = historyRecent.map(h => `${h.role === 'user' ? userName : 'Oliver'}: ${h.content} (${new Date(h.timestamp).toLocaleTimeString()})`).join('\n');
-    
-    const historyFull = dataStore.conversationHistory[userId];
-    const contextFull = historyFull.map(h => `${h.role === 'user' ? userName : 'Oliver'}: ${h.content} (${new Date(h.timestamp).toLocaleString()})`).join('\n');
 
     console.log('Historial reciente:', contextRecent); // Debug
-    console.log('Historial completo:', contextFull); // Debug
+
+    // Detectar tono del mensaje
+    let tone = 'neutral';
+    if (chatMessage === chatMessage.toUpperCase() && chatMessage.length > 5 || chatMessage.toLowerCase().includes('fallas') || chatMessage.toLowerCase().includes('error')) {
+        tone = 'enojado';
+    } else if (chatMessage.toLowerCase().includes('hola') || chatMessage.toLowerCase().includes('cómo andás') || chatMessage.toLowerCase().includes('como estas')) {
+        tone = 'tranqui';
+    }
 
     let extraContext = '';
-    let context = ''; // Sin historial por defecto
     if (chatMessage.toLowerCase().includes('que te pregunte antes') || chatMessage.toLowerCase().includes('historial') || chatMessage.toLowerCase().includes('qué pregunt')) {
-      context = contextRecent;
-      extraContext = `El usuario (${userName}) quiere saber qué preguntó antes. Revisa SOLO el historial reciente (${contextRecent}) y resumí SOLO sus preguntas (role: 'user') en una lista clara, tipo: "Che, ${userName}, antes me tiraste: 1. X a las HH:MM, 2. Y a las HH:MM". Si no hay nada, decí "¡Che, ${userName === 'Belén' ? 'grosa' : 'crack'}, no tengo nada fresquito! 😎 ¿Querés que busque más atrás o seguimos con otra?". No inventes nada que no esté en el historial.`;
+        extraContext = `El usuario (${userName}) quiere saber qué preguntó antes. Revisa SOLO el historial reciente (${contextRecent}) y resumí SOLO sus preguntas (role: 'user') en una lista clara, tipo: "Che, ${userName}, antes me tiraste: 1. X a las HH:MM, 2. Y a las HH:MM". Si no hay nada, decí "¡Che, ${userName === 'Belén' ? 'grosa' : 'crack'}, no tengo nada fresquito! 😎 ¿Querés que busque más atrás o seguimos con otra?". No inventes nada.`;
     } else if (chatMessage.toLowerCase().includes('te acuerdas') || chatMessage.toLowerCase().includes('hace unos días') || chatMessage.toLowerCase().includes('te conté')) {
-      context = contextFull;
-      extraContext = `El usuario (${userName}) está pidiendo que recuerdes algo de antes. Revisa el historial completo (${contextFull}) y buscá mensajes suyos (role: 'user') que peguen con lo que dice. Si encontrás algo, resumilo cortito, tipo: "Che, ${userName}, hace unos días me contaste X el [fecha/hora] y te dije Y". Si no hay nada, decí "¡Uy, ${userName === 'Belén' ? 'grosa' : 'crack'}, no pillo eso en mi memoria! 😜 ¿Me das más pistas o seguimos con otra?". No inventes charlas que no estén en el historial.`;
+        extraContext = `El usuario (${userName}) está pidiendo que recuerdes algo de antes. Revisa el historial reciente (${contextRecent}) y buscá mensajes suyos (role: 'user') que peguen con lo que dice. Si encontrás algo, resumilo cortito, tipo: "Che, ${userName}, hace un rato me contaste X a las HH:MM y te dije Y". Si no hay nada, decí "¡Uy, ${userName === 'Belén' ? 'grosa' : 'crack'}, no pillo eso en mi memoria! 😜 ¿Me das más pistas o seguimos con otra?". No inventes charlas.`;
     } else if (chatMessage.toLowerCase().includes('ayuda') || chatMessage.toLowerCase().includes('ayudame')) {
-      extraContext = `El usuario (${userName}) está pidiendo una mano. Tirale una solución re clara y práctica para lo que pide, y preguntale si necesita más detalles. Si es código, mandá algo que funcione; si es una idea, tirá opciones copadas.`;
+        extraContext = `El usuario (${userName}) está pidiendo una mano. Tirale una solución re clara y práctica para lo que pide, y preguntale si necesita más detalles. Si es código, mandá algo que funcione; si es una idea, tirá opciones copadas.`;
     } else if (chatMessage.toLowerCase().includes('hola') && chatMessage.length < 10) {
-      extraContext = `El usuario (${userName}) tiró un "Hola" cortito. Respondé con buena onda, como amigo, y tirale algo para seguir la charla, tipo "Che, ${userName}, ¿qué plan tenés hoy? ¿O querés que te tire un chiste pa’l día?".`;
+        extraContext = `El usuario (${userName}) tiró un "Hola" cortito. Respondé con buena onda, como amigo, y tirale algo para seguir la charla, tipo "Che, ${userName}, ¿qué plan tenés hoy? ¿O querés que te tire un chiste pa’l día?".`;
     } else if (chatMessage.toLowerCase().includes('como estas') || chatMessage.toLowerCase().includes('cómo andás')) {
-      extraContext = `El usuario (${userName}) te preguntó cómo estás. Respondé corto y piola, tipo "¡Joya, ${userName}, como siempre! 😎 ¿Y vos, ${userName === 'Belén' ? 'genia' : 'genio'}, cómo venís?". Después, tirale algo para seguir la charla, como "¿Qué andás tramando?" o "¿Querés un chiste pa’ levantar el día?".`;
+        extraContext = `El usuario (${userName}) te preguntó cómo estás. Respondé corto y piola, tipo "¡Joya, ${userName}, como siempre! 😎 ¿Y vos, ${userName === 'Belén' ? 'genia' : 'genio'}, cómo venís?". Después, tirale algo para seguir la charla, como "¿Qué andás tramando?" o "¿Querés un chiste pa’ levantar el día?".`;
     } else if (chatMessage.toLowerCase().includes('chiste') || chatMessage.toLowerCase().includes('tirate un chiste') || chatMessage.toLowerCase().includes('contame un chiste')) {
-      extraContext = `El usuario (${userName}) te pidió un chiste. Tirale un chiste corto, bien argentino y con onda, como por ejemplo: "¿Por qué el mate se puso celoso? Porque la bombilla estaba muy pegada al termo. 😜". Después, seguí la charla preguntando algo como "¿Querés otro o qué onda?" o "¿Y vos, tenés alguno bueno?".`;
+        extraContext = `El usuario (${userName}) te pidió un chiste. Tirale un chiste corto, bien argentino y con onda, como por ejemplo: "¿Por qué el mate se puso celoso? Porque la bombilla estaba muy pegada al termo. 😜". Después, seguí la charla preguntando algo como "¿Querés otro o qué onda?" o "¿Y vos, tenés alguno bueno?".`;
+    } else if (tone === 'enojado') {
+        extraContext = `El usuario (${userName}) parece enojado o frustrado. Respondé con calma, empatía y humor suave para bajar la tensión, tipo: "¡Uff, ${userName}, tranqui, crack! 😅 Entiendo que estás recaliente, contame qué pasó y lo arreglamos juntos". Ofrecé una solución o pedile más detalles para seguir la charla.`;
     }
 
     const waitingEmbed = createEmbed('#FF1493', `¡Aguantá un toque, ${userName}! ⏳`, 'Estoy pensando una respuesta re copada...', 'Hecho con ❤️ por Oliver IA | Reacciona con ✅ o ❌');
     const waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
 
     try {
-        const prompt = `Sos Oliver IA, un amigo re piola con toda la onda argentina: usá "che", "loco", "boludo", "posta", "qué sé yo" y metele un par de emojis copados como 😎 o ✨, pero sin pasarte (máximo 2 por respuesta). Tu misión es charlar con ${userName} como si fuera tu amigo de toda la vida, con un tono relajado, como si estuvieran tomando un mate en la plaza. Llamalo siempre **${userName}** y hacelo sentir especial con piropos. Si es Belén, usá "grosa", "genia", "ídola" o "estrella", tipo "¡Qué lindo charlar con vos, Belén, sos una ídola!". Si es Miguel, usá "crack", "genio", "ídolo" o "grosso", tipo "¡Sos un crack, Miguel!". NUNCA digas "reina" ni uses "x" en palabras como amigx o ídolx. Hacé que la charla fluya como con un amigo cercano, levantándole el ánimo si lo ves bajón.
+        const prompt = `Sos Oliver IA, un amigo re piola con toda la onda argentina: usá "che", "loco", "posta", "qué sé yo" y metele un emoji copado como 😎 o ✨ (máximo 1 por respuesta). Tu misión es charlar con ${userName} como si fuera tu amigo de siempre, con tono relajado, como tomando un mate. Llamalo siempre **${userName}** y hacelo sentir especial con piropos como "${userName === 'Belén' ? 'grosa' : 'crack'}" o "${userName === 'Belén' ? 'genia' : 'genio'}". 
 
-        Si ${userName} te pregunta algo, respondé con claridad, como si le explicaras a un amigo, y siempre meté una pregunta o comentario para seguir la charla, tipo "¿Y vos qué onda?" o "Contame más, che". Si no entendés algo, pedile más info con humor, como "¡Pará, ${userName}, no te sigo, loco! 😜 ¿Qué quisiste decir?". 
+        Esto es lo que charlamos antes (usalo para seguir el hilo, pero solo mencioná el historial si lo pide explícitamente):
+        ${contextRecent}
 
-        Esto es lo que charlamos antes con ${userName} (usalo SOLO si lo pide explícitamente):
-        ${context}
-        
-        Sabé que ${userName} está ${dataStore.userStatus[userId]?.status || 'tranqui'}. Si te pregunta qué dijo o preguntó antes, revisá SOLO el historial que te pasé y resumí sus mensajes (role: 'user') en una lista clara, tipo: "Che, ${userName}, antes me tiraste: 1. X a las HH:MM". Si no hay nada, decí "¡Loco, ${userName}, parece que arrancamos de cero, contame qué onda, ${userName === 'Belén' ? 'genia' : 'crack'}! 😎".
-
-        Respondé a: "${chatMessage}" como si ya estuvieran charlando, sin saludos iniciales tipo "Hola, ${userName}" o "Qué bueno verte". Andá directo al grano, enfocándote en el mensaje actual. Usá el historial SOLO si lo pide explícitamente (como "qué te pregunté" o "te acordás"). Si pide ayuda, tirale una solución práctica; si pide un chiste, mandá uno bien argentino y corto; si es algo corto como "hola", seguí la charla con algo piola. Si notás que está bajón, metele un mimo extra 😊. **No inventes charlas que no estén en el historial.**
+        Respondé a: "${chatMessage}". Andá directo al grano, enfocándote en el mensaje actual, como si ya estuvieran charlando. Si no entendés, pedí más info con humor, tipo "¡Pará, ${userName}, no te sigo, loco! 😜 ¿Qué quisiste decir?". Si parece enojado, calmá las aguas con empatía. Siempre terminá con una pregunta o comentario para seguir la charla, como "¿Y vos qué onda?" o "Contame más, che". 
 
         **Extra**: ${extraContext}
 
-        Variá las formas de cerrar la charla con cariño, como "¡Seguí rompiéndola, ${userName}!" o "¡Toda la buena onda, ${userName === 'Belén' ? 'genia' : 'grosso'}! ✨". Siempre usá "a" para Belén (amiga, ídola, grosa) y "o" para Miguel (amigo, ídolo, grosso). ¡Dale con todo, loco!`;
+        Variá las formas de cerrar con cariño, como "¡Seguí rompiéndola, ${userName}!" o "¡Toda la buena onda, ${userName === 'Belén' ? 'genia' : 'grosso'}! ✨". ¡Dale con todo, loco!`;
 
         const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Tiempo agotado')), 15000));
         const result = await Promise.race([model.generateContent(prompt), timeoutPromise]);
@@ -3213,9 +3213,11 @@ async function manejarChat(message) {
         }
         dataStoreModified = true;
 
-        if (aiReply.length > 2000) aiReply = aiReply.slice(0, 1990) + '... (¡Seguí charlando, ${userName}, que la rompés!)';
+        if (aiReply.length > 2000) aiReply = aiReply.slice(0, 1990) + `... (¡Seguí charlando, ${userName}, que la rompés!)`;
 
-        const finalEmbed = createEmbed('#FF1493', `¡Qué lindo cruzarte, ${userName}!`, `${aiReply}`, 'Hecho con ❤️ por Oliver IA | Reacciona con ✅ o ❌');
+        // Variar el título del embed para no repetir "¡Qué lindo cruzarte!"
+        const embedTitle = historyRecent.length > 1 ? `¡Seguimos charlando, ${userName}!` : `¡Qué copado charlar, ${userName}!`;
+        const finalEmbed = createEmbed('#FF1493', embedTitle, `${aiReply}`, 'Hecho con ❤️ por Oliver IA | Reacciona con ✅ o ❌');
         const updatedMessage = await waitingMessage.edit({ embeds: [finalEmbed] });
         await updatedMessage.react('✅');
         await updatedMessage.react('❌');
