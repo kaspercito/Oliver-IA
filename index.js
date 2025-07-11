@@ -3138,7 +3138,6 @@ const cache = new NodeCache({ stdTTL: 3600 }); // Cache de 1 hora
 const userLocks = new Map();
 
 // Servidor HTTP para Web Service
-const app = express();
 app.get('/health', (req, res) => res.send('OK'));
 app.listen(process.env.PORT || 10000, () => console.log('Health endpoint running on port', process.env.PORT || 10000));
 
