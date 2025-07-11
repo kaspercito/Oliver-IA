@@ -5453,9 +5453,6 @@ async function manejarCommand(message, silent = false) {
     else if (content.startsWith('!reacciones') || content.startsWith('!re')) {
         await manejarReacciones(message);
     } 
-    else if (content.startsWith('!chat') || content.startsWith('!ch')) {
-        await manejarChat(message);
-    }
     else if (content === '!ppm' || content === '!pp') {
         await manejarPPM(message);
     } 
