@@ -3,54 +3,6 @@
     "1023132788632862761": [
       {
         "role": "user",
-        "content": "café con leche y tostadas con dulce de leche de desayuno",
-        "timestamp": 1745229729448,
-        "userName": "Milagros"
-      },
-      {
-        "role": "assistant",
-        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨\n\n¡Che, qué desayuno más ricoooo!  😅 Café con leche y tostadas con dulce de leche… ¡un clásico que nunca falla!  Posta que me dieron ganas de desayunar lo mismo ahora mismo.  ¿Y después del desayuno, qué onda? ¿Qué planes tenés para el día? ¡Contame todo, grosa! 💪 ¡A seguir brillando, estrella! ✨",
-        "timestamp": 1745229730520,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
-        "content": "amar y envejecer las pastillas del abuelo",
-        "timestamp": 1745230023851,
-        "userName": "Milagros"
-      },
-      {
-        "role": "assistant",
-        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨\n\n¡Che, \"amar y envejecer las pastillas del abuelo\"...! 😅  No entiendo muy bien, loco. ¿Te referís a cuidar las pastillas del abuelo para que no se venzan o a algo más?  Necesito que me aclares un poco eso, grosa, para poder ayudarte.  ¡Sos una genia! 💪  Contá más,  ¡a ver qué onda! ✨",
-        "timestamp": 1745230024819,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
-        "content": "holaaa",
-        "timestamp": 1745270490442,
-        "userName": "Milagros"
-      },
-      {
-        "role": "assistant",
-        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨\n\n¡Holaaa, grosa! 😎 ¿Qué onda? Contame todo, ¿cómo andás?  ¡A ver qué se cuece por ahí! ✨",
-        "timestamp": 1745270491160,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
-        "content": "hola, estás vivito? no te pasó nada? no te rompiste?",
-        "timestamp": 1745280032126,
-        "userName": "Milagros"
-      },
-      {
-        "role": "assistant",
-        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨\n\n¡Holaaa, grosa! 😎  ¡Yo estoy re bien, gracias por preguntar! 😅  ¿Qué onda con esa preocupación?  ¿Te pasó algo?  No te rompiste, ¿no? Contame todo, ¡a ver qué se cuece por ahí! ✨ ¡A seguir brillando, estrella!",
-        "timestamp": 1745280033471,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
         "content": "hola, estás vivo?",
         "timestamp": 1745289587845,
         "userName": "Milagros"
@@ -121,6 +73,54 @@
         "role": "assistant",
         "content": "Ey, Milagros, ¡rata blanca hermosa! 💖\n\n¡Holaaa, grosa! 😎 ¿Cómo estás?  \"r\"  😅 ¿Eso quiere decir que estás bien,  o que estás respondiendo rápido? ¡Necesito más datos, genia!  Contame todo, ¡a ver qué onda! ✨ ¡A seguir brillando, estrella!",
         "timestamp": 1752182996900,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "ayúdame con algo",
+        "timestamp": 1752263269517,
+        "userName": "Belén"
+      },
+      {
+        "role": "assistant",
+        "content": "¡Che, Belén, genia! 😎 ¿En qué te puedo dar una mano? ¿Qué andás necesitando? Contame, que acá estoy para vos. ¿Qué onda con eso que te trae por acá? ✨",
+        "timestamp": 1752263270724,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "sabes qué significa cuando en un scan de anticheat sale la alerta Hitbox Modification?",
+        "timestamp": 1752263291126,
+        "userName": "Belén"
+      },
+      {
+        "role": "assistant",
+        "content": "¡Che, Belén, genia! 😎 Hitbox Modification en un scan de anticheat... Uhm, eso suena a que el juego detectó que andás modificando el tamaño o la forma de las \"hitboxes\", que son las áreas donde el juego registra los impactos de tus tiros. O sea, estás tocando algo que no deberías, ¿no? 😜 ¡Cuidado con eso, loco! ¿Estás intentando algo en particular? ✨",
+        "timestamp": 1752263293262,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "y eso se hace si o si con un client ilegal?",
+        "timestamp": 1752263310988,
+        "userName": "Belén"
+      },
+      {
+        "role": "assistant",
+        "content": "¡Che, Belén! 😎 No necesariamente, loco. Qué sé yo, a veces se puede hacer con otras herramientas, pero la mayoría de las veces, sí, la modificación de hitbox se hace con algo \"trucho\". ¿Querés que te explique un poco más o ya tenés claro el panorama? ✨ ¡Toda la buena onda, genia!",
+        "timestamp": 1752263312418,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "gracias por tu breve explicación",
+        "timestamp": 1752263325192,
+        "userName": "Belén"
+      },
+      {
+        "role": "assistant",
+        "content": "¡De nada, Belén, genia! 😎 Me alegro que te haya servido la explicación. ¿Quedó claro o te quedó alguna duda? Contame, que acá estoy para lo que necesites. ¡Toda la buena onda, genia! ✨",
+        "timestamp": 1752263326578,
         "userName": "Oliver"
       }
     ],
