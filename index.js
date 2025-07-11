@@ -5383,6 +5383,7 @@ async function manejarJugar(message) {
     });
 }
 
+// Comandos
 async function manejarCommand(message, silent = false) {
     const content = message.content.toLowerCase();
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
@@ -5643,15 +5644,6 @@ async function manejarCommand(message, silent = false) {
     }
     else if (content.startsWith('!wiki')) {
         await manejarWiki(message);
-    }
-    else if (content.startsWith('!imagen') || content.startsWith('!im')) {
-        await manejarImagen(message);
-    }
-    else if (content === '!misimagenes') {
-        await manejarMisImagenes(message);
-    }
-    else if (content.startsWith('!editarimagen') || content.startsWith('!ei')) {
-        await manejarEditarImagen(message);
     }
     else if (content.startsWith('!ansiedad') || content.startsWith('!an')) {
         await manejarAnsiedad(message);
