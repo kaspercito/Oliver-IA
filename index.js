@@ -3291,7 +3291,7 @@ async function sendLyrics(waitingMessage, channel, songTitle, lyrics, userName) 
 }
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const model = genAI.getGenerativeModel({ model: 'gemini-1.5-pro' }); // Cambiado a gemini-1.5-pro
+const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' }); // Cambiado a gemini-1.5-pro
 
 const userLocks = new Map();
 
