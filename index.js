@@ -3114,7 +3114,7 @@ async function sendLyrics(waitingMessage, channel, songTitle, lyrics, userName) 
 }
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-lite' });
 
 const userLocks = new Map();
 
@@ -3163,7 +3163,7 @@ Respondé a: "${chatMessage}" con claridad, buena onda y un tono de amiga cercan
 
 **IMPORTANTE**: Variá las formas de mostrarle cariño y cerrar la charla. Usá alternativas frescas como "¡Seguí rompiéndola, genia!", "¡A meterle pilas, rata blanca!", "¡Toda la vibra pa’ vos, grosa!" o "¡Sos una ídola, seguí brillando! ✨". Siempre metele emojis pa’ darle onda, pero sin pasarte. ¡Tirá para adelante, che! ✨💖`;
 
-        const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Tiempo agotado')), 10000));
+        const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Tiempo agotado')), 15000));
         const result = await Promise.race([model.generateContent(prompt), timeoutPromise]);
         let aiReply = result.response.text().trim();
 
