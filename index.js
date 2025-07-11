@@ -3137,10 +3137,6 @@ const queue = new PQueue({ concurrency: 1, interval: 1000, intervalCap: 1 });
 const cache = new NodeCache({ stdTTL: 3600 }); // Cache de 1 hora
 const userLocks = new Map();
 
-// Servidor HTTP para Web Service
-app.get('/health', (req, res) => res.send('OK'));
-app.listen(process.env.PORT || 10000, () => console.log('Health endpoint running on port', process.env.PORT || 10000));
-
 async function manejarChat(message) {
     const userId = message.author.id;
     const userName = userId === OWNER_ID ? 'Miguel' : 'Milagros';
