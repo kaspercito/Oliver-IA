@@ -3156,7 +3156,12 @@ async function manejarChat(message) {
     dataStoreModified = true;
 
     const history = dataStore.conversationHistory[userId].slice(-20);
-    let context = history.map(h => `${h.userName}: ${h.content}`).join('\n');
+    let context = history.map(h => `${h.role === 'user' ? userName : 'Oliver'}: ${h.content}`).join('\n');
+    
+    let extraContext = '';
+    if (chatMessage.toLowerCase().includes('que te pregunte antes') || chatMessage.toLowerCase().includes('historial') || chatMessage.toLowerCase().includes('qué pregunt')) {
+      extraContext = `El usuario quiere saber qué preguntó antes. Revisa el historial (${context}) y resumí las últimas preguntas del usuario de forma clara, ordenada y concisa, como una lista: "Che, antes me preguntaste: 1. X a las HH:MM, 2. Y a las HH:MM". Si no hay preguntas previas, decí "¡Che, parece que es la primera vez que me tirás algo, grosx! ¿Qué onda ahora? 😎".`;
+    }
 
     const waitingEmbed = createEmbed('#FF1493', `¡Aguantá un toque, ${userName}! ⏳`, 'Estoy pensando una respuesta re copada...', 'Hecho con ❤️ por Oliver IA | Reacciona con ✅ o ❌');
     const waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
