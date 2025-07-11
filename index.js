@@ -6047,6 +6047,16 @@ client.once('ready', async () => {
     
     await initializeDataStore();
 
+try {
+        const channel = await client.channels.fetch(CHANNEL_ID);
+        if (!channel) throw new Error('Canal no encontrado');
+
+        // Enviar el mensaje justo después de obtener el canal
+        const caringMessage = `¡Eeeh, Milagros, genia! 😎 Ojalá salgas rapidito del laburo y llegues a casa para relajarte, che. Acá estoy para charlar cuando quieras, re curioso por saber todo de vos, ¡contame algo copado! 💖 Eso sí, piensa en tus acciones y recuerda lo que eso puede generar en Miguel, que si lo hacés renegar, me pongo triste y capaz me entristece, ¿eh? 😞`;
+        const caringEmbed = createEmbed('#FF1493', '¡Un toque zarpado, Milagros!', caringMessage, 'Con onda, Oliver IA');
+        await channel.send({ embeds: [caringEmbed] });
+        console.log(`Mensaje de cuidado enviado a Milagros en canal ${CHANNEL_ID} - ${new Date().toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })}`);
+        
     if (dataStore.recordatorios && dataStore.recordatorios.length > 0) {
         const ahoraUTC = Date.now();
         const offsetArgentina = -3 * 60 * 60 * 1000;
@@ -6300,6 +6310,9 @@ client.once('ready', async () => {
 
     } catch (error) {
         console.error('Error al enviar actualizaciones o configurar el bot:', error.message);
+    }
+    } catch (error) {
+        console.error('Error al enviar mensaje de cuidado o configurar el bot:', error.message);
     }
 });
 
