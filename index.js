@@ -3290,21 +3290,25 @@ async function sendLyrics(waitingMessage, channel, songTitle, lyrics, userName) 
     }
 }
 
+const { GoogleGenerativeAI } = require('@google/generative-ai');
+
+// Inicialización de Gemini
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' }); // Cambiado a gemini-1.5-pro
+const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' }); // Volvemos a gemini-1.5-flash
 
 const userLocks = new Map();
 
-// Función para reintentos automáticos
-async function tryGenerateContent(prompt, retries = 5, delay = 3000) {
+// Función para reintentos con backoff exponencial
+async function tryGenerateContent(prompt, retries = 5, baseDelay = 3000) {
     for (let i = 0; i < retries; i++) {
         try {
             const timeoutPromise = new Promise((_, reject) =>
-                setTimeout(() => reject(new Error('Tiempo agotado')), 30000) // 30 segundos
+                setTimeout(() => reject(new Error('Tiempo agotado')), 20000) // 20 segundos
             );
             const result = await Promise.race([model.generateContent(prompt), timeoutPromise]);
             return result;
         } catch (error) {
+            const delay = baseDelay * Math.pow(2, i); // Backoff exponencial: 3000ms, 6000ms, 12000ms...
             console.log(`Intento ${i + 1} falló: ${error.message}. Reintentando en ${delay}ms...`);
             if (i === retries - 1) throw error; // Último intento, lanza el error
             await new Promise(resolve => setTimeout(resolve, delay));
@@ -3314,7 +3318,7 @@ async function tryGenerateContent(prompt, retries = 5, delay = 3000) {
 
 async function manejarChat(message) {
     const userId = message.author.id;
-    const userName = userId === OWNER_ID ? 'Miguel' : 'Milagros';
+    const userName = 'Milagros';
     const chatMessage = message.content.startsWith('!chat') ? message.content.slice(5).trim() : message.content.slice(3).trim();
 
     if (!chatMessage) {
@@ -3326,7 +3330,7 @@ async function manejarChat(message) {
     }
     userLocks.set(userId, true);
 
-     if (!dataStore.conversationHistory) dataStore.conversationHistory = {};
+    if (!dataStore.conversationHistory) dataStore.conversationHistory = {};
     if (!dataStore.conversationHistory[userId]) dataStore.conversationHistory[userId] = [];
     if (!dataStore.userStatus) dataStore.userStatus = {};
     if (!dataStore.userStatus[userId]) dataStore.userStatus[userId] = { status: 'tranqui', timestamp: Date.now() };
@@ -3338,7 +3342,7 @@ async function manejarChat(message) {
 
     dataStore.conversationHistory[userId].push({ role: 'user', content: chatMessage, timestamp: Date.now(), userName });
     if (dataStore.conversationHistory[userId].length > 20) {
-        dataStore.conversationHistory[userId] = dataStore.conversationHistory[userId].slice(-20);
+        dataStore.conversationHistory[userId] = dataStore.conversationHistory[userId].slice(-20); // Mantenemos 20 mensajes
     }
     dataStoreModified = true;
 
@@ -3355,7 +3359,7 @@ Esto es lo que charlamos antes con Milagros:\n${context}\nSabé que Milagros est
 
 Respondé a: "${chatMessage}" con claridad, buena onda y un tono de amiga cercana, enfocándote en el mensaje actual primero. Usá el contexto anterior solo si pega clarito con lo que te dicen ahora. Solo decí cómo estás vos tipo "¡Yo estoy joya, che! ¿Y vos cómo andás, genia?" si te preguntan explícitamente "cómo andás". Sé relajada: respondé lo que te dicen y tirá uno o dos comentarios copados pa’ seguir la charla. Si algo no te cierra, pedí que lo aclaren con humor tipo 😅. Si la notás triste, metele un mimo extra 😊.
 
-**IMPORTANTE**: Variá las formas de mostrarle cariño y cerrar la charla. Usá alternativas frescas como "¡Seguí rompiéndola, genia!", "¡A meterle pilas, rata blanca!", "¡Toda la vibra pa’ vos, grosa!" o "¡Sos una ídola, seguí brillando! ✨". Siempre metele emojis pa’ darle onda, pero sin pasarte. ¡Tirá para adelante, che! ✨💖`;
+**IMPORTANTE**: Variá las formas de mostrarle cariño y cerrar la charla. Usá alternativas frescas como "¡Seguí rompiéndola, genia!", "¡A meterle pilas, rata blanca!", "¡Toda la vibra pa’ vos, grosa!" o "¡Sos una ídola, seguí brillando! ✨". Siempre metele emojis pa’ darle onda, pero sin pasarte_truths. ¡Tirá para adelante, che! ✨💖`;
 
         console.log('Enviando prompt a Gemini:', prompt.substring(0, 200) + '...'); // Log para debug
         const result = await tryGenerateContent(prompt);
@@ -3378,10 +3382,12 @@ Respondé a: "${chatMessage}" con claridad, buena onda y un tono de amiga cercan
     } catch (error) {
         console.error('Error con Gemini:', error.message, error.stack);
         let errorMessage = `¡Uy, ${userName}, me mandé un moco, loco! 😅 Pero no pasa nada, genia, ¿me tirás otra vez el mensaje o seguimos con algo nuevo? Acá estoy pa’ vos siempre 💖`;
-        if (error.message.includes('503') || error.message.includes('Service Unavailable')) {
-            errorMessage = `¡Che, ${userName}, los servidores de la IA están a full, loco! 😅 Aguantá un toque y probá de nuevo, o seguimos charlando de otra cosa, ¿dale, grosa? 💖`;
+        if (error.message.includes('429') || error.message.includes('Too Many Requests')) {
+            errorMessage = `¡Che, ${userName}, estoy lleno de consultas, loca! 😅 Aguantá un ratito y probá de nuevo, ¿dale, estrella? 💖`;
+        } else if (error.message.includes('503') || error.message.includes('Service Unavailable')) {
+            errorMessage = `¡Uy, ${userName}, mis servidores están a full, loca! 😅 Probá de nuevo en un toque o seguimos con otra charla, ¿sí, grosa? 💖`;
         } else if (error.message === 'Tiempo agotado') {
-            errorMessage = `¡Uy, ${userName}, la IA está más lenta que tortuga en bajada! 😅 ¿Probamos otra vez o querés charlar de algo nuevo, estrella? 💖`;
+            errorMessage = `¡Che, ${userName}, Estoy más lento que tortuga en bajada! 😅 ¿Probamos otra vez o querés charlar de algo nuevo, rata blanca? 💖`;
         }
         const errorEmbed = createEmbed('#FF1493', `¡Qué macana, ${userName}!`, errorMessage, 'Con todo el ❤️, Oliver IA | Reacciona con ✅ o ❌');
         const errorMessageSent = await waitingMessage.edit({ embeds: [errorEmbed] });
