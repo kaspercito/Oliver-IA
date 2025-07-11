@@ -3290,8 +3290,6 @@ async function sendLyrics(waitingMessage, channel, songTitle, lyrics, userName) 
     }
 }
 
-const { GoogleGenerativeAI } = require('@google/generative-ai');
-
 // Inicialización de Gemini
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' }); // Volvemos a gemini-1.5-flash
