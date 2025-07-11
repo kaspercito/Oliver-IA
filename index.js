@@ -3120,7 +3120,7 @@ const userLocks = new Map();
 
 async function manejarChat(message) {
     const userId = message.author.id;
-    const userName = 'Milagros';
+    const userName = userId === OWNER_ID ? 'Miguel' : 'Milagros';
     const chatMessage = message.content.startsWith('!chat') ? message.content.slice(5).trim() : message.content.slice(3).trim();
 
     if (!chatMessage) {
