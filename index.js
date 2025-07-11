@@ -2209,14 +2209,14 @@ app.get('/ping', (req, res) => {
     res.send('¡Bot awake y con pilas!');
 });
 
-const PORT = process.env.PORT || 8080; // Render sets process.env.PORT
+const PORT = process.env.PORT || 10000; // Render sets process.env.PORT
 app.listen(PORT, () => {
     console.log(`Servidor de ping corriendo en el puerto ${PORT}`);
     startAutoPing();
 });
 
 function startAutoPing() {
-    const appUrl = process.env.APP_URL || 'https://oliver-ia.onrender.com';
+    const appUrl = process.env.APP_URL || 'https://oliver-ia.onrender.com/ping';
     console.log('URL usada para auto-ping:', appUrl); // Log para depuración
     if (!appUrl.startsWith('http://') && !appUrl.startsWith('https://')) {
         console.error('Error: appUrl no es una URL absoluta válida:', appUrl);
