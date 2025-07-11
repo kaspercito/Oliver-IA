@@ -3184,7 +3184,7 @@ async function manejarChat(message) {
       extraContext = `El usuario (${userName}) te pidió un chiste. Tirale un chiste corto, bien argentino y con onda, como por ejemplo: "¿Por qué el mate se puso celoso? Porque la bombilla estaba muy pegada al termo. 😜". Después, seguí la charla preguntando algo como "¿Querés otro o qué onda?" o "¿Y vos, tenés alguno bueno?".`;
     }
 
-    const waitingEmbed = createEmbed('#FF1493', `¡Aguantá un toque, ${userName}! ⏳`, 'Te tiro una joyita en un segundo, ${userName === 'Belén' ? 'grosa' : 'crack'}...', 'Hecho con ❤️ por Oliver IA | Reacciona con ✅ o ❌');
+    const waitingEmbed = createEmbed('#FF1493', `¡Aguantá un toque, ${userName}! ⏳`, 'Estoy pensando una respuesta re copada...', 'Hecho con ❤️ por Oliver IA | Reacciona con ✅ o ❌');
     const waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
 
     try {
