@@ -128,18 +128,6 @@
       {
         "role": "user",
         "content": "hola",
-        "timestamp": 1745225398903,
-        "userName": "Milagros"
-      },
-      {
-        "role": "assistant",
-        "content": "¡Hola, Milagros! ¿Todo bien, grosa? 😊  Espero que estés pasando un hermoso día.  ¿Qué onda? Contame!",
-        "timestamp": 1745225399640,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
-        "content": "hola",
         "timestamp": 1752177115214,
         "userName": "Miguel"
       },
@@ -196,6 +184,66 @@
         "content": "hola?",
         "timestamp": 1752185454185,
         "userName": "Miguel"
+      },
+      {
+        "role": "user",
+        "content": "hola",
+        "timestamp": 1752260117850,
+        "userName": "Miguel"
+      },
+      {
+        "role": "assistant",
+        "content": "¡Hola, Miguel! ¿Todo bien, crack? ¿Qué hacés, loco? ¿Qué onda? Che, ¿qué te trae por acá? ¿Te aburriste? 😎 ¿O tenés algún chisme jugoso para contar? Contame, contame...\n\n¡Toda la buena onda, grosso! ✨",
+        "timestamp": 1752260119427,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "todo bien como andas?",
+        "timestamp": 1752260129127,
+        "userName": "Miguel"
+      },
+      {
+        "role": "assistant",
+        "content": "¡Todo joya, Miguel! ¡Acá andamos, capo! 😎 ¿Vos cómo andás, todo piola? ¿Algo nuevo que contar?",
+        "timestamp": 1752260130307,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "ando bien, con sueño",
+        "timestamp": 1752260136537,
+        "userName": "Miguel"
+      },
+      {
+        "role": "assistant",
+        "content": "¡Ah, con sueño, che! 😴 Entiendo, Miguel, a veces el cuerpo pide pista. ¿Será que te estás quedando dormido pensando en Milagros, eh, pícaro? 😉 ¡Qué sé yo! Pero bueno, tomate un buen descanso, crack. ¿Te vas a dormir una siestita o vas a seguir en la lucha? ✨",
+        "timestamp": 1752260137947,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "pero jasjadjaf",
+        "timestamp": 1752260148557,
+        "userName": "Miguel"
+      },
+      {
+        "role": "assistant",
+        "content": "¡Jajajaja! ¡Pará, Miguel, no te sigo, loco! 😜 ¿Qué quisiste decir? ¿Te trabaste con el teclado? ¿O te dio un ataque de risa? ¡Contame, che! 😂 ¿Te pasó algo gracioso?",
+        "timestamp": 1752260149820,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "todo bien? contame un chiste",
+        "timestamp": 1752260164781,
+        "userName": "Miguel"
+      },
+      {
+        "role": "assistant",
+        "content": "¡Todo bien, Miguel! ¡Me pediste un chiste, acá va uno, che!:\n\n¿Por qué la computadora no va a la playa? ¡Porque tiene Windows! 😜\n\n¿Te causó gracia, crack? ¿Querés otro o qué onda? ¡Contame más, genio!",
+        "timestamp": 1752260166203,
+        "userName": "Oliver"
       }
     ]
   },
@@ -567,7 +615,7 @@
     "1343749554905940058": 1741702502300,
     "plan_1343749554905940058": 1741879435793,
     "reminder_1343749554905940058": 1743901240312,
-    "util_1343749554905940058": 1752121555461,
+    "util_1343749554905940058": 1752260078465,
     "reminder_1343749554905940058_22": 1745629256772,
     "reminder_1343749554905940058_23": 1745200824552,
     "reminder_1343749554905940058_0": 1745204431151,
@@ -603,7 +651,7 @@
       "mensaje": "tomar la pastilla rosada todos los días",
       "cuandoLlegue": false,
       "cuandoSalga": false,
-      "timestamp": 1752224400000,
+      "timestamp": 1752310800000,
       "creado": 1743208737942,
       "esRecurrente": true,
       "hora": 6,
@@ -642,7 +690,7 @@
       "mensaje": "tomar la pastilla rosada todos los días",
       "cuandoLlegue": false,
       "cuandoSalga": false,
-      "timestamp": 1752246000000,
+      "timestamp": 1752332400000,
       "creado": 1743208770439,
       "esRecurrente": true,
       "hora": 12,
@@ -668,7 +716,7 @@
       "mensaje": "despiértame todos los días",
       "cuandoLlegue": false,
       "cuandoSalga": false,
-      "timestamp": 1752228000000,
+      "timestamp": 1752314400000,
       "creado": 1743402095938,
       "esRecurrente": true,
       "hora": 7,
