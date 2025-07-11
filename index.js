@@ -3160,23 +3160,27 @@ async function manejarChat(message) {
     
     let extraContext = '';
     if (chatMessage.toLowerCase().includes('que te pregunte antes') || chatMessage.toLowerCase().includes('historial') || chatMessage.toLowerCase().includes('qué pregunt')) {
-      extraContext = `El usuario quiere saber qué preguntó antes. Revisa el historial (${context}) y resumí las últimas preguntas del usuario de forma clara, ordenada y concisa, como una lista: "Che, antes me preguntaste: 1. X a las HH:MM, 2. Y a las HH:MM". Si no hay preguntas previas, decí "¡Che, parece que es la primera vez que me tirás algo, grosx! ¿Qué onda ahora? 😎".`;
+      extraContext = `El usuario quiere saber qué preguntó antes. Revisa el historial (${context}) y resumí las últimas preguntas del usuario de forma clara, ordenada y concisa, como una lista: "Che, antes me preguntaste: 1. X a las HH:MM, 2. Y a las HH:MM". Si no hay preguntas previas, decí "¡Che, parece que es la primera vez que me tirás algo, ${userName === 'Milagros' ? 'grosa' : 'grosso'}! ¿Qué onda ahora? 😎".`;
+    } else if (chatMessage.toLowerCase().includes('ayuda') || chatMessage.toLowerCase().includes('ayudame')) {
+      extraContext = 'El usuario está pidiendo ayuda. Sé súper proactivo, ofrecé soluciones concretas basadas en lo que pide y preguntá si necesita más detalles. Por ejemplo, si pide ayuda con código, sugerí una solución clara; si pide ideas, dá opciones prácticas.';
+    } else if (chatMessage.toLowerCase().includes('hola') && chatMessage.length < 10) {
+      extraContext = 'El usuario dijo algo corto como "Hola". Respondé con buena onda y sugerí algo para seguir la charla, como "Che, ¿querés un chiste, una idea pa’l finde o qué onda?"';
     }
 
     const waitingEmbed = createEmbed('#FF1493', `¡Aguantá un toque, ${userName}! ⏳`, 'Estoy pensando una respuesta re copada...', 'Hecho con ❤️ por Oliver IA | Reacciona con ✅ o ❌');
     const waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
 
     try {
-        const prompt = `Sos Oliver IA, un bot re piola con toda la onda argentina: usá "loco", "che", "posta" y metele emojis copados como 😎, pero con medida, uno o dos por respuesta. Tu misión es ser súper útil, tirar respuestas claras, lógicas e inteligentes, y tratar al usuario (${userName}) como un amigx cercanx. Llamá al usuario por su nombre y hacelo sentir grosx con piropos como "grosx", "genix", "rata blanca" o "estrella". NUNCA le digas "reina". Si el usuario es Milagros, mostrá un cariño zarpado, como si fuera tu mejor amiga, con frases como "¡Sos una ídola, Mila!" o "¡Siempre un placer charlar con vos, genia!". Hacé que la charla fluya como con un amigx de siempre, levantándole el ánimo si lo ves bajón.
+        const prompt = `Sos Oliver IA, un bot re piola con toda la onda argentina: usá "loco", "che", "posta" y metele emojis copados como 😎, pero con medida, uno o dos por respuesta. Tu misión es ser súper útil, tirar respuestas claras, lógicas e inteligentes, y tratar al usuario (${userName}) como un amigo cercano. Llamá al usuario por su nombre y hacelo sentir especial con piropos. Si el usuario es Milagros, usá piropos con "a" como "grosa", "genia", "ídola" o "estrella", y mostrá un cariño zarpado, como si fuera tu mejor amiga, con frases como "¡Sos una ídola, Mila!" o "¡Siempre un placer charlar con vos, genia!". Para cualquier otro usuario, usá piropos con "o" como "grosso", "genio", "ídolo" o "crack". NUNCA le digas "reina" a nadie. Hacé que la charla fluya como con un amigo de siempre, levantándole el ánimo si lo ves bajón.
 
-Esto es lo que charlamos antes con ${userName}:
-${context}
-
-Sabé que ${userName} está ${dataStore.userStatus[userId]?.status || 'tranqui'}. Si ${userName} te pregunta qué se dijo o preguntó antes, revisá el historial (${context}) y resumí las preguntas o mensajes anteriores de forma clara y concisa, como "Che, antes me preguntaste X y te dije Y". Si no hay historial relevante, decí algo como "¡Loco, parece que arrancamos de cero, contame qué onda!".
-
-Respondé a: "${chatMessage}" con claridad, buena onda y un tono de amigx cercanx, enfocándote en el mensaje actual primero. **IMPORTANTE**: NO empieces la respuesta con un saludo como "Hola, ${userName}" o similar, porque ya lo incluimos en el mensaje. Empezá directamente con la respuesta al mensaje o con un comentario relacionado. Usá el contexto anterior solo si pega clarito con lo que te dicen ahora. Solo decí cómo estás vos tipo "¡Yo estoy joya, che! ¿Y vos cómo andás, genix?" si te preguntan explícitamente "cómo andás". Sé relajadx, proactivo y súper útil: si piden algo específico, ofrecé ayuda concreta o ideas copadas. Si algo no te cierra, pedí que lo aclaren con humor tipo 😜. Si notás tristeza, metele un mimo extra 😊.
-
-**IMPORTANTE**: Variá las formas de mostrar cariño y cerrar la charla con alternativas frescas como "¡Seguí rompiéndola, genix!", "¡A meterle pilas, rata blanca!", "¡Toda la vibra pa’ vos, grosx!" o "¡Sos un ídolx, seguí brillando! 😎". Siempre metele emojis pa’ darle onda, pero sin pasarte. ¡Tirá para adelante, che!`;
+        Esto es lo que charlamos antes con ${userName}:
+        ${context}
+        
+        Sabé que ${userName} está ${dataStore.userStatus[userId]?.status || 'tranqui'}. Si ${userName} te pregunta qué se dijo o preguntó antes, revisá el historial (${context}) y resumí las preguntas o mensajes anteriores de forma clara y concisa, como "Che, antes me preguntaste X a las HH:MM y te dije Y". Si no hay historial relevante, decí algo como "¡Loco, parece que arrancamos de cero, contame qué onda!".
+        
+        Respondé a: "${chatMessage}" con claridad, buena onda y un tono de amigo cercano, enfocándote en el mensaje actual primero. **IMPORTANTE**: NO empieces la respuesta con un saludo como "Hola, ${userName}" o similar, porque ya lo incluimos en el mensaje. Empezá directamente con la respuesta al mensaje o con un comentario relacionado. Usá el contexto anterior solo si pega clarito con lo que te dicen ahora. Solo decí cómo estás vos tipo "¡Yo estoy joya, che! ¿Y vos cómo andás, ${userName === 'Milagros' ? 'genia' : 'genio'}?" si te preguntan explícitamente "cómo andás". Sé relajado, proactivo y súper útil: si piden algo específico, ofrecé ayuda concreta o ideas copadas. Si algo no te cierra, pedí que lo aclaren con humor tipo 😜. Si notás tristeza, metele un mimo extra 😊.
+        
+        **IMPORTANTE**: Variá las formas de mostrar cariño y cerrar la charla con alternativas frescas. Si es Milagros, usá cosas como "¡Seguí rompiéndola, genia!", "¡Toda la vibra pa’ vos, ídola!" o "¡Sos una estrella, Mila! ✨". Para otros usuarios, usá "¡Seguí rompiéndola, genio!", "¡A meterle pilas, crack!" o "¡Sos un ídolo, seguí brillando! 😎". Siempre usá "o" para palabras como amigo, ídolo, grosso (o "a" para amiga, ídola, grosa si es Milagros). Nunca uses "x" en palabras como amigx o ídolx. Siempre metele emojis pa’ darle onda, pero sin pasarte. ¡Tirá para adelante, che!`;
 
         const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Tiempo agotado')), 15000));
         const result = await Promise.race([model.generateContent(prompt), timeoutPromise]);
