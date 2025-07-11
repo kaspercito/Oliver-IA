@@ -41,7 +41,7 @@ const chatIdBelen = '7894854634';
 const manager = new Manager({
     nodes: [{
         identifier: 'MainNode',
-        host: 'lava-all.ajieblogs.eu.org',
+        host: 'lava-v3.ajieblogs.eu.org',
         port: 443,
         password: 'https://dsc.gg/ajidevserver',
         retryAmount: 5,
