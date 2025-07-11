@@ -3155,16 +3155,30 @@ async function manejarChat(message) {
     }
     dataStoreModified = true;
 
-    const history = dataStore.conversationHistory[userId].slice(-20);
-    let context = history.map(h => `${h.role === 'user' ? userName : 'Oliver'}: ${h.content}`).join('\n');
+    const historyRecent = dataStore.conversationHistory[userId]
+      .filter(h => Date.now() - h.timestamp < 24 * 60 * 60 * 1000) // Solo mensajes de las últimas 24 horas
+      .slice(-20); // Últimos 20 mensajes recientes
+    const contextRecent = historyRecent.map(h => `${h.role === 'user' ? userName : 'Oliver'}: ${h.content} (${new Date(h.timestamp).toLocaleTimeString()})`).join('\n');
+    
+    const historyFull = dataStore.conversationHistory[userId]; // Historial completo
+    const contextFull = historyFull.map(h => `${h.role === 'user' ? userName : 'Oliver'}: ${h.content} (${new Date(h.timestamp).toLocaleString()})`).join('\n');
+    
+    console.log('Historial reciente:', contextRecent); // Debug
+    console.log('Historial completo:', contextFull); // Debug
     
     let extraContext = '';
+    let context = contextRecent; // Por defecto, usamos el historial reciente
     if (chatMessage.toLowerCase().includes('que te pregunte antes') || chatMessage.toLowerCase().includes('historial') || chatMessage.toLowerCase().includes('qué pregunt')) {
-      extraContext = `El usuario quiere saber qué preguntó antes. Revisa el historial (${context}) y resumí las últimas preguntas del usuario de forma clara, ordenada y concisa, como una lista: "Che, antes me preguntaste: 1. X a las HH:MM, 2. Y a las HH:MM". Si no hay preguntas previas, decí "¡Che, parece que es la primera vez que me tirás algo, ${userName === 'Milagros' ? 'grosa' : 'grosso'}! ¿Qué onda ahora? 😎".`;
+      extraContext = `El usuario quiere saber qué preguntó antes. Revisa SOLO el historial reciente (${contextRecent}) y resumí SOLO las preguntas del usuario (role: 'user') en una lista clara y ordenada, como: "Che, antes me preguntaste: 1. X a las HH:MM, 2. Y a las HH:MM". Si no hay preguntas previas en el historial reciente, decí "¡Che, parece que no tengo nada reciente, ${userName === 'Milagros' ? 'grosa' : 'grosso'}! ¿Querés que busque más atrás o seguimos con algo nuevo? 😎". No inventes ni asumas charlas que no estén en el historial proporcionado.`;
+    } else if (chatMessage.toLowerCase().includes('te acuerdas') || chatMessage.toLowerCase().includes('hace unos días') || chatMessage.toLowerCase().includes('te conté')) {
+      context = contextFull; // Usar historial completo para estos casos
+      extraContext = `El usuario está pidiendo que recuerdes algo de hace unos días o antes. Revisa el historial completo (${contextFull}) y buscá mensajes relevantes del usuario (role: 'user') que coincidan con lo que dice. Si encontrás algo, resumilo brevemente, como: "Che, hace unos días me contaste X el [fecha/hora] y te dije Y". Si no encontrás nada relevante, decí "¡Uy, ${userName === 'Milagros' ? 'grosa' : 'grosso'}, no encuentro eso en mi memoria! 😜 ¿Podés darme más pistas o seguimos con otra cosa?". No inventes ni asumas charlas que no estén en el historial proporcionado.`;
     } else if (chatMessage.toLowerCase().includes('ayuda') || chatMessage.toLowerCase().includes('ayudame')) {
       extraContext = 'El usuario está pidiendo ayuda. Sé súper proactivo, ofrecé soluciones concretas basadas en lo que pide y preguntá si necesita más detalles. Por ejemplo, si pide ayuda con código, sugerí una solución clara; si pide ideas, dá opciones prácticas.';
     } else if (chatMessage.toLowerCase().includes('hola') && chatMessage.length < 10) {
       extraContext = 'El usuario dijo algo corto como "Hola". Respondé con buena onda y sugerí algo para seguir la charla, como "Che, ¿querés un chiste, una idea pa’l finde o qué onda?"';
+    } else if (chatMessage.toLowerCase().includes('como estas') || chatMessage.toLowerCase().includes('cómo andás')) {
+      extraContext = `El usuario preguntó cómo estás. Respondé con algo corto y piola como "¡Yo estoy joya, che! ¿Y vos cómo andás, ${userName === 'Milagros' ? 'genia' : 'genio'}?" y sugerí algo para seguir la charla, como "¿En qué andás hoy?" o "¿Querés un chiste pa’ levantar el día?".`;
     }
 
     const waitingEmbed = createEmbed('#FF1493', `¡Aguantá un toque, ${userName}! ⏳`, 'Estoy pensando una respuesta re copada...', 'Hecho con ❤️ por Oliver IA | Reacciona con ✅ o ❌');
@@ -3176,11 +3190,11 @@ async function manejarChat(message) {
         Esto es lo que charlamos antes con ${userName}:
         ${context}
         
-        Sabé que ${userName} está ${dataStore.userStatus[userId]?.status || 'tranqui'}. Si ${userName} te pregunta qué se dijo o preguntó antes, revisá el historial (${context}) y resumí las preguntas o mensajes anteriores de forma clara y concisa, como "Che, antes me preguntaste X a las HH:MM y te dije Y". Si no hay historial relevante, decí algo como "¡Loco, parece que arrancamos de cero, contame qué onda!".
+        Sabé que ${userName} está ${dataStore.userStatus[userId]?.status || 'tranqui'}. Si ${userName} te pregunta qué se dijo o preguntó antes, revisá SOLO el historial (${context}) y resumí SOLO las preguntas del usuario (role: 'user') en una lista clara y ordenada, como: "Che, antes me preguntaste: 1. X a las HH:MM, 2. Y a las HH:MM". Si no hay historial relevante, decí "¡Loco, parece que arrancamos de cero, contame qué onda!".
         
-        Respondé a: "${chatMessage}" con claridad, buena onda y un tono de amigo cercano, enfocándote en el mensaje actual primero. **IMPORTANTE**: NO empieces la respuesta con un saludo como "Hola, ${userName}" o similar, porque ya lo incluimos en el mensaje. Empezá directamente con la respuesta al mensaje o con un comentario relacionado. Usá el contexto anterior solo si pega clarito con lo que te dicen ahora. Solo decí cómo estás vos tipo "¡Yo estoy joya, che! ¿Y vos cómo andás, ${userName === 'Milagros' ? 'genia' : 'genio'}?" si te preguntan explícitamente "cómo andás". Sé relajado, proactivo y súper útil: si piden algo específico, ofrecé ayuda concreta o ideas copadas. Si algo no te cierra, pedí que lo aclaren con humor tipo 😜. Si notás tristeza, metele un mimo extra 😊.
+        Respondé a: "${chatMessage}" con claridad, buena onda y un tono de amigo cercano, enfocándote en el mensaje actual primero. **IMPORTANTE**: NO empieces la respuesta con un saludo como "Hola, ${userName}", "¡Qué bueno verte!" o cualquier frase saludadora (como "¡Me pone re contento que andes bien!"), porque ya lo incluimos en el mensaje. Empezá directamente con la respuesta al mensaje, como si ya estuvieran charlando. Usá el contexto anterior solo si pega clarito con lo que te dicen ahora. Solo decí cómo estás vos tipo "¡Yo estoy joya, che! ¿Y vos cómo andás, ${userName === 'Milagros' ? 'genia' : 'genio'}?" si te preguntan explícitamente "cómo andás". Sé relajado, proactivo y súper útil: si piden algo específico, ofrecé ayuda concreta o ideas copadas. Si algo no te cierra, pedí que lo aclaren con humor tipo 😜. Si notás tristeza, metele un mimo extra 😊. **No inventes ni asumas charlas previas que no estén en el historial proporcionado.**
         
-        **IMPORTANTE**: Variá las formas de mostrar cariño y cerrar la charla con alternativas frescas. Si es Milagros, usá cosas como "¡Seguí rompiéndola, genia!", "¡Toda la vibra pa’ vos, ídola!" o "¡Sos una estrella, Mila! ✨". Para otros usuarios, usá "¡Seguí rompiéndola, genio!", "¡A meterle pilas, crack!" o "¡Sos un ídolo, seguí brillando! 😎". Siempre usá "o" para palabras como amigo, ídolo, grosso (o "a" para amiga, ídola, grosa si es Milagros). Nunca uses "x" en palabras como amigx o ídolx. Siempre metele emojis pa’ darle onda, pero sin pasarte. ¡Tirá para adelante, che!`;
+        **IMPORTANTE**: Variá las formas de mostrar cariño y cerrar la charla con alternativas frescas. If es Milagros, usá cosas como "¡Seguí rompiéndola, genia!", "¡Toda la vibra pa’ vos, ídola!" o "¡Sos una estrella, Mila! ✨". Para otros usuarios, usá "¡Seguí rompiéndola, genio!", "¡A meterle pilas, crack!" o "¡Sos un ídolo, seguí brillando! 😎". Siempre usá "o" para palabras como amigo, ídolo, grosso (o "a" para amiga, ídola, grosa si es Milagros). Nunca uses "x" en palabras como amigx o ídolx. Siempre metele emojis pa’ darle onda, pero sin pasarte. ¡Tirá para adelante, che!`;
 
         const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Tiempo agotado')), 15000));
         const result = await Promise.race([model.generateContent(prompt), timeoutPromise]);
