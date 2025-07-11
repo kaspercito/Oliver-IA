@@ -14,7 +14,6 @@ const FormData = require('form-data');
 const TelegramBot = require('node-telegram-bot-api');
 const path = require('path');
 require('dotenv').config();
-const fetch = require('node-fetch');
 
 // Creación del cliente de Discord
 const client = new Client({
