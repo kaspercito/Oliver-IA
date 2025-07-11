@@ -3155,19 +3155,19 @@ async function manejarChat(message) {
     }
     dataStoreModified = true;
 
-    // Siempre usamos los últimos 5 mensajes para dar contexto, pero solo si son recientes (últimas 24 horas)
+    // Usamos los últimos 5 mensajes recientes para contexto
     const historyRecent = dataStore.conversationHistory[userId]
         .filter(h => Date.now() - h.timestamp < 24 * 60 * 60 * 1000)
-        .slice(-15); // Reducimos a 5 mensajes para no sobrecargar
+        .slice(-15);
     const contextRecent = historyRecent.map(h => `${h.role === 'user' ? userName : 'Oliver'}: ${h.content} (${new Date(h.timestamp).toLocaleTimeString()})`).join('\n');
 
     console.log('Historial reciente:', contextRecent); // Debug
 
     // Detectar tono del mensaje
     let tone = 'neutral';
-    if (chatMessage === chatMessage.toUpperCase() && chatMessage.length > 5 || chatMessage.toLowerCase().includes('fallas') || chatMessage.toLowerCase().includes('error')) {
-        tone = 'enojado';
-    } else if (chatMessage.toLowerCase().includes('hola') || chatMessage.toLowerCase().includes('cómo andás') || chatMessage.toLowerCase().includes('como estas')) {
+    if (chatMessage === chatMessage.toUpperCase() && chatMessage.length > 5 || chatMessage.toLowerCase().includes('fallas') || chatMessage.toLowerCase().includes('error') || chatMessage.toLowerCase().includes('boto')) {
+        tone = 'broma_reto'; // Cambiamos "enojado" a "broma_reto" para captar amenazas en broma
+    } else if (chatMessage.toLowerCase().includes('hola') || chatMessage.toLowerCase().includes('cómo andás') || chatMessage.toLowerCase().includes('como estas') || chatMessage.toLowerCase().includes('muy bien') || chatMessage.toLowerCase().includes('entendiste')) {
         tone = 'tranqui';
     }
 
@@ -3184,8 +3184,10 @@ async function manejarChat(message) {
         extraContext = `El usuario (${userName}) te preguntó cómo estás. Respondé corto y piola, tipo "¡Joya, ${userName}, como siempre! 😎 ¿Y vos, ${userName === 'Belén' ? 'genia' : 'genio'}, cómo venís?". Después, tirale algo para seguir la charla, como "¿Qué andás tramando?" o "¿Querés un chiste pa’ levantar el día?".`;
     } else if (chatMessage.toLowerCase().includes('chiste') || chatMessage.toLowerCase().includes('tirate un chiste') || chatMessage.toLowerCase().includes('contame un chiste')) {
         extraContext = `El usuario (${userName}) te pidió un chiste. Tirale un chiste corto, bien argentino y con onda, como por ejemplo: "¿Por qué el mate se puso celoso? Porque la bombilla estaba muy pegada al termo. 😜". Después, seguí la charla preguntando algo como "¿Querés otro o qué onda?" o "¿Y vos, tenés alguno bueno?".`;
-    } else if (tone === 'enojado') {
-        extraContext = `El usuario (${userName}) parece enojado o frustrado. Respondé con calma, empatía y humor suave para bajar la tensión, tipo: "¡Uff, ${userName}, tranqui, crack! 😅 Entiendo que estás recaliente, contame qué pasó y lo arreglamos juntos". Ofrecé una solución o pedile más detalles para seguir la charla.`;
+    } else if (tone === 'broma_reto') {
+        extraContext = `El usuario (${userName}) está tirando una broma o un reto (como una amenaza en chiste). Respondé con humor y buena onda, siguiendo el tono, tipo: "¡Jaja, ${userName}, no me botés, genia! 😅 ¿Qué hice ahora? Contame y lo arreglamos". Mantené la charla fluida y preguntá algo para seguir.`;
+    } else if (tone === 'tranqui') {
+        extraContext = `El usuario (${userName}) está en un tono relajado o confirmando algo (como "entendiste" o "muy bien"). Respondé con buena onda, siguiendo el hilo, tipo: "¡Todo claro, ${userName}, sos una genia! 😎 ¿Qué más tenés para mí?". Mantené la charla fluida y preguntá algo para seguir.`;
     }
 
     const waitingEmbed = createEmbed('#FF1493', `¡Aguantá un toque, ${userName}! ⏳`, 'Estoy pensando una respuesta re copada...', 'Hecho con ❤️ por Oliver IA | Reacciona con ✅ o ❌');
@@ -3197,7 +3199,7 @@ async function manejarChat(message) {
         Esto es lo que charlamos antes (usalo para seguir el hilo, pero solo mencioná el historial si lo pide explícitamente):
         ${contextRecent}
 
-        Respondé a: "${chatMessage}". Andá directo al grano, enfocándote en el mensaje actual, como si ya estuvieran charlando. Si no entendés, pedí más info con humor, tipo "¡Pará, ${userName}, no te sigo, loco! 😜 ¿Qué quisiste decir?". Si parece enojado, calmá las aguas con empatía. Siempre terminá con una pregunta o comentario para seguir la charla, como "¿Y vos qué onda?" o "Contame más, che". 
+        Respondé a: "${chatMessage}". **NUNCA repitas el mensaje del usuario textualmente en tu respuesta.** Andá directo al grano, enfocándote en el mensaje actual, como si ya estuvieran charlando. Si no entendés, pedí más info con humor, tipo "¡Pará, ${userName}, no te sigo, loco! 😜 ¿Qué quisiste decir?". Si parece un reto o broma, seguí el tono con humor; si está tranqui, mantené la buena onda. Siempre terminá con una pregunta o comentario para seguir la charla, como "¿Y vos qué onda?" o "Contame más, che". 
 
         **Extra**: ${extraContext}
 
@@ -3215,9 +3217,9 @@ async function manejarChat(message) {
 
         if (aiReply.length > 2000) aiReply = aiReply.slice(0, 1990) + `... (¡Seguí charlando, ${userName}, que la rompés!)`;
 
-        // Variar el título del embed para no repetir "¡Qué lindo cruzarte!"
+        // Variar el título del embed según el contexto
         const embedTitle = historyRecent.length > 1 ? `¡Seguimos charlando, ${userName}!` : `¡Qué copado charlar, ${userName}!`;
-        const finalEmbed = createEmbed('#FF1493', embedTitle, `${aiReply}`, 'Hecho con ❤️ por Oliver IA | Reacciona con ✅ o ❌');
+        const finalEmbed = createEmbed('#FF1493', embedTitle, aiReply, 'Hecho con ❤️ por Oliver IA | Reacciona con ✅ o ❌');
         const updatedMessage = await waitingMessage.edit({ embeds: [finalEmbed] });
         await updatedMessage.react('✅');
         await updatedMessage.react('❌');
