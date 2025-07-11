@@ -3122,18 +3122,51 @@ async function sendLyrics(waitingMessage, channel, songTitle, lyrics, userName) 
 }
 
 // Inicialización de Gemini
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+const { default: PQueue } = require('p-queue');
+const NodeCache = require('node-cache');
 
+// Inicializar Gemini
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const model = genAI.getGenerativeModel({
+    model: 'gemini-1.5-flash',
+    generationConfig: { temperature: 0.7, topP: 0.9 }
+});
+
+// Cola y caché
+const queue = new PQueue({ concurrency: 1, interval: 1000, intervalCap: 1 });
+const cache = new NodeCache({ stdTTL: 3600 }); // Cache de 1 hora
 const userLocks = new Map();
+
+// Servidor HTTP para Web Service
+const app = express();
+app.get('/health', (req, res) => res.send('OK'));
+app.listen(process.env.PORT || 10000, () => console.log('Health endpoint running on port', process.env.PORT || 10000));
 
 async function manejarChat(message) {
     const userId = message.author.id;
     const userName = 'Milagros';
     const chatMessage = message.content.startsWith('!chat') ? message.content.slice(5).trim() : message.content.slice(3).trim();
+    const channelId = '1343749554905940058'; // ID del canal específico
+
+    // Restringir al canal con ID 1343749554905940058
+    if (message.channel.id !== channelId) {
+        return sendError(message.channel, `¡Che, ${userName}, usá este comando en el canal de charla, genia! 😎`, undefined, 'Hecho con ❤️ por Oliver IA | Reacciona con ✅ o ❌');
+    }
 
     if (!chatMessage) {
         return sendError(message.channel, `¡Che, ${userName}, escribí algo después de "!ch", genia! No me dejes con las ganas 😅`, undefined, 'Hecho con ❤️ por Oliver IA | Reacciona con ✅ o ❌');
+    }
+
+    // Verificar caché
+    const cacheKey = `${userId}:${chatMessage}`;
+    const cachedReply = cache.get(cacheKey);
+    if (cachedReply) {
+        const finalEmbed = createEmbed('#FF1493', `¡Hola, ${userName}!`, `${cachedReply}\n\n¿Y qué me contás vos, grosa? ¿Seguimos la charla o qué te pinta?`, 'Con todo el ❤️, Oliver IA | Reacciona con ✅ o ❌');
+        const updatedMessage = await message.channel.send({ embeds: [finalEmbed] });
+        await updatedMessage.react('✅');
+        await updatedMessage.react('❌');
+        sentMessages.set(updatedMessage.id, { content: cachedReply, originalQuestion: chatMessage, message: updatedMessage });
+        return;
     }
 
     if (userLocks.has(userId)) {
@@ -3152,31 +3185,34 @@ async function manejarChat(message) {
     }
 
     dataStore.conversationHistory[userId].push({ role: 'user', content: chatMessage, timestamp: Date.now(), userName });
-    if (dataStore.conversationHistory[userId].length > 20) {
-        dataStore.conversationHistory[userId] = dataStore.conversationHistory[userId].slice(-20);
+    if (dataStore.conversationHistory[userId].length > 10) {
+        dataStore.conversationHistory[userId] = dataStore.conversationHistory[userId].slice(-10);
     }
     dataStoreModified = true;
 
-    const history = dataStore.conversationHistory[userId].slice(-20);
+    const history = dataStore.conversationHistory[userId].slice(-5); // Usar solo las últimas 5 interacciones
     let context = history.map(h => `${h.userName}: ${h.content}`).join('\n');
 
     const waitingEmbed = createEmbed('#FF1493', `¡Aguantá un toque, ${userName}! ⏳`, 'Estoy pensando una respuesta re copada...', 'Hecho con ❤️ por Oliver IA | Reacciona con ✅ o ❌');
     const waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
 
     try {
-        const prompt = `Sos Oliver IA, un bot re piola con onda argentina: usá "che", "loco", "posta" y emojis como 😎✨, máximo dos por respuesta. Sé súper útil, claro, lógico e inteligente, tratando a Milagros como una amiga grosa con cariño zarpado (llamala "genia", "rata blanca", "estrella", nunca "reina"). Usá el historial solo si el mensaje actual lo necesita. Si te pregunta "cómo andás", decí algo como "¡Joya, che! ¿Y vos, genia?". Si parece bajón, dale un mimo extra 😊. Respondé a: "${chatMessage}". Terminá con una frase fresca como "¡Seguí rompiéndola, grosa!" o "¡Toda la vibra, estrella! ✨".`;
+        const prompt = `Sos Oliver IA, un bot re piola con onda argentina: usá "che", "loco", "posta" y emojis como 😎✨, máximo dos por respuesta. Sé útil, claro e inteligente, tratando a Milagros como una amiga grosa, llamándola "genia", "rata blanca" o "estrella" (nunca "reina"). Respondé solo a: "${chatMessage}". Usá el contexto solo si es necesario: "${context}". Si parece bajón, dale un mimo extra 😊. Terminá con una frase fresca como "¡Seguí rompiéndola, grosa!" o "¡Toda la vibra, estrella! ✨".`;
 
-        const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Tiempo agotado')), 10000));
-        const result = await Promise.race([model.generateContent(prompt), timeoutPromise]);
+        const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Tiempo agotado')), 5000));
+        const result = await queue.add(() => Promise.race([model.generateContent(prompt), timeoutPromise]));
         let aiReply = result.response.text().trim();
 
         dataStore.conversationHistory[userId].push({ role: 'assistant', content: aiReply, timestamp: Date.now(), userName: 'Oliver' });
-        if (dataStore.conversationHistory[userId].length > 20) {
-            dataStore.conversationHistory[userId] = dataStore.conversationHistory[userId].slice(-20);
+        if (dataStore.conversationHistory[userId].length > 10) {
+            dataStore.conversationHistory[userId] = dataStore.conversationHistory[userId].slice(-10);
         }
         dataStoreModified = true;
 
         if (aiReply.length > 2000) aiReply = aiReply.slice(0, 1990) + '... (¡seguí charlando pa’ más, genia!)';
+
+        // Almacenar en caché
+        cache.set(cacheKey, aiReply);
 
         const finalEmbed = createEmbed('#FF1493', `¡Hola, ${userName}!`, `${aiReply}\n\n¿Y qué me contás vos, grosa? ¿Seguimos la charla o qué te pinta?`, 'Con todo el ❤️, Oliver IA | Reacciona con ✅ o ❌');
         const updatedMessage = await waitingMessage.edit({ embeds: [finalEmbed] });
@@ -3194,6 +3230,8 @@ async function manejarChat(message) {
         userLocks.delete(userId);
     }
 }
+
+module.exports = { manejarChat };
 
 function generarConsejoClima(clima, esSalida = false) {
     const climaLower = clima.toLowerCase();
