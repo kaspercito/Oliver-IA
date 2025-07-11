@@ -3291,16 +3291,16 @@ async function sendLyrics(waitingMessage, channel, songTitle, lyrics, userName) 
 }
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+const model = genAI.getGenerativeModel({ model: 'gemini-1.5-pro' }); // Cambiado a gemini-1.5-pro
 
 const userLocks = new Map();
 
 // Función para reintentos automáticos
-async function tryGenerateContent(prompt, retries = 3, delay = 2000) {
+async function tryGenerateContent(prompt, retries = 5, delay = 3000) {
     for (let i = 0; i < retries; i++) {
         try {
             const timeoutPromise = new Promise((_, reject) =>
-                setTimeout(() => reject(new Error('Tiempo agotado')), 20000) // 20 segundos
+                setTimeout(() => reject(new Error('Tiempo agotado')), 30000) // 30 segundos
             );
             const result = await Promise.race([model.generateContent(prompt), timeoutPromise]);
             return result;
@@ -3337,12 +3337,12 @@ async function manejarChat(message) {
     }
 
     dataStore.conversationHistory[userId].push({ role: 'user', content: chatMessage, timestamp: Date.now(), userName });
-    if (dataStore.conversationHistory[userId].length > 10) {
-        dataStore.conversationHistory[userId] = dataStore.conversationHistory[userId].slice(-10);
+ अगर (dataStore.conversationHistory[userId].length > 20) {
+        dataStore.conversationHistory[userId] = dataStore.conversationHistory[userId].slice(-20); // Mantenemos 20 mensajes
     }
     dataStoreModified = true;
 
-    const history = dataStore.conversationHistory[userId].slice(-10);
+    const history = dataStore.conversationHistory[userId].slice(-20);
     let context = history.map(h => `${h.userName}: ${h.content}`).join('\n');
 
     const waitingEmbed = createEmbed('#FF1493', `¡Aguantá un toque, ${userName}! ⏳`, 'Estoy pensando una respuesta re copada...', 'Hecho con ❤️ por Oliver IA | Reacciona con ✅ o ❌');
@@ -3357,12 +3357,14 @@ Respondé a: "${chatMessage}" con claridad, buena onda y un tono de amiga cercan
 
 **IMPORTANTE**: Variá las formas de mostrarle cariño y cerrar la charla. Usá alternativas frescas como "¡Seguí rompiéndola, genia!", "¡A meterle pilas, rata blanca!", "¡Toda la vibra pa’ vos, grosa!" o "¡Sos una ídola, seguí brillando! ✨". Siempre metele emojis pa’ darle onda, pero sin pasarte. ¡Tirá para adelante, che! ✨💖`;
 
+        console.log('Enviando prompt a Gemini:', prompt.substring(0, 200) + '...'); // Log para debug
         const result = await tryGenerateContent(prompt);
         let aiReply = result.response.text().trim();
+        console.log('Respuesta de Gemini:', aiReply.substring(0, 200) + '...'); // Log para debug
 
         dataStore.conversationHistory[userId].push({ role: 'assistant', content: aiReply, timestamp: Date.now(), userName: 'Oliver' });
-        if (dataStore.conversationHistory[userId].length > 10) {
-            dataStore.conversationHistory[userId] = dataStore.conversationHistory[userId].slice(-10);
+        if (dataStore.conversationHistory[userId].length > 20) {
+            dataStore.conversationHistory[userId] = dataStore.conversationHistory[userId].slice(-20); // Mantenemos 20 mensajes
         }
         dataStoreModified = true;
 
@@ -3376,8 +3378,10 @@ Respondé a: "${chatMessage}" con claridad, buena onda y un tono de amiga cercan
     } catch (error) {
         console.error('Error con Gemini:', error.message, error.stack);
         let errorMessage = `¡Uy, ${userName}, me mandé un moco, loco! 😅 Pero no pasa nada, genia, ¿me tirás otra vez el mensaje o seguimos con algo nuevo? Acá estoy pa’ vos siempre 💖`;
-        if (error.message === 'Tiempo agotado') {
-            errorMessage = `¡Che, ${userName}, la API está medio lenta, loco! 😅 ¿Probamos de nuevo en un ratito o querés charlar de otra cosa, grosa? 💖`;
+        if (error.message.includes('503') || error.message.includes('Service Unavailable')) {
+            errorMessage = `¡Che, ${userName}, los servidores de la IA están a full, loco! 😅 Aguantá un toque y probá de nuevo, o seguimos charlando de otra cosa, ¿dale, grosa? 💖`;
+        } else if (error.message === 'Tiempo agotado') {
+            errorMessage = `¡Uy, ${userName}, la IA está más lenta que tortuga en bajada! 😅 ¿Probamos otra vez o querés charlar de algo nuevo, estrella? 💖`;
         }
         const errorEmbed = createEmbed('#FF1493', `¡Qué macana, ${userName}!`, errorMessage, 'Con todo el ❤️, Oliver IA | Reacciona con ✅ o ❌');
         const errorMessageSent = await waitingMessage.edit({ embeds: [errorEmbed] });
