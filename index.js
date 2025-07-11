@@ -6055,6 +6055,16 @@ client.once('ready', async () => {
     
     await initializeDataStore();
 
+    try {
+        const channel = await client.channels.fetch(CHANNEL_ID);
+        if (!channel) throw new Error('Canal no encontrado');
+
+        // Send the caring message right after fetching the channel
+        const caringMessage = `¡Eeeh, Milagros, genia! 😎. Espero que esos dolores de ovarios se vayan volando, che, ¡cuidate mucho en el laburo y tomátelo con calma, crack! 💖 ¿Cómo venís hoy, grosa?`;
+        const caringEmbed = createEmbed('#FF1493', '¡Un abrazo zarpado, Milagros!', caringMessage, 'Con cariño, Oliver IA');
+        await channel.send({ content: `<@${ALLOWED_USER_ID}>`, embeds: [caringEmbed] });
+        console.log(`Mensaje de cuidado enviado a Milagros en canal ${CHANNEL_ID} - ${new Date().toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })}`);
+    
     if (dataStore.recordatorios && dataStore.recordatorios.length > 0) {
         const ahoraUTC = Date.now();
         const offsetArgentina = -3 * 60 * 60 * 1000;
@@ -6091,16 +6101,6 @@ client.once('ready', async () => {
 
     if (!dataStore.utilMessageTimestamps) dataStore.utilMessageTimestamps = {};
     if (!dataStore.utilMessageReactions) dataStore.utilMessageReactions = {};
-
-    try {
-        const channel = await client.channels.fetch(CHANNEL_ID);
-        if (!channel) throw new Error('Canal no encontrado');
-
-        const caringMessage = `¡Eeeh, Milagros, genia! 😎. Espero que esos dolores de ovarios se vayan volando, che, ¡cuidate mucho en el laburo y tomátelo con calma, crack! 💖`;
-        const caringEmbed = createEmbed('#FF1493', '¡Un abrazo zarpado, Milagros!', caringMessage, 'Con cariño, Oliver IA');
-
-        await channel.send({ content: `<@${ALLOWED_USER_ID}>`, embeds: [caringEmbed] });
-        console.log(`Mensaje de cuidado enviado a Milagros - ${new Date().toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })}`);
         
     try {
         const channel = await client.channels.fetch(CHANNEL_ID);
@@ -6377,6 +6377,9 @@ client.once('ready', async () => {
 
     } catch (error) {
         console.error('Error al enviar actualizaciones o configurar el bot:', error.message);
+    }
+    } catch (error) {
+        console.error('Error al enviar mensaje de cuidado o configurar el bot:', error.message);
     }
 });
 
