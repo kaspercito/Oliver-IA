@@ -3226,8 +3226,6 @@ async function manejarChat(message) {
     }
 }
 
-module.exports = { manejarChat };
-
 function generarConsejoClima(clima, esSalida = false) {
     const climaLower = clima.toLowerCase();
     if (climaLower.includes('lluvia') || climaLower.includes('tormenta')) {
