@@ -3326,7 +3326,7 @@ async function manejarChat(message) {
     }
     userLocks.set(userId, true);
 
-    if (!dataStore.conversationHistory) dataStore.conversationHistory = {};
+     if (!dataStore.conversationHistory) dataStore.conversationHistory = {};
     if (!dataStore.conversationHistory[userId]) dataStore.conversationHistory[userId] = [];
     if (!dataStore.userStatus) dataStore.userStatus = {};
     if (!dataStore.userStatus[userId]) dataStore.userStatus[userId] = { status: 'tranqui', timestamp: Date.now() };
@@ -3337,8 +3337,8 @@ async function manejarChat(message) {
     }
 
     dataStore.conversationHistory[userId].push({ role: 'user', content: chatMessage, timestamp: Date.now(), userName });
- अगर (dataStore.conversationHistory[userId].length > 20) {
-        dataStore.conversationHistory[userId] = dataStore.conversationHistory[userId].slice(-20); // Mantenemos 20 mensajes
+    if (dataStore.conversationHistory[userId].length > 20) {
+        dataStore.conversationHistory[userId] = dataStore.conversationHistory[userId].slice(-20);
     }
     dataStoreModified = true;
 
