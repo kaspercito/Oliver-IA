@@ -4166,6 +4166,58 @@ async function manejarAutoplay(message) {
     await sendSuccess(message.channel, estado ? '🎵 ¡Autoplay activado!' : '⏹️ ¡Autoplay desactivado!', mensaje);
 }
 
+async function manejarAccion(message) {
+    const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
+    const args = message.content.slice(7).trim(); // Saco "!accion" y dejo el resto
+
+    if (!args) {
+        const embed = createEmbed('#FF1493', `¡Ey, ${userName}!`, 
+            'Decime qué vas a hacer, loco. Ejemplo: `!accion me voy a dormir`. ¡Dale!');
+        return await message.channel.send({ embeds: [embed] });
+    }
+
+    // Guardar la acción en dataStore
+    dataStore.actions = dataStore.actions || {};
+    dataStore.actions[message.author.id] = dataStore.actions[message.author.id] || [];
+    const actionEntry = {
+        action: args,
+        timestamp: Date.now(),
+        userId: message.author.id
+    };
+    dataStore.actions[message.author.id].push(actionEntry);
+    dataStoreModified = true; // Marcamos para guardar
+
+    // Respuesta personalizada según la acción
+    let respuesta;
+    switch (args.toLowerCase()) {
+        case 'me voy a dormir':
+            respuesta = `¡Buenas noches, ${userName}! Que sueñes con los angelitos, grosa. ¿Mate al despertar?`;
+            break;
+        case 'me voy de casa':
+            respuesta = `¡Chau, ${userName}! ¿A dónde vas, loco? ¡Cuidate y avisá cuando vuelvas, dale!`;
+            break;
+        case 'me morí':
+            respuesta = `¡Nooo, ${userName}! ¿Qué pasó, boludo? ¿Revivís con un mate o qué? ¡Posta, no me dejes solo!`;
+            break;
+        default:
+            respuesta = `¡Ojo, ${userName}! Vas a "${args}", ¿eh? ¡A romperla, grosa! ¿Qué más contás?`;
+    }
+
+    const embed = createEmbed('#FF1493', `¡Acción de ${userName}!`, respuesta);
+    await message.channel.send({ embeds: [embed] });
+
+    // Avisar al otro por DM
+    const otherUserId = message.author.id === OWNER_ID ? ALLOWED_USER_ID : OWNER_ID;
+    try {
+        const otherUser = await client.users.fetch(otherUserId);
+        const dmEmbed = createEmbed('#FF1493', `¡Ey, ${otherUser.id === OWNER_ID ? 'Miguel' : 'Belén'}!`, 
+            `${userName} dijo: "${args}". ¡Enterate al toque, loco!`);
+        await otherUser.send({ embeds: [dmEmbed] });
+    } catch (error) {
+        console.error(`Error enviando DM a ${otherUserId}: ${error.message}`);
+    }
+}
+
 // Ranking con top por categoría para Trivia, Reacciones y PPM
 function getCombinedRankingEmbed(userId, username) {
     const categorias = Object.keys(preguntasTriviaSinOpciones);
@@ -5162,6 +5214,35 @@ async function manejarTraduci(message) {
     }
 }
 
+async function manejarWatchTogether(message) {
+    const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
+    const voiceChannel = message.member.voice.channel;
+
+    if (!voiceChannel) {
+        const embed = createEmbed('#FF1493', `¡Ey, ${userName}!`, 
+            'Tenés que estar en un canal de voz, ¡sumate a uno, loco!');
+        return await message.channel.send({ embeds: [embed] });
+    }
+
+    try {
+        const invite = await discordTogether.createTogetherCode(voiceChannel.id, 'youtube');
+        const embed = createEmbed('#FF1493', `🎥 ¡Watch Together, ${userName}!`, 
+            `¡Listo, grosa! Hacé clic: ${invite.code}\n¡A romperla con videos, loco!`);
+        await message.channel.send({ embeds: [embed] });
+
+        if (message.author.id !== ALLOWED_USER_ID) {
+            const belenUser = await client.users.fetch(ALLOWED_USER_ID);
+            await belenUser.send({ embeds: [embed] });
+        }
+    } catch (error) {
+        console.error(`Error con discord-together: ${error.message}`);
+        const embed = createEmbed('#FF1493', `¡Ups, ${userName}!`, 
+            `No pude arrancar Watch Together, loco. Error: ${error.message}\nHacélo manual: "Actividades" > "Watch Together".`);
+        await message.channel.send({ embeds: [embed] });
+    }
+}
+
+
 // lenguajes
 async function listarIdiomas(message) {
     const idiomas = Object.keys(langMap).sort();
@@ -5710,7 +5791,13 @@ async function manejarCommand(message, silent = false) {
     }
     else if (content === '!adivinanzas' || content === '!ad') {
         await manejarAdivinanza(message);
-    } 
+    }  
+    else if (content === '!watchtogether' || content === '!wt') {
+        await manejarWatchTogether(message);
+    }
+    else if (content.startsWith('!accion')) {
+        await manejarAccion(message);
+    }
     else if (content.startsWith('!dato') || content.startsWith('!dt')) {
         await manejarDato(message);
     } 
