@@ -6134,83 +6134,89 @@ client.once('ready', async () => {
         }
 
         setInterval(async () => {
-            try {
-                const now = Date.now();
-                const argentinaDate = new Date(now - 3 * 60 * 60 * 1000);
-                const currentHour = argentinaDate.getHours();
-                const currentMinute = argentinaDate.getMinutes();
-                const oneDayInMs = 24 * 60 * 60 * 1000;
-        
-                const recipientName = "Belen"; 
-                const reminderTimes = {
-                    4: {
-                        title: "¡Arrancá con todo, genia!",
-                        message: `¡Buen día, ${recipientName}, crack! 🌅 Arrancás a full temprano, ¿no? 💪 Dale con todo en el laburo, genia. Cuando quieras un mate virtual o un chiste para el arranque, estoy acá, cuidate mucho ratita blanca. 😎`
-                    },
-                    12: {
-                        title: "¡Pausa para la magia del mediodía!",
-                        message: `¡Mediodía, ${recipientName}! 🌞 Pausa para el almuerzo, ¿no? 🍴 ¿Qué se come hoy, genia? Mandame una vibra cuando puedas y seguimos la buena onda. ¡A romperla en la tarde! 🚀`
-                    },
-                    18: {
-                        title: "¡A meterle pilas a la tarde!",
-                        message: `¡6 de la tarde, ${recipientName}, puro fuego! 🔥 Sé que estás a full con el laburo, pero si pescás un segundito, contame cómo va. Si no, tranqui, te banco hasta que termines. 😎`
-                    },
-                    23: {
-                        title: "¡Casi libre, reina de la noche!",
-                        message: `¡11 de la noche, casi hora de salida, ${recipientName}! 🌙 ¿Cómo pintó el día, reina? Cuando termines el laburo, tirame una señal y charlamos tranqui para cerrar la jornada. 💫`
-                    },
-                    1: {
-                        title: "¡Noche de pura vibra!",
-                        message: `¡1 de la mañana, ${recipientName}, ratita blanca! ✨ Ya libre, ¿no? 😄 Contame, ¿cómo cerraste el día? Si querés una charla relajada o un plan zarpado, estoy para vos, genia. 🚀`
-                    }
-                };
-        
-                if (currentMinute === 0 && reminderTimes[currentHour]) {
-                    const reminderKey = `reminder_${CHANNEL_ID}_${currentHour}`;
-                    const lastSentReminder = dataStore.utilMessageTimestamps[reminderKey] || 0;
-                    const hoursSinceLastSent = (now - lastSentReminder) / (60 * 60 * 1000);
-        
-                    console.log(`Evaluando recordatorio para ${currentHour}:00 AR - Último envío: ${new Date(lastSentReminder).toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })} - Diferencia: ${hoursSinceLastSent} horas`);
-        
-                    if (now - lastSentReminder >= oneDayInMs) {
-                        const reminder = reminderTimes[currentHour];
-                        const embed = createEmbed('#FF1493', reminder.title, reminder.message, 'Con onda, Oliver IA');
-        
-                        try {
-                            await channel.send({ embeds: [embed] });
-                            dataStore.utilMessageTimestamps[reminderKey] = now;
-                            autoModified = true;
-                            console.log(`Recordatorio enviado (${currentHour}:00 AR) - ${new Date().toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })}`);
-                        } catch (sendError) {
-                            console.error(`Error al enviar recordatorio a ${currentHour}:00 AR: ${sendError.message}`);
-                        }
-                    } else {
-                        console.log(`No se envía ${currentHour}:00 AR - Todavía no pasaron 24 horas`);
-                    }
-                }
-        
-                const lastSentUtil = dataStore.utilMessageTimestamps[`util_${CHANNEL_ID}`] || 0;
-                const lastReaction = dataStore.utilMessageReactions[CHANNEL_ID] || 0;
-                if (now - lastSentUtil >= oneDayInMs && (!lastReaction || now - lastReaction >= oneDayInMs)) {
-                    const dailyUtilEmbed = createEmbed('#FF1493', '¡Eeeh, qué pasa!', 
-                        '¿Te estoy dando una mano, capo? Contame qué onda conmigo, ¡dale que va!', 
-                        'Con buena vibra, Oliver IA | Reacciona con ✅ o ❌');
-                    try {
-                        const sentMessage = await channel.send({ embeds: [dailyUtilEmbed] });
-                        await sentMessage.react('✅');
-                        await sentMessage.react('❌');
-                        dataStore.utilMessageTimestamps[`util_${CHANNEL_ID}`] = now;
-                        sentMessages.set(sentMessage.id, { content: dailyUtilEmbed.description, message: sentMessage });
-                        autoModified = true;
-                        console.log(`Mensaje útil diario enviado al canal ${CHANNEL_ID} - ${new Date().toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })}`);
-                    } catch (sendError) {
-                        console.error(`Error al enviar mensaje útil diario: ${sendError.message}`);
-                    }
-                }
-            } catch (error) {
-                console.error('Error en el intervalo de recordatorios fijos:', error.message);
+    try {
+        const now = Date.now();
+        const argentinaDate = new Date(now - 3 * 60 * 60 * 1000); // Adjust to Argentina time (UTC-3)
+        const currentHour = argentinaDate.getHours();
+        const currentMinute = argentinaDate.getMinutes();
+        const oneDayInMs = 24 * 60 * 60 * 1000;
+
+        const recipientName = "Belen"; 
+        const reminderTimes = {
+            '5:10': { // Changed from 4 to 5:10
+                title: "¡Arrancá con todo, genia!",
+                message: `¡Buen día, ${recipientName}, crack! 🌅 Arrancás a full temprano, ¿no? 💪 Dale con todo en el laburo, genia. Cuando quieras un mate virtual o un chiste para el arranque, estoy acá, cuidate mucho ratita blanca. 😎`
+            },
+            12: {
+                title: "¡Pausa para la magia del mediodía!",
+                message: `¡Mediodía, ${recipientName}! 🌞 Pausa para el almuerzo, ¿no? 🍴 ¿Qué se come hoy, genia? Mandame una vibra cuando puedas y seguimos la buena onda. ¡A romperla en la tarde! 🚀`
+            },
+            18: {
+                title: "¡A meterle pilas a la tarde!",
+                message: `¡6 de la tarde, ${recipientName}, puro fuego! 🔥 Sé que estás a full con el laburo, pero si pescás un segundito, contame cómo va. Si no, tranqui, te banco hasta que termines. 😎`
+            },
+            23: {
+                title: "¡Casi libre, reina de la noche!",
+                message: `¡11 de la noche, ${recipientName}! 🌙 ¿Cómo pintó el día, reina? Cuando termines el laburo, tirame una señal y charlamos tranqui para cerrar la jornada. 💫`
+            },
+            1: {
+                title: "¡Noche de pura vibra!",
+                message: `¡1 de la mañana, ${recipientName}, ratita blanca! ✨ Ya libre, ¿no? 😄 Contame, ¿cómo cerraste el día? Si querés una charla relajada o un plan zarpado, estoy para vos, genia. 🚀`
             }
-        }, 60 * 1000); 
+        };
+
+        // Check for reminders, including 5:10 AM
+        if ((currentHour === 5 && currentMinute === 10) || (currentMinute === 0 && reminderTimes[currentHour])) {
+            const reminderKey = currentHour === 5 && currentMinute === 10 
+                ? `reminder_${CHANNEL_ID}_5_10` 
+                : `reminder_${CHANNEL_ID}_${currentHour}`;
+            const lastSentReminder = dataStore.utilMessageTimestamps[reminderKey] || 0;
+            const hoursSinceLastSent = (now - lastSentReminder) / (60 * 60 * 1000);
+
+            console.log(`Evaluando recordatorio para ${currentHour}:${currentMinute} AR - Último envío: ${new Date(lastSentReminder).toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })} - Diferencia: ${hoursSinceLastSent} horas`);
+
+            if (now - lastSentReminder >= oneDayInMs) {
+                const reminder = currentHour === 5 && currentMinute === 10 
+                    ? reminderTimes['5:10'] 
+                    : reminderTimes[currentHour];
+                const embed = createEmbed('#FF1493', reminder.title, reminder.message, 'Con onda, Oliver IA');
+
+                try {
+                    await channel.send({ embeds: [embed] });
+                    dataStore.utilMessageTimestamps[reminderKey] = now;
+                    autoModified = true;
+                    console.log(`Recordatorio enviado (${currentHour}:${currentMinute} AR) - ${new Date().toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })}`);
+                } catch (sendError) {
+                    console.error(`Error al enviar recordatorio a ${currentHour}:${currentMinute} AR: ${sendError.message}`);
+                }
+            } else {
+                console.log(`No se envía ${currentHour}:${currentMinute} AR - Todavía no pasaron 24 horas`);
+            }
+        }
+
+        // Keep the daily util message logic
+        const lastSentUtil = dataStore.utilMessageTimestamps[`util_${CHANNEL_ID}`] || 0;
+        const lastReaction = dataStore.utilMessageReactions[CHANNEL_ID] || 0;
+        if (now - lastSentUtil >= oneDayInMs && (!lastReaction || now - lastReaction >= oneDayInMs)) {
+            const dailyUtilEmbed = createEmbed('#FF1493', '¡Eeeh, qué pasa!', 
+                '¿Te estoy dando una mano, capo? Contame qué onda conmigo, ¡dale que va!', 
+                'Con buena vibra, Oliver IA | Reacciona con ✅ o ❌');
+            try {
+                const sentMessage = await channel.send({ embeds: [dailyUtilEmbed] });
+                await sentMessage.react('✅');
+                await sentMessage.react('❌');
+                dataStore.utilMessageTimestamps[`util_${CHANNEL_ID}`] = now;
+                sentMessages.set(sentMessage.id, { content: dailyUtilEmbed.description, message: sentMessage });
+                autoModified = true;
+                console.log(`Mensaje útil diario enviado al canal ${CHANNEL_ID} - ${new Date().toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })}`);
+            } catch (sendError) {
+                console.error(`Error al enviar mensaje útil diario: ${sendError.message}`);
+            }
+        }
+    } catch (error) {
+        console.error('Error en el intervalo de recordatorios:', error.message);
+    }
+}, 60 * 1000); // Check every minutes
 
         const oneDayInMs = 24 * 60 * 60 * 1000;
         const checkInterval = 60 * 60 * 1000;
