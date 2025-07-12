@@ -6147,6 +6147,10 @@ setInterval(async () => {
                 title: "¡Arrancá con todo, genia!",
                 message: `¡Buen día, ${recipientName}, crack! 🌅 Arrancás a full temprano, ¿no? 💪 Dale con todo en el laburo, genia. Cuando quieras un mate virtual o un chiste para el arranque, estoy acá, cuidate mucho ratita blanca. 😎`
             },
+            7: { 
+                title: "¡A romperla desde temprano!",
+                message: `¡7 de la mañana, ${recipientName}! ☀️ Ya arrancando el día con toda la pila, ¿eh? 💥 Ojalá hoy sea un buen día para vos che, espero te sientas mejor con esos dolores que tenias, genia, ¡a meterle toda la onda! Si necesitas algo, avisame. 🐁`
+            },
             12: {
                 title: "¡Pausa para la magia del mediodía!",
                 message: `¡Mediodía, ${recipientName}! 🌞 Pausa para el almuerzo, ¿no? 🍴 ¿Qué se come hoy, genia? Mandame una vibra cuando puedas y seguimos la buena onda. ¡A romperla en la tarde! 🚀`
