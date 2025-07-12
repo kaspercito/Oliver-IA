@@ -3124,8 +3124,6 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-lite' });
 
 const userLocks = new Map();
-const OWNER_ID = 'YOUR_OWNER_ID_HERE'; // Reemplazá con tu ID
-const ALLOWED_USER_ID = '1023132788632862761'; // ID de Belen
 
 // Helper para elegir random
 const pickRandom = (arr) => arr[Math.floor(Math.random() * arr.length)];
