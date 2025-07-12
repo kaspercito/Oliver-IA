@@ -6344,185 +6344,73 @@ client.once('ready', async () => {
             console.log('No hay cambios en BOT_UPDATES respecto a sentUpdates, no se envían.');
         }
 
-// Store Belén's typical schedule and exceptions
-const belenSchedule = {
-    typicalWorkDays: [5, 6, 0], // Friday (5), Saturday (6), Sunday (0)
-    typicalStartHour: 7, // 6 or 7 AM, adjustable
-    typicalEndHour: {
-        5: 0, // Friday: midnight (00:00 next day)
-        6: 0, // Saturday: midnight (00:00 next day)
-        0: [14, 16] // Sunday: early exit at 2 PM (14) or 4 PM (16)
-    },
-    exceptions: {
-        fridayAbsence: false, // Set dynamically or via user input
-        saturdayWork: false // Set dynamically or via user input
-    }
-};
-
-// Helper to check if Belén is likely working
-function isWorking(day, hour, minute, schedule) {
-    const isWorkDay = schedule.typicalWorkDays.includes(day);
-    if (!isWorkDay && !schedule.exceptions.saturdayWork) return false;
-    if (day === 5 && schedule.exceptions.fridayAbsence) return false;
-
-    const startHour = schedule.typicalStartHour;
-    let endHour = schedule.typicalEndHour[day];
-
-    // Handle Sunday early exits
-    if (day === 0) {
-        endHour = pickRandom(schedule.typicalEndHour[0]); // Randomly choose 2 PM or 4 PM
-    }
-
-    // Convert midnight (00:00) to 24 for comparison
-    if (endHour === 0) endHour = 24;
-
-    // Check if current time is within work hours
-    const currentTime = hour + minute / 60;
-    return isWorkDay && currentTime >= startHour && currentTime <= endHour;
-}
-
-// Helper to check if current time is within rest period (12 hours after shift)
-function isRestPeriod(day, hour, minute, schedule) {
-    const prevDay = (day === 0) ? 6 : day - 1;
-    const isPrevWorkDay = schedule.typicalWorkDays.includes(prevDay) || (prevDay === 6 && schedule.exceptions.saturdayWork);
-    if (!isPrevWorkDay) return false;
-
-    let prevEndHour = schedule.typicalEndHour[prevDay];
-    if (prevDay === 0) prevEndHour = pickRandom(schedule.typicalEndHour[0]); // Sunday early exit
-    if (prevEndHour === 0) prevEndHour = 24;
-
-    const currentTime = hour + minute / 60;
-    const restEndTime = (prevEndHour + 12) % 24; // 12-hour rest period
-    return currentTime <= restEndTime;
-}
-
 setInterval(async () => {
     try {
         const now = Date.now();
-        const argentinaDate = new Date(now - 3 * 60 * 60 * 1000); // UTC-3
+        const argentinaDate = new Date(now - 3 * 60 * 60 * 1000); // Adjust to Argentina time (UTC-3)
         const currentHour = argentinaDate.getHours();
         const currentMinute = argentinaDate.getMinutes();
-        const currentDay = argentinaDate.getDay();
         const oneDayInMs = 24 * 60 * 60 * 1000;
 
-        const recipientName = "Belen";
-        const nicknames = await generateNicknames(recipientName);
-        const closers = await generateClosers(recipientName);
-
-        // Cargar agenda desde dataStore
-        const belenSchedule = dataStore.belenSchedule || {
-            typicalWorkDays: [5, 6, 0], // Viernes, Sábado, Domingo
-            typicalStartHour: { 5: 18, 6: 7, 0: 7 }, // Viernes 6 PM, otros 7 AM
-            typicalEndHour: { 5: 0, 6: 0, 0: [14, 16] }, // Medianoche, domingo 2/4 PM
-            travelFriday: [14, 16], // Viaje viernes 2/4 PM
-            exceptions: { fridayAbsence: false, saturdayWork: false },
-            breakStatus: { isOnBreak: false, breakEndTime: null } // Pausas
-        };
-
-        // Helper para verificar si está viajando
-        function isTraveling(day, hour, minute, schedule) {
-            if (day !== 5 || schedule.exceptions.fridayAbsence) return false;
-            const travelHours = schedule.travelFriday;
-            const currentTime = hour + minute / 60;
-            return travelHours.includes(hour) && minute <= 15; // Ventana de 15 minutos
-        }
-
-        // Helper para verificar si está trabajando
-        function isWorking(day, hour, minute, schedule) {
-            const isWorkDay = schedule.typicalWorkDays.includes(day) || (day === 6 && schedule.exceptions.saturdayWork);
-            if (!isWorkDay || (day === 5 && schedule.exceptions.fridayAbsence)) return false;
-
-            const startHour = schedule.typicalStartHour[day];
-            let endHour = schedule.typicalEndHour[day];
-
-            if (day === 0 && Array.isArray(endHour)) {
-                endHour = pickRandom(endHour);
-            }
-            if (endHour === 0) endHour = 24;
-
-            const currentTime = hour + minute / 60;
-            return currentTime >= startHour && currentTime <= endHour;
-        }
-
-        // Helper para período de descanso
-        function isRestPeriod(day, hour, minute, schedule) {
-            const prevDay = day === 0 ? 6 : day - 1;
-            const isPrevWorkDay = schedule.typicalWorkDays.includes(prevDay) || (prevDay === 6 && schedule.exceptions.saturdayWork);
-            if (!isPrevWorkDay || (prevDay === 5 && schedule.exceptions.fridayAbsence)) return false;
-
-            let prevEndHour = schedule.typicalEndHour[prevDay];
-            if (prevDay === 0 && Array.isArray(prevEndHour)) {
-                prevEndHour = pickRandom(prevEndHour);
-            }
-            if (prevEndHour === 0) prevEndHour = 24;
-
-            const currentTime = hour + minute / 60;
-            const restEndTime = (prevEndHour + 12) % 24;
-            return currentTime <= restEndTime && day !== prevDay;
-        }
-
-        // Helper para verificar si está en pausa
-        function isOnBreak(hour, minute, schedule) {
-            if (!schedule.breakStatus.isOnBreak || !schedule.breakStatus.breakEndTime) return false;
-            const breakEnd = new Date(schedule.breakStatus.breakEndTime);
-            const currentTime = new Date(now - 3 * 60 * 60 * 1000); // UTC-3
-            return currentTime <= breakEnd;
-        }
-
-        // Resetear excepciones y pausas los lunes a medianoche
-        if (currentDay === 1 && currentHour === 0 && currentMinute === 0) {
-            belenSchedule.exceptions.fridayAbsence = false;
-            belenSchedule.exceptions.saturdayWork = false;
-            belenSchedule.travelFriday = [14, 16];
-            belenSchedule.breakStatus = { isOnBreak: false, breakEndTime: null };
-            dataStore.belenSchedule = belenSchedule;
-            dataStoreModified = true;
-        }
-
-        // Dynamic reminder times based on work status
+        const recipientName = "Belen"; 
         const reminderTimes = {
-            '5:10': { condition: () => !isWorking(currentDay, currentHour, currentMinute, belenSchedule) && !isRestPeriod(currentDay, currentHour, currentMinute, belenSchedule) && !isTraveling(currentDay, currentHour, currentMinute, belenSchedule) && !isOnBreak(currentHour, currentMinute, belenSchedule) },
-            '14': { condition: () => isTraveling(currentDay, currentHour, currentMinute, belenSchedule) },
-            '7': { condition: () => isWorking(currentDay, currentHour, currentMinute, belenSchedule) && !isOnBreak(currentHour, currentMinute, belenSchedule) }, // Start of shift
-            '12': { condition: () => isWorking(currentDay, currentHour, currentMinute, belenSchedule) && !isOnBreak(currentHour, currentMinute, belenSchedule) }, // Lunch break
-            '15': { condition: () => isWorking(currentDay, currentHour, currentMinute, belenSchedule) && currentDay !== 0 && !isOnBreak(currentHour, currentMinute, belenSchedule) }, // Mid-afternoon, skip on Sunday
-            '18': { condition: () => isWorking(currentDay, currentHour, currentMinute, belenSchedule) && currentDay !== 0 && !isOnBreak(currentHour, currentMinute, belenSchedule) }, // Evening, skip on Sunday
-            '23': { condition: () => isWorking(currentDay, currentHour, currentMinute, belenSchedule) && currentDay !== 0 && !isOnBreak(currentHour, currentMinute, belenSchedule) }, // Late evening, skip on Sunday
-            '1': { condition: () => !isWorking(currentDay, currentHour, currentMinute, belenSchedule) && !isRestPeriod(currentDay, currentHour, currentMinute, belenSchedule) && !isOnBreak(currentHour, currentMinute, belenSchedule) } // Post-shift
+            '5:10': {
+                title: "¡Arrancá con todo, genia!",
+                message: `¡Buen día, ${recipientName}, crack! 🌅 Arrancás a full temprano, ¿no? 💪 Dale con todo en el laburo, genia. Cuando quieras un mate virtual o un chiste para el arranque, estoy acá, cuidate mucho ratita blanca. 😎`
+            },
+            7: { 
+                title: "¡A romperla desde temprano!",
+                message: `¡7 de la mañana, ${recipientName}! ☀️ Ya arrancando el día con toda la pila, ¿eh? 💥 Ojalá hoy sea un buen día para vos che, espero te sientas mejor con esos dolores que tenias, genia, ¡a meterle toda la onda! Si necesitas algo, avisame. 🐁`
+            },
+            12: {
+                title: "¡Pausa para la magia del mediodía!",
+                message: `¡Mediodía, ${recipientName}! 🌞 Pausa para el almuerzo, ¿no? 🍴 ¿Qué se come hoy, genia? Mandame una vibra cuando puedas y seguimos la buena onda. ¡A romperla en la tarde! 🚀`
+            },
+            15: {
+                title: "¡Me alegro que sigas viva!",
+                message: `¡Ey, ${recipientName}, genia! 😎 Aguanta, que vos podés con todo, ¡sos una crack! 💪🏻 Lamento que estés con dolor, ratita blanca, disfruta de un mate y cuidate mucho, ¡vos no te morís tan fácil! 🌟`
+            },
+            18: {
+                title: "¡Pausa veggie, ratita blanca!",
+                message: `¡Ey, Belén, ${pickRandom(nicknames)}! 😎 Tomándote un break para merendar, ¿no? 🥗 Tirate un mate o algo rico y contame cómo va el día. ¡A meterle pilas después, cuidate muchisimo crack! ✨`
+            },
+            23: {
+                title: "¡Casi libre, reina de la noche!",
+                message: `¡11 de la noche, ${recipientName}! 🌙 ¿Cómo pintó el día, reina? Cuando termines el laburo, tirame una señal y charlamos tranqui para cerrar la jornada. 💫`
+            },
+            1: {
+                title: "¡Noche de pura vibra!",
+                message: `¡1 de la mañana, ${recipientName}, ratita blanca! ✨ Ya libre, ¿no? 😄 Contame, ¿cómo cerraste el día? Si querés una charla relajada o un plan zarpado, estoy para vos, genia. 🚀`
+            }
         };
 
-        // Generate dynamic title
-        const isWorkDay = belenSchedule.typicalWorkDays.includes(currentDay) || (currentDay === 6 && belenSchedule.exceptions.saturdayWork);
-        const embedTitle = await getTimeGreeting(currentHour, recipientName, isWorkDay);
+        // Check for reminders, including 5:10 AM
+        if ((currentHour === 5 && currentMinute === 10) || (currentMinute === 0 && reminderTimes[currentHour])) {
+            const reminderKey = currentHour === 5 && currentMinute === 10 
+                ? `reminder_${CHANNEL_ID}_5_10` 
+                : `reminder_${CHANNEL_ID}_${currentHour}`;
+            const lastSentReminder = dataStore.utilMessageTimestamps[reminderKey] || 0;
+            const hoursSinceLastSent = (now - lastSentReminder) / (60 * 60 * 1000);
 
-        // Dynamic reminder messages
-        const reminderMessages = {
-            '5:10': `¡Buen día, ${recipientName}, ${pickRandom(nicknames)}! 🌅 ¿Listo pa’l día, genia? ¡Mandá buena vibra antes del laburo! ${pickRandom(closers)}`,
-            '14': `¡Ey, ${recipientName}, ${pickRandom(nicknames)}! 🚍 Arrancando el viaje al laburo, ¡buena ruta, ratita blanca! ${pickRandom(closers)}`,
-            '7': `¡Ey, ${recipientName}, ${pickRandom(nicknames)}! ☀️ Arrancando el laburo, ¡a romperla, crack! Espero estés sin dolores, ratita blanca. ${pickRandom(closers)}`,
-            '12': `¡Mediodía, ${recipientName}, ${pickRandom(nicknames)}! 🍴 Pausa veggie, ¿qué se almuerza hoy? ¡Contame, genia! ${pickRandom(closers)}`,
-            '15': `¡Tarde, ${recipientName}, ${pickRandom(nicknames)}! 😎 Seguís a full, ¿no? Aguanta, crack, y cuidate esos dolores. ${pickRandom(closers)}`,
-            '18': `¡6 de la tarde, ${recipientName}, ${pickRandom(nicknames)}! 🔥 A meterle pilas, genia. Si pescás un mate, avisá. ${pickRandom(closers)}`,
-            '23': `¡11 de la noche, ${recipientName}, ${pickRandom(nicknames)}! 🌙 Casi libre, ratita blanca. ¿Cómo va el laburo? ${pickRandom(closers)}`,
-            '1': `¡1 de la matina, ${recipientName}, ${pickRandom(nicknames)}! ✨ Libre, ¿no? Contame cómo pintó el día, genia. ${pickRandom(closers)}`
-        };
+            console.log(`Evaluando recordatorio para ${currentHour}:${currentMinute} AR - Último envío: ${new Date(lastSentReminder).toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })} - Diferencia: ${hoursSinceLastSent} horas`);
 
-        // Check for reminders
-        const reminderKey = currentHour === 5 && currentMinute === 10 ? '5:10' : currentHour === 14 && currentMinute <= 15 ? '14' : currentHour.toString();
-        if ((currentMinute === 0 || (currentHour === 5 && currentMinute === 10) || (currentHour === 14 && currentMinute <= 15)) && reminderTimes[reminderKey]?.condition()) {
-            const lastSentReminder = dataStore.utilMessageTimestamps[`reminder_${CHANNEL_ID}_${reminderKey}`] || 0;
             if (now - lastSentReminder >= oneDayInMs) {
-                const message = reminderMessages[reminderKey];
-                const embed = createEmbed('#FF1493', embedTitle, message, 'Con onda, Oliver IA');
+                const reminder = currentHour === 5 && currentMinute === 10 
+                    ? reminderTimes['5:10'] 
+                    : reminderTimes[currentHour];
+                const embed = createEmbed('#FF1493', reminder.title, reminder.message, 'Con onda, Oliver IA');
 
                 try {
+                    // Add mention for all reminder messages
                     await channel.send({ content: `<@1023132788632862761>`, embeds: [embed] });
-                    dataStore.utilMessageTimestamps[`reminder_${CHANNEL_ID}_${reminderKey}`] = now;
+                    dataStore.utilMessageTimestamps[reminderKey] = now;
                     autoModified = true;
-                    console.log(`Recordatorio enviado (${reminderKey} AR) - ${new Date().toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })}`);
+                    console.log(`Recordatorio enviado (${currentHour}:${currentMinute} AR) - ${new Date().toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })}`);
                 } catch (sendError) {
-                    console.error(`Error al enviar recordatorio a ${reminderKey} AR: ${sendError.message}`);
+                    console.error(`Error al enviar recordatorio a ${currentHour}:${currentMinute} AR: ${sendError.message}`);
                 }
+            } else {
+                console.log(`No se envía ${currentHour}:${currentMinute} AR - Todavía no pasaron 24 horas`);
             }
         }
 
@@ -6530,8 +6418,8 @@ setInterval(async () => {
         const lastSentUtil = dataStore.utilMessageTimestamps[`util_${CHANNEL_ID}`] || 0;
         const lastReaction = dataStore.utilMessageReactions[CHANNEL_ID] || 0;
         if (now - lastSentUtil >= oneDayInMs && (!lastReaction || now - lastReaction >= oneDayInMs)) {
-            const dailyUtilEmbed = createEmbed('#FF1493', `¡Eeeh, qué pasa, ${recipientName}!`, 
-                `¿Te estoy dando una mano, ${pickRandom(nicknames)}? Contame qué onda conmigo, ¡dale que va! ${pickRandom(closers)}`, 
+            const dailyUtilEmbed = createEmbed('#FF1493', '¡Eeeh, qué pasa!', 
+                '¿Te estoy dando una mano, capo? Contame qué onda conmigo, ¡dale que va!', 
                 'Con buena vibra, Oliver IA | Reacciona con ✅ o ❌');
             try {
                 const sentMessage = await channel.send({ embeds: [dailyUtilEmbed] });
