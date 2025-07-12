@@ -5215,7 +5215,7 @@ async function manejarTraduci(message) {
 }
 
 async function manejarWatchTogether(message) {
-    const userName = message.author.username; // Use Discord username
+    const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
     const voiceChannel = message.member.voice.channel;
 
     if (!voiceChannel) {
@@ -5228,7 +5228,7 @@ async function manejarWatchTogether(message) {
         const invite = await discordTogether.createTogetherCode(voiceChannel.id, 'youtube');
         const inviteUrl = `https://discord.com/invite/${invite.code}`;
         const embed = createEmbed('#FF1493', `🎥 ¡Watch Together, ${userName}!`, 
-            `¡Listo, genio! Hacé clic: ${inviteUrl}\n¡A romperla con videos, loco!`);
+            `¡Listo, genia/o! Hacé clic: [enlace](https://discord.com/invite/${inviteUrl})\n¡A romperla con videos, loca/o!`);
         await message.channel.send({ embeds: [embed] });
 
         if (message.author.id !== ALLOWED_USER_ID) {
