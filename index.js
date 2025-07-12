@@ -3120,6 +3120,78 @@ async function sendLyrics(waitingMessage, channel, songTitle, lyrics, userName) 
     }
 }
 
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-lite' });
+
+const userLocks = new Map();
+
+// Helper para elegir random
+const pickRandom = (arr) => arr[Math.floor(Math.random() * arr.length)];
+
+// Generar nicknames dinámicamente
+async function generateNicknames(userName) {
+    try {
+        const prompt = `Sos un bot con onda argentina. Generá 5 apodos cariñosos y porteños para ${userName}. Si es Belén, incluí "ratita blanca" y evitá "reina". Si es Miguel, usá términos como "capo", "genio". Devuelve solo una lista de apodos, separados por comas, sin explicaciones. Máx. 100 chars.`;
+        const result = await model.generateContent(prompt);
+        return result.response.text().trim().split(',').map(n => n.trim());
+    } catch (error) {
+        console.error('Error generando apodos:', error.message);
+        return userName === 'Belén' ? ['ratita blanca', 'grosa', 'genia', 'crack', 'maestra'] : ['capo', 'genio', 'crack', 'loco', 'maestro'];
+    }
+}
+
+// Generar closers dinámicamente
+async function generateClosers(userName) {
+    try {
+        const prompt = `Sos un bot con onda argentina. Generá 5 cierres cortos, amigables y porteños para ${userName}, usando slang como "dale", "posta", un emoji (😎, ✨, 🚀, 🌞, 💫). Devuelve solo una lista de cierres, separados por comas, sin explicaciones. Máx. 200 chars.`;
+        const result = await model.generateContent(prompt);
+        return result.response.text().trim().split(',').map(c => c.trim().replace('{{name}}', userName));
+    } catch (error) {
+        console.error('Error generando cierres:', error.message);
+        return [
+            `¡Seguí rompiéndola, ${userName}! ✨`,
+            `¡Toda la buena onda, ${userName}! 😎`,
+            `¡Dale con todo, ${userName}! 🚀`,
+            `¡Sos un sol, ${userName}, seguimos cuando quieras! 🌞`,
+            `¡Qué lindo charlar, ${userName}, tirame otra! 💫`
+        ];
+    }
+}
+
+// Generar chistes veggie-friendly
+async function generateChistes() {
+    try {
+        const prompt = `Sos un bot con onda argentina. Generá 3 chistes cortos, veggie-friendly, sobre mate, fernet o cultura argentina. Usa slang porteño ("che", "loco") y un emoji (😜, 🥃, 🌿). Devuelve solo una lista de chistes, separados por comas, sin explicaciones. Máx. 300 chars.`;
+        const result = await model.generateContent(prompt);
+        return result.response.text().trim().split(',').map(c => c.trim());
+    } catch (error) {
+        console.error('Error generando chistes:', error.message);
+        return [
+            '¿Por qué el mate no va al gym? Porque ya está en forma con la bombilla. 😜',
+            '¿Por qué el fernet no canta? Porque siempre se queda con el hielo. 🥃',
+            '¿Qué le dijo la yerba al agua? ¡Juntas hacemos magia, che! 🌿'
+        ];
+    }
+}
+
+// Generar título dinámico según hora (Argentina, UTC-3)
+async function getTimeGreeting(hour, name, isWorkDay) {
+    try {
+        const timeContext = isWorkDay ? 
+            (hour >= 6 && hour < 12 ? 'mañana laboral' : hour >= 12 && hour < 14 ? 'hora del almuerzo' : hour >= 14 && hour < 18 ? 'tarde libre' : 'noche de finde') : 
+            'noche de finde';
+        const prompt = `Sos un bot con onda argentina. Generá un título corto y porteño para un mensaje a ${name} en ${timeContext}, viernes a domingo (puede variar). Si es Belén, usá "ratita blanca". Incluí un emoji (🌅, 🍵, 🔥, 🌙). Devuelve solo el título, máx. 50 chars.`;
+        const result = await model.generateContent(prompt);
+        return result.response.text().trim();
+    } catch (error) {
+        console.error('Error generando título:', error.message);
+        if (isWorkDay && hour >= 6 && hour < 12) return `¡Buen arranque, ${name === 'Belén' ? 'ratita blanca' : name}! 🌅`;
+        if (isWorkDay && hour >= 12 && hour < 14) return `¡Mediodía, ${name === 'Belén' ? 'ratita blanca' : name}, mate! 🍵`;
+        if (isWorkDay && hour >= 14 && hour < 18) return `¡Tarde libre, ${name === 'Belén' ? 'ratita blanca' : name}! 🔥`;
+        return `¡Noche de finde, ${name === 'Belén' ? 'ratita blanca' : name}! 🌙`;
+    }
+}
+
 async function manejarChat(message) {
     const userId = message.author.id;
     const userName = userId === OWNER_ID ? 'Miguel' : 'Belén';
@@ -3209,7 +3281,7 @@ async function manejarChat(message) {
 
         **Extra**: ${extraContext}`;
 
-        const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Tiempo agotado')), 15000));
+        const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Tiempo agotado')), 10000));
         const result = await Promise.race([model.generateContent(prompt), timeoutPromise]);
         let aiReply = result.response.text().trim().replace(/\[.*?\]|\*\*.*?\*\*|```.*?```/gs, '').trim();
 
