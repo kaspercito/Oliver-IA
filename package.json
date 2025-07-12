@@ -24,6 +24,9 @@
     "node-fetch": "^3.3.2",
     "gtts": "latest",
     "path": "^0.12.7",
+    "prism-media": "^1.3.2",
+    "vosk": "^0.3.38",
+    "fs": "latest"
     "form-data": "^4.0.0",
     "@googlemaps/google-maps-services-js": "^3.4.0",
     "node-telegram-bot-api": "^0.66.0",
