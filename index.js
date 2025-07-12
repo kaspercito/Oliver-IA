@@ -6133,7 +6133,7 @@ client.once('ready', async () => {
             console.log('No hay cambios en BOT_UPDATES respecto a sentUpdates, no se envían.');
         }
 
-        setInterval(async () => {
+setInterval(async () => {
     try {
         const now = Date.now();
         const argentinaDate = new Date(now - 3 * 60 * 60 * 1000); // Adjust to Argentina time (UTC-3)
@@ -6143,7 +6143,7 @@ client.once('ready', async () => {
 
         const recipientName = "Belen"; 
         const reminderTimes = {
-            '5:10': { // Changed from 4 to 5:10
+            '5:10': {
                 title: "¡Arrancá con todo, genia!",
                 message: `¡Buen día, ${recipientName}, crack! 🌅 Arrancás a full temprano, ¿no? 💪 Dale con todo en el laburo, genia. Cuando quieras un mate virtual o un chiste para el arranque, estoy acá, cuidate mucho ratita blanca. 😎`
             },
@@ -6182,7 +6182,8 @@ client.once('ready', async () => {
                 const embed = createEmbed('#FF1493', reminder.title, reminder.message, 'Con onda, Oliver IA');
 
                 try {
-                    await channel.send({ embeds: [embed] });
+                    // Add mention for all reminder messages
+                    await channel.send({ content: `<@1023132788632862761>`, embeds: [embed] });
                     dataStore.utilMessageTimestamps[reminderKey] = now;
                     autoModified = true;
                     console.log(`Recordatorio enviado (${currentHour}:${currentMinute} AR) - ${new Date().toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })}`);
@@ -6216,7 +6217,7 @@ client.once('ready', async () => {
     } catch (error) {
         console.error('Error en el intervalo de recordatorios:', error.message);
     }
-}, 60 * 1000); // Check every minutes
+}, 60 * 1000); // Check every minute
 
         const oneDayInMs = 24 * 60 * 60 * 1000;
         const checkInterval = 60 * 60 * 1000;
