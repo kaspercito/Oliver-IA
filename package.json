@@ -17,7 +17,7 @@
     "erela.js": "^2.4.0",
     "erela.js-spotify": "latest",
     "form-data": "^4.0.0",
-    "gtts": "^2.0.0",
+    "gtts": "latest",
     "lyrics-finder": "^21.7.0",
     "node-fetch": "^2.6.7",
     "node-telegram-bot-api": "^0.66.0",
