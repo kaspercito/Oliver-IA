@@ -10,8 +10,6 @@ const lyricsFinder = require('lyrics-finder');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 const cheerio = require('cheerio');
 const gTTS = require('gtts');
-const vosk = require('vosk');
-const vosk = require('vosk');
 const FormData = require('form-data');
 const TelegramBot = require('node-telegram-bot-api');
 const path = require('path');
@@ -2237,10 +2235,6 @@ function startAutoPing() {
         }
     }, pingInterval);
 }
-
-// Inicializar modelo Vosk
-vosk.setLogLevel(0);
-const model = new vosk.Model(path.join(__dirname, 'models', 'es'));
 
 async function manejarAnsiedad(message) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
