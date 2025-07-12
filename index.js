@@ -3218,10 +3218,11 @@ async function manejarChat(message) {
         typicalStartHour: { 5: 18, 6: 7, 0: 7 }, // Viernes 6 PM, otros 7 AM
         typicalEndHour: { 5: 0, 6: 0, 0: [14, 16] }, // Medianoche, domingo 2/4 PM
         travelFriday: [14, 16], // Viaje viernes 2/4 PM
-        exceptions: { fridayAbsence: false, saturdayWork: false }
+        exceptions: { fridayAbsence: false, saturdayWork: false },
+        breakStatus: { isOnBreak: false, breakEndTime: null } // Nueva propiedad para pausas
     };
 
-    // Detectar mensajes de Belén sobre viaje o trabajo
+    // Detectar mensajes de Belén sobre viaje, trabajo o pausa
     if (userName === 'Belen') {
         const lowerMessage = chatMessage.toLowerCase();
         const now = new Date(Date.now() - 3 * 60 * 60 * 1000); // UTC-3
@@ -3246,6 +3247,15 @@ async function manejarChat(message) {
             dataStore.belenSchedule.typicalEndHour[now.getDay()] = now.getHours() + 1; // Termina 1 hora después
             dataStoreModified = true;
             await message.channel.send(`¡Entendido, Belén, salís temprano, genia! 🌞 ¡A disfrutar, ratita blanca!`);
+        } else if (lowerMessage.includes('muriendo') || lowerMessage.includes('break para merendar') || lowerMessage.includes('pausa')) {
+            dataStore.belenSchedule.breakStatus = {
+                isOnBreak: true,
+                breakEndTime: now.getTime() + 30 * 60 * 1000 // Pausa de 30 minutos
+            };
+            dataStoreModified = true;
+            const nicknames = await generateNicknames(userName);
+            const closers = await generateClosers(userName);
+            await message.channel.send(`¡Ay, Belén, ratita blanca! 😅 Estás en pausa, genia, disfrutá esa merienda veggie. Tomate un mate tranqui, que el laburo puede esperar un toque. ${pickRandom(closers)}`);
         }
     }
 
@@ -3281,9 +3291,12 @@ async function manejarChat(message) {
     const chistes = await generateChistes();
 
     // Detección de tono
-    if (chatMessage.toLowerCase().includes('matame') || chatMessage.toLowerCase().includes('estoy harto') || chatMessage.toLowerCase().includes('no aguanto')) {
+    if (chatMessage.toLowerCase().includes('matame') || chatMessage.toLowerCase().includes('estoy harto') || chatMessage.toLowerCase().includes('no aguanto') || chatMessage.toLowerCase().includes('muriendo')) {
         tone = 'empatico';
         extraContext = `El usuario (${userName}) parece estresado o bromeando. Respondé con empatía y humor porteño: "¡Che, ${userName}, tranqui, ${pickRandom(nicknames)}! 😅 ¿El laburo te tiene a mil? Contame y te tiro un chiste veggie."`;
+    } else if (chatMessage.toLowerCase().includes('break para merendar') || chatMessage.toLowerCase().includes('pausa')) {
+        tone = 'empatico';
+        extraContext = `El usuario (${userName}) está en una pausa. Respondé con buena onda: "¡Ey, ${userName}, ${pickRandom(nicknames)}! 😎 Disfrutá esa pausa veggie, ratita blanca. ¿Un mate o algo rico? Contame cómo vas."`;
     } else if (chatMessage.toUpperCase() === chatMessage && chatMessage.length > 5 || chatMessage.toLowerCase().includes('fallas') || chatMessage.toLowerCase().includes('error') || chatMessage.toLowerCase().includes('boto')) {
         tone = 'broma_reto';
         extraContext = `El usuario (${userName}) está bromeando o retando. Respondé con humor: "¡Jaja, ${userName}, no me botés, ${pickRandom(nicknames)}! 😅 ¿Qué hice mal? Contame y lo arreglamos."`;
@@ -3313,7 +3326,7 @@ async function manejarChat(message) {
         Contexto reciente (usalo si es relevante):
         ${contextRecent}
 
-        Respondé a: "${chatMessage}". **NUNCA repitas el mensaje del usuario ni envíes código.** Andá al grano, como si ya charlaran. If no entendés, pedí más info con humor: "¡Pará, ${userName}, no te sigo, loco! 😜 ¿Qué quisiste decir?". Si es broma, seguí el tono; si es tranqui, mantené la onda. Terminá con un closer de esta lista: ${closers.join(', ')}. Si es finde y es Belen, mencioná el finde. Respuestas cortas: 200 chars para saludos, 500 para complejas. Si dice algo como "matame", sé empático pero con humor veggie-friendly. ¡Dale, loco!
+        Respondé a: "${chatMessage}". **NUNCA repitas el mensaje del usuario ni envíes código.** Andá al grano, como si ya charlaran. Si no entendés, pedí más info con humor: "¡Pará, ${userName}, no te sigo, loco! 😜 ¿Qué quisiste decir?". Si es broma, seguí el tono; si es tranqui, mantené la onda. Terminá con un closer de esta lista: ${closers.join(', ')}. Si es finde y es Belen, mencioná el finde. Respuestas cortas: 200 chars para saludos, 500 para complejas. Si dice algo como "matame", sé empático pero con humor veggie-friendly. ¡Dale, loco!
 
         **Extra**: ${extraContext}`;
 
@@ -6402,7 +6415,8 @@ setInterval(async () => {
             typicalStartHour: { 5: 18, 6: 7, 0: 7 }, // Viernes 6 PM, otros 7 AM
             typicalEndHour: { 5: 0, 6: 0, 0: [14, 16] }, // Medianoche, domingo 2/4 PM
             travelFriday: [14, 16], // Viaje viernes 2/4 PM
-            exceptions: { fridayAbsence: false, saturdayWork: false }
+            exceptions: { fridayAbsence: false, saturdayWork: false },
+            breakStatus: { isOnBreak: false, breakEndTime: null } // Pausas
         };
 
         // Helper para verificar si está viajando
@@ -6447,25 +6461,34 @@ setInterval(async () => {
             return currentTime <= restEndTime && day !== prevDay;
         }
 
-        // Resetear excepciones los lunes a medianoche
+        // Helper para verificar si está en pausa
+        function isOnBreak(hour, minute, schedule) {
+            if (!schedule.breakStatus.isOnBreak || !schedule.breakStatus.breakEndTime) return false;
+            const breakEnd = new Date(schedule.breakStatus.breakEndTime);
+            const currentTime = new Date(now - 3 * 60 * 60 * 1000); // UTC-3
+            return currentTime <= breakEnd;
+        }
+
+        // Resetear excepciones y pausas los lunes a medianoche
         if (currentDay === 1 && currentHour === 0 && currentMinute === 0) {
             belenSchedule.exceptions.fridayAbsence = false;
             belenSchedule.exceptions.saturdayWork = false;
             belenSchedule.travelFriday = [14, 16];
+            belenSchedule.breakStatus = { isOnBreak: false, breakEndTime: null };
             dataStore.belenSchedule = belenSchedule;
             dataStoreModified = true;
         }
 
         // Dynamic reminder times based on work status
         const reminderTimes = {
-            '5:10': { condition: () => !isWorking(currentDay, currentHour, currentMinute, belenSchedule) && !isRestPeriod(currentDay, currentHour, currentMinute, belenSchedule) && !isTraveling(currentDay, currentHour, currentMinute, belenSchedule) },
+            '5:10': { condition: () => !isWorking(currentDay, currentHour, currentMinute, belenSchedule) && !isRestPeriod(currentDay, currentHour, currentMinute, belenSchedule) && !isTraveling(currentDay, currentHour, currentMinute, belenSchedule) && !isOnBreak(currentHour, currentMinute, belenSchedule) },
             '14': { condition: () => isTraveling(currentDay, currentHour, currentMinute, belenSchedule) },
-            '7': { condition: () => isWorking(currentDay, currentHour, currentMinute, belenSchedule) }, // Start of shift
-            '12': { condition: () => isWorking(currentDay, currentHour, currentMinute, belenSchedule) }, // Lunch break
-            '15': { condition: () => isWorking(currentDay, currentHour, currentMinute, belenSchedule) && currentDay !== 0 }, // Mid-afternoon, skip on Sunday
-            '18': { condition: () => isWorking(currentDay, currentHour, currentMinute, belenSchedule) && currentDay !== 0 }, // Evening, skip on Sunday
-            '23': { condition: () => isWorking(currentDay, currentHour, currentMinute, belenSchedule) && currentDay !== 0 }, // Late evening, skip on Sunday
-            '1': { condition: () => !isWorking(currentDay, currentHour, currentMinute, belenSchedule) && !isRestPeriod(currentDay, currentHour, currentMinute, belenSchedule) } // Post-shift
+            '7': { condition: () => isWorking(currentDay, currentHour, currentMinute, belenSchedule) && !isOnBreak(currentHour, currentMinute, belenSchedule) }, // Start of shift
+            '12': { condition: () => isWorking(currentDay, currentHour, currentMinute, belenSchedule) && !isOnBreak(currentHour, currentMinute, belenSchedule) }, // Lunch break
+            '15': { condition: () => isWorking(currentDay, currentHour, currentMinute, belenSchedule) && currentDay !== 0 && !isOnBreak(currentHour, currentMinute, belenSchedule) }, // Mid-afternoon, skip on Sunday
+            '18': { condition: () => isWorking(currentDay, currentHour, currentMinute, belenSchedule) && currentDay !== 0 && !isOnBreak(currentHour, currentMinute, belenSchedule) }, // Evening, skip on Sunday
+            '23': { condition: () => isWorking(currentDay, currentHour, currentMinute, belenSchedule) && currentDay !== 0 && !isOnBreak(currentHour, currentMinute, belenSchedule) }, // Late evening, skip on Sunday
+            '1': { condition: () => !isWorking(currentDay, currentHour, currentMinute, belenSchedule) && !isRestPeriod(currentDay, currentHour, currentMinute, belenSchedule) && !isOnBreak(currentHour, currentMinute, belenSchedule) } // Post-shift
         };
 
         // Generate dynamic title
