@@ -10,6 +10,8 @@ const lyricsFinder = require('lyrics-finder');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 const cheerio = require('cheerio');
 const gTTS = require('gtts');
+const vosk = require('vosk');
+const vosk = require('vosk');
 const FormData = require('form-data');
 const TelegramBot = require('node-telegram-bot-api');
 const path = require('path');
@@ -2235,6 +2237,75 @@ function startAutoPing() {
         }
     }, pingInterval);
 }
+
+// Inicializar modelo Vosk
+vosk.setLogLevel(0);
+const model = new vosk.Model(path.join(__dirname, 'models', 'es'));
+
+// Comando para activar el bot por voz
+client.on('messageCreate', async message => {
+  if (message.content === '!voz') {
+    const channel = message.member?.voice?.channel;
+    if (!channel) return message.reply('¡Conectate a un canal de voz primero, che!');
+
+    const connection = joinVoiceChannel({
+      channelId: channel.id,
+      guildId: channel.guild.id,
+      adapterCreator: channel.guild.voiceAdapterCreator
+    });
+
+    const receiver = connection.receiver;
+
+    message.reply('🎧 ¡Te estoy escuchando! Decime algo (máx 5 seg)...');
+
+    const userId = message.author.id;
+    const audioStream = receiver.subscribe(userId, {
+      end: {
+        behavior: EndBehaviorType.AfterSilence,
+        duration: 1000
+      }
+    });
+
+    const pcmStream = new prism.opus.Decoder({ rate: 16000, channels: 1, frameSize: 960 });
+
+    const outputPath = path.join(__dirname, 'grabacion.wav');
+    const writable = fs.createWriteStream(outputPath);
+
+    audioStream.pipe(pcmStream).pipe(writable);
+
+    setTimeout(async () => {
+      audioStream.destroy();
+      writable.end();
+
+      // Transcribir
+      const rec = new vosk.Recognizer({ model, sampleRate: 16000 });
+      const buffer = fs.readFileSync(outputPath);
+      rec.acceptWaveform(buffer);
+      const result = rec.finalResult();
+      rec.free();
+
+      const texto = result.text.trim();
+      if (!texto) return message.channel.send('😕 No te escuché bien, tirá otra.');
+
+      message.channel.send(`🗣️ Te escuché: "${texto}"`);
+
+      // IA: Gemini responde
+      const respuestaGemini = await geminiModel.generateContent(`Respondé con onda argentina: ${texto}`);
+      const respuestaTexto = respuestaGemini.response.text().trim();
+
+      // Texto a voz con gTTS
+      const audioPath = path.join(__dirname, 'respuesta.mp3');
+      const gtts = new gTTS(respuestaTexto, 'es');
+      gtts.save(audioPath, async () => {
+        const player = createAudioPlayer();
+        const resource = createAudioResource(audioPath);
+        connection.subscribe(player);
+        player.play(resource);
+      });
+
+    }, 5000); // Espera 5 segundos de grabación
+  }
+});
 
 async function manejarAnsiedad(message) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
