@@ -6155,7 +6155,7 @@ setInterval(async () => {
                 title: "¡Pausa para la magia del mediodía!",
                 message: `¡Mediodía, ${recipientName}! 🌞 Pausa para el almuerzo, ¿no? 🍴 ¿Qué se come hoy, genia? Mandame una vibra cuando puedas y seguimos la buena onda. ¡A romperla en la tarde! 🚀`
             },
-            '14:55': {
+            15: {
                 title: "¡Me alegro que sigas viva!",
                 message: `¡Ey, ${recipientName}, genia! 😎 Aguanta, que vos podés con todo, ¡sos una crack! 💪🏻 Lamento que estés con dolor, ratita blanca, disfruta de un mate y cuidate mucho, ¡vos no te morís tan fácil! 🌟`
             },
