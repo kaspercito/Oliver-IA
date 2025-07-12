@@ -3124,6 +3124,8 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-lite' });
 
 const userLocks = new Map();
+const OWNER_ID = 'YOUR_OWNER_ID_HERE'; // Reemplazá con tu ID
+const ALLOWED_USER_ID = '1023132788632862761'; // ID de Belen
 
 // Helper para elegir random
 const pickRandom = (arr) => arr[Math.floor(Math.random() * arr.length)];
@@ -3131,12 +3133,12 @@ const pickRandom = (arr) => arr[Math.floor(Math.random() * arr.length)];
 // Generar nicknames dinámicamente
 async function generateNicknames(userName) {
     try {
-        const prompt = `Sos un bot con onda argentina. Generá 5 apodos cariñosos y porteños para ${userName}. Si es Belén, incluí "ratita blanca" y evitá "reina". Si es Miguel, usá términos como "capo", "genio". Devuelve solo una lista de apodos, separados por comas, sin explicaciones. Máx. 100 chars.`;
+        const prompt = `Sos un bot con onda argentina. Generá 5 apodos cariñosos y porteños para ${userName}. Si es Belen, incluí "ratita blanca" y evitá "reina". Si es Miguel, usá términos como "capo", "genio". Devuelve solo una lista de apodos, separados por comas, sin explicaciones. Máx. 100 chars.`;
         const result = await model.generateContent(prompt);
         return result.response.text().trim().split(',').map(n => n.trim());
     } catch (error) {
         console.error('Error generando apodos:', error.message);
-        return userName === 'Belén' ? ['ratita blanca', 'grosa', 'genia', 'crack', 'maestra'] : ['capo', 'genio', 'crack', 'loco', 'maestro'];
+        return userName === 'Belen' ? ['ratita blanca', 'grosa', 'genia', 'crack', 'maestra'] : ['capo', 'genio', 'crack', 'loco', 'maestro'];
     }
 }
 
@@ -3180,26 +3182,26 @@ async function getTimeGreeting(hour, name, isWorkDay) {
         const timeContext = isWorkDay ? 
             (hour >= 6 && hour < 12 ? 'mañana laboral' : hour >= 12 && hour < 14 ? 'hora del almuerzo' : hour >= 14 && hour < 18 ? 'tarde libre' : 'noche de finde') : 
             'noche de finde';
-        const prompt = `Sos un bot con onda argentina. Generá un título corto y porteño para un mensaje a ${name} en ${timeContext}, viernes a domingo (puede variar). Si es Belén, usá "ratita blanca". Incluí un emoji (🌅, 🍵, 🔥, 🌙). Devuelve solo el título, máx. 50 chars.`;
+        const prompt = `Sos un bot con onda argentina. Generá un título corto y porteño para un mensaje a ${name} en ${timeContext}, viernes a domingo (puede variar). Si es Belen, usá "ratita blanca". Incluí un emoji (🌅, 🍵, 🔥, 🌙). Devuelve solo el título, máx. 50 chars.`;
         const result = await model.generateContent(prompt);
         return result.response.text().trim();
     } catch (error) {
         console.error('Error generando título:', error.message);
-        if (isWorkDay && hour >= 6 && hour < 12) return `¡Buen arranque, ${name === 'Belén' ? 'ratita blanca' : name}! 🌅`;
-        if (isWorkDay && hour >= 12 && hour < 14) return `¡Mediodía, ${name === 'Belén' ? 'ratita blanca' : name}, mate! 🍵`;
-        if (isWorkDay && hour >= 14 && hour < 18) return `¡Tarde libre, ${name === 'Belén' ? 'ratita blanca' : name}! 🔥`;
-        return `¡Noche de finde, ${name === 'Belén' ? 'ratita blanca' : name}! 🌙`;
+        if (isWorkDay && hour >= 6 && hour < 12) return `¡Buen arranque, ${name === 'Belen' ? 'ratita blanca' : name}! 🌅`;
+        if (isWorkDay && hour >= 12 && hour < 14) return `¡Mediodía, ${name === 'Belen' ? 'ratita blanca' : name}, mate! 🍵`;
+        if (isWorkDay && hour >= 14 && hour < 18) return `¡Tarde libre, ${name === 'Belen' ? 'ratita blanca' : name}! 🔥`;
+        return `¡Noche de finde, ${name === 'Belen' ? 'ratita blanca' : name}! 🌙`;
     }
 }
 
 async function manejarChat(message) {
     const userId = message.author.id;
-    const userName = userId === OWNER_ID ? 'Miguel' : 'Belén';
+    const userName = userId === OWNER_ID ? 'Miguel' : userId === ALLOWED_USER_ID ? 'Belen' : 'Invitado';
     const chatMessage = message.content.startsWith('!chat') ? message.content.slice(5).trim() : message.content.slice(3).trim();
 
     // Validar mensaje vacío
     if (!chatMessage) {
-        return sendError(message.channel, `¡Che, ${userName}, tirá algo después de "!ch", ${userName === 'Belén' ? 'ratita blanca' : 'capo'}! No me dejes colgado 😜`, undefined, 'Hecho con ❤️ por Oliver IA | Reacciona con ✅ o ❌');
+        return sendError(message.channel, `¡Che, ${userName}, tirá algo después de "!ch", ${userName === 'Belen' ? 'ratita blanca' : 'capo'}! No me dejes colgado 😜`, undefined, 'Hecho con ❤️ por Oliver IA | Reacciona con ✅ o ❌');
     }
 
     // Evitar múltiples mensajes simultáneos
@@ -3259,7 +3261,7 @@ async function manejarChat(message) {
     } else if (chatMessage.toLowerCase().includes('te acuerdas') || chatMessage.toLowerCase().includes('hace unos días') || chatMessage.toLowerCase().includes('te conté')) {
         extraContext = `El usuario (${userName}) pide recordar algo. Buscá en el historial reciente (${contextRecent}) mensajes relevantes, resumilos: "Che, ${userName}, me contaste X a las HH:MM". Si no hay, decí "¡Uy, ${pickRandom(nicknames)}, no pillo eso! 😜 ¿Más pistas?"`;
     } else if (chatMessage.toLowerCase().includes('ayuda') || chatMessage.toLowerCase().includes('ayudame')) {
-        extraContext = `El usuario (${userName}) pide ayuda. Dále una solución clara y práctica. Si es código, que sea funcional; si es una idea, tirá opciones veggie-friendly para Belén. Preguntá si necesita más detalles.`;
+        extraContext = `El usuario (${userName}) pide ayuda. Dále una solución clara y práctica. Si es código, que sea funcional; si es una idea, tirá opciones veggie-friendly para Belen. Preguntá si necesita más detalles.`;
     } else if (chatMessage.toLowerCase().includes('chiste') || chatMessage.toLowerCase().includes('tirate un chiste') || chatMessage.toLowerCase().includes('contame un chiste')) {
         extraContext = `El usuario (${userName}) quiere un chiste. Tirale uno corto y veggie-friendly de la lista: ${chistes.join(', ')}. Preguntá: "¿Otro o qué plan tenés?"`;
     } else if (chatMessage.toLowerCase().includes('letra') || chatMessage.toLowerCase().includes('cancion') || chatMessage.toLowerCase().includes('musica')) {
@@ -3272,12 +3274,12 @@ async function manejarChat(message) {
     const waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
 
     try {
-        const prompt = `Sos Oliver IA, creado por Miguel para ${userName}. Usá slang argentino ("che", "loco", "posta", "zarpado") y un emoji (😎, ✨, 🚀, 🌞, 💫, máx. 1). Charlá como amigo tomando un mate, llamando a ${userName} por su nombre o apodos como "${pickRandom(nicknames)}". Belén es vegetariana, de San Luis, Argentina (UTC-3), labura viernes a domingo de 6/7 a ~17 (puede variar), almuerza 12/13, y usa poco el celular en el laburo. Miguel está en Guayaquil, Ecuador (UTC-5).
+        const prompt = `Sos Oliver IA, creado por Miguel para ${userName}. Usá slang argentino ("che", "loco", "posta", "zarpado") y un emoji (😎, ✨, 🚀, 🌞, 💫, máx. 1). Charlá como amigo tomando un mate, llamando a ${userName} por su nombre o apodos como "${pickRandom(nicknames)}". Belen es vegetariana, de San Luis, Argentina (UTC-3), labura viernes a domingo de 6/7 a ~17 (puede variar), almuerza 12/13, y usa poco el celular en el laburo. Miguel está en Guayaquil, Ecuador (UTC-5).
 
         Contexto reciente (usalo si es relevante):
         ${contextRecent}
 
-        Respondé a: "${chatMessage}". **NUNCA repitas el mensaje del usuario.** Andá al grano, como si ya charlaran. Si no entendés, pedí más info con humor: "¡Pará, ${userName}, no te sigo, loco! 😜 ¿Qué quisiste decir?". Si es broma, seguí el tono; si es tranqui, mantené la onda. Terminá con un closer de esta lista: ${closers.join(', ')}. Si es finde y es Belén, mencioná el finde. Respuestas cortas: 200 chars para saludos, 500 para complejas. Si dice algo como "matame", sé empático pero con humor veggie-friendly. ¡Dale, loco!
+        Respondé a: "${chatMessage}". **NUNCA repitas el mensaje del usuario.** Andá al grano, como si ya charlaran. Si no entendés, pedí más info con humor: "¡Pará, ${userName}, no te sigo, loco! 😜 ¿Qué quisiste decir?". Si es broma, seguí el tono; si es tranqui, mantené la onda. Terminá con un closer de esta lista: ${closers.join(', ')}. Si es finde y es Belen, mencioná el finde. Respuestas cortas: 200 chars para saludos, 500 para complejas. Si dice algo como "matame", sé empático pero con humor veggie-friendly. ¡Dale, loco!
 
         **Extra**: ${extraContext}`;
 
