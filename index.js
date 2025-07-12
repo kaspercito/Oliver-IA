@@ -6143,9 +6143,9 @@ client.once('ready', async () => {
         
                 const recipientName = "Belen"; 
                 const reminderTimes = {
-                    7: {
+                    4: {
                         title: "¡Arrancá con todo, genia!",
-                        message: `¡Buen día, ${recipientName}, crack! 🌅 Arrancás a full a las 6/7, ¿no? 💪 Dale con todo en el laburo, genia. Cuando quieras un mate virtual o un chiste para el arranque, estoy acá. 😎`
+                        message: `¡Buen día, ${recipientName}, crack! 🌅 Arrancás a full temprano, ¿no? 💪 Dale con todo en el laburo, genia. Cuando quieras un mate virtual o un chiste para el arranque, estoy acá, cuidate mucho ratita blanca. 😎`
                     },
                     12: {
                         title: "¡Pausa para la magia del mediodía!",
