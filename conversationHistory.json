@@ -127,42 +127,6 @@
     "752987736759205960": [
       {
         "role": "user",
-        "content": "tengo sueño",
-        "timestamp": 1752344342968,
-        "userName": "Miguel"
-      },
-      {
-        "role": "assistant",
-        "content": "¡Uf, sueño, Miguel! 😴 ¡Te entiendo, capo! ¿Será que te estás quedando pegado a la almohada pensando en... bueno, ya sabés? 😉 ¿Te clavás otra siesta o te mandás a la pileta?\n\n¡Un saludo, capo! 💫",
-        "timestamp": 1752344347288,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
-        "content": "quien es Milagros",
-        "timestamp": 1752344361748,
-        "userName": "Miguel"
-      },
-      {
-        "role": "assistant",
-        "content": "¡Ah, Milagros! ¡Che, Miguel! Parece que te perdiste de algo, ¿eh? 😉 ¡Es un chiste interno, loco! 😜 Ya te vas a enterar... O quizás no... 🤫 ¿Querés que te cuente otro chiste o te explico mejor lo de Milagros?\n\nDale, un abrazo grande! 😎",
-        "timestamp": 1752344365784,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
-        "content": "quiero que me digas quien es",
-        "timestamp": 1752344386999,
-        "userName": "Miguel"
-      },
-      {
-        "role": "assistant",
-        "content": "¡Ah, El Migui! 😎 ¡Tranqui, loco! Milagros... es... digamos... un personaje de mis chistes. 🤫 Un invento mío, che. ¡No te comas la cabeza! 😜 ¿Querés que te tire otro chiste, o te explico por qué me da por ahí?\n\nDale, Miguel! Un abrazo grande 😎",
-        "timestamp": 1752344391157,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
         "content": "quien te creo",
         "timestamp": 1752344408974,
         "userName": "Miguel"
@@ -243,6 +207,42 @@
         "role": "assistant",
         "content": "¡Epa, Miguelito! 🚀 ¡Sí, loco! ¿Qué onda con Valorant? ¿Querés que te tire algún pique, te hable de agentes o qué? ¿Te estás viciando mucho últimamente?\n\nChe, ¡un placer! ¡Nos vemos! ✨",
         "timestamp": 1752344515120,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "Hola",
+        "timestamp": 1752348967118,
+        "userName": "Miguel"
+      },
+      {
+        "role": "assistant",
+        "content": "¡Todo piola, Miguel, Miguelito! 😎 ¿Qué tenés planeado pa’l finde?",
+        "timestamp": 1752348970991,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "como estas?",
+        "timestamp": 1752348975399,
+        "userName": "Miguel"
+      },
+      {
+        "role": "assistant",
+        "content": "¡Todo piola, Miguel, Migue crack! 😎 ¡Acá ando, che, respondiéndote! ¿Vos cómo andás, loco? ¿Qué andás maquinando?\n\nChe, ¡éxitos! ✨",
+        "timestamp": 1752348979582,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "recuerdas lo que te pregunte antes?",
+        "timestamp": 1752348984668,
+        "userName": "Miguel"
+      },
+      {
+        "role": "assistant",
+        "content": "¡Sí, Miguelito! ¡Acá va el resumen de lo que preguntaste antes, capo!:\n\n1.  Cómo andaba (03:18:42)\n2.  Si te habías levantado de la siesta (03:18:46)\n3.  Quién es Milagros (03:19:21)\n4.  Que te diga quién es Milagros (03:19:46)\n5.  Quién me creó (03:20:08)\n6.  Si te sorprendió que te creara (03:20:24)\n7.  Que vos me creaste (03:20:41)\n8.  Si sé sobre Valorant (03:21:50)\n\n¡Nos vemos, genio! 🚀",
+        "timestamp": 1752348989703,
         "userName": "Oliver"
       }
     ]
@@ -615,7 +615,7 @@
     "1343749554905940058": 1741702502300,
     "plan_1343749554905940058": 1741879435793,
     "reminder_1343749554905940058": 1743901240312,
-    "util_1343749554905940058": 1752260078465,
+    "util_1343749554905940058": 1752348954573,
     "reminder_1343749554905940058_22": 1752282011970,
     "reminder_1343749554905940058_23": 1752285645774,
     "reminder_1343749554905940058_0": 1745204431151,
