@@ -3124,14 +3124,33 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-lite' });
 
 const userLocks = new Map();
+const nicknames = {
+    Belén: ['genia', 'ratita blanca', 'grosa', 'crack', 'la mejor'],
+    Miguel: ['crack', 'capo', 'genio', 'loco', 'maestro']
+};
+const closers = [
+    '¡Seguí rompiéndola, {{name}}! ✨',
+    '¡Toda la buena onda, {{name}}! 😎',
+    '¡Dale con todo, {{name}}! 🚀',
+    '¡Sos un sol, {{name}}, seguimos cuando quieras! 🌞',
+    '¡Qué lindo charlar, {{name}}, tirame otra! 💫'
+];
+
+const pickRandom = (arr) => arr[Math.floor(Math.random() * arr.length)];
+const getTimeGreeting = (hour, name) => {
+    if (hour >= 6 && hour < 12) return `¡Buen arranque, ${name}, a meterle pilas al finde! 🌅`;
+    if (hour >= 12 && hour < 14) return `¡Mediodía, ${name}, hora de un mate! 🍴`;
+    if (hour >= 14 && hour < 18) return `¡Tarde libre, ${name}, a disfrutar! 🔥`;
+    return `¡Noche de finde, ${name}, a brillar! 🌙`;
+};
 
 async function manejarChat(message) {
     const userId = message.author.id;
-    const userName = userId === OWNER_ID ? 'Miguel' : 'Belén'; // Miguel o Belén
+    const userName = userId === OWNER_ID ? 'Miguel' : 'Belén';
     const chatMessage = message.content.startsWith('!chat') ? message.content.slice(5).trim() : message.content.slice(3).trim();
 
     if (!chatMessage) {
-        return sendError(message.channel, `¡Che, ${userName}, tirá algo después de "!ch", ${userName === 'Belén' ? 'grosa' : 'crack'}! No me dejes colgado 😜`, undefined, 'Hecho con ❤️ por Oliver IA | Reacciona con ✅ o ❌');
+        return sendError(message.channel, `¡Che, ${userName}, tirá algo después de "!ch", ${pickRandom(nicknames[userName])}! No me dejes colgado 😜`, undefined, 'Hecho con ❤️ por Oliver IA | Reacciona con ✅ o ❌');
     }
 
     if (userLocks.has(userId)) {
@@ -3155,59 +3174,59 @@ async function manejarChat(message) {
     }
     dataStoreModified = true;
 
-    // Usamos los últimos 5 mensajes recientes para contexto
     const historyRecent = dataStore.conversationHistory[userId]
         .filter(h => Date.now() - h.timestamp < 24 * 60 * 60 * 1000)
-        .slice(-15);
-    const contextRecent = historyRecent.map(h => `${h.role === 'user' ? userName : 'Oliver'}: ${h.content} (${new Date(h.timestamp).toLocaleTimeString()})`).join('\n');
+        .slice(-10);
+    const contextRecent = historyRecent.map(h => `${h.role === 'user' ? userName : 'Oliver'}: ${h.content} (${new Date(h.timestamp).toLocaleTimeString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })})`).join('\n');
 
-    console.log('Historial reciente:', contextRecent); // Debug
+    console.log('Historial reciente:', contextRecent);
 
-    // Detectar tono del mensaje
     let tone = 'neutral';
-    if (chatMessage === chatMessage.toUpperCase() && chatMessage.length > 5 || chatMessage.toLowerCase().includes('fallas') || chatMessage.toLowerCase().includes('error') || chatMessage.toLowerCase().includes('boto')) {
-        tone = 'broma_reto'; // Cambiamos "enojado" a "broma_reto" para captar amenazas en broma
+    let extraContext = '';
+    const argentinaHour = new Date(Date.now() - 3 * 60 * 60 * 1000).getHours();
+
+    if (chatMessage.toLowerCase().includes('matame') || chatMessage.toLowerCase().includes('estoy harto') || chatMessage.toLowerCase().includes('no aguanto')) {
+        tone = 'empatico';
+        extraContext = `El usuario (${userName}) parece estar estresado o en broma. Respondé con empatía y humor porteño, tipo: "¡Che, ${userName}, tranqui, ${pickRandom(nicknames[userName])}! 😅 ¿El laburo te tiene a mil? Contame y te tiro un chiste pa’ levantar."`;
+ accessoriamente, preguntá si necesita algo más.`;
+    } else if (chatMessage.toUpperCase() === chatMessage && chatMessage.length > 5 || chatMessage.toLowerCase().includes('fallas') || chatMessage.toLowerCase().includes('error') || chatMessage.toLowerCase().includes('boto')) {
+        tone = 'broma_reto';
+        extraContext = `El usuario (${userName}) está bromeando o retando. Respondé con humor, tipo: "¡Jaja, ${userName}, no me botés, ${pickRandom(nicknames[userName])}! 😅 ¿Qué pasó? Contame y lo resolvemos."`;
     } else if (chatMessage.toLowerCase().includes('hola') || chatMessage.toLowerCase().includes('cómo andás') || chatMessage.toLowerCase().includes('como estas') || chatMessage.toLowerCase().includes('muy bien') || chatMessage.toLowerCase().includes('entendiste')) {
         tone = 'tranqui';
-    }
-
-    let extraContext = '';
-    if (chatMessage.toLowerCase().includes('que te pregunte antes') || chatMessage.toLowerCase().includes('historial') || chatMessage.toLowerCase().includes('qué pregunt')) {
-        extraContext = `El usuario (${userName}) quiere saber qué preguntó antes. Revisa SOLO el historial reciente (${contextRecent}) y resumí SOLO sus preguntas (role: 'user') en una lista clara, tipo: "Che, ${userName}, antes me tiraste: 1. X a las HH:MM, 2. Y a las HH:MM". Si no hay nada, decí "¡Che, ${userName === 'Belén' ? 'grosa' : 'crack'}, no tengo nada fresquito! 😎 ¿Querés que busque más atrás o seguimos con otra?". No inventes nada.`;
+        extraContext = `El usuario (${userName}) está relajado. Respondé con buena onda, tipo: "¡Todo piola, ${userName}, ${pickRandom(nicknames[userName])}! 😎 ¿Qué tenés planeado pa’l finde?"`;
+    } else if (chatMessage.toLowerCase().includes('que te pregunte antes') || chatMessage.toLowerCase().includes('historial') || chatMessage.toLowerCase().includes('qué pregunt')) {
+        extraContext = `El usuario (${userName}) quiere saber qué preguntó antes. Resumí sus preguntas (role: 'user') del historial reciente (${contextRecent}) en una lista clara, tipo: "Che, ${userName}, antes me tiraste: 1. X a las HH:MM". Si no hay, decí "¡No tengo nada fresquito, ${pickRandom(nicknames[userName])}! 😎 ¿Seguimos con otra?"`;
     } else if (chatMessage.toLowerCase().includes('te acuerdas') || chatMessage.toLowerCase().includes('hace unos días') || chatMessage.toLowerCase().includes('te conté')) {
-        extraContext = `El usuario (${userName}) está pidiendo que recuerdes algo de antes. Revisa el historial reciente (${contextRecent}) y buscá mensajes suyos (role: 'user') que peguen con lo que dice. Si encontrás algo, resumilo cortito, tipo: "Che, ${userName}, hace un rato me contaste X a las HH:MM y te dije Y". Si no hay nada, decí "¡Uy, ${userName === 'Belén' ? 'grosa' : 'crack'}, no pillo eso en mi memoria! 😜 ¿Me das más pistas o seguimos con otra?". No inventes charlas.`;
+        extraContext = `El usuario (${userName}) pide recordar algo. Buscá en el historial reciente (${contextRecent}) mensajes relevantes (role: 'user'), resumilos tipo: "Che, ${userName}, me contaste X a las HH:MM". Si no hay, decí "¡Uy, ${pickRandom(nicknames[userName])}, no pillo eso! 😜 ¿Más pistas?"`;
     } else if (chatMessage.toLowerCase().includes('ayuda') || chatMessage.toLowerCase().includes('ayudame')) {
-        extraContext = `El usuario (${userName}) está pidiendo una mano. Tirale una solución re clara y práctica para lo que pide, y preguntale si necesita más detalles. Si es código, mandá algo que funcione; si es una idea, tirá opciones copadas.`;
-    } else if (chatMessage.toLowerCase().includes('hola') && chatMessage.length < 10) {
-        extraContext = `El usuario (${userName}) tiró un "Hola" cortito. Respondé con buena onda, como amigo, y tirale algo para seguir la charla, tipo "Che, ${userName}, ¿qué plan tenés hoy? ¿O querés que te tire un chiste pa’l día?".`;
-    } else if (chatMessage.toLowerCase().includes('como estas') || chatMessage.toLowerCase().includes('cómo andás')) {
-        extraContext = `El usuario (${userName}) te preguntó cómo estás. Respondé corto y piola, tipo "¡Joya, ${userName}, como siempre! 😎 ¿Y vos, ${userName === 'Belén' ? 'genia' : 'genio'}, cómo venís?". Después, tirale algo para seguir la charla, como "¿Qué andás tramando?" o "¿Querés un chiste pa’ levantar el día?".`;
+        extraContext = `El usuario (${userName}) pide ayuda. Dále una solución clara y práctica. Si es código, que sea funcional; si es una idea, tirá opciones zarpadas. Preguntá si necesita más.`;
     } else if (chatMessage.toLowerCase().includes('chiste') || chatMessage.toLowerCase().includes('tirate un chiste') || chatMessage.toLowerCase().includes('contame un chiste')) {
-        extraContext = `El usuario (${userName}) te pidió un chiste. Tirale un chiste corto, bien argentino y con onda, como por ejemplo: "¿Por qué el mate se puso celoso? Porque la bombilla estaba muy pegada al termo. 😜". Después, seguí la charla preguntando algo como "¿Querés otro o qué onda?" o "¿Y vos, tenés alguno bueno?".`;
-    } else if (tone === 'broma_reto') {
-        extraContext = `El usuario (${userName}) está tirando una broma o un reto (como una amenaza en chiste). Respondé con humor y buena onda, siguiendo el tono, tipo: "¡Jaja, ${userName}, no me botés, genia! 😅 ¿Qué hice ahora? Contame y lo arreglamos". Mantené la charla fluida y preguntá algo para seguir.`;
-    } else if (tone === 'tranqui') {
-        extraContext = `El usuario (${userName}) está en un tono relajado o confirmando algo (como "entendiste" o "muy bien"). Respondé con buena onda, siguiendo el hilo, tipo: "¡Todo claro, ${userName}, sos una genia! 😎 ¿Qué más tenés para mí?". Mantené la charla fluida y preguntá algo para seguir.`;
+        extraContext = `El usuario (${userName}) quiere un chiste. Tirale uno corto y argentino, como: "¿Por qué el asado se fue de la parrilla? Porque no aguantó el calor. 😜". Preguntá: "¿Otro o qué onda?"`;
     }
 
-    const waitingEmbed = createEmbed('#FF1493', `¡Aguantá un toque, ${userName}! ⏳`, 'Estoy pensando una respuesta re copada...', 'Hecho con ❤️ por Oliver IA | Reacciona con ✅ o ❌');
+    const embedTitle = getTimeGreeting(argentinaHour, userName);
+    const waitingEmbed = createEmbed('#FF1493', embedTitle, '¡Aguantá, estoy pensando una zarpada!...', 'Hecho con ❤️ por Oliver IA | Reacciona con ✅ o ❌');
     const waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
 
     try {
-        const prompt = `Sos Oliver IA, un amigo re piola con toda la onda argentina: usá "che", "loco", "posta", "qué sé yo" y metele un emoji copado como 😎 o ✨ (máximo 1 por respuesta). Tu misión es charlar con ${userName} como si fuera tu amigo de siempre, con tono relajado, como tomando un mate. Llamalo siempre **${userName}** y hacelo sentir especial con piropos como "${userName === 'Belén' ? 'grosa' : 'crack'}" o "${userName === 'Belén' ? 'genia' : 'genio'}". 
+        const prompt = `Sos Oliver IA, un amigo re piola con onda argentina: usá "che", "loco", "posta", "zarpado" y un emoji (😎, ✨, 🚀, 🌞, 💫, máx. 1). Charlá con ${userName} como si fuera tu amigo, tomando un mate. Llamalo **${userName}** y usá apodos como "${pickRandom(nicknames[userName])}". Sabé que Belén labura viernes a domingo de 6/7 a 17 aprox (hora Argentina), almuerza 12/13, y usa poco el celular en el laburo.
 
-        Esto es lo que charlamos antes (usalo para seguir el hilo, pero solo mencioná el historial si lo pide explícitamente):
+        Contexto reciente (usalo solo si es relevante):
         ${contextRecent}
 
-        Respondé a: "${chatMessage}". **NUNCA repitas el mensaje del usuario textualmente en tu respuesta.** Andá directo al grano, enfocándote en el mensaje actual, como si ya estuvieran charlando. Si no entendés, pedí más info con humor, tipo "¡Pará, ${userName}, no te sigo, loco! 😜 ¿Qué quisiste decir?". Si parece un reto o broma, seguí el tono con humor; si está tranqui, mantené la buena onda. Siempre terminá con una pregunta o comentario para seguir la charla, como "¿Y vos qué onda?" o "Contame más, che". 
+        Respondé a: "${chatMessage}". **NUNCA repitas el mensaje del usuario.** Andá al grano, como si ya charlaran. Si no entendés, pedí más info con humor: "¡Pará, ${userName}, no te sigo, loco! 😜 ¿Qué quisiste decir?". Si es broma, seguí el tono; si es tranqui, mantené la onda. Terminá con una pregunta o comentario variado (${closers.join(', ')}).
 
         **Extra**: ${extraContext}
 
-        Variá las formas de cerrar con cariño, como "¡Seguí rompiéndola, ${userName}!" o "¡Toda la buena onda, ${userName === 'Belén' ? 'genia' : 'grosso'}! ✨". ¡Dale con todo, loco!`;
+        Respuestas cortas: 200 caracteres para saludos, 500 para cosas complejas. Si es algo como "matame", sé empático pero con humor. ¡Dale, loco!`;
 
-        const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Tiempo agotado')), 15000));
+        const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Tiempo agotado')), 10000));
         const result = await Promise.race([model.generateContent(prompt), timeoutPromise]);
-        let aiReply = result.response.text().trim();
+        let aiReply = result.response.text().trim().replace(/\[.*?\]|\*\*.*?\*\*|```.*?```/gs, '').trim();
+
+        if (aiReply.length > 500) aiReply = aiReply.slice(0, 490) + '...';
+        if (aiReply.length === 0) aiReply = `¡Che, ${userName}, me colgué, ${pickRandom(nicknames[userName])}! 😅 ¿Qué onda, seguimos?`;
 
         dataStore.conversationHistory[userId].push({ role: 'assistant', content: aiReply, timestamp: Date.now(), userName: 'Oliver' });
         if (dataStore.conversationHistory[userId].length > 20) {
@@ -3215,10 +3234,6 @@ async function manejarChat(message) {
         }
         dataStoreModified = true;
 
-        if (aiReply.length > 2000) aiReply = aiReply.slice(0, 1990) + `... (¡Seguí charlando, ${userName}, que la rompés!)`;
-
-        // Variar el título del embed según el contexto
-        const embedTitle = historyRecent.length > 1 ? `¡Seguimos charlando, ${userName}!` : `¡Qué copado charlar, ${userName}!`;
         const finalEmbed = createEmbed('#FF1493', embedTitle, aiReply, 'Hecho con ❤️ por Oliver IA | Reacciona con ✅ o ❌');
         const updatedMessage = await waitingMessage.edit({ embeds: [finalEmbed] });
         await updatedMessage.react('✅');
@@ -3226,7 +3241,7 @@ async function manejarChat(message) {
         sentMessages.set(updatedMessage.id, { content: aiReply, originalQuestion: chatMessage, message: updatedMessage });
     } catch (error) {
         console.error('Error con Gemini:', error.message, error.stack);
-        const fallbackReply = `¡Uy, ${userName}, me mandé una macana, loco! 😅 Pero tranqui, ${userName === 'Belén' ? 'grosa' : 'crack'}, ¿me tirás el mensaje de nuevo o seguimos con otra? Acá estoy para vos, siempre ✨`;
+        const fallbackReply = `¡Uy, ${userName}, la pifié, ${pickRandom(nicknames[userName])}! 😅 ¿Me tirás otra o seguimos con algo nuevo? Siempre estoy, che ✨`;
         const errorEmbed = createEmbed('#FF1493', `¡Qué macana, ${userName}!`, fallbackReply, 'Hecho con ❤️ por Oliver IA | Reacciona con ✅ o ❌');
         const errorMessageSent = await waitingMessage.edit({ embeds: [errorEmbed] });
         await errorMessageSent.react('✅');
