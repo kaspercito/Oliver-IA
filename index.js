@@ -6370,9 +6370,9 @@ setInterval(async () => {
                 title: "¡Me alegro que sigas viva!",
                 message: `¡Ey, ${recipientName}, genia! 😎 Aguanta, que vos podés con todo, ¡sos una crack! 💪🏻 Lamento que estés con dolor, ratita blanca, disfruta de un mate y cuidate mucho, ¡vos no te morís tan fácil! 🌟`
             },
-            18: {
+            '19:05': {
                 title: "¡Pausa veggie, ratita blanca!",
-                message: `¡Ey, Belén, ${pickRandom(nicknames)}! 😎 Tomándote un break para merendar, ¿no? 🥗 Tirate un mate o algo rico y contame cómo va el día. ¡A meterle pilas después, cuidate muchisimo crack! ✨`
+                message: `¡Ey, ${recipientName}, ${pickRandom(await getCachedNicknames(recipientName))}! 😎 Tomándote un break para merendar, ¿no? 🥗 Tirate un mate o algo rico y contame cómo va el día. ¡A meterle pilas después, cuidate muchisimo crack! ✨`
             },
             23: {
                 title: "¡Casi libre, reina de la noche!",
@@ -6384,19 +6384,24 @@ setInterval(async () => {
             }
         };
 
-        // Check for reminders, including 5:10 AM
-        if ((currentHour === 5 && currentMinute === 10) || (currentMinute === 0 && reminderTimes[currentHour])) {
+        // Check for reminders, including specific times like 5:10 and 19:05
+        const timeKey = `${currentHour}:${currentMinute < 10 ? '0' : ''}${currentMinute}`; // Format as "HH:MM"
+        if ((currentHour === 5 && currentMinute === 10) || 
+            (currentHour === 19 && currentMinute === 5) || 
+            (currentMinute === 0 && reminderTimes[currentHour])) {
             const reminderKey = currentHour === 5 && currentMinute === 10 
                 ? `reminder_${CHANNEL_ID}_5_10` 
+                : currentHour === 19 && currentMinute === 5 
+                ? `reminder_${CHANNEL_ID}_19_05` 
                 : `reminder_${CHANNEL_ID}_${currentHour}`;
             const lastSentReminder = dataStore.utilMessageTimestamps[reminderKey] || 0;
             const hoursSinceLastSent = (now - lastSentReminder) / (60 * 60 * 1000);
 
-            console.log(`Evaluando recordatorio para ${currentHour}:${currentMinute} AR - Último envío: ${new Date(lastSentReminder).toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })} - Diferencia: ${hoursSinceLastSent} horas`);
+            console.log(`Evaluando recordatorio para ${timeKey} AR - Último envío: ${new Date(lastSentReminder).toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })} - Diferencia: ${hoursSinceLastSent} horas`);
 
             if (now - lastSentReminder >= oneDayInMs) {
-                const reminder = currentHour === 5 && currentMinute === 10 
-                    ? reminderTimes['5:10'] 
+                const reminder = timeKey === '5:10' || timeKey === '19:05' 
+                    ? reminderTimes[timeKey] 
                     : reminderTimes[currentHour];
                 const embed = createEmbed('#FF1493', reminder.title, reminder.message, 'Con onda, Oliver IA');
 
@@ -6405,16 +6410,16 @@ setInterval(async () => {
                     await channel.send({ content: `<@1023132788632862761>`, embeds: [embed] });
                     dataStore.utilMessageTimestamps[reminderKey] = now;
                     autoModified = true;
-                    console.log(`Recordatorio enviado (${currentHour}:${currentMinute} AR) - ${new Date().toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })}`);
-                } catch (sendError) {
-                    console.error(`Error al enviar recordatorio a ${currentHour}:${currentMinute} AR: ${sendError.message}`);
+                    console.log(`Recordatorio enviado (${timeKey} AR) - ${new Date().toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })}`);
+                } catch (send) {
+                    console.error(`Error al enviar recordatorio a ${timeKey} AR: ${send.message}`);
                 }
             } else {
-                console.log(`No se envía ${currentHour}:${currentMinute} AR - Todavía no pasaron 24 horas`);
+                console.log(`No se envía ${timeKey} AR - Todavía no pasaron 24 horas`);
             }
         }
 
-        // Keep the daily util message logic
+        // Keep the daily util message logic unchanged
         const lastSentUtil = dataStore.utilMessageTimestamps[`util_${CHANNEL_ID}`] || 0;
         const lastReaction = dataStore.utilMessageReactions[CHANNEL_ID] || 0;
         if (now - lastSentUtil >= oneDayInMs && (!lastReaction || now - lastReaction >= oneDayInMs)) {
