@@ -23,7 +23,7 @@
     "node-telegram-bot-api": "^0.66.0",
     "path": "^0.12.7",
     "puppeteer": "^23.5.3",
-    "uuid": "^10.0.0",
+    "uuid": "^10.0.0"
   },
   "engines": {
     "node": ">=18.0.0 <=20.18.1"
