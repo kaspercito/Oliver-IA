@@ -6370,7 +6370,7 @@ setInterval(async () => {
                 title: "¡Me alegro que sigas viva!",
                 message: `¡Ey, ${recipientName}, genia! 😎 Aguanta, que vos podés con todo, ¡sos una crack! 💪🏻 Lamento que estés con dolor, ratita blanca, disfruta de un mate y cuidate mucho, ¡vos no te morís tan fácil! 🌟`
             },
-            '19:05': {
+            '19:08': {
                 title: "¡Pausa veggie, ratita blanca!",
                 message: `¡Ey, ${recipientName}, ${pickRandom(await getCachedNicknames(recipientName))}! 😎 Tomándote un break para merendar, ¿no? 🥗 Tirate un mate o algo rico y contame cómo va el día. ¡A meterle pilas después, cuidate muchisimo crack! ✨`
             },
@@ -6387,12 +6387,12 @@ setInterval(async () => {
         // Check for reminders, including specific times like 5:10 and 19:05
         const timeKey = `${currentHour}:${currentMinute < 10 ? '0' : ''}${currentMinute}`; // Format as "HH:MM"
         if ((currentHour === 5 && currentMinute === 10) || 
-            (currentHour === 19 && currentMinute === 5) || 
+            (currentHour === 19 && currentMinute === 8) || 
             (currentMinute === 0 && reminderTimes[currentHour])) {
             const reminderKey = currentHour === 5 && currentMinute === 10 
                 ? `reminder_${CHANNEL_ID}_5_10` 
-                : currentHour === 19 && currentMinute === 5 
-                ? `reminder_${CHANNEL_ID}_19_05` 
+                : currentHour === 19 && currentMinute === 8 
+                ? `reminder_${CHANNEL_ID}_19_08` 
                 : `reminder_${CHANNEL_ID}_${currentHour}`;
             const lastSentReminder = dataStore.utilMessageTimestamps[reminderKey] || 0;
             const hoursSinceLastSent = (now - lastSentReminder) / (60 * 60 * 1000);
@@ -6400,7 +6400,7 @@ setInterval(async () => {
             console.log(`Evaluando recordatorio para ${timeKey} AR - Último envío: ${new Date(lastSentReminder).toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })} - Diferencia: ${hoursSinceLastSent} horas`);
 
             if (now - lastSentReminder >= oneDayInMs) {
-                const reminder = timeKey === '5:10' || timeKey === '19:05' 
+                const reminder = timeKey === '5:10' || timeKey === '19:08' 
                     ? reminderTimes[timeKey] 
                     : reminderTimes[currentHour];
                 const embed = createEmbed('#FF1493', reminder.title, reminder.message, 'Con onda, Oliver IA');
