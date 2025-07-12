@@ -6176,6 +6176,8 @@ client.on('messageCreate', async (message) => {
             '- **!jugar**: Adivina un número del 1 al 10, ¡5 intentos pa’ ganarme, loco!\n' +
             '- **!meme**: Te tiro un meme random pa’ sacarte una sonrisa.\n' +
             '- **!pregunta**: Te hago una pregunta loca pa’ charlar un rato.\n' +
+            '- **!wt / !watchtogether**: Mirá videos de YouTube conmigo en un canal de voz, ¡re copado!\n' +
+            '- **!accion [qué hacés]**: Avisá qué vas a hacer, tipo "me voy a dormir". ¡Copado pa’ estar al tanto!\n' +
             '- **!rec / !recordatorio [mensaje] [tiempo]**: Te recuerdo algo. Ejemplo: "!rec \'comprar sanguche\' en 1 hora" o "!rec \'tomar mate\' todos los días 08:00".\n' +
             '- **!mr / !misrecordatorios**: Te muestro tus recordatorios activos.\n' +
             '- **!cr / !cancelarrecordatorio [ID]**: Cancelás un recordatorio con su ID (lo ves con !mr).\n' +
