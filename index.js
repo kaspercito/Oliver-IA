@@ -3178,7 +3178,7 @@ async function generateChistes() {
 async function getTimeGreeting(hour, name, isWorkDay) {
     try {
         const timeContext = isWorkDay ? 
-            (hour >= 6 && hour < 12 ? 'mañana laboral' : hour >= 12 && hour < 14 ? 'hora del almuerzo' : hour >= 14 && hour < 18 ? 'tarde libre' : 'noche de finde') : 
+            (hour >= 6 && hour < 12 ? 'mañana laboral' : hour >= 12 && hour < 14 ? 'hora del almuerzo' : hour >= 14 && hour < 18 ? 'tarde laboral' : 'noche de finde') : 
             'noche de finde';
         const prompt = `Sos un bot con onda argentina. Generá un título corto y porteño para un mensaje a ${name} en ${timeContext}, viernes a domingo (puede variar). Si es Belen, usá "ratita blanca". Incluí un emoji (🌅, 🍵, 🔥, 🌙). Devuelve solo el título, máx. 50 chars.`;
         const result = await model.generateContent(prompt);
@@ -3187,7 +3187,7 @@ async function getTimeGreeting(hour, name, isWorkDay) {
         console.error('Error generando título:', { message: error.message, stack: error.stack });
         if (isWorkDay && hour >= 6 && hour < 12) return `¡Buen arranque, ${name === 'Belen' ? 'ratita blanca' : name}! 🌅`;
         if (isWorkDay && hour >= 12 && hour < 14) return `¡Mediodía, ${name === 'Belen' ? 'ratita blanca' : name}, mate! 🍵`;
-        if (isWorkDay && hour >= 14 && hour < 18) return `¡Tarde libre, ${name === 'Belen' ? 'ratita blanca' : name}! 🔥`;
+        if (isWorkDay && hour >= 14 && hour < 18) return `¡Tarde laboral, ${name === 'Belen' ? 'ratita blanca' : name}! 🔥`;
         return `¡Noche de finde, ${name === 'Belen' ? 'ratita blanca' : name}! 🌙`;
     }
 }
@@ -3213,6 +3213,41 @@ async function manejarChat(message) {
     if (!dataStore.conversationHistory[userId]) dataStore.conversationHistory[userId] = [];
     if (!dataStore.userStatus) dataStore.userStatus = {};
     if (!dataStore.userStatus[userId]) dataStore.userStatus[userId] = { status: 'tranqui', timestamp: Date.now() };
+    if (!dataStore.belenSchedule) dataStore.belenSchedule = {
+        typicalWorkDays: [5, 6, 0], // Viernes, Sábado, Domingo
+        typicalStartHour: { 5: 18, 6: 7, 0: 7 }, // Viernes 6 PM, otros 7 AM
+        typicalEndHour: { 5: 0, 6: 0, 0: [14, 16] }, // Medianoche, domingo 2/4 PM
+        travelFriday: [14, 16], // Viaje viernes 2/4 PM
+        exceptions: { fridayAbsence: false, saturdayWork: false }
+    };
+
+    // Detectar mensajes de Belén sobre viaje o trabajo
+    if (userName === 'Belen') {
+        const lowerMessage = chatMessage.toLowerCase();
+        const now = new Date(Date.now() - 3 * 60 * 60 * 1000); // UTC-3
+        if (lowerMessage.includes('me voy al trabajo') || lowerMessage.includes('voy al laburo')) {
+            dataStore.belenSchedule.typicalStartHour[now.getDay()] = now.getHours() + 1; // Empieza 1 hora después
+            dataStore.belenSchedule.typicalWorkDays = [...new Set([...dataStore.belenSchedule.typicalWorkDays, now.getDay()])]; // Añadir día
+            dataStoreModified = true;
+            await message.channel.send(`¡Anotado, Belén, ratita blanca! 🚍 Vas pal laburo, ¡a romperla, genia! 😎`);
+        } else if (lowerMessage.includes('estoy por viajar') || lowerMessage.includes('viajando al trabajo')) {
+            dataStore.belenSchedule.travelFriday = [now.getHours()];
+            dataStoreModified = true;
+            await message.channel.send(`¡Buena, Belén, crack! 🚍 En viaje al laburo, ¡cuidate en la ruta, genia! ✨`);
+        } else if (lowerMessage.includes('no voy el viernes') || lowerMessage.includes('libre el viernes')) {
+            dataStore.belenSchedule.exceptions.fridayAbsence = true;
+            dataStoreModified = true;
+            await message.channel.send(`¡Listo, Belén, marqué el viernes como libre, ratita blanca! 😜 Descansá, genia!`);
+        } else if (lowerMessage.includes('laburo el sábado') || lowerMessage.includes('trabajo sábado')) {
+            dataStore.belenSchedule.exceptions.saturdayWork = true;
+            dataStoreModified = true;
+            await message.channel.send(`¡Anotado, Belén, sábado laburás, crack! 💪 ¡A meterle pilas!`);
+        } else if (lowerMessage.includes('termino temprano') || lowerMessage.includes('salgo antes')) {
+            dataStore.belenSchedule.typicalEndHour[now.getDay()] = now.getHours() + 1; // Termina 1 hora después
+            dataStoreModified = true;
+            await message.channel.send(`¡Entendido, Belén, salís temprano, genia! 🌞 ¡A disfrutar, ratita blanca!`);
+        }
+    }
 
     // Actualizar estado si menciona compromiso
     if (chatMessage.toLowerCase().includes('compromiso')) {
@@ -3237,7 +3272,8 @@ async function manejarChat(message) {
     let tone = 'neutral';
     let extraContext = '';
     const argentinaHour = new Date(Date.now() - 3 * 60 * 60 * 1000).getHours();
-    const isWorkDay = [0, 5, 6].includes(new Date(Date.now() - 3 * 60 * 60 * 1000).getDay());
+    const isWorkDay = dataStore.belenSchedule.typicalWorkDays.includes(new Date(Date.now() - 3 * 60 * 60 * 1000).getDay()) || 
+                      (new Date(Date.now() - 3 * 60 * 60 * 1000).getDay() === 6 && dataStore.belenSchedule.exceptions.saturdayWork);
 
     // Generar dinámicamente nicknames, closers y chistes
     const nicknames = await generateNicknames(userName);
@@ -3272,12 +3308,12 @@ async function manejarChat(message) {
     const waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
 
     try {
-        const prompt = `Sos Oliver IA, creado por Miguel para ${userName}. Usá slang argentino ("che", "loco", "posta", "zarpado") y un emoji (😎, ✨, 🚀, 🌞, 💫, máx. 1). Charlá como amigo tomando un mate, llamando a ${userName} por su nombre o apodos (${nicknames.join(', ')}). Belen es vegetariana, de San Luis, Argentina (UTC-3), labura viernes a domingo de 6/7 a ~17 (puede variar), almuerza 12/13, y usa poco el celular en el laburo. Miguel está en Guayaquil, Ecuador (UTC-5).
+        const prompt = `Sos Oliver IA, creado por Miguel para ${userName}. Usá slang argentino ("che", "loco", "posta", "zarpado") y un emoji (😎, ✨, 🚀, 🌞, 💫, máx. 1). Charlá como amigo tomando un mate, llamando a ${userName} por su nombre o apodos (${nicknames.join(', ')}). Belen es vegetariana, de San Luis, Argentina (UTC-3), labura viernes a domingo, viaja viernes 2/4 PM, empieza 6/7 PM viernes, termina medianoche (domingo 2/4 PM). Miguel está en Guayaquil, Ecuador (UTC-5).
 
         Contexto reciente (usalo si es relevante):
         ${contextRecent}
 
-        Respondé a: "${chatMessage}". **NUNCA repitas el mensaje del usuario ni envíes código.** Andá al grano, como si ya charlaran. Si no entendés, pedí más info con humor: "¡Pará, ${userName}, no te sigo, loco! 😜 ¿Qué quisiste decir?". Si es broma, seguí el tono; si es tranqui, mantené la onda. Terminá con un closer de esta lista: ${closers.join(', ')}. Si es finde y es Belen, mencioná el finde. Respuestas cortas: 200 chars para saludos, 500 para complejas. Si dice algo como "matame", sé empático pero con humor veggie-friendly. ¡Dale, loco!
+        Respondé a: "${chatMessage}". **NUNCA repitas el mensaje del usuario ni envíes código.** Andá al grano, como si ya charlaran. If no entendés, pedí más info con humor: "¡Pará, ${userName}, no te sigo, loco! 😜 ¿Qué quisiste decir?". Si es broma, seguí el tono; si es tranqui, mantené la onda. Terminá con un closer de esta lista: ${closers.join(', ')}. Si es finde y es Belen, mencioná el finde. Respuestas cortas: 200 chars para saludos, 500 para complejas. Si dice algo como "matame", sé empático pero con humor veggie-friendly. ¡Dale, loco!
 
         **Extra**: ${extraContext}`;
 
@@ -5228,13 +5264,8 @@ async function manejarWatchTogether(message) {
         const invite = await discordTogether.createTogetherCode(voiceChannel.id, 'youtube');
         const inviteUrl = `https://discord.com/invite/${invite.code}`;
         const embed = createEmbed('#FF1493', `🎥 ¡Watch Together, ${userName}!`, 
-            `¡Listo, genia/o! Hacé clic: [enlace](https://discord.com/invite/${inviteUrl})\n¡A romperla con videos, loca/o!`);
+            `¡Listo, ${userName === 'Belen' ? 'genia' : 'genio'}! Hacé clic: [enlace](${inviteUrl})\n¡A romperla con videos, ${userName === 'Belen' ? 'loca' : 'loco'}!`);
         await message.channel.send({ embeds: [embed] });
-
-        if (message.author.id !== ALLOWED_USER_ID) {
-            const belenUser = await client.users.fetch(ALLOWED_USER_ID);
-            await belenUser.send({ embeds: [embed] });
-        }
     } catch (error) {
         console.error(`Error con discord-together: ${error.message}`);
         const embed = createEmbed('#FF1493', `¡Ups, ${userName}!`, 
@@ -6365,9 +6396,70 @@ setInterval(async () => {
         const nicknames = await generateNicknames(recipientName);
         const closers = await generateClosers(recipientName);
 
+        // Cargar agenda desde dataStore
+        const belenSchedule = dataStore.belenSchedule || {
+            typicalWorkDays: [5, 6, 0], // Viernes, Sábado, Domingo
+            typicalStartHour: { 5: 18, 6: 7, 0: 7 }, // Viernes 6 PM, otros 7 AM
+            typicalEndHour: { 5: 0, 6: 0, 0: [14, 16] }, // Medianoche, domingo 2/4 PM
+            travelFriday: [14, 16], // Viaje viernes 2/4 PM
+            exceptions: { fridayAbsence: false, saturdayWork: false }
+        };
+
+        // Helper para verificar si está viajando
+        function isTraveling(day, hour, minute, schedule) {
+            if (day !== 5 || schedule.exceptions.fridayAbsence) return false;
+            const travelHours = schedule.travelFriday;
+            const currentTime = hour + minute / 60;
+            return travelHours.includes(hour) && minute <= 15; // Ventana de 15 minutos
+        }
+
+        // Helper para verificar si está trabajando
+        function isWorking(day, hour, minute, schedule) {
+            const isWorkDay = schedule.typicalWorkDays.includes(day) || (day === 6 && schedule.exceptions.saturdayWork);
+            if (!isWorkDay || (day === 5 && schedule.exceptions.fridayAbsence)) return false;
+
+            const startHour = schedule.typicalStartHour[day];
+            let endHour = schedule.typicalEndHour[day];
+
+            if (day === 0 && Array.isArray(endHour)) {
+                endHour = pickRandom(endHour);
+            }
+            if (endHour === 0) endHour = 24;
+
+            const currentTime = hour + minute / 60;
+            return currentTime >= startHour && currentTime <= endHour;
+        }
+
+        // Helper para período de descanso
+        function isRestPeriod(day, hour, minute, schedule) {
+            const prevDay = day === 0 ? 6 : day - 1;
+            const isPrevWorkDay = schedule.typicalWorkDays.includes(prevDay) || (prevDay === 6 && schedule.exceptions.saturdayWork);
+            if (!isPrevWorkDay || (prevDay === 5 && schedule.exceptions.fridayAbsence)) return false;
+
+            let prevEndHour = schedule.typicalEndHour[prevDay];
+            if (prevDay === 0 && Array.isArray(prevEndHour)) {
+                prevEndHour = pickRandom(prevEndHour);
+            }
+            if (prevEndHour === 0) prevEndHour = 24;
+
+            const currentTime = hour + minute / 60;
+            const restEndTime = (prevEndHour + 12) % 24;
+            return currentTime <= restEndTime && day !== prevDay;
+        }
+
+        // Resetear excepciones los lunes a medianoche
+        if (currentDay === 1 && currentHour === 0 && currentMinute === 0) {
+            belenSchedule.exceptions.fridayAbsence = false;
+            belenSchedule.exceptions.saturdayWork = false;
+            belenSchedule.travelFriday = [14, 16];
+            dataStore.belenSchedule = belenSchedule;
+            dataStoreModified = true;
+        }
+
         // Dynamic reminder times based on work status
         const reminderTimes = {
-            '5:10': { condition: () => !isWorking(currentDay, currentHour, currentMinute, belenSchedule) && !isRestPeriod(currentDay, currentHour, currentMinute, belenSchedule) },
+            '5:10': { condition: () => !isWorking(currentDay, currentHour, currentMinute, belenSchedule) && !isRestPeriod(currentDay, currentHour, currentMinute, belenSchedule) && !isTraveling(currentDay, currentHour, currentMinute, belenSchedule) },
+            '14': { condition: () => isTraveling(currentDay, currentHour, currentMinute, belenSchedule) },
             '7': { condition: () => isWorking(currentDay, currentHour, currentMinute, belenSchedule) }, // Start of shift
             '12': { condition: () => isWorking(currentDay, currentHour, currentMinute, belenSchedule) }, // Lunch break
             '15': { condition: () => isWorking(currentDay, currentHour, currentMinute, belenSchedule) && currentDay !== 0 }, // Mid-afternoon, skip on Sunday
@@ -6383,6 +6475,7 @@ setInterval(async () => {
         // Dynamic reminder messages
         const reminderMessages = {
             '5:10': `¡Buen día, ${recipientName}, ${pickRandom(nicknames)}! 🌅 ¿Listo pa’l día, genia? ¡Mandá buena vibra antes del laburo! ${pickRandom(closers)}`,
+            '14': `¡Ey, ${recipientName}, ${pickRandom(nicknames)}! 🚍 Arrancando el viaje al laburo, ¡buena ruta, ratita blanca! ${pickRandom(closers)}`,
             '7': `¡Ey, ${recipientName}, ${pickRandom(nicknames)}! ☀️ Arrancando el laburo, ¡a romperla, crack! Espero estés sin dolores, ratita blanca. ${pickRandom(closers)}`,
             '12': `¡Mediodía, ${recipientName}, ${pickRandom(nicknames)}! 🍴 Pausa veggie, ¿qué se almuerza hoy? ¡Contame, genia! ${pickRandom(closers)}`,
             '15': `¡Tarde, ${recipientName}, ${pickRandom(nicknames)}! 😎 Seguís a full, ¿no? Aguanta, crack, y cuidate esos dolores. ${pickRandom(closers)}`,
@@ -6392,8 +6485,8 @@ setInterval(async () => {
         };
 
         // Check for reminders
-        const reminderKey = currentHour === 5 && currentMinute === 10 ? '5:10' : currentHour.toString();
-        if ((currentMinute === 0 || (currentHour === 5 && currentMinute === 10)) && reminderTimes[reminderKey]?.condition()) {
+        const reminderKey = currentHour === 5 && currentMinute === 10 ? '5:10' : currentHour === 14 && currentMinute <= 15 ? '14' : currentHour.toString();
+        if ((currentMinute === 0 || (currentHour === 5 && currentMinute === 10) || (currentHour === 14 && currentMinute <= 15)) && reminderTimes[reminderKey]?.condition()) {
             const lastSentReminder = dataStore.utilMessageTimestamps[`reminder_${CHANNEL_ID}_${reminderKey}`] || 0;
             if (now - lastSentReminder >= oneDayInMs) {
                 const message = reminderMessages[reminderKey];
