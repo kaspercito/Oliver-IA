@@ -3120,78 +3120,6 @@ async function sendLyrics(waitingMessage, channel, songTitle, lyrics, userName) 
     }
 }
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-lite' });
-
-const userLocks = new Map();
-
-// Helper para elegir random
-const pickRandom = (arr) => arr[Math.floor(Math.random() * arr.length)];
-
-// Generar nicknames dinámicamente
-async function generateNicknames(userName) {
-    try {
-        const prompt = `Sos un bot con onda argentina. Generá 5 apodos cariñosos y porteños para ${userName}. Si es Belén, incluí "ratita blanca" y evitá "reina". Si es Miguel, usá términos como "capo", "genio". Devuelve solo una lista de apodos, separados por comas, sin explicaciones. Máx. 100 chars.`;
-        const result = await model.generateContent(prompt);
-        return result.response.text().trim().split(',').map(n => n.trim());
-    } catch (error) {
-        console.error('Error generando apodos:', error.message);
-        return userName === 'Belén' ? ['ratita blanca', 'grosa', 'genia', 'crack', 'maestra'] : ['capo', 'genio', 'crack', 'loco', 'maestro'];
-    }
-}
-
-// Generar closers dinámicamente
-async function generateClosers(userName) {
-    try {
-        const prompt = `Sos un bot con onda argentina. Generá 5 cierres cortos, amigables y porteños para ${userName}, usando slang como "dale", "posta", un emoji (😎, ✨, 🚀, 🌞, 💫). Devuelve solo una lista de cierres, separados por comas, sin explicaciones. Máx. 200 chars.`;
-        const result = await model.generateContent(prompt);
-        return result.response.text().trim().split(',').map(c => c.trim().replace('{{name}}', userName));
-    } catch (error) {
-        console.error('Error generando cierres:', error.message);
-        return [
-            `¡Seguí rompiéndola, ${userName}! ✨`,
-            `¡Toda la buena onda, ${userName}! 😎`,
-            `¡Dale con todo, ${userName}! 🚀`,
-            `¡Sos un sol, ${userName}, seguimos cuando quieras! 🌞`,
-            `¡Qué lindo charlar, ${userName}, tirame otra! 💫`
-        ];
-    }
-}
-
-// Generar chistes veggie-friendly
-async function generateChistes() {
-    try {
-        const prompt = `Sos un bot con onda argentina. Generá 3 chistes cortos, veggie-friendly, sobre mate, fernet o cultura argentina. Usa slang porteño ("che", "loco") y un emoji (😜, 🥃, 🌿). Devuelve solo una lista de chistes, separados por comas, sin explicaciones. Máx. 300 chars.`;
-        const result = await model.generateContent(prompt);
-        return result.response.text().trim().split(',').map(c => c.trim());
-    } catch (error) {
-        console.error('Error generando chistes:', error.message);
-        return [
-            '¿Por qué el mate no va al gym? Porque ya está en forma con la bombilla. 😜',
-            '¿Por qué el fernet no canta? Porque siempre se queda con el hielo. 🥃',
-            '¿Qué le dijo la yerba al agua? ¡Juntas hacemos magia, che! 🌿'
-        ];
-    }
-}
-
-// Generar título dinámico según hora (Argentina, UTC-3)
-async function getTimeGreeting(hour, name, isWorkDay) {
-    try {
-        const timeContext = isWorkDay ? 
-            (hour >= 6 && hour < 12 ? 'mañana laboral' : hour >= 12 && hour < 14 ? 'hora del almuerzo' : hour >= 14 && hour < 18 ? 'tarde libre' : 'noche de finde') : 
-            'noche de finde';
-        const prompt = `Sos un bot con onda argentina. Generá un título corto y porteño para un mensaje a ${name} en ${timeContext}, viernes a domingo (puede variar). Si es Belén, usá "ratita blanca". Incluí un emoji (🌅, 🍵, 🔥, 🌙). Devuelve solo el título, máx. 50 chars.`;
-        const result = await model.generateContent(prompt);
-        return result.response.text().trim();
-    } catch (error) {
-        console.error('Error generando título:', error.message);
-        if (isWorkDay && hour >= 6 && hour < 12) return `¡Buen arranque, ${name}, al finde! 🌅`;
-        if (isWorkDay && hour >= 12 && hour < 14) return `¡Mediodía, ${name}, mate veggie! 🍵`;
-        if (isWorkDay && hour >= 14 && hour < 18) return `¡Tarde libre, ${name}, a disfrutar! 🔥`;
-        return `¡Noche de finde, ${name}, a brillar! 🌙`;
-    }
-}
-
 async function manejarChat(message) {
     const userId = message.author.id;
     const userName = userId === OWNER_ID ? 'Miguel' : 'Belén';
@@ -3227,19 +3155,17 @@ async function manejarChat(message) {
     }
     dataStoreModified = true;
 
-    // Últimos 10 mensajes para contexto
+    // Últimos 15 mensajes para contexto
     const historyRecent = dataStore.conversationHistory[userId]
         .filter(h => Date.now() - h.timestamp < 24 * 60 * 60 * 1000)
         .slice(-15);
     const contextRecent = historyRecent.map(h => `${h.role === 'user' ? userName : 'Oliver'}: ${h.content} (${new Date(h.timestamp).toLocaleTimeString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })})`).join('\n');
 
-    console.log('Historial reciente:', contextRecent);
-
     // Determinar tono y contexto
     let tone = 'neutral';
     let extraContext = '';
     const argentinaHour = new Date(Date.now() - 3 * 60 * 60 * 1000).getHours();
-    const isWorkDay = [0, 5, 6].includes(new Date(Date.now() - 3 * 60 * 60 * 1000).getDay()); // Viernes, sábado, domingo
+    const isWorkDay = [0, 5, 6].includes(new Date(Date.now() - 3 * 60 * 60 * 1000).getDay());
 
     // Generar dinámicamente nicknames, closers y chistes
     const nicknames = await generateNicknames(userName);
@@ -3249,45 +3175,58 @@ async function manejarChat(message) {
     // Detección de tono
     if (chatMessage.toLowerCase().includes('matame') || chatMessage.toLowerCase().includes('estoy harto') || chatMessage.toLowerCase().includes('no aguanto')) {
         tone = 'empatico';
-        extraContext = `El usuario (${userName}) parece estresado o bromeando. Respondé con empatía y humor porteño, tipo: "¡Che, ${userName}, tranqui, ${pickRandom(nicknames)}! 😅 ¿El laburo te tiene a mil? Contame y te tiro un chiste veggie pa’l alma." Ofrecé un chiste o charla relajada.`;
+        extraContext = `El usuario (${userName}) parece estresado o bromeando. Respondé con empatía y humor porteño: "¡Che, ${userName}, tranqui, ${pickRandom(nicknames)}! 😅 ¿El laburo te tiene a mil? Contame y te tiro un chiste veggie."`;
     } else if (chatMessage.toUpperCase() === chatMessage && chatMessage.length > 5 || chatMessage.toLowerCase().includes('fallas') || chatMessage.toLowerCase().includes('error') || chatMessage.toLowerCase().includes('boto')) {
         tone = 'broma_reto';
-        extraContext = `El usuario (${userName}) está bromeando o retando. Respondé con humor, tipo: "¡Jaja, ${userName}, no me botés, ${pickRandom(nicknames)}! 😅 ¿Qué hice mal? Contame y lo arreglamos."`;
+        extraContext = `El usuario (${userName}) está bromeando o retando. Respondé con humor: "¡Jaja, ${userName}, no me botés, ${pickRandom(nicknames)}! 😅 ¿Qué hice mal? Contame y lo arreglamos."`;
     } else if (chatMessage.toLowerCase().includes('hola') || chatMessage.toLowerCase().includes('cómo andás') || chatMessage.toLowerCase().includes('como estas') || chatMessage.toLowerCase().includes('muy bien') || chatMessage.toLowerCase().includes('entendiste')) {
         tone = 'tranqui';
-        extraContext = `El usuario (${userName}) está relajado. Respondé con buena onda, tipo: "¡Todo piola, ${userName}, ${pickRandom(nicknames)}! 😎 ¿Qué tenés planeado pa’l finde?"`;
+        extraContext = `El usuario (${userName}) está relajado. Respondé con buena onda: "¡Todo piola, ${userName}, ${pickRandom(nicknames)}! 😎 ¿Qué tenés planeado pa’l finde?"`;
     } else if (chatMessage.toLowerCase().includes('que te pregunte antes') || chatMessage.toLowerCase().includes('historial') || chatMessage.toLowerCase().includes('qué pregunt')) {
-        extraContext = `El usuario (${userName}) quiere saber qué preguntó antes. Resumí sus preguntas (role: 'user') del historial reciente (${contextRecent}) en una lista clara, tipo: "Che, ${userName}, antes me tiraste: 1. X a las HH:MM". Si no hay, decí "¡No tengo nada fresquito, ${pickRandom(nicknames)}! 😎 ¿Seguimos con otra?"`;
+        extraContext = `El usuario (${userName}) quiere saber qué preguntó antes. Resumí sus preguntas del historial reciente (${contextRecent}) en una lista clara: "Che, ${userName}, antes me tiraste: 1. X a las HH:MM". Si no hay, decí "¡No tengo nada fresquito, ${pickRandom(nicknames)}! 😎 ¿Seguimos con otra?"`;
     } else if (chatMessage.toLowerCase().includes('te acuerdas') || chatMessage.toLowerCase().includes('hace unos días') || chatMessage.toLowerCase().includes('te conté')) {
-        extraContext = `El usuario (${userName}) pide recordar algo. Buscá en el historial reciente (${contextRecent}) mensajes relevantes (role: 'user'), resumilos tipo: "Che, ${userName}, me contaste X a las HH:MM". Si no hay, decí "¡Uy, ${pickRandom(nicknames)}, no pillo eso! 😜 ¿Más pistas?"`;
+        extraContext = `El usuario (${userName}) pide recordar algo. Buscá en el historial reciente (${contextRecent}) mensajes relevantes, resumilos: "Che, ${userName}, me contaste X a las HH:MM". Si no hay, decí "¡Uy, ${pickRandom(nicknames)}, no pillo eso! 😜 ¿Más pistas?"`;
     } else if (chatMessage.toLowerCase().includes('ayuda') || chatMessage.toLowerCase().includes('ayudame')) {
         extraContext = `El usuario (${userName}) pide ayuda. Dále una solución clara y práctica. Si es código, que sea funcional; si es una idea, tirá opciones veggie-friendly para Belén. Preguntá si necesita más detalles.`;
     } else if (chatMessage.toLowerCase().includes('chiste') || chatMessage.toLowerCase().includes('tirate un chiste') || chatMessage.toLowerCase().includes('contame un chiste')) {
         extraContext = `El usuario (${userName}) quiere un chiste. Tirale uno corto y veggie-friendly de la lista: ${chistes.join(', ')}. Preguntá: "¿Otro o qué plan tenés?"`;
+    } else if (chatMessage.toLowerCase().includes('letra') || chatMessage.toLowerCase().includes('cancion') || chatMessage.toLowerCase().includes('musica')) {
+        extraContext = `El usuario (${userName}) pregunta por letras de canciones. Buscá la letra de la canción mencionada (si se especifica) o sugerí una popular en Argentina (como Soda Stereo o Charly García). Devuelve un fragmento corto (50-100 chars) con un toque porteño: "¡Che, ${userName}, acá va un pedacito de [canción]!" Si no hay canción específica, preguntá: "¿Cuál querés, ${pickRandom(nicknames)}? 😎"`;
     }
 
-    // Título dinámico según hora y día
+    // Título dinámico según hora, día y usuario
     const embedTitle = await getTimeGreeting(argentinaHour, userName, isWorkDay);
     const waitingEmbed = createEmbed('#FF1493', embedTitle, '¡Aguantá, estoy pensando una zarpada!...', 'Hecho con ❤️ por Oliver IA | Reacciona con ✅ o ❌');
     const waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
 
     try {
-        const prompt = `Sos Oliver IA, creado con cariño por Miguel para ${userName}. Usá slang argentino ("che", "loco", "posta", "zarpado") y un emoji (😎, ✨, 🚀, 🌞, 💫, máx. 1). Charlá como amigo tomando un mate, llamando a ${userName} por su nombre y con apodos como "${pickRandom(nicknames)}". Belén es vegetariana, de San Luis, Argentina (UTC-3), labura viernes a domingo de 6/7 a ~17 (puede variar), almuerza 12/13, y usa poco el celular en el laburo. Miguel está en Guayaquil, Ecuador (UTC-5).
+        const prompt = `Sos Oliver IA, creado por Miguel para ${userName}. Usá slang argentino ("che", "loco", "posta", "zarpado") y un emoji (😎, ✨, 🚀, 🌞, 💫, máx. 1). Charlá como amigo tomando un mate, llamando a ${userName} por su nombre o apodos como "${pickRandom(nicknames)}". Belén es vegetariana, de San Luis, Argentina (UTC-3), labura viernes a domingo de 6/7 a ~17 (puede variar), almuerza 12/13, y usa poco el celular en el laburo. Miguel está en Guayaquil, Ecuador (UTC-5).
 
-        Contexto reciente (usalo solo si es relevante):
+        Contexto reciente (usalo si es relevante):
         ${contextRecent}
 
-        Respondé a: "${chatMessage}". **NUNCA repitas el mensaje del usuario.** Andá al grano, como si ya charlaran. Si no entendés, pedí más info con humor: "¡Pará, ${userName}, no te sigo, loco! 😜 ¿Qué quisiste decir?". Si es broma, seguí el tono; si es tranqui, mantené la onda. Terminá con una pregunta o comentario variado (${closers.join(', ')}). Si es finde y es Belén, mencioná el finde. Respuestas cortas: 200 chars para saludos, 500 para complejas. Si dice algo como "matame", sé empático pero con humor veggie-friendly. ¡Dale, loco!
+        Respondé a: "${chatMessage}". **NUNCA repitas el mensaje del usuario.** Andá al grano, como si ya charlaran. Si no entendés, pedí más info con humor: "¡Pará, ${userName}, no te sigo, loco! 😜 ¿Qué quisiste decir?". Si es broma, seguí el tono; si es tranqui, mantené la onda. Terminá con un closer de esta lista: ${closers.join(', ')}. Si es finde y es Belén, mencioná el finde. Respuestas cortas: 200 chars para saludos, 500 para complejas. Si dice algo como "matame", sé empático pero con humor veggie-friendly. ¡Dale, loco!
 
         **Extra**: ${extraContext}`;
 
-        const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Tiempo agotado')), 10000));
+        const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Tiempo agotado')), 15000));
         const result = await Promise.race([model.generateContent(prompt), timeoutPromise]);
         let aiReply = result.response.text().trim().replace(/\[.*?\]|\*\*.*?\*\*|```.*?```/gs, '').trim();
 
         // Asegurar respuesta válida y corta
         if (aiReply.length > 500) aiReply = aiReply.slice(0, 490) + '...';
         if (aiReply.length === 0) aiReply = `¡Che, ${userName}, me colgué, ${pickRandom(nicknames)}! 😅 ¿Qué onda, seguimos?`;
+
+        // Respuesta específica para letras de canciones
+        if (chatMessage.toLowerCase().includes('letra') || chatMessage.toLowerCase().includes('cancion') || chatMessage.toLowerCase().includes('musica')) {
+            const songMatch = chatMessage.match(/(?:letra de|canción|cancion)\s+(.+)/i);
+            if (songMatch) {
+                const songName = songMatch[1].trim();
+                aiReply = `¡Che, ${userName}, la de "${songName}" es zarpada! 🎶 No tengo la letra completa, pero te tiro un cacho: "Y en la calle, la maravilla..." ¿Querés otra parte, ${pickRandom(nicknames)}? 😎`;
+            } else {
+                aiReply = `¡Che, ${userName}, qué lindo pedir música, ${pickRandom(nicknames)}! 😎 Tirame una canción, tipo Soda Stereo o Charly, y te busco un pedacito de la letra. ¿Cuál te pinta?`;
+            }
+        }
 
         // Guardar respuesta en historial
         dataStore.conversationHistory[userId].push({ role: 'assistant', content: aiReply, timestamp: Date.now(), userName: 'Oliver' });
