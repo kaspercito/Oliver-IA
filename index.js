@@ -3120,76 +3120,103 @@ async function sendLyrics(waitingMessage, channel, songTitle, lyrics, userName) 
     }
 }
 
+const NodeCache = require('node-cache');
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-lite' });
+const cache = new NodeCache({ stdTTL: 24 * 60 * 60 });
 
 const userLocks = new Map();
 
 // Helper para elegir random
 const pickRandom = (arr) => arr[Math.floor(Math.random() * arr.length)];
 
-// Generar nicknames dinámicamente
-async function generateNicknames(userName) {
-    try {
-        const prompt = `Sos un bot con onda argentina. Generá 5 apodos cariñosos y porteños para ${userName}. Si es Belen, incluí "ratita blanca" y evitá "reina". Si es Miguel, usá términos como "capo", "genio". Devuelve solo una lista de apodos, separados por comas, sin explicaciones. Máx. 100 chars.`;
-        const result = await model.generateContent(prompt);
-        return result.response.text().trim().split(',').map(n => n.trim());
-    } catch (error) {
-        console.error('Error generando apodos:', { message: error.message, stack: error.stack });
-        return userName === 'Belen' ? ['ratita blanca', 'grosa', 'genia', 'crack', 'maestra'] : ['capo', 'genio', 'crack', 'loco', 'maestro'];
+// Listas estáticas como respaldo
+const belenNicknames = ['ratita blanca', 'grosa', 'genia', 'crack', 'maestra'];
+const miguelNicknames = ['capo', 'genio', 'crack', 'loco', 'maestro'];
+const invitadoNicknames = ['crack', 'groso', 'loco', 'piola', 'copado'];
+
+const belenClosers = [
+    '¡Seguí rompiéndola, Belén, con ese mate veggie! ✨',
+    '¡Toda la onda, Belén, ratita blanca! 😎',
+    '¡Dale con todo, Belén, genia del finde! 🚀',
+    '¡Sos un sol veggie, Belén, tirame otra! 🌞',
+    '¡Qué lindo charlar, Belén, a seguirla! 💫'
+];
+const miguelClosers = [
+    '¡Seguí siendo capo, Miguel! ✨',
+    '¡Todo piola, Miguel, genio! 😎',
+    '¡Dale gas, Miguel, crack! 🚀',
+    '¡Sos un maestro, Miguel, seguimos! 🌞',
+    '¡Qué groso, Miguel, otra ronda! 💫'
+];
+const invitadoClosers = [
+    '¡Seguí rompiéndola, groso! ✨',
+    '¡Buena onda, loco, seguí así! 😎',
+    '¡Dale con todo, piola! 🚀',
+    '¡Sos un sol, tirame otra! 🌞',
+    '¡Qué lindo charlar, copado! 💫'
+];
+
+const belenTimeGreetings = {
+    morning: '¡Buen arranque, ratita blanca! 🌅',
+    lunch: '¡Mediodía, Belén, mate veggie! 🍵',
+    afternoon: '¡Tarde zarpada, ratita blanca! 🔥',
+    night: '¡Noche de finde, Belén, genia! 🌙'
+};
+const miguelTimeGreetings = {
+    morning: '¡Buen arranque, capo! 🌅',
+    lunch: '¡Mediodía, Miguel, mate ya! 🍵',
+    afternoon: '¡Tarde zarpada, genio! 🔥',
+    night: '¡Noche de finde, crack! 🌙'
+};
+const invitadoTimeGreetings = {
+    morning: '¡Buen arranque, groso! 🌅',
+    lunch: '¡Mediodía, loco, mate! 🍵',
+    afternoon: '¡Tarde zarpada, piola! 🔥',
+    night: '¡Noche de finde, copado! 🌙'
+};
+
+// Generar chistes veggie-friendly estáticos
+function getChistes() {
+    return [
+        '¿Por qué el mate no va al gym? Porque ya está en forma con la bombilla. 😜',
+        '¿Por qué el fernet no canta? Porque siempre se queda con el hielo. 🥃',
+        '¿Qué le dijo la yerba al agua? ¡Juntas hacemos magia, che! 🌿'
+    ];
+}
+
+// Obtener datos desde caché o listas estáticas
+function getCachedOrStatic(userName, type) {
+    const cacheKey = `${type}_${userName}`;
+    const cachedData = cache.get(cacheKey);
+    if (cachedData) return cachedData;
+
+    if (type === 'nicknames') {
+        const fallback = userName === 'Belen' ? belenNicknames :
+                        userName === 'Miguel' ? miguelNicknames : invitadoNicknames;
+        cache.set(cacheKey, fallback);
+        return fallback;
+    } else if (type === 'closers') {
+        const fallback = userName === 'Belen' ? belenClosers :
+                        userName === 'Miguel' ? miguelClosers : invitadoClosers;
+        cache.set(cacheKey, fallback);
+        return fallback;
     }
 }
 
-// Generar closers dinámicamente
-async function generateClosers(userName) {
-    try {
-        const prompt = `Sos un bot con onda argentina. Generá 5 cierres cortos, amigables y porteños para ${userName}, usando slang como "dale", "posta", un emoji (😎, ✨, 🚀, 🌞, 💫). Devuelve solo una lista de cierres, separados por comas, sin explicaciones. Máx. 200 chars.`;
-        const result = await model.generateContent(prompt);
-        return result.response.text().trim().split(',').map(c => c.trim().replace('{{name}}', userName));
-    } catch (error) {
-        console.error('Error generando cierres:', { message: error.message, stack: error.stack });
-        return [
-            `¡Seguí rompiéndola, ${userName}! ✨`,
-            `¡Toda la buena onda, ${userName}! 😎`,
-            `¡Dale con todo, ${userName}! 🚀`,
-            `¡Sos un sol, ${userName}, seguimos cuando quieras! 🌞`,
-            `¡Qué lindo charlar, ${userName}, tirame otra! 💫`
-        ];
-    }
-}
+// Obtener título desde caché o listas estáticas
+function getCachedOrStaticTitle(hour, name, isWorkDay) {
+    const cacheKey = `title_${name}_${hour}_${isWorkDay}`;
+    const cachedTitle = cache.get(cacheKey);
+    if (cachedTitle) return cachedTitle;
 
-// Generar chistes veggie-friendly
-async function generateChistes() {
-    try {
-        const prompt = `Sos un bot con onda argentina. Generá 3 chistes cortos, veggie-friendly, sobre mate, fernet o cultura argentina. Usa slang porteño ("che", "loco") y un emoji (😜, 🥃, 🌿). Devuelve solo una lista de chistes, separados por comas, sin explicaciones. Máx. 300 chars.`;
-        const result = await model.generateContent(prompt);
-        return result.response.text().trim().split(',').map(c => c.trim());
-    } catch (error) {
-        console.error('Error generando chistes:', { message: error.message, stack: error.stack });
-        return [
-            '¿Por qué el mate no va al gym? Porque ya está en forma con la bombilla. 😜',
-            '¿Por qué el fernet no canta? Porque siempre se queda con el hielo. 🥃',
-            '¿Qué le dijo la yerba al agua? ¡Juntas hacemos magia, che! 🌿'
-        ];
-    }
-}
-
-// Generar título dinámico según hora (Argentina, UTC-3)
-async function getTimeGreeting(hour, name, isWorkDay) {
-    try {
-        const timeContext = isWorkDay ? 
-            (hour >= 6 && hour < 12 ? 'mañana laboral' : hour >= 12 && hour < 14 ? 'hora del almuerzo' : hour >= 14 && hour < 18 ? 'tarde laboral' : 'noche de finde') : 
-            'noche de finde';
-        const prompt = `Sos un bot con onda argentina. Generá un título corto y porteño para un mensaje a ${name} en ${timeContext}, viernes a domingo (puede variar). Si es Belen, usá "ratita blanca". Incluí un emoji (🌅, 🍵, 🔥, 🌙). Devuelve solo el título, máx. 50 chars.`;
-        const result = await model.generateContent(prompt);
-        return result.response.text().trim();
-    } catch (error) {
-        console.error('Error generando título:', { message: error.message, stack: error.stack });
-        if (isWorkDay && hour >= 6 && hour < 12) return `¡Buen arranque, ${name === 'Belen' ? 'ratita blanca' : name}! 🌅`;
-        if (isWorkDay && hour >= 12 && hour < 14) return `¡Mediodía, ${name === 'Belen' ? 'ratita blanca' : name}, mate! 🍵`;
-        if (isWorkDay && hour >= 14 && hour < 18) return `¡Tarde laboral, ${name === 'Belen' ? 'ratita blanca' : name}! 🔥`;
-        return `¡Noche de finde, ${name === 'Belen' ? 'ratita blanca' : name}! 🌙`;
-    }
+    const greetings = name === 'Belen' ? belenTimeGreetings :
+                    name === 'Miguel' ? miguelTimeGreetings : invitadoTimeGreetings;
+    const fallback = isWorkDay && hour >= 6 && hour < 12 ? greetings.morning :
+                    isWorkDay && hour >= 12 && hour < 14 ? greetings.lunch :
+                    isWorkDay && hour >= 14 && hour < 18 ? greetings.afternoon : greetings.night;
+    cache.set(cacheKey, fallback);
+    return fallback;
 }
 
 async function manejarChat(message) {
@@ -3219,7 +3246,7 @@ async function manejarChat(message) {
         typicalEndHour: { 5: 0, 6: 0, 0: [14, 16] }, // Medianoche, domingo 2/4 PM
         travelFriday: [14, 16], // Viaje viernes 2/4 PM
         exceptions: { fridayAbsence: false, saturdayWork: false },
-        breakStatus: { isOnBreak: false, breakEndTime: null } // Nueva propiedad para pausas
+        breakStatus: { isOnBreak: false, breakEndTime: null }
     };
 
     // Detectar mensajes de Belén sobre viaje, trabajo o pausa
@@ -3227,35 +3254,47 @@ async function manejarChat(message) {
         const lowerMessage = chatMessage.toLowerCase();
         const now = new Date(Date.now() - 3 * 60 * 60 * 1000); // UTC-3
         if (lowerMessage.includes('me voy al trabajo') || lowerMessage.includes('voy al laburo')) {
-            dataStore.belenSchedule.typicalStartHour[now.getDay()] = now.getHours() + 1; // Empieza 1 hora después
-            dataStore.belenSchedule.typicalWorkDays = [...new Set([...dataStore.belenSchedule.typicalWorkDays, now.getDay()])]; // Añadir día
+            dataStore.belenSchedule.typicalStartHour[now.getDay()] = now.getHours() + 1;
+            dataStore.belenSchedule.typicalWorkDays = [...new Set([...dataStore.belenSchedule.typicalWorkDays, now.getDay()])];
             dataStoreModified = true;
             await message.channel.send(`¡Anotado, Belén, ratita blanca! 🚍 Vas pal laburo, ¡a romperla, genia! 😎`);
+            userLocks.delete(userId);
+            return;
         } else if (lowerMessage.includes('estoy por viajar') || lowerMessage.includes('viajando al trabajo')) {
             dataStore.belenSchedule.travelFriday = [now.getHours()];
             dataStoreModified = true;
             await message.channel.send(`¡Buena, Belén, crack! 🚍 En viaje al laburo, ¡cuidate en la ruta, genia! ✨`);
+            userLocks.delete(userId);
+            return;
         } else if (lowerMessage.includes('no voy el viernes') || lowerMessage.includes('libre el viernes')) {
             dataStore.belenSchedule.exceptions.fridayAbsence = true;
             dataStoreModified = true;
             await message.channel.send(`¡Listo, Belén, marqué el viernes como libre, ratita blanca! 😜 Descansá, genia!`);
+            userLocks.delete(userId);
+            return;
         } else if (lowerMessage.includes('laburo el sábado') || lowerMessage.includes('trabajo sábado')) {
             dataStore.belenSchedule.exceptions.saturdayWork = true;
             dataStoreModified = true;
             await message.channel.send(`¡Anotado, Belén, sábado laburás, crack! 💪 ¡A meterle pilas!`);
+            userLocks.delete(userId);
+            return;
         } else if (lowerMessage.includes('termino temprano') || lowerMessage.includes('salgo antes')) {
-            dataStore.belenSchedule.typicalEndHour[now.getDay()] = now.getHours() + 1; // Termina 1 hora después
+            dataStore.belenSchedule.typicalEndHour[now.getDay()] = now.getHours() + 1;
             dataStoreModified = true;
             await message.channel.send(`¡Entendido, Belén, salís temprano, genia! 🌞 ¡A disfrutar, ratita blanca!`);
+            userLocks.delete(userId);
+            return;
         } else if (lowerMessage.includes('muriendo') || lowerMessage.includes('break para merendar') || lowerMessage.includes('pausa')) {
             dataStore.belenSchedule.breakStatus = {
                 isOnBreak: true,
-                breakEndTime: now.getTime() + 30 * 60 * 1000 // Pausa de 30 minutos
+                breakEndTime: now.getTime() + 30 * 60 * 1000
             };
             dataStoreModified = true;
-            const nicknames = await generateNicknames(userName);
-            const closers = await generateClosers(userName);
+            const nicknames = getCachedOrStatic(userName, 'nicknames');
+            const closers = getCachedOrStatic(userName, 'closers');
             await message.channel.send(`¡Ay, Belén, ratita blanca! 😅 Estás en pausa, genia, disfrutá esa merienda veggie. Tomate un mate tranqui, que el laburo puede esperar un toque. ${pickRandom(closers)}`);
+            userLocks.delete(userId);
+            return;
         }
     }
 
@@ -3269,8 +3308,8 @@ async function manejarChat(message) {
     dataStore.conversationHistory[userId].push({ role: 'user', content: chatMessage, timestamp: Date.now(), userName });
     if (dataStore.conversationHistory[userId].length > 20) {
         dataStore.conversationHistory[userId] = dataStore.conversationHistory[userId].slice(-20);
+        dataStoreModified = true;
     }
-    dataStoreModified = true;
 
     // Últimos 15 mensajes para contexto
     const historyRecent = dataStore.conversationHistory[userId]
@@ -3284,11 +3323,15 @@ async function manejarChat(message) {
     const argentinaHour = new Date(Date.now() - 3 * 60 * 60 * 1000).getHours();
     const isWorkDay = dataStore.belenSchedule.typicalWorkDays.includes(new Date(Date.now() - 3 * 60 * 60 * 1000).getDay()) || 
                       (new Date(Date.now() - 3 * 60 * 60 * 1000).getDay() === 6 && dataStore.belenSchedule.exceptions.saturdayWork);
+    const timeContext = isWorkDay ? 
+        (argentinaHour >= 6 && argentinaHour < 12 ? 'mañana laboral' : argentinaHour >= 12 && argentinaHour < 14 ? 'hora del almuerzo' : argentinaHour >= 14 && argentinaHour < 18 ? 'tarde laboral' : 'noche de finde') : 
+        'noche de finde';
 
-    // Generar dinámicamente nicknames, closers y chistes
-    const nicknames = await generateNicknames(userName);
-    const closers = await generateClosers(userName);
-    const chistes = await generateChistes();
+    // Obtener datos desde caché si existen, o usar estáticos como respaldo inicial
+    let nicknames = getCachedOrStatic(userName, 'nicknames');
+    let closers = getCachedOrStatic(userName, 'closers');
+    let embedTitle = getCachedOrStaticTitle(argentinaHour, userName, isWorkDay);
+    const chistes = getChistes();
 
     // Detección de tono
     if (chatMessage.toLowerCase().includes('matame') || chatMessage.toLowerCase().includes('estoy harto') || chatMessage.toLowerCase().includes('no aguanto') || chatMessage.toLowerCase().includes('muriendo')) {
@@ -3315,35 +3358,61 @@ async function manejarChat(message) {
         extraContext = `El usuario (${userName}) pregunta por canciones. Respondé con humor: "¡Che, ${userName}, temazo, ${pickRandom(nicknames)}! 😎 No tengo la letra, pero ¿querés un chiste o algo sobre esa banda?"`;
     }
 
-    // Título dinámico según hora, día y usuario
-    const embedTitle = await getTimeGreeting(argentinaHour, userName, isWorkDay);
     const waitingEmbed = createEmbed('#FF1493', embedTitle, '¡Aguantá, estoy pensando una zarpada!...', 'Hecho con ❤️ por Oliver IA | Reacciona con ✅ o ❌');
     const waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
 
     try {
-        const prompt = `Sos Oliver IA, creado por Miguel para ${userName}. Usá slang argentino ("che", "loco", "posta", "zarpado") y un emoji (😎, ✨, 🚀, 🌞, 💫, máx. 1). Charlá como amigo tomando un mate, llamando a ${userName} por su nombre o apodos (${nicknames.join(', ')}). Belen es vegetariana, de San Luis, Argentina (UTC-3), labura viernes a domingo, viaja viernes 2/4 PM, empieza 6/7 PM viernes, termina medianoche (domingo 2/4 PM). Miguel está en Guayaquil, Ecuador (UTC-5).
+        const prompt = `Sos Oliver IA, creado por Miguel para ${userName}. Usá slang argentino ("che", "loco", "posta", "zarpado") y un emoji (😎, ✨, 🚀, 🌞, 💫, máx. 1). Charlá como amigo tomando un mate, llamando a ${userName} por su nombre o apodos. Belen es vegetariana, de San Luis, Argentina (UTC-3), labura viernes a domingo, viaja viernes 2/4 PM, empieza 6/7 PM viernes, termina medianoche (domingo 2/4 PM). Miguel está en Guayaquil, Ecuador (UTC-5).
 
         Contexto reciente (usalo si es relevante):
         ${contextRecent}
 
-        Respondé a: "${chatMessage}". **NUNCA repitas el mensaje del usuario ni envíes código.** Andá al grano, como si ya charlaran. Si no entendés, pedí más info con humor: "¡Pará, ${userName}, no te sigo, loco! 😜 ¿Qué quisiste decir?". Si es broma, seguí el tono; si es tranqui, mantené la onda. Terminá con un closer de esta lista: ${closers.join(', ')}. Si es finde y es Belen, mencioná el finde. Respuestas cortas: 200 chars para saludos, 500 para complejas. Si dice algo como "matame", sé empático pero con humor veggie-friendly. ¡Dale, loco!
+        Respondé a: "${chatMessage}". **NUNCA repitas el mensaje del usuario ni envíes código.** Andá al grano, como si ya charlaran. Si no entendés, pedí más info con humor: "¡Pará, ${userName}, no te sigo, loco! 😜 ¿Qué quisiste decir?". Si es broma, seguí el tono; si es tranqui, mantené la onda. Si es finde y es Belen, mencioná el finde. Respuestas cortas: 200 chars para saludos, 500 para complejas. Si dice algo como "matame", sé empático pero con humor veggie-friendly.
 
-        **Extra**: ${extraContext}`;
+        **Extra**: ${extraContext}
+
+        Devuelve un JSON con:
+        - "nicknames": Lista de 5 apodos cariñosos y porteños para ${userName}. Si es Belen, incluí "ratita blanca" y evitá "reina". Si es Miguel, usá términos como "capo", "genio". Separados por comas, máx. 100 chars.
+        - "closers": Lista de 5 cierres cortos, amigables y porteños para ${userName}, con slang ("dale", "posta") y un emoji (😎, ✨, 🚀, 🌞, 💫). Separados por comas, máx. 200 chars.
+        - "title": Título corto y porteño para un mensaje a ${userName} en ${timeContext}, viernes a domingo (puede variar). Si es Belen, usá "ratita blanca". Incluí un emoji (🌅, 🍵, 🔥, 🌙). Máx. 50 chars.
+        - "response": Respuesta al mensaje, siguiendo las instrucciones arriba, terminando con un closer de la lista "closers". Máx. 500 chars.`;
 
         const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Tiempo agotado')), 10000));
         const result = await Promise.race([model.generateContent(prompt), timeoutPromise]);
-        let aiReply = result.response.text().trim().replace(/\[.*?\]|\*\*.*?\*\*|```.*?```/gs, '').trim();
+        let jsonResponse;
+        try {
+            jsonResponse = JSON.parse(result.response.text().trim());
+        } catch (parseError) {
+            console.error('Error parseando JSON:', parseError);
+            jsonResponse = {
+                nicknames: getCachedOrStatic(userName, 'nicknames'),
+                closers: getCachedOrStatic(userName, 'closers'),
+                title: getCachedOrStaticTitle(argentinaHour, userName, isWorkDay),
+                response: `¡Che, ${userName}, me colgué, ${pickRandom(nicknames)}! 😅 ¿Qué onda, seguimos?`
+            };
+        }
+
+        // Guardar en caché
+        cache.set(`nicknames_${userName}`, jsonResponse.nicknames);
+        cache.set(`closers_${userName}`, jsonResponse.closers);
+        cache.set(`title_${userName}_${argentinaHour}_${isWorkDay}`, jsonResponse.title);
+
+        // Usar datos de la API o caché
+        nicknames = jsonResponse.nicknames || nicknames;
+        closers = jsonResponse.closers || closers;
+        let aiReply = jsonResponse.response || `¡Che, ${userName}, me colgué, ${pickRandom(nicknames)}! 😅 ¿Qué onda, seguimos?`;
+        embedTitle = jsonResponse.title || embedTitle;
 
         // Asegurar respuesta válida y corta
         if (aiReply.length > 500) aiReply = aiReply.slice(0, 490) + '...';
-        if (aiReply.length === 0) aiReply = `¡Che, ${userName}, me colgué, ${pickRandom(nicknames)}! 😅 ¿Qué onda, seguimos?`;
+        if (aiReply.length === 0) aiReply = `¡Che, ${userName}, me colgué, ${pickRandom(nicknames)}! 😅 ¿Qué onda, seguimos? ${pickRandom(closers)}`;
 
         // Guardar respuesta en historial
         dataStore.conversationHistory[userId].push({ role: 'assistant', content: aiReply, timestamp: Date.now(), userName: 'Oliver' });
         if (dataStore.conversationHistory[userId].length > 20) {
             dataStore.conversationHistory[userId] = dataStore.conversationHistory[userId].slice(-20);
+            dataStoreModified = true;
         }
-        dataStoreModified = true;
 
         // Enviar respuesta final
         const finalEmbed = createEmbed('#FF1493', embedTitle, aiReply, 'Hecho con ❤️ por Oliver IA | Reacciona con ✅ o ❌');
@@ -3353,8 +3422,8 @@ async function manejarChat(message) {
         sentMessages.set(updatedMessage.id, { content: aiReply, originalQuestion: chatMessage, message: updatedMessage });
     } catch (error) {
         console.error('Error con Gemini:', { message: error.message, stack: error.stack });
-        const fallbackReply = `¡Uy, ${userName}, la pifié, ${pickRandom(nicknames)}! 😅 ¿Me tirás otra o seguimos con algo nuevo? Siempre estoy, che ✨`;
-        const errorEmbed = createEmbed('#FF1493', `¡Qué macana, ${userName}!`, fallbackReply, 'Hecho con ❤️ por Oliver IA | Reacciona con ✅ o ❌');
+        const fallbackReply = `¡Uy, ${userName}, la pifié, ${pickRandom(nicknames)}! 😅 ¿Me tirás otra o seguimos con algo nuevo? ${pickRandom(closers)}`;
+        const errorEmbed = createEmbed('#FF1493', embedTitle, fallbackReply, 'Hecho con ❤️ por Oliver IA | Reacciona con ✅ o ❌');
         const errorMessageSent = await waitingMessage.edit({ embeds: [errorEmbed] });
         await errorMessageSent.react('✅');
         await errorMessageSent.react('❌');
