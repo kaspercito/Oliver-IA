@@ -6417,10 +6417,10 @@ client.once('ready', async () => {
                         title: "¡Tarde de domingo, crack!",
                         message: `¡Ey, ${recipientName}, genia! 😎 Son las 4 y 15 de la tarde, ¿cómo va ese domingo? 🌅 Espero que te desocupes pronto del trabajo. Si el sueño aprieta, un mate y a darle. ¡Sos la ratita pequeña del finde! 💪 🧉`
                     },
-                    '20:00': {
+                    '20:05': {
                         title: "¡Ánimo, ratita dolorida!",
-                        message: `¡Ey, ${recipientName}, campeona! 😓 8:00 de la noche y contás que te duele todo, ¿eh? ¿Todavía esos dolores de Ovarios? 😴 ¿Qué tal un Mate calentito y un descanso épico para resetear? Mandame una vibra, ratita valiente, y contame cómo vas a mimarte hoy. ¡Siempre con garra! 💪✨`
-                    }
+                        message: `¡Ey, ${recipientName}, campeona! 😓 8:05 de la noche y contás que te duele todo, ¿eh? ¿Todavía esos dolores de Ovarios? 😴 ¿Qué tal un Mate calentito y un descanso épico para resetear? Mandame una vibra, ratita valiente, y contame cómo vas a mimarte hoy. ¡Siempre con garra! 💪✨`
+                    },
                     '23:14': {
                         title: "¡Al fin libre, ratita de la noche!",
                         message: `¡11 de la noche, ${recipientName}! 🌙 ¿Cómo pintó el día, reina? Ojalá hayas llegado a la casa de tus abuelitos y disfrutes de la comida, tirame una señal y charlamos tranqui para cerrar la jornada. 💫`
