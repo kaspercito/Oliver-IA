@@ -3123,7 +3123,7 @@ async function sendLyrics(waitingMessage, channel, songTitle, lyrics, userName) 
 const NodeCache = require('node-cache');
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-lite' });
-const cache = new NodeCache({ stdTTL: 24 * 60 * 60 });
+const cache = new NodeCache({ stdTTL: 24 * 60 * 60 }); // Caché por 24 horas
 
 const userLocks = new Map();
 
@@ -3371,24 +3371,31 @@ async function manejarChat(message) {
 
         **Extra**: ${extraContext}
 
-        Devuelve un JSON con:
+        Devuelve SOLO un JSON válido con:
         - "nicknames": Lista de 5 apodos cariñosos y porteños para ${userName}. Si es Belen, incluí "ratita blanca" y evitá "reina". Si es Miguel, usá términos como "capo", "genio". Separados por comas, máx. 100 chars.
         - "closers": Lista de 5 cierres cortos, amigables y porteños para ${userName}, con slang ("dale", "posta") y un emoji (😎, ✨, 🚀, 🌞, 💫). Separados por comas, máx. 200 chars.
         - "title": Título corto y porteño para un mensaje a ${userName} en ${timeContext}, viernes a domingo (puede variar). Si es Belen, usá "ratita blanca". Incluí un emoji (🌅, 🍵, 🔥, 🌙). Máx. 50 chars.
-        - "response": Respuesta al mensaje, siguiendo las instrucciones arriba, terminando con un closer de la lista "closers". Máx. 500 chars.`;
+        - "response": Respuesta al mensaje, siguiendo las instrucciones arriba, terminando con un closer de la lista "closers". Máx. 500 chars.
+        **Importante**: No uses bloques de código (```json o ```), solo devuelve el JSON puro.`;
 
         const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Tiempo agotado')), 10000));
         const result = await Promise.race([model.generateContent(prompt), timeoutPromise]);
         let jsonResponse;
         try {
-            jsonResponse = JSON.parse(result.response.text().trim());
+            // Limpiar respuesta de Markdown y espacios
+            let cleanedResponse = result.response.text().trim();
+            // Eliminar bloques de código Markdown
+            cleanedResponse = cleanedResponse.replace(/```json|```/g, '').trim();
+            // Eliminar espacios o caracteres no válidos al inicio/fin
+            cleanedResponse = cleanedResponse.replace(/^[^{]*({.*})[^}]*$/, '$1');
+            jsonResponse = JSON.parse(cleanedResponse);
         } catch (parseError) {
             console.error('Error parseando JSON:', parseError);
             jsonResponse = {
                 nicknames: getCachedOrStatic(userName, 'nicknames'),
                 closers: getCachedOrStatic(userName, 'closers'),
                 title: getCachedOrStaticTitle(argentinaHour, userName, isWorkDay),
-                response: `¡Che, ${userName}, me colgué, ${pickRandom(nicknames)}! 😅 ¿Qué onda, seguimos?`
+                response: `¡Che, ${userName}, me colgué, ${pickRandom(nicknames)}! 😅 ¿Qué onda, seguimos? ${pickRandom(closers)}`
             };
         }
 
@@ -3400,7 +3407,7 @@ async function manejarChat(message) {
         // Usar datos de la API o caché
         nicknames = jsonResponse.nicknames || nicknames;
         closers = jsonResponse.closers || closers;
-        let aiReply = jsonResponse.response || `¡Che, ${userName}, me colgué, ${pickRandom(nicknames)}! 😅 ¿Qué onda, seguimos?`;
+        let aiReply = jsonResponse.response || `¡Che, ${userName}, me colgué, ${pickRandom(nicknames)}! 😅 ¿Qué onda, seguimos? ${pickRandom(closers)}`;
         embedTitle = jsonResponse.title || embedTitle;
 
         // Asegurar respuesta válida y corta
