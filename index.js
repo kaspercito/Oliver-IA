@@ -6418,8 +6418,8 @@ client.once('ready', async () => {
                 message: `¡Ey, ${recipientName}, 🌟 Ya casi libre, ¿eh? El día pintó movidito, pero ahora a desconectar. Cuando termines, mandame un guiño y charlamos tranqui para bajar los decibeles. 😎 ¿Cómo viene la vibra?`
             },
             23: {
-                title: "¡Casi libre, reina de la noche!",
-                message: `¡11 de la noche, ${recipientName}! 🌙 ¿Cómo pintó el día, reina? Cuando termines el laburo, tirame una señal y charlamos tranqui para cerrar la jornada. 💫`
+                title: "¡Al fin libre, ratita de la noche!",
+                message: `¡11 de la noche, ${recipientName}! 🌙 ¿Cómo pintó el día, reina? Ojalá hayas llegado a la casa de tus abuelitos y disfrutes de la comida, tirame una señal y charlamos tranqui para cerrar la jornada. 💫`
             },
             1: {
                 title: "¡Noche de pura vibra!",
