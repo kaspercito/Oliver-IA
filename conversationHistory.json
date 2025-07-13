@@ -2,18 +2,6 @@
   "conversationHistory": {
     "1023132788632862761": [
       {
-        "role": "user",
-        "content": "no sabía cómo encenderte jajajasjd",
-        "timestamp": 1745362316798,
-        "userName": "Milagros"
-      },
-      {
-        "role": "assistant",
-        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨\n\n¡Jajajajajaja, no sabías cómo encenderme! 😅 ¡Qué graciosa sos, grosa!  Me hiciste reír un montón.  ¿Y ahora que ya me prendiste, qué onda? Contame todo, ¿qué planes tenés para hoy? ¡A seguir brillando, estrella! ✨",
-        "timestamp": 1745362317728,
-        "userName": "Oliver"
-      },
-      {
         "role": "assistant",
         "content": "Che, Milagros, ¡rata blanca hermosa! 💖  Ya son las 10 de la noche, ¡noche mágica, a brillar! ✨  ¿Cómo cerrás este día tan copado, grosa? ¿Y vos qué me contás, genia?",
         "timestamp": 1745629257443,
@@ -121,6 +109,18 @@
         "role": "assistant",
         "content": "¡Che, Belén! ¿Qué onda, grosa? ¿Qué te pasó? Contame, ¿en qué andás? 🧉 ¡Necesitás que te dé una mano? ¿Tenés un quilombo zarpado? ¿O es algo tranqui? Decime, maestra, que acá estoy, listo para ayudarte. ¿Es por el laburo, el finde, o qué?",
         "timestamp": 1752438073387,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "me duele todo",
+        "timestamp": 1752442058579,
+        "userName": "Belen"
+      },
+      {
+        "role": "assistant",
+        "content": "¡Che, Belén! ¿Todo te duele? ¡Uy, qué garrón, che! ¿Qué onda, te caíste de la bici o qué? ¿Será el laburo que te tiene hecha mierd*? Tomate un buen mate y descansa, grosa. ¡Mandale mecha al finde, que ya casi lo tenés! 😜 ¡Toda la buena onda, Belén! 🧉",
+        "timestamp": 1752442060212,
         "userName": "Oliver"
       }
     ],
