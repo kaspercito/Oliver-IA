@@ -6413,13 +6413,13 @@ client.once('ready', async () => {
                 title: "¡Me alegro que sigas viva!",
                 message: `¡Ey, ${recipientName}, genia! 😎 Aguanta, que vos podés con todo, ¡sos una crack! 💪🏻 Lamento que estés con dolor, ratita blanca, disfruta de un mate y cuidate mucho, ¡vos no te morís tan fácil! 🌟`
             },
-            '21:34': {
-                title: "¡Libre y brillando, Belen!!",
-                message: `¡Ey, ${recipientName}, 🌟 Ya casi libre, ¿eh? El día pintó movidito, pero ahora a desconectar. Cuando termines, mandame un guiño y charlamos tranqui para bajar los decibeles. 😎 ¿Cómo viene la vibra?`
-            },
-            23: {
+            '23:14': {
                 title: "¡Al fin libre, ratita de la noche!",
                 message: `¡11 de la noche, ${recipientName}! 🌙 ¿Cómo pintó el día, reina? Ojalá hayas llegado a la casa de tus abuelitos y disfrutes de la comida, tirame una señal y charlamos tranqui para cerrar la jornada. 💫`
+            },
+            23: {
+                title: "¡Casi libre, reina de la noche!",
+                message: `¡11 de la noche, ${recipientName}! 🌙 ¿Cómo pintó el día, reina? Cuando termines el laburo, tirame una señal y charlamos tranqui para cerrar la jornada. 💫`
             },
             1: {
                 title: "¡Noche de pura vibra!",
@@ -6430,12 +6430,12 @@ client.once('ready', async () => {
         // Check for reminders, including specific times like 5:10 and 19:05
         const timeKey = `${currentHour}:${currentMinute < 10 ? '0' : ''}${currentMinute}`; // Format as "HH:MM"
         if ((currentHour === 5 && currentMinute === 10) || 
-            (currentHour === 21 && currentMinute === 34) || 
+            (currentHour === 23 && currentMinute === 14) || 
             (currentMinute === 0 && reminderTimes[currentHour])) {
             const reminderKey = currentHour === 5 && currentMinute === 10 
                 ? `reminder_${CHANNEL_ID}_5_10` 
-                : currentHour === 21 && currentMinute === 34 
-                ? `reminder_${CHANNEL_ID}_21_34` 
+                : currentHour === 23 && currentMinute === 14
+                ? `reminder_${CHANNEL_ID}_23_14` 
                 : `reminder_${CHANNEL_ID}_${currentHour}`;
             const lastSentReminder = dataStore.utilMessageTimestamps[reminderKey] || 0;
             const hoursSinceLastSent = (now - lastSentReminder) / (60 * 60 * 1000);
@@ -6443,7 +6443,7 @@ client.once('ready', async () => {
             console.log(`Evaluando recordatorio para ${timeKey} AR - Último envío: ${new Date(lastSentReminder).toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })} - Diferencia: ${hoursSinceLastSent} horas`);
 
             if (now - lastSentReminder >= oneDayInMs) {
-                const reminder = timeKey === '5:10' || timeKey === '21:34' 
+                const reminder = timeKey === '5:10' || timeKey === '23:14' 
                     ? reminderTimes[timeKey] 
                     : reminderTimes[currentHour];
                 const embed = createEmbed('#FF1493', reminder.title, reminder.message, 'Con onda, Oliver IA');
