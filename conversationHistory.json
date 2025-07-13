@@ -3,18 +3,6 @@
     "1023132788632862761": [
       {
         "role": "user",
-        "content": "holaaa, estas vivo?",
-        "timestamp": 1745362309384,
-        "userName": "Milagros"
-      },
-      {
-        "role": "assistant",
-        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨\n\n¡Holaaa, grosa! 😎 ¿Estás bien?  Esa pregunta me preocupó un poco 😅 ¿Qué onda? Contame todo, ¡a ver qué se cuece por ahí! ✨  ¡A meterle pilas, rata blanca! 💪",
-        "timestamp": 1745362310277,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
         "content": "no sabía cómo encenderte jajajasjd",
         "timestamp": 1745362316798,
         "userName": "Milagros"
@@ -121,6 +109,18 @@
         "role": "assistant",
         "content": "¡Che, Belén! ¡Al fin, eh! ¡A dormir, crack! ¿Ya te caés? 😜\n\n¡Toda la buena onda, Belén! 🧉",
         "timestamp": 1752379572658,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "oli, salvame",
+        "timestamp": 1752438071919,
+        "userName": "Belen"
+      },
+      {
+        "role": "assistant",
+        "content": "¡Che, Belén! ¿Qué onda, grosa? ¿Qué te pasó? Contame, ¿en qué andás? 🧉 ¡Necesitás que te dé una mano? ¿Tenés un quilombo zarpado? ¿O es algo tranqui? Decime, maestra, que acá estoy, listo para ayudarte. ¿Es por el laburo, el finde, o qué?",
+        "timestamp": 1752438073387,
         "userName": "Oliver"
       }
     ],
@@ -669,7 +669,7 @@
       "mensaje": "tomar la pastilla rosada todos los días",
       "cuandoLlegue": false,
       "cuandoSalga": false,
-      "timestamp": 1752440400000,
+      "timestamp": 1752526800000,
       "creado": 1743208751308,
       "esRecurrente": true,
       "hora": 18,
