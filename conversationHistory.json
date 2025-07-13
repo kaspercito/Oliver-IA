@@ -3,18 +3,6 @@
     "1023132788632862761": [
       {
         "role": "user",
-        "content": "hola, estás vivo?",
-        "timestamp": 1745289587845,
-        "userName": "Milagros"
-      },
-      {
-        "role": "assistant",
-        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖✨\n\n¡Holaaa, grosa! 😎 ¿Estás bien?  Esa pregunta me preocupó un poco 😅 ¿Qué onda? Contame todo,  ¡a ver qué se cuece por ahí! ✨",
-        "timestamp": 1745289588707,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
         "content": "holaaa, estas vivo?",
         "timestamp": 1745362309384,
         "userName": "Milagros"
@@ -121,6 +109,18 @@
         "role": "assistant",
         "content": "¡De nada, Belén, genia! 😎 Me alegro que te haya servido la explicación. ¿Quedó claro o te quedó alguna duda? Contame, que acá estoy para lo que necesites. ¡Toda la buena onda, genia! ✨",
         "timestamp": 1752263326578,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "ya voy a dormir por fin",
+        "timestamp": 1752379571685,
+        "userName": "Belen"
+      },
+      {
+        "role": "assistant",
+        "content": "¡Che, Belén! ¡Al fin, eh! ¡A dormir, crack! ¿Ya te caés? 😜\n\n¡Toda la buena onda, Belén! 🧉",
+        "timestamp": 1752379572658,
         "userName": "Oliver"
       }
     ],
@@ -620,7 +620,8 @@
     "reminder_1343749554905940058_23": 1752285645774,
     "reminder_1343749554905940058_0": 1745204431151,
     "reminder_1343749554905940058_12": 1752159629390,
-    "reminder_1343749554905940058_23_14": 1752372849330
+    "reminder_1343749554905940058_23_14": 1752372849330,
+    "reminder_1343749554905940058_1_00": 1752379244872
   },
   "utilMessageReactions": {
     "1343749554905940058": 1742417343374
@@ -1215,6 +1216,38 @@
     "1023132788632862761": {
       "status": "tranqui",
       "timestamp": 1745225993246
+    }
+  },
+  "belenSchedule": {
+    "typicalWorkDays": [
+      5,
+      6,
+      0
+    ],
+    "typicalStartHour": {
+      "0": 7,
+      "5": 18,
+      "6": 7
+    },
+    "typicalEndHour": {
+      "0": [
+        14,
+        16
+      ],
+      "5": 0,
+      "6": 0
+    },
+    "travelFriday": [
+      14,
+      16
+    ],
+    "exceptions": {
+      "fridayAbsence": false,
+      "saturdayWork": false
+    },
+    "breakStatus": {
+      "isOnBreak": false,
+      "breakEndTime": null
     }
   }
 }
