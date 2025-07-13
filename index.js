@@ -6401,6 +6401,10 @@ client.once('ready', async () => {
                         title: "¡Domingo de pura vibra, ratita!",
                         message: `¡Ey, ${recipientName}, genia! ✨ Ya es domingo, 1 de la matina, ¿seguís dando vueltas o ya estás en modo relax? 😄 ¿Cómo pintó el sábado, crack? Contame qué onda, ratita blanca, y si querés un plan tranqui pa’l domingo, tirame la posta. ¡A disfrutar el finde, reina! 🧉 🚀`
                     },
+                    '6:00': {
+                        title: "¡Madrugón dominguero, genia!",
+                        message: `¡Ey, ${recipientName}, crack! 🌄 Son las 6 de la matina, ¿ya estás levantada pa’l laburo, ratita blanca, o seguís en los brazos de Morfeo? 😴 No sé bien qué onda, pero si estás despierta, ¡a romperla con toda la vibra! 💪 Si no, un cafecito y a darle. Cuidate mucho, ratita bonita, y mandá buena onda pa’l día. 🧉 ✨`
+                    }
                     '9:00': {
                         title: "¡Domingo tranqui, genia!",
                         message: `¡Buen día, ${recipientName}! 🌞 Son las 9, ¿arrancaste el domingo con un mate y buena onda? 🧉 Después de la joda del sábado, hoy toca relax, ¿no? 😎 ¿Qué tenés planeado, ratita blanca? ¡Mandá vibra y a romperla en este día libre! 💫`
