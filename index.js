@@ -6413,9 +6413,9 @@ client.once('ready', async () => {
                         title: "¡Pausa dominguera, reina!",
                         message: `¡Mediodía de domingo, ${recipientName}! 🍴 ¿Qué se cocina hoy, genia? Algo veggie zarpado, seguro. 😜 ¿Estás con la flia o en modo relax total? Tirame una señal y seguimos la buena onda, ratita blanca. ¡A disfrutar este finde! 🌟 🧉`
                     },
-                    '17:00': {
+                    '16:15': {
                         title: "¡Tarde de domingo, crack!",
-                        message: `¡Ey, ${recipientName}, genia! 😎 Son las 5 de la tarde, ¿cómo va ese domingo? 🌅 Espero que estés tirada mirando una serie o paseando con buena vibra. Si el sueño aprieta, un mate y a darle, ratita blanca. ¡Sos la reina del finde! 💪 🧉`
+                        message: `¡Ey, ${recipientName}, genia! 😎 Son las 4 y 15 de la tarde, ¿cómo va ese domingo? 🌅 Espero que te desocupes pronto del trabajo. Si el sueño aprieta, un mate y a darle. ¡Sos la ratita pequeña del finde! 💪 🧉`
                     },
                     '21:00': {
                         title: "¡Noche dominguera, ratita!",
