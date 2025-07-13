@@ -19,6 +19,7 @@
     "form-data": "^4.0.0",
     "gtts": "latest",
     "lyrics-finder": "^21.7.0",
+    "node-cache": "^5.1.2",
     "node-fetch": "^2.6.7",
     "node-telegram-bot-api": "^0.66.0",
     "path": "^0.12.7",
