@@ -3193,8 +3193,8 @@ const staticTimeGreetings = {
   },
   night: {
     Belen: '¡Noche tranqui, ratita blanca! 😎 ¿Cómo cerrás el día?',
-    Miguel: '¡Noche tranqui, genio! 😎 ¿Cómo cerrás el día?'
-    }
+    Miguel: '¡Noche tranqui, capo! 😎 ¿Qué plan en Guayaquil?'
+  }
 };
 
 // Generar nicknames estáticos
@@ -3224,13 +3224,13 @@ function generateChistes() {
 // Generar título dinámico según hora (Argentina, UTC-3)
 function getTimeGreeting(hour, name, isWorkDay, dayOfWeek) {
   let timeKey;
-  if (hour >= 0 && hour < 6) {
+  if (hour >= 0 && hour <= 5) {
     timeKey = 'earlyMorning'; // Madrugada
-  } else if (hour >= 6 && hour < 12) {
+  } else if (hour >= 6 && hour <= 11) {
     timeKey = 'morning';
-  } else if (hour >= 12 && hour < 14) {
+  } else if (hour >= 12 && hour <= 13) {
     timeKey = 'lunch';
-  } else if (hour >= 14 && hour < 18) {
+  } else if (hour >= 14 && hour <= 17) {
     timeKey = 'afternoon';
   } else {
     timeKey = 'night';
@@ -3272,6 +3272,24 @@ async function manejarChat(message) {
     return message.channel.send({
       embeds: [createEmbed('#FF1493', `¡Che, ${userName}!`, `¡Tirame algo después de "!ch", ${pickRandom(generateNicknames(userName))}! No me dejes colgado 😜`, 'Hecho con ❤️ por Oliver IA | Reacciona con ✅ o ❌')]
     });
+  }
+
+  // Manejar consulta de hora
+  if (chatMessage.toLowerCase().includes('que hora es') || chatMessage.toLowerCase().includes('qué hora es')) {
+    const now = new Date(Date.now() + 2 * 60 * 60 * 1000); // UTC-5 a UTC-3 (Argentina)
+    const argentinaHour = now.getHours();
+    const argentinaMinutes = now.getMinutes().toString().padStart(2, '0');
+    const guayaquilHour = new Date().getHours();
+    const guayaquilMinutes = new Date().getMinutes().toString().padStart(2, '0');
+    const isWorkDay = dataStore.belenSchedule.typicalWorkDays.includes(now.getDay()) ||
+                      (now.getDay() === 6 && dataStore.belenSchedule.exceptions.saturdayWork);
+    const embedTitle = getTimeGreeting(argentinaHour, userName, isWorkDay, now.getDay());
+    const aiReply = `¡Che, ${userName}, son las ${guayaquilHour}:${guayaquilMinutes} en Guayaquil, loco! 🧉 En San Luis, Argentina, son las ${argentinaHour}:${argentinaMinutes}. ${pickRandom(generateClosers(userName))}`;
+    const finalEmbed = createEmbed('#FF1493', embedTitle, aiReply, 'Hecho con ❤️ por Oliver IA | Reacciona con ✅ o ❌');
+    const waitingMessage = await message.channel.send({ embeds: [finalEmbed] });
+    await waitingMessage.react('✅');
+    await waitingMessage.react('❌');
+    return;
   }
 
   // Evitar múltiples mensajes simultáneos
@@ -3400,8 +3418,7 @@ async function manejarChat(message) {
   } else if (chatMessage.toLowerCase().includes('letra') || chatMessage.toLowerCase().includes('cancion') || chatMessage.toLowerCase().includes('musica')) {
     extraContext = `El usuario (${userName}) pregunta por canciones. Buscá la letra con lyrics-finder si es posible, o decí: "¡Che, ${userName}, temazo, ${pickRandom(nicknames)}! 😜 No tengo la letra, pero ¿querés un chiste o algo sobre esa banda?"`;
   } else if (chatMessage.toLowerCase().includes('belen') || chatMessage.toLowerCase().includes('miguel')) {
-    const mentionedUser = chatMessage.toLowerCase().includes('belen') ? 'Belen' : 'Miguel';
-    extraContext = `El usuario (${userName}) pregunta por ${mentionedUser}. Usá la info de dataStore: Belen (vegetariana, San Luis, labura viernes-domingo, viaja viernes 2/4 PM, UTC-3), Miguel (Guayaquil, UTC-5). Ejemplo: "Che, ${userName}, ${mentionedUser} está laburando en San Luis, ¡una genia! 😎 ¿Querés que te cuente más?". Si no hay data, decí: "¡No tengo más info de ${mentionedUser}, ${pickRandom(nicknames)}! 😜 ¿Qué más sabés vos?"`;
+    extraContext = `El usuario (${userName}) pregunta por Belen o Miguel. Usá la info de dataStore: Belen (vegetariana, San Luis, labura viernes-domingo, viaja viernes 2/4 PM, UTC-3), Miguel (Guayaquil, UTC-5). Ejemplo: "Che, ${userName}, Belen está laburando en San Luis, ¡una genia! 😎 ¿Querés que te cuente más?". Si no hay data, decí: "¡No tengo más info de ${mentionedUser}, ${pickRandom(nicknames)}! 😜 ¿Qué más sabés vos?"`;
   }
 
   // Título dinámico según hora y día
