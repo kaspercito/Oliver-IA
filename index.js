@@ -3297,7 +3297,7 @@ async function manejarChat(message) {
   // Detectar mensajes de Belen sobre viaje, trabajo o pausa
   if (userName === 'Belen') {
     const lowerMessage = chatMessage.toLowerCase();
-    const now = new Date(Date.now() - 3 * 60 * 60 * 1000); // UTC-3
+    const now = new Date(Date.now() + 2 * 60 * 60 * 1000); // UTC-5 a UTC-3 (Argentina)
     if (lowerMessage.includes('me voy al trabajo') || lowerMessage.includes('voy al laburo')) {
       dataStore.belenSchedule.typicalStartHour[now.getDay()] = now.getHours() + 1;
       dataStore.belenSchedule.typicalWorkDays = [...new Set([...dataStore.belenSchedule.typicalWorkDays, now.getDay()])];
@@ -3364,7 +3364,7 @@ async function manejarChat(message) {
   // Determinar tono y contexto
   let tone = 'neutral';
   let extraContext = '';
-  const now = new Date(Date.now() - 3 * 60 * 60 * 5 * 1000); // UTC-3 UCT-5 (Argentina) - Guayaquil
+  const now = new Date(Date.now() + 2 * 60 * 60 * 1000); // UTC-5 a UTC-3 (Argentina)
   const argentinaHour = now.getHours();
   const dayOfWeek = now.getDay();
   const isWorkDay = dataStore.belenSchedule.typicalWorkDays.includes(dayOfWeek) ||
