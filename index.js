@@ -28,32 +28,6 @@ const client = new Client({
     ]
 });
 
-client.on('ready', () => {
-  console.log(`Bot conectado como ${client.user.tag}`);
-});
-
-client.on('error', (error) => {
-  console.error('Error en el cliente de Discord:', error);
-});
-
-client.on('debug', (info) => {
-  console.log('Debug info:', info);
-});
-
-async function startBot() {
-  try {
-    const data = await loadData();
-    console.log('dataStore inicializado con', data.length, 'recordatorios:', data);
-    console.log('Iniciando conexión a Discord...');
-    await client.login(process.env.DISCORD_TOKEN);
-  } catch (error) {
-    console.error('Error al iniciar el bot:', error);
-    process.exit(1);
-  }
-}
-
-startBot();
-
 // Crear instancias de otros componentes
 const discordTogether = new DiscordTogether(client);
 const OWNER_ID = '752987736759205960';
