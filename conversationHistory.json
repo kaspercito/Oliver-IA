@@ -125,18 +125,6 @@
     "752987736759205960": [
       {
         "role": "user",
-        "content": "Miguelo? jajajaja Miguelito mejor",
-        "timestamp": 1752344498220,
-        "userName": "Miguel"
-      },
-      {
-        "role": "assistant",
-        "content": "¡Jajaja, Miguelito! ¡Dale, está bien, me gusta más! 😎 ¡Me gusta que me digas así! ¿Y qué andás maquinando ahora, che?\n\nDale, un abrazo grande, Miguelito! ✨",
-        "timestamp": 1752344502293,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
         "content": "sabes sobre Valorant?",
         "timestamp": 1752344510907,
         "userName": "Miguel"
@@ -241,6 +229,18 @@
         "role": "assistant",
         "content": "¡Che, Miguel! ¿Te agarró la gastritis con los huevos de Belén? 🤣 ¡Encima es finde! ¿Mucho estrés con el viaje? ¡Dale, maestro, tranqui! ¡Toda la buena onda, Miguel! 🧉",
         "timestamp": 1752474381344,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "Hola",
+        "timestamp": 1752522833745,
+        "userName": "Miguel"
+      },
+      {
+        "role": "assistant",
+        "content": "¡Todo piola, Miguel, loco! 🧉 ¿Qué tenés planeado pa’l día?",
+        "timestamp": 1752522835711,
         "userName": "Oliver"
       }
     ]
@@ -681,7 +681,7 @@
     "1343749554905940058": 1741702502300,
     "plan_1343749554905940058": 1741879435793,
     "reminder_1343749554905940058": 1743901240312,
-    "util_1343749554905940058": 1752435410917,
+    "util_1343749554905940058": 1752522826175,
     "reminder_1343749554905940058_22": 1752282011970,
     "reminder_1343749554905940058_23": 1752285645774,
     "reminder_1343749554905940058_0": 1745204431151,
