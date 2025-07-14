@@ -3193,8 +3193,8 @@ const staticTimeGreetings = {
   },
   night: {
     Belen: '¡Noche tranqui, ratita blanca! 😎 ¿Cómo cerrás el día?',
-    Miguel: '¡Noche tranqui, capo! 😎 ¿Qué plan en Guayaquil?'
-  }
+    Miguel: '¡Noche tranqui痒
+    }
 };
 
 // Generar nicknames estáticos
@@ -3281,6 +3281,7 @@ async function manejarChat(message) {
   userLocks.set(userId, true);
 
   // Inicializar dataStore
+  let dataStoreModified = false;
   if (!dataStore.conversationHistory) dataStore.conversationHistory = {};
   if (!dataStore.conversationHistory[userId]) dataStore.conversationHistory[userId] = [];
   if (!dataStore.userStatus) dataStore.userStatus = {};
@@ -3366,6 +3367,7 @@ async function manejarChat(message) {
   let extraContext = '';
   const now = new Date(Date.now() + 2 * 60 * 60 * 1000); // UTC-5 a UTC-3 (Argentina)
   const argentinaHour = now.getHours();
+  console.log('now:', now.toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' }), 'argentinaHour:', argentinaHour); // Depuración
   const dayOfWeek = now.getDay();
   const isWorkDay = dataStore.belenSchedule.typicalWorkDays.includes(dayOfWeek) ||
                     (dayOfWeek === 6 && dataStore.belenSchedule.exceptions.saturdayWork);
@@ -3398,7 +3400,8 @@ async function manejarChat(message) {
   } else if (chatMessage.toLowerCase().includes('letra') || chatMessage.toLowerCase().includes('cancion') || chatMessage.toLowerCase().includes('musica')) {
     extraContext = `El usuario (${userName}) pregunta por canciones. Buscá la letra con lyrics-finder si es posible, o decí: "¡Che, ${userName}, temazo, ${pickRandom(nicknames)}! 😜 No tengo la letra, pero ¿querés un chiste o algo sobre esa banda?"`;
   } else if (chatMessage.toLowerCase().includes('belen') || chatMessage.toLowerCase().includes('miguel')) {
-    extraContext = `El usuario (${userName}) pregunta por Belen o Miguel. Usá la info de dataStore: Belen (vegetariana, San Luis, labura viernes-domingo, viaja viernes 2/4 PM, UTC-3), Miguel (Guayaquil, UTC-5). Ejemplo: "Che, ${userName}, Belen está laburando en San Luis, ¡una genia! 😎 ¿Querés que te cuente más?". Si no hay data, decí: "¡No tengo más info de ${mentionedUser}, ${pickRandom(nicknames)}! 😜 ¿Qué más sabés vos?"`;
+    const mentionedUser = chatMessage.toLowerCase().includes('belen') ? 'Belen' : 'Miguel';
+    extraContext = `El usuario (${userName}) pregunta por ${mentionedUser}. Usá la info de dataStore: Belen (vegetariana, San Luis, labura viernes-domingo, viaja viernes 2/4 PM, UTC-3), Miguel (Guayaquil, UTC-5). Ejemplo: "Che, ${userName}, ${mentionedUser} está laburando en San Luis, ¡una genia! 😎 ¿Querés que te cuente más?". Si no hay data, decí: "¡No tengo más info de ${mentionedUser}, ${pickRandom(nicknames)}! 😜 ¿Qué más sabés vos?"`;
   }
 
   // Título dinámico según hora y día
