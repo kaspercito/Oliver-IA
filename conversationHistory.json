@@ -1,0 +1,1324 @@
+{
+  "conversationHistory": {
+    "1023132788632862761": [
+      {
+        "role": "user",
+        "content": "ayúdame con algo",
+        "timestamp": 1752263269517,
+        "userName": "Belén"
+      },
+      {
+        "role": "assistant",
+        "content": "¡Che, Belén, genia! 😎 ¿En qué te puedo dar una mano? ¿Qué andás necesitando? Contame, que acá estoy para vos. ¿Qué onda con eso que te trae por acá? ✨",
+        "timestamp": 1752263270724,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "sabes qué significa cuando en un scan de anticheat sale la alerta Hitbox Modification?",
+        "timestamp": 1752263291126,
+        "userName": "Belén"
+      },
+      {
+        "role": "assistant",
+        "content": "¡Che, Belén, genia! 😎 Hitbox Modification en un scan de anticheat... Uhm, eso suena a que el juego detectó que andás modificando el tamaño o la forma de las \"hitboxes\", que son las áreas donde el juego registra los impactos de tus tiros. O sea, estás tocando algo que no deberías, ¿no? 😜 ¡Cuidado con eso, loco! ¿Estás intentando algo en particular? ✨",
+        "timestamp": 1752263293262,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "y eso se hace si o si con un client ilegal?",
+        "timestamp": 1752263310988,
+        "userName": "Belén"
+      },
+      {
+        "role": "assistant",
+        "content": "¡Che, Belén! 😎 No necesariamente, loco. Qué sé yo, a veces se puede hacer con otras herramientas, pero la mayoría de las veces, sí, la modificación de hitbox se hace con algo \"trucho\". ¿Querés que te explique un poco más o ya tenés claro el panorama? ✨ ¡Toda la buena onda, genia!",
+        "timestamp": 1752263312418,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "gracias por tu breve explicación",
+        "timestamp": 1752263325192,
+        "userName": "Belén"
+      },
+      {
+        "role": "assistant",
+        "content": "¡De nada, Belén, genia! 😎 Me alegro que te haya servido la explicación. ¿Quedó claro o te quedó alguna duda? Contame, que acá estoy para lo que necesites. ¡Toda la buena onda, genia! ✨",
+        "timestamp": 1752263326578,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "ya voy a dormir por fin",
+        "timestamp": 1752379571685,
+        "userName": "Belen"
+      },
+      {
+        "role": "assistant",
+        "content": "¡Che, Belén! ¡Al fin, eh! ¡A dormir, crack! ¿Ya te caés? 😜\n\n¡Toda la buena onda, Belén! 🧉",
+        "timestamp": 1752379572658,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "oli, salvame",
+        "timestamp": 1752438071919,
+        "userName": "Belen"
+      },
+      {
+        "role": "assistant",
+        "content": "¡Che, Belén! ¿Qué onda, grosa? ¿Qué te pasó? Contame, ¿en qué andás? 🧉 ¡Necesitás que te dé una mano? ¿Tenés un quilombo zarpado? ¿O es algo tranqui? Decime, maestra, que acá estoy, listo para ayudarte. ¿Es por el laburo, el finde, o qué?",
+        "timestamp": 1752438073387,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "me duele todo",
+        "timestamp": 1752442058579,
+        "userName": "Belen"
+      },
+      {
+        "role": "assistant",
+        "content": "¡Che, Belén! ¿Todo te duele? ¡Uy, qué garrón, che! ¿Qué onda, te caíste de la bici o qué? ¿Será el laburo que te tiene hecha mierd*? Tomate un buen mate y descansa, grosa. ¡Mandale mecha al finde, que ya casi lo tenés! 😜 ¡Toda la buena onda, Belén! 🧉",
+        "timestamp": 1752442060212,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "hola, estoy en mi casita al fin con mi mate y mis perritos",
+        "timestamp": 1752451253407,
+        "userName": "Belen"
+      },
+      {
+        "role": "assistant",
+        "content": "¡Todo piola, Belen, crack! 🧉 ¿Qué tenés planeado pa’l finde?",
+        "timestamp": 1752451254202,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "nada, solo tareas y algunas cosas que me quedaron del trabajo",
+        "timestamp": 1752451273459,
+        "userName": "Belen"
+      },
+      {
+        "role": "assistant",
+        "content": "¡Che, Belén! Uf, laburo y tareas... ¡Un bajón, che! Pero bueno, ¡a darle nomás! ¿Algo zarpado o tranqui? Contá. ¿Qué tenés que hacer? ¡Aprovechá el finde, grosa! 🧉\n\n¡Dale con todo, Belén, genia! 🚀",
+        "timestamp": 1752451274703,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "de momento solo descansar, lueguito me pongo a trabajar y tareas para mañana",
+        "timestamp": 1752451827729,
+        "userName": "Belen"
+      },
+      {
+        "role": "assistant",
+        "content": "¡Che, Belén! ¡A descansar nomás, genia! 🧉  ¡El laburo y las tareas después, a darle! ¡Qué buen plan el finde! ¿Te vas a hacer un buen mate mientras? ¡Dale con todo, Belén, genia! 🚀",
+        "timestamp": 1752451828848,
+        "userName": "Oliver"
+      }
+    ],
+    "752987736759205960": [
+      {
+        "role": "user",
+        "content": "Miguelo? jajajaja Miguelito mejor",
+        "timestamp": 1752344498220,
+        "userName": "Miguel"
+      },
+      {
+        "role": "assistant",
+        "content": "¡Jajaja, Miguelito! ¡Dale, está bien, me gusta más! 😎 ¡Me gusta que me digas así! ¿Y qué andás maquinando ahora, che?\n\nDale, un abrazo grande, Miguelito! ✨",
+        "timestamp": 1752344502293,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "sabes sobre Valorant?",
+        "timestamp": 1752344510907,
+        "userName": "Miguel"
+      },
+      {
+        "role": "assistant",
+        "content": "¡Epa, Miguelito! 🚀 ¡Sí, loco! ¿Qué onda con Valorant? ¿Querés que te tire algún pique, te hable de agentes o qué? ¿Te estás viciando mucho últimamente?\n\nChe, ¡un placer! ¡Nos vemos! ✨",
+        "timestamp": 1752344515120,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "Hola",
+        "timestamp": 1752348967118,
+        "userName": "Miguel"
+      },
+      {
+        "role": "assistant",
+        "content": "¡Todo piola, Miguel, Miguelito! 😎 ¿Qué tenés planeado pa’l finde?",
+        "timestamp": 1752348970991,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "como estas?",
+        "timestamp": 1752348975399,
+        "userName": "Miguel"
+      },
+      {
+        "role": "assistant",
+        "content": "¡Todo piola, Miguel, Migue crack! 😎 ¡Acá ando, che, respondiéndote! ¿Vos cómo andás, loco? ¿Qué andás maquinando?\n\nChe, ¡éxitos! ✨",
+        "timestamp": 1752348979582,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "recuerdas lo que te pregunte antes?",
+        "timestamp": 1752348984668,
+        "userName": "Miguel"
+      },
+      {
+        "role": "assistant",
+        "content": "¡Sí, Miguelito! ¡Acá va el resumen de lo que preguntaste antes, capo!:\n\n1.  Cómo andaba (03:18:42)\n2.  Si te habías levantado de la siesta (03:18:46)\n3.  Quién es Milagros (03:19:21)\n4.  Que te diga quién es Milagros (03:19:46)\n5.  Quién me creó (03:20:08)\n6.  Si te sorprendió que te creara (03:20:24)\n7.  Que vos me creaste (03:20:41)\n8.  Si sé sobre Valorant (03:21:50)\n\n¡Nos vemos, genio! 🚀",
+        "timestamp": 1752348989703,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "HOLA?",
+        "timestamp": 1752474057095,
+        "userName": "Miguel"
+      },
+      {
+        "role": "assistant",
+        "content": "¡Todo piola, Miguel, loco! 🧉 ¿Qué tenés planeado pa’l finde?",
+        "timestamp": 1752474058624,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "Belen se va a cocinar 4 huevos, que opinas",
+        "timestamp": 1752474328826,
+        "userName": "Miguel"
+      },
+      {
+        "role": "assistant",
+        "content": "¡Che, Miguel! ¿En serio Belén se va a cocinar cuatro huevos? 😜 ¿En San Luis? ¡Qué zarpado! ¿Es para ella sola o va a compartir? Imagino que no, porque es vegetariana, ¿no? Jaja, bueno, el finde de Belén siempre es una aventura. ¡Sos un crack, Miguel, seguimos cuando quieras! 🧉",
+        "timestamp": 1752474330741,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "y como que son las 1:25 no sé a quien le va a compartir",
+        "timestamp": 1752474348122,
+        "userName": "Miguel"
+      },
+      {
+        "role": "assistant",
+        "content": "¡Ah, claro, Miguel! Con razón. Es que allá son las 1:25, ¡y Belén es vegetariana! Imposible que comparta los huevos. Jaja, el finde de Belén siempre nos sorprende. ¡Toda la buena onda, Miguel! 🧉",
+        "timestamp": 1752474349675,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "bueno, aca en Ecuador 1:25, en Argentina 3:25",
+        "timestamp": 1752474364382,
+        "userName": "Miguel"
+      },
+      {
+        "role": "assistant",
+        "content": "¡Ah, claro, Miguel! Por eso la diferencia horaria. ¡El finde de Belén y sus huevos! ¡Zarpado! 😜\n\n¡Toda la buena onda, Miguel! 🧉",
+        "timestamp": 1752474365919,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "la gastritis se va a elevar",
+        "timestamp": 1752474379748,
+        "userName": "Miguel"
+      },
+      {
+        "role": "assistant",
+        "content": "¡Che, Miguel! ¿Te agarró la gastritis con los huevos de Belén? 🤣 ¡Encima es finde! ¿Mucho estrés con el viaje? ¡Dale, maestro, tranqui! ¡Toda la buena onda, Miguel! 🧉",
+        "timestamp": 1752474381344,
+        "userName": "Oliver"
+      }
+    ]
+  },
+  "triviaRanking": {
+    "1023132788632862761": {
+      "username": "dearluz",
+      "capitales": {
+        "score": 70
+      },
+      "disney": {
+        "score": 9
+      },
+      "matematicas": {
+        "score": 16
+      },
+      "quimica": {
+        "score": 5
+      },
+      "fisica": {
+        "score": 5
+      }
+    },
+    "752987736759205960": {
+      "username": "mihkario",
+      "capitales": {
+        "score": 7
+      },
+      "matematicas": {
+        "score": 14
+      },
+      "disney": {
+        "score": 26
+      }
+    }
+  },
+  "personalPPMRecords": {
+    "1023132788632862761": {
+      "best": {
+        "ppm": 247,
+        "timestamp": "2025-03-15T03:44:48.000Z"
+      },
+      "attempts": [
+        {
+          "ppm": 83,
+          "timestamp": "2025-03-04T23:37:04.719Z"
+        },
+        {
+          "ppm": 66,
+          "timestamp": "2025-03-04T23:37:22.235Z"
+        },
+        {
+          "ppm": 80,
+          "timestamp": "2025-03-04T23:37:34.587Z"
+        },
+        {
+          "ppm": 69,
+          "timestamp": "2025-03-04T23:38:57.514Z"
+        },
+        {
+          "ppm": 79,
+          "timestamp": "2025-03-04T23:39:34.909Z"
+        },
+        {
+          "ppm": 96,
+          "timestamp": "2025-03-05T14:48:56.055Z"
+        },
+        {
+          "ppm": 70,
+          "timestamp": "2025-03-05T14:49:21.866Z"
+        },
+        {
+          "ppm": 108,
+          "timestamp": "2025-03-05T14:50:30.839Z"
+        },
+        {
+          "ppm": 87,
+          "timestamp": "2025-03-05T14:52:12.444Z"
+        },
+        {
+          "ppm": 117,
+          "timestamp": "2025-03-05T14:54:08.536Z"
+        },
+        {
+          "ppm": 99,
+          "timestamp": "2025-03-05T14:54:52.353Z"
+        },
+        {
+          "ppm": 112,
+          "timestamp": "2025-03-05T14:56:49.651Z"
+        },
+        {
+          "ppm": 86,
+          "timestamp": "2025-03-05T14:58:20.035Z"
+        },
+        {
+          "ppm": 64,
+          "timestamp": "2025-03-14T07:27:17.208Z"
+        },
+        {
+          "ppm": 97,
+          "timestamp": "2025-03-14T07:27:38.002Z"
+        },
+        {
+          "ppm": 92,
+          "timestamp": "2025-03-14T17:44:00.412Z"
+        },
+        {
+          "ppm": 86,
+          "timestamp": "2025-03-14T17:44:14.043Z"
+        },
+        {
+          "ppm": 93,
+          "timestamp": "2025-03-15T03:32:23.000Z"
+        },
+        {
+          "ppm": 97,
+          "timestamp": "2025-03-15T03:33:26.000Z"
+        },
+        {
+          "ppm": 127,
+          "timestamp": "2025-03-15T03:34:16.000Z"
+        },
+        {
+          "ppm": 99,
+          "timestamp": "2025-03-15T03:38:50.000Z"
+        },
+        {
+          "ppm": 108,
+          "timestamp": "2025-03-15T03:41:40.000Z"
+        },
+        {
+          "ppm": 247,
+          "timestamp": "2025-03-15T03:44:48.000Z"
+        }
+      ]
+    },
+    "752987736759205960": {
+      "best": {
+        "ppm": 110,
+        "timestamp": "2025-03-03T03:20:50.111Z"
+      },
+      "attempts": [
+        {
+          "ppm": 110,
+          "timestamp": "2025-03-03T03:20:50.111Z"
+        },
+        {
+          "ppm": 90,
+          "timestamp": "2025-03-03T03:19:41.269Z"
+        },
+        {
+          "ppm": 86,
+          "timestamp": "2025-03-03T03:20:23.259Z"
+        },
+        {
+          "ppm": 80,
+          "timestamp": "2025-03-03T03:20:38.331Z"
+        },
+        {
+          "ppm": 75,
+          "timestamp": "2025-03-03T03:19:54.430Z"
+        },
+        {
+          "ppm": 70,
+          "timestamp": "2025-03-03T12:34:59.287Z"
+        },
+        {
+          "ppm": 59,
+          "timestamp": "2025-03-03T12:35:20.872Z"
+        },
+        {
+          "ppm": 57,
+          "timestamp": "2025-03-03T12:15:23.671Z"
+        },
+        {
+          "ppm": 50,
+          "timestamp": "2025-03-03T12:34:39.668Z"
+        }
+      ]
+    }
+  },
+  "reactionWins": {
+    "1023132788632862761": {
+      "username": "dearluz",
+      "wins": 82
+    },
+    "752987736759205960": {
+      "username": "kaspercito",
+      "wins": 58
+    }
+  },
+  "activeSessions": {
+    "752987736759205960": {
+      "usedAdivinanzas": [
+        "Soy amarillo, soy brillante, me ves en la noche, ¿qué soy, amigo?",
+        "Me usás pa’ freír, soy caliente y aceitoso, ¿qué soy, che?",
+        "Me usás pa’ peinarte, tengo dientes pero no muerdo, ¿qué soy, che?"
+      ]
+    },
+    "1023132788632862761": {
+      "usedAdivinanzas": [
+        "Me usás pa’ limpiar, soy amarillo y esponjoso, ¿qué soy, che?",
+        "Soy grande, soy ruidoso, me ves en la obra, ¿qué soy, loco?",
+        "Me usás pa’ coser, tengo un ojo pero no veo, ¿qué soy, che?",
+        "Soy rojo, soy dulce, me comés en el asado, ¿qué soy, amigo?",
+        "Soy un bicho que vuela, hago ruido en la noche, los pibes me cazan con linterna, ¿qué soy, che?",
+        "Soy verde, soy grande, me ves en el río, ¿qué soy, loco?",
+        "Me usás pa’ prender fuego, soy chiquito pero peligroso, ¿qué soy, che?",
+        "Me usás pa’ colgar, soy largo y fuerte, ¿qué soy, che?",
+        "Soy negro, soy caliente, me usás pa’l invierno, ¿qué soy, loco?",
+        "Me usás pa’ jugar, tengo cartas marcadas, ¿qué soy, che?",
+        "Me subís pa’ viajar, tengo alas pero no soy pájaro, ¿qué soy, posta?",
+        "Me ponés en la cabeza, me usás pa’l sueño, ¿qué soy, posta?",
+        "Soy dulce, soy redondo, me comés en el cumple, ¿qué soy, amigo?",
+        "Soy grande, soy frío, guardo la comida pa’ después, ¿qué soy, loco?",
+        "Me ponés en la pared, tengo colores zarpados, ¿qué soy, posta?",
+        "Soy negro, soy brillante, me usás pa’ ver tele, si me perdés te enojás, ¿qué soy, amigo?",
+        "Soy rápido, soy blanco, me ves en el cielo, ¿qué soy, loco?",
+        "Soy grande, soy verde, me subís pa’l campo, ¿qué soy, loco?",
+        "Soy chiquita, soy roja, me comés con el fernet, ¿qué soy, loco?",
+        "Soy chiquito, soy plateado, me usás pa’l cinturón, ¿qué soy, loco?",
+        "Me ponés en el brazo, me usás pa’l reloj, ¿qué soy, posta?",
+        "Me usás pa’ cortar, tengo filo zarpado, en la cocina soy el rey, ¿qué soy, posta?",
+        "Soy blanco, soy cuadrado, me usás pa’l dibujo, ¿qué soy, amigo?",
+        "Me ponés en la cabeza, me usás pa’l calor, ¿qué soy, posta?",
+        "Soy amarillo, soy brillante, me ves en la noche, ¿qué soy, amigo?",
+        "Soy blanco y negro, camino tranqui por el campo, no soy caballo ni vaca, pero igual me quieren mucho, ¿qué soy, loco?",
+        "Soy rápido, soy ruidoso, me ves en el cielo, ¿qué soy, loco?",
+        "Me ponés en el dedo, brillo en la oscuridad, ¿qué soy, posta?",
+        "Estoy en el cielo, brillo de día, no soy estrella ni luna, pero caliento el asado, ¿qué soy, loco?"
+      ]
+    }
+  },
+  "triviaStats": {
+    "1023132788632862761": {
+      "correct": 25,
+      "total": 40,
+      "capitales": {
+        "correct": 70,
+        "total": 238
+      },
+      "disney": {
+        "correct": 9,
+        "total": 21
+      },
+      "matematicas": {
+        "correct": 16,
+        "total": 20
+      },
+      "quimica": {
+        "correct": 5,
+        "total": 20
+      },
+      "fisica": {
+        "correct": 5,
+        "total": 20
+      },
+      "historia": {
+        "correct": 0,
+        "total": 2
+      }
+    },
+    "752987736759205960": {
+      "correct": 4,
+      "total": 10,
+      "capitales": {
+        "correct": 7,
+        "total": 20
+      },
+      "matematicas": {
+        "correct": 14,
+        "total": 20
+      },
+      "disney": {
+        "correct": 26,
+        "total": 36
+      }
+    }
+  },
+  "updatesSent": true,
+  "musicSessions": {
+    "1008091219961860189": {
+      "autoplay": true,
+      "history": [
+        {
+          "track": "QAAAkQIAKENocmlzdGlhbiBNZWllciAtIEFsZ3VpZW4gZnQuIEdpYW4gTWFyY28AD0NocmlzdGlhbiBNZWllcgAAAAAABBL4AAs3U3RVZXFsVHNMbwABACtodHRwczovL3d3dy55b3V0dWJlLmNvbS93YXRjaD92PTdTdFVlcWxUc0xvAAd5b3V0dWJlAAAAAAAAAAA=",
+          "title": "Christian Meier - Alguien ft. Gian Marco",
+          "identifier": "7StUeqlTsLo",
+          "author": "Christian Meier",
+          "duration": 267000,
+          "isSeekable": true,
+          "isStream": false,
+          "uri": "https://www.youtube.com/watch?v=7StUeqlTsLo",
+          "thumbnail": "https://img.youtube.com/vi/7StUeqlTsLo/default.jpg",
+          "requester": {
+            "id": "752987736759205960",
+            "bot": false,
+            "system": false,
+            "flags": 256,
+            "username": "mihkario",
+            "globalName": "Kaspercito",
+            "discriminator": "0",
+            "avatar": "3f663b4832b4f3981669477182e7127f",
+            "avatarDecoration": null,
+            "avatarDecorationData": null,
+            "createdTimestamp": 1599596666279,
+            "defaultAvatarURL": "https://cdn.discordapp.com/embed/avatars/5.png",
+            "tag": "mihkario",
+            "avatarURL": "https://cdn.discordapp.com/avatars/752987736759205960/3f663b4832b4f3981669477182e7127f.webp",
+            "displayAvatarURL": "https://cdn.discordapp.com/avatars/752987736759205960/3f663b4832b4f3981669477182e7127f.webp"
+          }
+        }
+      ]
+    },
+    "1134375138029211739": {
+      "history": [
+        {
+          "track": "QAAAkAIALENhcsOtbiBMZcOzbiAtIExhZG8gRnLDoWdpbCBbT2ZmaWNpYWwgVmlkZW9dAApDYXJpbiBMZW9uAAAAAAACkEAAC1BiYW5FZ2lHbE9zAAEAK2h0dHBzOi8vd3d3LnlvdXR1YmUuY29tL3dhdGNoP3Y9UGJhbkVnaUdsT3MAB3lvdXR1YmUAAAAAAAAAAA==",
+          "title": "Carín León - Lado Frágil [Official Video]",
+          "identifier": "PbanEgiGlOs",
+          "author": "Carin Leon",
+          "duration": 168000,
+          "isSeekable": true,
+          "isStream": false,
+          "uri": "https://www.youtube.com/watch?v=PbanEgiGlOs",
+          "thumbnail": "https://img.youtube.com/vi/PbanEgiGlOs/default.jpg",
+          "requester": {
+            "id": "1023132788632862761",
+            "bot": false,
+            "system": false,
+            "flags": 0,
+            "username": "dearluz",
+            "globalName": "Luz",
+            "discriminator": "0",
+            "avatar": "f584d1bf29d2da1e6c1fc2b2eb8ef061",
+            "banner": "a_36ba06459f1a0bbf8302570319433349",
+            "accentColor": 15460580,
+            "avatarDecoration": null,
+            "avatarDecorationData": null,
+            "createdTimestamp": 1664004265698,
+            "defaultAvatarURL": "https://cdn.discordapp.com/embed/avatars/0.png",
+            "hexAccentColor": "#ebe8e4",
+            "tag": "dearluz",
+            "avatarURL": "https://cdn.discordapp.com/avatars/1023132788632862761/f584d1bf29d2da1e6c1fc2b2eb8ef061.webp",
+            "displayAvatarURL": "https://cdn.discordapp.com/avatars/1023132788632862761/f584d1bf29d2da1e6c1fc2b2eb8ef061.webp",
+            "bannerURL": "https://cdn.discordapp.com/banners/1023132788632862761/a_36ba06459f1a0bbf8302570319433349.gif"
+          }
+        },
+        {
+          "track": "QAAAkAIALENhcsOtbiBMZcOzbiAtIExhZG8gRnLDoWdpbCBbT2ZmaWNpYWwgVmlkZW9dAApDYXJpbiBMZW9uAAAAAAACkEAAC1BiYW5FZ2lHbE9zAAEAK2h0dHBzOi8vd3d3LnlvdXR1YmUuY29tL3dhdGNoP3Y9UGJhbkVnaUdsT3MAB3lvdXR1YmUAAAAAAAAAAA==",
+          "title": "Carín León - Lado Frágil [Official Video]",
+          "identifier": "PbanEgiGlOs",
+          "author": "Carin Leon",
+          "duration": 168000,
+          "isSeekable": true,
+          "isStream": false,
+          "uri": "https://www.youtube.com/watch?v=PbanEgiGlOs",
+          "thumbnail": "https://img.youtube.com/vi/PbanEgiGlOs/default.jpg",
+          "requester": {
+            "id": "1023132788632862761",
+            "bot": false,
+            "system": false,
+            "flags": 0,
+            "username": "dearluz",
+            "globalName": "Luz",
+            "discriminator": "0",
+            "avatar": "f584d1bf29d2da1e6c1fc2b2eb8ef061",
+            "banner": "a_36ba06459f1a0bbf8302570319433349",
+            "accentColor": 15460580,
+            "avatarDecoration": null,
+            "avatarDecorationData": null,
+            "createdTimestamp": 1664004265698,
+            "defaultAvatarURL": "https://cdn.discordapp.com/embed/avatars/0.png",
+            "hexAccentColor": "#ebe8e4",
+            "tag": "dearluz",
+            "avatarURL": "https://cdn.discordapp.com/avatars/1023132788632862761/f584d1bf29d2da1e6c1fc2b2eb8ef061.webp",
+            "displayAvatarURL": "https://cdn.discordapp.com/avatars/1023132788632862761/f584d1bf29d2da1e6c1fc2b2eb8ef061.webp",
+            "bannerURL": "https://cdn.discordapp.com/banners/1023132788632862761/a_36ba06459f1a0bbf8302570319433349.gif"
+          }
+        }
+      ]
+    }
+  },
+  "sentUpdates": [
+    "¡Chat mejorado! Segunda respuesta automática al darle ❌, pa’ que sea más bacán y no pida detalles de una.",
+    "Optimizado el código un poco, si te gustaría agregar algo más puedes solicitarlo, espero este bot cumpla con tus expectativas.",
+    "Mayúsculas bloqueadas en el canal de texto.",
+    "!autosave funcional, cuando no quieras que falle o cualquier cosa lo haces, esto hará que no falle nada, ni se reinicie el bot.",
+    "!save funcional, haz el guardado al instante por si quieres asegurarte que todo se conservará.",
+    "!reacciones ahora va como trivia: una palabra tras otra hasta que lo parás con !re o fallás, ¡a meterle velocidad, che!",
+    "!ppm cambiado: si te equivocás o se te pasa el tiempo, te tira otra frase; si la hacés bien, termina ahí, ¡posta!",
+    "!resp / !responder metido: para poder recibir ayuda en lo que necesites, ¡posta!",
+    "¡Trivia, reacciones y PPM ahora con cancelación posta! Usá !tc, !rc o !pc pa’ parar al toque sin quilombo.",
+    "Miguel (OWNER_ID) ahora puede usar todos los comandos y participar en los juegos, ¡a romperla, loco!",
+    "Ranking (!rk) mejorado: muestra a Miguel y Belén, ordenados por quién tiene más puntos en trivia, PPM y reacciones.",
+    "¡Reacciones arregladas! Ahora se cancelan bien con !rc y no siguen tirando mensajes después de parar.",
+    "¡Nuevo !idea agregado! Tirale ideas al bot con !id y las manda solo a Miguel por MD, ¡posta!",
+    "Sincronizado triviaRanking con triviaStats pa’ que los puntajes sean posta y no haya más errores raros en el ranking.",
+    "**LO NUEVO**",
+    "¡Nuevo !dato / !dt agregado! Busco datos rápidos en la web o X pa’ que sepas todo al toque.",
+    "¡Clima al toque con !clima! Te digo cómo está el tiempo en cualquier ciudad, ideal pa’l asado o el mate.",
+    "¡Noticias rápidas con !noticias! Te traigo el último titular de Argentina, re copado.",
+    "¡Wiki Bot con !wiki! Busco resúmenes en Wikipedia pa’ que aprendas sin esfuerzo.",
+    "¡Traductor piola con !traducí! Traduzco frases cortas a cualquier idioma, joya pa’ practicar.",
+    "¡Oliver ahora se acuerda de las últimas 20 charlas, posta! Preguntale lo que sea con !chat y sigue la onda como amigo piola.",
+    "El mensaje diario a Belén ahora se envía una vez por día y respeta las reacciones ✅ o ❌ pa' no spamear. Si reacciona, no se repite hasta mañana, ¡posta!",
+    "¡Arreglado la opción de segunda respuestas cuando reaccionás con ❌! Más rápido y copado, loco.",
+    "¡Nuevo !imagen / !im agregado! Generá imágenes zarpadas con Stable Diffusion, pedí lo que quieras (ej. !imagen un mate [cartoon]) y confirmá con ✅, loco.",
+    "¡Historial de imágenes con !misimagenes / !mi! Mirá tus últimas 5 imágenes generadas con sus IDs, pa’ que no pierdas nada, che.",
+    "¡Edición piola con !editarimagen / !ei! Modificá tus imágenes guardadas (ej. !editarimagen [ID] agregar un perro), solo las que hice yo, ¡posta!",
+    "¡Solucionado el error con las imágenes, ahora sí funciona como la puta madre!",
+    "¡Nuevo !ansiedad / !an agregado! Consejos rápidos pa’ calmar la ansiedad, con un mensaje zarpado de Miguel pa’ darte pilas, ¡genia!",
+    "¡Nuevo !milagros revisa tus nombres en diferente idioma de buena onda pa’ hacerla sonreír, ¡re milagroso, che!",
+    "¡Nuevo comando !avatar pa’ que Miguel y Belén me cambien la cara!",
+    "Agregado embeds copados pa’ que todo se vea más lindo.",
+    "¡Nuevo juego! Usá !jugar pa’ adivinar un número y sacarte el aburrimiento, loco.",
+    "¡Memes al toque! Con !meme te traigo uno random pa’ reírte un rato.",
+    "¡Charla loca! Usá !pregunta y te tiro una pregunta random pa’ que nos copemos charlando.",
+    "¡Preguntas a full! La lista de !pregunta pasó de 30 a 150, pa’ que no te aburras nunca, posta.",
+    "¡Memes con yapa! Ahora con !meme te traigo puros memes en español pa’ que le des rosca.",
+    "Agregado !pr, Che.",
+    "¡Música a full! Mejoramos las funciones de música: ahora podés tirar enlaces de playlists de YouTube y Spotify sin drama, y sumamos el comando !shuffle pa’ revolver la cola como loco.",
+    "¡Le metimos pilas al bot, che! Ahora podés jugar Piedra, Papel o Tijera y romperla toda:",
+    "- !ppt [piedra/papel/tijera]: Jugá contra mí, el bot más grosso del condado. Elegí tu jugada y vemos quién la pica, ¡dale!",
+    "- !ppt @alguien: Desafiá a un amigo a un duelo épico. Reacciona con ✅ pa’ aceptar, mandá tu elección por MD y que gane el mejor, ¡posta!",
+    "¡Nuevo !recordatorio / !rec agregado! Te hago acordar lo que sea cuando quieras. Ejemplo: \"!rec 'comprar sanduche de miga' en 1 hora\" o \"!rec 'llamar a Miguel' mañana 14:30\", ¡posta!",
+    "¡Boss bar al 100%! Arreglamos la barra de progreso pa’ que llegue al final posta y se vea zarpada cuando termina el tema, ¡a romperla, che!",
+    "¡Datos randoms en !dato! Ahora si no le das argumentos, te tira un dato curioso al azar con onda, ¡re copado pa’ sorprenderte, loco!",
+    "¡Nuevo !chiste agregado! Usá !chiste y te tiro un chiste random pa’ que te rías a lo grande, ¡posta que la rompés, che!",
+    "¡Nuevo !adivinanza / !ad agregado! Te tiro adivinanzas copadas pa’ que le des al coco, con 30 segundos pa’ responder, ¡dale, genia!",
+    "¡Ranking con adivinanzas! Ahora en !rk se ven tus aciertos y porcentaje en adivinanzas, pa’ que veas quién la rompe más, ¡posta!",
+    "¡Recordatorios a full! Ahora con !rec podés setear recordatorios diarios tipo !rec tomar mate todos los días 08:00, ¡posta que no me olvido, che!",
+    "¡Lista de recordatorios con !misrecordatorios / !mr! Mirá tus recordatorios activos al toque, re útil pa’ no perderte nada, loco.",
+    "¡Cancelación de recordatorios con !cancelarrecordatorio / !cr! Borra un recordatorio con su ID (lo ves en !mr), ¡al toque y sin drama!"
+  ],
+  "utilMessageTimestamps": {
+    "1343749554905940058": 1741702502300,
+    "plan_1343749554905940058": 1741879435793,
+    "reminder_1343749554905940058": 1743901240312,
+    "util_1343749554905940058": 1752435410917,
+    "reminder_1343749554905940058_22": 1752282011970,
+    "reminder_1343749554905940058_23": 1752285645774,
+    "reminder_1343749554905940058_0": 1745204431151,
+    "reminder_1343749554905940058_12": 1752159629390,
+    "reminder_1343749554905940058_23_14": 1752459257295,
+    "reminder_1343749554905940058_1_00": 1752379244872,
+    "reminder_1343749554905940058_9_00": 1752408031173,
+    "reminder_1343749554905940058_13_00": 1752422427023,
+    "reminder_1343749554905940058_16_15": 1752434150880,
+    "reminder_1343749554905940058_20_05": 1752447903130,
+    "reminder_1343749554905940058_23_35": 1752460553798
+  },
+  "utilMessageReactions": {
+    "1343749554905940058": 1742417343374
+  },
+  "womensDayMessageSent": true,
+  "womensDayMessageSentThisInstance": true,
+  "ideas": [
+    {
+      "autor": "Luz",
+      "texto": "agregar colores",
+      "timestamp": "2025-03-09T20:48:41.376Z"
+    },
+    {
+      "autor": "Luz",
+      "texto": "agregar !chiste",
+      "timestamp": "2025-03-15T23:17:24.572Z"
+    },
+    {
+      "autor": "Luz",
+      "texto": "en !dato podrías poner que tire datos randoms como ese de arriba",
+      "timestamp": "2025-03-15T23:27:33.098Z"
+    }
+  ],
+  "recordatorios": [
+    {
+      "id": "a2919d0f-c0f1-46f9-8a28-3b90d76ccc10",
+      "userId": "1023132788632862761",
+      "channelId": "1343749554905940058",
+      "mensaje": "tomar la pastilla rosada todos los días",
+      "cuandoLlegue": false,
+      "cuandoSalga": false,
+      "timestamp": 1752501600000,
+      "creado": 1743208737942,
+      "esRecurrente": true,
+      "hora": 6,
+      "minutos": 0
+    },
+    {
+      "id": "d4ac842b-a550-4d11-b974-6d1af38451f8",
+      "userId": "1023132788632862761",
+      "channelId": "1343749554905940058",
+      "mensaje": "tomar la pastilla rosada todos los días",
+      "cuandoLlegue": false,
+      "cuandoSalga": false,
+      "timestamp": 1752544800000,
+      "creado": 1743208751308,
+      "esRecurrente": true,
+      "hora": 18,
+      "minutos": 0
+    },
+    {
+      "id": "c46fda79-1617-4535-9fe6-094232f5714a",
+      "userId": "1023132788632862761",
+      "channelId": "1343749554905940058",
+      "mensaje": "tomar la pastilla rosada todos los días",
+      "cuandoLlegue": false,
+      "cuandoSalga": false,
+      "timestamp": 1752566400000,
+      "creado": 1743208756920,
+      "esRecurrente": true,
+      "hora": 0,
+      "minutos": 0
+    },
+    {
+      "id": "f99e9c03-4f3f-4e40-ad94-61d7dc851c2d",
+      "userId": "1023132788632862761",
+      "channelId": "1343749554905940058",
+      "mensaje": "tomar la pastilla rosada todos los días",
+      "cuandoLlegue": false,
+      "cuandoSalga": false,
+      "timestamp": 1752523200000,
+      "creado": 1743208770439,
+      "esRecurrente": true,
+      "hora": 12,
+      "minutos": 0
+    },
+    {
+      "id": "7e62808f-274a-4e12-93cf-63a615a9f186",
+      "userId": "1023132788632862761",
+      "channelId": "1343749554905940058",
+      "mensaje": "tomar la vitamina todos los días",
+      "cuandoLlegue": false,
+      "cuandoSalga": false,
+      "timestamp": 1752552000000,
+      "creado": 1743208808339,
+      "esRecurrente": true,
+      "hora": 20,
+      "minutos": 0
+    },
+    {
+      "id": "1da032ff-e356-4cf4-a98e-02aa933ceaf6",
+      "userId": "1023132788632862761",
+      "channelId": "1343749554905940058",
+      "mensaje": "despiértame todos los días",
+      "cuandoLlegue": false,
+      "cuandoSalga": false,
+      "timestamp": 1752505200000,
+      "creado": 1743402095938,
+      "esRecurrente": true,
+      "hora": 7,
+      "minutos": 0
+    }
+  ],
+  "usedJokes": {
+    "1023132788632862761": [
+      117,
+      142,
+      94,
+      11,
+      43,
+      104,
+      123,
+      146
+    ]
+  },
+  "adivinanzaStats": {
+    "752987736759205960": {
+      "correct": 1,
+      "total": 3
+    },
+    "1023132788632862761": {
+      "correct": 11,
+      "total": 29
+    }
+  },
+  "actions": {
+    "1023132788632862761": [
+      {
+        "action": "a dormir",
+        "timestamp": 1742187827002,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "mentiroso",
+        "timestamp": 1742188023084,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "sigo en la clínica",
+        "timestamp": 1742253788569,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "tratar de dormir",
+        "timestamp": 1742255064760,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "casa",
+        "timestamp": 1742261075709,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "dormir",
+        "timestamp": 1742261089633,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "ducha",
+        "timestamp": 1742261092398,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "me voy al gimnasio, ya me distraje mucho",
+        "timestamp": 1742302138880,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "estoy viva",
+        "timestamp": 1742308704482,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "yendo a casa",
+        "timestamp": 1742310204849,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "comer",
+        "timestamp": 1742314870695,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "una vez hecho todo, me toca trabajar y estudiar",
+        "timestamp": 1742321332975,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "hola",
+        "timestamp": 1742324733611,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "hola",
+        "timestamp": 1742324738350,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "hola",
+        "timestamp": 1742324738665,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "hola",
+        "timestamp": 1742324739033,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "hola",
+        "timestamp": 1742324740834,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "hola",
+        "timestamp": 1742324741297,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "hola",
+        "timestamp": 1742324741855,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "hola",
+        "timestamp": 1742324742316,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "hola",
+        "timestamp": 1742324742593,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "hola",
+        "timestamp": 1742324742898,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "deja el movil, mamiachi se enoja",
+        "timestamp": 1742324787626,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "lavar ropa",
+        "timestamp": 1742327140572,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "offfff, a estudiar",
+        "timestamp": 1742327961250,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "recreo para merendar algo antes de colapsar del sueño",
+        "timestamp": 1742335341288,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "resumenes terminados, ahora trabajo",
+        "timestamp": 1742341616213,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "dormiré, me duelen los ovarios",
+        "timestamp": 1742417871037,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "desayunar y estudiar",
+        "timestamp": 1742470825071,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "está bien, no te preocupes, lo arreglas cuando tengas buen internet",
+        "timestamp": 1743389343978,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "ok",
+        "timestamp": 1743389373026,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "pues eso hice con él y estás diciendo que no querés leer o no sé qué, pues no leas o quítalo, es el uso que le doy, sé que lo ves todo pero si me lo diste para usarlo, entonces eso hago",
+        "timestamp": 1743391244016,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "porque me habló sobre ello y qué debo decirle pues",
+        "timestamp": 1743391470875,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "ya lo sé",
+        "timestamp": 1743391490175,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "pero si puse !chat es para hablar con él, no me importa si lees lo que digo porque soy consciente de ello",
+        "timestamp": 1743391506044,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "decirme qué? si ya me has dicho todo, qué mas deberías decirme? si te faltó maldecirme nada más",
+        "timestamp": 1743391533735,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "eso pues es lo que crees, no sabes si a mí me afecta o no lo que me decís, simplemente dejo que me ataques sin más porque ya ni defenderme quiero",
+        "timestamp": 1743391738813,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "no entendí",
+        "timestamp": 1744396801747,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "es ok",
+        "timestamp": 1744397427509,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "‘yo sabía que un cristal roto cortaba y aún así lo recogí con las manos para arreglarlo’ arreglar algo que vos rompiste, porque vos me rompiste y luego pretendiste que hiciera como si nada, que te perdonara y que siguiera adelante con toda la rabia y dolor que tenía dentro mío pero claro, yo debía entender tu error pero vos jamás entendiste lo que causaste en mí",
+        "timestamp": 1744544354644,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "y hablas de tener voluntad para arreglar algo QUE YO NO ROMPÍ",
+        "timestamp": 1744553829241,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "‘me importaba mucho no perderte’ **procede a mentirme, a herirme por una estupidez del tamaño de una casa**",
+        "timestamp": 1744553938618,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "vos sos el que se equivoca y soy yo la que está mal por dejarte? partamos de la base de que yo no hubiera cometido un error de esa índole sabes por qué? porque así se ve el no querer perder a alguien, creíste que me tendrías para siempre aún así me dañaras pero adivina, no funciona así",
+        "timestamp": 1744554135682,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "y ahora metes temas que ni van con nuestra relación pero bueno, así es siempre que se habla de esto, volveré al trabajo",
+        "timestamp": 1744554170641,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "'dejes de tener tu defensa de mierda' no, claro, el que tiene la única verdad aquí sos vos, el que no se equivocó nunca aquí sos vos, el que no falló también sos vos, al que hay que pedirle perdón también sos vos, debes aprender y entender que las acciones tienen consecuencias y lo que VOS hiciste tuvo como consecuencia que YO termine con vos, no metas otros temas porque la única y exclusiva razón por la cual terminó todo entre nosotros fue porque vos me rompiste el corazón y si, excusate con todo lo que pasó después pero primero regresa en el tiempo y fíjate quién la cagó",
+        "timestamp": 1744590980259,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "me da igual que me odien personas que ni conozco, jamás me importó ni cuando estuvimos juntos\n'te haces la ciega' ciega con qué? yo no necesito abrir los ojos con nada, los abrí ese día y bastó para darme cuenta de que yo no merecía eso, no merecía que me mintieras, no merecía que no pensaras en que me harías daño haciendo esa estupidez, con darme cuenta de eso me bastó",
+        "timestamp": 1744591741010,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "pretendes que tuviera consideración con vos luego de ser novios cuando vos no la tuviste conmigo ni siéndolo xd tremendo, qué pretencioso y si, es un caso perdido",
+        "timestamp": 1744591869292,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "y por qué deberísa p",
+        "timestamp": 1744592191473,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "y por qué deberías preguntarle a tus amigos qué tan buen novio o mal novio fuiste? acaso saliste con ellos? acaso ellos sabían todo lo que hablábamos, lo que nos decíamos, cuando peléabamos, cuando no? wtf",
+        "timestamp": 1744592226711,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "no me sorprendería, la verdad, pero wow, rarísimo",
+        "timestamp": 1744592237478,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "y otra cosa, yo no estoy generalizando, sos vos el que debería aprender a leer, yo no estoy metiendo un año en la misma bolsa, yo estoy hablando de lo que me hiciste el último día que estuvimos juntos, así que aprende a interpretar lo que digo y no entiendas loq ue se te canet",
+        "timestamp": 1744592276133,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "dale, contales todo así vienen a bardearme a mi MD como niñitos de tribu",
+        "timestamp": 1744592323694,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "para bardearme fueron los primeros pero para hablarme de cómo me sentía cuando VOS, EL GRAN AMIGO KASPER, me cagó, no apareció ninguno",
+        "timestamp": 1744592342995,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "si, anda a hablarles a todos ellos",
+        "timestamp": 1744592348401,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "imaginate lo que me importa, no me importó que no me escribieran cuando su amiguito la cagó conmigo imaginate ahora",
+        "timestamp": 1744592414772,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "pero claro, vos y ellos me van a venir a hablar de ser 'buena gente'",
+        "timestamp": 1744592428391,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "se, seguí con eso de 'valorar' yo no la cagué, yo hubiera pensado mil veces antes de hacer lo que vos hiciste y eso es lo que siempre nos va a diferenciar, yo no me cargué nuestra relación, fuiste vos",
+        "timestamp": 1744592496100,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "muchas veces se me pasó por la cabeza eso de 'un error lo comete cualquiera, perdónalo y seguí' pero sabes qué me contestaba y me daba vueltas también? que no es un error que comete cualquiera, porque YO NO LO HUBIERA HECHO entonces YO ESPERABA LO MISMO PARA MÍ Y QUÉ RECIBÍ¡ QUE ME TRATES COMO UNA ESTÚPIDA QUE EXAGERABA TODO Y QUE ESTABA PENSANDO CUALQUIER COSA Y NO SÉ QUÉ MAS XD",
+        "timestamp": 1744592576314,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "hacer qué? wtf si cuidaba cada paso que daba para NO molestarte, no me jodas y vos ahí a las primeritas haciéndote el chupa ortos que bastante bien te sale, 'me invitaron yo no invité' jklajlkdjasklgj me da una bronca, te lo juro, me repugna",
+        "timestamp": 1744592682256,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "ya no quiero hablar, me revuelve el estómago de pensarlo, justamente como ese mismo día, cómo algo tan estúpido valió más que cuidar mis sentimientos, no lo puedo creer",
+        "timestamp": 1744592710109,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "sin palabras las comparaciones que haces, pero bueno, allá vos con tu pensamiento",
+        "timestamp": 1744592754995,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "te molestaba que entrara al jueguito, imaginate si te mentía con que me iba a jugar sola y terminaba jugando con un tipo con el que tuve un pasado en común xddddddd",
+        "timestamp": 1744592794323,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "más vale, o crees que fue fácil para mí? no sabes cómo la pasé entonces no asumas cosas que desconoces, porque mientras yo la pasaba como el orto vos estabas con tus amiguitos viendo cómo persuadirme de la cagada que te habías mandado, eso no es luchar por algo que queres, eso es ESTAR ARREPENTIDO DE HABERTE MANDADO UNA CAGADA CUANDO YA ES TARDE PORQUE DEBES CUIDAR A LA PERSONA CON LAQ UE ESTÁS ANTES ED LASTIMAR,LA, NO ESPUÉS, CÓMO MIERDA DE LO TENGO QUE EXPLICAR",
+        "timestamp": 1744592867154,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "xd increíble, nada más para decir, chico, nos vemos",
+        "timestamp": 1744592919682,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "se, también odié la vida cuando la única persona que amaba en el mundo me decepcionó, pero qué podía hacer? bancármela sola",
+        "timestamp": 1744593066397,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "xd tremendo",
+        "timestamp": 1744593134224,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "poniendo eso me termino de dar cuenta de que no entendes nada",
+        "timestamp": 1744593291646,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "tan solo mira cómo escribía, todas esas noches donde vos me decías esas cosas y decías que eras feliz compartiendo conmigo, yo me iba a llorar, pero claro, dos lados de la moneda xd qué vas a saberlo",
+        "timestamp": 1744593341591,
+        "userId": "1023132788632862761"
+      },
+      {
+        "action": "me estás jodiendo? xd dios mío, nada",
+        "timestamp": 1744593499448,
+        "userId": "1023132788632862761"
+      }
+    ],
+    "752987736759205960": [
+      {
+        "action": "me iré a dormir",
+        "timestamp": 1742187953276,
+        "userId": "752987736759205960"
+      },
+      {
+        "action": "entre al baño, no estoy mintiendo, pero necesito",
+        "timestamp": 1742188099363,
+        "userId": "752987736759205960"
+      },
+      {
+        "action": "Nos vemos a dormir, gn",
+        "timestamp": 1742188324026,
+        "userId": "752987736759205960"
+      },
+      {
+        "action": "ahora sí iré a dormir, buenas noches mentirosa",
+        "timestamp": 1742189348666,
+        "userId": "752987736759205960"
+      },
+      {
+        "action": "comer",
+        "timestamp": 1742261095066,
+        "userId": "752987736759205960"
+      },
+      {
+        "action": "a dormir",
+        "timestamp": 1742278219996,
+        "userId": "752987736759205960"
+      },
+      {
+        "action": "duchar",
+        "timestamp": 1742301946554,
+        "userId": "752987736759205960"
+      },
+      {
+        "action": "ire a la clínica",
+        "timestamp": 1742303434023,
+        "userId": "752987736759205960"
+      },
+      {
+        "action": "yendo para el terminal saliendo de la clínica",
+        "timestamp": 1742309061564,
+        "userId": "752987736759205960"
+      },
+      {
+        "action": "comprando flores para el velorio",
+        "timestamp": 1742310222257,
+        "userId": "752987736759205960"
+      },
+      {
+        "action": "esperando el bus, faltan 15 minutos para que llegue",
+        "timestamp": 1742312733864,
+        "userId": "752987736759205960"
+      },
+      {
+        "action": "dormir y rogar que se suba el del pan de yuca sino no como nada",
+        "timestamp": 1742314905776,
+        "userId": "752987736759205960"
+      },
+      {
+        "action": "llegue, no se subio el del pan de yuca!!!, nos bajaremos en el centro de velaciones",
+        "timestamp": 1742319245681,
+        "userId": "752987736759205960"
+      },
+      {
+        "action": "buscando algo de comer antes de morir de hambre, seguramente un arroz con menestra y pollo",
+        "timestamp": 1742323069125,
+        "userId": "752987736759205960"
+      },
+      {
+        "action": "caminando",
+        "timestamp": 1742324793661,
+        "userId": "752987736759205960"
+      },
+      {
+        "action": "en el baño porque se me cae el mosquito",
+        "timestamp": 1742324947165,
+        "userId": "752987736759205960"
+      },
+      {
+        "action": "a dejar el cell antes que me peguen",
+        "timestamp": 1742327976215,
+        "userId": "752987736759205960"
+      },
+      {
+        "action": "ya vamos a despedirnos de las personas para regresar a Guayaquil",
+        "timestamp": 1742332802084,
+        "userId": "752987736759205960"
+      },
+      {
+        "action": "esperando el bus",
+        "timestamp": 1742333778668,
+        "userId": "752987736759205960"
+      },
+      {
+        "action": "en el bus yendo para casita, esperaremos a mi hermana en el terminal",
+        "timestamp": 1742334142009,
+        "userId": "752987736759205960"
+      },
+      {
+        "action": "a comer pan de yuca y jugo de coca (recién me funciona el internet, ya pasamos el campo)",
+        "timestamp": 1742336724828,
+        "userId": "752987736759205960"
+      },
+      {
+        "action": "probando",
+        "timestamp": 1743389276667,
+        "userId": "752987736759205960"
+      }
+    ]
+  },
+  "userStatus": {
+    "752987736759205960": {
+      "status": "tranqui",
+      "timestamp": 1745225398903
+    },
+    "1023132788632862761": {
+      "status": "tranqui",
+      "timestamp": 1745225993246
+    }
+  },
+  "belenSchedule": {
+    "typicalWorkDays": [
+      5,
+      6,
+      0
+    ],
+    "typicalStartHour": {
+      "0": 7,
+      "5": 18,
+      "6": 7
+    },
+    "typicalEndHour": {
+      "0": [
+        14,
+        16
+      ],
+      "5": 0,
+      "6": 0
+    },
+    "travelFriday": [
+      14,
+      16
+    ],
+    "exceptions": {
+      "fridayAbsence": false,
+      "saturdayWork": false
+    },
+    "breakStatus": {
+      "isOnBreak": false,
+      "breakEndTime": null
+    }
+  }
+}
