@@ -3132,9 +3132,6 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-lite' });
 
 const userLocks = new Map();
-const dataStore = { conversationHistory: {}, userStatus: {}, belenSchedule: {} };
-let dataStoreModified = false;
-
 // Helper para elegir random
 const pickRandom = (arr) => arr[Math.floor(Math.random() * arr.length)];
 
