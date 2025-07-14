@@ -3193,7 +3193,7 @@ const staticTimeGreetings = {
   },
   night: {
     Belen: '¡Noche tranqui, ratita blanca! 😎 ¿Cómo cerrás el día?',
-    Miguel: '¡Noche tranqui痒
+    Miguel: '¡Noche tranqui, genio! 😎 ¿Cómo cerrás el día?
     }
 };
 
