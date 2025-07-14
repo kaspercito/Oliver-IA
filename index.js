@@ -3367,7 +3367,7 @@ async function manejarChat(message) {
 
     // Título dinámico según hora, día y usuario
     const embedTitle = getTimeGreeting(argentinaHour, userName, isWorkDay);
-    const waitingEmbed = createEmbed('#FF1493', embedTitle, '¡Aguantá, estoy pensando una zarpada!...', 'Hecho con ❤️ por Oliver IA | Reacciona con 👍 o 👎');
+    const waitingEmbed = createEmbed('#FF1493', embedTitle, '¡Aguantá, estoy pensando una zarpada!...', 'Hecho con ❤️ por Oliver IA | Reacciona con ✅ o ❌');
     const waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
 
     try {
