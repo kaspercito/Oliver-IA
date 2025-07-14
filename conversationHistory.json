@@ -2,44 +2,6 @@
   "conversationHistory": {
     "1023132788632862761": [
       {
-        "role": "assistant",
-        "content": "Che, Milagros, ¡rata blanca hermosa! 💖  Ya son las 10 de la noche, ¡noche mágica, a brillar! ✨  ¿Cómo cerrás este día tan copado, grosa? ¿Y vos qué me contás, genia?",
-        "timestamp": 1745629257443,
-        "userName": "Oliver",
-        "isReminder": true
-      },
-      {
-        "role": "assistant",
-        "content": "Che, Milagros, ¡rata blanca hermosa! 💖  ¡Mediodía a pleno, loco! 😎  Hora de recargar pilas con un matecito bien amargo, ¿o algún plan tranqui que tengas en mente?  ¿Qué onda, grosa?",
-        "timestamp": 1752159631127,
-        "userName": "Oliver",
-        "isReminder": true
-      },
-      {
-        "role": "user",
-        "content": "hola bot",
-        "timestamp": 1752182986888,
-        "userName": "Milagros"
-      },
-      {
-        "role": "assistant",
-        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖\n\n¡Holaaa, grosa! 😎 ¿Qué onda? Contame todo, ¿cómo andás?  ¡A ver qué se cuece por ahí! ✨",
-        "timestamp": 1752182988358,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
-        "content": "cómo estás? r",
-        "timestamp": 1752182994219,
-        "userName": "Milagros"
-      },
-      {
-        "role": "assistant",
-        "content": "Ey, Milagros, ¡rata blanca hermosa! 💖\n\n¡Holaaa, grosa! 😎 ¿Cómo estás?  \"r\"  😅 ¿Eso quiere decir que estás bien,  o que estás respondiendo rápido? ¡Necesito más datos, genia!  Contame todo, ¡a ver qué onda! ✨ ¡A seguir brillando, estrella!",
-        "timestamp": 1752182996900,
-        "userName": "Oliver"
-      },
-      {
         "role": "user",
         "content": "ayúdame con algo",
         "timestamp": 1752263269517,
@@ -121,6 +83,42 @@
         "role": "assistant",
         "content": "¡Che, Belén! ¿Todo te duele? ¡Uy, qué garrón, che! ¿Qué onda, te caíste de la bici o qué? ¿Será el laburo que te tiene hecha mierd*? Tomate un buen mate y descansa, grosa. ¡Mandale mecha al finde, que ya casi lo tenés! 😜 ¡Toda la buena onda, Belén! 🧉",
         "timestamp": 1752442060212,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "hola, estoy en mi casita al fin con mi mate y mis perritos",
+        "timestamp": 1752451253407,
+        "userName": "Belen"
+      },
+      {
+        "role": "assistant",
+        "content": "¡Todo piola, Belen, crack! 🧉 ¿Qué tenés planeado pa’l finde?",
+        "timestamp": 1752451254202,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "nada, solo tareas y algunas cosas que me quedaron del trabajo",
+        "timestamp": 1752451273459,
+        "userName": "Belen"
+      },
+      {
+        "role": "assistant",
+        "content": "¡Che, Belén! Uf, laburo y tareas... ¡Un bajón, che! Pero bueno, ¡a darle nomás! ¿Algo zarpado o tranqui? Contá. ¿Qué tenés que hacer? ¡Aprovechá el finde, grosa! 🧉\n\n¡Dale con todo, Belén, genia! 🚀",
+        "timestamp": 1752451274703,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "de momento solo descansar, lueguito me pongo a trabajar y tareas para mañana",
+        "timestamp": 1752451827729,
+        "userName": "Belen"
+      },
+      {
+        "role": "assistant",
+        "content": "¡Che, Belén! ¡A descansar nomás, genia! 🧉  ¡El laburo y las tareas después, a darle! ¡Qué buen plan el finde! ¿Te vas a hacer un buen mate mientras? ¡Dale con todo, Belén, genia! 🚀",
+        "timestamp": 1752451828848,
         "userName": "Oliver"
       }
     ],
