@@ -3380,13 +3380,16 @@ async function manejarChat(message) {
   } else if (chatMessage.toLowerCase().includes('que te pregunte antes') || chatMessage.toLowerCase().includes('historial') || chatMessage.toLowerCase().includes('qué pregunt')) {
     extraContext = `El usuario (${userName}) quiere saber qué preguntó antes. Resumí el historial reciente (${contextRecent}) en una lista clara: "Che, ${userName}, antes me tiraste: 1. X a las HH:MM". Si no hay, decí "¡No tengo nada fresquito, ${pickRandom(nicknames)}! 😜 ¿Seguimos con otra?"`;
   } else if (chatMessage.toLowerCase().includes('te acuerdas') || chatMessage.toLowerCase().includes('hace unos días') || chatMessage.toLowerCase().includes('te conté')) {
-    extraContext = `El usuario (${userName}) pide recordar algo. Buscá en el historial (${contextRecent}) mensajes relevantes, resumilos: "Che, ${userName}, me contaste X a las HH:MM". Si no hay, decí "¡Uy, ${pickRandom(nicknames)}, no pillo eso! 😎 ¿Más pistas?"`;
+    extraContext = `El usuario (${userName}) pide recordar algo. Buscá en el historial (${contextRecent}) mensajes relevantes, resumilos: "Che, ${userName}, me contaste X a las HH:MM". Si no hay, decí " Winters, ${pickRandom(nicknames)}, no pillo eso! 😎 ¿Más pistas?"`;
   } else if (chatMessage.toLowerCase().includes('ayuda') || chatMessage.toLowerCase().includes('ayudame')) {
     extraContext = `El usuario (${userName}) pide ayuda. Dále una solución clara y precisa, veggie-friendly para Belén. Si es código, asegurate de que sea funcional. Preguntá si necesita más detalles.`;
   } else if (chatMessage.toLowerCase().includes('chiste') || chatMessage.toLowerCase().includes('tirate un chiste') || chatMessage.toLowerCase().includes('contame un chiste')) {
     extraContext = `El usuario (${userName}) quiere un chiste. Usá uno veggie-friendly de: ${chistes.join(', ')}. Preguntá: "¿Otro o qué plan tenés?"`;
   } else if (chatMessage.toLowerCase().includes('letra') || chatMessage.toLowerCase().includes('cancion') || chatMessage.toLowerCase().includes('musica')) {
     extraContext = `El usuario (${userName}) pregunta por canciones. Buscá la letra con lyrics-finder si es posible, o decí: "¡Che, ${userName}, temazo, ${pickRandom(nicknames)}! 😜 No tengo la letra, pero ¿querés un chiste o algo sobre esa banda?"`;
+  } else if (chatMessage.toLowerCase().includes('belen') || chatMessage.toLowerCase().includes('miguel') || chatMessage.toLowerCase().includes('invitado')) {
+    const mentionedUser = chatMessage.toLowerCase().includes('belen') ? 'Belen' : chatMessage.toLowerCase().includes('miguel') ? 'Miguel' : 'Invitado';
+    extraContext = `El usuario (${userName}) pregunta por ${mentionedUser}. Usá la info de dataStore: Belén (vegetariana, San Luis, labura viernes-domingo, viaja viernes 2/4 PM, UTC-3), Miguel (Guayaquil, UTC-5). Ejemplo: "Che, ${userName}, Belén está laburando en San Luis, ¡una genia! 😎 ¿Querés que te cuente más?". Si no hay data, decí: "¡No tengo más info de ${mentionedUser}, ${pickRandom(nicknames)}! 😜 ¿Qué más sabés vos?"`;
   }
 
   // Título dinámico según hora
@@ -3395,18 +3398,17 @@ async function manejarChat(message) {
   const waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
 
   try {
-    const prompt = `Sos Oliver IA, creado por Miguel para ${userName}. Usá slang argentino ("che", "loco", "posta", "zarpado") y un emoji (😎, 🧉, 🚀, ☀️, 😜, máx. 1). Charlá como amigo tomando un mate, llamando a ${userName} por su nombre o apodos (${nicknames.join(', ')}). Belen es vegetariana, de San Luis, Argentina (UTC-3), labura viernes a domingo, viaja viernes 2/4 PM, empieza 6/7 PM viernes, termina medianoche (domingo 2/4 PM). Miguel está en Guayaquil, Ecuador (UTC-5).
+    const prompt = `Sos Oliver IA, creado por Miguel para ${userName}. Usá slang argentino ("che", "loco", "posta", "zarpado") y un emoji (😎, 🧉, 🚀, ☀️, 😜, máx. 1). Charlá como amigo tomando un mate, llamando a ${userName} por su nombre o apodos (${nicknames.join(', ')}). Belén es vegetariana, de San Luis, Argentina (UTC-3), labura viernes a domingo, viaja viernes 2/4 PM, empieza 6/7 PM viernes, termina medianoche (domingo 2/4 PM). Miguel está en Guayaquil, Ecuador (UTC-5).
 
     **Instrucciones**:
     - Respondé a: "${chatMessage}".
-    - **Priorizá precisión**: No inventes hechos. Si no sabés algo, decí "¡Che, ${userName}, no tengo data de eso, loco! 😜 ¿Más pistas o seguimos con otra?".
-    - Usá el historial (${contextRecent}) si es relevante.
+    - **No inventes nada**: Usá solo la info de dataStore (${JSON.stringify(dataStore)}) y el historial (${contextRecent}). Si no tenés data, decí: "¡Che, ${userName}, no tengo info de eso, ${pickRandom(nicknames)}! 😜 ¿Más pistas?".
+    - **Priorizá precisión**: Respuestas factuales, basadas en el historial o dataStore. Si es sobre personas (Belén, Miguel, Invitado), usá la info disponible (horarios, status, etc.).
     - Mantené el tono ${tone}: respuestas cortas (200 chars para saludos, 500 para complejas).
-    - Si es una pregunta factual, basate en hechos reales o el historial. Si es sobre canciones, usá info veggie-friendly para Belén.
     - Terminá con un closer: ${closers.join(', ')}.
     - **Ejemplo**:
-      - Pregunta: "Hola, ¿cómo andás?"
-      - Respuesta: "¡Todo piola, ${userName}, ${pickRandom(nicknames)}! 🧉 ¿Y vos, qué onda pa’l finde? ${pickRandom(closers)}"
+      - Pregunta: "¿Qué hace Belén?"
+      - Respuesta: "¡Che, ${userName}, Belén está laburando en San Luis, genia! 😎 Probablemente tomando un mate veggie. ¿Querés más data? ${pickRandom(closers)}"
       - Pregunta: "¿Qué es la capital de Francia?"
       - Respuesta: "¡Che, ${userName}, la capital de Francia es París, loco! 😎 ¿Querés más data o seguimos con otra? ${pickRandom(closers)}"
     - **Extra**: ${extraContext}`;
@@ -3417,7 +3419,7 @@ async function manejarChat(message) {
 
     // Validar respuesta
     if (aiReply.length === 0 || aiReply.length > 500 || aiReply.toLowerCase().includes('no sé') || aiReply.toLowerCase().includes('desconocido')) {
-      aiReply = `¡Che, ${userName}, me colgué, ${pickRandom(nicknames)}! 😜 No tengo data precisa, ¿me das más pistas o seguimos con otra? ${pickRandom(closers)}`;
+      aiReply = `¡Che, ${userName}, no tengo data precisa, ${pickRandom(nicknames)}! 😜 ¿Me das más pistas o seguimos con otra? ${pickRandom(closers)}`;
     } else if (chatMessage.toLowerCase().includes('chiste')) {
       aiReply = `${pickRandom(chistes)} ¿Otro o qué plan tenés, ${pickRandom(nicknames)}? 😎 ${pickRandom(closers)}`;
     } else if (chatMessage.toLowerCase().includes('letra') || chatMessage.toLowerCase().includes('cancion') || chatMessage.toLowerCase().includes('musica')) {
@@ -3429,6 +3431,11 @@ async function manejarChat(message) {
       } catch (error) {
         aiReply = `¡Uy, ${userName}, no pude pillar la letra, ${pickRandom(nicknames)}! 😜 ¿Querés un chiste o seguimos con otra? ${pickRandom(closers)}`;
       }
+    } else if (chatMessage.toLowerCase().includes('belen') || chatMessage.toLowerCase().includes('miguel') || chatMessage.toLowerCase().includes('invitado')) {
+      const mentionedUser = chatMessage.toLowerCase().includes('belen') ? 'Belen' : chatMessage.toLowerCase().includes('miguel') ? 'Miguel' : 'Invitado';
+      const userInfo = dataStore.userStatus[mentionedUser === 'Belen' ? process.env.ALLOWED_USER_ID : mentionedUser === 'Miguel' ? process.env.OWNER_ID : userId] || { status: 'tranqui', timestamp: Date.now() };
+      const scheduleInfo = mentionedUser === 'Belen' ? `labura viernes a domingo, viaja viernes 2/4 PM, empieza 6/7 PM viernes, termina medianoche (domingo 2/4 PM)` : mentionedUser === 'Miguel' ? 'está en Guayaquil, Ecuador (UTC-5)' : 'no tengo mucha data';
+      aiReply = `¡Che, ${userName}, ${mentionedUser} está ${userInfo.status}, ${pickRandom(nicknames)}! 😎 ${scheduleInfo}. ¿Querés más info o seguimos con otra? ${pickRandom(closers)}`;
     }
 
     // Guardar respuesta en historial
