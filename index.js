@@ -6397,35 +6397,35 @@ client.once('ready', async () => {
         
                 const recipientName = "Belen"; 
                 const reminderTimes = {
-                    '1:00': {
-                        title: "¡Domingo de pura vibra, ratita!",
-                        message: `¡Ey, ${recipientName}, genia! ✨ Ya es domingo, 1 de la matina, ¿seguís dando vueltas o ya estás en modo relax? 😄 ¿Cómo pintó el sábado, crack? Contame qué onda, ratita blanca, y si querés un plan tranqui pa’l domingo, tirame la posta. ¡A disfrutar el finde, reina! 🧉 🚀`
-                    },
-                    '6:00': {
-                        title: "¡Madrugón dominguero, genia!",
-                        message: `¡Ey, ${recipientName}, crack! 🌄 Son las 6 de la matina, ¿ya estás levantada pa’l laburo, ratita blanca, o seguís en los brazos de Morfeo? 😴 No sé bien qué onda, pero si estás despierta, ¡a romperla con toda la vibra! 💪 Si no, un cafecito y a darle. Cuidate mucho, ratita bonita, y mandá buena onda pa’l día. 🧉 ✨`
-                    },
-                    '9:00': {
-                        title: "¡Domingo tranqui, genia!",
-                        message: `¡Buen día, ${recipientName}! 🌞 Son las 9, ¿arrancaste el domingo con un mate y buena onda? 🧉 Después de la joda del sábado, hoy toca relax, ¿no? 😎 ¿Qué tenés planeado, ratita blanca? ¡Mandá vibra y a romperla en este día libre! 💫`
-                    },
-                    '13:00': {
-                        title: "¡Pausa dominguera, reina!",
-                        message: `¡Mediodía de domingo, ${recipientName}! 🍴 ¿Qué se cocina hoy, genia? Algo veggie zarpado, seguro. 😜 ¿Estás con la flia o en modo relax total? Tirame una señal y seguimos la buena onda, ratita blanca. ¡A disfrutar este finde! 🌟 🧉`
-                    },
-                    '16:15': {
-                        title: "¡Tarde de domingo, crack!",
-                        message: `¡Ey, ${recipientName}, genia! 😎 Son las 4 y 15 de la tarde, ¿cómo va ese domingo? 🌅 Espero que te desocupes pronto del trabajo. Si el sueño aprieta, un mate y a darle. ¡Sos la ratita pequeña del finde! 💪 🧉`
-                    },
-                    '20:05': {
-                        title: "¡Ánimo, ratita dolorida!",
-                        message: `¡Ey, ${recipientName}, campeona! 😓 8:05 de la noche y contás que te duele todo, ¿eh? ¿Todavía esos dolores de Ovarios? 😴 ¿Qué tal un Mate calentito y un descanso épico para resetear? Mandame una vibra, ratita valiente, y contame cómo vas a mimarte hoy. ¡Siempre con garra! 💪✨`
-                    },
-                    '23:14': {
-                        title: "¡Al fin libre, ratita de la noche!",
-                        message: `¡11 de la noche, ${recipientName}! 🌙 ¿Cómo pintó el día, reina? Ojalá hayas llegado a la casa de tus abuelitos y disfrutes de la comida, tirame una señal y charlamos tranqui para cerrar la jornada. 💫`
-                    }
-                };
+                  '1:00': {
+                    title: "¡Lunes de madrugada, ratita pequeña!",
+                    message: `¡Ey, ${recipientName}, genia! ✨ Ya arrancó el lunes, 1 de la matina, ¿estás trasnochando en casa o ya en modo sueño profundo? 😴 ¿Cómo cerró el finde, crack? Contame la posta, ratita blanca, y si querés un plan tranqui pa’l lunes, tirame una idea. ¡A meterle pila a la semana! 🧉 🚀`
+                  },
+                  '6:00': {
+                    title: "¡Madrugón de lunes, ratita blanca!",
+                    message: `¡Ey, ${recipientName}, crack! 🌄 6 de la matina, ¿ya estás activa en casa o todavía abrazada a la almohada? 😎 Si estás despierta, un cafecito en mano y a romperla desde casa, ¿no? 💪 Cuidate, ratita pequeña, y mandá buena onda pa’l arranque de semana. 🧉 ✨`
+                  },
+                  '9:00': {
+                    title: "¡Lunes con todo, ratita blanca!",
+                    message: `¡Buen día, ${recipientName}! 🌞 Son las 9, ¿ya arrancaste el lunes con un mate amargo y pura vibra? 🧉 Desde casita, ¿qué plan tenés pa’ hoy, ratita pequeña? ¿Laburo remoto o relax total? ¡Mandá señal y a darle con todo a la semana! 💫`
+                  },
+                  '13:00': {
+                    title: "¡Pausa de lunes, ratita pequeña!",
+                    message: `¡Mediodía de lunes, ${recipientName}! 🍴 ¿Qué se cocina en casa, genia? Algo rico y veggie, seguro. 😜 ¿Estás en modo productiva o tirada en el sillón? Tirame una señal, ratita blanca, y seguimos la buena onda pa’l día. ¡A disfrutar el lunes desde casa! 🌟 🧉`
+                  },
+                  '16:15': {
+                    title: "¡Tarde de lunes, ratita blanca!",
+                    message: `¡Ey, ${recipientName}, genia! 😎 4 y 15 de la tarde, ¿cómo va ese lunes en casa? 🌅 Espero que estés dándole caña al día. Si el sueño aprieta, un mate y a seguir, ratita pequeña. ¡Sos la crack del lunes! 💪 🧉`
+                  },
+                  '20:05': {
+                    title: "¡Ánimo, ratita pequeña!",
+                    message: `¡Ey, ${recipientName}, campeona! 😓 8:05 de la noche, ¿seguís con esos dolores de ovarios dando lata? 😴 ¿Qué tal un mate calentito y un descanso épico pa’ resetear? Mandame una vibra, ratita blanca, y contame cómo te vas a mimar hoy. ¡Siempre con garra! 💪 ✨`
+                  },
+                  '23:35': {
+                    title: "¡Lunes de noche, ratita blanca!",
+                    message: `¡11:35 de la noche, ${recipientName}! 🌙 ¿Cómo pintó el día en casa, genia? Espero que hayas cerrado el Domingo con buena onda. Tirame una señal, ratita pequeña, y charlamos tranqui pa’ bajar los decibeles. ¡A descansar pa’ romperla mañana! 💫`
+                  }
+                 };
         
                 const timeKey = `${currentHour}:${currentMinute < 10 ? '0' : ''}${currentMinute}`;
         
