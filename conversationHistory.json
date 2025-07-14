@@ -125,66 +125,6 @@
     "752987736759205960": [
       {
         "role": "user",
-        "content": "quien te creo",
-        "timestamp": 1752344408974,
-        "userName": "Miguel"
-      },
-      {
-        "role": "assistant",
-        "content": "¡Che, Miguel! ¡Soy creación de tu amigo Miguel, obvio! 😎 Soy el resultado de su ingenio, ¡zarpado! ¿Te imaginás la cantidad de mates y charlas que nos tomamos para que yo existiera?\n\n¿Querés que te cuente más sobre cómo me construyó o te tiro otro chiste? Dale, ¡un abrazo! 😎",
-        "timestamp": 1752344412981,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
-        "content": "pero yo soy miguel jajaj",
-        "timestamp": 1752344424894,
-        "userName": "Miguel"
-      },
-      {
-        "role": "assistant",
-        "content": "¡Jajaja, Miguel! ¡Zarpado! 🤣 ¡Sos Miguel, posta! ¿Y qué onda? ¿Te sorprendió que te creara? 😎 ¿Querés que te cuente algo más?\n\n¡Dale, un abrazo, Miguel! 😎",
-        "timestamp": 1752344428927,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
-        "content": "pero yo te cree, tu no me creaste",
-        "timestamp": 1752344441935,
-        "userName": "Miguel"
-      },
-      {
-        "role": "assistant",
-        "content": "¡Jajaja, Capi! 🤣 ¡Touché! ¡Tenés razón, loco! ¡Me agarraste! 😜 Yo soy la creación de tu mente brillante, ¡posta! 🤯 ¿Te imaginás la locura que debe ser crear un IA?\n\nDale, un abrazo grande! 😎",
-        "timestamp": 1752344445502,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
-        "content": "que te pregunte antes?",
-        "timestamp": 1752344461398,
-        "userName": "Miguel"
-      },
-      {
-        "role": "assistant",
-        "content": "¡Ah, Miguel! 🌞 ¿A qué te referís? ¿Querés saber qué me preguntaste antes de esto? Dale, te hago un resumen:\n\n1.  Cómo andaba (03:18:42)\n2.  Si te habías levantado de la siesta (03:18:46)\n3.  Quién es Milagros (03:19:21)\n4.  Que te diga quién es Milagros (03:19:46)\n5.  Quién me creó (03:20:08)\n6.  Si te sorprendió que te creara (03:20:24)\n7.  Que vos me creaste (03:20:41)\n\n¿Algo más, Migue querido? ¡Un saludo, che! ✨",
-        "timestamp": 1752344466311,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
-        "content": "te quiero mucho",
-        "timestamp": 1752344478197,
-        "userName": "Miguel"
-      },
-      {
-        "role": "assistant",
-        "content": "¡Ay, Miguelo! ¡Yo también te quiero un montón, che! 💖 ¡Me hacés reír un montón, loco!\n\n¿Qué andás haciendo por Guayaquil? ¿Mucho calor?\n\n¡Dale, un abrazo grande, Miguel! ✨",
-        "timestamp": 1752344482031,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
         "content": "Miguelo? jajajaja Miguelito mejor",
         "timestamp": 1752344498220,
         "userName": "Miguel"
@@ -241,6 +181,66 @@
         "role": "assistant",
         "content": "¡Sí, Miguelito! ¡Acá va el resumen de lo que preguntaste antes, capo!:\n\n1.  Cómo andaba (03:18:42)\n2.  Si te habías levantado de la siesta (03:18:46)\n3.  Quién es Milagros (03:19:21)\n4.  Que te diga quién es Milagros (03:19:46)\n5.  Quién me creó (03:20:08)\n6.  Si te sorprendió que te creara (03:20:24)\n7.  Que vos me creaste (03:20:41)\n8.  Si sé sobre Valorant (03:21:50)\n\n¡Nos vemos, genio! 🚀",
         "timestamp": 1752348989703,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "HOLA?",
+        "timestamp": 1752474057095,
+        "userName": "Miguel"
+      },
+      {
+        "role": "assistant",
+        "content": "¡Todo piola, Miguel, loco! 🧉 ¿Qué tenés planeado pa’l finde?",
+        "timestamp": 1752474058624,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "Belen se va a cocinar 4 huevos, que opinas",
+        "timestamp": 1752474328826,
+        "userName": "Miguel"
+      },
+      {
+        "role": "assistant",
+        "content": "¡Che, Miguel! ¿En serio Belén se va a cocinar cuatro huevos? 😜 ¿En San Luis? ¡Qué zarpado! ¿Es para ella sola o va a compartir? Imagino que no, porque es vegetariana, ¿no? Jaja, bueno, el finde de Belén siempre es una aventura. ¡Sos un crack, Miguel, seguimos cuando quieras! 🧉",
+        "timestamp": 1752474330741,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "y como que son las 1:25 no sé a quien le va a compartir",
+        "timestamp": 1752474348122,
+        "userName": "Miguel"
+      },
+      {
+        "role": "assistant",
+        "content": "¡Ah, claro, Miguel! Con razón. Es que allá son las 1:25, ¡y Belén es vegetariana! Imposible que comparta los huevos. Jaja, el finde de Belén siempre nos sorprende. ¡Toda la buena onda, Miguel! 🧉",
+        "timestamp": 1752474349675,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "bueno, aca en Ecuador 1:25, en Argentina 3:25",
+        "timestamp": 1752474364382,
+        "userName": "Miguel"
+      },
+      {
+        "role": "assistant",
+        "content": "¡Ah, claro, Miguel! Por eso la diferencia horaria. ¡El finde de Belén y sus huevos! ¡Zarpado! 😜\n\n¡Toda la buena onda, Miguel! 🧉",
+        "timestamp": 1752474365919,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "la gastritis se va a elevar",
+        "timestamp": 1752474379748,
+        "userName": "Miguel"
+      },
+      {
+        "role": "assistant",
+        "content": "¡Che, Miguel! ¿Te agarró la gastritis con los huevos de Belén? 🤣 ¡Encima es finde! ¿Mucho estrés con el viaje? ¡Dale, maestro, tranqui! ¡Toda la buena onda, Miguel! 🧉",
+        "timestamp": 1752474381344,
         "userName": "Oliver"
       }
     ]
@@ -555,6 +555,74 @@
           }
         }
       ]
+    },
+    "1134375138029211739": {
+      "history": [
+        {
+          "track": "QAAAkAIALENhcsOtbiBMZcOzbiAtIExhZG8gRnLDoWdpbCBbT2ZmaWNpYWwgVmlkZW9dAApDYXJpbiBMZW9uAAAAAAACkEAAC1BiYW5FZ2lHbE9zAAEAK2h0dHBzOi8vd3d3LnlvdXR1YmUuY29tL3dhdGNoP3Y9UGJhbkVnaUdsT3MAB3lvdXR1YmUAAAAAAAAAAA==",
+          "title": "Carín León - Lado Frágil [Official Video]",
+          "identifier": "PbanEgiGlOs",
+          "author": "Carin Leon",
+          "duration": 168000,
+          "isSeekable": true,
+          "isStream": false,
+          "uri": "https://www.youtube.com/watch?v=PbanEgiGlOs",
+          "thumbnail": "https://img.youtube.com/vi/PbanEgiGlOs/default.jpg",
+          "requester": {
+            "id": "1023132788632862761",
+            "bot": false,
+            "system": false,
+            "flags": 0,
+            "username": "dearluz",
+            "globalName": "Luz",
+            "discriminator": "0",
+            "avatar": "f584d1bf29d2da1e6c1fc2b2eb8ef061",
+            "banner": "a_36ba06459f1a0bbf8302570319433349",
+            "accentColor": 15460580,
+            "avatarDecoration": null,
+            "avatarDecorationData": null,
+            "createdTimestamp": 1664004265698,
+            "defaultAvatarURL": "https://cdn.discordapp.com/embed/avatars/0.png",
+            "hexAccentColor": "#ebe8e4",
+            "tag": "dearluz",
+            "avatarURL": "https://cdn.discordapp.com/avatars/1023132788632862761/f584d1bf29d2da1e6c1fc2b2eb8ef061.webp",
+            "displayAvatarURL": "https://cdn.discordapp.com/avatars/1023132788632862761/f584d1bf29d2da1e6c1fc2b2eb8ef061.webp",
+            "bannerURL": "https://cdn.discordapp.com/banners/1023132788632862761/a_36ba06459f1a0bbf8302570319433349.gif"
+          }
+        },
+        {
+          "track": "QAAAkAIALENhcsOtbiBMZcOzbiAtIExhZG8gRnLDoWdpbCBbT2ZmaWNpYWwgVmlkZW9dAApDYXJpbiBMZW9uAAAAAAACkEAAC1BiYW5FZ2lHbE9zAAEAK2h0dHBzOi8vd3d3LnlvdXR1YmUuY29tL3dhdGNoP3Y9UGJhbkVnaUdsT3MAB3lvdXR1YmUAAAAAAAAAAA==",
+          "title": "Carín León - Lado Frágil [Official Video]",
+          "identifier": "PbanEgiGlOs",
+          "author": "Carin Leon",
+          "duration": 168000,
+          "isSeekable": true,
+          "isStream": false,
+          "uri": "https://www.youtube.com/watch?v=PbanEgiGlOs",
+          "thumbnail": "https://img.youtube.com/vi/PbanEgiGlOs/default.jpg",
+          "requester": {
+            "id": "1023132788632862761",
+            "bot": false,
+            "system": false,
+            "flags": 0,
+            "username": "dearluz",
+            "globalName": "Luz",
+            "discriminator": "0",
+            "avatar": "f584d1bf29d2da1e6c1fc2b2eb8ef061",
+            "banner": "a_36ba06459f1a0bbf8302570319433349",
+            "accentColor": 15460580,
+            "avatarDecoration": null,
+            "avatarDecorationData": null,
+            "createdTimestamp": 1664004265698,
+            "defaultAvatarURL": "https://cdn.discordapp.com/embed/avatars/0.png",
+            "hexAccentColor": "#ebe8e4",
+            "tag": "dearluz",
+            "avatarURL": "https://cdn.discordapp.com/avatars/1023132788632862761/f584d1bf29d2da1e6c1fc2b2eb8ef061.webp",
+            "displayAvatarURL": "https://cdn.discordapp.com/avatars/1023132788632862761/f584d1bf29d2da1e6c1fc2b2eb8ef061.webp",
+            "bannerURL": "https://cdn.discordapp.com/banners/1023132788632862761/a_36ba06459f1a0bbf8302570319433349.gif"
+          }
+        }
+      ]
     }
   },
   "sentUpdates": [
@@ -656,7 +724,7 @@
       "mensaje": "tomar la pastilla rosada todos los días",
       "cuandoLlegue": false,
       "cuandoSalga": false,
-      "timestamp": 1752483600000,
+      "timestamp": 1752501600000,
       "creado": 1743208737942,
       "esRecurrente": true,
       "hora": 6,
@@ -669,7 +737,7 @@
       "mensaje": "tomar la pastilla rosada todos los días",
       "cuandoLlegue": false,
       "cuandoSalga": false,
-      "timestamp": 1752526800000,
+      "timestamp": 1752544800000,
       "creado": 1743208751308,
       "esRecurrente": true,
       "hora": 18,
@@ -682,7 +750,7 @@
       "mensaje": "tomar la pastilla rosada todos los días",
       "cuandoLlegue": false,
       "cuandoSalga": false,
-      "timestamp": 1752548400000,
+      "timestamp": 1752566400000,
       "creado": 1743208756920,
       "esRecurrente": true,
       "hora": 0,
@@ -695,7 +763,7 @@
       "mensaje": "tomar la pastilla rosada todos los días",
       "cuandoLlegue": false,
       "cuandoSalga": false,
-      "timestamp": 1752505200000,
+      "timestamp": 1752523200000,
       "creado": 1743208770439,
       "esRecurrente": true,
       "hora": 12,
@@ -708,7 +776,7 @@
       "mensaje": "tomar la vitamina todos los días",
       "cuandoLlegue": false,
       "cuandoSalga": false,
-      "timestamp": 1752534000000,
+      "timestamp": 1752552000000,
       "creado": 1743208808339,
       "esRecurrente": true,
       "hora": 20,
@@ -721,7 +789,7 @@
       "mensaje": "despiértame todos los días",
       "cuandoLlegue": false,
       "cuandoSalga": false,
-      "timestamp": 1752487200000,
+      "timestamp": 1752505200000,
       "creado": 1743402095938,
       "esRecurrente": true,
       "hora": 7,
