@@ -1,6 +1,7 @@
 const fs = require('fs');
 const { Client, GatewayIntentBits, EmbedBuilder } = require('discord.js');
 const axios = require('axios');
+const https = require('https');
 const { v4: uuidv4 } = require('uuid');
 const { Manager } = require('erela.js');
 const { DiscordTogether } = require('discord-together');
@@ -37,6 +38,8 @@ const telegramToken = process.env.TELEGRAM_TOKEN; // Utiliza una variable de ent
 const botTelegram = new TelegramBot(telegramToken, { polling: false });
 const chatIdBelen = '7894854634';
 
+const agent = new https.Agent({ family: 4 }); // Forzar IPv4
+
 // Configuración del Manager de erela.js
 const manager = new Manager({
     nodes: [{
@@ -52,6 +55,10 @@ const manager = new Manager({
         new Spotify({
             clientID: process.env.SPOTIFY_CLIENT_ID,
             clientSecret: process.env.SPOTIFY_CLIENT_SECRET,
+            axiosOptions: {
+                httpsAgent: new https.Agent({ family: 4 }),
+                timeout: 10000
+              }
         }),
     ],
     send(id, payload) {
