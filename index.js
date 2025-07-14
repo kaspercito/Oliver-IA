@@ -3266,8 +3266,8 @@ function getTimeGreeting(hour, name, isWorkDay, dayOfWeek) {
 }
 
 async function manejarChat(message) {
-  const userId = message.author.id;
-  const userName = userId === process.env.OWNER_ID ? 'Miguel' : userId === process.env.ALLOWED_USER_ID ? 'Belen' : 'Invitado';
+    const userId = message.author.id;
+    const userName = userId === OWNER_ID ? 'Miguel' : userId === ALLOWED_USER_ID ? 'Belen';
   const chatMessage = message.content.startsWith('!chat') ? message.content.slice(5).trim() : message.content.slice(3).trim();
 
   // Validar mensaje vacío
