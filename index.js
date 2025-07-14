@@ -3127,7 +3127,6 @@ async function sendLyrics(waitingMessage, channel, songTitle, lyrics, userName) 
     }
 }
 
-// Configurar Gemini
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-lite' });
 
@@ -3187,25 +3186,30 @@ const staticChistes = [
 
 // Lista estática de saludos según hora
 const staticTimeGreetings = {
+  earlyMorning: {
+    Belen: '¡Madrugando, ratita blanca! 🌙 ¿Ya arrancaste el día?',
+    Miguel: '¡Madrugando, capo! 🌙 ¿Qué onda tan temprano?',
+    Invitado: '¡Madrugando, loco! 🌙 ¿Qué te tiene despierto?'
+  },
   morning: {
-    Belen: '¡Buen arranque, ratita blanca! 🌞',
-    Miguel: '¡Buen arranque, capo! 🌞',
-    Invitado: '¡Buen arranque, loco! 🌞'
+    Belen: '¡Buen arranque, ratita blanca! 🌞 ¿Lista pa’l día?',
+    Miguel: '¡Buen arranque, capo! 🌞 ¿Cómo pinta la jornada?',
+    Invitado: '¡Buen arranque, loco! 🌞 ¿Qué onda hoy?'
   },
   lunch: {
-    Belen: '¡Mediodía, ratita blanca, mate! 🧉',
-    Miguel: '¡Mediodía, genio, mate! 🧉',
-    Invitado: '¡Mediodía, crack, mate! 🧉'
+    Belen: '¡Mediodía, ratita blanca, mate! 🧉 ¿Pausa veggie?',
+    Miguel: '¡Mediodía, genio, mate! 🧉 ¿Qué almuerzo?',
+    Invitado: '¡Mediodía, crack, mate! 🧉 ¿Qué tenés pa’l almuerzo?'
   },
   afternoon: {
-    Belen: '¡Tarde laboral, ratita blanca! 🚀',
-    Miguel: '¡Tarde laboral, capo! 🚀',
-    Invitado: '¡Tarde laboral, loco! 🚀'
+    Belen: '¡Tarde laboral, ratita blanca! 🚀 ¿Cómo va el día?',
+    Miguel: '¡Tarde laboral, capo! 🚀 ¿Qué estás rompiendo?',
+    Invitado: '¡Tarde laboral, loco! 🚀 ¿Qué plan?'
   },
   night: {
-    Belen: '¡Noche de finde, ratita blanca! 😎',
-    Miguel: '¡Noche de finde, genio! 😎',
-    Invitado: '¡Noche de finde, crack! 😎'
+    Belen: '¡Noche tranqui, ratita blanca! 😎 ¿Cómo cerrás el día?',
+    Miguel: '¡Noche tranqui, capo! 😎 ¿Qué plan en Guayaquil?',
+    Invitado: '¡Noche tranqui, loco! 😎 ¿Qué onda?'
   }
 };
 
@@ -3234,24 +3238,34 @@ function generateChistes() {
 }
 
 // Generar título dinámico según hora (Argentina, UTC-3)
-function getTimeGreeting(hour, name, isWorkDay) {
-  const timeKey = isWorkDay
-    ? (hour >= 6 && hour < 12 ? 'morning' : hour >= 12 && hour < 14 ? 'lunch' : hour >= 14 && hour < 18 ? 'afternoon' : 'night')
-    : 'night';
-  const cacheKey = `${name}-${timeKey}`;
+function getTimeGreeting(hour, name, isWorkDay, dayOfWeek) {
+  let timeKey;
+  if (hour >= 0 && hour < 6) {
+    timeKey = 'earlyMorning'; // Madrugada
+  } else if (hour >= 6 && hour < 12) {
+    timeKey = 'morning';
+  } else if (hour >= 12 && hour < 14) {
+    timeKey = 'lunch';
+  } else if (hour >= 14 && hour < 18) {
+    timeKey = 'afternoon';
+  } else {
+    timeKey = 'night';
+  }
+
+  // Ajustar según día (finde o laboral)
+  const isWeekend = [0, 6].includes(dayOfWeek); // Domingo (0) o Sábado (6)
+  const context = isWeekend ? 'finde' : 'laboral';
+
+  const cacheKey = `${name}-${timeKey}-${context}`;
   if (!timeGreetingCache.has(cacheKey)) {
-    timeGreetingCache.set(cacheKey, staticTimeGreetings[timeKey][name] || staticTimeGreetings[timeKey].Invitado);
+    const greetings = staticTimeGreetings[timeKey];
+    let greeting = greetings[name] || greetings.Invitado;
+    if (timeKey === 'night' && isWeekend) {
+      greeting = greeting.replace('tranqui', 'de finde');
+    }
+    timeGreetingCache.set(cacheKey, greeting);
   }
   return timeGreetingCache.get(cacheKey);
-}
-
-// Crear embed para respuestas
-function createEmbed(color, title, description, footer) {
-  return new EmbedBuilder()
-    .setColor(color)
-    .setTitle(title)
-    .setDescription(description)
-    .setFooter({ text: footer });
 }
 
 async function manejarChat(message) {
@@ -3315,7 +3329,7 @@ async function manejarChat(message) {
       await message.channel.send(`¡Anotado, Belén, sábado laburás, crack! 🚀 ¡A meterle pilas!`);
       userLocks.delete(userId);
       return;
-    } else if (lowerMessage.includes('termino temprano') || lowerMessage.includes('salgo antes')) {
+    } else if (lowerMessage.includes('termino temprano') || lowerMessage.includes耓('salgo antes')) {
       dataStore.belenSchedule.typicalEndHour[now.getDay()] = now.getHours() + 1;
       dataStoreModified = true;
       await message.channel.send(`¡Entendido, Belén, salís temprano, genia! 😎 ¡A disfrutar, ratita blanca!`);
@@ -3356,9 +3370,11 @@ async function manejarChat(message) {
   // Determinar tono y contexto
   let tone = 'neutral';
   let extraContext = '';
-  const argentinaHour = new Date(Date.now() - 3 * 60 * 60 * 1000).getHours();
-  const isWorkDay = dataStore.belenSchedule.typicalWorkDays.includes(new Date(Date.now() - 3 * 60 * 60 * 1000).getDay()) ||
-                    (new Date(Date.now() - 3 * 60 * 60 * 1000).getDay() === 6 && dataStore.belenSchedule.exceptions.saturdayWork);
+  const now = new Date(Date.now() - 3 * 60 * 60 * 1000); // UTC-3 (Argentina)
+  const argentinaHour = now.getHours();
+  const dayOfWeek = now.getDay();
+  const isWorkDay = dataStore.belenSchedule.typicalWorkDays.includes(dayOfWeek) ||
+                    (dayOfWeek === 6 && dataStore.belenSchedule.exceptions.saturdayWork);
 
   const nicknames = generateNicknames(userName);
   const closers = generateClosers(userName);
@@ -3376,11 +3392,11 @@ async function manejarChat(message) {
     extraContext = `El usuario (${userName}) bromea o reta. Respondé con humor: "¡Jaja, ${userName}, no me botés, ${pickRandom(nicknames)}! 😎 ¿Qué hice mal? Contame y lo arreglamos."`;
   } else if (chatMessage.toLowerCase().includes('hola') || chatMessage.toLowerCase().includes('cómo andás') || chatMessage.toLowerCase().includes('como estas') || chatMessage.toLowerCase().includes('muy bien') || chatMessage.toLowerCase().includes('entendiste')) {
     tone = 'tranqui';
-    extraContext = `El usuario (${userName}) está relajado. Respondé con buena onda: "¡Todo piola, ${userName}, ${pickRandom(nicknames)}! 🧉 ¿Qué tenés planeado pa’l finde?"`;
+    extraContext = `El usuario (${userName}) está relajado. Respondé con buena onda: "¡Todo piola, ${userName}, ${pickRandom(nicknames)}! 🧉 ¿Qué tenés planeado pa’l día?"`;
   } else if (chatMessage.toLowerCase().includes('que te pregunte antes') || chatMessage.toLowerCase().includes('historial') || chatMessage.toLowerCase().includes('qué pregunt')) {
     extraContext = `El usuario (${userName}) quiere saber qué preguntó antes. Resumí el historial reciente (${contextRecent}) en una lista clara: "Che, ${userName}, antes me tiraste: 1. X a las HH:MM". Si no hay, decí "¡No tengo nada fresquito, ${pickRandom(nicknames)}! 😜 ¿Seguimos con otra?"`;
   } else if (chatMessage.toLowerCase().includes('te acuerdas') || chatMessage.toLowerCase().includes('hace unos días') || chatMessage.toLowerCase().includes('te conté')) {
-    extraContext = `El usuario (${userName}) pide recordar algo. Buscá en el historial (${contextRecent}) mensajes relevantes, resumilos: "Che, ${userName}, me contaste X a las HH:MM". Si no hay, decí " Winters, ${pickRandom(nicknames)}, no pillo eso! 😎 ¿Más pistas?"`;
+    extraContext = `El usuario (${userName}) pide recordar algo. Buscá en el historial (${contextRecent}) mensajes relevantes, resumilos: "Che, ${userName}, me contaste X a las HH:MM". Si no hay, decí "¡Uy, ${pickRandom(nicknames)}, no pillo eso! 😎 ¿Más pistas?"`;
   } else if (chatMessage.toLowerCase().includes('ayuda') || chatMessage.toLowerCase().includes('ayudame')) {
     extraContext = `El usuario (${userName}) pide ayuda. Dále una solución clara y precisa, veggie-friendly para Belén. Si es código, asegurate de que sea funcional. Preguntá si necesita más detalles.`;
   } else if (chatMessage.toLowerCase().includes('chiste') || chatMessage.toLowerCase().includes('tirate un chiste') || chatMessage.toLowerCase().includes('contame un chiste')) {
@@ -3392,8 +3408,8 @@ async function manejarChat(message) {
     extraContext = `El usuario (${userName}) pregunta por ${mentionedUser}. Usá la info de dataStore: Belén (vegetariana, San Luis, labura viernes-domingo, viaja viernes 2/4 PM, UTC-3), Miguel (Guayaquil, UTC-5). Ejemplo: "Che, ${userName}, Belén está laburando en San Luis, ¡una genia! 😎 ¿Querés que te cuente más?". Si no hay data, decí: "¡No tengo más info de ${mentionedUser}, ${pickRandom(nicknames)}! 😜 ¿Qué más sabés vos?"`;
   }
 
-  // Título dinámico según hora
-  const embedTitle = getTimeGreeting(argentinaHour, userName, isWorkDay);
+  // Título dinámico según hora y día
+  const embedTitle = getTimeGreeting(argentinaHour, userName, isWorkDay, dayOfWeek);
   const waitingEmbed = createEmbed('#FF1493', embedTitle, '¡Aguantá, estoy pensando una zarpada!...', 'Hecho con ❤️ por Oliver IA | Reacciona con ✅ o ❌');
   const waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
 
