@@ -125,18 +125,6 @@
     "752987736759205960": [
       {
         "role": "user",
-        "content": "sabes sobre Valorant?",
-        "timestamp": 1752344510907,
-        "userName": "Miguel"
-      },
-      {
-        "role": "assistant",
-        "content": "¡Epa, Miguelito! 🚀 ¡Sí, loco! ¿Qué onda con Valorant? ¿Querés que te tire algún pique, te hable de agentes o qué? ¿Te estás viciando mucho últimamente?\n\nChe, ¡un placer! ¡Nos vemos! ✨",
-        "timestamp": 1752344515120,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
         "content": "Hola",
         "timestamp": 1752348967118,
         "userName": "Miguel"
@@ -241,6 +229,18 @@
         "role": "assistant",
         "content": "¡Todo piola, Miguel, loco! 🧉 ¿Qué tenés planeado pa’l día?",
         "timestamp": 1752522835711,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "hola",
+        "timestamp": 1752536711826,
+        "userName": "Miguel"
+      },
+      {
+        "role": "assistant",
+        "content": "¡Todo piola, Miguel, loco! 🧉 ¿Qué tenés planeado pa’l día?",
+        "timestamp": 1752536715533,
         "userName": "Oliver"
       }
     ]
