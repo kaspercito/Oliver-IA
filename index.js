@@ -6485,34 +6485,34 @@ client.once('ready', async () => {
         
                 const recipientName = "Belen"; 
                 const reminderTimes = {
-                  '1:00': {
-                    title: "¡Lunes de madrugada, ratita pequeña!",
-                    message: `¡Ey, ${recipientName}, genia! ✨ Ya arrancó el lunes, 1 de la matina, ¿estás trasnochando en casa o ya en modo sueño profundo? 😴 ¿Cómo cerró el finde, crack? Contame la posta, ratita blanca, y si querés un plan tranqui pa’l lunes, tirame una idea. ¡A meterle pila a la semana! 🧉 🚀`
-                  },
-                  '6:00': {
-                    title: "¡Madrugón de lunes, ratita blanca!",
-                    message: `¡Ey, ${recipientName}, crack! 🌄 6 de la matina, ¿ya estás activa en casa o todavía abrazada a la almohada? 😎 Si estás despierta, un cafecito en mano y a romperla desde casa, ¿no? 💪 Cuidate, ratita pequeña, y mandá buena onda pa’l arranque de semana. 🧉 ✨`
-                  },
-                  '9:00': {
-                    title: "¡Lunes con todo, ratita blanca!",
-                    message: `¡Buen día, ${recipientName}! 🌞 Son las 9, ¿ya arrancaste el lunes con un mate amargo y pura vibra? 🧉 Desde casita, ¿qué plan tenés pa’ hoy, ratita pequeña? ¿Laburo remoto o relax total? ¡Mandá señal y a darle con todo a la semana! 💫`
-                  },
-                  '13:00': {
-                    title: "¡Pausa de lunes, ratita pequeña!",
-                    message: `¡Mediodía de lunes, ${recipientName}! 🍴 ¿Qué se cocina en casa, genia? Algo rico y veggie, seguro. 😜 ¿Estás en modo productiva o tirada en el sillón? Tirame una señal, ratita blanca, y seguimos la buena onda pa’l día. ¡A disfrutar el lunes desde casa! 🌟 🧉`
-                  },
-                  '16:15': {
-                    title: "¡Tarde de lunes, ratita blanca!",
-                    message: `¡Ey, ${recipientName}, genia! 😎 4 y 15 de la tarde, ¿cómo va ese lunes en casa? 🌅 Espero que estés dándole caña al día. Si el sueño aprieta, un mate y a seguir, ratita pequeña. ¡Sos la crack del lunes! 💪 🧉`
-                  },
-                  '20:05': {
-                    title: "¡Ánimo, ratita pequeña!",
-                    message: `¡Ey, ${recipientName}, campeona! 😓 8:05 de la noche, ¿seguís con esos dolores de ovarios dando lata? 😴 ¿Qué tal un mate calentito y un descanso épico pa’ resetear? Mandame una vibra, ratita blanca, y contame cómo te vas a mimar hoy. ¡Siempre con garra! 💪 ✨`
-                  },
-                  '23:35': {
-                    title: "¡Lunes de noche, ratita blanca!",
-                    message: `¡11:35 de la noche, ${recipientName}! 🌙 ¿Cómo pintó el día en casa, genia? Espero que hayas cerrado el Domingo con buena onda. Tirame una señal, ratita pequeña, y charlamos tranqui pa’ bajar los decibeles. ¡A descansar pa’ romperla mañana! 💫`
-                  }
+                    '1:00': {
+                      title: "¡Martes trasnochador, ratita blanca!",
+                      message: `¡Ey, ${recipientName}, estrellita! 🌟 Es la 1 de la matina y vos seguís brillando en casa, ¿no, ratita pequeña? 😴 ¿Qué te tiene despierta? ¿Una serie épica o charlas con amigos? Contame el chisme, genia, y tirame un plan pa’l martes. ¡A darle magia a la semana! 🧉 💫`
+                    },
+                    '6:00': {
+                      title: "¡Madrugada mágica, ratita pequeña!",
+                      message: `¡Buen martes, ${recipientName}, crack! 🌅 6 de la matina, ¿ya estás dando vueltas por casa o todavía soñando lindo? 😎 Un mate calentito y a disfrutar el día libre, ¿eh? Mandame una vibra, ratita blanca, y que este martes sea puro amor. 🧉 ✨`
+                    },
+                    '9:00': {
+                      title: "¡Martes radiante, ratita blanca!",
+                      message: `¡Hola, ${recipientName}, genia! 🌞 Las 9 y vos ya estás haciendo magia en casa, ¿no? 🧉 ¿Qué plan pintó pa’ hoy, ratita pequeña? ¿Un libro, un café con amigas o puro relax? Tirame la posta y arrancá el martes con toda la onda. ¡Sos una reina! 💖`
+                    },
+                    '13:00': {
+                      title: "¡Mediodía de martes, ratita pequeña!",
+                      message: `¡Ey, ${recipientName}, joyita! 🍴 Mediodía en casa, ¿qué se cocina, genia? Seguro algo veggie y riquísimo. 😋 ¿Estás creando, descansando o planeando algo copado? Mandame una señal, ratita blanca, y seguimos poniendole color al martes. 🧉 🌈`
+                    },
+                    '16:15': {
+                      title: "¡Tardecita de martes, ratita blanca!",
+                      message: `¡${recipientName}, campeona! 😎 4 y 15, ¿cómo va esa tarde tranqui en casa? 🌄 Espero que estés disfrutando a full el día libre, ratita pequeña. ¿Un mate en la mano y buena música? Contame cómo la estás rompiendo, ¡sos puro fuego! 💪 🧉`
+                    },
+                    '20:05': {
+                      title: "¡Nochecita dulce, ratita pequeña!",
+                      message: `¡Ey, ${recipientName}, reina! 🌙 8:05 de la noche, ¿cómo anda todo por casa? Si esos dolores de ovarios molestan, ¿qué tal una mantita y un té calentito pa’ mimarte? 😴 Mandame una vibra, ratita blanca, y contame cómo vas a cerrar este martes con amor. ¡Siempre sos una genia! 💖 ✨`
+                    },
+                    '23:35': {
+                      title: "¡Fin de martes, ratita blanca!",
+                      message: `¡${recipientName}, estrellita! 🌌 11:35 de la noche, ¿cómo estuvo este martes en casa, genia? Espero que hayas llenado el día de momentos lindos, ratita pequeña. Tirame una señal y charlamos tranqui pa’ cerrar con calma. ¡A descansar pa’ brillar mañana! 🧉 💫`
+                    }
                  };
         
                 const timeKey = `${currentHour}:${currentMinute < 10 ? '0' : ''}${currentMinute}`;
