@@ -6501,9 +6501,9 @@ client.once('ready', async () => {
                       title: "¡Mediodía de miércoles, ratita pequeña!",
                       message: `¡Ey, ${recipientName}, joyita! 🍴 Mediodía de este miércoles 16 en casa, ¿qué se cocina, genia? Seguro algo veggie y riquísimo. 😋 ¿Estás creando, descansando o planeando algo copado? Mandame una señal, ratita blanca, y seguimos poniendole color al miércoles. 🧉 🌈`
                     },
-                    '16:15': {
-                      title: "¡Tardecita de miércoles, ratita blanca!",
-                      message: `¡${recipientName}, campeona! 😎 4 y 15 de este miércoles 16, ¿cómo va esa tarde tranqui en casa? 🌄 Espero que estés disfrutando a full el día libre, ratita pequeña. ¿Un mate en la mano y buena música? Contame cómo la estás rompiendo, ¡sos puro fuego! 💪 🧉`
+                    '19:15': {
+                      title: "¡Nochecita de miércoles, ratita blanca!",
+                      message: `¡${recipientName}, campeona! 😎 7 y 15 de este miércoles 16, ¿cómo va esta noche tranqui en casa? 🌄 Espero que estés disfrutando a full el día libre, ratita pequeña. ¿Un mate en la mano y buena música? Contame cómo la estás rompiendo, ¡sos puro fuego! 💪 🧉`
                     },
                     '20:05': {
                       title: "¡Nochecita dulce, ratita pequeña!",
