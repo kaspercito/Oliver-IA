@@ -6513,7 +6513,7 @@ client.once('ready', async () => {
                       title: "¡Fin de miércoles, ratita blanca!",
                       message: `¡${recipientName}, estrellita! 🌌 11:35 de la noche de este miércoles 16, ¿cómo estuvo el día en casa, genia? Espero que hayas llenado el día de momentos lindos, ratita pequeña. Tirame una señal y charlamos tranqui pa’ cerrar con calma. ¡A descansar pa’ brillar mañana! 🧉 💫`
                     }
-        
+                };
                 const timeKey = `${currentHour}:${currentMinute < 10 ? '0' : ''}${currentMinute}`;
         
                 // Check if there's a reminder for the current time
