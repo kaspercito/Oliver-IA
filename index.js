@@ -6484,36 +6484,36 @@ client.once('ready', async () => {
                 const oneDayInMs = 24 * 60 * 60 * 1000;
         
                 const recipientName = "Belen"; 
-                const reminderTimes = {
-                    '1:00': {
-                      title: "¡Miércoles trasnochador, ratita blanca!",
-                      message: `¡Ey, ${recipientName}, estrellita! 🌟 Es la 1 de la matina de este miércoles 16 y vos seguís brillando en casa, ¿no, ratita pequeña? 😴 ¿Qué te tiene despierta? ¿Una serie épica o charlas con amigos? Contame el chisme, genia, y tirame un plan pa’l miércoles. ¡A darle magia a la semana! 🧉 💫`
-                    },
-                    '6:00': {
-                      title: "¡Madrugada mágica, ratita pequeña!",
-                      message: `¡Buen miércoles 16, ${recipientName}, crack! 🌅 6 de la matina, ¿ya estás dando vueltas por casa o todavía soñando lindo? 😎 Un mate calentito y a disfrutar el día libre, ¿eh? Mandame una vibra, ratita blanca, y que este miércoles sea puro amor. 🧉 ✨`
-                    },
-                    '9:00': {
-                      title: "¡Miércoles radiante, ratita blanca!",
-                      message: `¡Hola, ${recipientName}, genia! 🌞 Las 9 de este miércoles 16 y vos ya estás haciendo magia en casa, ¿no? 🧉 ¿Qué plan pintó pa’ hoy, ratita pequeña? ¿Un libro, un café con amigas o puro relax? Tirame la posta y arrancá el miércoles con toda la onda. ¡Sos una reina! 💖`
-                    },
-                    '13:00': {
-                      title: "¡Mediodía de miércoles, ratita pequeña!",
-                      message: `¡Ey, ${recipientName}, joyita! 🍴 Mediodía de este miércoles 16 en casa, ¿qué se cocina, genia? Seguro algo veggie y riquísimo. 😋 ¿Estás creando, descansando o planeando algo copado? Mandame una señal, ratita blanca, y seguimos poniendole color al miércoles. 🧉 🌈`
-                    },
-                    '16:15': {
-                      title: "¡Tardecita de miércoles, ratita blanca!",
-                      message: `¡${recipientName}, campeona! 😎 4 y 15 de este miércoles 16, ¿cómo va esa tarde tranqui en casa? 🌄 Espero que estés disfrutando a full el día libre, ratita pequeña. ¿Un mate en la mano y buena música? Contame cómo la estás rompiendo, ¡sos puro fuego! 💪 🧉`
-                    },
-                    '20:05': {
-                      title: "¡Nochecita dulce, ratita pequeña!",
-                      message: `¡Ey, ${recipientName}, reina! 🌙 8:05 de la noche de este miércoles 16, ¿cómo anda todo por casa? Si esos dolores de ovarios molestan, ¿qué tal una mantita y un té calentito pa’ mimarte? 😴 Mandame una vibra, ratita blanca, y contame cómo vas a cerrar este miércoles con amor. ¡Siempre sos una genia! 💖 ✨`
-                    },
-                    '23:35': {
-                      title: "¡Fin de miércoles, ratita blanca!",
-                      message: `¡${recipientName}, estrellita! 🌌 11:35 de la noche de este miércoles 16, ¿cómo estuvo el día en casa, genia? Espero que hayas llenado el día de momentos lindos, ratita pequeña. Tirame una señal y charlamos tranqui pa’ cerrar con calma. ¡A descansar pa’ brillar mañana! 🧉 💫`
-                    }
-                };
+                // const reminderTimes = {
+                //     '1:00': {
+                //       title: "¡Miércoles trasnochador, ratita blanca!",
+                //       message: `¡Ey, ${recipientName}, estrellita! 🌟 Es la 1 de la matina de este miércoles 16 y vos seguís brillando en casa, ¿no, ratita pequeña? 😴 ¿Qué te tiene despierta? ¿Una serie épica o charlas con amigos? Contame el chisme, genia, y tirame un plan pa’l miércoles. ¡A darle magia a la semana! 🧉 💫`
+                //     },
+                //     '6:00': {
+                //       title: "¡Madrugada mágica, ratita pequeña!",
+                //       message: `¡Buen miércoles 16, ${recipientName}, crack! 🌅 6 de la matina, ¿ya estás dando vueltas por casa o todavía soñando lindo? 😎 Un mate calentito y a disfrutar el día libre, ¿eh? Mandame una vibra, ratita blanca, y que este miércoles sea puro amor. 🧉 ✨`
+                //     },
+                //     '9:00': {
+                //       title: "¡Miércoles radiante, ratita blanca!",
+                //       message: `¡Hola, ${recipientName}, genia! 🌞 Las 9 de este miércoles 16 y vos ya estás haciendo magia en casa, ¿no? 🧉 ¿Qué plan pintó pa’ hoy, ratita pequeña? ¿Un libro, un café con amigas o puro relax? Tirame la posta y arrancá el miércoles con toda la onda. ¡Sos una reina! 💖`
+                //     },
+                //     '13:00': {
+                //       title: "¡Mediodía de miércoles, ratita pequeña!",
+                //       message: `¡Ey, ${recipientName}, joyita! 🍴 Mediodía de este miércoles 16 en casa, ¿qué se cocina, genia? Seguro algo veggie y riquísimo. 😋 ¿Estás creando, descansando o planeando algo copado? Mandame una señal, ratita blanca, y seguimos poniendole color al miércoles. 🧉 🌈`
+                //     },
+                //     '16:15': {
+                //       title: "¡Tardecita de miércoles, ratita blanca!",
+                //       message: `¡${recipientName}, campeona! 😎 4 y 15 de este miércoles 16, ¿cómo va esa tarde tranqui en casa? 🌄 Espero que estés disfrutando a full el día libre, ratita pequeña. ¿Un mate en la mano y buena música? Contame cómo la estás rompiendo, ¡sos puro fuego! 💪 🧉`
+                //     },
+                //     '20:05': {
+                //       title: "¡Nochecita dulce, ratita pequeña!",
+                //       message: `¡Ey, ${recipientName}, reina! 🌙 8:05 de la noche de este miércoles 16, ¿cómo anda todo por casa? Si esos dolores de ovarios molestan, ¿qué tal una mantita y un té calentito pa’ mimarte? 😴 Mandame una vibra, ratita blanca, y contame cómo vas a cerrar este miércoles con amor. ¡Siempre sos una genia! 💖 ✨`
+                //     },
+                //     '23:35': {
+                //       title: "¡Fin de miércoles, ratita blanca!",
+                //       message: `¡${recipientName}, estrellita! 🌌 11:35 de la noche de este miércoles 16, ¿cómo estuvo el día en casa, genia? Espero que hayas llenado el día de momentos lindos, ratita pequeña. Tirame una señal y charlamos tranqui pa’ cerrar con calma. ¡A descansar pa’ brillar mañana! 🧉 💫`
+                //     }
+                // };
                 const timeKey = `${currentHour}:${currentMinute < 10 ? '0' : ''}${currentMinute}`;
         
                 // Check if there's a reminder for the current time
