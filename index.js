@@ -6503,7 +6503,7 @@ client.once('ready', async () => {
                     },
                     '19:15': {
                       title: "¡Nochecita de miércoles, ratita blanca!",
-                      message: `¡${recipientName}, campeona! 😎 7 y 15 de este miércoles 16, ¿cómo va esta noche tranqui en casa? 🌄 Espero que estés disfrutando a full el día libre, ratita pequeña. ¿Un mate en la mano y buena música? Contame cómo la estás rompiendo, ¡sos puro fuego! 💪 🧉`
+                      message: `¡${recipientName} <:Milagros:1394221114527322135>, campeona! 😎 7 y 15 de este miércoles 16, ¿cómo va esta noche tranqui en casa? 🌄 Espero que estés disfrutando a full el día libre, ratita pequeña. ¿Un mate en la mano y buena música? Contame cómo la estás rompiendo, ¡sos puro fuego! 💪 🧉`
                     },
                     '20:05': {
                       title: "¡Nochecita dulce, ratita pequeña!",
