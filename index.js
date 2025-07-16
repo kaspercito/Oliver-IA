@@ -6505,9 +6505,9 @@ client.once('ready', async () => {
                       title: "¡Nochecita de miércoles, ratita blanca!",
                       message: `¡${recipientName} , campeona! 😎 7 y 15 de este miércoles 16, ¿cómo va esta noche tranqui en casa? 🌄 Espero que estés disfrutando a full el día libre, ratita pequeña. ¿Un mate en la mano y buena música? Contame cómo la estás rompiendo, ¡sos puro fuego! 💪 🧉`
                     },
-                    '20:05': {
+                    '20:42': {
                       title: "¡Nochecita dulce, ratita pequeña!",
-                      message: `¡Ey, ${recipientName}, reina! 🌙 8:05 de la noche de este miércoles 16, ¿cómo anda todo por casa? Si esos dolores de ovarios molestan, ¿qué tal una mantita y un té calentito pa’ mimarte? 😴 Mandame una vibra, ratita blanca, y contame cómo vas a cerrar este miércoles con amor. ¡Siempre sos una genia! 💖 ✨`
+                      message: `¡Ey, ${recipientName}, reina! 🌙 8:42 de la noche de este miércoles 16, ¿cómo anda todo por casa? Si esos dolores de ovarios molestan, ¿qué tal una mantita y un té calentito pa’ mimarte? 😴 Mandame una vibra, ratita blanca, y contame cómo vas a cerrar este miércoles con amor. ¡Siempre sos una genia! 💖 ✨`
                     },
                     '23:35': {
                       title: "¡Fin de miércoles, ratita blanca!",
