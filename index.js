@@ -32,7 +32,7 @@ const client = new Client({
 const discordTogether = new DiscordTogether(client);
 const OWNER_ID = '752987736759205960';
 const ALLOWED_USER_ID = '1023132788632862761';
-const CHANNEL_ID = '1343749554905940058';
+const CHANNEL_ID = '1395491505162027119';
 const telegramToken = process.env.TELEGRAM_TOKEN; // Utiliza una variable de entorno
 const botTelegram = new TelegramBot(telegramToken, { polling: false });
 const chatIdBelen = '7894854634';
@@ -2306,7 +2306,7 @@ function obtenerPreguntaTriviaSinOpciones(usedQuestions, categoria) {
 }
 
 async function manejarMiguel(message) {
-    // Comando solo pa’ Miguel pa’ mandar un embed al canal con ID 1343749554905940058
+    // Comando solo pa’ Miguel pa’ mandar un embed al canal con ID 1395491505162027119
     const userName = message.author.id === OWNER_ID ? 'Belén' : 'Miguel';
     // Si no sos Belén, chau, no podés usarlo
     if (message.author.id !== OWNER_ID) return;
@@ -2325,8 +2325,8 @@ async function manejarMiguel(message) {
     // Busco el canal pa’ mandarle el mensaje
     let targetChannel;
     try {
-        targetChannel = await client.channels.fetch('1343749554905940058');
-        console.log(`[${instanceId}] Canal (1343749554905940058) obtenido con éxito`);
+        targetChannel = await client.channels.fetch('1395491505162027119');
+        console.log(`[${instanceId}] Canal (1395491505162027119) obtenido con éxito`);
     } catch (error) {
         // Si no encuentro el canal, te aviso en rojo
         console.error(`[${instanceId}] Error al obtener canal: ${error.message}`);
@@ -2335,7 +2335,7 @@ async function manejarMiguel(message) {
 
     // Chequeo si hay adjuntos pa’ incluirlos
     const attachments = message.attachments.size > 0 ? message.attachments.map(att => ({ attachment: att.url })) : [];
-    console.log(`[${instanceId}] Preparando envío al canal (1343749554905940058), adjuntos: ${attachments.length}`);
+    console.log(`[${instanceId}] Preparando envío al canal (1395491505162027119), adjuntos: ${attachments.length}`);
 
     try {
         // Armo un embed azul con el mensaje
@@ -6020,7 +6020,7 @@ client.on('messageCreate', async (message) => {
         const esJefe = hasJefeMention;
         const userId = esJefe ? ALLOWED_USER_ID : OWNER_ID;
         const targetName = esJefe ? 'Belén' : 'Miguel';
-        const canalGeneralId = '1343749554905940058';
+        const canalGeneralId = '1395491505162027119';
         const canalMiguel = '1351976159914754129';
         const canalBelen = '1351975268654252123';
         const canalGeneral = client.channels.cache.get(canalGeneralId);
