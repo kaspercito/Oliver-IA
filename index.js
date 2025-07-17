@@ -1,6 +1,6 @@
 const fs = require('fs');
 const { Client, GatewayIntentBits, EmbedBuilder } = require('discord.js');
-const { ButtonBuilder, ButtonStyle, ActionRowBuilder, EmbedBuilder } = require('discord.js');
+const { ButtonBuilder, ButtonStyle, ActionRowBuilder } = require('discord.js');
 const axios = require('axios');
 const https = require('https');
 const { v4: uuidv4 } = require('uuid');
