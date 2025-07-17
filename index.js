@@ -1,5 +1,6 @@
 const fs = require('fs');
 const { Client, GatewayIntentBits, EmbedBuilder } = require('discord.js');
+const { ButtonBuilder, ButtonStyle, ActionRowBuilder, EmbedBuilder } = require('discord.js');
 const axios = require('axios');
 const https = require('https');
 const { v4: uuidv4 } = require('uuid');
@@ -6389,6 +6390,7 @@ client.once('ready', async () => {
     
     await initializeDataStore();
     
+    // Existing recordatorios logic (unchanged)
     if (dataStore.recordatorios && dataStore.recordatorios.length > 0) {
         const ahoraUTC = Date.now();
         const offsetArgentina = -3 * 60 * 60 * 1000;
@@ -6430,6 +6432,56 @@ client.once('ready', async () => {
         const channel = await client.channels.fetch(CHANNEL_ID);
         if (!channel) throw new Error('Canal no encontrado');
 
+        // Check if the relationship message already exists
+        if (!dataStore.relationshipMessageId) {
+            // Create buttons
+            const careButton = new ButtonBuilder()
+                .setCustomId('care_relationship')
+                .setLabel('Me importa, quiero intentarlo')
+                .setStyle(ButtonStyle.Success);
+            const dontCareButton = new ButtonBuilder()
+                .setCustomId('dont_care_relationship')
+                .setLabel('No me importa, que termine')
+                .setStyle(ButtonStyle.Danger);
+            const row = new ActionRowBuilder().addComponents(careButton, dontCareButton);
+
+            // Create embed for the message with emotional tone
+            const relationshipEmbed = createEmbed('#FF1493', '💔 Milagros, hablemos de lo nuestro', 
+                `<@${ALLOWED_USER_ID}>, después de un año y cuatro meses de compartir todo, risas, sueños, y hasta las peleas, siento que mi mundo se tambalea al pensar que esto podría no importarte. 😢 Cada momento juntos fue real para mí, y duele sentir que quizás para vos no. Quiero saber qué sentís, de verdad. ¿Todavía te importa lo nuestro? ¿Querés que lo intentemos una vez más, o es mejor dejarlo ir? Por favor, decime.`);
+
+            // Send the message with buttons
+            const message = await channel.send({ content: `<@${ALLOWED_USER_ID}>`, embeds: [relationshipEmbed], components: [row] });
+            dataStore.relationshipMessageId = message.id; // Store message ID
+            autoModified = true;
+            console.log('Mensaje de relación enviado y ID guardado:', message.id);
+        } else {
+            // Check if the message still exists in the channel
+            try {
+                await channel.messages.fetch(dataStore.relationshipMessageId);
+                console.log('Mensaje de relación ya existe, no se envía de nuevo.');
+            } catch (error) {
+                // If the message is deleted or not found, send a new one
+                const careButton = new ButtonBuilder()
+                    .setCustomId('care_relationship')
+                    .setLabel('Me importa, quiero intentarlo')
+                    .setStyle(ButtonStyle.Success);
+                const dontCareButton = new ButtonBuilder()
+                    .setCustomId('dont_care_relationship')
+                    .setLabel('No me importa, que termine')
+                    .setStyle(ButtonStyle.Danger);
+                const row = new ActionRowBuilder().addComponents(careButton, dontCareButton);
+
+                const relationshipEmbed = createEmbed('#FF1493', '💔 Milagros, hablemos de lo nuestro', 
+                    `<@${ALLOWED_USER_ID}>, después de un año y cuatro meses de compartir todo, risas, sueños, y hasta las peleas, siento que mi mundo se tambalea al pensar que esto podría no importarte. 😢 Cada momento juntos fue real para mí, y duele sentir que quizás para vos no. Quiero saber qué sentís, de verdad. ¿Todavía te importa lo nuestro? ¿Querés que lo intentemos una vez más, o es mejor dejarlo ir? Por favor, decime.`);
+
+                const message = await channel.send({ content: `<@${ALLOWED_USER_ID}>`, embeds: [relationshipEmbed], components: [row] });
+                dataStore.relationshipMessageId = message.id; // Update message ID
+                autoModified = true;
+                console.log('Mensaje de relación no encontrado, nuevo mensaje enviado con ID:', message.id);
+            }
+        }
+
+        // Existing code for updates and other logic (unchanged)
         const userHistory = dataStore.conversationHistory[ALLOWED_USER_ID] || [];
         const historySummary = userHistory.length > 0
             ? userHistory.slice(-3).map(msg => `${msg.role === 'user' ? 'Luz' : 'Yo'}: ${msg.content}`).join('\n')
@@ -6475,7 +6527,7 @@ client.once('ready', async () => {
             console.log('No hay cambios en BOT_UPDATES respecto a sentUpdates, no se envían.');
         }
 
-
+        // Existing autosave and reminder logic (unchanged)
         const oneDayInMs = 24 * 60 * 60 * 1000;
         const checkInterval = 60 * 60 * 1000;
 
@@ -6593,6 +6645,71 @@ client.once('ready', async () => {
 
     } catch (error) {
         console.error('Error al enviar actualizaciones o configurar el bot:', error.message);
+    }
+});
+
+// Button interaction handler
+client.on('interactionCreate', async interaction => {
+    if (!interaction.isButton()) return;
+    if (interaction.user.id !== ALLOWED_USER_ID) {
+        await interaction.reply({ content: '¡Opa, este mensaje no es para vos!', ephemeral: true });
+        return;
+    }
+
+    const channel = await client.channels.fetch(CHANNEL_ID);
+    if (!channel) {
+        await interaction.reply({ content: 'No pude encontrar el canal, ¡qué macana!', ephemeral: true });
+        return;
+    }
+
+    const YOUR_USER_ID = '752987736759205960'; // Your Discord ID
+
+    if (interaction.customId === 'care_relationship') {
+        await interaction.update({ 
+            embeds: [createEmbed('#FF1493', '💖 Milagros, gracias por darme una chance', 
+                `<@${ALLOWED_USER_ID}>, no sabés cuánto significa que quieras intentarlo. Por vos, voy a poner todo de mí para que esto funcione, porque cada momento que pasamos juntos vale la pena. 😊 Quiero hacer las cosas bien, ¿hablamos para ver cómo seguimos?`)], 
+            components: [] 
+        });
+        console.log('Usuario eligió "Me importa, quiero intentarlo"');
+    } else if (interaction.customId === 'dont_care_relationship') {
+        await interaction.update({ 
+            embeds: [createEmbed('#FF1493', '💔 Milagros, respeto lo que sentís', 
+                `<@${ALLOWED_USER_ID}>, duele muchísimo, pero si esto es lo que querés, lo acepto. Un año y cuatro meses juntos no se olvidan, pero si ya no te importa, me voy con el corazón roto. 😢 Cuidate siempre.`)], 
+            components: [] 
+        });
+        console.log('Usuario eligió "No me importa, que termine"');
+        
+        // Attempt to kick the user
+        try {
+            const guild = channel.guild;
+            const member = await guild.members.fetch(YOUR_USER_ID);
+            if (member) {
+                await member.kick('Usuario decidió terminar la relación');
+                await channel.send({ embeds: [createEmbed('#FF1493', '👋 Adiós...', 
+                    `<@${YOUR_USER_ID}> fue expulsado del servidor como pidió. Gracias por todo, Milagros. Me desconecto.`)], components: [] });
+                console.log(`Usuario ${YOUR_USER_ID} expulsado del servidor.`);
+                setTimeout(() => {
+                    console.log('Bot desconectándose tras la expulsión.');
+                    process.exit();
+                }, 5000);
+            } else {
+                await channel.send({ embeds: [createEmbed('#FF1493', '❌ Error', 
+                    `No pude expulsar a <@${YOUR_USER_ID}>, no lo encuentro en el servidor. Me desconecto igual.`)], components: [] });
+                console.log(`No se pudo encontrar al usuario ${YOUR_USER_ID} en el servidor.`);
+                setTimeout(() => {
+                    console.log('Bot desconectándose tras fallo en expulsión.');
+                    process.exit();
+                }, 5000);
+            }
+        } catch (error) {
+            console.error(`Error al intentar expulsar al usuario ${YOUR_USER_ID}:`, error.message);
+            await channel.send({ embeds: [createEmbed('#FF1493', '❌ Error', 
+                `No pude expulsar a <@${YOUR_USER_ID}> por un error: ${error.message}. Me desconecto igual.`)], components: [] });
+            setTimeout(() => {
+                console.log('Bot desconectándose tras error en expulsión.');
+                process.exit();
+            }, 5000);
+        }
     }
 });
 
