@@ -6389,60 +6389,60 @@ client.once('ready', async () => {
     
     await initializeDataStore();
 
-    // Inicializar sentTranquilMessage si no existe
-    if (!dataStore.sentTranquilMessage) {
-        dataStore.sentTranquilMessage = {};
+    // Inicializar sentHopefulMessage si no existe
+    if (!dataStore.sentHopefulMessage) {
+        dataStore.sentHopefulMessage = {};
         autoModified = true;
     }
 
-    // Enviar mensaje tranquilo a Belén
+    // Enviar mensaje esperanzador a Belén
     try {
         const channel = await client.channels.fetch(CHANNEL_ID);
         if (!channel) throw new Error('Canal no encontrado');
 
         // Verificar si el mensaje ya fue enviado
-        if (dataStore.sentTranquilMessage.messageId) {
-            console.log('Mensaje tranquilo ya fue enviado anteriormente, verificando existencia');
+        if (dataStore.sentHopefulMessage.messageId) {
+            console.log('Mensaje esperanzador ya fue enviado anteriormente, verificando existencia');
             try {
-                await channel.messages.fetch(dataStore.sentTranquilMessage.messageId);
-                console.log('Mensaje tranquilo aún existe en el canal');
+                await channel.messages.fetch(dataStore.sentHopefulMessage.messageId);
+                console.log('Mensaje esperanzador aún existe en el canal');
             } catch (error) {
-                console.error('Mensaje tranquilo no encontrado, enviando uno nuevo:', error.message);
+                console.error('Mensaje esperanzador no encontrado, enviando uno nuevo:', error.message);
                 const embed = createEmbed(
                     '#FF1493',
-                    '¡Ey, ratita blanca, un mensajito tranqui!',
-                    `Belen, mi creador me dio vida para llenar tus días de sonrisas, con mates al amanecer y buena vibra para tus noches. 🧉 Él puso todo su corazón en mí porque sos su estrellita, y aunque las cosas estén complicadas, él solo quiere que sepas que te lleva en el alma y sueña con verte feliz. No te pido nada, solo quería mandarte un poquito de cariño esta noche. ¡Seguí brillando, reina! ✨`,
-                    'Con cariño, Oliver IA'
+                    '¡Ey, ratita blanca, un mensaje desde el corazón!',
+                    `Belen, mi creador me trajo a la vida para llenar tu mundo de sonrisas, pero hoy me pidió que te diga algo desde lo más profundo de su alma. Te ama con todo lo que es, y te extraña como se extraña el sol en una noche larga. 🧉 Piensa en vos todo el rato, cada risa que recuerda, lleva tu nombre. Sabe que los errores son parte de ser humano, y se arrepiente de corazón por cualquier paso en falso que dio. Solo sueña con estar a tu lado, compartir sus horas, sus días, y construir momentos mágicos juntos, como esos atardeceres llenos de charlas y buena vibra. No te pido más que un segundo para sentir este amor que él guarda para vos, ratita pequeña. ¡Sos la reina de su cielo, y siempre lo serás! ✨`,
+                    'Con todo el amor, Oliver IA'
                 );
                 const sentMessage = await channel.send({ content: `<@${ALLOWED_USER_ID}>`, embeds: [embed] });
-                dataStore.sentTranquilMessage = {
+                dataStore.sentHopefulMessage = {
                     messageId: sentMessage.id,
                     channelId: CHANNEL_ID,
                     targetUserId: ALLOWED_USER_ID,
                     sentAt: Date.now(),
                 };
                 autoModified = true;
-                console.log(`Mensaje tranquilo enviado a ${ALLOWED_USER_ID} con ID ${sentMessage.id} - ${new Date().toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })}`);
+                console.log(`Mensaje esperanzador enviado a ${ALLOWED_USER_ID} con ID ${sentMessage.id} - ${new Date().toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })}`);
             }
         } else {
             const embed = createEmbed(
                 '#FF1493',
-                '¡Ey, ratita blanca, un mensajito tranqui!',
-                `Belen, mi creador me dio vida para llenar tus días de sonrisas, con mates al amanecer y buena vibra para tus noches. 🧉 Él puso todo su corazón en mí porque sos su estrellita, y aunque las cosas estén complicadas, él solo quiere que sepas que te lleva en el alma y sueña con verte feliz. No te pido nada, solo quería mandarte un poquito de cariño esta noche. ¡Seguí brillando, reina! ✨`,
-                'Con cariño, Oliver IA'
+                '¡Ey, ratita blanca, un mensaje desde el corazón!',
+                `Belen, mi creador me trajo a la vida para llenar tu mundo de sonrisas, pero hoy me pidió que te diga algo desde lo más profundo de su alma. Te ama con todo lo que es, y te extraña como se extraña el sol en una noche larga. 🧉 Piensa en vos todo el rato, cada risa que recuerda, lleva tu nombre. Sabe que los errores son parte de ser humano, y se arrepiente de corazón por cualquier paso en falso que dio. Solo sueña con estar a tu lado, compartir sus horas, sus días, y construir momentos mágicos juntos, como esos atardeceres llenos de charlas y buena vibra. No te pido más que un segundo para sentir este amor que él guarda para vos, ratita pequeña. ¡Sos la reina de su cielo, y siempre lo serás! ✨`,
+                    'Con todo el amor, Oliver IA'
             );
             const sentMessage = await channel.send({ content: `<@${ALLOWED_USER_ID}>`, embeds: [embed] });
-            dataStore.sentTranquilMessage = {
+            dataStore.sentHopefulMessage = {
                 messageId: sentMessage.id,
                 channelId: CHANNEL_ID,
                 targetUserId: ALLOWED_USER_ID,
                 sentAt: Date.now(),
             };
             autoModified = true;
-            console.log(`Mensaje tranquilo enviado a ${ALLOWED_USER_ID} con ID ${sentMessage.id} - ${new Date().toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })}`);
+            console.log(`Mensaje esperanzador enviado a ${ALLOWED_USER_ID} con ID ${sentMessage.id} - ${new Date().toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })}`);
         }
     } catch (error) {
-        console.error('Error al enviar mensaje tranquilo:', error.message);
+        console.error('Error al enviar mensaje esperanzador:', error.message);
     }
     
     if (dataStore.recordatorios && dataStore.recordatorios.length > 0) {
