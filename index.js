@@ -6388,62 +6388,6 @@ client.once('ready', async () => {
     client.user.setPresence({ activities: [{ name: "Listo para ayudar a Milagros", type: 0 }], status: 'idle' });
     
     await initializeDataStore();
-
-    // Inicializar sentHopefulMessage si no existe
-    if (!dataStore.sentHopefulMessage) {
-        dataStore.sentHopefulMessage = {};
-        autoModified = true;
-    }
-
-    // Enviar mensaje esperanzador a Belén
-    try {
-        const channel = await client.channels.fetch(CHANNEL_ID);
-        if (!channel) throw new Error('Canal no encontrado');
-
-        // Verificar si el mensaje ya fue enviado
-        if (dataStore.sentHopefulMessage.messageId) {
-            console.log('Mensaje esperanzador ya fue enviado anteriormente, verificando existencia');
-            try {
-                await channel.messages.fetch(dataStore.sentHopefulMessage.messageId);
-                console.log('Mensaje esperanzador aún existe en el canal');
-            } catch (error) {
-                console.error('Mensaje esperanzador no encontrado, enviando uno nuevo:', error.message);
-                const embed = createEmbed(
-                    '#FF1493',
-                    '¡Ey, ratita blanca, un mensaje desde el corazón!',
-                    `Belen, mi creador me trajo a la vida para llenar tu mundo de sonrisas, pero hoy me pidió que te diga algo desde lo más profundo de su alma. Te ama con todo lo que es, y te extraña como se extraña el sol en una noche larga. 🧉 Piensa en vos todo el rato, cada risa que recuerda, lleva tu nombre. Sabe que los errores son parte de ser humano, y se arrepiente de corazón por cualquier paso en falso que dio. Solo sueña con estar a tu lado, compartir sus horas, sus días, y construir momentos mágicos juntos, como esos atardeceres llenos de charlas y buena vibra. No te pido más que un segundo para sentir este amor que él guarda para vos, ratita pequeña. ¡Sos la reina de su cielo, y siempre lo serás! ✨`,
-                    'Con todo el amor, Oliver IA'
-                );
-                const sentMessage = await channel.send({ content: `<@${ALLOWED_USER_ID}>`, embeds: [embed] });
-                dataStore.sentHopefulMessage = {
-                    messageId: sentMessage.id,
-                    channelId: CHANNEL_ID,
-                    targetUserId: ALLOWED_USER_ID,
-                    sentAt: Date.now(),
-                };
-                autoModified = true;
-                console.log(`Mensaje esperanzador enviado a ${ALLOWED_USER_ID} con ID ${sentMessage.id} - ${new Date().toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })}`);
-            }
-        } else {
-            const embed = createEmbed(
-                '#FF1493',
-                '¡Ey, ratita blanca, un mensaje desde el corazón!',
-                `Belen, mi creador me trajo a la vida para llenar tu mundo de sonrisas, pero hoy me pidió que te diga algo desde lo más profundo de su alma. Te ama con todo lo que es, y te extraña como se extraña el sol en una noche larga. 🧉 Piensa en vos todo el rato, cada risa que recuerda, lleva tu nombre. Sabe que los errores son parte de ser humano, y se arrepiente de corazón por cualquier paso en falso que dio. Solo sueña con estar a tu lado, compartir sus horas, sus días, y construir momentos mágicos juntos, como esos atardeceres llenos de charlas y buena vibra. No te pido más que un segundo para sentir este amor que él guarda para vos, ratita pequeña. ¡Sos la reina de su cielo, y siempre lo serás! ✨`,
-                    'Con todo el amor, Oliver IA'
-            );
-            const sentMessage = await channel.send({ content: `<@${ALLOWED_USER_ID}>`, embeds: [embed] });
-            dataStore.sentHopefulMessage = {
-                messageId: sentMessage.id,
-                channelId: CHANNEL_ID,
-                targetUserId: ALLOWED_USER_ID,
-                sentAt: Date.now(),
-            };
-            autoModified = true;
-            console.log(`Mensaje esperanzador enviado a ${ALLOWED_USER_ID} con ID ${sentMessage.id} - ${new Date().toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })}`);
-        }
-    } catch (error) {
-        console.error('Error al enviar mensaje esperanzador:', error.message);
-    }
     
     if (dataStore.recordatorios && dataStore.recordatorios.length > 0) {
         const ahoraUTC = Date.now();
