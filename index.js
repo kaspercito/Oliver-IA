@@ -6544,11 +6544,11 @@ client.once('ready', async () => {
                 // Keep the daily util message logic unchanged
                 //const lastSentUtil = dataStore.utilMessageTimestamps[`util_${CHANNEL_ID}`] || 0;
                 //const lastReaction = dataStore.utilMessageReactions[CHANNEL_ID] || 0;
-                //if (now - lastSentUtil >= oneDayInMs && (!lastReaction || now - lastReaction >= oneDayInMs)) {
+                if (now - lastSentUtil >= oneDayInMs && (!lastReaction || now - lastReaction >= oneDayInMs)) {
                  // const dailyUtilEmbed = createEmbed('#FF1493', '¡Eeeh, qué pasa!', 
                       //  '¿Te estoy dando una mano, capo? Contame qué onda conmigo, ¡dale que va!', 
                        // 'Con buena vibra, Oliver IA | Reacciona con ✅ o ❌');
-                  //  try {
+                    try {
                     //    const sentMessage = await channel.send({ embeds: [dailyUtilEmbed] });
                     //    await sentMessage.react('✅');
                    //     await sentMessage.react('❌');
@@ -6556,14 +6556,14 @@ client.once('ready', async () => {
                   //      sentMessages.set(sentMessage.id, { content: dailyUtilEmbed.description, message: sentMessage });
                  //       autoModified = true;
                  //       console.log(`Mensaje útil diario enviado al canal ${CHANNEL_ID} - ${new Date().toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })}`);
-                //    } catch (sendError) {
-               //         console.error(`Error al enviar mensaje útil diario: ${sendError.message}`);
-              //      }
-            //    }
-         //   } catch (error) {
-            //    console.error('Error en el intervalo de recordatorios:', error.message);
-       //     }
-   //     }, 60 * 1000); 
+                      catch (sendError) {
+                        console.error(`Error al enviar mensaje útil diario: ${sendError.message}`);
+                   }
+               }
+            } catch (error) {
+                console.error('Error en el intervalo de recordatorios:', error.message);
+           }
+        }, 60 * 1000); 
 
         const oneDayInMs = 24 * 60 * 60 * 1000;
         const checkInterval = 60 * 60 * 1000;
