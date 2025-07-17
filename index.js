@@ -6483,42 +6483,42 @@ client.once('ready', async () => {
                 const currentMinute = argentinaDate.getMinutes();
                 const oneDayInMs = 24 * 60 * 60 * 1000;
         
-                const recipientName = "Belen"; 
-                const reminderTimes = {
-                    '1:00': {
-                      title: "¡Miércoles trasnochador, ratita blanca!",
-                      message: `¡Ey, ${recipientName}, estrellita! 🌟 Es la 1 de la matina de este miércoles 16 y vos seguís brillando en casa, ¿no, ratita pequeña? 😴 ¿Qué te tiene despierta? ¿Una serie épica o charlas con amigos? Contame el chisme, genia, y tirame un plan pa’l miércoles. ¡A darle magia a la semana! 🧉 💫`
-                    },
-                    '6:00': {
-                      title: "¡Madrugada mágica, ratita pequeña!",
-                      message: `¡Buen miércoles 16, ${recipientName}, crack! 🌅 6 de la matina, ¿ya estás dando vueltas por casa o todavía soñando lindo? 😎 Un mate calentito y a disfrutar el día libre, ¿eh? Mandame una vibra, ratita blanca, y que este miércoles sea puro amor. 🧉 ✨`
-                    },
-                    '9:00': {
-                      title: "¡Miércoles radiante, ratita blanca!",
-                      message: `¡Hola, ${recipientName}, genia! 🌞 Las 9 de este miércoles 16 y vos ya estás haciendo magia en casa, ¿no? 🧉 ¿Qué plan pintó pa’ hoy, ratita pequeña? ¿Un libro, un café con amigas o puro relax? Tirame la posta y arrancá el miércoles con toda la onda. ¡Sos una reina! 💖`
-                    },
-                    '13:00': {
-                      title: "¡Mediodía de miércoles, ratita pequeña!",
-                      message: `¡Ey, ${recipientName}, joyita! 🍴 Mediodía de este miércoles 16 en casa, ¿qué se cocina, genia? Seguro algo veggie y riquísimo. 😋 ¿Estás creando, descansando o planeando algo copado? Mandame una señal, ratita blanca, y seguimos poniendole color al miércoles. 🧉 🌈`
-                    },
-                    '19:15': {
-                      title: "¡Nochecita de miércoles, ratita blanca!",
-                      message: `¡${recipientName} , campeona! 😎 7 y 15 de este miércoles 16, ¿cómo va esta noche tranqui en casa? 🌄 Espero que estés disfrutando a full el día libre, ratita pequeña. ¿Un mate en la mano y buena música? Contame cómo la estás rompiendo, ¡sos puro fuego! 💪 🧉`
-                    },
-                    '20:50': {
-                      title: "¡Nochecita dulce, ratita pequeña!",
-                      message: `¡Ey, ${recipientName}, reina! 🌙 8:50 de la noche de este miércoles 16, ¿cómo anda todo por casa? Si esos dolores de ovarios molestan, ¿qué tal una mantita y un té calentito pa’ mimarte? 😴 Mandame una vibra, ratita blanca, y contame cómo vas a cerrar este miércoles con amor. ¡Siempre sos una genia! 💖 ✨`
-                    },
-                    '23:35': {
-                      title: "¡Fin de miércoles, ratita blanca!",
-                      message: `¡${recipientName}, estrellita! 🌌 11:35 de la noche de este miércoles 16, ¿cómo estuvo el día en casa, genia? Espero que hayas llenado el día de momentos lindos, ratita pequeña. Tirame una señal y charlamos tranqui pa’ cerrar con calma. ¡A descansar pa’ brillar mañana! 🧉 💫`
-                    }
-                };
+                
                 const timeKey = `${currentHour}:${currentMinute < 10 ? '0' : ''}${currentMinute}`;
         
                 // Check if there's a reminder for the current time
                 if (reminderTimes[timeKey]) {
-                    const reminderKey = `reminder_${CHANNEL_ID}_${timeKey.replace(':', '_')}`;
+       const recipientName = "Belen"; 
+                // const reminderTimes = {
+                //     '1:00': {
+                //       title: "¡Miércoles trasnochador, ratita blanca!",
+                //       message: `¡Ey, ${recipientName}, estrellita! 🌟 Es la 1 de la matina de este miércoles 16 y vos seguís brillando en casa, ¿no, ratita pequeña? 😴 ¿Qué te tiene despierta? ¿Una serie épica o charlas con amigos? Contame el chisme, genia, y tirame un plan pa’l miércoles. ¡A darle magia a la semana! 🧉 💫`
+                //     },
+                //     '6:00': {
+                //       title: "¡Madrugada mágica, ratita pequeña!",
+                //       message: `¡Buen miércoles 16, ${recipientName}, crack! 🌅 6 de la matina, ¿ya estás dando vueltas por casa o todavía soñando lindo? 😎 Un mate calentito y a disfrutar el día libre, ¿eh? Mandame una vibra, ratita blanca, y que este miércoles sea puro amor. 🧉 ✨`
+                //     },
+                //     '9:00': {
+                //       title: "¡Miércoles radiante, ratita blanca!",
+                //       message: `¡Hola, ${recipientName}, genia! 🌞 Las 9 de este miércoles 16 y vos ya estás haciendo magia en casa, ¿no? 🧉 ¿Qué plan pintó pa’ hoy, ratita pequeña? ¿Un libro, un café con amigas o puro relax? Tirame la posta y arrancá el miércoles con toda la onda. ¡Sos una reina! 💖`
+                //     },
+                //     '13:00': {
+                //       title: "¡Mediodía de miércoles, ratita pequeña!",
+                //       message: `¡Ey, ${recipientName}, joyita! 🍴 Mediodía de este miércoles 16 en casa, ¿qué se cocina, genia? Seguro algo veggie y riquísimo. 😋 ¿Estás creando, descansando o planeando algo copado? Mandame una señal, ratita blanca, y seguimos poniendole color al miércoles. 🧉 🌈`
+                //     },
+                //     '16:15': {
+                //       title: "¡Tardecita de miércoles, ratita blanca!",
+                //       message: `¡${recipientName}, campeona! 😎 4 y 15 de este miércoles 16, ¿cómo va esa tarde tranqui en casa? 🌄 Espero que estés disfrutando a full el día libre, ratita pequeña. ¿Un mate en la mano y buena música? Contame cómo la estás rompiendo, ¡sos puro fuego! 💪 🧉`
+                //     },
+                //     '20:05': {
+                //       title: "¡Nochecita dulce, ratita pequeña!",
+                //       message: `¡Ey, ${recipientName}, reina! 🌙 8:05 de la noche de este miércoles 16, ¿cómo anda todo por casa? Si esos dolores de ovarios molestan, ¿qué tal una mantita y un té calentito pa’ mimarte? 😴 Mandame una vibra, ratita blanca, y contame cómo vas a cerrar este miércoles con amor. ¡Siempre sos una genia! 💖 ✨`
+                //     },
+                //     '23:35': {
+                //       title: "¡Fin de miércoles, ratita blanca!",
+                //       message: `¡${recipientName}, estrellita! 🌌 11:35 de la noche de este miércoles 16, ¿cómo estuvo el día en casa, genia? Espero que hayas llenado el día de momentos lindos, ratita pequeña. Tirame una señal y charlamos tranqui pa’ cerrar con calma. ¡A descansar pa’ brillar mañana! 🧉 💫`
+                //     }
+                // };             const reminderKey = `reminder_${CHANNEL_ID}_${timeKey.replace(':', '_')}`;
                     const lastSentReminder = dataStore.utilMessageTimestamps[reminderKey] || 0;
                     const hoursSinceLastSent = (now - lastSentReminder) / (60 * 60 * 1000);
         
@@ -6542,28 +6542,28 @@ client.once('ready', async () => {
                 }
         
                 // Keep the daily util message logic unchanged
-                const lastSentUtil = dataStore.utilMessageTimestamps[`util_${CHANNEL_ID}`] || 0;
-                const lastReaction = dataStore.utilMessageReactions[CHANNEL_ID] || 0;
-                if (now - lastSentUtil >= oneDayInMs && (!lastReaction || now - lastReaction >= oneDayInMs)) {
-                    const dailyUtilEmbed = createEmbed('#FF1493', '¡Eeeh, qué pasa!', 
-                        '¿Te estoy dando una mano, capo? Contame qué onda conmigo, ¡dale que va!', 
-                        'Con buena vibra, Oliver IA | Reacciona con ✅ o ❌');
-                    try {
-                        const sentMessage = await channel.send({ embeds: [dailyUtilEmbed] });
-                        await sentMessage.react('✅');
-                        await sentMessage.react('❌');
-                        dataStore.utilMessageTimestamps[`util_${CHANNEL_ID}`] = now;
-                        sentMessages.set(sentMessage.id, { content: dailyUtilEmbed.description, message: sentMessage });
-                        autoModified = true;
-                        console.log(`Mensaje útil diario enviado al canal ${CHANNEL_ID} - ${new Date().toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })}`);
-                    } catch (sendError) {
-                        console.error(`Error al enviar mensaje útil diario: ${sendError.message}`);
-                    }
-                }
-            } catch (error) {
-                console.error('Error en el intervalo de recordatorios:', error.message);
-            }
-        }, 60 * 1000); 
+                //const lastSentUtil = dataStore.utilMessageTimestamps[`util_${CHANNEL_ID}`] || 0;
+                //const lastReaction = dataStore.utilMessageReactions[CHANNEL_ID] || 0;
+                //if (now - lastSentUtil >= oneDayInMs && (!lastReaction || now - lastReaction >= oneDayInMs)) {
+                 // const dailyUtilEmbed = createEmbed('#FF1493', '¡Eeeh, qué pasa!', 
+                      //  '¿Te estoy dando una mano, capo? Contame qué onda conmigo, ¡dale que va!', 
+                       // 'Con buena vibra, Oliver IA | Reacciona con ✅ o ❌');
+                  //  try {
+                    //    const sentMessage = await channel.send({ embeds: [dailyUtilEmbed] });
+                    //    await sentMessage.react('✅');
+                   //     await sentMessage.react('❌');
+                  //      dataStore.utilMessageTimestamps[`util_${CHANNEL_ID}`] = now;
+                  //      sentMessages.set(sentMessage.id, { content: dailyUtilEmbed.description, message: sentMessage });
+                 //       autoModified = true;
+                 //       console.log(`Mensaje útil diario enviado al canal ${CHANNEL_ID} - ${new Date().toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })}`);
+                //    } catch (sendError) {
+               //         console.error(`Error al enviar mensaje útil diario: ${sendError.message}`);
+              //      }
+            //    }
+         //   } catch (error) {
+            //    console.error('Error en el intervalo de recordatorios:', error.message);
+       //     }
+   //     }, 60 * 1000); 
 
         const oneDayInMs = 24 * 60 * 60 * 1000;
         const checkInterval = 60 * 60 * 1000;
