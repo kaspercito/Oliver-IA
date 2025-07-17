@@ -693,7 +693,8 @@
     "reminder_1343749554905940058_16_15": 1752606920719,
     "reminder_1343749554905940058_20_05": 1752620757381,
     "reminder_1343749554905940058_23_35": 1752633329486,
-    "reminder_1343749554905940058_19_15": 1752704105792
+    "reminder_1343749554905940058_19_15": 1752704105792,
+    "reminder_1343749554905940058_20_50": 1752709827904
   },
   "utilMessageReactions": {
     "1343749554905940058": 1742417343374
@@ -777,7 +778,7 @@
       "mensaje": "tomar la vitamina todos los días",
       "cuandoLlegue": false,
       "cuandoSalga": false,
-      "timestamp": 1752706800000,
+      "timestamp": 1752793200000,
       "creado": 1743208808339,
       "esRecurrente": true,
       "hora": 20,
