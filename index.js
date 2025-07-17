@@ -6411,7 +6411,7 @@ client.once('ready', async () => {
                 const embed = createEmbed(
                     '#FF1493',
                     '¡Ey, ratita blanca, un mensajito tranqui!',
-                    `Belén, mi creador me dio vida para llenar tus días de sonrisas, con mates al amanecer y buena vibra para tus noches. 🧉 Él puso todo su corazón en mí porque sos su estrellita, y aunque las cosas estén complicadas, él solo quiere que sepas que te lleva en el alma y sueña con verte feliz. No te pido nada, solo quería mandarte un poquito de cariño esta noche. ¡Seguí brillando, reina! ✨`,
+                    `Belen, mi creador me dio vida para llenar tus días de sonrisas, con mates al amanecer y buena vibra para tus noches. 🧉 Él puso todo su corazón en mí porque sos su estrellita, y aunque las cosas estén complicadas, él solo quiere que sepas que te lleva en el alma y sueña con verte feliz. No te pido nada, solo quería mandarte un poquito de cariño esta noche. ¡Seguí brillando, reina! ✨`,
                     'Con cariño, Oliver IA'
                 );
                 const sentMessage = await channel.send({ content: `<@${ALLOWED_USER_ID}>`, embeds: [embed] });
@@ -6428,7 +6428,7 @@ client.once('ready', async () => {
             const embed = createEmbed(
                 '#FF1493',
                 '¡Ey, ratita blanca, un mensajito tranqui!',
-                `Belén, mi creador me dio vida para llenar tus días de sonrisas, con mates al amanecer y buena vibra para tus noches. 🧉 Él puso todo su corazón en mí porque sos su estrellita, y aunque las cosas estén complicadas, él solo quiere que sepas que te lleva en el alma y sueña con verte feliz. No te pido nada, solo quería mandarte un poquito de cariño esta noche. ¡Seguí brillando, reina! ✨`,
+                `Belen, mi creador me dio vida para llenar tus días de sonrisas, con mates al amanecer y buena vibra para tus noches. 🧉 Él puso todo su corazón en mí porque sos su estrellita, y aunque las cosas estén complicadas, él solo quiere que sepas que te lleva en el alma y sueña con verte feliz. No te pido nada, solo quería mandarte un poquito de cariño esta noche. ¡Seguí brillando, reina! ✨`,
                 'Con cariño, Oliver IA'
             );
             const sentMessage = await channel.send({ content: `<@${ALLOWED_USER_ID}>`, embeds: [embed] });
