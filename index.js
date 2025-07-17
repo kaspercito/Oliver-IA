@@ -6388,7 +6388,63 @@ client.once('ready', async () => {
     client.user.setPresence({ activities: [{ name: "Listo para ayudar a Milagros", type: 0 }], status: 'idle' });
     
     await initializeDataStore();
-        
+
+    // Inicializar sentTranquilMessage si no existe
+    if (!dataStore.sentTranquilMessage) {
+        dataStore.sentTranquilMessage = {};
+        autoModified = true;
+    }
+
+    // Enviar mensaje tranquilo a Belén
+    try {
+        const channel = await client.channels.fetch(CHANNEL_ID);
+        if (!channel) throw new Error('Canal no encontrado');
+
+        // Verificar si el mensaje ya fue enviado
+        if (dataStore.sentTranquilMessage.messageId) {
+            console.log('Mensaje tranquilo ya fue enviado anteriormente, verificando existencia');
+            try {
+                await channel.messages.fetch(dataStore.sentTranquilMessage.messageId);
+                console.log('Mensaje tranquilo aún existe en el canal');
+            } catch (error) {
+                console.error('Mensaje tranquilo no encontrado, enviando uno nuevo:', error.message);
+                const embed = createEmbed(
+                    '#FF1493',
+                    '¡Ey, ratita blanca, un mensajito tranqui!',
+                    `Belén, mi creador me dio vida para llenar tus días de sonrisas, con mates al amanecer y buena vibra para tus noches. 🧉 Él puso todo su corazón en mí porque sos su estrellita, y aunque las cosas estén complicadas, él solo quiere que sepas que te lleva en el alma y sueña con verte feliz. No te pido nada, solo quería mandarte un poquito de cariño esta noche. ¡Seguí brillando, reina! ✨`,
+                    'Con cariño, Oliver IA'
+                );
+                const sentMessage = await channel.send({ content: `<@${ALLOWED_USER_ID}>`, embeds: [embed] });
+                dataStore.sentTranquilMessage = {
+                    messageId: sentMessage.id,
+                    channelId: CHANNEL_ID,
+                    targetUserId: ALLOWED_USER_ID,
+                    sentAt: Date.now(),
+                };
+                autoModified = true;
+                console.log(`Mensaje tranquilo enviado a ${ALLOWED_USER_ID} con ID ${sentMessage.id} - ${new Date().toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })}`);
+            }
+        } else {
+            const embed = createEmbed(
+                '#FF1493',
+                '¡Ey, ratita blanca, un mensajito tranqui!',
+                `Belén, mi creador me dio vida para llenar tus días de sonrisas, con mates al amanecer y buena vibra para tus noches. 🧉 Él puso todo su corazón en mí porque sos su estrellita, y aunque las cosas estén complicadas, él solo quiere que sepas que te lleva en el alma y sueña con verte feliz. No te pido nada, solo quería mandarte un poquito de cariño esta noche. ¡Seguí brillando, reina! ✨`,
+                'Con cariño, Oliver IA'
+            );
+            const sentMessage = await channel.send({ content: `<@${ALLOWED_USER_ID}>`, embeds: [embed] });
+            dataStore.sentTranquilMessage = {
+                messageId: sentMessage.id,
+                channelId: CHANNEL_ID,
+                targetUserId: ALLOWED_USER_ID,
+                sentAt: Date.now(),
+            };
+            autoModified = true;
+            console.log(`Mensaje tranquilo enviado a ${ALLOWED_USER_ID} con ID ${sentMessage.id} - ${new Date().toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })}`);
+        }
+    } catch (error) {
+        console.error('Error al enviar mensaje tranquilo:', error.message);
+    }
+    
     if (dataStore.recordatorios && dataStore.recordatorios.length > 0) {
         const ahoraUTC = Date.now();
         const offsetArgentina = -3 * 60 * 60 * 1000;
