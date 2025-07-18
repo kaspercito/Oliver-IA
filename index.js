@@ -6563,10 +6563,6 @@ client.once('ready', async () => {
                   "23:00": {
                     "title": "¡Fin de Viernes, ratita blanca!",
                     "message": `¡${recipientName}, crack! 🌟 11 de la noche de este viernes 18, ¿cómo estuvo el día, genia? Laburaste como campeona y ahora a descansar en casa. 😴 Mandame una señal, ratita pequeña, y cerramos este Viernes con amor. ¡A brillar mañana! 🧉 💖`
-                  },
-                  "1:45": {
-                    "title": "¡Trasnochada o dormidita, ratita blanca?",
-                    "message": `¡Ey, ${recipientName}, estrellita! 🌌 1:45 de la matina de este viernes 18 en Argentina, ¿todavía estás despierta, genia, o ya te fuiste al mundo de los sueños? 😴 Si estás en modo ratita trasnochadora, contame qué te tiene despierta. ¡Un mate y a cerrar la noche con magia, pequeña! 🧉 💫`
                   }
                 };
                 const timeKey = `${currentHour}:${currentMinute < 10 ? '0' : ''}${currentMinute}`;
