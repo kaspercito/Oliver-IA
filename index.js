@@ -2212,17 +2212,18 @@ const app = express();
 
 // Endpoint de ping (el tuyo)
 app.get('/ping', (req, res) => {
-    console.log('Recibí un ping, ¡estoy vivo!');
+    console.log(`[${instanceId}] Recibí un ping, ¡estoy vivo!`);
     res.send('¡Bot awake y con pilas!');
 });
 
 // Endpoint de health check para Render
 app.get('/health', (req, res) => {
+    console.log(`[${instanceId}] Health check solicitado`);
     if (client.isReady()) {
-        console.log('Health check: Bot está conectado');
+        console.log(`[${instanceId}] Health check: Bot está conectado`);
         res.status(200).send('El bot está listo');
     } else {
-        console.log('Health check: Bot no está conectado');
+        console.log(`[${instanceId}] Health check: Bot no está conectado`);
         res.status(503).send('El bot no está listo');
     }
 });
@@ -2230,16 +2231,16 @@ app.get('/health', (req, res) => {
 // Inicia el servidor Express
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
-    console.log(`Servidor corriendo en el puerto ${PORT}`);
+    console.log(`[${instanceId}] Servidor corriendo en el puerto ${PORT}`);
     startAutoPing();
 });
 
 // Función de auto-ping (usando /health)
 function startAutoPing() {
     const appUrl = process.env.APP_URL || 'https://oliver-ia.onrender.com';
-    console.log('URL usada para auto-ping:', appUrl);
+    console.log(`[${instanceId}] URL usada para auto-ping: ${appUrl}`);
     if (!appUrl.startsWith('http://') && !appUrl.startsWith('https://')) {
-        console.error('Error: appUrl no es una URL absoluta válida:', appUrl);
+        console.error(`[${instanceId}] Error: appUrl no es una URL absoluta válida: ${appUrl}`);
         return;
     }
     const pingInterval = 4 * 60 * 1000; // 4 minutos
@@ -2247,30 +2248,41 @@ function startAutoPing() {
         try {
             const response = await fetch(`${appUrl}/health`);
             if (response.ok) {
-                console.log('Auto-ping exitoso, bot sigue despierto.');
+                console.log(`[${instanceId}] Auto-ping exitoso, bot sigue despierto`);
             } else {
-                console.error('Auto-ping falló:', response.statusText);
+                console.error(`[${instanceId}] Auto-ping falló: ${response.statusText}`);
             }
         } catch (error) {
-            console.error('Error en auto-ping:', error.message);
+            console.error(`[${instanceId}] Error en auto-ping: ${error.message}`);
         }
     }, pingInterval);
 }
 
 // Manejador de SIGINT (el tuyo)
 process.on('SIGINT', async () => {
-    console.log('Guardando datos antes de salir...');
-    await saveDataStore();
+    console.log(`[${instanceId}] Guardando datos antes de salir (SIGINT)...`);
+    try {
+        await saveDataStore();
+        console.log(`[${instanceId}] Datos guardados con éxito (SIGINT)`);
+    } catch (error) {
+        console.error(`[${instanceId}] Error al guardar datos (SIGINT): ${error.message}`);
+    }
     client.destroy();
+    manager.destroy();
     process.exit();
 });
 
 // Manejador de SIGTERM para Render
 process.on('SIGTERM', async () => {
-    console.log('Recibí SIGTERM, apagando...');
-    await saveDataStore();
+    console.log(`[${instanceId}] Recibí SIGTERM, apagando...`);
+    try {
+        await saveDataStore();
+        console.log(`[${instanceId}] Datos guardados con éxito (SIGTERM)`);
+    } catch (error) {
+        console.error(`[${instanceId}] Error al guardar datos (SIGTERM): ${error.message}`);
+    }
     client.destroy();
-    manager.destroy(); // Cierra todas las conexiones de erela.js
+    manager.destroy();
     process.exit(0);
 });
 
@@ -6569,32 +6581,36 @@ client.once('ready', async () => {
                 const recipientName = "Belen"; 
                 const reminderTimes = {
                     "6:30": {
-                        "title": "¡Madrugón de Viernes, ratita blanca!",
-                        "message": `¡Buen Viernes 18, ${recipientName}, crack! 🌅 6:30 de la matina en Argentina, ¿ya estás con el mate en la mano pa’ arrancar? 😎 Hoy toca laburo, pero vos podés con todo, ratita pequeña. ¡Mandame una vibra y a romperla en el trabajo! 🧉 ✨`
+                        "title": "¡Arranque con todo, ratita blanca!",
+                        "message": `¡Buenos días, ${recipientName}, mi crack! 🌅 Son las 6:30 de la matina en Argentina, sábado 19, y vos ya estás lista para romperla, ¿no? 😎 Aunque sea temprano, tu energía ilumina todo. Tomate un mate bien calentito y arrancá el día con esa magia que solo vos tenés. ¡Mandame una vibra, genia, y a darle con todo al laburo! 🧉 ✨`
                     },
                     "9:00": {
-                        "title": "¡Viernes con garra, ratita pequeña!",
-                        "message": `¡Hola, ${recipientName}, genia! 🌞 9 de la mañana y ya estás preparando todo para el laburo, ¿no? 💪 ¿Cómo pinta el día, ratita blanca? Un café rápido y a meterle pila. ¡Contame cómo vas y a hacer magia este viernes! 🧉 💖`
+                        "title": "¡Mañana con garra, ratita pequeña!",
+                        "message": `¡Ey, ${recipientName}, reina del universo! 🌞 9 de la mañana de este sábado 19, y vos ya estás haciendo magia en el trabajo, ¿verdad? 💪 Tu fuerza me inspira, ratita blanca. ¿Cómo pinta el día? Un cafecito, una sonrisa, y a seguir brillando. ¡Contame cómo vas, sos una genia! 🧉 💖`
                     },
                     "13:00": {
-                        "title": "¡Mediodía power, ratita blanca!",
-                        "message": `¡Ey, ${recipientName}, joyita! 🍴 Mediodía de este viernes 18, ¿todavía en casa? 😋 ¿Qué se cocina, genia? Ya falta menos pa’ salir y disfrutar la tarde libre. Mandame una señal, ratita pequeña, ¡y a seguir rompiéndola! 🧉 🌈`
+                        "title": "¡Mediodía poderoso, ratita blanca!",
+                        "message": `¡Hola, ${recipientName}, joyita! 🍴 Mediodía del sábado 19, ¿seguís dándole duro en el laburo? 😋 Sos una campeona, ratita pequeña. Ya falta poquito para terminar y volar a casa a descansar. Mandame una señal, genia, y seguimos rompiendo todo juntos. ¡Te adoro! 🧉 🌈`
                     },
                     "16:30": {
-                        "title": "¡Tarde libre, ratita pequeña!",
-                        "message": `¡${recipientName}, campeona! 😎 4:30 de la tarde, ¿ya estás saliendo del laburo? 🌄 ¡Libertad, ratita blanca! ¿Qué plan pinta pa’ esta tarde en casa? Un mate, una serie o un relax total? Contame el chisme, genia, ¡y a disfrutar! 🧉 💫`
+                        "title": "¡Tarde con libertad, ratita pequeña!",
+                        "message": `¡${recipientName}, mi estrella! 😎 4:30 de la tarde, sábado 19, ¿ya estás saliendo del trabajo o todavía dando el último empujón? 🌄 ¡Libertad a la vista, ratita blanca! ¿Qué plan se arma para la tarde? Un mate, una serie, o puro relax. Contame el chisme, genia, ¡sos puro fuego! 🧉 💫`
+                    },
+                    "18:42": {
+                        "title": "¡Un mimo en medio del laburo, ratita blanca!",
+                        "message": `¡Ey, ${recipientName}, mi ratita bonita! 🌟 Son las 6:42 de la tarde en Argentina, y sé que estás dándole duro en el trabajo, ¡sos una campeona total! 💪 Solo quería mandarte un abrazo virtual bien fuerte y decirte que sos lo primero que pienso cuando quiero sonreír. 😊 Aguantá un poquito más, que ya falta menos para volar a casa y relajarte. ¡Sos puro brillo, genia! Mandame una vibra cuando puedas, ¿sí? 🧉 💖`
                     },
                     "19:00": {
-                        "title": "¡Nochecita de Viernes, ratita blanca!",
-                        "message": `¡Ey, ${recipientName}, reina! 🌙 7 de la noche de este viernes 18, ¿cómo está yendo la tarde libre? 😴 ¿Un mate calentito, buena música? Mimáte con una mantita. ¡Mandame una vibra y contame, sos puro fuego! 💖 🧉`
+                        "title": "¡Nochecita con magia, ratita blanca!",
+                        "message": `¡Ey, ${recipientName}, mi reina! 🌙 7 de la noche de este viernes 18, y vos seguís brillando en el trabajo, ¿no? 😴 Solo unas horitas más y te vas a casa a mimarte. ¿Un mate calentito, buena música, o una mantita te esperan? Mandame una vibra, ratita pequeña, ¡sos un fuego que no para! 💖 🧉`
                     },
                     "21:00": {
-                        "title": "¡Noche tranqui, ratita pequeña!",
-                        "message": `¡${recipientName}, estrellita! 🌌 9 de la noche y vos brillando en casa, ¿no, genia? 😎 ¿Qué tal cerrar el día con algo lindo? Una peli, un té o puro relax. Tirame la posta, ratita blanca, y contame cómo vas a mimarte esta noche. ¡Sos una maravilla! 💪 ✨`
+                        "title": "¡Noche de viernes, ratita pequeña!",
+                        "message": `¡${recipientName}, mi estrellita! 🌌 9 de la noche, viernes 18, y vos estás cerca de cerrar el día como campeona. 😎 ¿Cómo va esa vibra en el laburo? Pensá en algo lindo para cuando salgas: una peli, un té, o puro relax. Tirame la posta, ratita blanca, ¡sos una maravilla total! 💪 ✨`
                     },
                     "23:00": {
-                        "title": "¡Fin de Viernes, ratita blanca!",
-                        "message": `¡${recipientName}, crack! 🌟 11 de la noche de este viernes 18, ¿cómo estuvo el día, genia? Laburaste como campeona y ahora a descansar en casa. 😴 Mandame una señal, ratita pequeña, y cerramos este viernes con amor. ¡A brillar mañana! 🧉 💖`
+                        "title": "¡Casi libre, ratita blanca!",
+                        "message": `¡${recipientName}, crack absoluta! 🌟 11 de la noche de este viernes 18, ya casi terminás el laburo, ¿no? 😴 Sos una genia por darle con todo. Cuando llegues a casa, mimáte como te merecés, ratita pequeña. Mandame una señal y cerramos este viernes con amor. ¡A brillar mañana! 🧉 💖`
                     }
                 };
                 const timeKey = `${currentHour}:${currentMinute < 10 ? '0' : ''}${currentMinute}`;
