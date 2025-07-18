@@ -1252,8 +1252,8 @@
   "recordatorios": [
     {
       "id": "9ff295d6-9443-433e-8f5a-960563f976fb",
-      "userId": "752987736759205960",
-      "channelId": "1014576300612124744",
+      "userId": "1023132788632862761",
+      "channelId": "1343749554905940058",
       "mensaje": "tomar la pastilla rosada todos los días",
       "cuandoLlegue": false,
       "cuandoSalga": false,
@@ -1265,8 +1265,8 @@
     },
     {
       "id": "0aef19a4-6dfa-4fff-871a-d3b0b051b7b3",
-      "userId": "752987736759205960",
-      "channelId": "1014576300612124744",
+      "userId": "1023132788632862761",
+      "channelId": "1343749554905940058",
       "mensaje": "tomar la pastilla rosada todos los días",
       "cuandoLlegue": false,
       "cuandoSalga": false,
