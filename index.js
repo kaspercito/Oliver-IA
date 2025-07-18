@@ -2214,16 +2214,6 @@ app.get('/ping', (req, res) => {
     res.send('¡Bot awake y con pilas!');
 });
 
-// Endpoint de health check para Render
-app.get('/health', (req, res) => {
-    if (client.isReady()) {
-        console.log('Health check: Bot está conectado');
-        res.status(200).send('El bot está listo');
-    } else {
-        console.log('Health check: Bot no está conectado');
-        res.status(503).send('El bot no está listo');
-    }
-});
 
 // Inicia el servidor Express
 const PORT = process.env.PORT || 8080;
@@ -6899,17 +6889,9 @@ async function saveDataStore() {
 process.on('SIGINT', async () => {
     console.log('Guardando datos antes de salir...');
     await saveDataStore(); // Asumo que esta función guarda datos, asegurate de que exista
-    client.destroy();
     process.exit();
 });
 
-// Manejador de SIGTERM para Render
-process.on('SIGTERM', async () => {
-    console.log('Recibí SIGTERM, apagando...');
-    await saveDataStore(); // Guardamos datos también en SIGTERM
-    client.destroy(); // Cierra la conexión con Discord
-    process.exit(0);
-});
 
 client.on('raw', (d) => {
     console.log('Evento raw recibido:', d.t);
