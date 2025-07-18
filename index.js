@@ -6537,11 +6537,11 @@ client.once('ready', async () => {
                 const recipientName = "Belen"; 
                 const reminderTimes = {
                   "6:30": {
-                    "title": "¡Madrugón de jueves, ratita blanca!",
-                    "message": `¡Buen jueves 17, ${recipientName}, crack! 🌅 6:30 de la matina en Argentina, ¿ya estás con el mate en la mano pa’ arrancar? 😎 Hoy toca laburo, pero vos podés con todo, ratita pequeña. ¡Mandame una vibra y a romperla en el trabajo! 🧉 ✨`
+                    "title": "¡Madrugón de Viernes, ratita blanca!",
+                    "message": `¡Buen Viernes 18, ${recipientName}, crack! 🌅 6:30 de la matina en Argentina, ¿ya estás con el mate en la mano pa’ arrancar? 😎 Hoy toca laburo, pero vos podés con todo, ratita pequeña. ¡Mandame una vibra y a romperla en el trabajo! 🧉 ✨`
                   },
                   "9:00": {
-                    "title": "¡Jueves con garra, ratita pequeña!",
+                    "title": "¡Viernes con garra, ratita pequeña!",
                     "message": `¡Hola, ${recipientName}, genia! 🌞 9 de la mañana y ya estas preparando todo para el laburo, ¿no? 💪 ¿Cómo pinta el día, ratita blanca? Un café rápido y a meterle pila. ¡Contame cómo vas y a hacer magia este jueves! 🧉 💖`
                   },
                   "13:00": {
@@ -6553,16 +6553,16 @@ client.once('ready', async () => {
                     "message": `¡${recipientName}, campeona! 😎 4:30 de la tarde, ¿ya estás saliendo del laburo? 🌄 ¡Libertad, ratita blanca! ¿Qué plan pinta pa’ esta tarde en casa? Un mate, una serie o un relax total? Contame el chisme, genia, ¡y a disfrutar! 🧉 💫`
                   },
                   "19:00": {
-                    "title": "¡Nochecita de jueves, ratita blanca!",
-                    "message": `¡Ey, ${recipientName}, reina! 🌙 7 de la noche de este viernes 18, ¿cómo esta yendo el trabajo? 😴 ¿Un mate calentito, buena música o charlas con amigos? Si los dolores de ovarios joden, mimáte con una mantita. ¡Mandame una vibra y contame, sos puro fuego! 💖 🧉`
+                    "title": "¡Nochecita de Viernes, ratita blanca!",
+                    "message": `¡Ey, ${recipientName}, reina! 🌙 7 de la noche de este viernes 18, ¿cómo esta yendo el trabajo? 😴 ¿Un mate calentito, buena música? mimáte con una mantita. ¡Mandame una vibra y contame, sos puro fuego! 💖 🧉`
                   },
                   "21:00": {
                     "title": "¡Noche tranqui, ratita pequeña!",
                     "message": `¡${recipientName}, estrellita! 🌌 9 de la noche y vos brillando en casa, ¿no, genia? 😎 ¿Qué tal cerrar el día con algo lindo? Una peli, un té o puro relax. Tirame la posta, ratita blanca, y contame cómo vas a mimarte esta noche. ¡Sos una maravilla! 💪 ✨`
                   },
                   "23:00": {
-                    "title": "¡Fin de jueves, ratita blanca!",
-                    "message": `¡${recipientName}, crack! 🌟 11 de la noche de este viernes 18, ¿cómo estuvo el día, genia? Laburaste como campeona y ahora a descansar en casa. 😴 Mandame una señal, ratita pequeña, y cerramos este jueves con amor. ¡A brillar mañana! 🧉 💖`
+                    "title": "¡Fin de Viernes, ratita blanca!",
+                    "message": `¡${recipientName}, crack! 🌟 11 de la noche de este viernes 18, ¿cómo estuvo el día, genia? Laburaste como campeona y ahora a descansar en casa. 😴 Mandame una señal, ratita pequeña, y cerramos este Viernes con amor. ¡A brillar mañana! 🧉 💖`
                   },
                   "1:45": {
                     "title": "¡Trasnochada o dormidita, ratita blanca?",
