@@ -6542,11 +6542,11 @@ client.once('ready', async () => {
                   },
                   "9:00": {
                     "title": "¡Jueves con garra, ratita pequeña!",
-                    "message": `¡Hola, ${recipientName}, genia! 🌞 9 de la mañana y ya estás dando caña en el laburo, ¿no? 💪 ¿Cómo pinta el día, ratita blanca? Un café rápido y a meterle pila. ¡Contame cómo vas y a hacer magia este jueves! 🧉 💖`
+                    "message": `¡Hola, ${recipientName}, genia! 🌞 9 de la mañana y ya estas preparando todo para el laburo, ¿no? 💪 ¿Cómo pinta el día, ratita blanca? Un café rápido y a meterle pila. ¡Contame cómo vas y a hacer magia este jueves! 🧉 💖`
                   },
                   "13:00": {
                     "title": "¡Mediodía power, ratita blanca!",
-                    "message": `¡Ey, ${recipientName}, joyita! 🍴 Mediodía de este jueves 17, ¿pausa para un almuerzo rico en el trabajo? 😋 ¿Qué se cocina, genia? Ya falta menos pa’ salir y disfrutar la tarde libre. Mandame una señal, ratita pequeña, ¡y a seguir rompiéndola! 🧉 🌈`
+                    "message": `¡Ey, ${recipientName}, joyita! 🍴 Mediodía de este viernes 17, ¿todavia en casa? 😋 ¿Qué se cocina, genia? Ya falta menos pa’ salir y disfrutar la tarde libre. Mandame una señal, ratita pequeña, ¡y a seguir rompiéndola! 🧉 🌈`
                   },
                   "16:30": {
                     "title": "¡Tarde libre, ratita pequeña!",
@@ -6554,19 +6554,19 @@ client.once('ready', async () => {
                   },
                   "19:00": {
                     "title": "¡Nochecita de jueves, ratita blanca!",
-                    "message": `¡Ey, ${recipientName}, reina! 🌙 7 de la noche de este jueves 17, ¿cómo va esa tarde libre en casa? 😴 ¿Un mate calentito, buena música o charlas con amigos? Si los dolores de ovarios joden, mimáte con una mantita. ¡Mandame una vibra y contame, sos puro fuego! 💖 🧉`
+                    "message": `¡Ey, ${recipientName}, reina! 🌙 7 de la noche de este viernes 18, ¿cómo esta yendo el trabajo? 😴 ¿Un mate calentito, buena música o charlas con amigos? Si los dolores de ovarios joden, mimáte con una mantita. ¡Mandame una vibra y contame, sos puro fuego! 💖 🧉`
                   },
                   "21:00": {
                     "title": "¡Noche tranqui, ratita pequeña!",
-                    "message": `¡${recipientName}, estrellita! 🌌 9 de la noche y vos brillando en casa, ¿no, genia? 😎 ¿Qué tal cerrar el día con algo lindo? Una peli, un té o puro relax. Tirame la posta, ratita blanca, y contame cómo vas a mimarte esta noche. ¡Sos una reina! 💪 ✨`
+                    "message": `¡${recipientName}, estrellita! 🌌 9 de la noche y vos brillando en casa, ¿no, genia? 😎 ¿Qué tal cerrar el día con algo lindo? Una peli, un té o puro relax. Tirame la posta, ratita blanca, y contame cómo vas a mimarte esta noche. ¡Sos una maravilla! 💪 ✨`
                   },
                   "23:00": {
                     "title": "¡Fin de jueves, ratita blanca!",
-                    "message": `¡${recipientName}, crack! 🌟 11 de la noche de este jueves 17, ¿cómo estuvo el día, genia? Laburaste como campeona y ahora a descansar en casa. 😴 Mandame una señal, ratita pequeña, y cerramos este jueves con amor. ¡A brillar mañana! 🧉 💖`
+                    "message": `¡${recipientName}, crack! 🌟 11 de la noche de este viernes 18, ¿cómo estuvo el día, genia? Laburaste como campeona y ahora a descansar en casa. 😴 Mandame una señal, ratita pequeña, y cerramos este jueves con amor. ¡A brillar mañana! 🧉 💖`
                   },
-                  "1:42": {
+                  "1:45": {
                     "title": "¡Trasnochada o dormidita, ratita blanca?",
-                    "message": `¡Ey, ${recipientName}, estrellita! 🌌 1:42 de la matina de este viernes 18 en Argentina, ¿todavía estás despierta, genia, o ya te fuiste al mundo de los sueños? 😴 Si estás en modo ratita trasnochadora, contame qué te tiene despierta. ¡Un mate y a cerrar la noche con magia, reina! 🧉 💫`
+                    "message": `¡Ey, ${recipientName}, estrellita! 🌌 1:45 de la matina de este viernes 18 en Argentina, ¿todavía estás despierta, genia, o ya te fuiste al mundo de los sueños? 😴 Si estás en modo ratita trasnochadora, contame qué te tiene despierta. ¡Un mate y a cerrar la noche con magia, pequeña! 🧉 💫`
                   }
                 };
                 const timeKey = `${currentHour}:${currentMinute < 10 ? '0' : ''}${currentMinute}`;
