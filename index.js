@@ -3192,7 +3192,7 @@ const staticTimeGreetings = {
     Miguel: '¡Tarde laboral, capo! 🚀 ¿Qué estás rompiendo?'
   },
   night: {
-    Belen: '¡Noche tranqui, ratita blanca! 😎 ¿Cómo cerrás el día?',
+    Belen: '¡Noche de finde, ratita blanca! 😎 ¿Cómo cerrás el día?',
     Miguel: '¡Noche tranqui, capo! 😎 ¿Qué plan en Guayaquil?'
   }
 };
@@ -3255,11 +3255,27 @@ function getTimeGreeting(hour, name, isWorkDay, dayOfWeek) {
         greeting += ' ¡Veo que estás en pausa, genia! 🧉';
       } else if (dataStore.belenSchedule?.travelFriday.includes(hour) && dayOfWeek === 5) {
         greeting += ' ¡En viaje al laburo, crack! 🚗';
+      } else {
+        greeting += ' ¡Laburando a full, ratita blanca! 🚀';
       }
     }
     timeGreetingCache.set(cacheKey, greeting);
   }
   return timeGreetingCache.get(cacheKey);
+}
+
+// Función para obtener el contexto laboral de Belen
+function getBelenContext(userName, isWorkDay, argentinaHour, dayOfWeek) {
+  if (userName !== 'Belen' || !isWorkDay) return '';
+  const breakStatus = dataStore.belenSchedule?.breakStatus || { isOnBreak: false, breakEndTime: null };
+  if (breakStatus.isOnBreak && breakStatus.breakEndTime > Date.now()) {
+    return '¡Veo que estás en pausa, genia! ¿Un mate veggie pa’l break? 🧉 ';
+  } else if (dayOfWeek === 5 && dataStore.belenSchedule?.travelFriday.includes(argentinaHour)) {
+    return '¡Estás viajando al laburo, crack! ¡Cuidate en la ruta! 🚗 ';
+  } else if (argentinaHour >= dataStore.belenSchedule?.typicalStartHour[dayOfWeek] && argentinaHour <= (dataStore.belenSchedule?.typicalEndHour[dayOfWeek] || 24)) {
+    return '¡Dándole con todo en el laburo, ratita blanca! 🚀 ';
+  }
+  return '';
 }
 
 // Función principal para manejar el chat
@@ -3301,10 +3317,12 @@ async function manejarChat(message) {
               'Es laboral:', isWorkDay);
 
   // Manejar consulta de día
-  if (chatMessage.toLowerCase().includes('que día es') || chatMessage.toLowerCase().includes('qué día es')) {
+  const dayRegex = /(que|qué)\s*d[ií]a.*(es|hoy|te\s*parece)/i;
+  if (dayRegex.test(chatMessage.toLowerCase())) {
     const embedTitle = getTimeGreeting(argentinaHour, userName, isWorkDay, dayOfWeek);
     const dayName = daysOfWeek[dayOfWeek];
-    const aiReply = `¡Che, ${userName}, hoy es ${dayName}, loco! 😎 ${isWorkDay && userName === 'Belen' ? '¿Estás dándole con todo en el laburo, ratita blanca?' : '¿Listo pa’l finde, crack?'} ${pickRandom(generateClosers(userName))}`;
+    const belenContext = getBelenContext(userName, isWorkDay, argentinaHour, dayOfWeek);
+    const aiReply = `¡Che, ${userName}, hoy es ${dayName}, loco! 😎 ${belenContext}${isWorkDay && userName === 'Belen' ? '' : '¿Listo pa’l finde, crack?'} ${pickRandom(generateClosers(userName))}`;
     const finalEmbed = createEmbed('#FF1493', embedTitle, aiReply, 'Hecho con ❤️ por Oliver IA | Reacciona con ✅ o ❌');
     const waitingMessage = await message.channel.send({ embeds: [finalEmbed] });
     await waitingMessage.react('✅');
@@ -3313,12 +3331,14 @@ async function manejarChat(message) {
   }
 
   // Manejar consulta de hora
-  if (chatMessage.toLowerCase().includes('que hora es') || chatMessage.toLowerCase().includes('qué hora es')) {
+  const timeRegex = /(que|qué)\s*hora.*(es|hoy)/i;
+  if (timeRegex.test(chatMessage.toLowerCase())) {
     const guayaquilTime = new Date(now.toLocaleString('en-US', { timeZone: 'America/Guayaquil' }));
     const guayaquilHour = guayaquilTime.getHours();
     const guayaquilMinutes = guayaquilTime.getMinutes().toString().padStart(2, '0');
     const embedTitle = getTimeGreeting(argentinaHour, userName, isWorkDay, dayOfWeek);
-    const aiReply = `¡Che, ${userName}, son las ${guayaquilHour}:${guayaquilMinutes} en Guayaquil, loco! 🧉 En San Luis, Argentina, son las ${argentinaHour}:${argentinaMinutes}. ${pickRandom(generateClosers(userName))}`;
+    const belenContext = getBelenContext(userName, isWorkDay, argentinaHour, dayOfWeek);
+    const aiReply = `¡Che, ${userName}, son las ${guayaquilHour}:${guayaquilMinutes} en Guayaquil, loco! 🧉 En San Luis, Argentina, son las ${argentinaHour}:${argentinaMinutes}. ${belenContext}${pickRandom(generateClosers(userName))}`;
     const finalEmbed = createEmbed('#FF1493', embedTitle, aiReply, 'Hecho con ❤️ por Oliver IA | Reacciona con ✅ o ❌');
     const waitingMessage = await message.channel.send({ embeds: [finalEmbed] });
     await waitingMessage.react('✅');
@@ -3448,6 +3468,10 @@ async function manejarChat(message) {
     extraContext = `El usuario (${userName}) pregunta por ${mentionedUser}. Usá la info de dataStore: Belen (vegetariana, San Luis, labura viernes-domingo, viaja viernes 2/4 PM, UTC-3), Miguel (Guayaquil, UTC-5). Ejemplo: "Che, ${userName}, ${mentionedUser} está laburando en San Luis, ¡una genia! 😎 ¿Querés que te cuente más?". Si no hay data, decí: "¡No tengo más info de ${mentionedUser}, ${pickRandom(nicknames)}! 😜 ¿Qué más sabés vos?"`;
   }
 
+  // Agregar contexto laboral de Belen al prompt
+  const belenContext = getBelenContext(userName, isWorkDay, argentinaHour, dayOfWeek);
+  extraContext += `\n**Contexto adicional**: Hoy es ${daysOfWeek[dayOfWeek]}. ${belenContext}Historial reciente: ${contextRecent}`;
+
   // Título dinámico según hora y día
   const embedTitle = getTimeGreeting(argentinaHour, userName, isWorkDay, dayOfWeek);
   const waitingEmbed = createEmbed('#FF1493', embedTitle, '¡Aguantá, estoy pensando una zarpada!...', 'Hecho con ❤️ por Oliver IA | Reacciona con ✅ o ❌');
@@ -3492,7 +3516,7 @@ async function manejarChat(message) {
       const mentionedUserId = mentionedUser === 'Miguel' ? OWNER_ID : ALLOWED_USER_ID;
       const userInfo = dataStore.userStatus[mentionedUserId] || { status: 'tranqui', timestamp: Date.now() };
       const scheduleInfo = mentionedUser === 'Belen' ? 'labura viernes a domingo, viaja viernes 2/4 PM, empieza 6/7 PM viernes, termina medianoche (domingo 2/4 PM)' : 'está en Guayaquil, Ecuador (UTC-5)';
-      aiReply = `¡Che, ${userName}, ${mentionedUser} está ${userInfo.status}, ${pickRandom(nicknames)}! 😎 ${scheduleInfo}. ¿Querés más info o seguimos con otra? ${pickRandom(closers)}`;
+      aiReply = `¡Che, ${userName}, ${mentionedUser} está ${userInfo.status}, ${pickRandom(nicknames)}! 😎 ${scheduleInfo}. ${getBelenContext(mentionedUser, isWorkDay, argentinaHour, dayOfWeek)}¿Querés más info o seguimos con otra? ${pickRandom(closers)}`;
     }
 
     // Guardar respuesta en historial
@@ -3506,7 +3530,7 @@ async function manejarChat(message) {
     const finalEmbed = createEmbed('#FF1493', embedTitle, aiReply, 'Hecho con ❤️ por Oliver IA | Reacciona con ✅ o ❌');
     const updatedMessage = await waitingMessage.edit({ embeds: [finalEmbed] });
     await updatedMessage.react('✅');
-    await updatedMessage.react('❌');
+    await waitingMessage.react('❌');
   } catch (error) {
     console.error('Error con Gemini:', { message: error.message, stack: error.stack });
     const fallbackReply = `¡Uy, ${userName}, la pifié, ${pickRandom(nicknames)}! 😎 ¿Me tirás otra o seguimos con algo nuevo? ${pickRandom(closers)}`;
