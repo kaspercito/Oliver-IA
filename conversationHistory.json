@@ -125,18 +125,6 @@
     "752987736759205960": [
       {
         "role": "user",
-        "content": "Hola",
-        "timestamp": 1752348967118,
-        "userName": "Miguel"
-      },
-      {
-        "role": "assistant",
-        "content": "¡Todo piola, Miguel, Miguelito! 😎 ¿Qué tenés planeado pa’l finde?",
-        "timestamp": 1752348970991,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
         "content": "como estas?",
         "timestamp": 1752348975399,
         "userName": "Miguel"
@@ -241,6 +229,18 @@
         "role": "assistant",
         "content": "¡Todo piola, Miguel, loco! 🧉 ¿Qué tenés planeado pa’l día?",
         "timestamp": 1752536715533,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "hoy que estamos",
+        "timestamp": 1752955299988,
+        "userName": "Miguel"
+      },
+      {
+        "role": "assistant",
+        "content": "¡Che, Miguel! Hoy es sábado, loco. Belén, que está en San Luis (UTC-3), seguro está laburando, ¡como siempre de viernes a domingo, crack! 🧉 ¿Y vos qué hacés, genio? ¡Toda la buena onda, Miguel! 🧉",
+        "timestamp": 1752955302711,
         "userName": "Oliver"
       }
     ]
@@ -679,7 +679,6 @@
   ],
   "utilMessageTimestamps": {
     "reminder_1395491505162027119_9_00": 1752926445283,
-    "reminder_1395491505162027119_16_30": 1752867012837,
     "reminder_1395491505162027119_19_00": 1752876006415,
     "reminder_1395491505162027119_21_00": 1752883244526,
     "reminder_1395491505162027119_23_00": 1752890408409,
