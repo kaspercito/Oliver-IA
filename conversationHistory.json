@@ -3,30 +3,6 @@
     "1023132788632862761": [
       {
         "role": "user",
-        "content": "sabes qué significa cuando en un scan de anticheat sale la alerta Hitbox Modification?",
-        "timestamp": 1752263291126,
-        "userName": "Belén"
-      },
-      {
-        "role": "assistant",
-        "content": "¡Che, Belén, genia! 😎 Hitbox Modification en un scan de anticheat... Uhm, eso suena a que el juego detectó que andás modificando el tamaño o la forma de las \"hitboxes\", que son las áreas donde el juego registra los impactos de tus tiros. O sea, estás tocando algo que no deberías, ¿no? 😜 ¡Cuidado con eso, loco! ¿Estás intentando algo en particular? ✨",
-        "timestamp": 1752263293262,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
-        "content": "y eso se hace si o si con un client ilegal?",
-        "timestamp": 1752263310988,
-        "userName": "Belén"
-      },
-      {
-        "role": "assistant",
-        "content": "¡Che, Belén! 😎 No necesariamente, loco. Qué sé yo, a veces se puede hacer con otras herramientas, pero la mayoría de las veces, sí, la modificación de hitbox se hace con algo \"trucho\". ¿Querés que te explique un poco más o ya tenés claro el panorama? ✨ ¡Toda la buena onda, genia!",
-        "timestamp": 1752263312418,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
         "content": "gracias por tu breve explicación",
         "timestamp": 1752263325192,
         "userName": "Belén"
@@ -119,6 +95,30 @@
         "role": "assistant",
         "content": "¡Che, Belén! Ya casi, ¿eh? ¿Falta mucho para el finde? ¿Estás por San Luis, lista para laburar? Contame, grosa. ¡Toda la buena onda, Belén! 🧉",
         "timestamp": 1752890642682,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "hola",
+        "timestamp": 1752947898159,
+        "userName": "Belen"
+      },
+      {
+        "role": "assistant",
+        "content": "¡Todo piola, Belen, maestra! 🧉 ¿Qué tenés planeado pa’l día?",
+        "timestamp": 1752947899982,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "aquí full trabajando",
+        "timestamp": 1752947906607,
+        "userName": "Belen"
+      },
+      {
+        "role": "assistant",
+        "content": "¡Che, Belén, acá full trabajando! 🧉 ¿Cómo va la cosa, ratita blanca? Ya sé que estás en San Luis, laburando de viernes a domingo. Y que hoy es viernes, ¿eh? ¿Vas a viajar a las 2 PM como siempre? ¡Dale con todo, Belen, genia! 🚀",
+        "timestamp": 1752947909029,
         "userName": "Oliver"
       }
     ],
@@ -678,31 +678,13 @@
     "¡Cancelación de recordatorios con !cancelarrecordatorio / !cr! Borra un recordatorio con su ID (lo ves en !mr), ¡al toque y sin drama!"
   ],
   "utilMessageTimestamps": {
-    "1343749554905940058": 1741702502300,
-    "plan_1343749554905940058": 1741879435793,
-    "reminder_1343749554905940058": 1743901240312,
-    "util_1343749554905940058": 1752704045791,
-    "reminder_1343749554905940058_22": 1752282011970,
-    "reminder_1343749554905940058_23": 1752285645774,
-    "reminder_1343749554905940058_0": 1745204431151,
-    "reminder_1343749554905940058_12": 1752159629390,
-    "reminder_1343749554905940058_23_14": 1752459257295,
-    "reminder_1343749554905940058_1_00": 1752552058890,
-    "reminder_1343749554905940058_9_00": 1752667259740,
-    "reminder_1343749554905940058_13_00": 1752681640195,
-    "reminder_1343749554905940058_16_15": 1752606920719,
-    "reminder_1343749554905940058_20_05": 1752620757381,
-    "reminder_1343749554905940058_23_35": 1752633329486,
-    "reminder_1343749554905940058_19_15": 1752704105792,
-    "reminder_1343749554905940058_20_50": 1752709827904,
-    "reminder_1395491505162027119_6_30": 1752831039281,
     "reminder_1395491505162027119_9_00": 1752926445283,
-    "reminder_1395491505162027119_13_00": 1752854444173,
     "reminder_1395491505162027119_16_30": 1752867012837,
     "reminder_1395491505162027119_19_00": 1752876006415,
     "reminder_1395491505162027119_21_00": 1752883244526,
     "reminder_1395491505162027119_23_00": 1752890408409,
-    "reminder_1395491505162027119_1_00": 1752897608893
+    "reminder_1395491505162027119_1_00": 1752897608893,
+    "reminder_1395491505162027119_14_27": 1752946028102
   },
   "utilMessageReactions": {
     "1343749554905940058": 1742417343374
