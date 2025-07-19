@@ -3197,6 +3197,9 @@ const staticTimeGreetings = {
   }
 };
 
+// Mapeo de días de la semana
+const daysOfWeek = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
+
 // Generar nicknames estáticos
 function generateNicknames(userName) {
   if (!nicknameCache.has(userName)) {
@@ -3296,6 +3299,18 @@ async function manejarChat(message) {
               'Hora:', argentinaHour, 
               'Día:', dayOfWeek, 
               'Es laboral:', isWorkDay);
+
+  // Manejar consulta de día
+  if (chatMessage.toLowerCase().includes('que día es') || chatMessage.toLowerCase().includes('qué día es')) {
+    const embedTitle = getTimeGreeting(argentinaHour, userName, isWorkDay, dayOfWeek);
+    const dayName = daysOfWeek[dayOfWeek];
+    const aiReply = `¡Che, ${userName}, hoy es ${dayName}, loco! 😎 ${isWorkDay && userName === 'Belen' ? '¿Estás dándole con todo en el laburo, ratita blanca?' : '¿Listo pa’l finde, crack?'} ${pickRandom(generateClosers(userName))}`;
+    const finalEmbed = createEmbed('#FF1493', embedTitle, aiReply, 'Hecho con ❤️ por Oliver IA | Reacciona con ✅ o ❌');
+    const waitingMessage = await message.channel.send({ embeds: [finalEmbed] });
+    await waitingMessage.react('✅');
+    await waitingMessage.react('❌');
+    return;
+  }
 
   // Manejar consulta de hora
   if (chatMessage.toLowerCase().includes('que hora es') || chatMessage.toLowerCase().includes('qué hora es')) {
