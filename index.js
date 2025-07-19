@@ -3502,6 +3502,7 @@ async function manejarChat(message) {
   } finally {
     userLocks.delete(userId);
   }
+}
 
 function generarConsejoClima(clima, esSalida = false) {
     const climaLower = clima.toLowerCase();
