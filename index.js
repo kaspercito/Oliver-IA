@@ -6539,7 +6539,8 @@ client.once('ready', async () => {
                 const oneDayInMs = 24 * 60 * 60 * 1000;
         
                 const recipientName = "Belen"; 
-                const reminderTimes =                     "6:30": {
+                const reminderTimes = {
+                    "6:30": {
                         "title": "¡Arranque con todo, ratita blanca!",
                         "message": `¡Buenos días, ${recipientName}, mi crack! 🌅 Son las 6:30 de la matina en Argentina, sábado 19, y vos ya estás lista para romperla, ¿no? 😎 Aunque sea temprano, tu energía ilumina todo. Tomate un mate bien calentito y arrancá el día con esa magia que solo vos tenés. ¡Mandame una vibra, genia, y a darle con todo al laburo! 🧉 ✨`
                     },
