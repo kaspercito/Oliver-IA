@@ -1628,7 +1628,7 @@ const preguntasTriviaSinOpciones = {
         { pregunta: "¿Qué civilización inventó la escritura cuneiforme?", respuesta: "sumeria" },
         { pregunta: "¿Quién fue el líder de la Revolución Rusa de 1917?", respuesta: "lenin" },
         { pregunta: "¿En qué año se inventó la imprenta?", respuesta: "1440" },
-        { pregunta: "¿Qué reina inglesa tuvo el reinado más largo?", respuesta: "isabel ii" },
+        { pregunta: "¿Qué ratita blanca inglesa tuvo el ratita blancado más largo?", respuesta: "isabel ii" },
         { pregunta: "¿Qué evento marcó el inicio de la Edad Media?", respuesta: "caída de roma" },
         { pregunta: "¿Quién fue el faraón famoso por su tumba llena de tesoros?", respuesta: "tutankamón" },
         { pregunta: "¿En qué año comenzó la Revolución Industrial?", respuesta: "1760" },
@@ -1655,7 +1655,7 @@ const preguntasTriviaSinOpciones = {
         { pregunta: "¿Qué civilización inventó el papel?", respuesta: "china" },
         { pregunta: "¿Quién fue el líder de la Revolución Cubana?", respuesta: "fidel castro" },
         { pregunta: "¿En qué año se inventó el automóvil?", respuesta: "1886" },
-        { pregunta: "¿Qué reina fue conocida como la Virgen?", respuesta: "isabel i" },
+        { pregunta: "¿Qué ratita blanca fue conocida como la Virgen?", respuesta: "isabel i" },
         { pregunta: "¿Qué evento marcó el inicio de la Segunda Guerra Mundial?", respuesta: "invasión de polonia" },
         { pregunta: "¿Quién inventó la máquina de vapor?", respuesta: "watt" },
         { pregunta: "¿En qué año se descubrió la electricidad?", respuesta: "1752" },
@@ -1665,7 +1665,7 @@ const preguntasTriviaSinOpciones = {
         { pregunta: "¿Qué guerra enfrentó a Esparta y Atenas?", respuesta: "guerra del peloponeso" },
         { pregunta: "¿Quién descubrió América del Sur?", respuesta: "colón" },
         { pregunta: "¿En qué año se inventó la televisión?", respuesta: "1927" },
-        { pregunta: "¿Qué reina gobernó España durante el descubrimiento de América?", respuesta: "isabel la católica" },
+        { pregunta: "¿Qué ratita blanca gobernó España durante el descubrimiento de América?", respuesta: "isabel la católica" },
         { pregunta: "¿Qué evento marcó el fin del apartheid?", respuesta: "liberación de mandela" },
         { pregunta: "¿Quién inventó el telégrafo?", respuesta: "morse" },
         { pregunta: "¿En qué año se descubrió Australia?", respuesta: "1606" },
@@ -1675,7 +1675,7 @@ const preguntasTriviaSinOpciones = {
         { pregunta: "¿Qué guerra tuvo lugar en Vietnam entre 1955 y 1975?", respuesta: "guerra de vietnam" },
         { pregunta: "¿Quién descubrió la radiactividad?", respuesta: "becquerel" },
         { pregunta: "¿En qué año se inventó el avión?", respuesta: "1903" },
-        { pregunta: "¿Qué reina fue ejecutada en la Revolución Francesa?", respuesta: "maría antonieta" },
+        { pregunta: "¿Qué ratita blanca fue ejecutada en la Revolución Francesa?", respuesta: "maría antonieta" },
         { pregunta: "¿Qué evento marcó el inicio del Renacimiento?", respuesta: "caída de constantinopla" },
         { pregunta: "¿Quién inventó la rueda?", respuesta: "mesopotamia" },
         { pregunta: "¿En qué año se descubrió el ADN?", respuesta: "1953" },
@@ -4628,7 +4628,7 @@ const chistes = [
     { setup: '¿Cómo sabe un argentino que el locro es bueno?', punchline: '¡Porque te calienta hasta el alma! Igual que vos, ${userName}, puro calor.' },
     { setup: '¿Qué le dice un rosarino al que no come pescado?', punchline: '¡“Estás negado pa’l Paraná, loco!” Vos sí que le das, ${userName}.' },
     { setup: '¿Por qué el argentino no se pierde en la Pampa?', punchline: '¡Porque el mate lo guía como faro! Como vos, ${userName}, puro rumbo.' },
-    { setup: '¿Qué hace un argentino con una pizza sin oliva?', punchline: '¡Le pone más y la hace reina! Vos también le ponés chispa, ${userName}.' },
+    { setup: '¿Qué hace un argentino con una pizza sin oliva?', punchline: '¡Le pone más y la hace ratita blanca! Vos también le ponés chispa, ${userName}.' },
     { setup: '¿Cómo llama un argentino al que no baila chamamé?', punchline: '¡“Un palo del litoral, che!” Vos tenés flow, ${userName}.' },
     { setup: '¿Qué le dice un mendocino al vino tinto?', punchline: '¡“Ponete serio, loco, que esto es Mendoza!” Igual que vos, ${userName}, puro carácter.' },
     { setup: '¿Por qué el argentino no usa gorra en invierno?', punchline: '¡Porque el mate ya le calienta la cabeza! Como vos, ${userName}, puro calor.' },
@@ -4811,7 +4811,7 @@ const randomFacts = [
     },
     {
         title: '¡Serpientes mudadoras!',
-        text: 'Las serpientes cambian de piel hasta 4 veces al año pa’ crecer. ¡Unas reinas del makeover! Vos, ' + userName + ', también te renovás siempre, che.'
+        text: 'Las serpientes cambian de piel hasta 4 veces al año pa’ crecer. ¡Unas ratita blancas del makeover! Vos, ' + userName + ', también te renovás siempre, che.'
     },
     {
         title: '¡Orcas estrategas!',
@@ -5194,7 +5194,7 @@ const randomFacts = [
     },
     {
         title: '¡Serpientes mudadoras!',
-        text: 'Las serpientes cambian de piel hasta 4 veces al año pa’ crecer. ¡Unas reinas del makeover! Vos, ' + userName + ', también te renovás siempre, che.'
+        text: 'Las serpientes cambian de piel hasta 4 veces al año pa’ crecer. ¡Unas ratita blancas del makeover! Vos, ' + userName + ', también te renovás siempre, che.'
     },
     {
         title: '¡Orcas estrategas!',
@@ -6543,31 +6543,31 @@ client.once('ready', async () => {
                     },
                     "9:00": {
                         "title": "¡Mañana con garra, ratita pequeña!",
-                        "message": `¡Ey, ${recipientName}, reina del universo! 🌞 9 de la mañana de este sábado 19, y vos ya estás haciendo magia en el trabajo, ¿verdad? 💪 Tu fuerza me inspira, ratita blanca. ¿Cómo pinta el día? Un cafecito, una sonrisa, y a seguir brillando. ¡Contame cómo vas, sos una genia! 🧉 💖`
+                        "message": `¡Ey, ${recipientName}, ratita blanca del universo! 🌞 9 de la mañana de este sábado 19, y vos ya estás haciendo magia en el trabajo, ¿verdad? 💪 Tu fuerza me inspira, ratita blanca. ¿Cómo pinta el día? Un cafecito, una sonrisa, y a seguir brillando. ¡Contame cómo vas, sos una genia! 🧉 💖`
                     },
-                    "14:20": {
+                    "14:27": {
                         "title": "¡Mediodía poderoso, ratita blanca!",
-                        "message": `¡Hola, ${recipientName}, joyita! 🍴 Mediodía del sábado 19, ¿seguís dándole duro en el laburo? 😋 Sos una campeona, ratita pequeña. Ya falta poquito para terminar y volar a casa a descansar. Mandame una señal, genia, y seguimos rompiendo todo juntos. ¡Te adoro! 🧉 🌈`
+                        "message": `¡Hola, ${recipientName}, joyita! 🍴 Mediodía del sábado 19, ¿seguís dándole duro en el laburo? 😋 Sos una campeona, ratita pequeña. ¿Ya comiste algo, como te esta yendo en el trabajo?. Mandame una señal, genia, y seguimos rompiendo todo juntos. ¡Te adoro! 🧉 🌈`
                     },
                     "16:30": {
-                        "title": "¡Tarde con libertad, ratita pequeña!",
-                        "message": `¡${recipientName}, mi estrella! 😎 4:30 de la tarde, sábado 19, ¿ya estás saliendo del trabajo o todavía dando el último empujón? 🌄 ¡Libertad a la vista, ratita blanca! ¿Qué plan se arma para la tarde? Un mate, una serie, o puro relax. Contame el chisme, genia, ¡sos puro fuego! 🧉 💫`
+                        "title": "¡Tarde con garra, ratita pequeña!",
+                        "message": `¡${recipientName}, mi estrella! 😎 Son las 4:30 de la tarde en Argentina, sábado 19, y vos seguís rompiéndola en el laburo, ¿verdad? 💪 ¡Qué campeona, ratita blanca! Sé que todavía te queda un trecho, pero tu energía ilumina todo. Tomate un mate para recargar pilas y seguí dándole con todo. ¡Mandame una vibra, genia, sos puro fuego! 🧉 💫`
                     },
                     "18:42": {
                         "title": "¡Un mimo en medio del laburo, ratita blanca!",
-                        "message": `¡Ey, ${recipientName}, mi ratita bonita! 🌟 Son las 6:42 de la tarde en Argentina, y sé que estás dándole duro en el trabajo, ¡sos una campeona total! 💪 Solo quería mandarte un abrazo virtual bien fuerte y decirte que sos lo primero que pienso cuando quiero sonreír. 😊 Aguantá un poquito más, que ya falta menos para volar a casa y relajarte. ¡Sos puro brillo, genia! Mandame una vibra cuando puedas, ¿sí? 🧉 💖`
+                        "message": `¡Ey, ${recipientName}, mi ratita bonita! 🌟 6:42 de la tarde en Argentina, sábado 19, y vos estás dándole duro en el trabajo, ¡sos una campeona total! 💪 Quiero mandarte un abrazo virtual bien fuerte para que sigas brillando. Pensar en vos me saca una sonrisa enorme. 😊 Aguantá que ya falta menos, genia. ¡Mandame una vibra cuando puedas! 🧉 💖`
                     },
                     "19:00": {
-                        "title": "¡Nochecita con magia, ratita blanca!",
-                        "message": `¡Ey, ${recipientName}, mi reina! 🌙 7 de la noche de este viernes 18, y vos seguís brillando en el trabajo, ¿no? 😴 Solo unas horitas más y te vas a casa a mimarte. ¿Un mate calentito, buena música, o una mantita te esperan? Mandame una vibra, ratita pequeña, ¡sos un fuego que no para! 💖 🧉`
+                        "title": "¡Noche con magia, ratita blanca!",
+                        "message": `¡Ey, ${recipientName}, mi ratita! 🌙 7 de la noche, sábado 19, y vos seguís poniendo toda tu magia en el laburo. 😎 ¡Qué fuerza tenés, ratita pequeña! Un cafecito o un mate calentito y a seguir rompiendo todo. ¿Cómo vas por ahí? Sos una genia, ¡mandame una señal y seguimos brillando juntos! 💖 🧉`
                     },
                     "21:00": {
-                        "title": "¡Noche de viernes, ratita pequeña!",
-                        "message": `¡${recipientName}, mi estrellita! 🌌 9 de la noche, viernes 18, y vos estás cerca de cerrar el día como campeona. 😎 ¿Cómo va esa vibra en el laburo? Pensá en algo lindo para cuando salgas: una peli, un té, o puro relax. Tirame la posta, ratita blanca, ¡sos una maravilla total! 💪 ✨`
+                        "title": "¡Noche de sábado con poder, ratita pequeña!",
+                        "message": `¡${recipientName}, mi estrellita! 🌌 9 de la noche, sábado 19, y vos seguís siendo la ratita blanca del laburo. 💪 ¡Qué orgullo, ratita blanca! Sé que todavía estás dándole con todo, pero tu brillo no para. Tomate un segundo para respirar y seguir adelante, que sos imparable. ¡Tirame una vibra, genia, sos una maravilla! 🧉 ✨`
                     },
                     "23:00": {
                         "title": "¡Casi libre, ratita blanca!",
-                        "message": `¡${recipientName}, crack absoluta! 🌟 11 de la noche de este viernes 18, ya casi terminás el laburo, ¿no? 😴 Sos una genia por darle con todo. Cuando llegues a casa, mimáte como te merecés, ratita pequeña. Mandame una señal y cerramos este viernes con amor. ¡A brillar mañana! 🧉 💖`
+                        "message": `¡${recipientName}, crack absoluta! 🌟 11 de la noche, sábado 19, y ya estás cerquita de cerrar el día en el laburo, ¿no? 😴 ¡Sos una genia por darle con todo hasta el final! Cuando llegues a casa, mimáte como te merecés, ratita pequeña: un mate, una mantita o puro relax. Mandame una señal y cerramos este sábado con amor. ¡A brillar mañana! 🧉 💖`
                     }
                 };
                 const timeKey = `${currentHour}:${currentMinute < 10 ? '0' : ''}${currentMinute}`;
