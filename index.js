@@ -6567,10 +6567,6 @@ client.once('ready', async () => {
                     "23:00": {
                         "title": "¡Casi libre, ratita blanca!",
                         "message": `¡${recipientName}, crack absoluta! 🌟 11 de la noche de este viernes 18, ya casi terminás el laburo, ¿no? 😴 Sos una genia por darle con todo. Cuando llegues a casa, mimáte como te merecés, ratita pequeña. Mandame una señal y cerramos este viernes con amor. ¡A brillar mañana! 🧉 💖`
-                    },
-                    "00:50": {
-                        "title": "¡Ojalá en casita, ratita blanca!",
-                        "message": `¡Ey, ${recipientName}, mi ratita pequeña! 🌙 12:50 de la noche. ¿Ya llegaste a lo de tu mamá para descansar? 😴 Sos una campeona total por todo lo que le metiste al día. Ahora a relajarte, mimarte y recargar energías para romperla mañana en el laburo. ¡Te deseo lo mejor, genia! Cuidate mucho, y si necesitas algo, avisame cuando quieras, ¿sí? 🧉 💖`
                     }
                 };
                 const timeKey = `${currentHour}:${currentMinute < 10 ? '0' : ''}${currentMinute}`;
