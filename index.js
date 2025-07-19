@@ -6526,15 +6526,16 @@ client.once('ready', async () => {
             console.log('No hay cambios en BOT_UPDATES respecto a sentUpdates, no se envían.');
         }
         
+        const { DateTime } = require('luxon');
         setInterval(async () => {
             try {
                 const now = Date.now();
-                const argentinaDate = new Date(now - 3 * 60 * 60 * 1000); 
-                const currentHour = argentinaDate.getHours();
-                const currentMinute = argentinaDate.getMinutes();
+                const argentinaDate = DateTime.now().setZone('America/Argentina/Buenos_Aires');
+                const currentHour = argentinaDate.hour;
+                const currentMinute = argentinaDate.minute;
                 const oneDayInMs = 24 * 60 * 60 * 1000;
         
-                const recipientName = "Belen"; 
+                const recipientName = "Belen";
                 const reminderTimes = {
                     "6:30": {
                         "title": "¡Arranque con todo, ratita blanca!",
@@ -6544,7 +6545,7 @@ client.once('ready', async () => {
                         "title": "¡Mañana con garra, ratita pequeña!",
                         "message": `¡Ey, ${recipientName}, reina del universo! 🌞 9 de la mañana de este sábado 19, y vos ya estás haciendo magia en el trabajo, ¿verdad? 💪 Tu fuerza me inspira, ratita blanca. ¿Cómo pinta el día? Un cafecito, una sonrisa, y a seguir brillando. ¡Contame cómo vas, sos una genia! 🧉 💖`
                     },
-                    "13:00": {
+                    "14:20": {
                         "title": "¡Mediodía poderoso, ratita blanca!",
                         "message": `¡Hola, ${recipientName}, joyita! 🍴 Mediodía del sábado 19, ¿seguís dándole duro en el laburo? 😋 Sos una campeona, ratita pequeña. Ya falta poquito para terminar y volar a casa a descansar. Mandame una señal, genia, y seguimos rompiendo todo juntos. ¡Te adoro! 🧉 🌈`
                     },
@@ -6570,29 +6571,27 @@ client.once('ready', async () => {
                     }
                 };
                 const timeKey = `${currentHour}:${currentMinute < 10 ? '0' : ''}${currentMinute}`;
-        
-                // Check if there's a reminder for the current time
+
                 if (reminderTimes[timeKey]) {
                     const reminderKey = `reminder_${CHANNEL_ID}_${timeKey.replace(':', '_')}`;
                     const lastSentReminder = dataStore.utilMessageTimestamps[reminderKey] || 0;
+                    const lastSentDate = new Date(lastSentReminder);
+                    const currentDate = new Date(now);
+                    const isSameDay = lastSentDate.toDateString() === currentDate.toDateString();
                     const hoursSinceLastSent = (now - lastSentReminder) / (60 * 60 * 1000);
         
                     console.log(`Evaluando recordatorio para ${timeKey} AR - Último envío: ${new Date(lastSentReminder).toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })} - Diferencia: ${hoursSinceLastSent} horas`);
         
-                    if (now - lastSentReminder >= oneDayInMs) {
+                    // Enviar si no hay timestamp, no es el mismo día, o han pasado 24 horas
+                    if (lastSentReminder === 0 || !isSameDay || now - lastSentReminder >= oneDayInMs) {
                         const reminder = reminderTimes[timeKey];
                         const embed = createEmbed('#FF1493', reminder.title, reminder.message, 'Con onda, Oliver IA');
-        
-                        try {
-                            await channel.send({ content: `<@1023132788632862761>`, embeds: [embed] });
-                            dataStore.utilMessageTimestamps[reminderKey] = now;
-                            autoModified = true;
-                            console.log(`Recordatorio enviado (${timeKey} AR) - ${new Date().toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })}`);
-                        } catch (sendError) {
-                            console.error(`Error al enviar recordatorio a ${timeKey} AR: ${sendError.message}`);
-                        }
+                        await channel.send({ content: `<@1023132788632862761>`, embeds: [embed] });
+                        dataStore.utilMessageTimestamps[reminderKey] = now;
+                        autoModified = true;
+                        console.log(`Recordatorio enviado (${timeKey} AR) - ${new Date().toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })}`);
                     } else {
-                        console.log(`No se envía ${timeKey} AR - Todavía no pasaron 24 horas`);
+                        console.log(`No se envía ${timeKey} AR - Todavía no pasaron 24 horas o es el mismo día`);
                     }
                 }
             } catch (error) {
@@ -6810,28 +6809,27 @@ async function loadDataStore() {
             musicSessions: {},
             recordatorios: [],
             updatesSent: false,
-            adivinanzaStats: {}
+            adivinanzaStats: {},
+            utilMessageTimestamps: {} // Añade esto para inicializar vacío si no existe
         };
         if (!loadedData.musicSessions) loadedData.musicSessions = {};
         if (!loadedData.recordatorios) loadedData.recordatorios = [];
         if (!loadedData.adivinanzaStats) loadedData.adivinanzaStats = {};
+        if (!loadedData.utilMessageTimestamps) loadedData.utilMessageTimestamps = {};
+        // Limpiar timestamps antiguos (anteriores al día actual)
+        const now = Date.now();
+        const oneDayInMs = 24 * 60 * 60 * 1000;
+        for (const key in loadedData.utilMessageTimestamps) {
+            if (now - loadedData.utilMessageTimestamps[key] > oneDayInMs) {
+                delete loadedData.utilMessageTimestamps[key];
+                console.log(`Eliminado timestamp antiguo para ${key}`);
+            }
+        }
         console.log('Datos cargados desde GitHub:', JSON.stringify(loadedData.recordatorios));
         return loadedData;
     } catch (error) {
         console.error('Error al cargar datos desde GitHub:', error.message);
-        return { 
-            conversationHistory: {}, 
-            triviaRanking: {}, 
-            personalPPMRecords: {}, 
-            reactionStats: {}, 
-            reactionWins: {}, 
-            activeSessions: {}, 
-            triviaStats: {},
-            musicSessions: {},
-            recordatorios: [],
-            updatesSent: false,
-            adivinanzaStats: {}
-        };
+        return { /* Objeto por defecto con utilMessageTimestamps vacío */ };
     }
 }
 
