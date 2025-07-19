@@ -2233,8 +2233,31 @@ app.get('/health', (req, res) => {
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
     console.log(`[${instanceId}] Servidor corriendo en el puerto ${PORT}`);
-    // Auto-ping desactivado, usar UptimeRobot
+    startAutoPing();
 });
+
+// Función de auto-ping (usando /health)
+function startAutoPing() {
+    const appUrl = process.env.APP_URL || 'https://oliver-ia.onrender.com';
+    console.log(`[${instanceId}] URL usada para auto-ping: ${appUrl}`);
+    if (!appUrl.startsWith('http://') && !appUrl.startsWith('https://')) {
+        console.error(`[${instanceId}] Error: appUrl no es una URL absoluta válida: ${appUrl}`);
+        return;
+    }
+    const pingInterval = 4 * 60 * 1000; // 4 minutos
+    setInterval(async () => {
+        try {
+            const response = await fetch(`${appUrl}/health`);
+            if (response.ok) {
+                console.log(`[${instanceId}] Auto-ping exitoso, bot sigue despierto`);
+            } else {
+                console.error(`[${instanceId}] Auto-ping falló: ${response.statusText}`);
+            }
+        } catch (error) {
+            console.error(`[${instanceId}] Error en auto-ping: ${error.message}`);
+        }
+    }, pingInterval);
+}
 
 async function manejarAnsiedad(message) {
     const userName = message.author.id === OWNER_ID ? 'Miguel' : 'Belén';
@@ -6784,9 +6807,9 @@ client.on('interactionCreate', async interaction => {
     }
 });
 
-// Tus funciones originales, adaptadas con timeout y conversationHistory.json
+// Funciones originales con timeout y conversationHistory.json
 async function initializeDataStore() {
-    const startTime = Date.now(); // Añadí para medir tiempo
+    const startTime = Date.now();
     try {
         if (fs.existsSync('conversationHistory.json')) {
             dataStore = JSON.parse(fs.readFileSync('conversationHistory.json', 'utf8'));
@@ -6794,8 +6817,10 @@ async function initializeDataStore() {
         } else {
             dataStore = await loadDataStore();
         }
-        console.log(`[${instanceId}] dataStore inicializado con ${dataStore.recordatorios.length} recordatorios: ${JSON.stringify(dataStore.recordatorios)} en ${Date.now() - startTime}ms`);
+        console.log(`[${instanceId}] dataStore inicializado con ${dataStore.recordatorios?.length || 0} recordatorios: ${JSON.stringify(dataStore.recordatorios)} en ${Date.now() - startTime}ms`);
         previousDataStore = JSON.stringify(dataStore, null, 2);
+        // Marcar como listo más rápido
+        isBotReady = true;
     } catch (error) {
         console.error(`[${instanceId}] Error al inicializar dataStore: ${error.message}`);
         dataStore = {
@@ -6809,8 +6834,10 @@ async function initializeDataStore() {
             musicSessions: {},
             recordatorios: [],
             updatesSent: false,
+            utilMessageTimestamps: {},
             adivinanzaStats: {}
         };
+        isBotReady = true; // Fallback para asegurar que /health no se cuelgue
     }
 }
 
@@ -6832,10 +6859,12 @@ async function loadDataStore() {
             musicSessions: {},
             recordatorios: [],
             updatesSent: false,
+            utilMessageTimestamps: {},
             adivinanzaStats: {}
         };
         if (!loadedData.musicSessions) loadedData.musicSessions = {};
         if (!loadedData.recordatorios) loadedData.recordatorios = [];
+        if (!loadedData.utilMessageTimestamps) loadedData.utilMessageTimestamps = {};
         if (!loadedData.adivinanzaStats) loadedData.adivinanzaStats = {};
         console.log(`[${instanceId}] Datos cargados desde GitHub: ${JSON.stringify(loadedData.recordatorios)}`);
         return loadedData;
@@ -6852,6 +6881,7 @@ async function loadDataStore() {
             musicSessions: {},
             recordatorios: [],
             updatesSent: false,
+            utilMessageTimestamps: {},
             adivinanzaStats: {}
         };
     }
@@ -6938,11 +6968,23 @@ process.on('SIGTERM', async () => {
     process.exit(0);
 });
 
+// Evento raw para erela.js
 client.on('raw', (d) => {
-    console.log('Evento raw recibido:', d.t);
+    console.log(`[${instanceId}] Evento raw recibido: ${d.t}`);
     manager.updateVoiceState(d);
 });
 
-initializeDataStore().then(() => {
-client.login(process.env.DISCORD_TOKEN);
-});
+// Evitar que instancias de PR Previews se conecten a Discord
+if (process.env.RENDER_PR === 'true') {
+    console.log(`[${instanceId}] Ejecutando en una instancia de PR Preview, no iniciando el bot.`);
+} else {
+    console.log(`[${instanceId}] Iniciando inicialización del bot...`);
+    const startTime = Date.now();
+    initializeDataStore().then(() => {
+        console.log(`[${instanceId}] initializeDataStore completado en ${Date.now() - startTime}ms`);
+        client.login(process.env.DISCORD_TOKEN);
+    }).catch(error => {
+        console.error(`[${instanceId}] Error en initializeDataStore: ${error.message}`);
+        isBotReady = true; // Fallback para /health
+    });
+}
