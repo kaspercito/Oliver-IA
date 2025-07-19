@@ -2206,55 +2206,38 @@ const obtenerResultados = async (message) => {
   }
 };
 
-// Configuración de Express (iniciar antes del bot)
 const express = require('express');
 const app = express();
-let isBotReady = false; // Estado para rastrear si el bot está listo
 
-// Endpoint de ping
 app.get('/ping', (req, res) => {
-    console.log(`[${instanceId}] Recibí un ping, ¡estoy vivo!`);
+    console.log('Recibí un ping, ¡estoy vivo!');
     res.send('¡Bot awake y con pilas!');
 });
 
-// Endpoint de health check para Render
-app.get('/health', (req, res) => {
-    console.log(`[${instanceId}] Health check solicitado`);
-    if (isBotReady) {
-        console.log(`[${instanceId}] Health check: Bot está conectado`);
-        res.status(200).send('El bot está listo');
-    } else {
-        console.log(`[${instanceId}] Health check: Bot inicializando`);
-        res.status(202).send('El bot está inicializando');
-    }
-});
-
-// Inicia el servidor Express
-const PORT = process.env.PORT || 8080;
+const PORT = process.env.PORT || 8080; // Render sets process.env.PORT
 app.listen(PORT, () => {
-    console.log(`[${instanceId}] Servidor corriendo en el puerto ${PORT}`);
+    console.log(`Servidor de ping corriendo en el puerto ${PORT}`);
     startAutoPing();
 });
 
-// Función de auto-ping (usando /health)
 function startAutoPing() {
     const appUrl = process.env.APP_URL || 'https://oliver-ia.onrender.com';
-    console.log(`[${instanceId}] URL usada para auto-ping: ${appUrl}`);
+    console.log('URL usada para auto-ping:', appUrl); // Log para depuración
     if (!appUrl.startsWith('http://') && !appUrl.startsWith('https://')) {
-        console.error(`[${instanceId}] Error: appUrl no es una URL absoluta válida: ${appUrl}`);
+        console.error('Error: appUrl no es una URL absoluta válida:', appUrl);
         return;
     }
     const pingInterval = 4 * 60 * 1000; // 4 minutos
     setInterval(async () => {
         try {
-            const response = await fetch(`${appUrl}/health`);
+            const response = await fetch(`${appUrl}/ping`);
             if (response.ok) {
-                console.log(`[${instanceId}] Auto-ping exitoso, bot sigue despierto`);
+                console.log('Auto-ping exitoso, bot sigue despierto.');
             } else {
-                console.error(`[${instanceId}] Auto-ping falló: ${response.statusText}`);
+                console.error('Auto-ping falló:', response.statusText);
             }
         } catch (error) {
-            console.error(`[${instanceId}] Error en auto-ping: ${error.message}`);
+            console.error('Error en auto-ping:', error.message);
         }
     }, pingInterval);
 }
@@ -6552,8 +6535,7 @@ client.once('ready', async () => {
                 const oneDayInMs = 24 * 60 * 60 * 1000;
         
                 const recipientName = "Belen"; 
-                const reminderTimes = {
-                    "6:30": {
+                const reminderTimes =                     "6:30": {
                         "title": "¡Arranque con todo, ratita blanca!",
                         "message": `¡Buenos días, ${recipientName}, mi crack! 🌅 Son las 6:30 de la matina en Argentina, sábado 19, y vos ya estás lista para romperla, ¿no? 😎 Aunque sea temprano, tu energía ilumina todo. Tomate un mate bien calentito y arrancá el día con esa magia que solo vos tenés. ¡Mandame una vibra, genia, y a darle con todo al laburo! 🧉 ✨`
                     },
@@ -6807,45 +6789,17 @@ client.on('interactionCreate', async interaction => {
     }
 });
 
-// Funciones originales con timeout y conversationHistory.json
 async function initializeDataStore() {
-    const startTime = Date.now();
-    try {
-        if (fs.existsSync('conversationHistory.json')) {
-            dataStore = JSON.parse(fs.readFileSync('conversationHistory.json', 'utf8'));
-            console.log(`[${instanceId}] Datos cargados desde conversationHistory.json`);
-        } else {
-            dataStore = await loadDataStore();
-        }
-        console.log(`[${instanceId}] dataStore inicializado con ${dataStore.recordatorios?.length || 0} recordatorios: ${JSON.stringify(dataStore.recordatorios)} en ${Date.now() - startTime}ms`);
-        previousDataStore = JSON.stringify(dataStore, null, 2);
-        // Marcar como listo más rápido
-        isBotReady = true;
-    } catch (error) {
-        console.error(`[${instanceId}] Error al inicializar dataStore: ${error.message}`);
-        dataStore = {
-            conversationHistory: {},
-            triviaRanking: {},
-            personalPPMRecords: {},
-            reactionStats: {},
-            reactionWins: {},
-            activeSessions: {},
-            triviaStats: {},
-            musicSessions: {},
-            recordatorios: [],
-            updatesSent: false,
-            utilMessageTimestamps: {},
-            adivinanzaStats: {}
-        };
-        isBotReady = true; // Fallback para asegurar que /health no se cuelgue
-    }
+    dataStore = await loadDataStore();
+    console.log(`dataStore inicializado con ${dataStore.recordatorios.length} recordatorios: ${JSON.stringify(dataStore.recordatorios)}`);
+    previousDataStore = JSON.stringify(dataStore, null, 2);
 }
 
 async function loadDataStore() {
     try {
         const response = await axios.get(
             `https://api.github.com/repos/${process.env.GITHUB_REPO}/contents/${process.env.GITHUB_FILE_PATH}`,
-            { headers: { 'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`, 'Accept': 'application/vnd.github+json' }, timeout: 30000 }
+            { headers: { 'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`, 'Accept': 'application/vnd.github+json' } }
         );
         const content = Buffer.from(response.data.content, 'base64').toString('utf8');
         const loadedData = content ? JSON.parse(content) : { 
@@ -6859,17 +6813,15 @@ async function loadDataStore() {
             musicSessions: {},
             recordatorios: [],
             updatesSent: false,
-            utilMessageTimestamps: {},
             adivinanzaStats: {}
         };
         if (!loadedData.musicSessions) loadedData.musicSessions = {};
         if (!loadedData.recordatorios) loadedData.recordatorios = [];
-        if (!loadedData.utilMessageTimestamps) loadedData.utilMessageTimestamps = {};
         if (!loadedData.adivinanzaStats) loadedData.adivinanzaStats = {};
-        console.log(`[${instanceId}] Datos cargados desde GitHub: ${JSON.stringify(loadedData.recordatorios)}`);
+        console.log('Datos cargados desde GitHub:', JSON.stringify(loadedData.recordatorios));
         return loadedData;
     } catch (error) {
-        console.error(`[${instanceId}] Error al cargar datos desde GitHub: ${error.message}`);
+        console.error('Error al cargar datos desde GitHub:', error.message);
         return { 
             conversationHistory: {}, 
             triviaRanking: {}, 
@@ -6881,43 +6833,41 @@ async function loadDataStore() {
             musicSessions: {},
             recordatorios: [],
             updatesSent: false,
-            utilMessageTimestamps: {},
             adivinanzaStats: {}
         };
     }
 }
 
+let previousDataStore = null;
+
 async function saveDataStore() {
     if (!userModified && !autoModified) {
-        console.log(`[${instanceId}] Nada que guardar, userModified y autoModified son false`);
+        console.log('Nada que guardar, userModified y autoModified son false');
         return false;
     }
 
     try {
         const currentDataStoreString = JSON.stringify(dataStore, null, 2);
+
         if (previousDataStore !== null && currentDataStoreString === previousDataStore) {
-            console.log(`[${instanceId}] No hay cambios reales en dataStore, omitiendo guardado`);
+            console.log('No hay cambios reales en dataStore, omitiendo guardado');
             userModified = false;
             autoModified = false;
             return false;
         }
 
-        // Guardar localmente como respaldo
-        fs.writeFileSync('conversationHistory.json', currentDataStoreString);
-        console.log(`[${instanceId}] Datos guardados en conversationHistory.json`);
-
         let sha;
         try {
             const response = await axios.get(
                 `https://api.github.com/repos/${process.env.GITHUB_REPO}/contents/${process.env.GITHUB_FILE_PATH}`,
-                { headers: { 'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`, 'Accept': 'application/vnd.github+json' }, timeout: 30000 }
+                { headers: { 'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`, 'Accept': 'application/vnd.github+json' } }
             );
             sha = response.data.sha;
         } catch (error) {
             if (error.response?.status !== 404) throw error;
         }
 
-        console.log(`[${instanceId}] Guardando ${dataStore.recordatorios.length} recordatorios: ${JSON.stringify(dataStore.recordatorios)}`);
+        console.log(`Guardando ${dataStore.recordatorios.length} recordatorios: ${JSON.stringify(dataStore.recordatorios)}`);
         await axios.put(
             `https://api.github.com/repos/${process.env.GITHUB_REPO}/contents/${process.env.GITHUB_FILE_PATH}`,
             {
@@ -6925,66 +6875,32 @@ async function saveDataStore() {
                 content: Buffer.from(currentDataStoreString).toString('base64'),
                 sha: sha || undefined,
             },
-            { headers: { 'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`, 'Accept': 'application/vnd.github+json' }, timeout: 30000 }
+            { headers: { 'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`, 'Accept': 'application/vnd.github+json' } }
         );
 
         previousDataStore = currentDataStoreString;
-        console.log(`[${instanceId}] Datos guardados en GitHub con éxito`);
+        console.log('Datos guardados en GitHub con éxito');
         userModified = false;
         autoModified = false;
         return true;
     } catch (error) {
-        console.error(`[${instanceId}] Error al guardar datos en GitHub: ${error.message}`);
-        if (error.response) console.error(`[${instanceId}] Detalles del error: ${JSON.stringify(error.response.data)}`);
+        console.error('Error al guardar datos en GitHub:', error.message);
+        if (error.response) console.error('Detalles del error:', error.response.data);
         throw error;
     }
 }
 
-// Manejador de SIGINT
 process.on('SIGINT', async () => {
-    console.log(`[${instanceId}] Guardando datos antes de salir (SIGINT)...`);
-    try {
-        await saveDataStore();
-        console.log(`[${instanceId}] Datos guardados con éxito (SIGINT)`);
-    } catch (error) {
-        console.error(`[${instanceId}] Error al guardar datos (SIGINT): ${error.message}`);
-    }
-    client.destroy();
-    manager.destroy();
+    console.log('Guardando datos antes de salir...');
+    await saveDataStore();
     process.exit();
 });
 
-// Manejador de SIGTERM para Render
-process.on('SIGTERM', async () => {
-    console.log(`[${instanceId}] Recibí SIGTERM, apagando...`);
-    try {
-        await saveDataStore();
-        console.log(`[${instanceId}] Datos guardados con éxito (SIGTERM)`);
-    } catch (error) {
-        console.error(`[${instanceId}] Error al guardar datos (SIGTERM): ${error.message}`);
-    }
-    client.destroy();
-    manager.destroy();
-    process.exit(0);
-});
-
-// Evento raw para erela.js
 client.on('raw', (d) => {
-    console.log(`[${instanceId}] Evento raw recibido: ${d.t}`);
+    console.log('Evento raw recibido:', d.t);
     manager.updateVoiceState(d);
 });
 
-// Evitar que instancias de PR Previews se conecten a Discord
-if (process.env.RENDER_PR === 'true') {
-    console.log(`[${instanceId}] Ejecutando en una instancia de PR Preview, no iniciando el bot.`);
-} else {
-    console.log(`[${instanceId}] Iniciando inicialización del bot...`);
-    const startTime = Date.now();
-    initializeDataStore().then(() => {
-        console.log(`[${instanceId}] initializeDataStore completado en ${Date.now() - startTime}ms`);
-        client.login(process.env.DISCORD_TOKEN);
-    }).catch(error => {
-        console.error(`[${instanceId}] Error en initializeDataStore: ${error.message}`);
-        isBotReady = true; // Fallback para /health
-    });
-}
+initializeDataStore().then(() => {
+client.login(process.env.DISCORD_TOKEN);
+});
