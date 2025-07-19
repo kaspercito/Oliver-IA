@@ -3127,14 +3127,14 @@ async function sendLyrics(waitingMessage, channel, songTitle, lyrics, userName) 
     }
 }
 
+// Inicialización
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-lite' });
 
 const userLocks = new Map();
-// Helper para elegir random
 const pickRandom = (arr) => arr[Math.floor(Math.random() * arr.length)];
 
-// Mapas para caché estático
+// Cachés estáticos
 const nicknameCache = new Map();
 const closerCache = new Map();
 const chisteCache = new Set();
@@ -3200,7 +3200,7 @@ const staticTimeGreetings = {
 // Generar nicknames estáticos
 function generateNicknames(userName) {
   if (!nicknameCache.has(userName)) {
-    nicknameCache.set(userName, staticNicknames[userName]);
+    nicknameCache.set(userName, staticNicknames[userName] || ['amigo']);
   }
   return nicknameCache.get(userName);
 }
@@ -3208,7 +3208,7 @@ function generateNicknames(userName) {
 // Generar closers estáticos
 function generateClosers(userName) {
   if (!closerCache.has(userName)) {
-    closerCache.set(userName, staticClosers[userName]);
+    closerCache.set(userName, staticClosers[userName] || ['¡Seguí rompiéndola! 😎']);
   }
   return closerCache.get(userName);
 }
@@ -3225,7 +3225,7 @@ function generateChistes() {
 function getTimeGreeting(hour, name, isWorkDay, dayOfWeek) {
   let timeKey;
   if (hour >= 0 && hour <= 5) {
-    timeKey = 'earlyMorning'; // Madrugada
+    timeKey = 'earlyMorning';
   } else if (hour >= 6 && hour <= 11) {
     timeKey = 'morning';
   } else if (hour >= 12 && hour <= 13) {
@@ -3236,22 +3236,30 @@ function getTimeGreeting(hour, name, isWorkDay, dayOfWeek) {
     timeKey = 'night';
   }
 
-  // Ajustar según día (finde o laboral)
-  const isWeekend = [0, 6].includes(dayOfWeek); // Domingo (0) o Sábado (6)
+  const isWeekend = [0, 6].includes(dayOfWeek);
   const context = isWeekend ? 'finde' : 'laboral';
-
   const cacheKey = `${name}-${timeKey}-${context}`;
+
   if (!timeGreetingCache.has(cacheKey)) {
     const greetings = staticTimeGreetings[timeKey];
-    let greeting = greetings[name];
+    let greeting = greetings[name] || `¡${timeKey}, ${name}! ¿Cómo va?`;
     if (timeKey === 'night' && isWeekend) {
       greeting = greeting.replace('tranqui', 'de finde');
+    }
+    if (name === 'Belen' && isWorkDay) {
+      const breakStatus = dataStore.belenSchedule?.breakStatus || { isOnBreak: false, breakEndTime: null };
+      if (breakStatus.isOnBreak && breakStatus.breakEndTime > Date.now()) {
+        greeting += ' ¡Veo que estás en pausa, genia! 🧉';
+      } else if (dataStore.belenSchedule?.travelFriday.includes(hour) && dayOfWeek === 5) {
+        greeting += ' ¡En viaje al laburo, crack! 🚗';
+      }
     }
     timeGreetingCache.set(cacheKey, greeting);
   }
   return timeGreetingCache.get(cacheKey);
 }
 
+// Función principal para manejar el chat
 async function manejarChat(message) {
   const userId = message.author.id;
 
@@ -3274,17 +3282,27 @@ async function manejarChat(message) {
     });
   }
 
+  // Obtener fecha y hora en Argentina (UTC-3)
+  const now = new Date();
+  const argentinaTime = new Date(now.toLocaleString('en-US', { timeZone: 'America/Argentina/San_Luis' }));
+  const argentinaHour = argentinaTime.getHours();
+  const argentinaMinutes = argentinaTime.getMinutes().toString().padStart(2, '0');
+  const dayOfWeek = argentinaTime.getDay();
+  const isWorkDay = dataStore.belenSchedule?.typicalWorkDays.includes(dayOfWeek) ||
+                    (dayOfWeek === 6 && dataStore.belenSchedule?.exceptions.saturdayWork);
+
+  // Depuración
+  console.log('Fecha actual (Argentina):', argentinaTime.toLocaleString('es-AR', { timeZone: 'America/Argentina/San_Luis' }), 
+              'Hora:', argentinaHour, 
+              'Día:', dayOfWeek, 
+              'Es laboral:', isWorkDay);
+
   // Manejar consulta de hora
   if (chatMessage.toLowerCase().includes('que hora es') || chatMessage.toLowerCase().includes('qué hora es')) {
-    const guayaquilTime = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Guayaquil' }));
-    const argentinaTime = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Argentina/San_Luis' }));
+    const guayaquilTime = new Date(now.toLocaleString('en-US', { timeZone: 'America/Guayaquil' }));
     const guayaquilHour = guayaquilTime.getHours();
     const guayaquilMinutes = guayaquilTime.getMinutes().toString().padStart(2, '0');
-    const argentinaHour = argentinaTime.getHours();
-    const argentinaMinutes = argentinaTime.getMinutes().toString().padStart(2, '0');
-    const isWorkDay = dataStore.belenSchedule.typicalWorkDays.includes(argentinaTime.getDay()) ||
-                      (argentinaTime.getDay() === 6 && dataStore.belenSchedule.exceptions.saturdayWork);
-    const embedTitle = getTimeGreeting(argentinaHour, userName, isWorkDay, argentinaTime.getDay());
+    const embedTitle = getTimeGreeting(argentinaHour, userName, isWorkDay, dayOfWeek);
     const aiReply = `¡Che, ${userName}, son las ${guayaquilHour}:${guayaquilMinutes} en Guayaquil, loco! 🧉 En San Luis, Argentina, son las ${argentinaHour}:${argentinaMinutes}. ${pickRandom(generateClosers(userName))}`;
     const finalEmbed = createEmbed('#FF1493', embedTitle, aiReply, 'Hecho con ❤️ por Oliver IA | Reacciona con ✅ o ❌');
     const waitingMessage = await message.channel.send({ embeds: [finalEmbed] });
@@ -3317,16 +3335,15 @@ async function manejarChat(message) {
   // Detectar mensajes de Belen sobre viaje, trabajo o pausa
   if (userName === 'Belen') {
     const lowerMessage = chatMessage.toLowerCase();
-    const now = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Argentina/San_Luis' }));
     if (lowerMessage.includes('me voy al trabajo') || lowerMessage.includes('voy al laburo')) {
-      dataStore.belenSchedule.typicalStartHour[now.getDay()] = now.getHours() + 1;
-      dataStore.belenSchedule.typicalWorkDays = [...new Set([...dataStore.belenSchedule.typicalWorkDays, now.getDay()])];
+      dataStore.belenSchedule.typicalStartHour[dayOfWeek] = argentinaHour + 1;
+      dataStore.belenSchedule.typicalWorkDays = [...new Set([...dataStore.belenSchedule.typicalWorkDays, dayOfWeek])];
       dataStoreModified = true;
       await message.channel.send(`¡Anotado, Belen, ratita blanca! 🧉 Vas pal laburo, ¡a romperla, genia! 😎`);
       userLocks.delete(userId);
       return;
     } else if (lowerMessage.includes('estoy por viajar') || lowerMessage.includes('viajando al trabajo')) {
-      dataStore.belenSchedule.travelFriday = [now.getHours()];
+      dataStore.belenSchedule.travelFriday = [argentinaHour];
       dataStoreModified = true;
       await message.channel.send(`¡Buena, Belen, crack! 🚀 En viaje al laburo, ¡cuidate en la ruta, genia! 😜`);
       userLocks.delete(userId);
@@ -3344,7 +3361,7 @@ async function manejarChat(message) {
       userLocks.delete(userId);
       return;
     } else if (lowerMessage.includes('termino temprano') || lowerMessage.includes('salgo antes')) {
-      dataStore.belenSchedule.typicalEndHour[now.getDay()] = now.getHours() + 1;
+      dataStore.belenSchedule.typicalEndHour[dayOfWeek] = argentinaHour + 1;
       dataStoreModified = true;
       await message.channel.send(`¡Entendido, Belen, salís temprano, genia! 😎 ¡A disfrutar, ratita blanca!`);
       userLocks.delete(userId);
@@ -3384,13 +3401,6 @@ async function manejarChat(message) {
   // Determinar tono y contexto
   let tone = 'neutral';
   let extraContext = '';
-  const now = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Argentina/San_Luis' }));
-  const argentinaHour = now.getHours();
-  console.log('now:', now.toLocaleString('es-AR', { timeZone: 'America/Argentina/San_Luis' }), 'argentinaHour:', argentinaHour, 'serverTime:', new Date().toLocaleString('es-AR', { timeZone: 'America/Guayaquil' })); // Depuración
-  const dayOfWeek = now.getDay();
-  const isWorkDay = dataStore.belenSchedule.typicalWorkDays.includes(dayOfWeek) ||
-                    (dayOfWeek === 6 && dataStore.belenSchedule.exceptions.saturdayWork);
-
   const nicknames = generateNicknames(userName);
   const closers = generateClosers(userName);
   const chistes = generateChistes();
@@ -3492,7 +3502,6 @@ async function manejarChat(message) {
   } finally {
     userLocks.delete(userId);
   }
-}
 
 function generarConsejoClima(clima, esSalida = false) {
     const climaLower = clima.toLowerCase();
