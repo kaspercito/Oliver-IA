@@ -5997,9 +5997,7 @@ async function manejarCommand(message, silent = false) {
     }
 }
 
-if (!client._messageHandlerRegistrado) {
   client.on("messageCreate", async (message) => {
-
         
     if (!message.author || !message.content || typeof message.content !== 'string') {
         return;
@@ -6384,8 +6382,6 @@ if (!client._messageHandlerRegistrado) {
         await message.channel.send({ embeds: [embed] });
     }
 });
-        client._messageHandlerRegistrado = true;
-}
 
 client.once('ready', async () => {
     console.log(`¡Oliver IA está listo! Instancia: ${instanceId} - ${new Date().toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })}`);
