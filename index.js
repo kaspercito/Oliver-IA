@@ -1,4 +1,5 @@
 const fs = require('fs');
+const process = require('process');
 const { Client, GatewayIntentBits, EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder } = require('discord.js');
 const axios = require('axios');
 const https = require('https');
@@ -15,6 +16,32 @@ const FormData = require('form-data');
 const TelegramBot = require('node-telegram-bot-api');
 const path = require('path');
 require('dotenv').config();
+
+const LOCK_FILE = '/tmp/discord_bot.lock';
+
+function isProcessRunning(pid) {
+  try {
+    process.kill(pid, 0); // chequea si existe proceso sin matarlo
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function checkSingleInstance() {
+  if (fs.existsSync(LOCK_FILE)) {
+    const pid = parseInt(fs.readFileSync(LOCK_FILE, 'utf8'), 10);
+    if (isProcessRunning(pid)) {
+      console.log(`Otra instancia detectada con PID ${pid}. Cerrando esta instancia...`);
+      process.exit(0);
+    } else {
+      console.log(`Archivo lock encontrado pero proceso ${pid} no existe. Eliminando archivo lock.`);
+      fs.unlinkSync(LOCK_FILE);
+    }
+  }
+
+  // Crear archivo lock para marcar esta instancia
+  fs.writeFileSync(LOCK_FILE, process.pid.toString());
 
 // Creación del cliente de Discord
 const client = new Client({
@@ -6891,11 +6918,18 @@ async function saveDataStore() {
     }
 }
 
-process.on('SIGINT', async () => {
+process.on('exit', () => {
+    if (fs.existsSync(LOCK_FILE)) fs.unlinkSync(LOCK_FILE);
+  });
+  process.on('SIGINT', async () => {
     console.log('Guardando datos antes de salir...');
     await saveDataStore();
     process.exit();
 });
+  process.on('SIGTERM', () => process.exit(0));
+}
+
+checkSingleInstance();
 
 client.on('raw', (d) => {
     console.log('Evento raw recibido:', d.t);
