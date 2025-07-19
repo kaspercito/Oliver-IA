@@ -3,18 +3,6 @@
     "1023132788632862761": [
       {
         "role": "user",
-        "content": "ayúdame con algo",
-        "timestamp": 1752263269517,
-        "userName": "Belén"
-      },
-      {
-        "role": "assistant",
-        "content": "¡Che, Belén, genia! 😎 ¿En qué te puedo dar una mano? ¿Qué andás necesitando? Contame, que acá estoy para vos. ¿Qué onda con eso que te trae por acá? ✨",
-        "timestamp": 1752263270724,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
         "content": "sabes qué significa cuando en un scan de anticheat sale la alerta Hitbox Modification?",
         "timestamp": 1752263291126,
         "userName": "Belén"
@@ -119,6 +107,18 @@
         "role": "assistant",
         "content": "¡Che, Belén! ¡A descansar nomás, genia! 🧉  ¡El laburo y las tareas después, a darle! ¡Qué buen plan el finde! ¿Te vas a hacer un buen mate mientras? ¡Dale con todo, Belén, genia! 🚀",
         "timestamp": 1752451828848,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "ya casi",
+        "timestamp": 1752890640532,
+        "userName": "Belen"
+      },
+      {
+        "role": "assistant",
+        "content": "¡Che, Belén! Ya casi, ¿eh? ¿Falta mucho para el finde? ¿Estás por San Luis, lista para laburar? Contame, grosa. ¡Toda la buena onda, Belén! 🧉",
+        "timestamp": 1752890642682,
         "userName": "Oliver"
       }
     ],
@@ -700,7 +700,8 @@
     "reminder_1395491505162027119_13_00": 1752854444173,
     "reminder_1395491505162027119_16_30": 1752867012837,
     "reminder_1395491505162027119_19_00": 1752876006415,
-    "reminder_1395491505162027119_21_00": 1752883244526
+    "reminder_1395491505162027119_21_00": 1752883244526,
+    "reminder_1395491505162027119_23_00": 1752890408409
   },
   "utilMessageReactions": {
     "1343749554905940058": 1742417343374
