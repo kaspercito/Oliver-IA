@@ -43,6 +43,19 @@ function checkSingleInstance() {
   // Crear archivo lock para marcar esta instancia
   fs.writeFileSync(LOCK_FILE, process.pid.toString());
 
+  process.on('exit', () => {
+    if (fs.existsSync(LOCK_FILE)) fs.unlinkSync(LOCK_FILE);
+  });
+  process.on('SIGINT', async () => {
+    console.log('Guardando datos antes de salir...');
+    await saveDataStore();
+    process.exit();
+});
+  process.on('SIGTERM', () => process.exit(0));
+}
+
+checkSingleInstance();
+
 // Creación del cliente de Discord
 const client = new Client({
     intents: [
@@ -6917,19 +6930,6 @@ async function saveDataStore() {
         throw error;
     }
 }
-
-process.on('exit', () => {
-    if (fs.existsSync(LOCK_FILE)) fs.unlinkSync(LOCK_FILE);
-  });
-  process.on('SIGINT', async () => {
-    console.log('Guardando datos antes de salir...');
-    await saveDataStore();
-    process.exit();
-});
-  process.on('SIGTERM', () => process.exit(0));
-}
-
-checkSingleInstance();
 
 client.on('raw', (d) => {
     console.log('Evento raw recibido:', d.t);
