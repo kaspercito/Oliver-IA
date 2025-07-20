@@ -5110,7 +5110,7 @@ async function manejarChat(message) {
   const userId = message.author.id;
 
   // Validar usuarios autorizados
-  if (userId !== process.env.OWNER_ID && userId !== process.env.ALLOWED_USER_ID) {
+  if (userId !== OWNER_ID && userId !== ALLOWED_USER_ID) {
     return message.channel.send({
       embeds: [
         createEmbed(
