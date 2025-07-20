@@ -4906,20 +4906,35 @@ const closerCache = new Map();
 const chisteCache = new Set();
 const timeGreetingCache = new Map();
 
-// DataStore inicial
-const dataStore = {
-  conversationHistory: {},
-  userStatus: {},
-  belenSchedule: {
-    typicalWorkDays: [5, 6, 0], // Viernes, Sábado, Domingo
-    typicalStartHour: { 5: 18, 6: 6, 0: 6 }, // Empieza 6 PM viernes, 6 AM sábado/domingo
-    typicalEndHour: { 5: 0, 6: 0, 0: 14 }, // Termina 12 AM viernes/sábado, 2 PM domingo
-    travelFriday: [14, 15, 16], // Viaja viernes 2-4 PM
-    travelSunday: [14, 15, 16], // Viaja a casa después de las 2 PM domingo
+// Inicializar dataStore solo si no existe
+if (!global.dataStore) {
+  global.dataStore = {
+    conversationHistory: {},
+    userStatus: {},
+    belenSchedule: {
+      typicalWorkDays: [5, 6, 0], // Viernes, Sábado, Domingo
+      typicalStartHour: { 5: 18, 6: 6, 0: 6 }, // Empieza 6 PM viernes, 6 AM sábado/domingo
+      typicalEndHour: { 5: 0, 6: 0, 0: 14 }, // Termina 12 AM viernes/sábado, 2 PM domingo
+      travelFriday: [14, 15, 16], // Viaja viernes 2-4 PM
+      travelSunday: [14, 15, 16], // Viaja a casa después de las 2 PM domingo
+      exceptions: { fridayAbsence: false, saturdayWork: true, sundayAbsence: false },
+      breakStatus: { isOnBreak: false, breakEndTime: null },
+    },
+  };
+} else {
+  // Fusionar belenSchedule si ya existe dataStore
+  global.dataStore.belenSchedule = global.dataStore.belenSchedule || {
+    typicalWorkDays: [5, 6, 0],
+    typicalStartHour: { 5: 18, 6: 6, 0: 6 },
+    typicalEndHour: { 5: 0, 6: 0, 0: 14 },
+    travelFriday: [14, 15, 16],
+    travelSunday: [14, 15, 16],
     exceptions: { fridayAbsence: false, saturdayWork: true, sundayAbsence: false },
     breakStatus: { isOnBreak: false, breakEndTime: null },
-  },
-};
+  };
+  global.dataStore.conversationHistory = global.dataStore.conversationHistory || {};
+  global.dataStore.userStatus = global.dataStore.userStatus || {};
+}
 
 // Lista estática de apodos
 const staticNicknames = {
@@ -5037,19 +5052,19 @@ function getTimeGreeting(hour, name, isWorkDay, dayOfWeek) {
   if (!timeGreetingCache.has(cacheKey)) {
     let greeting = staticTimeGreetings[timeKey][name] || `¡${timeKey}, ${name}! ¿Cómo va?`;
     if (name === "Belen" && isWorkDay) {
-      const userStatus = dataStore.userStatus[process.env.ALLOWED_USER_ID] || { status: "tranqui", timestamp: Date.now() };
-      const breakStatus = dataStore.belenSchedule?.breakStatus || { isOnBreak: false, breakEndTime: null };
-      const startHour = dataStore.belenSchedule?.typicalStartHour[dayOfWeek] || 18;
-      const endHour = dataStore.belenSchedule?.typicalEndHour[dayOfWeek] || 0;
+      const userStatus = global.dataStore.userStatus[process.env.ALLOWED_USER_ID] || { status: "tranqui", timestamp: Date.now() };
+      const breakStatus = global.dataStore.belenSchedule?.breakStatus || { isOnBreak: false, breakEndTime: null };
+      const startHour = global.dataStore.belenSchedule?.typicalStartHour[dayOfWeek] || 18;
+      const endHour = global.dataStore.belenSchedule?.typicalEndHour[dayOfWeek] || 0;
       if (userStatus.status === "fiesta") {
         greeting += " ¡De fiesta a full, ratita blanca! 😎";
       } else if (breakStatus.isOnBreak && breakStatus.breakEndTime > Date.now()) {
         greeting += " ¡Veo que estás en pausa, genia! 🧉";
-      } else if (dayOfWeek === 5 && dataStore.belenSchedule?.travelFriday.includes(userHour)) {
+      } else if (dayOfWeek === 5 && global.dataStore.belenSchedule?.travelFriday.includes(userHour)) {
         greeting += " ¡En viaje al laburo, crack! 🚗";
-      } else if (dayOfWeek === 0 && userHour >= 14 && dataStore.belenSchedule?.travelSunday.includes(userHour)) {
+      } else if (dayOfWeek === 0 && userHour >= 14 && global.dataStore.belenSchedule?.travelSunday.includes(userHour)) {
         greeting += " ¡Ya saliste del laburo, ratita blanca! 😎 ¿Viajando pa’ casa, grosa? 🚗";
-      } else if (userHour >= startHour && userHour <= endHour && !dataStore.belenSchedule.exceptions.sundayAbsence) {
+      } else if (userHour >= startHour && userHour <= endHour && !global.dataStore.belenSchedule.exceptions.sundayAbsence) {
         greeting += " ¡Laburando a full, ratita blanca! 🚀";
       } else {
         greeting += " ¡Ya saliste del laburo, ratita blanca! 😎 ¿Ahora a disfrutar, grosa?";
@@ -5063,25 +5078,25 @@ function getTimeGreeting(hour, name, isWorkDay, dayOfWeek) {
 // Función para obtener el contexto laboral de Belén
 function getBelenContext(userName, isWorkDay, argentinaHour, dayOfWeek) {
   if (userName !== "Belen") {
-    const userStatus = dataStore.userStatus[process.env.ALLOWED_USER_ID] || { status: "tranqui", timestamp: Date.now() };
+    const userStatus = global.dataStore.userStatus[process.env.ALLOWED_USER_ID] || { status: "tranqui", timestamp: Date.now() };
     return userStatus.status === "fiesta" ? "¡De fiesta a full, ratita blanca! 😎 " : "";
   }
-  if (!isWorkDay || dataStore.belenSchedule.exceptions.sundayAbsence) {
-    const userStatus = dataStore.userStatus[process.env.ALLOWED_USER_ID] || { status: "tranqui", timestamp: Date.now() };
+  if (!isWorkDay || global.dataStore.belenSchedule.exceptions.sundayAbsence) {
+    const userStatus = global.dataStore.userStatus[process.env.ALLOWED_USER_ID] || { status: "tranqui", timestamp: Date.now() };
     return userStatus.status === "fiesta" ? "¡De fiesta a full, ratita blanca! 😎 " : "¡Ya saliste del laburo, ratita blanca! 😎 ¿Ahora a disfrutar, grosa? ";
   }
-  const breakStatus = dataStore.belenSchedule?.breakStatus || { isOnBreak: false, breakEndTime: null };
-  const startHour = dataStore.belenSchedule?.typicalStartHour[dayOfWeek] || 18;
-  const endHour = dataStore.belenSchedule?.typicalEndHour[dayOfWeek] || 0;
-  const userStatus = dataStore.userStatus[process.env.ALLOWED_USER_ID] || { status: "tranqui", timestamp: Date.now() };
+  const breakStatus = global.dataStore.belenSchedule?.breakStatus || { isOnBreak: false, breakEndTime: null };
+  const startHour = global.dataStore.belenSchedule?.typicalStartHour[dayOfWeek] || 18;
+  const endHour = global.dataStore.belenSchedule?.typicalEndHour[dayOfWeek] || 0;
+  const userStatus = global.dataStore.userStatus[process.env.ALLOWED_USER_ID] || { status: "tranqui", timestamp: Date.now() };
 
   if (userStatus.status === "fiesta") {
     return "¡De fiesta a full, ratita blanca! 😎 ";
   } else if (breakStatus.isOnBreak && breakStatus.breakEndTime > Date.now()) {
     return "¡Veo que estás en pausa, genia! ¿Un mate veggie pa’l break? 🧉 ";
-  } else if (dayOfWeek === 5 && dataStore.belenSchedule?.travelFriday.includes(argentinaHour)) {
+  } else if (dayOfWeek === 5 && global.dataStore.belenSchedule?.travelFriday.includes(argentinaHour)) {
     return "¡Estás viajando al laburo, crack! ¡Cuidate en la ruta! 🚗 ";
-  } else if (dayOfWeek === 0 && argentinaHour >= 14 && dataStore.belenSchedule?.travelSunday.includes(argentinaHour)) {
+  } else if (dayOfWeek === 0 && argentinaHour >= 14 && global.dataStore.belenSchedule?.travelSunday.includes(argentinaHour)) {
     return "¡Ya saliste del laburo, ratita blanca! 😎 ¿Viajando pa’ casa, grosa? 🚗 ";
   } else if (argentinaHour >= startHour && argentinaHour <= endHour) {
     return "¡Dándole con todo en el laburo, ratita blanca! 🚀 ";
@@ -5090,6 +5105,15 @@ function getBelenContext(userName, isWorkDay, argentinaHour, dayOfWeek) {
   }
 }
 
+// Función para crear embeds
+function createEmbed(color, title, description, footer) {
+  return {
+    color: parseInt(color.replace("#", ""), 16),
+    title,
+    description,
+    footer: { text: footer },
+  };
+}
 
 // Función principal para manejar el chat
 async function manejarChat(message) {
@@ -5148,31 +5172,29 @@ async function manejarChat(message) {
   const argentinaMinutes = argentinaTime.getMinutes().toString().padStart(2, "0");
   const dayOfWeek = argentinaTime.getDay();
   const isWorkDay =
-    dataStore.belenSchedule?.typicalWorkDays.includes(dayOfWeek) &&
-    !dataStore.belenSchedule?.exceptions.fridayAbsence &&
-    !dataStore.belenSchedule?.exceptions.sundayAbsence ||
-    (dayOfWeek === 6 && dataStore.belenSchedule?.exceptions.saturdayWork);
+    global.dataStore.belenSchedule?.typicalWorkDays.includes(dayOfWeek) &&
+    !global.dataStore.belenSchedule?.exceptions.fridayAbsence &&
+    !global.dataStore.belenSchedule?.exceptions.sundayAbsence ||
+    (dayOfWeek === 6 && global.dataStore.belenSchedule?.exceptions.saturdayWork);
 
   // Depuración
   console.log(
-    `Hora Argentina: ${argentinaHour}:${argentinaMinutes}, Día: ${daysOfWeek[dayOfWeek]}, Laboral: ${isWorkDay}, Estado de Belen: ${JSON.stringify(dataStore.belenSchedule)}`
+    `Hora Argentina: ${argentinaHour}:${argentinaMinutes}, Día: ${daysOfWeek[dayOfWeek]}, Laboral: ${isWorkDay}, Estado de Belen: ${JSON.stringify(global.dataStore.belenSchedule)}`
   );
 
-  // Inicializar dataStore
+  // Inicializar dataStore si no está completo
   let dataStoreModified = false;
-  if (!dataStore.conversationHistory) dataStore.conversationHistory = {};
-  if (!dataStore.conversationHistory[userId]) dataStore.conversationHistory[userId] = [];
-  if (!dataStore.userStatus) dataStore.userStatus = {};
-  if (!dataStore.userStatus[userId]) dataStore.userStatus[userId] = { status: "tranqui", timestamp: Date.now() };
+  global.dataStore.conversationHistory[userId] = global.dataStore.conversationHistory[userId] || [];
+  global.dataStore.userStatus[userId] = global.dataStore.userStatus[userId] || { status: "tranqui", timestamp: Date.now() };
 
   // Actualizar estado de Belén si se menciona fiesta o excepción
   if (chatMessage.toLowerCase().includes("belen") && chatMessage.toLowerCase().includes("fiesta")) {
-    dataStore.userStatus[process.env.ALLOWED_USER_ID] = { status: "fiesta", timestamp: Date.now() };
+    global.dataStore.userStatus[process.env.ALLOWED_USER_ID] = { status: "fiesta", timestamp: Date.now() };
     dataStoreModified = true;
   }
   if (chatMessage.toLowerCase().includes("excepción") || chatMessage.toLowerCase().includes("no labura")) {
     if (dayOfWeek === 0) {
-      dataStore.belenSchedule.exceptions.sundayAbsence = true;
+      global.dataStore.belenSchedule.exceptions.sundayAbsence = true;
       dataStoreModified = true;
     }
   }
@@ -5181,7 +5203,7 @@ async function manejarChat(message) {
   if (chatMessage.toLowerCase().includes("dile que")) {
     const embedTitle = getTimeGreeting(argentinaHour, userName, isWorkDay, dayOfWeek);
     const instruction = chatMessage.split("dile que").pop().trim();
-    const belenStatus = dataStore.userStatus[process.env.ALLOWED_USER_ID]?.status || "tranqui";
+    const belenStatus = global.dataStore.userStatus[process.env.ALLOWED_USER_ID]?.status || "tranqui";
     const aiReply = `¡Che, ${userName}! Le dije a Belén que ${instruction}, ${pickRandom(generateNicknames(userName))}! 😎 Ella está ${belenStatus}. ¿Qué más querés que le diga? ${pickRandom(generateClosers(userName))}`;
     const finalEmbed = createEmbed(
       "#FF1493",
@@ -5198,7 +5220,7 @@ async function manejarChat(message) {
   // Manejar consulta sobre Belén
   if (chatMessage.toLowerCase().includes("belen")) {
     const embedTitle = getTimeGreeting(argentinaHour, userName, isWorkDay, dayOfWeek);
-    const belenStatus = dataStore.userStatus[process.env.ALLOWED_USER_ID] || { status: "tranqui", timestamp: Date.now() };
+    const belenStatus = global.dataStore.userStatus[process.env.ALLOWED_USER_ID] || { status: "tranqui", timestamp: Date.now() };
     const scheduleInfo = `labura viernes 6 PM-12 AM, sábado 6 AM-12 AM, domingo 6 AM-2 PM, viaja viernes 2/4 PM, después del domingo 2 PM a casa`;
     const aiReply = `¡Che, ${userName}, hablando de Belén, la ratita blanca! 😎 Está ${belenStatus.status} (actualizado ${new Date(belenStatus.timestamp).toLocaleString("es-AR")}). ${scheduleInfo}. ${getBelenContext("Belen", isWorkDay, argentinaHour, dayOfWeek)}¿Querés más data o seguimos con otra? ${pickRandom(generateClosers(userName))}`;
     const finalEmbed = createEmbed(
@@ -5216,7 +5238,7 @@ async function manejarChat(message) {
   // Manejar consulta sobre si está trabajando
   if (chatMessage.toLowerCase().includes("esta trabajando") || chatMessage.toLowerCase().includes("está trabajando")) {
     const embedTitle = getTimeGreeting(argentinaHour, userName, isWorkDay, dayOfWeek);
-    const belenStatus = dataStore.userStatus[process.env.ALLOWED_USER_ID]?.status || "tranqui";
+    const belenStatus = global.dataStore.userStatus[process.env.ALLOWED_USER_ID]?.status || "tranqui";
     const aiReply = belenStatus === "fiesta" 
       ? `¡Che, ${userName}! Belén está de fiesta a full, ratita blanca! 😎 ¿Querés que le diga algo? ${pickRandom(generateClosers(userName))}`
       : `¡Che, ${userName}! ${getBelenContext("Belen", isWorkDay, argentinaHour, dayOfWeek) || "Belén está tranqui, no es día laboral, crack! 😎"} ${pickRandom(generateClosers(userName))}`;
@@ -5241,7 +5263,7 @@ async function manejarChat(message) {
       const embedTitle = getTimeGreeting(argentinaHour, userName, isWorkDay, dayOfWeek);
       let aiReply = `¡Che, ${userName}, qué fotaza, ${pickRandom(generateNicknames(userName))}! 😜 Vi en la imagen: ${labels}. `;
       if (labels.toLowerCase().includes("party") || labels.toLowerCase().includes("amigas") || labels.toLowerCase().includes("fiesta")) {
-        dataStore.userStatus[userName === "Belen" ? userId : process.env.ALLOWED_USER_ID] = {
+        global.dataStore.userStatus[userName === "Belen" ? userId : process.env.ALLOWED_USER_ID] = {
           status: "fiesta",
           timestamp: Date.now(),
         };
@@ -5327,9 +5349,9 @@ async function manejarChat(message) {
   if (userName === "Belen") {
     const lowerMessage = chatMessage.toLowerCase();
     if (lowerMessage.includes("me voy al trabajo") || lowerMessage.includes("voy al laburo")) {
-      dataStore.belenSchedule.typicalStartHour[dayOfWeek] = argentinaHour + 1;
-      dataStore.belenSchedule.typicalWorkDays = [...new Set([...dataStore.belenSchedule.typicalWorkDays, dayOfWeek])];
-      dataStore.userStatus[userId] = { status: "trabajando", timestamp: Date.now() };
+      global.dataStore.belenSchedule.typicalStartHour[dayOfWeek] = argentinaHour + 1;
+      global.dataStore.belenSchedule.typicalWorkDays = [...new Set([...global.dataStore.belenSchedule.typicalWorkDays, dayOfWeek])];
+      global.dataStore.userStatus[userId] = { status: "trabajando", timestamp: Date.now() };
       dataStoreModified = true;
       const aiReply = `¡Anotado, Belen, ratita blanca! 🧉 Vas pal laburo, ¡a romperla, genia! 😎 ${pickRandom(generateClosers(userName))}`;
       const finalEmbed = createEmbed(
@@ -5344,8 +5366,8 @@ async function manejarChat(message) {
       userLocks.delete(userId);
       return;
     } else if (lowerMessage.includes("estoy por viajar") || lowerMessage.includes("viajando al trabajo")) {
-      dataStore.belenSchedule.travelFriday = [argentinaHour];
-      dataStore.userStatus[userId] = { status: "viajando", timestamp: Date.now() };
+      global.dataStore.belenSchedule.travelFriday = [argentinaHour];
+      global.dataStore.userStatus[userId] = { status: "viajando", timestamp: Date.now() };
       dataStoreModified = true;
       const aiReply = `¡Buena, Belen, crack! 🚀 En viaje al laburo, ¡cuidate en la ruta, genia! 😜 ${pickRandom(generateClosers(userName))}`;
       const finalEmbed = createEmbed(
@@ -5360,7 +5382,7 @@ async function manejarChat(message) {
       userLocks.delete(userId);
       return;
     } else if (lowerMessage.includes("no voy el viernes") || lowerMessage.includes("libre el viernes")) {
-      dataStore.belenSchedule.exceptions.fridayAbsence = true;
+      global.dataStore.belenSchedule.exceptions.fridayAbsence = true;
       dataStoreModified = true;
       const aiReply = `¡Listo, Belen, marqué el viernes como libre, ratita blanca! ☀️ Descansá, genia! ${pickRandom(generateClosers(userName))}`;
       const finalEmbed = createEmbed(
@@ -5375,7 +5397,7 @@ async function manejarChat(message) {
       userLocks.delete(userId);
       return;
     } else if (lowerMessage.includes("laburo el sábado") || lowerMessage.includes("trabajo sábado")) {
-      dataStore.belenSchedule.exceptions.saturdayWork = true;
+      global.dataStore.belenSchedule.exceptions.saturdayWork = true;
       dataStoreModified = true;
       const aiReply = `¡Anotado, Belen, sábado laburás, crack! 🚀 ¡A meterle pilas! ${pickRandom(generateClosers(userName))}`;
       const finalEmbed = createEmbed(
@@ -5390,8 +5412,8 @@ async function manejarChat(message) {
       userLocks.delete(userId);
       return;
     } else if (lowerMessage.includes("termino temprano") || lowerMessage.includes("salgo antes")) {
-      dataStore.belenSchedule.typicalEndHour[dayOfWeek] = argentinaHour + 1;
-      dataStore.userStatus[userId] = { status: "tranqui", timestamp: Date.now() };
+      global.dataStore.belenSchedule.typicalEndHour[dayOfWeek] = argentinaHour + 1;
+      global.dataStore.userStatus[userId] = { status: "tranqui", timestamp: Date.now() };
       dataStoreModified = true;
       const aiReply = `¡Entendido, Belen, salís temprano, genia! 😎 ¡A disfrutar, ratita blanca! ${pickRandom(generateClosers(userName))}`;
       const finalEmbed = createEmbed(
@@ -5406,8 +5428,8 @@ async function manejarChat(message) {
       userLocks.delete(userId);
       return;
     } else if (lowerMessage.includes("muriendo") || lowerMessage.includes("break para merendar") || lowerMessage.includes("pausa")) {
-      dataStore.belenSchedule.breakStatus = { isOnBreak: true, breakEndTime: now.getTime() + 30 * 60 * 1000 };
-      dataStore.userStatus[userId] = { status: "pausa", timestamp: Date.now() };
+      global.dataStore.belenSchedule.breakStatus = { isOnBreak: true, breakEndTime: now.getTime() + 30 * 60 * 1000 };
+      global.dataStore.userStatus[userId] = { status: "pausa", timestamp: Date.now() };
       dataStoreModified = true;
       const aiReply = `¡Ay, Belen, ratita blanca! 🌱 Estás en pausa, genia, disfrutá esa merienda veggie. Tomate un mate tranqui, que el laburo puede esperar un toque. ${pickRandom(generateClosers(userName))}`;
       const finalEmbed = createEmbed(
@@ -5422,7 +5444,7 @@ async function manejarChat(message) {
       userLocks.delete(userId);
       return;
     } else if (lowerMessage.includes("noche de amigas") || lowerMessage.includes("saliendo") || lowerMessage.includes("fiesta")) {
-      dataStore.userStatus[userId] = { status: "fiesta", timestamp: Date.now() };
+      global.dataStore.userStatus[userId] = { status: "fiesta", timestamp: Date.now() };
       dataStoreModified = true;
       const aiReply = `¡Buena, Belen, ratita blanca! 😎 ¡De fiesta a full! Contame cómo está la noche, grosa. ${pickRandom(generateClosers(userName))}`;
       const finalEmbed = createEmbed(
@@ -5437,7 +5459,7 @@ async function manejarChat(message) {
       userLocks.delete(userId);
       return;
     } else if (lowerMessage.includes("dormir") || lowerMessage.includes("sueño")) {
-      dataStore.userStatus[userId] = { status: "cansada", timestamp: Date.now() };
+      global.dataStore.userStatus[userId] = { status: "cansada", timestamp: Date.now() };
       dataStoreModified = true;
       const aiReply = `¡Ay, Belen, ratita blanca! 😴 Andás con sueño, genia. Descansá un toque, que te lo merecés. ${pickRandom(generateClosers(userName))}`;
       const finalEmbed = createEmbed(
@@ -5456,24 +5478,24 @@ async function manejarChat(message) {
 
   // Actualizar estado si menciona compromiso
   if (chatMessage.toLowerCase().includes("compromiso")) {
-    dataStore.userStatus[userId] = { status: "en compromiso", timestamp: Date.now() };
+    global.dataStore.userStatus[userId] = { status: "en compromiso", timestamp: Date.now() };
     dataStoreModified = true;
   }
 
   // Guardar mensaje en historial
-  dataStore.conversationHistory[userId].push({
+  global.dataStore.conversationHistory[userId].push({
     role: "user",
     content: chatMessage,
     timestamp: Date.now(),
     userName,
   });
-  if (dataStore.conversationHistory[userId].length > 20) {
-    dataStore.conversationHistory[userId] = dataStore.conversationHistory[userId].slice(-20);
+  if (global.dataStore.conversationHistory[userId].length > 20) {
+    global.dataStore.conversationHistory[userId] = global.dataStore.conversationHistory[userId].slice(-20);
   }
   dataStoreModified = true;
 
   // Últimos 15 mensajes para contexto
-  const historyRecent = dataStore.conversationHistory[userId]
+  const historyRecent = global.dataStore.conversationHistory[userId]
     .filter((h) => Date.now() - h.timestamp < 24 * 60 * 60 * 1000)
     .slice(-15);
   const contextRecent = historyRecent
@@ -5489,7 +5511,7 @@ async function manejarChat(message) {
   const nicknames = generateNicknames(userName);
   const closers = generateClosers(userName);
   const chistes = generateChistes();
-  const currentActivity = dataStore.userStatus[userId]?.status || "tranqui";
+  const currentActivity = global.dataStore.userStatus[userId]?.status || "tranqui";
 
   // Detección de tono
   if (chatMessage.toLowerCase().includes("matame") || chatMessage.toLowerCase().includes("estoy harto") || chatMessage.toLowerCase().includes("no aguanto") || chatMessage.toLowerCase().includes("muriendo")) {
@@ -5531,7 +5553,7 @@ async function manejarChat(message) {
   const waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
 
   try {
-    const prompt = `Sos Oliver IA, creado por Miguel para ${userName}. Usá slang argentino ("che", "loco", "posta", "zarpado") y un emoji (😎, 🧉, 🚀, ☀️, 😜, máx. 1). Charlá como amigo tomando un mate, llamando a ${userName} por su nombre o apodos (${nicknames.join(", ")}). Belen es vegetariana, de San Luis, Argentina (UTC-3), labura viernes 6 PM-12 AM, sábado 6 AM-12 AM, domingo 6 AM-2 PM, viaja viernes 2/4 PM, después del domingo 2 PM viaja a casa. Miguel está en Guayaquil, Ecuador (UTC-5). **Contexto actual**: ${userName} está "${currentActivity}" (actualizado a ${new Date(dataStore.userStatus[userId]?.timestamp).toLocaleString("es-AR")}). Respondé a: "${chatMessage}". **No inventes nada**: Usá solo la info de dataStore (${JSON.stringify(dataStore)}) y el historial (${contextRecent}). Mantené el tono ${tone}: respuestas cortas (200 chars para saludos, 500 para complejas). Terminá con un closer: ${closers.join(", ")}. **Extra**: ${extraContext}`;
+    const prompt = `Sos Oliver IA, creado por Miguel para ${userName}. Usá slang argentino ("che", "loco", "posta", "zarpado") y un emoji (😎, 🧉, 🚀, ☀️, 😜, máx. 1). Charlá como amigo tomando un mate, llamando a ${userName} por su nombre o apodos (${nicknames.join(", ")}). Belen es vegetariana, de San Luis, Argentina (UTC-3), labura viernes 6 PM-12 AM, sábado 6 AM-12 AM, domingo 6 AM-2 PM, viaja viernes 2/4 PM, después del domingo 2 PM viaja a casa. Miguel está en Guayaquil, Ecuador (UTC-5). **Contexto actual**: ${userName} está "${currentActivity}" (actualizado a ${new Date(global.dataStore.userStatus[userId]?.timestamp).toLocaleString("es-AR")}). Respondé a: "${chatMessage}". **No inventes nada**: Usá solo la info de dataStore (${JSON.stringify(global.dataStore)}) y el historial (${contextRecent}). Mantené el tono ${tone}: respuestas cortas (200 chars para saludos, 500 para complejas). Terminá con un closer: ${closers.join(", ")}. **Extra**: ${extraContext}`;
 
     const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error("Tiempo agotado")), 10000));
     const result = await Promise.race([model.generateContent(prompt), timeoutPromise]);
@@ -5549,14 +5571,14 @@ async function manejarChat(message) {
     }
 
     // Guardar respuesta en historial
-    dataStore.conversationHistory[userId].push({
+    global.dataStore.conversationHistory[userId].push({
       role: "assistant",
       content: aiReply,
       timestamp: Date.now(),
       userName: "Oliver",
     });
-    if (dataStore.conversationHistory[userId].length > 20) {
-      dataStore.conversationHistory[userId] = dataStore.conversationHistory[userId].slice(-20);
+    if (global.dataStore.conversationHistory[userId].length > 20) {
+      global.dataStore.conversationHistory[userId] = global.dataStore.conversationHistory[userId].slice(-20);
     }
     dataStoreModified = true;
 
