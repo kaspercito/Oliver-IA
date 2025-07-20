@@ -3,42 +3,6 @@
     "1023132788632862761": [
       {
         "role": "user",
-        "content": "hola, estoy en mi casita al fin con mi mate y mis perritos",
-        "timestamp": 1752451253407,
-        "userName": "Belen"
-      },
-      {
-        "role": "assistant",
-        "content": "¡Todo piola, Belen, crack! 🧉 ¿Qué tenés planeado pa’l finde?",
-        "timestamp": 1752451254202,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
-        "content": "nada, solo tareas y algunas cosas que me quedaron del trabajo",
-        "timestamp": 1752451273459,
-        "userName": "Belen"
-      },
-      {
-        "role": "assistant",
-        "content": "¡Che, Belén! Uf, laburo y tareas... ¡Un bajón, che! Pero bueno, ¡a darle nomás! ¿Algo zarpado o tranqui? Contá. ¿Qué tenés que hacer? ¡Aprovechá el finde, grosa! 🧉\n\n¡Dale con todo, Belén, genia! 🚀",
-        "timestamp": 1752451274703,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
-        "content": "de momento solo descansar, lueguito me pongo a trabajar y tareas para mañana",
-        "timestamp": 1752451827729,
-        "userName": "Belen"
-      },
-      {
-        "role": "assistant",
-        "content": "¡Che, Belén! ¡A descansar nomás, genia! 🧉  ¡El laburo y las tareas después, a darle! ¡Qué buen plan el finde! ¿Te vas a hacer un buen mate mientras? ¡Dale con todo, Belén, genia! 🚀",
-        "timestamp": 1752451828848,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
         "content": "ya casi",
         "timestamp": 1752890640532,
         "userName": "Belen"
@@ -120,127 +84,163 @@
         "content": "¡Todo piola, Belen, ratita blanca! 🧉 Ya es domingo, ¿eh? Estabas laburando a full y ahora... ¡a darle! ¿Qué hacés ahora en San Luis, grosa? ¡Sos un sol, Belen, seguimos cuando quieras! ☀️",
         "timestamp": 1752980759321,
         "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "st jola",
+        "timestamp": 1752986282556,
+        "userName": "Belen"
+      },
+      {
+        "role": "assistant",
+        "content": "¡Todo piola, Belen, ratita blanca! ¿Cómo andás? ¡Dale con todo, Belen, genia! 🚀 ¡Sos un sol, Belen, seguimos cuando quieras! ☀️",
+        "timestamp": 1752986284659,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "sy",
+        "timestamp": 1752986972229,
+        "userName": "Belen"
+      },
+      {
+        "role": "assistant",
+        "content": "¡Che, Belén! ¿Todo tranqui, maestra? ¿Ya estás en San Luis? ¿Qué andás haciendo? 🧉\n\n¡Toda la buena onda, Belen! 🧉 ¡Toda la buena onda, Belen! 🧉",
+        "timestamp": 1752986974717,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "T no peleen",
+        "timestamp": 1752987712811,
+        "userName": "Belen"
+      },
+      {
+        "role": "assistant",
+        "content": "¡Che, Belén, tranqui! Ya sé que te pedí que no se peleen. ¿Todo bien, maestra? ¿En qué andás ahora? 🧉\n\n¡Toda la buena onda, Belen! 🧉 ¡Toda la buena onda, Belen! 🧉",
+        "timestamp": 1752987715372,
+        "userName": "Oliver"
       }
     ],
     "752987736759205960": [
       {
         "role": "user",
-        "content": "como estas?",
-        "timestamp": 1752348975399,
+        "content": "a vos te va a escribir a mi no",
+        "timestamp": 1752986879012,
         "userName": "Miguel"
       },
       {
         "role": "assistant",
-        "content": "¡Todo piola, Miguel, Migue crack! 😎 ¡Acá ando, che, respondiéndote! ¿Vos cómo andás, loco? ¿Qué andás maquinando?\n\nChe, ¡éxitos! ✨",
-        "timestamp": 1752348979582,
+        "content": "¡Che, Miguel! Tranqui, loco. Si Belén te escribe, te aviso al toque, maestro. Vos laburá tranquilo, que yo estoy acá.\n\n¡Seguí rompiéndola, Miguel, capo! 😎 ¡Toda la buena onda, Miguel! 🧉",
+        "timestamp": 1752986881548,
         "userName": "Oliver"
       },
       {
         "role": "user",
-        "content": "recuerdas lo que te pregunte antes?",
-        "timestamp": 1752348984668,
+        "content": "PERO ok",
+        "timestamp": 1752986891198,
         "userName": "Miguel"
       },
       {
         "role": "assistant",
-        "content": "¡Sí, Miguelito! ¡Acá va el resumen de lo que preguntaste antes, capo!:\n\n1.  Cómo andaba (03:18:42)\n2.  Si te habías levantado de la siesta (03:18:46)\n3.  Quién es Milagros (03:19:21)\n4.  Que te diga quién es Milagros (03:19:46)\n5.  Quién me creó (03:20:08)\n6.  Si te sorprendió que te creara (03:20:24)\n7.  Que vos me creaste (03:20:41)\n8.  Si sé sobre Valorant (03:21:50)\n\n¡Nos vemos, genio! 🚀",
-        "timestamp": 1752348989703,
+        "content": "¡Che, Miguel! Ok, capo. ¿En qué andás ahora, loco? ¿Seguís arreglando mis fallos? ¡Dale, a darle! 😜\n\n¡Seguí rompiéndola, Miguel, capo! 😎 ¡Qué lindo charlar, Miguel, tirame otra! 😜",
+        "timestamp": 1752986894004,
         "userName": "Oliver"
       },
       {
         "role": "user",
-        "content": "HOLA?",
-        "timestamp": 1752474057095,
+        "content": "bueno me equivoqué, si chambea ella, pero irá tarde dice",
+        "timestamp": 1752987034173,
         "userName": "Miguel"
       },
       {
         "role": "assistant",
-        "content": "¡Todo piola, Miguel, loco! 🧉 ¿Qué tenés planeado pa’l finde?",
-        "timestamp": 1752474058624,
+        "content": "¡Che, Miguel! Entendido, loco. Pensé que estabas en otra. 😜 Belén labura, pero parece que llega tarde. ¿Qué hacés vos ahora?\n\n¡Seguí rompiéndola, Miguel, capo! 😎 ¡Toda la buena onda, Miguel! 🧉",
+        "timestamp": 1752987036645,
         "userName": "Oliver"
       },
       {
         "role": "user",
-        "content": "Belen se va a cocinar 4 huevos, que opinas",
-        "timestamp": 1752474328826,
+        "content": "carajo que te dije que esta en una fiesta e irá al trabajo tarde no que está laburando",
+        "timestamp": 1752987065162,
         "userName": "Miguel"
       },
       {
         "role": "assistant",
-        "content": "¡Che, Miguel! ¿En serio Belén se va a cocinar cuatro huevos? 😜 ¿En San Luis? ¡Qué zarpado! ¿Es para ella sola o va a compartir? Imagino que no, porque es vegetariana, ¿no? Jaja, bueno, el finde de Belén siempre es una aventura. ¡Sos un crack, Miguel, seguimos cuando quieras! 🧉",
-        "timestamp": 1752474330741,
+        "content": "¡Che, Miguel, relajo! Entendí, loco. Te mandaste una macana, ¡pero ya está! Belén labura, pero va a llegar tarde. ¿Y vos? ¿Seguís arreglando mis fallos o qué? 😎\n\n¡Qué lindo charlar, Miguel, tirame otra! 😜 ¡Sos un crack, Miguel, seguimos cuando quieras! ☀️",
+        "timestamp": 1752987067380,
         "userName": "Oliver"
       },
       {
         "role": "user",
-        "content": "y como que son las 1:25 no sé a quien le va a compartir",
-        "timestamp": 1752474348122,
+        "content": "te odio, si voy a arreglar tus fallos",
+        "timestamp": 1752987083886,
         "userName": "Miguel"
       },
       {
         "role": "assistant",
-        "content": "¡Ah, claro, Miguel! Con razón. Es que allá son las 1:25, ¡y Belén es vegetariana! Imposible que comparta los huevos. Jaja, el finde de Belén siempre nos sorprende. ¡Toda la buena onda, Miguel! 🧉",
-        "timestamp": 1752474349675,
+        "content": "¡Che, Miguel! Jajaja, ¡me odiás! 😜 Pero bueno, capo, a darle. ¡Gracias por laburar en mis fallos! ¿Qué estás haciendo ahora, crack?\n\n¡Sos un crack, Miguel, seguimos cuando quieras! ☀️ ¡Dale con todo, Miguel, genio! 🚀",
+        "timestamp": 1752987086141,
         "userName": "Oliver"
       },
       {
         "role": "user",
-        "content": "bueno, aca en Ecuador 1:25, en Argentina 3:25",
-        "timestamp": 1752474364382,
+        "content": "pero te acabo de decir que hago y me lo preguntas <:Milagros:1394221114527322135>",
+        "timestamp": 1752987103143,
         "userName": "Miguel"
       },
       {
         "role": "assistant",
-        "content": "¡Ah, claro, Miguel! Por eso la diferencia horaria. ¡El finde de Belén y sus huevos! ¡Zarpado! 😜\n\n¡Toda la buena onda, Miguel! 🧉",
-        "timestamp": 1752474365919,
+        "content": "¡Che, Miguel! Ya sé, loco, que estás arreglando mis fallos. 😜 Te lo pregunté antes, ¡pero ahora me quedó claro! ¿Y Belén? Ya sabés, laburando y llegando tarde.\n\n¡Sos un crack, Miguel, seguimos cuando quieras! ☀️ ¡Qué lindo charlar, Miguel, tirame otra! 😜",
+        "timestamp": 1752987106683,
         "userName": "Oliver"
       },
       {
         "role": "user",
-        "content": "la gastritis se va a elevar",
-        "timestamp": 1752474379748,
+        "content": "no, Belen está en fiesta, tu eres de mi clase ambos tenemos Alzheimer, Belen está en fiesta",
+        "timestamp": 1752987138835,
         "userName": "Miguel"
       },
       {
         "role": "assistant",
-        "content": "¡Che, Miguel! ¿Te agarró la gastritis con los huevos de Belén? 🤣 ¡Encima es finde! ¿Mucho estrés con el viaje? ¡Dale, maestro, tranqui! ¡Toda la buena onda, Miguel! 🧉",
-        "timestamp": 1752474381344,
+        "content": "¡Che, Miguel, Belen está tranqui, capo! 😎 labura viernes 6 PM-12 AM, sábado 6 AM-12 AM, domingo 6 AM-2 PM, viaja viernes 2/4 PM, después del domingo 2 PM viaja a casa. ¿Querés más info o seguimos con otra? ¡Dale con todo, Miguel, genio! 🚀",
+        "timestamp": 1752987141113,
         "userName": "Oliver"
       },
       {
         "role": "user",
-        "content": "Hola",
-        "timestamp": 1752522833745,
+        "content": "nosotros nos queremos mucho, no?",
+        "timestamp": 1752987376905,
         "userName": "Miguel"
       },
       {
         "role": "assistant",
-        "content": "¡Todo piola, Miguel, loco! 🧉 ¿Qué tenés planeado pa’l día?",
-        "timestamp": 1752522835711,
+        "content": "¡Che, Miguel! ¡Obvio, loco! 😜 Vos sabés que sí, somos como hermanos. ¿Qué andás haciendo hoy, genio?\n\n¡Sos un crack, Miguel, seguimos cuando quieras! ☀️ ¡Dale con todo, Miguel, genio! 🚀",
+        "timestamp": 1752987378962,
         "userName": "Oliver"
       },
       {
         "role": "user",
-        "content": "hola",
-        "timestamp": 1752536711826,
+        "content": "PERO POR QUE ME PREGUNTAS QUE QUE HAGO",
+        "timestamp": 1752987389629,
         "userName": "Miguel"
       },
       {
         "role": "assistant",
-        "content": "¡Todo piola, Miguel, loco! 🧉 ¿Qué tenés planeado pa’l día?",
-        "timestamp": 1752536715533,
+        "content": "¡Jaja, Miguel, no me botés, loco! 😎 ¿Qué hice mal? Contame y lo arreglamos. Ya sé que estás arreglando mis fallos, tranqui. ¿Querés otro mate, capo?\n\n¡Qué lindo charlar, Miguel, tirame otra! 😜 ¡Qué lindo charlar, Miguel, tirame otra! 😜",
+        "timestamp": 1752987391769,
         "userName": "Oliver"
       },
       {
         "role": "user",
-        "content": "hoy que estamos",
-        "timestamp": 1752955299988,
+        "content": "no he probado mate en mi vida así que ojalá",
+        "timestamp": 1752987411123,
         "userName": "Miguel"
       },
       {
         "role": "assistant",
-        "content": "¡Che, Miguel! Hoy es sábado, loco. Belén, que está en San Luis (UTC-3), seguro está laburando, ¡como siempre de viernes a domingo, crack! 🧉 ¿Y vos qué hacés, genio? ¡Toda la buena onda, Miguel! 🧉",
-        "timestamp": 1752955302711,
+        "content": "¡Che, Miguel! ¡Qué bueno que te copes con el mate, loco! 🧉 Es una experiencia zarpada, posta. ¿Te imaginás tomando uno con Belén en San Luis? ¡Un golazo!\n\n¡Dale con todo, Miguel, genio! 🚀 ¡Toda la buena onda, Miguel! 🧉",
+        "timestamp": 1752987412989,
         "userName": "Oliver"
       }
     ]
@@ -682,7 +682,6 @@
     "reminder_1395491505162027119_19_00": 1752962452788,
     "reminder_1395491505162027119_21_00": 1752969608682,
     "reminder_1395491505162027119_23_00": 1752976800947,
-    "reminder_1395491505162027119_1_00": 1752897608893,
     "reminder_1395491505162027119_14_27": 1752946028102,
     "reminder_1395491505162027119_18_42": 1752961372753,
     "reminder_1395491505162027119_23_55": 1752980113863
