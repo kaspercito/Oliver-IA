@@ -10711,7 +10711,7 @@ client.once("ready", async () => {
           "23:55": {
             title: "¡Último empujón del sábado, ratita luminosa!",
             message: `¡${recipientName} <:Milagros:1394221114527322135>, mi ratita pequeña! 🌙 11:55 de la noche, sábado 19, y vos saldrás para disfrutar con tus amigas, cuidense mucho y espero vuelvas pronto a casa para que descanses. 💪 ¡Cuidate un montón, ratita blanca! ¡Cuando quieras mandame una vibra, genia, que me importa saber de vos grosa y terminamos este sábado con todo el amor! 🧉 💫`,
-          },
+          }
         };
         const timeKey = `${currentHour}:${
           currentMinute < 10 ? "0" : ""
