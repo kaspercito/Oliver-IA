@@ -3,18 +3,6 @@
     "1023132788632862761": [
       {
         "role": "user",
-        "content": "gracias por tu breve explicación",
-        "timestamp": 1752263325192,
-        "userName": "Belén"
-      },
-      {
-        "role": "assistant",
-        "content": "¡De nada, Belén, genia! 😎 Me alegro que te haya servido la explicación. ¿Quedó claro o te quedó alguna duda? Contame, que acá estoy para lo que necesites. ¡Toda la buena onda, genia! ✨",
-        "timestamp": 1752263326578,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
         "content": "ya voy a dormir por fin",
         "timestamp": 1752379571685,
         "userName": "Belen"
@@ -119,6 +107,18 @@
         "role": "assistant",
         "content": "¡Che, Belén, acá full trabajando! 🧉 ¿Cómo va la cosa, ratita blanca? Ya sé que estás en San Luis, laburando de viernes a domingo. Y que hoy es viernes, ¿eh? ¿Vas a viajar a las 2 PM como siempre? ¡Dale con todo, Belen, genia! 🚀",
         "timestamp": 1752947909029,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "ya de regreso a casa",
+        "timestamp": 1752967997752,
+        "userName": "Belen"
+      },
+      {
+        "role": "assistant",
+        "content": "¡Che, Belén! ¡Qué bueno que estés de regreso, grosa! 🧉 ¿Te fue bien en el laburo?  Hoy es sábado, así que seguro estás descansando un poco en San Luis. ¿Te preparás algo rico? ¡Dale con todo, Belen, genia! 🚀",
+        "timestamp": 1752967999746,
         "userName": "Oliver"
       }
     ],
@@ -679,11 +679,12 @@
   ],
   "utilMessageTimestamps": {
     "reminder_1395491505162027119_9_00": 1752926445283,
-    "reminder_1395491505162027119_19_00": 1752876006415,
-    "reminder_1395491505162027119_21_00": 1752883244526,
-    "reminder_1395491505162027119_23_00": 1752890408409,
+    "reminder_1395491505162027119_19_00": 1752962452788,
+    "reminder_1395491505162027119_21_00": 1752969608682,
+    "reminder_1395491505162027119_23_00": 1752976800947,
     "reminder_1395491505162027119_1_00": 1752897608893,
-    "reminder_1395491505162027119_14_27": 1752946028102
+    "reminder_1395491505162027119_14_27": 1752946028102,
+    "reminder_1395491505162027119_18_42": 1752961372753
   },
   "utilMessageReactions": {
     "1343749554905940058": 1742417343374
@@ -1254,7 +1255,7 @@
       "mensaje": "tomar la pastilla rosada todos los días",
       "cuandoLlegue": false,
       "cuandoSalga": false,
-      "timestamp": 1752966000000,
+      "timestamp": 1753052400000,
       "creado": 1752879166278,
       "esRecurrente": true,
       "hora": 20,
