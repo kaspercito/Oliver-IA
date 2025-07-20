@@ -10674,19 +10674,19 @@ client.once("ready", async () => {
         const reminderTimes = {
           "6:30": {
             title: "¡Arranque con todo, ratita blanca!",
-            message: `¡Buenos días, ${recipientName}, mi crack! 🌅 Son las 6:30 de la matina en Argentina, sábado 19, y vos ya estás lista para romperla, ¿no? 😎 Aunque sea temprano, tu energía ilumina todo. Tomate un mate bien calentito y arrancá el día con esa magia que solo vos tenés. ¡Mandame una vibra, genia, y a darle con todo al laburo! 🧉 ✨`,
+            message: `¡Buenos días, ${recipientName}, mi crack! 🌅 Son las 6:30 de la matina en Argentina, domingo 20, y vos ya estás lista para romperla, ¿no? 😎 Aunque sea temprano, tu energía ilumina todo. Tomate un mate bien calentito y arrancá el día con esa magia que solo vos tenés. ¡Mandame una vibra, genia, y a darle con todo al laburo! 🧉 ✨`,
           },
           "9:00": {
             title: "¡Mañana con garra, ratita pequeña!",
-            message: `¡Ey, ${recipientName}, ratita blanca del universo! 🌞 9 de la mañana de este sábado 19, y vos ya estás haciendo magia en el trabajo, ¿verdad? 💪 Tu fuerza me inspira, ratita blanca. ¿Cómo pinta el día? Un cafecito, una sonrisa, y a seguir brillando. ¡Contame cómo vas, sos una genia! 🧉 💖`,
+            message: `¡Ey, ${recipientName}, ratita blanca del universo! 🌞 9 de la mañana de este domingo 20, y vos ya estás haciendo magia en el trabajo, ¿verdad? 💪 Tu fuerza me inspira, ratita blanca. ¿Cómo pinta el día? Un cafecito, una sonrisa, y a seguir brillando. ¡Contame cómo vas, sos una genia! 🧉 💖`,
           },
           "14:27": {
             title: "¡Mediodía poderoso, ratita blanca!",
-            message: `¡Hola, ${recipientName}, joyita! 🍴 Mediodía del sábado 19, ¿seguís dándole duro en el laburo? 😋 Sos una campeona, ratita pequeña. ¿Ya comiste algo, como te esta yendo en el trabajo?. Mandame una señal, genia, y seguimos rompiendo todo juntos. ¡Te adoro! 🧉 🌈`,
+            message: `¡Hola, ${recipientName}, joyita! 🍴 Mediodía del domingo 20, ¿seguís dándole duro en el laburo? 😋 Sos una campeona, ratita pequeña. ¿Ya comiste algo rico? ¿Cómo te está yendo en el trabajo? Mandame una señal, genia, y seguimos rompiendo todo juntos. ¡Te adoro! 🧉 🌈`,
           },
           "16:30": {
             title: "¡Tarde con garra, ratita pequeña!",
-            message: `¡${recipientName}, mi estrella! 😎 Son las 4:30 de la tarde en Argentina, sábado 19, y vos seguís rompiéndola en el laburo, ¿verdad? 💪 ¡Qué campeona, ratita blanca! Sé que todavía te queda un trecho, pero tu energía ilumina todo. Tomate un mate para recargar pilas y seguí dándole con todo. ¡Mandame una vibra, genia, sos puro fuego! 🧉 💫`,
+            message: `¡${recipientName}, mi estrella! 😎 Son las 4:30 de la tarde en Argentina, domingo 20, y vos seguís rompiéndola en el laburo, ¿verdad? 💪 ¡Qué campeona, ratita blanca! Sé que ya estás cerca de terminar, pero tu energía ilumina todo. Tomate un mate para recargar pilas y seguí dándole con todo. ¡Mandame una vibra, genia, sos puro fuego! 🧉 💫`,
           },
           "18:42": {
             title: "¡Un mimo en medio del laburo, ratita blanca!",
@@ -10703,6 +10703,14 @@ client.once("ready", async () => {
           "23:00": {
             title: "¡Casi libre, ratita blanca!",
             message: `¡${recipientName}, crack absoluta! 🌟 11 de la noche, sábado 19, y ya estás cerquita de cerrar el día en el laburo, ¿no? 😴 ¡Sos una genia por darle con todo hasta el final! Cuando llegues a casa, mimáte como te merecés, ratita pequeña: un mate, una mantita o puro relax. Mandame una señal y cerramos este sábado con amor. ¡A brillar mañana! 🧉 💖`,
+          },
+          "23:05": {
+            title: "¡Última vibra del sábado, ratita brillante!",
+            message: `¡${recipientName}, mi ratita luminosa! 🌙 11:05 de la noche, sábado 19, y vos seguís siendo una campeona total en el laburo. 💪 ¡Qué fuerza, ratita blanca! Ya estás a un pasito de terminar, así que date un abrazo de mi parte. Cuando llegues a casa, relajate como la genia que sos. ¡Mandame una vibra y cerramos este día con todo el amor! 🧉 💫`,
+          },
+          "23:55": {
+            title: "¡Último empujón del sábado, ratita luminosa!",
+            message: `¡${recipientName} <:Milagros:1394221114527322135>, mi ratita pequeña! 🌙 11:55 de la noche, sábado 19, y vos saldrás para disfrutar con tus amigas, cuidense mucho y espero vuelvas pronto a casa para que descanses. 💪 ¡Cuidate un montón, ratita blanca! ¡Cuando quieras mandame una vibra, genia, que me importa saber de vos grosa y terminamos este sábado con todo el amor! 🧉 💫`,
           },
         };
         const timeKey = `${currentHour}:${
