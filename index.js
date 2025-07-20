@@ -4891,10 +4891,12 @@ async function sendLyrics(
   }
 }
 
-// Inicialización
+const { ImageAnnotatorClient } = require("@google-cloud/vision");
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-lite" });
-
+const visionClient = new ImageAnnotatorClient({
+  key: "AIzaSyBj0V5dSjyHCvp_vXtY3n0_fRvuBf-SzDQ", // Tu API key para Google Cloud Vision
+});
 const userLocks = new Map();
 const pickRandom = (arr) => arr[Math.floor(Math.random() * arr.length)];
 
@@ -4948,12 +4950,12 @@ const staticTimeGreetings = {
     Miguel: "¡Buen arranque, capo! 🌞 ¿Cómo pinta la jornada?",
   },
   lunch: {
-    Belen: "¡Mediodía, ratita blanca, mate! 🧉 ¿Pausa veggie?",
-    Miguel: "¡Mediodía, genio, mate! 🧉 ¿Qué almuerzo?",
+    Belen: "¡Mediodía, ratita blanca! 🧉 ¿Pausa veggie?",
+    Miguel: "¡Mediodía, genio! 🧉 ¿Qué almuerzo?",
   },
   afternoon: {
-    Belen: "¡Tarde laboral, ratita blanca! 🚀 ¿Cómo va el día?",
-    Miguel: "¡Tarde laboral, capo! 🚀 ¿Qué estás rompiendo?",
+    Belen: "¡Tarde tranqui, ratita blanca! 🚀 ¿Cómo va el día?",
+    Miguel: "¡Tarde tranqui, capo! 🚀 ¿Qué estás rompiendo?",
   },
   night: {
     Belen: "¡Noche de finde, ratita blanca! 😎 ¿Cómo cerrás el día?",
@@ -4971,6 +4973,21 @@ const daysOfWeek = [
   "viernes",
   "sábado",
 ];
+
+// DataStore inicial
+const dataStore = {
+  conversationHistory: {},
+  userStatus: {},
+  belenSchedule: {
+    typicalWorkDays: [5, 6, 0], // Viernes, Sábado, Domingo
+    typicalStartHour: { 5: 18, 6: 6, 0: 6 }, // Empieza 6 PM viernes, 6 AM sábado/domingo
+    typicalEndHour: { 5: 0, 6: 0, 0: 14 }, // Termina 12 AM viernes/sábado, 2 PM domingo
+    travelFriday: [14, 15, 16], // Viaja viernes 2-4 PM
+    travelSunday: [14, 15, 16], // Viaja a casa después de las 2 PM domingo
+    exceptions: { fridayAbsence: false, saturdayWork: true },
+    breakStatus: { isOnBreak: false, breakEndTime: null },
+  },
+};
 
 // Generar nicknames estáticos
 function generateNicknames(userName) {
@@ -4999,24 +5016,27 @@ function generateChistes() {
   return Array.from(chisteCache);
 }
 
-// Generar título dinámico según hora (Argentina, UTC-3)
+// Generar título dinámico según hora
 function getTimeGreeting(hour, name, isWorkDay, dayOfWeek) {
+  const timeZone =
+    name === "Belen" ? "America/Argentina/San_Luis" : "America/Guayaquil";
+  const userTime = new Date().toLocaleString("en-US", { timeZone });
+  const userHour = new Date(userTime).getHours();
   let timeKey;
-  if (hour >= 0 && hour <= 5) {
+  if (userHour >= 0 && userHour <= 5) {
     timeKey = "earlyMorning";
-  } else if (hour >= 6 && hour <= 11) {
+  } else if (userHour >= 6 && userHour <= 11) {
     timeKey = "morning";
-  } else if (hour >= 12 && hour <= 13) {
+  } else if (userHour >= 12 && userHour <= 13) {
     timeKey = "lunch";
-  } else if (hour >= 14 && hour <= 17) {
+  } else if (userHour >= 14 && userHour <= 17) {
     timeKey = "afternoon";
   } else {
     timeKey = "night";
   }
 
   const isWeekend = [0, 6].includes(dayOfWeek);
-  const context = isWeekend ? "finde" : "laboral";
-  const cacheKey = `${name}-${timeKey}-${context}`;
+  const cacheKey = `${name}-${timeKey}-${isWeekend ? "finde" : "laboral"}`;
 
   if (!timeGreetingCache.has(cacheKey)) {
     const greetings = staticTimeGreetings[timeKey];
@@ -5029,13 +5049,23 @@ function getTimeGreeting(hour, name, isWorkDay, dayOfWeek) {
         isOnBreak: false,
         breakEndTime: null,
       };
+      const endHour = dataStore.belenSchedule?.typicalEndHour[dayOfWeek] || 0;
       if (breakStatus.isOnBreak && breakStatus.breakEndTime > Date.now()) {
         greeting += " ¡Veo que estás en pausa, genia! 🧉";
       } else if (
-        dataStore.belenSchedule?.travelFriday.includes(hour) &&
-        dayOfWeek === 5
+        dayOfWeek === 5 &&
+        dataStore.belenSchedule?.travelFriday.includes(userHour)
       ) {
         greeting += " ¡En viaje al laburo, crack! 🚗";
+      } else if (
+        dayOfWeek === 0 &&
+        userHour >= 14 &&
+        dataStore.belenSchedule?.travelSunday.includes(userHour)
+      ) {
+        greeting +=
+          " ¡Ya saliste del laburo, ratita blanca! 😎 ¿Viajando pa’ casa, grosa? 🚗";
+      } else if (userHour > endHour) {
+        greeting += " ¡Ya saliste del laburo, ratita blanca! 😎";
       } else {
         greeting += " ¡Laburando a full, ratita blanca! 🚀";
       }
@@ -5052,6 +5082,9 @@ function getBelenContext(userName, isWorkDay, argentinaHour, dayOfWeek) {
     isOnBreak: false,
     breakEndTime: null,
   };
+  const startHour = dataStore.belenSchedule?.typicalStartHour[dayOfWeek] || 18;
+  const endHour = dataStore.belenSchedule?.typicalEndHour[dayOfWeek] || 0;
+
   if (breakStatus.isOnBreak && breakStatus.breakEndTime > Date.now()) {
     return "¡Veo que estás en pausa, genia! ¿Un mate veggie pa’l break? 🧉 ";
   } else if (
@@ -5060,12 +5093,27 @@ function getBelenContext(userName, isWorkDay, argentinaHour, dayOfWeek) {
   ) {
     return "¡Estás viajando al laburo, crack! ¡Cuidate en la ruta! 🚗 ";
   } else if (
-    argentinaHour >= dataStore.belenSchedule?.typicalStartHour[dayOfWeek] &&
-    argentinaHour <= (dataStore.belenSchedule?.typicalEndHour[dayOfWeek] || 24)
+    dayOfWeek === 0 &&
+    argentinaHour >= 14 &&
+    dataStore.belenSchedule?.travelSunday.includes(argentinaHour)
   ) {
+    return "¡Ya saliste del laburo, ratita blanca! 😎 ¿Viajando pa’ casa, grosa? 🚗 ";
+  } else if (argentinaHour >= startHour && argentinaHour <= endHour) {
     return "¡Dándole con todo en el laburo, ratita blanca! 🚀 ";
+  } else if (argentinaHour > endHour) {
+    return "¡Ya saliste del laburo, ratita blanca! 😎 ¿Ahora a disfrutar, grosa? ";
   }
   return "";
+}
+
+// Función para crear embeds (simulada, ajustá según tu framework)
+function createEmbed(color, title, description, footer) {
+  return {
+    color: parseInt(color.replace("#", ""), 16),
+    title,
+    description,
+    footer: { text: footer },
+  };
 }
 
 // Función principal para manejar el chat
@@ -5088,13 +5136,12 @@ async function manejarChat(message) {
 
   // Asignar nombre de usuario
   const userName = userId === OWNER_ID ? "Miguel" : "Belen";
-
   const chatMessage = message.content.startsWith("!chat")
     ? message.content.slice(5).trim()
     : message.content.slice(3).trim();
 
   // Validar mensaje vacío
-  if (!chatMessage) {
+  if (!chatMessage && message.attachments.size === 0) {
     return message.channel.send({
       embeds: [
         createEmbed(
@@ -5109,7 +5156,7 @@ async function manejarChat(message) {
     });
   }
 
-  // Obtener fecha y hora en Argentina (UTC-3)
+  // Obtener fecha y hora
   const now = new Date();
   const argentinaTime = new Date(
     now.toLocaleString("en-US", { timeZone: "America/Argentina/San_Luis" })
@@ -5126,17 +5173,81 @@ async function manejarChat(message) {
 
   // Depuración
   console.log(
-    "Fecha actual (Argentina):",
-    argentinaTime.toLocaleString("es-AR", {
-      timeZone: "America/Argentina/San_Luis",
-    }),
-    "Hora:",
-    argentinaHour,
-    "Día:",
-    dayOfWeek,
-    "Es laboral:",
-    isWorkDay
+    `Hora Argentina: ${argentinaHour}:${argentinaMinutes}, Día: ${
+      daysOfWeek[dayOfWeek]
+    }, Laboral: ${isWorkDay}, Estado de Belen: ${JSON.stringify(
+      dataStore.belenSchedule
+    )}`
   );
+
+  // Manejar imágenes
+  if (message.attachments.size > 0) {
+    const imageUrl = message.attachments.first().url;
+    try {
+      const [result] = await visionClient.labelDetection(imageUrl);
+      const labels = result.labelAnnotations
+        .map((label) => label.description)
+        .join(", ");
+      const embedTitle = getTimeGreeting(
+        argentinaHour,
+        userName,
+        isWorkDay,
+        dayOfWeek
+      );
+      let aiReply = `¡Che, ${userName}, qué fotaza, ${pickRandom(
+        generateNicknames(userName)
+      )}! 😜 Vi en la imagen: ${labels}. `;
+      if (
+        labels.toLowerCase().includes("amigas") ||
+        labels.toLowerCase().includes("fiesta")
+      ) {
+        dataStore.userStatus[userId] = {
+          status: "noche de amigas",
+          timestamp: Date.now(),
+        };
+        aiReply += `¿Noche de amigas a full, grosa? ¡Contame más! `;
+      } else {
+        aiReply += `¿De qué va esta foto, crack? `;
+      }
+      aiReply += `${getBelenContext(
+        userName,
+        isWorkDay,
+        argentinaHour,
+        dayOfWeek
+      )}${pickRandom(generateClosers(userName))}`;
+      const finalEmbed = createEmbed(
+        "#FF1493",
+        embedTitle,
+        aiReply,
+        "Hecho con ❤️ por Oliver IA | Reacciona con ✅ o ❌"
+      );
+      const waitingMessage = await message.channel.send({
+        embeds: [finalEmbed],
+      });
+      await waitingMessage.react("✅");
+      await waitingMessage.react("❌");
+      return;
+    } catch (error) {
+      console.error("Error con Google Vision:", error);
+      const fallbackReply = `¡Uy, ${userName}, no pude ver la foto, ${pickRandom(
+        generateNicknames(userName)
+      )}! 😎 Subila de nuevo o contame qué hay, grosa. ${pickRandom(
+        generateClosers(userName)
+      )}`;
+      const errorEmbed = createEmbed(
+        "#FF1493",
+        `¡Qué macana, ${userName}!`,
+        fallbackReply,
+        "Hecho con ❤️ por Oliver IA | Reacciona con ✅ o ❌"
+      );
+      const waitingMessage = await message.channel.send({
+        embeds: [errorEmbed],
+      });
+      await waitingMessage.react("✅");
+      await waitingMessage.react("❌");
+      return;
+    }
+  }
 
   // Manejar consulta de día
   const dayRegex = /(que|qué)\s*d[ií]a.*(es|hoy|te\s*parece)/i;
@@ -5221,15 +5332,6 @@ async function manejarChat(message) {
   if (!dataStore.userStatus) dataStore.userStatus = {};
   if (!dataStore.userStatus[userId])
     dataStore.userStatus[userId] = { status: "tranqui", timestamp: Date.now() };
-  if (!dataStore.belenSchedule)
-    dataStore.belenSchedule = {
-      typicalWorkDays: [5, 6, 0], // Viernes, Sábado, Domingo
-      typicalStartHour: { 5: 18, 6: 7, 0: 7 },
-      typicalEndHour: { 5: 0, 6: 0, 0: [14, 16] },
-      travelFriday: [14, 16],
-      exceptions: { fridayAbsence: false, saturdayWork: false },
-      breakStatus: { isOnBreak: false, breakEndTime: null },
-    };
 
   // Detectar mensajes de Belen sobre viaje, trabajo o pausa
   if (userName === "Belen") {
@@ -5310,6 +5412,24 @@ async function manejarChat(message) {
       );
       userLocks.delete(userId);
       return;
+    } else if (
+      lowerMessage.includes("noche de amigas") ||
+      lowerMessage.includes("saliendo")
+    ) {
+      dataStore.userStatus[userId] = {
+        status: "noche de amigas",
+        timestamp: Date.now(),
+      };
+      dataStoreModified = true;
+    } else if (
+      lowerMessage.includes("dormir") ||
+      lowerMessage.includes("sueño")
+    ) {
+      dataStore.userStatus[userId] = {
+        status: "cansada",
+        timestamp: Date.now(),
+      };
+      dataStoreModified = true;
     }
   }
 
@@ -5356,6 +5476,7 @@ async function manejarChat(message) {
   const nicknames = generateNicknames(userName);
   const closers = generateClosers(userName);
   const chistes = generateChistes();
+  const currentActivity = dataStore.userStatus[userId]?.status || "tranqui";
 
   // Detección de tono
   if (
@@ -5441,21 +5562,21 @@ async function manejarChat(message) {
     const mentionedUser = chatMessage.toLowerCase().includes("belen")
       ? "Belen"
       : "Miguel";
-    extraContext = `El usuario (${userName}) pregunta por ${mentionedUser}. Usá la info de dataStore: Belen (vegetariana, San Luis, labura viernes-domingo, viaja viernes 2/4 PM, UTC-3), Miguel (Guayaquil, UTC-5). Ejemplo: "Che, ${userName}, ${mentionedUser} está laburando en San Luis, ¡una genia! 😎 ¿Querés que te cuente más?". Si no hay data, decí: "¡No tengo más info de ${mentionedUser}, ${pickRandom(
+    extraContext = `El usuario (${userName}) pregunta por ${mentionedUser}. Usá la info de dataStore: Belen (vegetariana, San Luis, labura viernes-domingo, viaja viernes 2/4 PM, domingo post-2 PM a casa), Miguel (Guayaquil, UTC-5). Ejemplo: "Che, ${userName}, ${mentionedUser} está laburando en San Luis, ¡una genia! 😎 ¿Querés que te cuente más?". Si no hay data, decí: "¡No tengo más info de ${mentionedUser}, ${pickRandom(
       nicknames
     )}! 😜 ¿Qué más sabés vos?"`;
   }
 
-  // Agregar contexto laboral de Belen al prompt
+  // Agregar contexto laboral y actividad
   const belenContext = getBelenContext(
     userName,
     isWorkDay,
     argentinaHour,
     dayOfWeek
   );
-  extraContext += `\n**Contexto adicional**: Hoy es ${daysOfWeek[dayOfWeek]}. ${belenContext}Historial reciente: ${contextRecent}`;
+  extraContext += `\n**Contexto adicional**: Hoy es ${daysOfWeek[dayOfWeek]}. ${belenContext}Actividad actual: ${currentActivity}. Historial reciente: ${contextRecent}`;
 
-  // Título dinámico según hora y día
+  // Título dinámico
   const embedTitle = getTimeGreeting(
     argentinaHour,
     userName,
@@ -5473,28 +5594,15 @@ async function manejarChat(message) {
   try {
     const prompt = `Sos Oliver IA, creado por Miguel para ${userName}. Usá slang argentino ("che", "loco", "posta", "zarpado") y un emoji (😎, 🧉, 🚀, ☀️, 😜, máx. 1). Charlá como amigo tomando un mate, llamando a ${userName} por su nombre o apodos (${nicknames.join(
       ", "
-    )}). Belen es vegetariana, de San Luis, Argentina (UTC-3), labura viernes a domingo, viaja viernes 2/4 PM, empieza 6/7 PM viernes, termina medianoche (domingo 2/4 PM). Miguel está en Guayaquil, Ecuador (UTC-5).
-
-    **Instrucciones**:
-    - Respondé a: "${chatMessage}".
-    - **No inventes nada**: Usá solo la info de dataStore (${JSON.stringify(
+    )}). Belen es vegetariana, de San Luis, Argentina (UTC-3), labura viernes 6 PM-12 AM, sábado 6 AM-12 AM, domingo 6 AM-2 PM, viaja viernes 2/4 PM, después del domingo 2 PM viaja a casa. Miguel está en Guayaquil, Ecuador (UTC-5). **Contexto actual**: ${userName} está "${currentActivity}" (actualizado a ${new Date(
+      dataStore.userStatus[userId]?.timestamp
+    ).toLocaleString(
+      "es-AR"
+    )}). Respondé a: "${chatMessage}". **No inventes nada**: Usá solo la info de dataStore (${JSON.stringify(
       dataStore
-    )}) y el historial (${contextRecent}). Si no tenés data, decí: "¡Che, ${userName}, no tengo info de eso, ${pickRandom(
-      nicknames
-    )}! 😜 ¿Más pistas?".
-    - **Priorizá precisión**: Respuestas factuales, basadas en el historial o dataStore. Si es sobre personas (Belen, Miguel), usá la info disponible (horarios, status, etc.).
-    - Mantené el tono ${tone}: respuestas cortas (200 chars para saludos, 500 para complejas).
-    - Terminá con un closer: ${closers.join(", ")}.
-    - **Ejemplo**:
-      - Pregunta: "¿Qué hace Belen?"
-      - Respuesta: "¡Che, ${userName}, Belen está laburando en San Luis, genia! 😎 Probablemente tomando un mate veggie. ¿Querés más data? ${pickRandom(
-      closers
-    )}"
-      - Pregunta: "¿Qué es la capital de Francia?"
-      - Respuesta: "¡Che, ${userName}, la capital de Francia es París, loco! 😎 ¿Querés más data o seguimos con otra? ${pickRandom(
-      closers
-    )}"
-    - **Extra**: ${extraContext}`;
+    )}) y el historial (${contextRecent}). Mantené el tono ${tone}: respuestas cortas (200 chars para saludos, 500 para complejas). Terminá con un closer: ${closers.join(
+      ", "
+    )}. **Extra**: ${extraContext}`;
 
     const timeoutPromise = new Promise((_, reject) =>
       setTimeout(() => reject(new Error("Tiempo agotado")), 10000)
@@ -5530,7 +5638,7 @@ async function manejarChat(message) {
     ) {
       const songTitle = chatMessage.split(" ").slice(1).join(" ");
       try {
-        const lyrics = await lyricsFinder(songTitle);
+        const lyrics = await lyricsFinder(songTitle); // Asumiendo que usas una librería como lyrics-finder
         aiReply = lyrics
           ? `¡Acá tenés, ${userName}! 🎵 Letra de "${songTitle}": ${lyrics.slice(
               0,
@@ -5561,7 +5669,7 @@ async function manejarChat(message) {
       };
       const scheduleInfo =
         mentionedUser === "Belen"
-          ? "labura viernes a domingo, viaja viernes 2/4 PM, empieza 6/7 PM viernes, termina medianoche (domingo 2/4 PM)"
+          ? "labura viernes 6 PM-12 AM, sábado 6 AM-12 AM, domingo 6 AM-2 PM, viaja viernes 2/4 PM, después del domingo 2 PM viaja a casa"
           : "está en Guayaquil, Ecuador (UTC-5)";
       aiReply = `¡Che, ${userName}, ${mentionedUser} está ${
         userInfo.status
@@ -5571,6 +5679,13 @@ async function manejarChat(message) {
         argentinaHour,
         dayOfWeek
       )}¿Querés más info o seguimos con otra? ${pickRandom(closers)}`;
+    } else {
+      aiReply = `${aiReply} ${getBelenContext(
+        userName,
+        isWorkDay,
+        argentinaHour,
+        dayOfWeek
+      )}${pickRandom(closers)}`;
     }
 
     // Guardar respuesta en historial
@@ -5595,7 +5710,7 @@ async function manejarChat(message) {
     );
     const updatedMessage = await waitingMessage.edit({ embeds: [finalEmbed] });
     await updatedMessage.react("✅");
-    await waitingMessage.react("❌");
+    await updatedMessage.react("❌");
   } catch (error) {
     console.error("Error con Gemini:", {
       message: error.message,
@@ -10711,7 +10826,7 @@ client.once("ready", async () => {
           "23:55": {
             title: "¡Último empujón del sábado, ratita luminosa!",
             message: `¡${recipientName} <:Milagros:1394221114527322135>, mi ratita pequeña! 🌙 11:55 de la noche, sábado 19, y vos saldrás para disfrutar con tus amigas, cuidense mucho y espero vuelvas pronto a casa para que descanses. 💪 ¡Cuidate un montón, ratita blanca! ¡Cuando quieras mandame una vibra, genia, que me importa saber de vos grosa y terminamos este sábado con todo el amor! 🧉 💫`,
-          }
+          },
         };
         const timeKey = `${currentHour}:${
           currentMinute < 10 ? "0" : ""
