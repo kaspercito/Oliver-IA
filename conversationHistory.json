@@ -3,18 +3,6 @@
     "1023132788632862761": [
       {
         "role": "user",
-        "content": "ya voy a dormir por fin",
-        "timestamp": 1752379571685,
-        "userName": "Belen"
-      },
-      {
-        "role": "assistant",
-        "content": "¡Che, Belén! ¡Al fin, eh! ¡A dormir, crack! ¿Ya te caés? 😜\n\n¡Toda la buena onda, Belén! 🧉",
-        "timestamp": 1752379572658,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
         "content": "oli, salvame",
         "timestamp": 1752438071919,
         "userName": "Belen"
@@ -119,6 +107,18 @@
         "role": "assistant",
         "content": "¡Che, Belén! ¡Qué bueno que estés de regreso, grosa! 🧉 ¿Te fue bien en el laburo?  Hoy es sábado, así que seguro estás descansando un poco en San Luis. ¿Te preparás algo rico? ¡Dale con todo, Belen, genia! 🚀",
         "timestamp": 1752967999746,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "quierl dormir pero debo salir <:Milagros:1394221114527322135>",
+        "timestamp": 1752977844676,
+        "userName": "Belen"
+      },
+      {
+        "role": "assistant",
+        "content": "¡Che, Belén! Sé que querés dormir, pero tenés que salir. ¡Entiendo, genia! Hoy es sábado y ya estás de regreso en casa después de laburar. Estabas trabajando a full, y ahora tenés que salir de nuevo. ¡Dale, ratita blanca, a darle! 😎 ¡Sos un sol, Belen, seguimos cuando quieras! ☀️",
+        "timestamp": 1752977847730,
         "userName": "Oliver"
       }
     ],
