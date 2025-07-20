@@ -125,54 +125,6 @@
     "752987736759205960": [
       {
         "role": "user",
-        "content": "a vos te va a escribir a mi no",
-        "timestamp": 1752986879012,
-        "userName": "Miguel"
-      },
-      {
-        "role": "assistant",
-        "content": "¡Che, Miguel! Tranqui, loco. Si Belén te escribe, te aviso al toque, maestro. Vos laburá tranquilo, que yo estoy acá.\n\n¡Seguí rompiéndola, Miguel, capo! 😎 ¡Toda la buena onda, Miguel! 🧉",
-        "timestamp": 1752986881548,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
-        "content": "PERO ok",
-        "timestamp": 1752986891198,
-        "userName": "Miguel"
-      },
-      {
-        "role": "assistant",
-        "content": "¡Che, Miguel! Ok, capo. ¿En qué andás ahora, loco? ¿Seguís arreglando mis fallos? ¡Dale, a darle! 😜\n\n¡Seguí rompiéndola, Miguel, capo! 😎 ¡Qué lindo charlar, Miguel, tirame otra! 😜",
-        "timestamp": 1752986894004,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
-        "content": "bueno me equivoqué, si chambea ella, pero irá tarde dice",
-        "timestamp": 1752987034173,
-        "userName": "Miguel"
-      },
-      {
-        "role": "assistant",
-        "content": "¡Che, Miguel! Entendido, loco. Pensé que estabas en otra. 😜 Belén labura, pero parece que llega tarde. ¿Qué hacés vos ahora?\n\n¡Seguí rompiéndola, Miguel, capo! 😎 ¡Toda la buena onda, Miguel! 🧉",
-        "timestamp": 1752987036645,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
-        "content": "carajo que te dije que esta en una fiesta e irá al trabajo tarde no que está laburando",
-        "timestamp": 1752987065162,
-        "userName": "Miguel"
-      },
-      {
-        "role": "assistant",
-        "content": "¡Che, Miguel, relajo! Entendí, loco. Te mandaste una macana, ¡pero ya está! Belén labura, pero va a llegar tarde. ¿Y vos? ¿Seguís arreglando mis fallos o qué? 😎\n\n¡Qué lindo charlar, Miguel, tirame otra! 😜 ¡Sos un crack, Miguel, seguimos cuando quieras! ☀️",
-        "timestamp": 1752987067380,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
         "content": "te odio, si voy a arreglar tus fallos",
         "timestamp": 1752987083886,
         "userName": "Miguel"
@@ -241,6 +193,54 @@
         "role": "assistant",
         "content": "¡Che, Miguel! ¡Qué bueno que te copes con el mate, loco! 🧉 Es una experiencia zarpada, posta. ¿Te imaginás tomando uno con Belén en San Luis? ¡Un golazo!\n\n¡Dale con todo, Miguel, genio! 🚀 ¡Toda la buena onda, Miguel! 🧉",
         "timestamp": 1752987412989,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "dile que se cuide mucho",
+        "timestamp": 1752988011512,
+        "userName": "Miguel"
+      },
+      {
+        "role": "assistant",
+        "content": "¡Che, Miguel! Dale, capo, le digo a Belén. Ya sabés, ahora está en San Luis, laburando y después viaja a casa. Vos tranqui.\n\n¡Toda la buena onda, Miguel! 🧉 ¡Dale con todo, Miguel, genio! 🚀",
+        "timestamp": 1752988014500,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "no está laburando carajo, está en una fiesta",
+        "timestamp": 1752988038006,
+        "userName": "Miguel"
+      },
+      {
+        "role": "assistant",
+        "content": "¡Che, Miguel! Tenés razón, loco, ¡me mandé una cagada! Belén está de fiesta, no laburando. ¡Mil disculpas, crack! ¿Qué onda ahora, estás arreglando mis fallos o qué? 😎\n\n¡Sos un crack, Miguel, seguimos cuando quieras! ☀️ ¡Seguí rompiéndola, Miguel, capo! 😎",
+        "timestamp": 1752988041187,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "dile que se cuide pues",
+        "timestamp": 1752988053191,
+        "userName": "Miguel"
+      },
+      {
+        "role": "assistant",
+        "content": "¡Che, Miguel! Ya le digo a Belén, capo. Que se cuide mucho en la fiesta, y después que se venga a casa.\n\n¡Seguí rompiéndola, Miguel, capo! 😎 ¡Toda la buena onda, Miguel! 🧉",
+        "timestamp": 1752988057104,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "Milagros todo una bebida no reconocida y al parecer tenía alcohol y ahora anda mareada, que opinas",
+        "timestamp": 1752988671848,
+        "userName": "Miguel"
+      },
+      {
+        "role": "assistant",
+        "content": "¡Che, Miguel, no tengo data precisa, capo! 😜 ¿Me das más pistas o seguimos con otra? ¡Sos un crack, Miguel, seguimos cuando quieras! ☀️",
+        "timestamp": 1752988674877,
         "userName": "Oliver"
       }
     ]
