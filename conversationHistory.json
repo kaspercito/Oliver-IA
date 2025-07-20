@@ -3,30 +3,6 @@
     "1023132788632862761": [
       {
         "role": "user",
-        "content": "oli, salvame",
-        "timestamp": 1752438071919,
-        "userName": "Belen"
-      },
-      {
-        "role": "assistant",
-        "content": "¡Che, Belén! ¿Qué onda, grosa? ¿Qué te pasó? Contame, ¿en qué andás? 🧉 ¡Necesitás que te dé una mano? ¿Tenés un quilombo zarpado? ¿O es algo tranqui? Decime, maestra, que acá estoy, listo para ayudarte. ¿Es por el laburo, el finde, o qué?",
-        "timestamp": 1752438073387,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
-        "content": "me duele todo",
-        "timestamp": 1752442058579,
-        "userName": "Belen"
-      },
-      {
-        "role": "assistant",
-        "content": "¡Che, Belén! ¿Todo te duele? ¡Uy, qué garrón, che! ¿Qué onda, te caíste de la bici o qué? ¿Será el laburo que te tiene hecha mierd*? Tomate un buen mate y descansa, grosa. ¡Mandale mecha al finde, que ya casi lo tenés! 😜 ¡Toda la buena onda, Belén! 🧉",
-        "timestamp": 1752442060212,
-        "userName": "Oliver"
-      },
-      {
-        "role": "user",
         "content": "hola, estoy en mi casita al fin con mi mate y mis perritos",
         "timestamp": 1752451253407,
         "userName": "Belen"
@@ -119,6 +95,30 @@
         "role": "assistant",
         "content": "¡Che, Belén! Sé que querés dormir, pero tenés que salir. ¡Entiendo, genia! Hoy es sábado y ya estás de regreso en casa después de laburar. Estabas trabajando a full, y ahora tenés que salir de nuevo. ¡Dale, ratita blanca, a darle! 😎 ¡Sos un sol, Belen, seguimos cuando quieras! ☀️",
         "timestamp": 1752977847730,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "saliendo saliendo",
+        "timestamp": 1752980729879,
+        "userName": "Belen"
+      },
+      {
+        "role": "assistant",
+        "content": "¡Che, Belén! ¡Saliendo saliendo! ¡Ya es domingo! ☀️ Estabas trabajando a full y ahora... ¡a darle! Ya estás en San Luis, ¿no? ¡Sos un sol, Belen, seguimos cuando quieras! ☀️",
+        "timestamp": 1752980732469,
+        "userName": "Oliver"
+      },
+      {
+        "role": "user",
+        "content": "hola",
+        "timestamp": 1752980755451,
+        "userName": "Belen"
+      },
+      {
+        "role": "assistant",
+        "content": "¡Todo piola, Belen, ratita blanca! 🧉 Ya es domingo, ¿eh? Estabas laburando a full y ahora... ¡a darle! ¿Qué hacés ahora en San Luis, grosa? ¡Sos un sol, Belen, seguimos cuando quieras! ☀️",
+        "timestamp": 1752980759321,
         "userName": "Oliver"
       }
     ],
@@ -684,7 +684,8 @@
     "reminder_1395491505162027119_23_00": 1752976800947,
     "reminder_1395491505162027119_1_00": 1752897608893,
     "reminder_1395491505162027119_14_27": 1752946028102,
-    "reminder_1395491505162027119_18_42": 1752961372753
+    "reminder_1395491505162027119_18_42": 1752961372753,
+    "reminder_1395491505162027119_23_55": 1752980113863
   },
   "utilMessageReactions": {
     "1343749554905940058": 1742417343374
