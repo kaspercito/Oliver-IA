@@ -9,6 +9,7 @@
   "dependencies": {
     "@discordjs/voice": "^0.18.0",
     "@google/generative-ai": "^0.21.0",
+    "@google-cloud/vision": "^4.0.2",
     "axios": "^1.10.0",
     "luxon": "latest",
     "cheerio": "^1.0.0",
