@@ -5092,16 +5092,6 @@ function getBelenContext(userName, isWorkDay, argentinaHour, dayOfWeek) {
   return "";
 }
 
-// Función para crear embeds (simulada, ajustá según tu framework)
-function createEmbed(color, title, description, footer) {
-  return {
-    color: parseInt(color.replace("#", ""), 16),
-    title,
-    description,
-    footer: { text: footer },
-  };
-}
-
 // Función principal para manejar el chat
 async function manejarChat(message) {
   const userId = message.author.id;
