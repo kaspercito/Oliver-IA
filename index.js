@@ -5052,7 +5052,7 @@ function getTimeGreeting(hour, name, isWorkDay, dayOfWeek) {
   if (!timeGreetingCache.has(cacheKey)) {
     let greeting = staticTimeGreetings[timeKey][name] || `¡${timeKey}, ${name}! ¿Cómo va?`;
     if (name === "Belen" && isWorkDay) {
-      const userStatus = global.dataStore.userStatus[process.env.ALLOWED_USER_ID] || { status: "tranqui", timestamp: Date.now() };
+      const userStatus = global.dataStore.userStatus[ALLOWED_USER_ID] || { status: "tranqui", timestamp: Date.now() };
       const breakStatus = global.dataStore.belenSchedule?.breakStatus || { isOnBreak: false, breakEndTime: null };
       const startHour = global.dataStore.belenSchedule?.typicalStartHour[dayOfWeek] || 18;
       const endHour = global.dataStore.belenSchedule?.typicalEndHour[dayOfWeek] || 0;
@@ -5078,17 +5078,17 @@ function getTimeGreeting(hour, name, isWorkDay, dayOfWeek) {
 // Función para obtener el contexto laboral de Belén
 function getBelenContext(userName, isWorkDay, argentinaHour, dayOfWeek) {
   if (userName !== "Belen") {
-    const userStatus = global.dataStore.userStatus[process.env.ALLOWED_USER_ID] || { status: "tranqui", timestamp: Date.now() };
+    const userStatus = global.dataStore.userStatus[ALLOWED_USER_ID] || { status: "tranqui", timestamp: Date.now() };
     return userStatus.status === "fiesta" ? "¡De fiesta a full, ratita blanca! 😎 " : "";
   }
   if (!isWorkDay || global.dataStore.belenSchedule.exceptions.sundayAbsence) {
-    const userStatus = global.dataStore.userStatus[process.env.ALLOWED_USER_ID] || { status: "tranqui", timestamp: Date.now() };
+    const userStatus = global.dataStore.userStatus[ALLOWED_USER_ID] || { status: "tranqui", timestamp: Date.now() };
     return userStatus.status === "fiesta" ? "¡De fiesta a full, ratita blanca! 😎 " : "¡Ya saliste del laburo, ratita blanca! 😎 ¿Ahora a disfrutar, grosa? ";
   }
   const breakStatus = global.dataStore.belenSchedule?.breakStatus || { isOnBreak: false, breakEndTime: null };
   const startHour = global.dataStore.belenSchedule?.typicalStartHour[dayOfWeek] || 18;
   const endHour = global.dataStore.belenSchedule?.typicalEndHour[dayOfWeek] || 0;
-  const userStatus = global.dataStore.userStatus[process.env.ALLOWED_USER_ID] || { status: "tranqui", timestamp: Date.now() };
+  const userStatus = global.dataStore.userStatus[ALLOWED_USER_ID] || { status: "tranqui", timestamp: Date.now() };
 
   if (userStatus.status === "fiesta") {
     return "¡De fiesta a full, ratita blanca! 😎 ";
@@ -5129,8 +5129,8 @@ async function manejarChat(message) {
       embeds: [
         createEmbed(
           "#FF1493",
-          `¡Che, ${userId === process.env.OWNER_ID ? "Miguel" : "Belen"}!`,
-          `¡Escribí bien, ${pickRandom(generateNicknames(userId === process.env.OWNER_ID ? "Miguel" : "Belen"))}! 😜 Usá !chat y tirame algo zarpado.`,
+          `¡Che, ${userId === OWNER_ID ? "Miguel" : "Belen"}!`,
+          `¡Escribí bien, ${pickRandom(generateNicknames(userId === OWNER_ID ? "Miguel" : "Belen"))}! 😜 Usá !chat y tirame algo zarpado.`,
           "Hecho con ❤️ por Oliver IA | Reacciona con ✅ o ❌"
         ),
       ],
@@ -5138,7 +5138,7 @@ async function manejarChat(message) {
   }
 
   // Asignar nombre de usuario
-  const userName = userId === process.env.OWNER_ID ? "Miguel" : "Belen";
+  const userName = userId === OWNER_ID ? "Miguel" : "Belen";
   const chatMessage = message.content.slice(5).trim();
 
   // Validar mensaje vacío
@@ -5179,7 +5179,7 @@ async function manejarChat(message) {
 
   // Actualizar estado de Belén si se menciona fiesta o excepción
   if (chatMessage.toLowerCase().includes("belen") && chatMessage.toLowerCase().includes("fiesta")) {
-    global.dataStore.userStatus[process.env.ALLOWED_USER_ID] = { status: "fiesta", timestamp: Date.now() };
+    global.dataStore.userStatus[ALLOWED_USER_ID] = { status: "fiesta", timestamp: Date.now() };
     dataStoreModified = true;
   }
   if (chatMessage.toLowerCase().includes("excepción") || chatMessage.toLowerCase().includes("no labura")) {
@@ -5193,7 +5193,7 @@ async function manejarChat(message) {
   if (chatMessage.toLowerCase().includes("dile que")) {
     const embedTitle = getTimeGreeting(argentinaHour, userName, isWorkDay, dayOfWeek);
     const instruction = chatMessage.split("dile que").pop().trim();
-    const belenStatus = global.dataStore.userStatus[process.env.ALLOWED_USER_ID]?.status || "tranqui";
+    const belenStatus = global.dataStore.userStatus[ALLOWED_USER_ID]?.status || "tranqui";
     const aiReply = `¡Che, ${userName}! Le dije a Belén que ${instruction}, ${pickRandom(generateNicknames(userName))}! 😎 Ella está ${belenStatus}. ¿Qué más querés que le diga? ${pickRandom(generateClosers(userName))}`;
     const finalEmbed = createEmbed(
       "#FF1493",
@@ -5210,7 +5210,7 @@ async function manejarChat(message) {
   // Manejar consulta sobre Belén
   if (chatMessage.toLowerCase().includes("belen")) {
     const embedTitle = getTimeGreeting(argentinaHour, userName, isWorkDay, dayOfWeek);
-    const belenStatus = global.dataStore.userStatus[process.env.ALLOWED_USER_ID] || { status: "tranqui", timestamp: Date.now() };
+    const belenStatus = global.dataStore.userStatus[ALLOWED_USER_ID] || { status: "tranqui", timestamp: Date.now() };
     const scheduleInfo = `labura viernes 6 PM-12 AM, sábado 6 AM-12 AM, domingo 6 AM-2 PM, viaja viernes 2/4 PM, después del domingo 2 PM a casa`;
     const aiReply = `¡Che, ${userName}, hablando de Belén, la ratita blanca! 😎 Está ${belenStatus.status} (actualizado ${new Date(belenStatus.timestamp).toLocaleString("es-AR")}). ${scheduleInfo}. ${getBelenContext("Belen", isWorkDay, argentinaHour, dayOfWeek)}¿Querés más data o seguimos con otra? ${pickRandom(generateClosers(userName))}`;
     const finalEmbed = createEmbed(
@@ -5228,7 +5228,7 @@ async function manejarChat(message) {
   // Manejar consulta sobre si está trabajando
   if (chatMessage.toLowerCase().includes("esta trabajando") || chatMessage.toLowerCase().includes("está trabajando")) {
     const embedTitle = getTimeGreeting(argentinaHour, userName, isWorkDay, dayOfWeek);
-    const belenStatus = global.dataStore.userStatus[process.env.ALLOWED_USER_ID]?.status || "tranqui";
+    const belenStatus = global.dataStore.userStatus[ALLOWED_USER_ID]?.status || "tranqui";
     const aiReply = belenStatus === "fiesta" 
       ? `¡Che, ${userName}! Belén está de fiesta a full, ratita blanca! 😎 ¿Querés que le diga algo? ${pickRandom(generateClosers(userName))}`
       : `¡Che, ${userName}! ${getBelenContext("Belen", isWorkDay, argentinaHour, dayOfWeek) || "Belén está tranqui, no es día laboral, crack! 😎"} ${pickRandom(generateClosers(userName))}`;
@@ -5253,7 +5253,7 @@ async function manejarChat(message) {
       const embedTitle = getTimeGreeting(argentinaHour, userName, isWorkDay, dayOfWeek);
       let aiReply = `¡Che, ${userName}, qué fotaza, ${pickRandom(generateNicknames(userName))}! 😜 Vi en la imagen: ${labels}. `;
       if (labels.toLowerCase().includes("party") || labels.toLowerCase().includes("amigas") || labels.toLowerCase().includes("fiesta")) {
-        global.dataStore.userStatus[userName === "Belen" ? userId : process.env.ALLOWED_USER_ID] = {
+        global.dataStore.userStatus[userName === "Belen" ? userId : ALLOWED_USER_ID] = {
           status: "fiesta",
           timestamp: Date.now(),
         };
