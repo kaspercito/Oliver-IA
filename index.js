@@ -4974,20 +4974,6 @@ const daysOfWeek = [
   "sábado",
 ];
 
-// DataStore inicial
-const dataStore = {
-  conversationHistory: {},
-  userStatus: {},
-  belenSchedule: {
-    typicalWorkDays: [5, 6, 0], // Viernes, Sábado, Domingo
-    typicalStartHour: { 5: 18, 6: 6, 0: 6 }, // Empieza 6 PM viernes, 6 AM sábado/domingo
-    typicalEndHour: { 5: 0, 6: 0, 0: 14 }, // Termina 12 AM viernes/sábado, 2 PM domingo
-    travelFriday: [14, 15, 16], // Viaja viernes 2-4 PM
-    travelSunday: [14, 15, 16], // Viaja a casa después de las 2 PM domingo
-    exceptions: { fridayAbsence: false, saturdayWork: true },
-    breakStatus: { isOnBreak: false, breakEndTime: null },
-  },
-};
 
 // Generar nicknames estáticos
 function generateNicknames(userName) {
