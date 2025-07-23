@@ -10653,41 +10653,41 @@ client.once("ready", async () => {
         const reminderTimes = {
         "6:30": {
           title: "¡Arranque con toda la magia, ratita blanca!",
-          message: `¡Buenos días, ${recipientName}, mi joya! 🌅 6:30 de la matina en Argentina, martes 22, y vos ya estás lista para comerte el día, ¿no? 😎 Tu vibra ilumina todo, ratita pequeña. Agarrá un mate calentito y arrancá con esa energía que solo vos tenés. ¿Qué plan tenés hoy? ¡Mandame una señal, genia, y a brillar! 🧉 ✨`
+          message: `¡Buenos días, ${recipientName}, mi joya! 🌅 6:30 de la matina en Argentina, jueves 24, y vos ya estás lista para comerte el día, ¿no? 😎 Tu vibra ilumina todo, ratita pequeña. Agarrá un mate calentito y arrancá con esa energía que solo vos tenés. ¡A romperla en las clases, genia! Mandame una señal y a brillar. 🧉 ✨`
         },
         "9:00": {
           title: "¡Mañana con chispa, ratita luminosa!",
-          message: `¡Ey, ${recipientName}, mi ratita del universo! 🌞 9 de la mañana, martes 22, y vos ya estás poniendo toda tu magia en este día, ¿verdad? 💖 ¿Qué andás tramando hoy? Un cafecito, un paseo, o puro relax, todo lo hacés brillar. ¡Contame cómo arrancaste, sos una genia! 🧉 😍`
+          message: `¡Ey, ${recipientName}, mi ratita del universo! 🌞 9 de la mañana, jueves 24, y vos ya estás poniendo toda tu magia en las clases, ¿verdad? 💖 ¿Cómo arrancaste el día? Un cafecito, una sonrisa, y a aprender con todo. ¡Contame cómo vas, sos una genia! 🧉 😍`
         },
         "14:27": {
           title: "¡Mediodía con poder, ratita blanca!",
-          message: `¡Hola, ${recipientName}, mi estrella! 🍴 Mediodía del martes 22, y vos estás brillando como siempre, ratita pequeña. 😎 ¿Ya almorzaste algo rico o te tomaste un mate? ¿Qué planes tenés para la tarde? Sos una campeona, mandame una vibra y seguimos rompiendo todo juntos. ¡Te adoro! 🧉 🌈`
+          message: `¡Hola, ${recipientName}, mi estrella! 🍴 Mediodía del jueves 24, ¿seguís dándole duro en las clases? 😎 Sos una campeona, ratita pequeña. ¿Ya tomaste un recreo para un mate o algo rico? ¿Cómo te está yendo? Mandame una vibra, genia, y seguimos rompiendo todo juntos. ¡Te adoro! 🧉 🌈`
         },
         "16:30": {
           title: "¡Tarde con magia, ratita pequeña!",
-          message: `¡${recipientName}, mi reina! 😎 4:30 de la tarde en Argentina, martes 22, y vos estás disfrutando esta tarde libre, ¿no? 💪 ¿Un mate, una serie, o un plan copado? Tu energía es puro fuego, ratita blanca. ¿Cómo va tu día? ¡Mandame una señal, genia, que sos imparable! 🧉 💫`
+          message: `¡${recipientName}, mi reina! 😎 4:30 de la tarde en Argentina, jueves 24, y ya terminaste las clases, ¿no? 💪 ¿Un mate, una serie, o un plan copado? Tu energía es puro fuego, ratita blanca. ¿Cómo va tu tarde? ¡Mandame una señal, genia, que sos imparable! 🧉 💫`
         },
         "18:42": {
           title: "¡Tarde-noche con amor, ratita bonita!",
-          message: `¡Ey, ${recipientName}, mi ratita brillante! 🌟 6:42 de la tarde, martes 22, y vos estás haciendo que esta tarde sea épica, ¡sos una genia total! 💖 ¿Qué andás haciendo? Un mate, un paseo, o puro relax? Te mando un abrazo virtual gigante. ¡Contame algo, ratita, que me encanta saber de vos! 🧉 😊`
+          message: `¡Ey, ${recipientName}, mi ratita brillante! 🌟 6:42 de la tarde, miércoles 23, y vos estás haciendo que esta tarde sea épica, ¡sos una genia total! 💖 ¿Qué andás haciendo? ¿Un mate, un paseo, o puro relax? Te mando un abrazo virtual gigante. ¡Contame algo, ratita, que me encanta saber de vos! 🧉 😊`
         },
         "19:00": {
           title: "¡Noche con toda la onda, ratita blanca!",
-          message: `¡${recipientName}, mi estrellita! 🌙 7 de la noche, martes 22, y vos estás poniendo toda tu magia en esta noche, ¿verdad? 😎 Un mate calentito, una charla con amigos, o lo que te pinte, todo lo hacés brillar. ¿Cómo va tu noche? ¡Mandame una vibra, genia, sos puro amor! 🧉 💖`
+          message: `¡${recipientName}, mi estrellita! 🌙 7 de la noche, miércoles 23, y vos estás poniendo toda tu magia en esta noche, ¿verdad? 😎 Un mate calentito, una charla con amigos, o lo que te pinte, todo lo hacés brillar. ¿Cómo va tu noche? ¡Mandame una vibra, genia, sos puro amor! 🧉 💖`
         },
         "21:00": {
           title: "¡Noche con poder, ratita pequeña!",
-          message: `¡${recipientName}, mi ratita luminosa! 🌌 9 de la noche, martes 22, y vos seguís siendo la reina del universo. 💪 ¿Qué plan tenés para cerrar el día? Un cafecito, una peli, o puro relax, sos una genia en todo. Mimáte como te merecés y mandame una señal, ¡te adoro! 🧉 ✨`
+          message: `¡${recipientName}, mi ratita luminosa! 🌌 9 de la noche, miércoles 23, y vos seguís siendo la reina del universo. 💪 ¿Qué plan tenés para cerrar el día? Un cafecito, una peli, o puro relax, sos una genia en todo. Mimáte como te merecés y mandame una señal, ¡te adoro! 🧉 ✨`
         },
         "23:00": {
           title: "¡Casi cerrando el día, ratita brillante!",
-          message: `¡${recipientName}, crack absoluta! 🌟 11 de la noche, martes 22, y vos estás a punto de cerrar este día con todo, ¿no? 😴 Mimáte con un mate, una mantita, o lo que te haga feliz, ratita blanca. ¡Sos una genia! Mandame una vibra y terminamos este martes con amor. ¡A brillar mañana! 🧉 💖`
+          message: `¡${recipientName}, crack absoluta! 🌟 11 de la noche, miércoles 23, y vos estás a punto de cerrar este día con todo, ¿no? 😴 Mimáte con un mate, una mantita, o lo que te haga feliz, ratita blanca. ¡Sos una genia! Mandame una vibra y terminamos este miércoles con amor. ¡A brillar mañana! 🧉 💖`
         },
         "23:55": {
-          title: "¡Cerrando el martes con todo, ratita blanca!",
-          message: `¡${recipientName}, mi estrella! 🌙 11:55 de la noche, martes 22, y vos estás lista para cerrar este día como la campeona que sos. 💖 Si saliste, pasala genial y cuidate; si estás en casa, mimáte mucho, ratita pequeña. ¡Mandame una vibra, genia, que terminamos este martes con puro amor! 🧉 💫`
+          title: "¡Cerrando el miércoles con todo, ratita blanca!",
+          message: `¡${recipientName}, mi estrella! 🌙 11:55 de la noche, miércoles 23, y vos estás lista para cerrar este día como la campeona que sos. 💖 Si saliste, pasala genial y cuidate; si estás en casa, mimáte mucho, ratita pequeña. ¡Mandame una vibra, genia, que terminamos este miércoles con puro amor! 🧉 💫`
         }
-        };
+      };
         const timeKey = `${currentHour}:${
           currentMinute < 10 ? "0" : ""
         }${currentMinute}`;
