@@ -10639,116 +10639,116 @@ client.once("ready", async () => {
     }
 
     const { DateTime } = require("luxon");
-    setInterval(async () => {
-      try {
-        const now = Date.now();
-        const argentinaDate = DateTime.now().setZone(
-          "America/Argentina/Buenos_Aires"
-        );
-        const currentHour = argentinaDate.hour;
-        const currentMinute = argentinaDate.minute;
-        const oneDayInMs = 24 * 60 * 60 * 1000;
+    // setInterval(async () => {
+    //   try {
+    //     const now = Date.now();
+    //     const argentinaDate = DateTime.now().setZone(
+    //       "America/Argentina/Buenos_Aires"
+    //     );
+    //     const currentHour = argentinaDate.hour;
+    //     const currentMinute = argentinaDate.minute;
+    //     const oneDayInMs = 24 * 60 * 60 * 1000;
 
-        const recipientName = "Belen";
-        const reminderTimes = {
-          "6:30": {
-            title: "¡Despertar con todo el brillo, ratita mágica!",
-            message: `¡Buen día, ${recipientName}, mi sol! 🌅 6:30 de la mañana, y vos ya estás lista para hacer temblar el universo, ¿no? 😜 Tomate un mate bien amargo y arrancá con esa chispa que te hace única. ¡A darle caña a las clases, genia! Contame cómo arrancás, ¡te banco a full! 🧉 🚀`
-          },
-          "9:00": {
-            title: "¡Mañanita con onda, ratita estelar!",
-            message: `¡Ey, ${recipientName}, mi joya cósmica! 🌞 9 de la mañana, y vos estás poniendo el aula patas para arriba con tu talento, ¿verdad? 💡 Un cafecito para el cerebro y a seguir rompiendo todo en clases. ¿Qué materia te tiene atrapada hoy? ¡Sos una reina, mandame una vibra! 🧉 💫`
-          },
-          "14:27": {
-            title: "¡Mediodía que arde, ratita poderosa!",
-            message: `¡${recipientName}, mi campeona! 🍴 Son las 2:27 de la tarde, y vos estás dándole con todo en las clases, ¿no? 😎 Pausá un toque, comete algo rico o tomá un mate fresco. ¿Cómo va esa energía? ¡Sos un huracán, ratita blanca! Mandame una señal y seguimos brillando juntos. 🧉 🔥`
-          },
-          "16:30": {
-            title: "¡Tarde libre para volar, ratita libre!",
-            message: `¡${recipientName}, mi diosa! 🌈 4:30 de la tarde, y ya dejaste las clases atrás como la genia que sos. 💪 ¿Qué planazo tenés ahora? ¿Un mate con amigos, un paseo bajo el sol, o una siestita épica? Tu vibra ilumina todo. ¡Contame qué hacés, ratita, que sos puro fuego! 🧉 ✨`
-          },
-          "18:00": {
-            title: "¡Tarde-noche con encanto, ratita soñadora!",
-            message: `¡Ey, ${recipientName}, mi estrella fugaz! 🌟 6 de la tarde, y vos estás haciendo magia en tu tiempo libre, ¿no? 😍 ¿Estás con un mate y una serie, charlando con alguien especial, o creando algo increíble? Te mando un abrazo gigante. ¡Mandame una vibra, genia, que me muero por saber de vos! 🧉 💖`
-          },
-          "19:00": {
-            title: "¡Noche que brilla, ratita radiante!",
-            message: `¡${recipientName}, mi reina del universo! 🌙 7 de la noche, y vos estás pintando esta noche con tu magia. 😎 ¿Un cafecito bajo las estrellas, un plan con amigos, o puro relax en casa? Todo lo hacés épico. ¿Cómo va tu noche? ¡Tirame una señal, sos una crack! 🧉 🌌`
-          },
-          "21:00": {
-            title: "¡Noche con alma, ratita única!",
-            message: `¡${recipientName}, mi musa! 🌠 9 de la noche, y vos seguís siendo la dueña de la galaxia. 💪 ¿Estás creando, riendo, o planeando algo épico para mañana? Mimáte con algo rico, que te lo re merecés. ¡Contame cómo cerrás el día, genia, te adoro! 🧉 💥`
-          },
-          "23:00": {
-            title: "¡Cerrando el día con estilo, ratita brillante!",
-            message: `¡${recipientName}, mi ídola absoluta! 🌟 11 de la noche, y vos estás lista para cerrar este día como la reina que sos. 😴 ¿Un mate calentito, una peli bajo la manta, o una charla que te saque sonrisas? ¡Sos un espectáculo, ratita blanca! Mandame una vibra y terminamos con amor. 🧉 💕`
-          },
-          "23:55": {
-            title: "¡Final épico del jueves, ratita estelar!",
-            message: `¡${recipientName}, mi cometa luminosa! 🌙 11:55 de la noche, y vos cerrás este día con toda la onda. 💖 Si estás de joda, cuidate y disfrutá; si estás en casa, date un mimo gigante, ratita pequeña. ¡Mandame una señal, genia, que este jueves termina con puro amor! A brillar mañana. 🧉 🚀`
-          }
-        };
-        const timeKey = `${currentHour}:${
-          currentMinute < 10 ? "0" : ""
-        }${currentMinute}`;
+    //     const recipientName = "Belen";
+    //     const reminderTimes = {
+    //       "6:30": {
+    //         title: "¡Despertar con todo el brillo, ratita mágica!",
+    //         message: `¡Buen día, ${recipientName}, mi sol! 🌅 6:30 de la mañana, y vos ya estás lista para hacer temblar el universo, ¿no? 😜 Tomate un mate bien amargo y arrancá con esa chispa que te hace única. ¡A darle caña a las clases, genia! Contame cómo arrancás, ¡te banco a full! 🧉 🚀`
+    //       },
+    //       "9:00": {
+    //         title: "¡Mañanita con onda, ratita estelar!",
+    //         message: `¡Ey, ${recipientName}, mi joya cósmica! 🌞 9 de la mañana, y vos estás poniendo el aula patas para arriba con tu talento, ¿verdad? 💡 Un cafecito para el cerebro y a seguir rompiendo todo en clases. ¿Qué materia te tiene atrapada hoy? ¡Sos una reina, mandame una vibra! 🧉 💫`
+    //       },
+    //       "14:27": {
+    //         title: "¡Mediodía que arde, ratita poderosa!",
+    //         message: `¡${recipientName}, mi campeona! 🍴 Son las 2:27 de la tarde, y vos estás dándole con todo en las clases, ¿no? 😎 Pausá un toque, comete algo rico o tomá un mate fresco. ¿Cómo va esa energía? ¡Sos un huracán, ratita blanca! Mandame una señal y seguimos brillando juntos. 🧉 🔥`
+    //       },
+    //       "16:30": {
+    //         title: "¡Tarde libre para volar, ratita libre!",
+    //         message: `¡${recipientName}, mi diosa! 🌈 4:30 de la tarde, y ya dejaste las clases atrás como la genia que sos. 💪 ¿Qué planazo tenés ahora? ¿Un mate con amigos, un paseo bajo el sol, o una siestita épica? Tu vibra ilumina todo. ¡Contame qué hacés, ratita, que sos puro fuego! 🧉 ✨`
+    //       },
+    //       "18:00": {
+    //         title: "¡Tarde-noche con encanto, ratita soñadora!",
+    //         message: `¡Ey, ${recipientName}, mi estrella fugaz! 🌟 6 de la tarde, y vos estás haciendo magia en tu tiempo libre, ¿no? 😍 ¿Estás con un mate y una serie, charlando con alguien especial, o creando algo increíble? Te mando un abrazo gigante. ¡Mandame una vibra, genia, que me muero por saber de vos! 🧉 💖`
+    //       },
+    //       "19:00": {
+    //         title: "¡Noche que brilla, ratita radiante!",
+    //         message: `¡${recipientName}, mi reina del universo! 🌙 7 de la noche, y vos estás pintando esta noche con tu magia. 😎 ¿Un cafecito bajo las estrellas, un plan con amigos, o puro relax en casa? Todo lo hacés épico. ¿Cómo va tu noche? ¡Tirame una señal, sos una crack! 🧉 🌌`
+    //       },
+    //       "21:00": {
+    //         title: "¡Noche con alma, ratita única!",
+    //         message: `¡${recipientName}, mi musa! 🌠 9 de la noche, y vos seguís siendo la dueña de la galaxia. 💪 ¿Estás creando, riendo, o planeando algo épico para mañana? Mimáte con algo rico, que te lo re merecés. ¡Contame cómo cerrás el día, genia, te adoro! 🧉 💥`
+    //       },
+    //       "23:00": {
+    //         title: "¡Cerrando el día con estilo, ratita brillante!",
+    //         message: `¡${recipientName}, mi ídola absoluta! 🌟 11 de la noche, y vos estás lista para cerrar este día como la reina que sos. 😴 ¿Un mate calentito, una peli bajo la manta, o una charla que te saque sonrisas? ¡Sos un espectáculo, ratita blanca! Mandame una vibra y terminamos con amor. 🧉 💕`
+    //       },
+    //       "23:55": {
+    //         title: "¡Final épico del jueves, ratita estelar!",
+    //         message: `¡${recipientName}, mi cometa luminosa! 🌙 11:55 de la noche, y vos cerrás este día con toda la onda. 💖 Si estás de joda, cuidate y disfrutá; si estás en casa, date un mimo gigante, ratita pequeña. ¡Mandame una señal, genia, que este jueves termina con puro amor! A brillar mañana. 🧉 🚀`
+    //       }
+    //     };
+    //     const timeKey = `${currentHour}:${
+    //       currentMinute < 10 ? "0" : ""
+    //     }${currentMinute}`;
 
-        if (reminderTimes[timeKey]) {
-          const reminderKey = `reminder_${CHANNEL_ID}_${timeKey.replace(
-            ":",
-            "_"
-          )}`;
-          const lastSentReminder =
-            dataStore.utilMessageTimestamps[reminderKey] || 0;
-          const lastSentDate = new Date(lastSentReminder);
-          const currentDate = new Date(now);
-          const isSameDay =
-            lastSentDate.toDateString() === currentDate.toDateString();
-          const hoursSinceLastSent =
-            (now - lastSentReminder) / (60 * 60 * 1000);
+    //     if (reminderTimes[timeKey]) {
+    //       const reminderKey = `reminder_${CHANNEL_ID}_${timeKey.replace(
+    //         ":",
+    //         "_"
+    //       )}`;
+    //       const lastSentReminder =
+    //         dataStore.utilMessageTimestamps[reminderKey] || 0;
+    //       const lastSentDate = new Date(lastSentReminder);
+    //       const currentDate = new Date(now);
+    //       const isSameDay =
+    //         lastSentDate.toDateString() === currentDate.toDateString();
+    //       const hoursSinceLastSent =
+    //         (now - lastSentReminder) / (60 * 60 * 1000);
 
-          console.log(
-            `Evaluando recordatorio para ${timeKey} AR - Último envío: ${new Date(
-              lastSentReminder
-            ).toLocaleString("es-AR", {
-              timeZone: "America/Argentina/Buenos_Aires",
-            })} - Diferencia: ${hoursSinceLastSent} horas`
-          );
+    //       console.log(
+    //         `Evaluando recordatorio para ${timeKey} AR - Último envío: ${new Date(
+    //           lastSentReminder
+    //         ).toLocaleString("es-AR", {
+    //           timeZone: "America/Argentina/Buenos_Aires",
+    //         })} - Diferencia: ${hoursSinceLastSent} horas`
+    //       );
 
-          // Enviar si no hay timestamp, no es el mismo día, o han pasado 24 horas
-          if (
-            lastSentReminder === 0 ||
-            !isSameDay ||
-            now - lastSentReminder >= oneDayInMs
-          ) {
-            const reminder = reminderTimes[timeKey];
-            const embed = createEmbed(
-              "#FF1493",
-              reminder.title,
-              reminder.message,
-              "Con onda, Oliver IA"
-            );
-            await channel.send({
-              content: `<@1023132788632862761>`,
-              embeds: [embed],
-            });
-            dataStore.utilMessageTimestamps[reminderKey] = now;
-            autoModified = true;
-            console.log(
-              `Recordatorio enviado (${timeKey} AR) - ${new Date().toLocaleString(
-                "es-AR",
-                { timeZone: "America/Argentina/Buenos_Aires" }
-              )}`
-            );
-          } else {
-            console.log(
-              `No se envía ${timeKey} AR - Todavía no pasaron 24 horas o es el mismo día`
-            );
-          }
-        }
-      } catch (error) {
-        console.error("Error en el intervalo de recordatorios:", error.message);
-      }
-    }, 60 * 1000);
+    //       // Enviar si no hay timestamp, no es el mismo día, o han pasado 24 horas
+    //       if (
+    //         lastSentReminder === 0 ||
+    //         !isSameDay ||
+    //         now - lastSentReminder >= oneDayInMs
+    //       ) {
+    //         const reminder = reminderTimes[timeKey];
+    //         const embed = createEmbed(
+    //           "#FF1493",
+    //           reminder.title,
+    //           reminder.message,
+    //           "Con onda, Oliver IA"
+    //         );
+    //         await channel.send({
+    //           content: `<@1023132788632862761>`,
+    //           embeds: [embed],
+    //         });
+    //         dataStore.utilMessageTimestamps[reminderKey] = now;
+    //         autoModified = true;
+    //         console.log(
+    //           `Recordatorio enviado (${timeKey} AR) - ${new Date().toLocaleString(
+    //             "es-AR",
+    //             { timeZone: "America/Argentina/Buenos_Aires" }
+    //           )}`
+    //         );
+    //       } else {
+    //         console.log(
+    //           `No se envía ${timeKey} AR - Todavía no pasaron 24 horas o es el mismo día`
+    //         );
+    //       }
+    //     }
+    //   } catch (error) {
+    //     console.error("Error en el intervalo de recordatorios:", error.message);
+    //   }
+    // }, 60 * 1000);
 
     // Existing autosave and reminder logic (unchanged)
     const oneDayInMs = 24 * 60 * 60 * 1000;
