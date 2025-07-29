@@ -894,13 +894,9 @@
     "¡Cancelación de recordatorios con !cancelarrecordatorio / !cr! Borra un recordatorio con su ID (lo ves en !mr), ¡al toque y sin drama!"
   ],
   "utilMessageTimestamps": {
-    "reminder_1395491505162027119_14_27": 1753637279681,
     "reminder_1395491505162027119_21_00": 1753660814509,
     "reminder_1395491505162027119_23_00": 1753668000925,
     "reminder_1395491505162027119_23_55": 1753671359298,
-    "reminder_1395491505162027119_16_30": 1753644648188,
-    "reminder_1395491505162027119_18_00": 1753650027139,
-    "reminder_1395491505162027119_19_00": 1753653632791,
     "reminder_1395491505162027119_6_30": 1753695035595,
     "reminder_1395491505162027119_9_00": 1753704012511
   },
@@ -1460,7 +1456,7 @@
       "mensaje": "tomar la pastilla rosada todos los días",
       "cuandoLlegue": false,
       "cuandoSalga": false,
-      "timestamp": 1753786800000,
+      "timestamp": 1753873200000,
       "creado": 1752879164275,
       "esRecurrente": true,
       "hora": 8,
