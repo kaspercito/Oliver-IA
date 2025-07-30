@@ -893,9 +893,7 @@
     "¡Lista de recordatorios con !misrecordatorios / !mr! Mirá tus recordatorios activos al toque, re útil pa’ no perderte nada, loco.",
     "¡Cancelación de recordatorios con !cancelarrecordatorio / !cr! Borra un recordatorio con su ID (lo ves en !mr), ¡al toque y sin drama!"
   ],
-  "utilMessageTimestamps": {
-    "reminder_1395491505162027119_9_00": 1753704012511
-  },
+  "utilMessageTimestamps": {},
   "utilMessageReactions": {
     "1343749554905940058": 1742417343374
   },
@@ -1452,7 +1450,7 @@
       "mensaje": "tomar la pastilla rosada todos los días",
       "cuandoLlegue": false,
       "cuandoSalga": false,
-      "timestamp": 1753873200000,
+      "timestamp": 1753959600000,
       "creado": 1752879164275,
       "esRecurrente": true,
       "hora": 8,
