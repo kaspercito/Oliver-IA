@@ -10675,7 +10675,7 @@ client.once("ready", async () => {
             title: "¡Noche que brilla, ratita radiante!",
             message: `¡${recipientName}, mi reina del universo! 🌙 7 de la noche, y vos estás pintando esta noche con tu magia. 😎 ¿Un cafecito bajo las estrellas, un plan con amigos, o puro relax en casa? Todo lo hacés épico. ¿Cómo va tu noche? ¡Tirame una señal, sos una crack! 🧉 🌌`
           },
-          "21:00": {
+          "21:15": {
             title: "¡Noche con alma, ratita única!",
             message: `¡${recipientName}, mi musa! 🌠 9 de la noche, y vos seguís siendo la dueña de la galaxia. 💪 ¿Estás creando, riendo, o planeando algo épico para mañana? Mimáte con algo rico, que te lo re merecés. ¡Contame cómo cerrás el día, genia, te adoro! 🧉 💥`
           },
