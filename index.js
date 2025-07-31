@@ -10951,8 +10951,8 @@ client.on("interactionCreate", async (interaction) => {
     return;
   }
 
-  const TARGET_CHANNEL_ID = "1400597414083166319"; // Canal específico para esta función
-  const channel = await client.channels.fetch(TARGET_CHANNEL_ID);
+  const DECISION_CHANNEL_ID = "1400597414083166319"; // Canal específico para esta función
+  const channel = await client.channels.fetch(DECISION_CHANNEL_ID);
   if (!channel) {
     await interaction.reply({
       content: "No pude encontrar el canal, ¡qué macana!",
