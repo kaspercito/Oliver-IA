@@ -10675,17 +10675,17 @@ client.once("ready", async () => {
             title: "¡Noche que brilla, ratita radiante!",
             message: `¡${recipientName}, mi reina del universo! 🌙 7 de la noche, y vos estás pintando esta noche con tu magia. 😎 ¿Un cafecito bajo las estrellas, un plan con amigos, o puro relax en casa? Todo lo hacés épico. ¿Cómo va tu noche? ¡Tirame una señal, sos una crack! 🧉 🌌`
           },
-          "21:30": {
+          "21:00": {
             title: "¡Noche con alma, ratita única!",
-            message: `¡${recipientName}, mi musa! 🌠 9 y media de la noche, y vos seguís siendo la dueña de la galaxia. 💪 ¿Estás creando, riendo, o planeando algo épico para mañana? Mimáte con algo rico, que te lo re merecés. ¡Contame cómo cerrás el día, genia, te adoro! 🧉 💥`
+            message: `¡${recipientName}, mi musa! 🌠 9 de la noche, y vos seguís siendo la dueña de la galaxia. 💪 ¿Estás creando, riendo, o planeando algo épico para mañana? Mimáte con algo rico, que te lo re merecés. ¡Contame cómo cerrás el día, genia, te adoro! 🧉 💥`
           },
-          "23:00": {
+          "23:39": {
             title: "¡Cerrando el día con estilo, ratita brillante!",
-            message: `¡${recipientName}, mi ídola absoluta! 🌟 11 de la noche, y vos estás lista para cerrar este día como la reina que sos. 😴 ¿Un mate calentito, una peli bajo la manta, o una charla que te saque sonrisas? ¡Sos un espectáculo, ratita blanca! Mandame una vibra y terminamos con amor. 🧉 💕`
+            message: `¡${recipientName}, mi ídola absoluta! 🌟 11:39 de la noche, y vos estás lista para cerrar este día como la reina que sos. 😴 ¿Un mate calentito, una peli bajo la manta, o una charla que te saque sonrisas? ¡Sos un espectáculo, ratita blanca! Mandame una vibra y terminamos con amor. 🧉 💕`
           },
-          "23:55": {
+          "00:30": {
             title: "¡Final épico del jueves, ratita estelar!",
-            message: `¡${recipientName}, mi cometa luminosa! 🌙 11:55 de la noche, y vos cerrás este día con toda la onda. 💖 Si estás de joda, cuidate y disfrutá; si estás en casa, date un mimo gigante, ratita pequeña. ¡Mandame una señal, genia, que este jueves termina con puro amor! A brillar mañana. 🧉 🚀`
+            message: `¡${recipientName}, mi cometa luminosa! 🌙 12:30 de la noche, y vos cerrás este día con toda la onda. 💖 Si estás de joda, cuidate y disfrutá; si estás en casa, date un mimo gigante, ratita pequeña. ¡Mandame una señal, genia, que este jueves termina con puro amor! A brillar mañana. 🧉 🚀`
           }
         };
         const timeKey = `${currentHour}:${
