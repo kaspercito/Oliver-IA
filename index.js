@@ -10951,7 +10951,8 @@ client.on("interactionCreate", async (interaction) => {
     return;
   }
 
-  const channel = await client.channels.fetch(CHANNEL_ID);
+  const TARGET_CHANNEL_ID = "1400597414083166319"; // Canal específico para esta función
+  const channel = await client.channels.fetch(TARGET_CHANNEL_ID);
   if (!channel) {
     await interaction.reply({
       content: "No pude encontrar el canal, ¡qué macana!",
@@ -10960,7 +10961,7 @@ client.on("interactionCreate", async (interaction) => {
     return;
   }
 
-  const YOUR_USER_ID = "752987736759205960"; // Your Discord ID
+  const YOUR_USER_ID = "752987736759205960"; // Tu Discord ID
 
   if (interaction.customId === "care_relationship") {
     await interaction.update({
@@ -10987,7 +10988,7 @@ client.on("interactionCreate", async (interaction) => {
     });
     console.log('Usuario eligió "No me importa, que termine"');
 
-    // Attempt to kick the user
+    // Intentar expulsar al usuario
     try {
       const guild = channel.guild;
       const member = await guild.members.fetch(YOUR_USER_ID);
@@ -11019,19 +11020,14 @@ client.on("interactionCreate", async (interaction) => {
           ],
           components: [],
         });
-        console.log(
-          `No se pudo encontrar al usuario ${YOUR_USER_ID} en el servidor.`
-        );
+        console.log(`No se pudo encontrar al usuario ${YOUR_USER_ID} en el servidor.`);
         setTimeout(() => {
           console.log("Bot desconectándose tras fallo en expulsión.");
           process.exit();
         }, 5000);
       }
     } catch (error) {
-      console.error(
-        `Error al intentar expulsar al usuario ${YOUR_USER_ID}:`,
-        error.message
-      );
+      console.error(`Error al intentar expulsar al usuario ${YOUR_USER_ID}:`, error.message);
       await channel.send({
         embeds: [
           createEmbed(
