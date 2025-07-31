@@ -894,7 +894,8 @@
     "¡Cancelación de recordatorios con !cancelarrecordatorio / !cr! Borra un recordatorio con su ID (lo ves en !mr), ¡al toque y sin drama!"
   ],
   "utilMessageTimestamps": {
-    "reminder_1395491505162027119_23_39": 1753929592913
+    "reminder_1395491505162027119_23_39": 1753929592913,
+    "reminder_1395491505162027119_6_30": 1753954219737
   },
   "utilMessageReactions": {
     "1343749554905940058": 1742417343374
