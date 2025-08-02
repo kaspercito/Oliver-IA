@@ -10487,6 +10487,10 @@ client.once("ready", async () => {
   if (!dataStore.utilMessageTimestamps) dataStore.utilMessageTimestamps = {};
   if (!dataStore.utilMessageReactions) dataStore.utilMessageReactions = {};
 
+    try {
+    const channel = await client.channels.fetch(CHANNEL_ID);
+    if (!channel) throw new Error("Canal no encontrado");
+      
     // Existing code for updates and other logic (unchanged)
     const userHistory = dataStore.conversationHistory[ALLOWED_USER_ID] || [];
     const historySummary =
