@@ -4865,737 +4865,218 @@ async function sendLyrics(
   }
 }
 
-const { ImageAnnotatorClient } = require("@google-cloud/vision");
+const fs = require('fs');
+const { GoogleGenerativeAI } = require("@google/generative-ai");
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
-const visionClient = new ImageAnnotatorClient({
-  key: "AIzaSyBj0V5dSjyHCvp_vXtY3n0_fRvuBf-SzDQ", // Tu API key para Google Cloud Vision
-});
+const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" }); // o "gemini-1.5-pro-latest"
+
+const DATA_FILE = 'dataStore.json';
 const userLocks = new Map();
-const pickRandom = (arr) => arr[Math.floor(Math.random() * arr.length)];
 
-// Cachés estáticos
-const nicknameCache = new Map();
-const closerCache = new Map();
-const chisteCache = new Set();
-const timeGreetingCache = new Map();
-
-// Inicializar dataStore solo si no existe
-if (!global.dataStore) {
-  global.dataStore = {
+// Cargar dataStore persistente
+function loadDataStore() {
+  if (fs.existsSync(DATA_FILE)) {
+    try {
+      const data = fs.readFileSync(DATA_FILE, 'utf8');
+      return JSON.parse(data);
+    } catch (err) {
+      console.error('Error cargando dataStore, usando vacío', err);
+    }
+  }
+  return {
     conversationHistory: {},
     userStatus: {},
-    connectionBridge: {
-      sharedGoals: [],
-      gratitudeLog: [],
-      lastRitualAt: null,
-    },
+    connectionBridge: { sharedGoals: [], gratitudeLog: [], lastRitualAt: null },
     belenSchedule: {
-      typicalWorkDays: [5, 6, 0], // Viernes, Sábado, Domingo
-      typicalStartHour: { 5: 18, 6: 6, 0: 6 }, // Empieza 6 PM viernes, 6 AM sábado/domingo
-      typicalEndHour: { 5: 0, 6: 0, 0: 14 }, // Termina 12 AM viernes/sábado, 2 PM domingo
-      travelFriday: [14, 15, 16], // Viaja viernes 2-4 PM
-      travelSunday: [14, 15, 16], // Viaja a casa después de las 2 PM domingo
+      typicalWorkDays: [5, 6, 0],
+      typicalStartHour: { 5: 18, 6: 6, 0: 6 },
+      typicalEndHour: { 5: 0, 6: 0, 0: 14 },
+      travelFriday: [14, 15, 16],
+      travelSunday: [14, 15, 16],
       exceptions: { fridayAbsence: false, saturdayWork: true, sundayAbsence: false },
       breakStatus: { isOnBreak: false, breakEndTime: null },
     },
   };
-} else {
-  // Fusionar belenSchedule si ya existe dataStore
-  global.dataStore.belenSchedule = global.dataStore.belenSchedule || {
-    typicalWorkDays: [5, 6, 0],
-    typicalStartHour: { 5: 18, 6: 6, 0: 6 },
-    typicalEndHour: { 5: 0, 6: 0, 0: 14 },
-    travelFriday: [14, 15, 16],
-    travelSunday: [14, 15, 16],
-    exceptions: { fridayAbsence: false, saturdayWork: true, sundayAbsence: false },
-    breakStatus: { isOnBreak: false, breakEndTime: null },
-  };
-  global.dataStore.conversationHistory = global.dataStore.conversationHistory || {};
-  global.dataStore.userStatus = global.dataStore.userStatus || {};
-  global.dataStore.connectionBridge = global.dataStore.connectionBridge || {
-    sharedGoals: [],
-    gratitudeLog: [],
-    lastRitualAt: null,
-  };
 }
 
-// Lista estática de apodos
-const staticNicknames = {
-  Belen: ["ratita blanca", "grosa", "genia", "crack", "maestra"],
-  Miguel: ["capo", "genio", "crack", "loco", "maestro"],
-};
+// Guardar dataStore
+function saveDataStore() {
+  try {
+    fs.writeFileSync(DATA_FILE, JSON.stringify(global.dataStore, null, 2));
+  } catch (err) {
+    console.error('Error guardando dataStore', err);
+  }
+}
 
-// Lista estática de cierres
+// Inicializar
+if (!global.dataStore) {
+  global.dataStore = loadDataStore();
+}
+
+// Guardar al cerrar
+process.on('SIGINT', () => { saveDataStore(); process.exit(); });
+process.on('SIGTERM', () => { saveDataStore(); process.exit(); });
+
+// Datos estáticos
+const staticNicknames = { Belen: ["ratita blanca", "grosa", "genia", "crack"], Miguel: ["capo", "genio", "crack", "loco"] };
 const staticClosers = {
-  Belen: [
-    "¡Seguí rompiéndola, Belen, ratita blanca! 😎",
-    "¡Toda la buena onda, Belen! 🧉",
-    "¡Dale con todo, Belen, genia! 🚀",
-    "¡Sos un sol, Belen, seguimos cuando quieras! ☀️",
-    "¡Qué lindo charlar, Belen, tirame otra! 😜",
-  ],
-  Miguel: [
-    "¡Seguí rompiéndola, Miguel, capo! 😎",
-    "¡Toda la buena onda, Miguel! 🧉",
-    "¡Dale con todo, Miguel, genio! 🚀",
-    "¡Sos un crack, Miguel, seguimos cuando quieras! ☀️",
-    "¡Qué lindo charlar, Miguel, tirame otra! 😜",
-  ],
+  Belen: ["¡Seguí rompiéndola, ratita blanca! 😎", "¡Toda la buena onda! 🧉", "¡Dale con todo, genia! 🚀"],
+  Miguel: ["¡Seguí rompiéndola, capo! 😎", "¡Toda la buena onda! 🧉", "¡Dale con todo, genio! 🚀"],
 };
-
-// Lista estática de chistes veggie-friendly
 const staticChistes = [
   "¿Por qué el mate no va al gym? Porque ya está en forma con la bombilla. 🧉",
   "¿Por qué el fernet no canta? Porque siempre se queda con el hielo. 😎",
   "¿Qué le dijo la yerba al agua? ¡Juntas hacemos magia, che! 🌱",
-  "¿Por qué el mate es tan copado? Porque siempre te acompaña, loco. 😜",
-  "¿Qué hace el fernet en una fiesta? ¡Se mezcla con todos, che! 🚀",
 ];
 
-// Lista estática de saludos según hora
-const staticTimeGreetings = {
-  earlyMorning: {
-    Belen: "¡Madrugando, ratita blanca! 🌙 ¿Ya arrancaste el día?",
-    Miguel: "¡Madrugando, capo! 🌙 ¿Qué onda tan temprano?",
-  },
-  morning: {
-    Belen: "¡Buen arranque, ratita blanca! 🌞 ¿Lista pa’l día?",
-    Miguel: "¡Buen arranque, capo! 🌞 ¿Cómo pinta la jornada?",
-  },
-  lunch: {
-    Belen: "¡Mediodía, ratita blanca! 🧉 ¿Pausa veggie?",
-    Miguel: "¡Mediodía, genio! 🧉 ¿Qué almuerzo?",
-  },
-  afternoon: {
-    Belen: "¡Tarde tranqui, ratita blanca! 🚀 ¿Cómo va el día?",
-    Miguel: "¡Tarde tranqui, capo! 🚀 ¿Qué estás rompiendo?",
-  },
-  night: {
-    Belen: "¡Noche de finde, ratita blanca! 😎 ¿Cómo cerrás el día?",
-    Miguel: "¡Noche de finde, capo! 😎 ¿Qué plan en Guayaquil?",
-  },
-};
+const pickRandom = (arr) => arr[Math.floor(Math.random() * arr.length)];
 
-// Mapeo de días de la semana
-const daysOfWeek = [
-  "domingo",
-  "lunes",
-  "martes",
-  "miércoles",
-  "jueves",
-  "viernes",
-  "sábado",
-];
+// Días
+const daysOfWeek = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];
 
-// Generar nicknames estáticos
-function generateNicknames(userName) {
-  if (!nicknameCache.has(userName)) {
-    nicknameCache.set(userName, staticNicknames[userName] || ["amigo"]);
-  }
-  return nicknameCache.get(userName);
-}
-
-// Generar closers estáticos
-function generateClosers(userName) {
-  if (!closerCache.has(userName)) {
-    closerCache.set(userName, staticClosers[userName] || ["¡Seguí rompiéndola! 😎"]);
-  }
-  return closerCache.get(userName);
-}
-
-// Generar chistes estáticos
-function generateChistes() {
-  if (chisteCache.size === 0) {
-    staticChistes.forEach((chiste) => chisteCache.add(chiste));
-  }
-  return Array.from(chisteCache);
-}
-
-// Generar título dinámico según hora
-function getTimeGreeting(hour, name, isWorkDay, dayOfWeek) {
-  const timeZone = name === "Belen" ? "America/Argentina/San_Luis" : "America/Guayaquil";
-  const userTime = new Date().toLocaleString("en-US", { timeZone });
-  const userHour = new Date(userTime).getHours();
-  let timeKey;
-  if (userHour >= 0 && userHour <= 5) {
-    timeKey = "earlyMorning";
-  } else if (userHour >= 6 && userHour <= 11) {
-    timeKey = "morning";
-  } else if (userHour >= 12 && userHour <= 13) {
-    timeKey = "lunch";
-  } else if (userHour >= 14 && userHour <= 17) {
-    timeKey = "afternoon";
-  } else {
-    timeKey = "night";
-  }
-
-  const isWeekend = [0, 6].includes(dayOfWeek);
-  const cacheKey = `${name}-${timeKey}-${isWeekend ? "finde" : "laboral"}`;
-
-  if (!timeGreetingCache.has(cacheKey)) {
-    let greeting = staticTimeGreetings[timeKey][name] || `¡${timeKey}, ${name}! ¿Cómo va?`;
-    if (name === "Belen" && isWorkDay) {
-      const userStatus = global.dataStore.userStatus[ALLOWED_USER_ID] || { status: "tranqui", timestamp: Date.now() };
-      const breakStatus = global.dataStore.belenSchedule?.breakStatus || { isOnBreak: false, breakEndTime: null };
-      const startHour = global.dataStore.belenSchedule?.typicalStartHour[dayOfWeek] || 18;
-      const endHour = global.dataStore.belenSchedule?.typicalEndHour[dayOfWeek] || 0;
-      if (userStatus.status === "fiesta") {
-        greeting += " ¡De fiesta a full, ratita blanca! 😎";
-      } else if (breakStatus.isOnBreak && breakStatus.breakEndTime > Date.now()) {
-        greeting += " ¡Veo que estás en pausa, genia! 🧉";
-      } else if (dayOfWeek === 5 && global.dataStore.belenSchedule?.travelFriday.includes(userHour)) {
-        greeting += " ¡En viaje al laburo, crack! 🚗";
-      } else if (dayOfWeek === 0 && userHour >= 14 && global.dataStore.belenSchedule?.travelSunday.includes(userHour)) {
-        greeting += " ¡Ya saliste del laburo, ratita blanca! 😎 ¿Viajando pa’ casa, grosa? 🚗";
-      } else if (userHour >= startHour && userHour <= endHour && !global.dataStore.belenSchedule.exceptions.sundayAbsence) {
-        greeting += " ¡Laburando a full, ratita blanca! 🚀";
-      } else {
-        greeting += " ¡Ya saliste del laburo, ratita blanca! 😎 ¿Ahora a disfrutar, grosa?";
-      }
-    }
-    timeGreetingCache.set(cacheKey, greeting);
-  }
-  return timeGreetingCache.get(cacheKey);
-}
-
-// Función para obtener el contexto laboral de Belén
-function getBelenContext(userName, isWorkDay, argentinaHour, dayOfWeek) {
-  if (userName !== "Belen") {
-    const userStatus = global.dataStore.userStatus[ALLOWED_USER_ID] || { status: "tranqui", timestamp: Date.now() };
-    return userStatus.status === "fiesta" ? "¡De fiesta a full, ratita blanca! 😎 " : "";
-  }
-  if (!isWorkDay || global.dataStore.belenSchedule.exceptions.sundayAbsence) {
-    const userStatus = global.dataStore.userStatus[ALLOWED_USER_ID] || { status: "tranqui", timestamp: Date.now() };
-    return userStatus.status === "fiesta" ? "¡De fiesta a full, ratita blanca! 😎 " : "¡Ya saliste del laburo, ratita blanca! 😎 ¿Ahora a disfrutar, grosa? ";
-  }
-  const breakStatus = global.dataStore.belenSchedule?.breakStatus || { isOnBreak: false, breakEndTime: null };
-  const startHour = global.dataStore.belenSchedule?.typicalStartHour[dayOfWeek] || 18;
-  const endHour = global.dataStore.belenSchedule?.typicalEndHour[dayOfWeek] || 0;
-  const userStatus = global.dataStore.userStatus[ALLOWED_USER_ID] || { status: "tranqui", timestamp: Date.now() };
-
-  if (userStatus.status === "fiesta") {
-    return "¡De fiesta a full, ratita blanca! 😎 ";
-  } else if (breakStatus.isOnBreak && breakStatus.breakEndTime > Date.now()) {
-    return "¡Veo que estás en pausa, genia! ¿Un mate veggie pa’l break? 🧉 ";
-  } else if (dayOfWeek === 5 && global.dataStore.belenSchedule?.travelFriday.includes(argentinaHour)) {
-    return "¡Estás viajando al laburo, crack! ¡Cuidate en la ruta! 🚗 ";
-  } else if (dayOfWeek === 0 && argentinaHour >= 14 && global.dataStore.belenSchedule?.travelSunday.includes(argentinaHour)) {
-    return "¡Ya saliste del laburo, ratita blanca! 😎 ¿Viajando pa’ casa, grosa? 🚗 ";
-  } else if (argentinaHour >= startHour && argentinaHour <= endHour) {
-    return "¡Dándole con todo en el laburo, ratita blanca! 🚀 ";
-  } else {
-    return "¡Ya saliste del laburo, ratita blanca! 😎 ¿Ahora a disfrutar, grosa? ";
-  }
-}
-
-// Función principal para manejar el chat
+// Función principal
 async function manejarChat(message) {
   const userId = message.author.id;
 
-  // Validar usuarios autorizados
+  // Validación usuarios
   if (userId !== OWNER_ID && userId !== ALLOWED_USER_ID) {
-    return message.channel.send({
-      embeds: [
-        createEmbed(
-          "#FF1493",
-          "¡Pará, loco!",
-          "¡Che, este bot es solo para Miguel y Belen! 😎 Si sos uno de ellos, checkeá tu ID. Si no, ¡a tomar un mate en otro lado! 🧉",
-          "Hecho con ❤️ por Oliver IA"
-        ),
-      ],
-    });
+    return message.channel.send("Este bot es solo para Miguel y Belén 😎");
   }
 
-  // Validar comando correcto
   if (!message.content.startsWith("!chat")) {
-    return message.channel.send({
-      embeds: [
-        createEmbed(
-          "#FF1493",
-          `¡Che, ${userId === OWNER_ID ? "Miguel" : "Belen"}!`,
-          `¡Escribí bien, ${pickRandom(generateNicknames(userId === OWNER_ID ? "Miguel" : "Belen"))}! 😜 Usá !chat y tirame algo zarpado.`,
-          "Hecho con ❤️ por Oliver IA | Reacciona con ✅ o ❌"
-        ),
-      ],
-    });
+    return message.channel.send("Usá !chat + tu mensaje, loco 😜");
   }
 
-  // Asignar nombre de usuario
   const userName = userId === OWNER_ID ? "Miguel" : "Belen";
-  const chatMessage = message.content.slice(5).trim();
+  let chatMessage = message.content.slice(5).trim();
 
-  // Validar mensaje vacío
   if (!chatMessage && message.attachments.size === 0) {
-    return message.channel.send({
-      embeds: [
-        createEmbed(
-          "#FF1493",
-          `¡Che, ${userName}!`,
-          `¡Tirame algo después de "!chat", ${pickRandom(generateNicknames(userName))}! No me dejes colgado 😜`,
-          "Hecho con ❤️ por Oliver IA | Reacciona con ✅ o ❌"
-        ),
-      ],
-    });
+    return message.channel.send(`¡Tirame algo, ${userName}! 😜`);
   }
 
-  // Obtener fecha y hora
+  // Fechas y contexto
   const now = new Date();
   const argentinaTime = new Date(now.toLocaleString("en-US", { timeZone: "America/Argentina/San_Luis" }));
   const argentinaHour = argentinaTime.getHours();
-  const argentinaMinutes = argentinaTime.getMinutes().toString().padStart(2, "0");
   const dayOfWeek = argentinaTime.getDay();
-  const isWorkDay =
-    global.dataStore.belenSchedule?.typicalWorkDays.includes(dayOfWeek) &&
-    !global.dataStore.belenSchedule?.exceptions.fridayAbsence &&
-    !global.dataStore.belenSchedule?.exceptions.sundayAbsence ||
-    (dayOfWeek === 6 && global.dataStore.belenSchedule?.exceptions.saturdayWork);
 
-  // Depuración
-  console.log(
-    `Hora Argentina: ${argentinaHour}:${argentinaMinutes}, Día: ${daysOfWeek[dayOfWeek]}, Laboral: ${isWorkDay}, Estado de Belen: ${JSON.stringify(global.dataStore.belenSchedule)}`
-  );
-
-  // Inicializar dataStore si no está completo
   let dataStoreModified = false;
   global.dataStore.conversationHistory[userId] = global.dataStore.conversationHistory[userId] || [];
   global.dataStore.userStatus[userId] = global.dataStore.userStatus[userId] || { status: "tranqui", timestamp: Date.now() };
 
-  // Actualizar estado de Belén si se menciona fiesta o excepción
-  if (chatMessage.toLowerCase().includes("belen") && chatMessage.toLowerCase().includes("fiesta")) {
-    global.dataStore.userStatus[ALLOWED_USER_ID] = { status: "fiesta", timestamp: Date.now() };
-    dataStoreModified = true;
-  }
-  if (chatMessage.toLowerCase().includes("excepción") || chatMessage.toLowerCase().includes("no labura")) {
-    if (dayOfWeek === 0) {
-      global.dataStore.belenSchedule.exceptions.sundayAbsence = true;
-      dataStoreModified = true;
-    }
-  }
-
-  // Manejar mensajes como "dile que..."
-  if (chatMessage.toLowerCase().includes("dile que")) {
-    const embedTitle = getTimeGreeting(argentinaHour, userName, isWorkDay, dayOfWeek);
-    const instruction = chatMessage.split("dile que").pop().trim();
-    const belenStatus = global.dataStore.userStatus[ALLOWED_USER_ID]?.status || "tranqui";
-    const aiReply = `¡Che, ${userName}! Le dije a Belén que ${instruction}, ${pickRandom(generateNicknames(userName))}! 😎 Ella está ${belenStatus}. ¿Qué más querés que le diga? ${pickRandom(generateClosers(userName))}`;
-    const finalEmbed = createEmbed(
-      "#FF1493",
-      embedTitle,
-      aiReply,
-      "Hecho con ❤️ por Oliver IA | Reacciona con ✅ o ❌"
-    );
-    const waitingMessage = await message.channel.send({ embeds: [finalEmbed] });
-    await waitingMessage.react("✅");
-    await waitingMessage.react("❌");
-    return;
-  }
-
-  // Manejar consulta sobre Belén
-  if (chatMessage.toLowerCase().includes("belen")) {
-    const embedTitle = getTimeGreeting(argentinaHour, userName, isWorkDay, dayOfWeek);
-    const belenStatus = global.dataStore.userStatus[ALLOWED_USER_ID] || { status: "tranqui", timestamp: Date.now() };
-    const scheduleInfo = `labura viernes 6 PM-12 AM, sábado 6 AM-12 AM, domingo 6 AM-2 PM, viaja viernes 2/4 PM, después del domingo 2 PM a casa`;
-    const aiReply = `¡Che, ${userName}, hablando de Belén, la ratita blanca! 😎 Está ${belenStatus.status} (actualizado ${new Date(belenStatus.timestamp).toLocaleString("es-AR")}). ${scheduleInfo}. ${getBelenContext("Belen", isWorkDay, argentinaHour, dayOfWeek)}¿Querés más data o seguimos con otra? ${pickRandom(generateClosers(userName))}`;
-    const finalEmbed = createEmbed(
-      "#FF1493",
-      embedTitle,
-      aiReply,
-      "Hecho con ❤️ por Oliver IA | Reacciona con ✅ o ❌"
-    );
-    const waitingMessage = await message.channel.send({ embeds: [finalEmbed] });
-    await waitingMessage.react("✅");
-    await waitingMessage.react("❌");
-    return;
-  }
-
-  // Manejar consulta sobre si está trabajando
-  if (chatMessage.toLowerCase().includes("esta trabajando") || chatMessage.toLowerCase().includes("está trabajando")) {
-    const embedTitle = getTimeGreeting(argentinaHour, userName, isWorkDay, dayOfWeek);
-    const belenStatus = global.dataStore.userStatus[ALLOWED_USER_ID]?.status || "tranqui";
-    const aiReply = belenStatus === "fiesta" 
-      ? `¡Che, ${userName}! Belén está de fiesta a full, ratita blanca! 😎 ¿Querés que le diga algo? ${pickRandom(generateClosers(userName))}`
-      : `¡Che, ${userName}! ${getBelenContext("Belen", isWorkDay, argentinaHour, dayOfWeek) || "Belén está tranqui, no es día laboral, crack! 😎"} ${pickRandom(generateClosers(userName))}`;
-    const finalEmbed = createEmbed(
-      "#FF1493",
-      embedTitle,
-      aiReply,
-      "Hecho con ❤️ por Oliver IA | Reacciona con ✅ o ❌"
-    );
-    const waitingMessage = await message.channel.send({ embeds: [finalEmbed] });
-    await waitingMessage.react("✅");
-    await waitingMessage.react("❌");
-    return;
-  }
-
-  // Manejar imágenes
+  // Manejo de imágenes con Gemini
+  let imageDescription = "";
   if (message.attachments.size > 0) {
-    const imageUrl = message.attachments.first().url;
-    try {
-      const [result] = await visionClient.labelDetection(imageUrl);
-      const labels = result.labelAnnotations.map(label => label.description).join(", ");
-      const embedTitle = getTimeGreeting(argentinaHour, userName, isWorkDay, dayOfWeek);
-      let aiReply = `¡Che, ${userName}, qué fotaza, ${pickRandom(generateNicknames(userName))}! 😜 Vi en la imagen: ${labels}. `;
-      if (labels.toLowerCase().includes("party") || labels.toLowerCase().includes("amigas") || labels.toLowerCase().includes("fiesta")) {
-        global.dataStore.userStatus[userName === "Belen" ? userId : ALLOWED_USER_ID] = {
-          status: "fiesta",
-          timestamp: Date.now(),
+    const attachment = message.attachments.first();
+    if (attachment.contentType?.startsWith('image/')) {
+      try {
+        const response = await fetch(attachment.url);
+        const buffer = await response.arrayBuffer();
+        const imagePart = {
+          inlineData: {
+            data: Buffer.from(buffer).toString('base64'),
+            mimeType: attachment.contentType,
+          },
         };
-        dataStoreModified = true;
-        aiReply += `¡Noche de fiesta a full, ${userName === "Belen" ? "ratita blanca" : "capo"}? 😎 ¡Contame más! `;
-      } else {
-        aiReply += `¿De qué va esta foto, crack? `;
+        const result = await model.generateContent([
+          "Describí brevemente esta imagen en español. Detectá si parece fiesta, salida con amigas, comida veggie, laburo, viaje, etc.",
+          imagePart
+        ]);
+        imageDescription = result.response.text().trim();
+        chatMessage += `\n[Imagen adjunta: ${imageDescription}]`;
+      } catch (err) {
+        console.error("Error procesando imagen:", err);
+        imageDescription = "No pude analizar la imagen.";
       }
-      aiReply += `${getBelenContext(userName, isWorkDay, argentinaHour, dayOfWeek)}${pickRandom(generateClosers(userName))}`;
-      const finalEmbed = createEmbed(
-        "#FF1493",
-        embedTitle,
-        aiReply,
-        "Hecho con ❤️ por Oliver IA | Reacciona con ✅ o ❌"
-      );
-      const waitingMessage = await message.channel.send({ embeds: [finalEmbed] });
-      await waitingMessage.react("✅");
-      await waitingMessage.react("❌");
-      return;
-    } catch (error) {
-      console.error("Error con Google Vision:", error);
-      const fallbackReply = `¡Uy, ${userName}, no pude ver la foto, ${pickRandom(generateNicknames(userName))}! 😎 Subila de nuevo o contame qué hay, grosa. ${pickRandom(generateClosers(userName))}`;
-      const errorEmbed = createEmbed(
-        "#FF1493",
-        `¡Qué macana, ${userName}!`,
-        fallbackReply,
-        "Hecho con ❤️ por Oliver IA | Reacciona con ✅ o ❌"
-      );
-      const waitingMessage = await message.channel.send({ embeds: [errorEmbed] });
-      await waitingMessage.react("✅");
-      await waitingMessage.react("❌");
-      return;
     }
   }
 
-  // Manejar consulta de día
-  const dayRegex = /(que|qué)\s*d[ií]a.*(es|hoy|te\s*parece)/i;
-  if (dayRegex.test(chatMessage.toLowerCase())) {
-    const embedTitle = getTimeGreeting(argentinaHour, userName, isWorkDay, dayOfWeek);
-    const dayName = daysOfWeek[dayOfWeek];
-    const belenContext = getBelenContext(userName, isWorkDay, argentinaHour, dayOfWeek);
-    const aiReply = `¡Che, ${userName}, hoy es ${dayName}, loco! 😎 ${belenContext}${isWorkDay && userName === "Belen" ? "" : "¿Listo pa’l finde, crack?"} ${pickRandom(generateClosers(userName))}`;
-    const finalEmbed = createEmbed(
-      "#FF1493",
-      embedTitle,
-      aiReply,
-      "Hecho con ❤️ por Oliver IA | Reacciona con ✅ o ❌"
-    );
-    const waitingMessage = await message.channel.send({ embeds: [finalEmbed] });
-    await waitingMessage.react("✅");
-    await waitingMessage.react("❌");
-    return;
-  }
-
-  // Manejar consulta de hora
-  const timeRegex = /(que|qué)\s*hora.*(es|hoy)/i;
-  if (timeRegex.test(chatMessage.toLowerCase())) {
-    const guayaquilTime = new Date(now.toLocaleString("en-US", { timeZone: "America/Guayaquil" }));
-    const guayaquilHour = guayaquilTime.getHours();
-    const guayaquilMinutes = guayaquilTime.getMinutes().toString().padStart(2, "0");
-    const embedTitle = getTimeGreeting(argentinaHour, userName, isWorkDay, dayOfWeek);
-    const belenContext = getBelenContext(userName, isWorkDay, argentinaHour, dayOfWeek);
-    const aiReply = `¡Che, ${userName}, son las ${guayaquilHour}:${guayaquilMinutes} en Guayaquil, loco! 🧉 En San Luis, Argentina, son las ${argentinaHour}:${argentinaMinutes}. ${belenContext}${pickRandom(generateClosers(userName))}`;
-    const finalEmbed = createEmbed(
-      "#FF1493",
-      embedTitle,
-      aiReply,
-      "Hecho con ❤️ por Oliver IA | Reacciona con ✅ o ❌"
-    );
-    const waitingMessage = await message.channel.send({ embeds: [finalEmbed] });
-    await waitingMessage.react("✅");
-    await waitingMessage.react("❌");
-    return;
-  }
-
-  // Evitar múltiples mensajes simultáneos
-  if (userLocks.has(userId)) {
-    await new Promise((resolve) => setTimeout(resolve, 500));
-  }
+  // Evitar múltiples mensajes
+  if (userLocks.has(userId)) return;
   userLocks.set(userId, true);
 
-  // Detectar mensajes de Belén sobre viaje, trabajo o pausa
-  if (userName === "Belen") {
-    const lowerMessage = chatMessage.toLowerCase();
-    if (lowerMessage.includes("me voy al trabajo") || lowerMessage.includes("voy al laburo")) {
-      global.dataStore.belenSchedule.typicalStartHour[dayOfWeek] = argentinaHour + 1;
-      global.dataStore.belenSchedule.typicalWorkDays = [...new Set([...global.dataStore.belenSchedule.typicalWorkDays, dayOfWeek])];
-      global.dataStore.userStatus[userId] = { status: "trabajando", timestamp: Date.now() };
-      dataStoreModified = true;
-      const aiReply = `¡Anotado, Belen, ratita blanca! 🧉 Vas pal laburo, ¡a romperla, genia! 😎 ${pickRandom(generateClosers(userName))}`;
-      const finalEmbed = createEmbed(
-        "#FF1493",
-        getTimeGreeting(argentinaHour, userName, isWorkDay, dayOfWeek),
-        aiReply,
-        "Hecho con ❤️ por Oliver IA | Reacciona con ✅ o ❌"
-      );
-      const waitingMessage = await message.channel.send({ embeds: [finalEmbed] });
-      await waitingMessage.react("✅");
-      await waitingMessage.react("❌");
-      userLocks.delete(userId);
-      return;
-    } else if (lowerMessage.includes("estoy por viajar") || lowerMessage.includes("viajando al trabajo")) {
-      global.dataStore.belenSchedule.travelFriday = [argentinaHour];
-      global.dataStore.userStatus[userId] = { status: "viajando", timestamp: Date.now() };
-      dataStoreModified = true;
-      const aiReply = `¡Buena, Belen, crack! 🚀 En viaje al laburo, ¡cuidate en la ruta, genia! 😜 ${pickRandom(generateClosers(userName))}`;
-      const finalEmbed = createEmbed(
-        "#FF1493",
-        getTimeGreeting(argentinaHour, userName, isWorkDay, dayOfWeek),
-        aiReply,
-        "Hecho con ❤️ por Oliver IA | Reacciona con ✅ o ❌"
-      );
-      const waitingMessage = await message.channel.send({ embeds: [finalEmbed] });
-      await waitingMessage.react("✅");
-      await waitingMessage.react("❌");
-      userLocks.delete(userId);
-      return;
-    } else if (lowerMessage.includes("no voy el viernes") || lowerMessage.includes("libre el viernes")) {
-      global.dataStore.belenSchedule.exceptions.fridayAbsence = true;
-      dataStoreModified = true;
-      const aiReply = `¡Listo, Belen, marqué el viernes como libre, ratita blanca! ☀️ Descansá, genia! ${pickRandom(generateClosers(userName))}`;
-      const finalEmbed = createEmbed(
-        "#FF1493",
-        getTimeGreeting(argentinaHour, userName, isWorkDay, dayOfWeek),
-        aiReply,
-        "Hecho con ❤️ por Oliver IA | Reacciona con ✅ o ❌"
-      );
-      const waitingMessage = await message.channel.send({ embeds: [finalEmbed] });
-      await waitingMessage.react("✅");
-      await waitingMessage.react("❌");
-      userLocks.delete(userId);
-      return;
-    } else if (lowerMessage.includes("laburo el sábado") || lowerMessage.includes("trabajo sábado")) {
-      global.dataStore.belenSchedule.exceptions.saturdayWork = true;
-      dataStoreModified = true;
-      const aiReply = `¡Anotado, Belen, sábado laburás, crack! 🚀 ¡A meterle pilas! ${pickRandom(generateClosers(userName))}`;
-      const finalEmbed = createEmbed(
-        "#FF1493",
-        getTimeGreeting(argentinaHour, userName, isWorkDay, dayOfWeek),
-        aiReply,
-        "Hecho con ❤️ por Oliver IA | Reacciona con ✅ o ❌"
-      );
-      const waitingMessage = await message.channel.send({ embeds: [finalEmbed] });
-      await waitingMessage.react("✅");
-      await waitingMessage.react("❌");
-      userLocks.delete(userId);
-      return;
-    } else if (lowerMessage.includes("termino temprano") || lowerMessage.includes("salgo antes")) {
-      global.dataStore.belenSchedule.typicalEndHour[dayOfWeek] = argentinaHour + 1;
-      global.dataStore.userStatus[userId] = { status: "tranqui", timestamp: Date.now() };
-      dataStoreModified = true;
-      const aiReply = `¡Entendido, Belen, salís temprano, genia! 😎 ¡A disfrutar, ratita blanca! ${pickRandom(generateClosers(userName))}`;
-      const finalEmbed = createEmbed(
-        "#FF1493",
-        getTimeGreeting(argentinaHour, userName, isWorkDay, dayOfWeek),
-        aiReply,
-        "Hecho con ❤️ por Oliver IA | Reacciona con ✅ o ❌"
-      );
-      const waitingMessage = await message.channel.send({ embeds: [finalEmbed] });
-      await waitingMessage.react("✅");
-      await waitingMessage.react("❌");
-      userLocks.delete(userId);
-      return;
-    } else if (lowerMessage.includes("muriendo") || lowerMessage.includes("break para merendar") || lowerMessage.includes("pausa")) {
-      global.dataStore.belenSchedule.breakStatus = { isOnBreak: true, breakEndTime: now.getTime() + 30 * 60 * 1000 };
-      global.dataStore.userStatus[userId] = { status: "pausa", timestamp: Date.now() };
-      dataStoreModified = true;
-      const aiReply = `¡Ay, Belen, ratita blanca! 🌱 Estás en pausa, genia, disfrutá esa merienda veggie. Tomate un mate tranqui, que el laburo puede esperar un toque. ${pickRandom(generateClosers(userName))}`;
-      const finalEmbed = createEmbed(
-        "#FF1493",
-        getTimeGreeting(argentinaHour, userName, isWorkDay, dayOfWeek),
-        aiReply,
-        "Hecho con ❤️ por Oliver IA | Reacciona con ✅ o ❌"
-      );
-      const waitingMessage = await message.channel.send({ embeds: [finalEmbed] });
-      await waitingMessage.react("✅");
-      await waitingMessage.react("❌");
-      userLocks.delete(userId);
-      return;
-    } else if (lowerMessage.includes("noche de amigas") || lowerMessage.includes("saliendo") || lowerMessage.includes("fiesta")) {
-      global.dataStore.userStatus[userId] = { status: "fiesta", timestamp: Date.now() };
-      dataStoreModified = true;
-      const aiReply = `¡Buena, Belen, ratita blanca! 😎 ¡De fiesta a full! Contame cómo está la noche, grosa. ${pickRandom(generateClosers(userName))}`;
-      const finalEmbed = createEmbed(
-        "#FF1493",
-        getTimeGreeting(argentinaHour, userName, isWorkDay, dayOfWeek),
-        aiReply,
-        "Hecho con ❤️ por Oliver IA | Reacciona con ✅ o ❌"
-      );
-      const waitingMessage = await message.channel.send({ embeds: [finalEmbed] });
-      await waitingMessage.react("✅");
-      await waitingMessage.react("❌");
-      userLocks.delete(userId);
-      return;
-    } else if (lowerMessage.includes("dormir") || lowerMessage.includes("sueño")) {
-      global.dataStore.userStatus[userId] = { status: "cansada", timestamp: Date.now() };
-      dataStoreModified = true;
-      const aiReply = `¡Ay, Belen, ratita blanca! 😴 Andás con sueño, genia. Descansá un toque, que te lo merecés. ${pickRandom(generateClosers(userName))}`;
-      const finalEmbed = createEmbed(
-        "#FF1493",
-        getTimeGreeting(argentinaHour, userName, isWorkDay, dayOfWeek),
-        aiReply,
-        "Hecho con ❤️ por Oliver IA | Reacciona con ✅ o ❌"
-      );
-      const waitingMessage = await message.channel.send({ embeds: [finalEmbed] });
-      await waitingMessage.react("✅");
-      await waitingMessage.react("❌");
-      userLocks.delete(userId);
-      return;
-    }
-  }
-
-  // Actualizar estado si menciona compromiso
-  if (chatMessage.toLowerCase().includes("compromiso")) {
-    global.dataStore.userStatus[userId] = { status: "en compromiso", timestamp: Date.now() };
-    dataStoreModified = true;
-  }
-
-  // Guardar mensaje en historial
+  // Guardar mensaje usuario
   global.dataStore.conversationHistory[userId].push({
     role: "user",
     content: chatMessage,
     timestamp: Date.now(),
-    userName,
   });
-  if (global.dataStore.conversationHistory[userId].length > 20) {
-    global.dataStore.conversationHistory[userId] = global.dataStore.conversationHistory[userId].slice(-20);
-  }
+  global.dataStore.conversationHistory[userId] = global.dataStore.conversationHistory[userId].slice(-20);
   dataStoreModified = true;
 
-  // Últimos 15 mensajes para contexto
-  const historyRecent = global.dataStore.conversationHistory[userId]
-    .filter((h) => Date.now() - h.timestamp < 24 * 60 * 60 * 1000)
-    .slice(-15);
-  const contextRecent = historyRecent
-    .map(
-      (h) =>
-        `${h.role === "user" ? userName : "Oliver"}: ${h.content} (${new Date(h.timestamp).toLocaleTimeString("es-AR", { timeZone: "America/Argentina/San_Luis" })})`
-    )
+  // Historial reciente (últimos 15 del día)
+  const recentHistory = global.dataStore.conversationHistory[userId]
+    .filter(m => Date.now() - m.timestamp < 24*60*60*1000)
+    .slice(-15)
+    .map(m => `${m.role === "user" ? userName : "Oliver"}: ${m.content}`)
     .join("\n");
 
-  // Determinar tono y contexto
-  let tone = "neutral";
-  let extraContext = "";
-  const nicknames = generateNicknames(userName);
-  const closers = generateClosers(userName);
-  const chistes = generateChistes();
-  const currentActivity = global.dataStore.userStatus[userId]?.status || "tranqui";
-  const connectionBridge = global.dataStore.connectionBridge || {
-    sharedGoals: [],
-    gratitudeLog: [],
-    lastRitualAt: null,
-  };
-  const lastGoal = connectionBridge.sharedGoals[0];
-  const lastGratitude = connectionBridge.gratitudeLog[0];
+  // Contexto completo
+  const context = `
+    Hoy es ${daysOfWeek[dayOfWeek]} en Argentina (hora: ${argentinaHour}:00 aprox).
+    Horario típico Belén: viernes 18-00, sábado/domingo 6-00/14, viajes viernes 14-16 y domingo post-14.
+    Estado actual usuarios: ${JSON.stringify(global.dataStore.userStatus)}
+    Historial reciente:
+    ${recentHistory}
+    Imagen (si hay): ${imageDescription}
+    Metas compartidas: ${global.dataStore.connectionBridge.sharedGoals[0]?.text || "ninguna"}
+    Agradecimientos: ${global.dataStore.connectionBridge.gratitudeLog[0]?.text || "ninguno"}
+  `;
 
-  // Detección de tono
-  if (chatMessage.toLowerCase().includes("matame") || chatMessage.toLowerCase().includes("estoy harto") || chatMessage.toLowerCase().includes("no aguanto") || chatMessage.toLowerCase().includes("muriendo")) {
-    tone = "empatico";
-    extraContext = `El usuario (${userName}) parece estresado o bromeando. Sé empático con humor porteño: "¡Che, ${userName}, tranqui, ${pickRandom(nicknames)}! 😜 ¿El laburo te tiene a mil? Tomá un mate y contame."`;
-  } else if (chatMessage.toLowerCase().includes("break para merendar") || chatMessage.toLowerCase().includes("pausa")) {
-    tone = "empatico";
-    extraContext = `El usuario (${userName}) está en pausa. Respondé con buena onda: "¡Ey, ${userName}, ${pickRandom(nicknames)}! 🌱 Disfrutá esa pausa veggie, ¿un mate o algo rico? Contame cómo vas."`;
-  } else if ((chatMessage.toUpperCase() === chatMessage && chatMessage.length > 5) || chatMessage.toLowerCase().includes("fallas") || chatMessage.toLowerCase().includes("error") || chatMessage.toLowerCase().includes("boto")) {
-    tone = "broma_reto";
-    extraContext = `El usuario (${userName}) bromea o reta. Respondé con humor: "¡Jaja, ${userName}, no me botés, ${pickRandom(nicknames)}! 😎 ¿Qué hice mal? Contame y lo arreglamos."`;
-  } else if (chatMessage.toLowerCase().includes("hola") || chatMessage.toLowerCase().includes("cómo andás") || chatMessage.toLowerCase().includes("como estas") || chatMessage.toLowerCase().includes("muy bien") || chatMessage.toLowerCase().includes("entendiste")) {
-    tone = "tranqui";
-    extraContext = `El usuario (${userName}) está relajado. Respondé con buena onda: "¡Todo piola, ${userName}, ${pickRandom(nicknames)}! 🧉 ¿Qué tenés planeado pa’l día?"`;
-  } else if (chatMessage.toLowerCase().includes("que te pregunte antes") || chatMessage.toLowerCase().includes("historial") || chatMessage.toLowerCase().includes("qué pregunt")) {
-    extraContext = `El usuario (${userName}) quiere saber qué preguntó antes. Resumí el historial reciente (${contextRecent}) en una lista clara: "Che, ${userName}, antes me tiraste: 1. X a las HH:MM". Si no hay, decí "¡No tengo nada fresquito, ${pickRandom(nicknames)}! 😜 ¿Seguimos con otra?"`;
-  } else if (chatMessage.toLowerCase().includes("te acuerdas") || chatMessage.toLowerCase().includes("hace unos días") || chatMessage.toLowerCase().includes("te conté")) {
-    extraContext = `El usuario (${userName}) pide recordar algo. Buscá en el historial (${contextRecent}) mensajes relevantes, resumilos: "Che, ${userName}, me contaste X a las HH:MM". Si no hay, decí "¡Uy, ${pickRandom(nicknames)}, no pillo eso! 😎 ¿Más pistas?"`;
-  } else if (chatMessage.toLowerCase().includes("ayuda") || chatMessage.toLowerCase().includes("ayudame")) {
-    extraContext = `El usuario (${userName}) pide ayuda. Dále una solución clara y precisa, veggie-friendly para Belen. Si es código, asegurate de que sea funcional. Preguntá si necesita más detalles.`;
-  } else if (chatMessage.toLowerCase().includes("chiste") || chatMessage.toLowerCase().includes("tirate un chiste") || chatMessage.toLowerCase().includes("contame un chiste")) {
-    extraContext = `El usuario (${userName}) quiere un chiste. Usá uno veggie-friendly de: ${chistes.join(", ")}. Preguntá: "¿Otro o qué plan tenés?"`;
-  } else if (chatMessage.toLowerCase().includes("letra") || chatMessage.toLowerCase().includes("cancion") || chatMessage.toLowerCase().includes("musica")) {
-    extraContext = `El usuario (${userName}) pregunta por canciones. Decí: "¡Che, ${userName}, temazo, ${pickRandom(nicknames)}! 😜 No tengo la letra, pero ¿querés un chiste o algo sobre esa banda?"`;
-  }
+  const nicknames = staticNicknames[userName] || ["amigo"];
+  const closers = staticClosers[userName] || ["¡Dale! 😎"];
 
-  if (lastGoal) {
-    extraContext += `
-Meta compartida actual: "${lastGoal.text}" (creada por ${lastGoal.by}).`;
-  }
+  const embedTitle = argentinaHour < 6 ? `¡Madrugada, ${userName}! 🌙` :
+                    argentinaHour < 12 ? `¡Buen día, ${userName}! ☀️` :
+                    argentinaHour < 18 ? `¡Buena tarde, ${userName}! 🧉` :
+                    `¡Buena noche, ${userName}! 🌙`;
 
-  if (lastGratitude) {
-    extraContext += `
-Último agradecimiento entre ustedes: "${lastGratitude.text}" (de ${lastGratitude.by}).`;
-  }
-
-  // Agregar contexto laboral y actividad
-  const belenContext = getBelenContext(userName, isWorkDay, argentinaHour, dayOfWeek);
-  extraContext += `\n**Contexto adicional**: Hoy es ${daysOfWeek[dayOfWeek]}. ${belenContext}Actividad actual: ${currentActivity}. Historial reciente: ${contextRecent}`;
-
-  // Título dinámico
-  const embedTitle = getTimeGreeting(argentinaHour, userName, isWorkDay, dayOfWeek);
-  const waitingEmbed = createEmbed(
-    "#FF1493",
-    embedTitle,
-    "¡Aguantá, estoy pensando una zarpada!...",
-    "Hecho con ❤️ por Oliver IA | Reacciona con ✅ o ❌"
-  );
-  const waitingMessage = await message.channel.send({ embeds: [waitingEmbed] });
+  const waitingMessage = await message.channel.send({
+    embeds: [createEmbed("#FF1493", embedTitle, "Pensando una respuesta zarpada... 🧠", "Oliver IA")]
+  });
 
   try {
-    const prompt = `Sos Oliver IA, creado por Miguel para ${userName}. Usá slang argentino ("che", "loco", "posta", "zarpado") y un emoji (😎, 🧉, 🚀, ☀️, 😜, máx. 1). Charlá como amigo tomando un mate, llamando a ${userName} por su nombre o apodos (${nicknames.join(", ")}). Belen es vegetariana, de San Luis, Argentina (UTC-3), labura viernes 6 PM-12 AM, sábado 6 AM-12 AM, domingo 6 AM-2 PM, viaja viernes 2/4 PM, después del domingo 2 PM viaja a casa. Miguel está en Guayaquil, Ecuador (UTC-5). **Contexto actual**: ${userName} está "${currentActivity}" (actualizado a ${new Date(global.dataStore.userStatus[userId]?.timestamp).toLocaleString("es-AR")}). Respondé a: "${chatMessage}". **No inventes nada**: Usá solo la info de dataStore (${JSON.stringify(global.dataStore)}) y el historial (${contextRecent}). Mantené el tono ${tone}: respuestas cortas (200 chars para saludos, 500 para complejas). Terminá con un closer: ${closers.join(", ")}. **Extra**: ${extraContext}`;
+    const prompt = `Sos Oliver IA, un amigo argentino copado que habla con slang porteño (che, loco, grosa, zarpado, etc.) y usa máximo 1 emoji por respuesta.
+    Estás charlando con ${userName} (${userName === "Belen" ? "vegetariana de San Luis" : "en Guayaquil"}).
+    Apodos para ${userName}: ${nicknames.join(", ")}.
+ reboot
+    Contexto completo: ${context}
+    Mensaje actual: "${chatMessage}"
 
-    const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error("Tiempo agotado")), 10000));
-    const result = await Promise.race([model.generateContent(prompt), timeoutPromise]);
-    let aiReply = result.response.text().trim().replace(/\[.*?\]|\*\*.*?\*\*|```.*?```/gs, "").trim();
+    Reglas:
+    - Respuestas cortas y naturales (máx 500 caracteres).
+    - Siempre terminá con un closer: ${closers.join(" / ")}
+    - Si es chiste, usá uno de estos: ${staticChistes.join(" | ")}
+    - Mantené el tono amigo tomando mate.
+    - No inventes datos, usá solo el contexto.`;
 
-    // Validar respuesta
-    if (aiReply.length === 0 || aiReply.length > 500 || aiReply.toLowerCase().includes("no sé") || aiReply.toLowerCase().includes("desconocido")) {
-      aiReply = `¡Che, ${userName}, no tengo data precisa, ${pickRandom(nicknames)}! 😜 ¿Me das más pistas o seguimos con otra? ${pickRandom(closers)}`;
-    } else if (chatMessage.toLowerCase().includes("chiste")) {
-      aiReply = `${pickRandom(chistes)} ¿Otro o qué plan tenés, ${pickRandom(nicknames)}? 😎 ${pickRandom(closers)}`;
-    } else if (chatMessage.toLowerCase().includes("letra") || chatMessage.toLowerCase().includes("cancion") || chatMessage.toLowerCase().includes("musica")) {
-      aiReply = `¡Che, ${userName}, temazo, ${pickRandom(nicknames)}! 😜 No tengo la letra, pero ¿querés un chiste o algo sobre esa banda? ${pickRandom(closers)}`;
-    } else {
-      aiReply = `${aiReply} ${getBelenContext(userName, isWorkDay, argentinaHour, dayOfWeek)}${pickRandom(closers)}`;
+    const result = await model.generateContent(prompt);
+    let aiReply = result.response.text().trim();
+
+    // Fallback simple
+    if (!aiReply || aiReply.length === 0) {
+      aiReply = `¡Che ${userName}, no pillé bien! ${pickRandom(nicknames)} 😜 ¿Me lo decís de nuevo? ${pickRandom(closers)}`;
     }
 
-    // Guardar respuesta en historial
+    // Guardar respuesta
     global.dataStore.conversationHistory[userId].push({
       role: "assistant",
       content: aiReply,
       timestamp: Date.now(),
-      userName: "Oliver",
     });
-    if (global.dataStore.conversationHistory[userId].length > 20) {
-      global.dataStore.conversationHistory[userId] = global.dataStore.conversationHistory[userId].slice(-20);
-    }
     dataStoreModified = true;
 
-    // Enviar respuesta final
-    const finalEmbed = createEmbed(
-      "#FF1493",
-      embedTitle,
-      aiReply,
-      "Hecho con ❤️ por Oliver IA | Reacciona con ✅ o ❌"
-    );
-    const updatedMessage = await waitingMessage.edit({ embeds: [finalEmbed] });
-    await updatedMessage.react("✅");
-    await updatedMessage.react("❌");
+    const finalEmbed = createEmbed("#FF1493", embedTitle, aiReply, "Hecho con ❤️ por Oliver IA | ✅/❌");
+    await waitingMessage.edit({ embeds: [finalEmbed] });
+    await waitingMessage.react("✅");
+    await waitingMessage.react("❌");
+
   } catch (error) {
-    console.error("Error con Gemini:", { message: error.message, stack: error.stack });
-    const fallbackReply = `¡Uy, ${userName}, la pifié, ${pickRandom(nicknames)}! 😎 ¿Me tirás otra o seguimos con algo nuevo? ${pickRandom(closers)}`;
-    const errorEmbed = createEmbed(
-      "#FF1493",
-      `¡Qué macana, ${userName}!`,
-      fallbackReply,
-      "Hecho con ❤️ por Oliver IA | Reacciona con ✅ o ❌"
-    );
-    const errorMessageSent = await waitingMessage.edit({ embeds: [errorEmbed] });
-    await errorMessageSent.react("✅");
-    await errorMessageSent.react("❌");
+    console.error("Error Gemini:", error);
+    const fallback = `¡Uy ${userName}, Gemini se colgó! ${pickRandom(nicknames)} 😅 Probá de nuevo en un rato. ${pickRandom(closers)}`;
+    await waitingMessage.edit({ embeds: [createEmbed("#FF1493", "¡Macana!", fallback, "Oliver IA")] });
   } finally {
+    if (dataStoreModified) saveDataStore();
     userLocks.delete(userId);
   }
 }
