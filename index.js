@@ -77,6 +77,8 @@ const manager = new Manager({
 
 // Lista de actualizaciones del bot
 const BOT_UPDATES = [
+  "¡Nuevo !conexion / !cx! Modo conexión con metas, agradecimientos y rituales diarios para acercarlos más a ustedes dos, sin perder funciones actuales.",
+  "¡!acción también funciona con tilde y alias !ac, avisando por privado al otro (Miguel/Belén) con sus IDs configuradas.",
   "¡Chat mejorado! Segunda respuesta automática al darle ❌, pa’ que sea más bacán y no pida detalles de una.",
   "Optimizado el código un poco, si te gustaría agregar algo más puedes solicitarlo, espero este bot cumpla con tus expectativas.",
   "Mayúsculas bloqueadas en el canal de texto.",
@@ -4911,6 +4913,11 @@ if (!global.dataStore) {
   global.dataStore = {
     conversationHistory: {},
     userStatus: {},
+    connectionBridge: {
+      sharedGoals: [],
+      gratitudeLog: [],
+      lastRitualAt: null,
+    },
     belenSchedule: {
       typicalWorkDays: [5, 6, 0], // Viernes, Sábado, Domingo
       typicalStartHour: { 5: 18, 6: 6, 0: 6 }, // Empieza 6 PM viernes, 6 AM sábado/domingo
@@ -4934,6 +4941,11 @@ if (!global.dataStore) {
   };
   global.dataStore.conversationHistory = global.dataStore.conversationHistory || {};
   global.dataStore.userStatus = global.dataStore.userStatus || {};
+  global.dataStore.connectionBridge = global.dataStore.connectionBridge || {
+    sharedGoals: [],
+    gratitudeLog: [],
+    lastRitualAt: null,
+  };
 }
 
 // Lista estática de apodos
@@ -5502,6 +5514,13 @@ async function manejarChat(message) {
   const closers = generateClosers(userName);
   const chistes = generateChistes();
   const currentActivity = global.dataStore.userStatus[userId]?.status || "tranqui";
+  const connectionBridge = global.dataStore.connectionBridge || {
+    sharedGoals: [],
+    gratitudeLog: [],
+    lastRitualAt: null,
+  };
+  const lastGoal = connectionBridge.sharedGoals[0];
+  const lastGratitude = connectionBridge.gratitudeLog[0];
 
   // Detección de tono
   if (chatMessage.toLowerCase().includes("matame") || chatMessage.toLowerCase().includes("estoy harto") || chatMessage.toLowerCase().includes("no aguanto") || chatMessage.toLowerCase().includes("muriendo")) {
@@ -5526,6 +5545,16 @@ async function manejarChat(message) {
     extraContext = `El usuario (${userName}) quiere un chiste. Usá uno veggie-friendly de: ${chistes.join(", ")}. Preguntá: "¿Otro o qué plan tenés?"`;
   } else if (chatMessage.toLowerCase().includes("letra") || chatMessage.toLowerCase().includes("cancion") || chatMessage.toLowerCase().includes("musica")) {
     extraContext = `El usuario (${userName}) pregunta por canciones. Decí: "¡Che, ${userName}, temazo, ${pickRandom(nicknames)}! 😜 No tengo la letra, pero ¿querés un chiste o algo sobre esa banda?"`;
+  }
+
+  if (lastGoal) {
+    extraContext += `
+Meta compartida actual: "${lastGoal.text}" (creada por ${lastGoal.by}).`;
+  }
+
+  if (lastGratitude) {
+    extraContext += `
+Último agradecimiento entre ustedes: "${lastGratitude.text}" (de ${lastGratitude.by}).`;
   }
 
   // Agregar contexto laboral y actividad
@@ -5597,6 +5626,94 @@ async function manejarChat(message) {
   } finally {
     userLocks.delete(userId);
   }
+}
+
+function getConnectionRitual(userName) {
+  const rituales = [
+    `Mandale ahora un audio de 20 segundos a ${userName === "Miguel" ? "Belén" : "Miguel"} diciendo 1 cosa que admirás hoy.`,
+    "Hagan el ritual 3x1: 3 gracias y 1 plan lindo para esta semana.",
+    "Mini check-in de 2 minutos: ¿cómo estás del 1 al 10 y qué necesitás hoy?",
+    "Escriban una meta chiquita para hoy y celébrenla cuando la cumplan.",
+  ];
+
+  return pickRandom(rituales);
+}
+
+async function manejarConexion(message) {
+  const userId = message.author.id;
+  if (userId !== OWNER_ID && userId !== ALLOWED_USER_ID) {
+    return;
+  }
+
+  const userName = userId === OWNER_ID ? "Miguel" : "Belén";
+  const args = message.content.trim().split(/\s+/).slice(1);
+  const subCommand = (args[0] || "").toLowerCase();
+  const payload = args.slice(1).join(" ").trim();
+
+  global.dataStore.connectionBridge = global.dataStore.connectionBridge || {
+    sharedGoals: [],
+    gratitudeLog: [],
+    lastRitualAt: null,
+  };
+
+  if (!subCommand) {
+    const metaActiva = global.dataStore.connectionBridge.sharedGoals[0];
+    const ultimoAgradecimiento = global.dataStore.connectionBridge.gratitudeLog[0];
+    const ritual = getConnectionRitual(userName);
+    const embed = createEmbed(
+      "#FF1493",
+      `🤝 ¡Modo conexión activado, ${userName}!`,
+      `Este módulo está hecho para acercarlos más sin romper nada del bot actual.\n\n**Meta actual:** ${metaActiva ? metaActiva.text : "Todavía no cargaron una. Usen: !cx meta [objetivo]"}\n**Último agradecimiento:** ${ultimoAgradecimiento ? `"${ultimoAgradecimiento.text}" (${ultimoAgradecimiento.by})` : "Aún no registraron uno. Usen: !cx agradecer [mensaje]"}\n\n**Ritual sugerido de hoy:** ${ritual}\n\nComandos:\n- !cx meta [objetivo]\n- !cx agradecer [mensaje]\n- !cx ritual`
+    );
+    await message.channel.send({ embeds: [embed] });
+    return;
+  }
+
+  if (subCommand === "meta") {
+    if (!payload) {
+      await sendError(message.channel, "Falta la meta.", "Ejemplo: !cx meta tener una cita tranquila el domingo");
+      return;
+    }
+
+    global.dataStore.connectionBridge.sharedGoals.unshift({
+      text: payload,
+      by: userName,
+      timestamp: Date.now(),
+    });
+    global.dataStore.connectionBridge.sharedGoals = global.dataStore.connectionBridge.sharedGoals.slice(0, 10);
+    dataStoreModified = true;
+
+    await sendSuccess(message.channel, "🎯 Meta compartida guardada", `Listo, ${userName}. Meta activa: "${payload}".`);
+    return;
+  }
+
+  if (subCommand === "agradecer") {
+    if (!payload) {
+      await sendError(message.channel, "Falta el mensaje de agradecimiento.", "Ejemplo: !cx agradecer gracias por bancarme hoy");
+      return;
+    }
+
+    global.dataStore.connectionBridge.gratitudeLog.unshift({
+      text: payload,
+      by: userName,
+      timestamp: Date.now(),
+    });
+    global.dataStore.connectionBridge.gratitudeLog = global.dataStore.connectionBridge.gratitudeLog.slice(0, 20);
+    dataStoreModified = true;
+
+    await sendSuccess(message.channel, "💌 Agradecimiento registrado", `Quedó guardado, ${userName}. Eso suma un montón para ustedes.`);
+    return;
+  }
+
+  if (subCommand === "ritual") {
+    const ritual = getConnectionRitual(userName);
+    global.dataStore.connectionBridge.lastRitualAt = Date.now();
+    dataStoreModified = true;
+    await sendSuccess(message.channel, "🧉 Ritual de conexión", ritual);
+    return;
+  }
+
+  await sendError(message.channel, "No entendí ese subcomando.", "Probá con: !cx meta, !cx agradecer o !cx ritual");
 }
 
 function generarConsejoClima(clima, esSalida = false) {
@@ -6873,7 +6990,7 @@ async function manejarAutoplay(message) {
 
 async function manejarAccion(message) {
   const userName = message.author.id === OWNER_ID ? "Miguel" : "Belén";
-  const args = message.content.slice(7).trim(); // Saco "!accion" y dejo el resto
+  const args = message.content.replace(/^!acci[oó]n\s*/i, "").replace(/^!ac\s*/i, "").trim();
 
   if (!args) {
     const embed = createEmbed(
@@ -9727,6 +9844,8 @@ async function manejarCommand(message, silent = false) {
     await manejarReacciones(message);
   } else if (content.startsWith("!chat") || content.startsWith("!ch")) {
     await manejarChat(message);
+  } else if (content.startsWith("!conexion") || content.startsWith("!cx")) {
+    await manejarConexion(message);
   } else if (content === "!ppm" || content === "!pp") {
     await manejarPPM(message);
   } else if (content === "!actualizaciones" || content === "!act") {
@@ -9799,7 +9918,7 @@ async function manejarCommand(message, silent = false) {
     await manejarAdivinanza(message);
   } else if (content === "!watchtogether" || content === "!wt") {
     await manejarWatchTogether(message);
-  } else if (content.startsWith("!accion")) {
+  } else if (content.startsWith("!accion") || content.startsWith("!acción") || content.startsWith("!ac")) {
     await manejarAccion(message);
   } else if (content.startsWith("!dato") || content.startsWith("!dt")) {
     await manejarDato(message);
@@ -10353,6 +10472,7 @@ client.on("messageCreate", async (message) => {
       `¡Lista de comandos para vos, ${userName}!`,
       "¡Acá tenés todo lo que puedo hacer por vos, loco!\n" +
         "- **!ch / !chat [mensaje]**: Charlamos un rato, posta.\n" +
+        "- **!cx / !conexion**: Modo conexión (metas, agradecimientos y rituales).\n" +
         "- **!tr / !trivia [categoría] [n]**: Trivia copada por categoría (mínimo 20).\n" +
         "- **!tc / !trivia cancelar**: Cancela la trivia que empezaste.\n" +
         "- **!pp / !ppm**: A ver qué tan rápido tipeás, ¡dale!\n" +
@@ -10379,7 +10499,7 @@ client.on("messageCreate", async (message) => {
         "- **!meme**: Te tiro un meme random pa’ sacarte una sonrisa.\n" +
         "- **!pregunta**: Te hago una pregunta loca pa’ charlar un rato.\n" +
         "- **!wt / !watchtogether**: Mirá videos de YouTube conmigo en un canal de voz, ¡re copado!\n" +
-        '- **!accion [qué hacés]**: Avisá qué vas a hacer, tipo "me voy a dormir". ¡Copado pa’ estar al tanto!\n' +
+        '- **!accion / !acción / !ac [qué hacés]**: Avisá qué vas a hacer y se lo mando por privado al otro al toque.\n' +
         "- **!rec / !recordatorio [mensaje] [tiempo]**: Te recuerdo algo. Ejemplo: \"!rec 'comprar sanguche' en 1 hora\" o \"!rec 'tomar mate' todos los días 08:00\".\n" +
         "- **!mr / !misrecordatorios**: Te muestro tus recordatorios activos.\n" +
         "- **!cr / !cancelarrecordatorio [ID]**: Cancelás un recordatorio con su ID (lo ves con !mr).\n" +
