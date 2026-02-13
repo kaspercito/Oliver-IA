@@ -1450,7 +1450,7 @@
       "mensaje": "tomar la pastilla rosada todos los días",
       "cuandoLlegue": false,
       "cuandoSalga": false,
-      "timestamp": 1754218800000,
+      "timestamp": 1770980400000,
       "creado": 1752879164275,
       "esRecurrente": true,
       "hora": 8,
@@ -1463,11 +1463,12 @@
       "mensaje": "tomar la pastilla rosada todos los días",
       "cuandoLlegue": false,
       "cuandoSalga": false,
-      "timestamp": 1754175600000,
+      "timestamp": 1771023600000,
       "creado": 1752879166278,
       "esRecurrente": true,
       "hora": 20,
       "minutos": 0
     }
-  ]
+  ],
+  "reactionStats": {}
 }
