@@ -4871,43 +4871,68 @@ const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" }); // o "gem
 const DATA_FILE = 'dataStore.json';
 const userLocks = new Map();
 
-// Cargar dataStore persistente
+// Defaults completos
+const defaultDataStore = {
+  conversationHistory: {},
+  userStatus: {},
+  connectionBridge: { sharedGoals: [], gratitudeLog: [], lastRitualAt: null },
+  belenSchedule: {
+    typicalWorkDays: [5, 6, 0],
+    typicalStartHour: { 5: 18, 6: 6, 0: 6 },
+    typicalEndHour: { 5: 0, 6: 0, 0: 14 },
+    travelFriday: [14, 15, 16],
+    travelSunday: [14, 15, 16],
+    exceptions: { fridayAbsence: false, saturdayWork: true, sundayAbsence: false },
+    breakStatus: { isOnBreak: false, breakEndTime: null },
+  },
+};
+
+// Cargar dataStore con merge seguro
 function loadDataStore() {
   if (fs.existsSync(DATA_FILE)) {
     try {
       const data = fs.readFileSync(DATA_FILE, 'utf8');
-      return JSON.parse(data);
+      const loaded = JSON.parse(data);
+
+      // Merge profundo con defaults
+      return {
+        conversationHistory: { ...defaultDataStore.conversationHistory, ...(loaded.conversationHistory || {}) },
+        userStatus: { ...defaultDataStore.userStatus, ...(loaded.userStatus || {}) },
+        connectionBridge: {
+          ...defaultDataStore.connectionBridge,
+          ...(loaded.connectionBridge || {}),
+          sharedGoals: loaded.connectionBridge?.sharedGoals || [],
+          gratitudeLog: loaded.connectionBridge?.gratitudeLog || [],
+        },
+        belenSchedule: {
+          ...defaultDataStore.belenSchedule,
+          ...(loaded.belenSchedule || {}),
+          typicalStartHour: { ...defaultDataStore.belenSchedule.typicalStartHour, ...(loaded.belenSchedule?.typicalStartHour || {}) },
+          typicalEndHour: { ...defaultDataStore.belenSchedule.typicalEndHour, ...(loaded.belenSchedule?.typicalEndHour || {}) },
+          exceptions: { ...defaultDataStore.belenSchedule.exceptions, ...(loaded.belenSchedule?.exceptions || {}) },
+          breakStatus: { ...defaultDataStore.belenSchedule.breakStatus, ...(loaded.belenSchedule?.breakStatus || {}) },
+        },
+      };
     } catch (err) {
-      console.error('Error cargando dataStore, usando vacío', err);
+      console.error('Error cargando dataStore.json, usando defaults:', err);
     }
   }
-  return {
-    conversationHistory: {},
-    userStatus: {},
-    connectionBridge: { sharedGoals: [], gratitudeLog: [], lastRitualAt: null },
-    belenSchedule: {
-      typicalWorkDays: [5, 6, 0],
-      typicalStartHour: { 5: 18, 6: 6, 0: 6 },
-      typicalEndHour: { 5: 0, 6: 0, 0: 14 },
-      travelFriday: [14, 15, 16],
-      travelSunday: [14, 15, 16],
-      exceptions: { fridayAbsence: false, saturdayWork: true, sundayAbsence: false },
-      breakStatus: { isOnBreak: false, breakEndTime: null },
-    },
-  };
+  console.log('No existe dataStore.json, creando con defaults');
+  return { ...defaultDataStore };
 }
 
-// Guardar dataStore
+// Guardar
 function saveDataStore() {
   try {
     fs.writeFileSync(DATA_FILE, JSON.stringify(global.dataStore, null, 2));
+    console.log('dataStore guardado correctamente');
   } catch (err) {
-    console.error('Error guardando dataStore', err);
+    console.error('Error guardando dataStore:', err);
   }
 }
 
-// Inicializar
-if (!global.dataStore) {
+// Inicializar global.dataStore
+if (!global.dataStore || typeof global.dataStore !== 'object') {
   global.dataStore = loadDataStore();
 }
 
@@ -4928,8 +4953,6 @@ const staticChistes = [
 ];
 
 const pickRandom = (arr) => arr[Math.floor(Math.random() * arr.length)];
-
-// Días
 const daysOfWeek = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];
 
 // Función principal
@@ -4959,8 +4982,16 @@ async function manejarChat(message) {
   const dayOfWeek = argentinaTime.getDay();
 
   let dataStoreModified = false;
-  global.dataStore.conversationHistory[userId] = global.dataStore.conversationHistory[userId] || [];
-  global.dataStore.userStatus[userId] = global.dataStore.userStatus[userId] || { status: "tranqui", timestamp: Date.now() };
+
+  // ---- DEFENSAS ADICIONALES ----
+  global.dataStore.conversationHistory = global.dataStore.conversationHistory || {};
+  global.dataStore.userStatus = global.dataStore.userStatus || {};
+  global.dataStore.connectionBridge = global.dataStore.connectionBridge || defaultDataStore.connectionBridge;
+  global.dataStore.belenSchedule = global.dataStore.belenSchedule || defaultDataStore.belenSchedule;
+
+  // Inicializar para este usuario si no existe
+  if (!global.dataStore.conversationHistory[userId]) global.dataStore.conversationHistory[userId] = [];
+  if (!global.dataStore.userStatus[userId]) global.dataStore.userStatus[userId] = { status: "tranqui", timestamp: Date.now() };
 
   // Manejo de imágenes con Gemini
   let imageDescription = "";
@@ -5002,7 +5033,7 @@ async function manejarChat(message) {
   global.dataStore.conversationHistory[userId] = global.dataStore.conversationHistory[userId].slice(-20);
   dataStoreModified = true;
 
-  // Historial reciente (últimos 15 del día)
+  // Historial reciente
   const recentHistory = global.dataStore.conversationHistory[userId]
     .filter(m => Date.now() - m.timestamp < 24*60*60*1000)
     .slice(-15)
@@ -5011,7 +5042,7 @@ async function manejarChat(message) {
 
   // Contexto completo
   const context = `
-    Hoy es ${daysOfWeek[dayOfWeek]} en Argentina (hora: ${argentinaHour}:00 aprox).
+    Hoy es ${daysOfWeek[dayOfWeek]} en Argentina (hora aprox: ${argentinaHour}:00).
     Horario típico Belén: viernes 18-00, sábado/domingo 6-00/14, viajes viernes 14-16 y domingo post-14.
     Estado actual usuarios: ${JSON.stringify(global.dataStore.userStatus)}
     Historial reciente:
@@ -5037,7 +5068,6 @@ async function manejarChat(message) {
     const prompt = `Sos Oliver IA, un amigo argentino copado que habla con slang porteño (che, loco, grosa, zarpado, etc.) y usa máximo 1 emoji por respuesta.
     Estás charlando con ${userName} (${userName === "Belen" ? "vegetariana de San Luis" : "en Guayaquil"}).
     Apodos para ${userName}: ${nicknames.join(", ")}.
- reboot
     Contexto completo: ${context}
     Mensaje actual: "${chatMessage}"
 
@@ -5051,7 +5081,6 @@ async function manejarChat(message) {
     const result = await model.generateContent(prompt);
     let aiReply = result.response.text().trim();
 
-    // Fallback simple
     if (!aiReply || aiReply.length === 0) {
       aiReply = `¡Che ${userName}, no pillé bien! ${pickRandom(nicknames)} 😜 ¿Me lo decís de nuevo? ${pickRandom(closers)}`;
     }
