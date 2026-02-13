@@ -3591,34 +3591,6 @@ app.get("/ping", (req, res) => {
   res.send("¡Bot awake y con pilas!");
 });
 
-const PORT = process.env.PORT || 8080; // Render sets process.env.PORT
-app.listen(PORT, () => {
-  console.log(`Servidor de ping corriendo en el puerto ${PORT}`);
-  startAutoPing();
-});
-
-function startAutoPing() {
-  const appUrl = process.env.APP_URL || "https://oliver-ia.onrender.com";
-  console.log("URL usada para auto-ping:", appUrl); // Log para depuración
-  if (!appUrl.startsWith("http://") && !appUrl.startsWith("https://")) {
-    console.error("Error: appUrl no es una URL absoluta válida:", appUrl);
-    return;
-  }
-  const pingInterval = 4 * 60 * 1000; // 4 minutos
-  setInterval(async () => {
-    try {
-      const response = await fetch(`${appUrl}/ping`);
-      if (response.ok) {
-        console.log("Auto-ping exitoso, bot sigue despierto.");
-      } else {
-        console.error("Auto-ping falló:", response.statusText);
-      }
-    } catch (error) {
-      console.error("Error en auto-ping:", error.message);
-    }
-  }, pingInterval);
-}
-
 async function manejarAnsiedad(message) {
   const userName = message.author.id === OWNER_ID ? "Miguel" : "Belén";
   const tips = [
@@ -4895,7 +4867,7 @@ async function sendLyrics(
 
 const { ImageAnnotatorClient } = require("@google-cloud/vision");
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-lite" });
+const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 const visionClient = new ImageAnnotatorClient({
   key: "AIzaSyBj0V5dSjyHCvp_vXtY3n0_fRvuBf-SzDQ", // Tu API key para Google Cloud Vision
 });
