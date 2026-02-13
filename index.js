@@ -10990,12 +10990,32 @@ client.once("ready", async () => {
 
 async function initializeDataStore() {
   dataStore = await loadDataStore();
+  dataStore = normalizeDataStore(dataStore);
   console.log(
     `dataStore inicializado con ${
       dataStore.recordatorios.length
     } recordatorios: ${JSON.stringify(dataStore.recordatorios)}`
   );
   previousDataStore = JSON.stringify(dataStore, null, 2);
+}
+
+function normalizeDataStore(rawData = {}) {
+  const safe = rawData && typeof rawData === "object" ? rawData : {};
+
+  safe.conversationHistory = safe.conversationHistory || {};
+  safe.triviaRanking = safe.triviaRanking || {};
+  safe.personalPPMRecords = safe.personalPPMRecords || {};
+  safe.reactionStats = safe.reactionStats || {};
+  safe.reactionWins = safe.reactionWins || {};
+  safe.activeSessions = safe.activeSessions || {};
+  safe.triviaStats = safe.triviaStats || {};
+  safe.musicSessions = safe.musicSessions || {};
+  safe.recordatorios = Array.isArray(safe.recordatorios) ? safe.recordatorios : [];
+  safe.updatesSent = typeof safe.updatesSent === "boolean" ? safe.updatesSent : false;
+  safe.adivinanzaStats = safe.adivinanzaStats || {};
+  safe.utilMessageTimestamps = safe.utilMessageTimestamps || {};
+
+  return safe;
 }
 
 async function loadDataStore() {
@@ -11028,30 +11048,24 @@ async function loadDataStore() {
           adivinanzaStats: {},
           utilMessageTimestamps: {}, // Añade esto para inicializar vacío si no existe
         };
-    if (!loadedData.musicSessions) loadedData.musicSessions = {};
-    if (!loadedData.recordatorios) loadedData.recordatorios = [];
-    if (!loadedData.adivinanzaStats) loadedData.adivinanzaStats = {};
-    if (!loadedData.utilMessageTimestamps)
-      loadedData.utilMessageTimestamps = {};
+    const normalizedData = normalizeDataStore(loadedData);
     // Limpiar timestamps antiguos (anteriores al día actual)
     const now = Date.now();
     const oneDayInMs = 24 * 60 * 60 * 1000;
-    for (const key in loadedData.utilMessageTimestamps) {
-      if (now - loadedData.utilMessageTimestamps[key] > oneDayInMs) {
-        delete loadedData.utilMessageTimestamps[key];
+    for (const key in normalizedData.utilMessageTimestamps) {
+      if (now - normalizedData.utilMessageTimestamps[key] > oneDayInMs) {
+        delete normalizedData.utilMessageTimestamps[key];
         console.log(`Eliminado timestamp antiguo para ${key}`);
       }
     }
     console.log(
       "Datos cargados desde GitHub:",
-      JSON.stringify(loadedData.recordatorios)
+      JSON.stringify(normalizedData.recordatorios)
     );
-    return loadedData;
+    return normalizedData;
   } catch (error) {
     console.error("Error al cargar datos desde GitHub:", error.message);
-    return {
-      /* Objeto por defecto con utilMessageTimestamps vacío */
-    };
+    return normalizeDataStore();
   }
 }
 
