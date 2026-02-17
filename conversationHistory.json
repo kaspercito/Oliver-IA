@@ -895,7 +895,9 @@
     "¡Lista de recordatorios con !misrecordatorios / !mr! Mirá tus recordatorios activos al toque, re útil pa’ no perderte nada, loco.",
     "¡Cancelación de recordatorios con !cancelarrecordatorio / !cr! Borra un recordatorio con su ID (lo ves en !mr), ¡al toque y sin drama!"
   ],
-  "utilMessageTimestamps": {},
+  "utilMessageTimestamps": {
+    "reminder_1471677625096474707_19_00": 1771365607933
+  },
   "utilMessageReactions": {
     "1343749554905940058": 1742417343374
   },
