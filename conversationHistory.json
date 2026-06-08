@@ -895,16 +895,7 @@
     "¡Lista de recordatorios con !misrecordatorios / !mr! Mirá tus recordatorios activos al toque, re útil pa’ no perderte nada, loco.",
     "¡Cancelación de recordatorios con !cancelarrecordatorio / !cr! Borra un recordatorio con su ID (lo ves en !mr), ¡al toque y sin drama!"
   ],
-  "utilMessageTimestamps": {
-    "reminder_1471677625096474707_19_00": 1771538447346,
-    "reminder_1471677625096474707_23_39": 1771555177723,
-    "reminder_1471677625096474707_6_30": 1771579837885,
-    "reminder_1471677625096474707_9_00": 1771588827096,
-    "reminder_1471677625096474707_14_27": 1771608447218,
-    "reminder_1471677625096474707_16_30": 1771529447271,
-    "reminder_1471677625096474707_18_00": 1771534847318,
-    "reminder_1471677625096474707_21_00": 1771545637679
-  },
+  "utilMessageTimestamps": {},
   "utilMessageReactions": {
     "1343749554905940058": 1742417343374
   },
@@ -1466,7 +1457,7 @@
       "mensaje": "tomar la pastilla rosada todos los días",
       "cuandoLlegue": false,
       "cuandoSalga": false,
-      "timestamp": 1771671600000,
+      "timestamp": 1781020800000,
       "creado": 1752879164275,
       "esRecurrente": true,
       "hora": 8,
@@ -1479,7 +1470,7 @@
       "mensaje": "tomar la pastilla rosada todos los días",
       "cuandoLlegue": false,
       "cuandoSalga": false,
-      "timestamp": 1771628400000,
+      "timestamp": 1780977600000,
       "creado": 1752879166278,
       "esRecurrente": true,
       "hora": 20,
