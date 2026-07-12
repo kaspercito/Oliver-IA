@@ -51,9 +51,9 @@ const manager = new Manager({
   nodes: [
     {
       identifier: "MainNode",
-      host: "lava-v3.ajieblogs.eu.org",
+      host: "lavalinkv4.serenetia.com",
       port: 443,
-      password: "https://dsc.gg/ajidevserver",
+      password: "https://seretia.link/discord",
       retryAmount: 5,
       retryDelay: 1000,
       secure: true,
