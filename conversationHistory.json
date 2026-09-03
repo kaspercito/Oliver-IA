@@ -901,7 +901,6 @@
     "reminder_1401286305857667102_18_00": 1788382824765,
     "reminder_1401286305857667102_19_00": 1788386425694,
     "reminder_1401286305857667102_21_00": 1788393616745,
-    "reminder_1401286305857667102_6_30": 1788341429911,
     "reminder_1401286305857667102_9_00": 1788350416437,
     "reminder_1401286305857667102_23_39": 1788403159144
   },
@@ -1466,7 +1465,7 @@
       "mensaje": "tomar la pastilla rosada todos los días",
       "cuandoLlegue": false,
       "cuandoSalga": false,
-      "timestamp": 1788433200000,
+      "timestamp": 1788519600000,
       "creado": 1752879164275,
       "esRecurrente": true,
       "hora": 8,
